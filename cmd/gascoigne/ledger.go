@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -100,15 +101,20 @@ func cmdGain(ctx context.Context, args []string) error {
 		failures bool
 		by       string
 		all      bool
+		asJSON   bool
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
 		fs.StringVar(&by, "by", "", "group by route (default), session, family or optimizer")
 		fs.BoolVar(&all, "all", false, "every session, even when -session or $GASCOIGNE_SESSION is set")
+		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		defer w.Flush()
 		if failures {
+			if asJSON {
+				return failuresJSON(ctx, l)
+			}
 			return printFailures(ctx, w, l)
 		}
 		q := component.StatsQuery{By: by, Session: c.sessionID()}
@@ -118,6 +124,9 @@ func cmdGain(ctx context.Context, args []string) error {
 		stats, err := l.Stats(ctx, q)
 		if err != nil {
 			return err
+		}
+		if asJSON {
+			return writeJSON(mcptool.Report(q, stats))
 		}
 		if q.Session != "" {
 			fmt.Printf("session %s\n", q.Session)
@@ -137,4 +146,28 @@ func printFailures(ctx context.Context, w io.Writer, l *ledger.Ledger) error {
 		fmt.Fprintf(w, "%s\t%d\t%s\t%s\t\n", f.Key, f.Count, f.Last.Format(time.DateTime), f.Reason)
 	}
 	return nil
+}
+
+func failuresJSON(ctx context.Context, l *ledger.Ledger) error {
+	fs, err := l.FailureList(ctx)
+	if err != nil {
+		return err
+	}
+	type failure struct {
+		Key    string    `json:"key"`
+		Count  int       `json:"count"`
+		Last   time.Time `json:"last"`
+		Reason string    `json:"reason"`
+	}
+	out := []failure{}
+	for _, f := range fs {
+		out = append(out, failure{f.Key, f.Count, f.Last, f.Reason})
+	}
+	return writeJSON(map[string]any{"failures": out})
+}
+
+func writeJSON(v any) error {
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	return enc.Encode(v)
 }

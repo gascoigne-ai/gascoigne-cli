@@ -134,7 +134,8 @@ Reports — `gascoigne gain`:
 | `gain -session ID -by family` | how much each optimizer family saved in that session |
 | `gain -by optimizer [-session ID]` | per optimizer |
 | `gain -all` | ignore `-session`/`$GASCOIGNE_SESSION` |
-MCP `stats {by?, session?}` defaults to family breakdown of the calling session (`session: all`).
+| `gain … -json`, `gain -failures -json` | same data as JSON (`groups`, `total`, `saved_pct`, time range) |
+MCP `stats {by?, session?, format?: json}` defaults to family breakdown of the calling session (`session: all`).
 
 Failure signals → `MarkFailure(key, reason)`:
 - optimizer error (`error`), agent fetched raw (`raw_requested`), `gascoigne fail` (`manual`).

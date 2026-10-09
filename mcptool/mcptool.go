@@ -5,7 +5,9 @@ package mcptool
 import (
 	"cmp"
 	"context"
+	"encoding/json"
 	"fmt"
+	"math"
 	"math/rand/v2"
 	"strings"
 	"text/tabwriter"
@@ -79,6 +81,7 @@ func AddRetrieve(s *mcp.Server, name string, l component.Ledger) {
 type StatsInput struct {
 	By      string `json:"by,omitempty" jsonschema:"route, session, family or optimizer; default family"`
 	Session string `json:"session,omitempty" jsonschema:"session id; default this session, 'all' for every session"`
+	Format  string `json:"format,omitempty" jsonschema:"table (default) or json"`
 }
 
 // AddStats registers a tool reporting token savings, by default per optimizer
@@ -98,6 +101,10 @@ func AddStats(s *mcp.Server, l component.Ledger, sessions *Sessions) {
 		stats, err := l.Stats(ctx, q)
 		if err != nil {
 			return nil, nil, err
+		}
+		if in.Format == "json" {
+			data, err := json.Marshal(Report(q, stats))
+			return Result(string(data)), nil, err
 		}
 		return Result(StatsTable(q.By, stats)), nil, nil
 	})
@@ -129,6 +136,59 @@ func (s *Sessions) Of(req *mcp.CallToolRequest) string {
 	return s.generated
 }
 
+// StatsReport is the JSON form of a stats query.
+type StatsReport struct {
+	By      string      `json:"by"`
+	Session string      `json:"session,omitempty"`
+	Groups  []StatsJSON `json:"groups"`
+	Total   StatsJSON   `json:"total"`
+}
+
+type StatsJSON struct {
+	Group     string     `json:"group"`
+	Runs      int        `json:"runs"` // steps for family/optimizer groupings
+	Optimized int        `json:"optimized"`
+	Failed    int        `json:"failed"`
+	RawTokens int        `json:"raw_tokens"`
+	OutTokens int        `json:"out_tokens"`
+	Saved     int        `json:"saved_tokens"`
+	SavedPct  float64    `json:"saved_pct"`
+	First     *time.Time `json:"first,omitempty"`
+	Last      *time.Time `json:"last,omitempty"`
+}
+
+// Report builds the JSON form of stats, with totals.
+func Report(q component.StatsQuery, stats []component.Stat) StatsReport {
+	r := StatsReport{By: cmp.Or(q.By, component.ByRoute), Session: q.Session, Groups: []StatsJSON{}}
+	total := component.Stat{Group: "total"}
+	for _, s := range stats {
+		j := statJSON(s)
+		j.First, j.Last = &s.First, &s.Last
+		r.Groups = append(r.Groups, j)
+		total = add(total, s)
+	}
+	r.Total = statJSON(total)
+	return r
+}
+
+func statJSON(s component.Stat) StatsJSON {
+	pct := 0.0
+	if s.RawTokens > 0 {
+		pct = math.Round(1000*float64(s.Saved())/float64(s.RawTokens)) / 10
+	}
+	return StatsJSON{Group: s.Group, Runs: s.Runs, Optimized: s.Optimized, Failed: s.Failed,
+		RawTokens: s.RawTokens, OutTokens: s.OutTokens, Saved: s.Saved(), SavedPct: pct}
+}
+
+func add(a, b component.Stat) component.Stat {
+	a.Runs += b.Runs
+	a.Optimized += b.Optimized
+	a.Failed += b.Failed
+	a.RawTokens += b.RawTokens
+	a.OutTokens += b.OutTokens
+	return a
+}
+
 // StatsTable renders stats with a total row.
 func StatsTable(by string, stats []component.Stat) string {
 	by = cmp.Or(by, component.ByRoute)
@@ -158,11 +218,7 @@ func StatsTable(by string, stats []component.Stat) string {
 	}
 	for _, s := range stats {
 		row(s)
-		total.Runs += s.Runs
-		total.Optimized += s.Optimized
-		total.Failed += s.Failed
-		total.RawTokens += s.RawTokens
-		total.OutTokens += s.OutTokens
+		total = add(total, s)
 	}
 	row(total)
 	w.Flush()

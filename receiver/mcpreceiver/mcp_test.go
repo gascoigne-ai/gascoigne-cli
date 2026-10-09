@@ -123,6 +123,9 @@ func TestCompressRetrieveStats(t *testing.T) {
 	if !strings.HasPrefix(session, "mcp-") || l.query != (component.StatsQuery{By: component.ByFamily, Session: session}) {
 		t.Fatalf("session %q, stats query %+v", session, l.query)
 	}
+	if text, _ := call(t, cs, "stats", map[string]any{"format": "json"}); !strings.Contains(text, `"group":"js"`) || !strings.Contains(text, `"saved_pct":60`) {
+		t.Fatalf("stats json = %q", text)
+	}
 	call(t, cs, "stats", map[string]any{"session": "all", "by": "route"})
 	if l.query != (component.StatsQuery{By: component.ByRoute}) {
 		t.Fatalf("stats query %+v", l.query)
