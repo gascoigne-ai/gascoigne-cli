@@ -9,6 +9,7 @@ import (
 	"github.com/lukaszb/gascoigne/filter/detectfilter"
 	"github.com/lukaszb/gascoigne/filter/historyfilter"
 	"github.com/lukaszb/gascoigne/filter/minsizefilter"
+	"github.com/lukaszb/gascoigne/optimizer/bunoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/catoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/gitoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/gooptimizer"
@@ -16,6 +17,8 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/jsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/logoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/lsoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/npmoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/nxoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/receiver/stdinreceiver"
 )
@@ -38,6 +41,9 @@ func Factories() []component.Factory {
 		jsonoptimizer.NewFactory(),
 		logoptimizer.NewFactory(),
 		catoptimizer.NewFactory(),
+		npmoptimizer.NewFactory(),
+		bunoptimizer.NewFactory(),
+		nxoptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),
 		// extensions

@@ -1,0 +1,40 @@
+FAIL src/cart.test.js
+  ● total › never negative
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: -4
+
+      4 |   test('single item', () => expect(total([{ price: 5, qty: 2 }])).toBe(10));
+      5 |   test('discount', () => expect(total([{ price: 5, qty: 2 }], 3)).toBe(7));
+    > 6 |   test('never negative', () => expect(total([{ price: 1, qty: 1 }], 5)).toBe(0));
+        |                                                                         ^
+      7 | });
+      8 | describe('applyCoupon', () => {
+      9 |   test('HALF', () => expect(applyCoupon(10, 'HALF')).toBe(5));
+
+      at Object.toBe (src/cart.test.js:6:73)
+
+  ● applyCoupon › lowercase
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 5
+    Received: 10
+
+       9 |   test('HALF', () => expect(applyCoupon(10, 'HALF')).toBe(5));
+      10 |   test('unknown', () => expect(applyCoupon(10, 'X')).toBe(10));
+    > 11 |   test('lowercase', () => expect(applyCoupon(10, 'half')).toBe(5));
+         |                                                           ^
+      12 | });
+      13 |
+
+      at Object.toBe (src/cart.test.js:11:59)
+
+Test Suites: 1 failed, 6 passed, 7 total
+Tests:       2 failed, 53 passed, 55 total
+Snapshots:   0 total
+Time:        0.275 s
+Ran all test suites.
+… 6 passing test lines omitted

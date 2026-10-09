@@ -1,0 +1,44 @@
+
+NX   Running target test for 4 projects:
+succeeded: shared-util:test, data-access:test, api:test
+
+> nx run web:test
+
+FAIL web apps/web/src/app/checkout/Checkout.spec.tsx
+  ● Checkout › shows total with tax
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      $21.60
+    Received:
+      $20.00
+
+      18 |     render(<Checkout />);
+      19 |     await user.click(screen.getByRole('button', { name: /review/i }));
+    > 20 |     expect(screen.getByTestId('total')).toHaveTextContent('$21.60');
+         |                                         ^
+      21 |   });
+
+      at Object.<anonymous> (apps/web/src/app/checkout/Checkout.spec.tsx:20:41)
+… 1 dependency stack frames omitted
+      at new Promise (<anonymous>)
+… 2 dependency stack frames omitted
+
+Test Suites: 1 failed, 9 passed, 10 total
+Tests:       1 failed, 63 passed, 64 total
+Snapshots:   0 total
+Time:        6.204 s
+Ran all test suites.
+Warning: command "jest" exited with non-zero status code
+
+… 9 passing test lines omitted
+
+ NX   Ran target test for 4 projects (14s)
+
+   ✔  3/4 succeeded [0 read from cache]
+
+   ✖  1/4 targets failed, including the following:
+
+      - nx run web:test
+

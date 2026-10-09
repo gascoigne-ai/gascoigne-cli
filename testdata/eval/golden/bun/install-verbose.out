@@ -1,0 +1,17 @@
+bun install v1.2.21 (7c45ed97)
+
++ @hono/zod-validator@0.4.3
++ drizzle-orm@0.44.5
++ hono@4.9.6
++ pino@9.9.4
++ postgres@3.4.7
++ zod@3.25.76
++ @types/bun@1.2.21
++ drizzle-kit@0.31.4
++ typescript@5.9.2
++ @biomejs/biome@2.2.4
++ vitest@3.2.4
++ prettier@3.6.2
+
+482 packages installed [3.18s]
+

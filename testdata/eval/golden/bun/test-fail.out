@@ -1,0 +1,25 @@
+bun test v1.2.21 (7c45ed97)
+
+4 | test('never negative', () => expect(total([{ price: 1, qty: 1 }], 5)).toBe(0));
+                                                                          ^
+error: expect(received).toBe(expected)
+
+Expected: 0
+Received: -4
+
+      at <anonymous> (/home/user/src/webapp/src/cart.test.ts:6:73)
+✗ total > never negative [0.42ms]
+error: expect(received).toBe(expected)
+
+Expected: 5
+Received: 10
+
+      at <anonymous> (/home/user/src/webapp/src/cart.test.ts:11:59)
+✗ applyCoupon > lowercase [0.31ms]
+
+ 53 pass
+ 2 fail
+ 55 expect() calls
+Ran 55 tests across 7 files. [118.00ms]
+
+… 53 passing test lines omitted

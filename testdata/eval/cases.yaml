@@ -149,15 +149,18 @@
 - file: npm/install.txt
   attrs: { cmd: npm install }
   expect_type: npm
-  keep: ["added 378 packages", "38 vulnerabilities (8 moderate, 28 high, 2 critical)", "deprecated"]
+  keep: ["added 378 packages", "38 vulnerabilities (8 moderate, 28 high, 2 critical)", "deprecated (5)", "request@2.88.2"]
+  min_saved: 75
 - file: npm/install-verbose.txt
   attrs: { cmd: npm install --loglevel=http }
   expect_type: npm
   keep: ["added 378 packages", "38 vulnerabilities"]
+  min_saved: 95
 - file: npm/test-jest-fail.txt
   attrs: { cmd: npm test }
   expect_type: npm
   keep: ["FAIL src/cart.test.js", "● total › never negative", "Received: -4", "● applyCoupon › lowercase", "Tests:"]
+  min_saved: 5
 - file: npm/tsc-errors.txt
   attrs: { cmd: npm run build }
   expect_type: npm
@@ -170,11 +173,13 @@
 - file: nx/run-many-build.txt
   attrs: { cmd: npx nx run-many -t build }
   expect_type: nx
-  keep: ["nx run web:build", "\"formatPrice\" is not exported", "Checkout.tsx:42:18", "6/7 succeeded", "1/7 targets failed"]
+  keep: ["nx run web:build", "\"formatPrice\" is not exported", "Checkout.tsx:42:18", "6/7 succeeded", "1/7 targets failed", "cached: shared-util:build"]
+  min_saved: 80
 - file: nx/run-many-test.txt
   attrs: { cmd: nx run-many -t test }
   expect_type: nx
   keep: ["● Checkout › shows total with tax", "Received:", "$20.00", "Checkout.spec.tsx:20:41", "1/4 targets failed"]
+  min_saved: 60
 - name: detect/nx
   file: nx/run-many-build.txt
   expect_type: nx
@@ -184,10 +189,12 @@
   attrs: { cmd: bun install --verbose }
   expect_type: bun
   keep: ["482 packages installed", "+ hono@4.9.6"]
+  min_saved: 90
 - file: bun/test-fail.txt
   attrs: { cmd: bun test }
   expect_type: bun
   keep: ["✗ total > never negative", "Received: -4", "cart.test.ts:6:73", "✗ applyCoupon > lowercase", "53 pass", "2 fail"]
+  min_saved: 60
 - name: detect/bun
   file: bun/test-fail.txt
   expect_type: bun
