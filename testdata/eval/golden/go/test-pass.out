@@ -1,0 +1,2 @@
+ok 16 packages in github.com/lukaszb/gascoigne: component, compress, detect, exporter/stdoutexporter, extension/ledger, filter/bypassfilter, filter/detectfilter, filter/historyfilter, filter/minsizefilter, internal/config, internal/router, internal/service, optimizer/passthroughoptimizer, payload, receiver/stdinreceiver, tokens
+3 packages without tests

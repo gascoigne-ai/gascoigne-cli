@@ -40,3 +40,11 @@ func TestText(t *testing.T) {
 		t.Fatalf("Text = %q", got)
 	}
 }
+
+func TestRewrite(t *testing.T) {
+	p := &Payload{Blocks: []Block{{Text: "a", Type: "x"}, {Text: "b", Type: "y"}, {Text: "c"}}}
+	err := p.Rewrite(func(b Block) (string, error) { return b.Text + "!", nil }, "x", "z")
+	if err != nil || p.Blocks[0].Text != "a!" || p.Blocks[1].Text != "b" || p.Blocks[2].Text != "c" {
+		t.Fatalf("Rewrite = %+v, %v", p.Blocks, err)
+	}
+}

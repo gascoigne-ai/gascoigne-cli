@@ -86,6 +86,22 @@ func (p *Payload) Set(k, v string) {
 	p.Attrs[k] = v
 }
 
+// Rewrite replaces the text of every block whose Type is one of types with
+// fn's result. Optimizers use it to touch only content they understand.
+func (p *Payload) Rewrite(fn func(b Block) (string, error), types ...string) error {
+	for i, b := range p.Blocks {
+		if !slices.Contains(types, b.Type) {
+			continue
+		}
+		text, err := fn(b)
+		if err != nil {
+			return err
+		}
+		p.Blocks[i].Text = text
+	}
+	return nil
+}
+
 // Key identifies the source of a payload across runs, so the ledger can
 // remember which sources optimize badly. Empty means untrackable.
 func (p *Payload) Key() string {

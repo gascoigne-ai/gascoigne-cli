@@ -10,22 +10,27 @@
 - file: go/test-pass.txt
   attrs: { cmd: go test ./... }
   expect_type: go-test
-  keep: ["github.com/lukaszb/gascoigne/internal/service"]
+  keep: ["internal/service", "ok 16 packages"]
+  min_saved: 60
 - file: go/test-v-pass.txt
   attrs: { cmd: go test -v ./... }
   expect_type: go-test
+  min_saved: 85
 - file: go/test-fail.txt
   attrs: { cmd: go test ./... }
   expect_type: go-test
   keep: ["--- FAIL: TestReserve", "panic: assignment to entry in nil map", "stock_test.go:7", "--- FAIL: TestTotal/negative_guard", "Total([1], 5) = -4, want 0", "FAIL\texample.com/shop/price"]
+  min_saved: 40
 - file: go/test-fail-v.txt
   attrs: { cmd: go test -v ./... }
   expect_type: go-test
   keep: ["--- FAIL: TestReserve", "stock_test.go:7", "Total([1], 5) = -4, want 0", "FAIL\texample.com/shop/inventory"]
+  min_saved: 85
 - file: go/test-json.ndjson
   attrs: { cmd: go test -json ./... }
   expect_type: go-test-json
   keep: ["TestReserve", "assignment to entry in nil map", "Total([1], 5) = -4, want 0"]
+  min_saved: 95
 - file: go/build-errors.txt
   attrs: { cmd: go build ./... }
   expect_type: go-build

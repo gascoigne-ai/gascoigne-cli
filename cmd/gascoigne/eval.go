@@ -171,6 +171,11 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 
 	golden := filepath.Join(dir, "golden", tc.name()+".out")
 	if update {
+		// Unchanged output needs no golden: the fixture is the expectation.
+		if out.Attrs[payload.AttrRawID] == "" {
+			os.Remove(golden)
+			return r, nil
+		}
 		if err := os.MkdirAll(filepath.Dir(golden), 0o755); err != nil {
 			return nil, err
 		}

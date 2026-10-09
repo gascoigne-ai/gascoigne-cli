@@ -1,0 +1,13 @@
+--- FAIL: TestReserve (0.00s)
+panic: assignment to entry in nil map [recovered, repanicked]
+
+goroutine 31 [running]:
+example.com/shop/inventory.TestReserve(0x25b71f857d48?)
+	/home/user/src/shop/inventory/stock_test.go:7 +0x28
+… 5 standard library frames omitted
+FAIL	example.com/shop/inventory	0.003s
+--- FAIL: TestTotal (0.00s)
+    --- FAIL: TestTotal/negative_guard (0.00s)
+        price_test.go:21: Total([1], 5) = -4, want 0
+FAIL	example.com/shop/price	0.001s
+ok 3 packages in example.com/shop: api, cart, util

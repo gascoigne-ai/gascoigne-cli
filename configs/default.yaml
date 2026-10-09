@@ -15,10 +15,10 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [passthrough]
+  default: [go]
 
 optimizers:
-  passthrough: {}
+  go: {}
 
 exporters:
   stdout: { hint: true }
