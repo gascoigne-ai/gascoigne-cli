@@ -103,6 +103,16 @@ Failure signals → `MarkFailure(key, reason)`:
 `configs/default.yaml` (embedded in binary). Lookup: `-config` > `$GASCOIGNE_CONFIG` >
 `$XDG_CONFIG_HOME/gascoigne/config.yaml` > embedded. Strict decoding: unknown fields fail.
 Pipelines may override `router` (proxy and CLI route differently).
+
+Per-run overrides (`internal/config/override.go`), so each agent can tune optimization without
+its own config file — flags on any command, or env set once in the agent's environment:
+| Flag | Env | Effect |
+|---|---|---|
+| `-set path=yaml` (repeatable) | `GASCOIGNE_SET` (`;`-separated, applied before flags) | assign any config value: `-set optimizers.grep.max_per_file=50`, `-set router.default=[go,git]` |
+| `-only a,b` | `GASCOIGNE_ONLY` | keep only these optimizers in every chain |
+| `-disable a,b` | `GASCOIGNE_DISABLE` | drop these optimizers from every chain |
+Flags win over env. `gascoigne config [flags]` prints the effective config. Per payload,
+`-attr k=v` still sets attrs (e.g. `cat_mode=full`).
 Optimizers configured in a pipeline's router require a ledger extension.
 
 ## Adding a component

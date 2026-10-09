@@ -32,10 +32,10 @@ type Config struct {
 
 type Pipeline struct {
 	Receivers []string `yaml:"receivers"`
-	Filters   []string `yaml:"filters"`
-	Exporters []string `yaml:"exporters"`
+	Filters   []string `yaml:"filters,omitempty"`
+	Exporters []string `yaml:"exporters,omitempty"`
 	// Router overrides the top-level router for this pipeline.
-	Router *router.Config `yaml:"router"`
+	Router *router.Config `yaml:"router,omitempty"`
 }
 
 // RouterFor returns the router config a pipeline uses.

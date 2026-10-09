@@ -2,6 +2,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"flag"
@@ -12,6 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+
+	"go.yaml.in/yaml/v3"
 
 	"github.com/lukaszb/gascoigne/configs"
 	"github.com/lukaszb/gascoigne/internal/config"
@@ -35,6 +38,7 @@ commands:
   gain        token savings report
   eval        benchmark pipeline on fixtures
   components  list built-in components
+  config      print the effective config (after -set/-only/-disable and env)
 
 run 'gascoigne <command> -h' for flags`
 
@@ -49,6 +53,7 @@ var commands = map[string]func(ctx context.Context, args []string) error{
 	"gain":       cmdGain,
 	"eval":       cmdEval,
 	"components": cmdComponents,
+	"config":     cmdConfig,
 }
 
 func main() {
@@ -80,6 +85,9 @@ type common struct {
 	config  string
 	verbose bool
 	attrs   attrFlag
+	sets    listFlag
+	only    string
+	disable string
 }
 
 func (c *common) register(fs *flag.FlagSet) {
@@ -87,11 +95,38 @@ func (c *common) register(fs *flag.FlagSet) {
 	fs.BoolVar(&c.verbose, "v", false, "debug logs to stderr")
 	c.attrs = attrFlag{}
 	fs.Var(c.attrs, "attr", "payload attribute k=v (repeatable), e.g. -attr cmd='git status'")
+	fs.Var(&c.sets, "set", "config override path=yaml (repeatable, after $GASCOIGNE_SET), e.g. -set optimizers.grep.max_per_file=50")
+	fs.StringVar(&c.only, "only", "", "comma list: run only these optimizers (default $GASCOIGNE_ONLY)")
+	fs.StringVar(&c.disable, "disable", "", "comma list: skip these optimizers (default $GASCOIGNE_DISABLE)")
 }
+
+// overrides merges env (per agent, set once in its environment) with flags (per run).
+func (c *common) overrides() config.Overrides {
+	return config.Overrides{
+		Set:     append(splitList(os.Getenv("GASCOIGNE_SET"), ";\n"), c.sets...),
+		Only:    splitList(cmp.Or(c.only, os.Getenv("GASCOIGNE_ONLY")), ","),
+		Disable: splitList(cmp.Or(c.disable, os.Getenv("GASCOIGNE_DISABLE")), ","),
+	}
+}
+
+func splitList(s, seps string) []string {
+	var out []string
+	for _, f := range strings.FieldsFunc(s, func(r rune) bool { return strings.ContainsRune(seps, r) }) {
+		if f = strings.TrimSpace(f); f != "" {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+type listFlag []string
+
+func (l *listFlag) String() string     { return strings.Join(*l, " ") }
+func (l *listFlag) Set(s string) error { *l = append(*l, s); return nil }
 
 // start builds and starts the service; callers must Shutdown it.
 func (c *common) start(ctx context.Context) (*service.Service, error) {
-	cfg, err := loadConfig(c.config)
+	cfg, err := c.load()
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +142,15 @@ func (c *common) start(ctx context.Context) (*service.Service, error) {
 	return svc, svc.Start(ctx)
 }
 
-func loadConfig(path string) (*config.Config, error) {
+func (c *common) load() (*config.Config, error) {
+	data, err := configData(c.config)
+	if err != nil {
+		return nil, err
+	}
+	return config.ParseWith(data, c.overrides())
+}
+
+func configData(path string) ([]byte, error) {
 	if path == "" {
 		path = os.Getenv("GASCOIGNE_CONFIG")
 	}
@@ -119,9 +162,9 @@ func loadConfig(path string) (*config.Config, error) {
 		}
 	}
 	if path == "" {
-		return config.Parse(configs.Default)
+		return configs.Default, nil
 	}
-	return config.Load(path)
+	return os.ReadFile(path)
 }
 
 func fileExists(p string) bool {
@@ -218,4 +261,23 @@ func serve(ctx context.Context, pipeline string, args []string, with func(contex
 		return err
 	}
 	return errors.Join(svc.Run(with(ctx, fs.Args()), *name), svc.Shutdown(context.WithoutCancel(ctx)))
+}
+
+func cmdConfig(_ context.Context, args []string) error {
+	var c common
+	fs := flag.NewFlagSet("config", flag.ContinueOnError)
+	c.register(fs)
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	cfg, err := c.load()
+	if err != nil {
+		return err
+	}
+	out, err := yaml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	_, err = os.Stdout.Write(out)
+	return err
 }
