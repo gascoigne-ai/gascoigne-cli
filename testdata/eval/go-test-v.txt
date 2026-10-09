@@ -1,0 +1,123 @@
+=== RUN   TestParseID
+--- PASS: TestParseID (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/component	0.001s
+=== RUN   TestParseValid
+--- PASS: TestParseValid (0.00s)
+=== RUN   TestParseErrors
+=== RUN   TestParseErrors/unknown_field
+=== RUN   TestParseErrors/no_pipelines
+=== RUN   TestParseErrors/missing_receiver
+=== RUN   TestParseErrors/missing_filter
+=== RUN   TestParseErrors/missing_optimizer
+=== RUN   TestParseErrors/bad_id
+--- PASS: TestParseErrors (0.00s)
+    --- PASS: TestParseErrors/unknown_field (0.00s)
+    --- PASS: TestParseErrors/no_pipelines (0.00s)
+    --- PASS: TestParseErrors/missing_receiver (0.00s)
+    --- PASS: TestParseErrors/missing_filter (0.00s)
+    --- PASS: TestParseErrors/missing_optimizer (0.00s)
+    --- PASS: TestParseErrors/bad_id (0.00s)
+=== RUN   TestPipelineRouterOverride
+--- PASS: TestPipelineRouterOverride (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/config	0.001s
+=== RUN   TestExport
+=== RUN   TestExport/verbatim
+=== RUN   TestExport/hint
+=== RUN   TestExport/hint_off
+--- PASS: TestExport (0.00s)
+    --- PASS: TestExport/verbatim (0.00s)
+    --- PASS: TestExport/hint (0.00s)
+    --- PASS: TestExport/hint_off (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/exporter/stdoutexporter	0.001s
+=== RUN   TestRawRoundTrip
+--- PASS: TestRawRoundTrip (0.00s)
+=== RUN   TestMigrateIdempotentAndPrune
+--- PASS: TestMigrateIdempotentAndPrune (0.01s)
+=== RUN   TestFailures
+--- PASS: TestFailures (0.00s)
+=== RUN   TestGain
+--- PASS: TestGain (0.00s)
+=== RUN   TestEnvPathOverrides
+--- PASS: TestEnvPathOverrides (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/extension/ledger	0.009s
+=== RUN   TestFilter
+=== RUN   TestFilter/none
+=== RUN   TestFilter/attr
+=== RUN   TestFilter/attr_false
+=== RUN   TestFilter/env
+--- PASS: TestFilter (0.00s)
+    --- PASS: TestFilter/none (0.00s)
+    --- PASS: TestFilter/attr (0.00s)
+    --- PASS: TestFilter/attr_false (0.00s)
+    --- PASS: TestFilter/env (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/filter/bypassfilter	0.001s
+=== RUN   TestFilter
+--- PASS: TestFilter (0.00s)
+=== RUN   TestStartMissingLedger
+--- PASS: TestStartMissingLedger (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/filter/historyfilter	0.001s
+=== RUN   TestFilter
+--- PASS: TestFilter (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/filter/minsizefilter	0.001s
+=== RUN   TestOptimizeKeepsContent
+--- PASS: TestOptimizeKeepsContent (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/optimizer/passthroughoptimizer	0.001s
+=== RUN   TestKey
+--- PASS: TestKey (0.00s)
+=== RUN   TestCloneIsDeep
+--- PASS: TestCloneIsDeep (0.00s)
+=== RUN   TestText
+--- PASS: TestText (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/payload	0.001s
+=== RUN   TestRun
+--- PASS: TestRun (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/receiver/stdinreceiver	0.001s
+?   	github.com/lukaszb/gascoigne/internal/registry	[no test files]
+=== RUN   TestGlob
+--- PASS: TestGlob (0.00s)
+=== RUN   TestRoute
+=== RUN   TestRoute/attr_glob
+=== RUN   TestRoute/attr_miss
+=== RUN   TestRoute/kind+size
+=== RUN   TestRoute/kind_too_small
+=== RUN   TestRoute/kind_miss
+--- PASS: TestRoute (0.00s)
+    --- PASS: TestRoute/attr_glob (0.00s)
+    --- PASS: TestRoute/attr_miss (0.00s)
+    --- PASS: TestRoute/kind+size (0.00s)
+    --- PASS: TestRoute/kind_too_small (0.00s)
+    --- PASS: TestRoute/kind_miss (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/router	0.001s
+=== RUN   TestOptimizedIsReversible
+--- PASS: TestOptimizedIsReversible (0.00s)
+=== RUN   TestUnchangedHasNoRawID
+--- PASS: TestUnchangedHasNoRawID (0.00s)
+=== RUN   TestBypassIsVerbatim
+--- PASS: TestBypassIsVerbatim (0.00s)
+=== RUN   TestOptimizerErrorFallsBackAndIsLearned
+--- PASS: TestOptimizerErrorFallsBackAndIsLearned (0.00s)
+=== RUN   TestOptionsAttrsDoNotOverride
+--- PASS: TestOptionsAttrsDoNotOverride (0.00s)
+=== RUN   TestOptimizersRequireLedger
+--- PASS: TestOptimizersRequireLedger (0.00s)
+=== RUN   TestUnknownTypeAndBadConfig
+--- PASS: TestUnknownTypeAndBadConfig (0.00s)
+=== RUN   TestLifecycleOrder
+--- PASS: TestLifecycleOrder (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/service	0.004s
+=== RUN   TestEstimate
+--- PASS: TestEstimate (0.00s)
+PASS
+ok  	github.com/lukaszb/gascoigne/internal/tokens	0.001s

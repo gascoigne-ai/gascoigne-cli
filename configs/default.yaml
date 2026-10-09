@@ -1,0 +1,35 @@
+# Flow: receiver → filters → router → optimizers → exporters.
+# Originals of optimized payloads land in the ledger: `gascoigne raw <id>`.
+extensions:
+  ledger: { raw_ttl: 24h } # path default: $XDG_DATA_HOME/gascoigne/ledger.db
+
+receivers:
+  stdin: { kind: cmd_output }
+
+filters:
+  bypass: {}                   # attr raw=true or GASCOIGNE_RAW=1
+  minsize: { min_tokens: 200 } # small payloads are not worth it
+  history: { max_failures: 1 } # skip sources that optimized badly before
+
+router:
+  routes:
+    - name: git
+      match: { attrs: { cmd: "git *" } }
+      optimizers: [passthrough]
+    - name: big-json
+      match: { kind: json, min_tokens: 500 }
+      optimizers: [passthrough/big]
+  default: []
+
+optimizers:
+  passthrough: {}
+  passthrough/big: {}
+
+exporters:
+  stdout: { hint: true }
+
+pipelines:
+  cli:
+    receivers: [stdin]
+    filters: [bypass, minsize, history]
+    exporters: [stdout]

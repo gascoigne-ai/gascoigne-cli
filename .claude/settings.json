@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go build:*)",
+      "Bash(go test:*)",
+      "Bash(go vet:*)",
+      "Bash(go run:*)",
+      "Bash(go doc:*)",
+      "Bash(go list:*)",
+      "Bash(gofmt:*)",
+      "Bash(make:*)",
+      "Bash(bin/gascoigne:*)",
+      "Bash(.harness/scripts/eval.sh:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ],
+    "deny": [
+      "Bash(go get:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.go) gofmt -w \"$f\" ;; esac; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

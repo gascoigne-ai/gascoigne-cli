@@ -1,0 +1,6 @@
+# Eval fixtures: raw outputs as an agent would see them.
+- { file: git-status.txt, kind: cmd_output, attrs: { cmd: git status } }
+- { file: git-diff.txt,   kind: cmd_output, attrs: { cmd: git diff } }
+- { file: go-test-v.txt,  kind: cmd_output, attrs: { cmd: go test -v ./... } }
+- { file: ls-la.txt,      kind: cmd_output, attrs: { cmd: ls -la /usr/lib } }
+- { file: go-list-m.json, kind: json,       attrs: { cmd: go list -m -json all } }
