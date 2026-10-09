@@ -53,10 +53,11 @@ Lives in core (`service/pipeline.go`), not in optimizers:
 4. Up-front opt-out: `bypass` filter (`-raw`, `GASCOIGNE_RAW=1`, attr `raw=true`).
 5. Retrieval: `gascoigne raw <id>` (later MCP `get_raw`, proxy `GET /raw/<id>`).
 
-## Ledger (sqlite, `extension/ledger`)
+## Ledger (gorm + sqlite, `extension/ledger`)
 Tables: `events` (every trip: route, tokens, outcome), `raw` (originals, TTL-pruned),
-`failures` (per-key count). Migrations embedded in `migrations/NNN_*.sql`, tracked by
-`PRAGMA user_version` — add a new file, never edit an applied one.
+`failures` (per-key count). Gorm models in `models.go`; `AutoMigrate` on Start adds new
+tables/columns/indexes. Renames, drops or type changes need an explicit migration step — ask first.
+Pure-Go driver (`gormlite`), WAL mode, busy timeout 5s.
 
 Failure signals → `MarkFailure(key, reason)`:
 - optimizer error (`error`), agent fetched raw (`raw_requested`), `gascoigne fail` (`manual`).

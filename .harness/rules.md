@@ -5,7 +5,9 @@ Hard rules for every agent and human change. Breaking one = change rejected.
 ## Dependencies
 - Stdlib first. Approved third-party deps:
   - `go.yaml.in/yaml/v3` — config
-  - `modernc.org/sqlite` — ledger (pure Go, no cgo)
+  - `gorm.io/gorm` — ledger ORM
+  - `github.com/ncruces/go-sqlite3/gormlite` — gorm sqlite dialect, pure Go (wasm), no cgo.
+    Never swap in a cgo driver (`gorm.io/driver/sqlite`, mattn): builds must stay `CGO_ENABLED=0`.
 - New dep only when the user explicitly asks. Never add one to "save time".
 
 ## Verification

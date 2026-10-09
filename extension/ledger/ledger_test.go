@@ -46,7 +46,7 @@ func TestRawRoundTrip(t *testing.T) {
 	}
 }
 
-func TestMigrateIdempotentAndPrune(t *testing.T) {
+func TestReopenAndPrune(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "l.db")
 	l := start(t, &Config{Path: path})
 	id, err := l.SaveRaw(t.Context(), "", payload.New(payload.Message, "x"))

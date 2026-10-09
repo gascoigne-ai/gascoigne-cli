@@ -5,32 +5,30 @@ package ledger
 import (
 	"context"
 	"crypto/sha256"
-	"database/sql"
-	"embed"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/fs"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	_ "modernc.org/sqlite"
+	"github.com/ncruces/go-sqlite3/gormlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/logger"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
-//go:embed migrations/*.sql
-var migrations embed.FS
-
 var ErrNotFound = errors.New("not found")
 
 type Ledger struct {
 	cfg *Config
-	db  *sql.DB
+	db  *gorm.DB
 }
 
 var _ component.Ledger = (*Ledger)(nil)
@@ -47,11 +45,12 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	l.db, err = sql.Open("sqlite", path+"?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)")
+	dsn := "file:" + url.PathEscape(path) + "?_pragma=journal_mode(wal)&_pragma=busy_timeout(5000)"
+	l.db, err = gorm.Open(gormlite.Open(dsn), &gorm.Config{Logger: logger.Discard})
 	if err != nil {
 		return err
 	}
-	if err := l.migrate(ctx); err != nil {
+	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &raw{}, &failure{}); err != nil {
 		return fmt.Errorf("ledger migrate: %w", err)
 	}
 	return l.prune(ctx)
@@ -61,40 +60,11 @@ func (l *Ledger) Shutdown(context.Context) error {
 	if l.db == nil {
 		return nil
 	}
-	return l.db.Close()
-}
-
-func (l *Ledger) migrate(ctx context.Context) error {
-	var version int
-	if err := l.db.QueryRowContext(ctx, "PRAGMA user_version").Scan(&version); err != nil {
-		return err
-	}
-	files, err := fs.Glob(migrations, "migrations/*.sql")
+	db, err := l.db.DB()
 	if err != nil {
 		return err
 	}
-	for i, name := range files[min(version, len(files)):] {
-		data, err := migrations.ReadFile(name)
-		if err != nil {
-			return err
-		}
-		tx, err := l.db.BeginTx(ctx, nil)
-		if err != nil {
-			return err
-		}
-		_, err = tx.ExecContext(ctx, string(data))
-		if err == nil {
-			_, err = tx.ExecContext(ctx, fmt.Sprintf("PRAGMA user_version = %d", version+i+1))
-		}
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("%s: %w", name, err)
-		}
-		if err := tx.Commit(); err != nil {
-			return err
-		}
-	}
-	return nil
+	return db.Close()
 }
 
 func (l *Ledger) prune(ctx context.Context) error {
@@ -102,8 +72,7 @@ func (l *Ledger) prune(ctx context.Context) error {
 		return nil
 	}
 	cutoff := time.Now().Add(-l.cfg.RawTTL).UnixMilli()
-	_, err := l.db.ExecContext(ctx, "DELETE FROM raw WHERE created < ?", cutoff)
-	return err
+	return l.db.WithContext(ctx).Where("created < ?", cutoff).Delete(&raw{}).Error
 }
 
 // SaveRaw stores p and returns a content-derived id; saving again refreshes its TTL.
@@ -113,56 +82,64 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (s
 		return "", err
 	}
 	sum := sha256.Sum256(blob)
-	id := hex.EncodeToString(sum[:8])
-	_, err = l.db.ExecContext(ctx, `INSERT INTO raw(id, created, key, payload) VALUES (?, ?, ?, ?)
-		ON CONFLICT(id) DO UPDATE SET created = excluded.created`,
-		id, time.Now().UnixMilli(), key, blob)
-	return id, err
+	r := raw{ID: hex.EncodeToString(sum[:8]), Created: time.Now().UnixMilli(), Key: key, Payload: blob}
+	err = l.db.WithContext(ctx).Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{"created"}),
+	}).Create(&r).Error
+	return r.ID, err
 }
 
 func (l *Ledger) GetRaw(ctx context.Context, id string) (string, *payload.Payload, error) {
-	var (
-		key  string
-		blob []byte
-	)
-	err := l.db.QueryRowContext(ctx, "SELECT key, payload FROM raw WHERE id = ?", id).Scan(&key, &blob)
-	if errors.Is(err, sql.ErrNoRows) {
+	var r raw
+	err := l.db.WithContext(ctx).Take(&r, "id = ?", id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return "", nil, fmt.Errorf("raw %s: %w", id, ErrNotFound)
 	}
 	if err != nil {
 		return "", nil, err
 	}
 	var p payload.Payload
-	return key, &p, json.Unmarshal(blob, &p)
+	return r.Key, &p, json.Unmarshal(r.Payload, &p)
 }
 
 func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
-	_, err := l.db.ExecContext(ctx, `INSERT INTO events
-		(ts, pipeline, key, route, optimizers, raw_tokens, out_tokens, duration_ms, raw_id, outcome)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		ev.TS.UnixMilli(), ev.Pipeline, ev.Key, ev.Route, strings.Join(ev.Optimizers, ","),
-		ev.RawTokens, ev.OutTokens, ev.Duration.Milliseconds(), ev.RawID, string(ev.Outcome))
-	return err
+	return l.db.WithContext(ctx).Create(&event{
+		TS:         ev.TS.UnixMilli(),
+		Pipeline:   ev.Pipeline,
+		Key:        ev.Key,
+		Route:      ev.Route,
+		Optimizers: strings.Join(ev.Optimizers, ","),
+		RawTokens:  ev.RawTokens,
+		OutTokens:  ev.OutTokens,
+		DurationMS: ev.Duration.Milliseconds(),
+		RawID:      ev.RawID,
+		Outcome:    string(ev.Outcome),
+	}).Error
 }
 
 func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
-	_, err := l.db.ExecContext(ctx, `INSERT INTO failures(key, count, last_ts, reason) VALUES (?, 1, ?, ?)
-		ON CONFLICT(key) DO UPDATE SET count = count + 1, last_ts = excluded.last_ts, reason = excluded.reason`,
-		key, time.Now().UnixMilli(), reason)
-	return err
+	f := failure{Key: key, Count: 1, LastTS: time.Now().UnixMilli(), Reason: reason}
+	return l.db.WithContext(ctx).Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "key"}},
+		DoUpdates: clause.Assignments(map[string]any{
+			"count":   gorm.Expr("count + 1"),
+			"last_ts": f.LastTS,
+			"reason":  reason,
+		}),
+	}).Create(&f).Error
 }
 
 func (l *Ledger) Failures(ctx context.Context, key string) (int, error) {
-	var n int
-	err := l.db.QueryRowContext(ctx, "SELECT count FROM failures WHERE key = ?", key).Scan(&n)
-	if errors.Is(err, sql.ErrNoRows) {
+	var f failure
+	err := l.db.WithContext(ctx).Take(&f, "key = ?", key).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return 0, nil
 	}
-	return n, err
+	return f.Count, err
 }
 
 // Forget clears failure history for key, re-enabling optimization.
 func (l *Ledger) Forget(ctx context.Context, key string) error {
-	_, err := l.db.ExecContext(ctx, "DELETE FROM failures WHERE key = ?", key)
-	return err
+	return l.db.WithContext(ctx).Delete(&failure{Key: key}).Error
 }

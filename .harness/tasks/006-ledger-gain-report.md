@@ -8,8 +8,8 @@ status: todo
 ## Scope
 - Flags: `-by route|key|day` (default route), `-since 7d`, `-top N`.
 - Per-key view shows failure count next to savings.
-- New ledger queries in `extension/ledger/report.go`; add index migration if needed
-  (new `migrations/002_*.sql`, never edit 001).
+- New gorm queries in `extension/ledger/report.go`; add indexes via gorm tags in `models.go`
+  if needed (AutoMigrate creates them).
 
 ## Acceptance
 - Ledger tests for each grouping with seeded events.
