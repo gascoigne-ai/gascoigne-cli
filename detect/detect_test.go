@@ -34,6 +34,23 @@ func TestFromCmd(t *testing.T) {
 	}
 }
 
+func TestCommand(t *testing.T) {
+	tests := map[string]string{
+		"go test -v ./...":         "go test",
+		"/usr/bin/git -C x log -3": "git log",
+		"npx nx run-many -t build": "nx run-many",
+		"ls -la /usr/lib":          "ls",
+		"cat a/b.go":               "cat",
+		"FOO=1 sudo npm ci":        "npm ci",
+		"":                         "",
+	}
+	for in, want := range tests {
+		if got := Command(in); got != want {
+			t.Errorf("Command(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
 func TestFromFileAndMIME(t *testing.T) {
 	if got := FromFile("/a/b.TSX"); got != Code {
 		t.Errorf("FromFile tsx = %q", got)

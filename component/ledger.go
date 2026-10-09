@@ -20,6 +20,7 @@ const (
 type Event struct {
 	TS         time.Time
 	Session    string // agent session, from the session attr
+	Command    string // what produced the payload, for reports ("go test", "fetch go.dev")
 	Pipeline   string
 	Key        string
 	Route      string
@@ -29,6 +30,7 @@ type Event struct {
 	Duration   time.Duration
 	RawID      string
 	Outcome    Outcome
+	Filter     string // filter that bypassed optimization, when Outcome is Bypassed
 	Steps      []Step // optimizers that changed the payload, in order
 }
 
@@ -50,6 +52,7 @@ const (
 // Stat aggregates events (or optimizer steps) of one group.
 type Stat struct {
 	Group     string
+	Family    string // optimizer family, for ByOptimizer
 	Runs      int
 	Optimized int
 	Failed    int
@@ -65,6 +68,9 @@ const (
 	BySession   = "session"
 	ByFamily    = "family"    // optimizer family, from steps
 	ByOptimizer = "optimizer" // single optimizer, from steps
+	ByCommand   = "command"
+	BySkip      = "skip"    // bypassed events by the filter that skipped them
+	ByOutcome   = "outcome" // optimized, unchanged, bypassed, error
 )
 
 // StatsQuery selects what Stats aggregates.

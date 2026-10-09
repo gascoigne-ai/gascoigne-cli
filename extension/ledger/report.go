@@ -23,6 +23,12 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 		tx, group, table = l.events(ctx), "events.route", "events"
 	case component.BySession:
 		tx, group, table = l.events(ctx), "events.session", "events"
+	case component.ByCommand:
+		tx, group, table = l.events(ctx), "events.command", "events"
+	case component.ByOutcome:
+		tx, group, table = l.events(ctx), "events.outcome", "events"
+	case component.BySkip:
+		tx, group, table = l.events(ctx).Where("events.outcome = ?", string(component.Bypassed)), "events.filter", "events"
 	case component.ByFamily:
 		tx, group, table = l.steps(ctx), "steps.family", "steps"
 	case component.ByOptimizer:
@@ -35,6 +41,7 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 	}
 	var rows []struct {
 		Group                   string
+		Family                  string
 		Runs, Optimized, Failed int
 		RawTokens, OutTokens    int
 		FirstTS, LastTS         int64
@@ -45,7 +52,7 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 		Scan(&rows).Error
 	stats := make([]component.Stat, len(rows))
 	for i, r := range rows {
-		stats[i] = component.Stat{Group: r.Group, Runs: r.Runs, Optimized: r.Optimized, Failed: r.Failed,
+		stats[i] = component.Stat{Group: r.Group, Family: r.Family, Runs: r.Runs, Optimized: r.Optimized, Failed: r.Failed,
 			RawTokens: r.RawTokens, OutTokens: r.OutTokens, First: time.UnixMilli(r.FirstTS), Last: time.UnixMilli(r.LastTS)}
 	}
 	return stats, err
@@ -62,7 +69,7 @@ func (l *Ledger) steps(ctx context.Context) *gorm.DB {
 // aggregates: events count outcomes; every step is an optimization.
 func (l *Ledger) aggregates(by string) string {
 	if by == component.ByFamily || by == component.ByOptimizer {
-		return `count(*) AS runs, count(*) AS optimized, 0 AS failed,
+		return `max(steps.family) AS family, count(*) AS runs, count(*) AS optimized, 0 AS failed,
 			sum(steps.raw_tokens) AS raw_tokens, sum(steps.out_tokens) AS out_tokens,
 			min(events.ts) AS first_ts, max(events.ts) AS last_ts`
 	}

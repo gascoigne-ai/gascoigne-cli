@@ -126,16 +126,15 @@ tokens before/after) and `events.session`.
 
 Sessions: `-session ID` on any command (or `$GASCOIGNE_SESSION`) tags events; MCP servers use
 explicit `-session`, else the MCP transport session id, else one id per server run.
-Reports — `gascoigne gain`:
+Reports — `gascoigne gain` (add `-session ID`, `-all`, `-json`):
 | Command | Shows |
 |---|---|
-| `gain` | per route, all sessions |
-| `gain -by session` | per session with time range |
-| `gain -session ID -by family` | how much each optimizer family saved in that session |
-| `gain -by optimizer [-session ID]` | per optimizer |
-| `gain -all` | ignore `-session`/`$GASCOIGNE_SESSION` |
-| `gain … -json`, `gain -failures -json` | same data as JSON (`groups`, `total`, `saved_pct`, time range) |
-MCP `stats {by?, session?, format?: json}` defaults to family breakdown of the calling session (`session: all`).
+| `gain` | overview: totals line, by outcome (optimized/unchanged/bypassed/error with tokens and share of input), by command (`go test`, `git log`, `fetch go.dev`), by optimizer (with family), skipped (filter + reason), count of failing sources |
+| `gain -by command\|optimizer\|family\|outcome\|skip\|session\|route` | one grouping |
+| `gain -failures` | sources that bypass optimization after going bad |
+Events record `command` (normalized via `detect.Command`, else MCP tool + URL host) and, when
+bypassed, the `filter` that skipped them.
+MCP `stats {by?, session?, format?: json}` defaults to the overview of the calling session (`session: all` for every session).
 
 Failure signals → `MarkFailure(key, reason)`:
 - optimizer error (`error`), agent fetched raw (`raw_requested`), `gascoigne fail` (`manual`).

@@ -3,10 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/internal/router"
 	"github.com/lukaszb/gascoigne/payload"
 )
@@ -44,7 +47,7 @@ func (pl *Pipeline) Optimize(ctx context.Context, in *payload.Payload) (*payload
 			p.Set(k, v)
 		}
 	}
-	ev := component.Event{TS: start, Session: p.Attrs[payload.AttrSession], Pipeline: pl.name, Key: p.Key(), RawTokens: p.Tokens()}
+	ev := component.Event{TS: start, Session: p.Attrs[payload.AttrSession], Command: command(p), Pipeline: pl.name, Key: p.Key(), RawTokens: p.Tokens()}
 	p, err := pl.run(ctx, p, &ev)
 	if err != nil {
 		return nil, err
@@ -71,7 +74,7 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 		}
 		if d == component.Bypass {
 			pl.svc.log.Debug("bypass", "filter", f.id, "key", ev.Key)
-			ev.Outcome = component.Bypassed
+			ev.Outcome, ev.Filter = component.Bypassed, f.id
 			return p, nil
 		}
 	}
@@ -117,4 +120,17 @@ func (pl *Pipeline) markFailure(ctx context.Context, key, reason string) {
 	if err := pl.svc.ledger.MarkFailure(ctx, key, reason); err != nil {
 		pl.svc.log.Warn("ledger mark failure", "err", err)
 	}
+}
+
+// command names the payload's source for reports: the normalized command
+// line, else the tool (and URL host), else empty.
+func command(p *payload.Payload) string {
+	if c := detect.Command(p.Attrs[payload.AttrCmd]); c != "" {
+		return c
+	}
+	tool := p.Attrs[payload.AttrTool]
+	if u, err := url.Parse(p.Attrs[payload.AttrURL]); err == nil && u.Host != "" {
+		return strings.TrimSpace(tool + " " + u.Host)
+	}
+	return tool
 }

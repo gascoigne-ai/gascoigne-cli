@@ -197,3 +197,25 @@ func FromMIME(mime string) string {
 	}
 	return ""
 }
+
+// tools whose first argument is a subcommand worth reporting ("go test", "git log").
+var subcommandTools = map[string]bool{
+	"go": true, "git": true, "npm": true, "pnpm": true, "yarn": true, "bun": true, "bunx": true, "nx": true,
+	"cargo": true, "docker": true, "kubectl": true, "gh": true, "make": true, "pip": true, "uv": true,
+}
+
+// Command names a command line for reports: the program, plus its subcommand
+// for multi-command tools ("go test", "npm install", "npx nx run-many" → "nx run-many").
+func Command(cmd string) string {
+	args := Argv(cmd)
+	if len(args) == 0 {
+		return ""
+	}
+	if args[0] == "npx" && len(args) > 1 {
+		return Command(strings.Join(args[1:], " "))
+	}
+	if sub := subcommand(args); subcommandTools[args[0]] && sub != "" {
+		return args[0] + " " + sub
+	}
+	return args[0]
+}

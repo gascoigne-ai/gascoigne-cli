@@ -90,13 +90,13 @@ func TestStats(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()
 	events := []component.Event{
-		{Session: "s1", Route: "default", RawTokens: 100, OutTokens: 20, Outcome: component.Optimized, Steps: []component.Step{
+		{Session: "s1", Command: "npm install", Route: "default", RawTokens: 100, OutTokens: 20, Outcome: component.Optimized, Steps: []component.Step{
 			{Optimizer: "npm", Family: "js", RawTokens: 100, OutTokens: 50},
 			{Optimizer: "log", Family: "data", RawTokens: 50, OutTokens: 20},
 		}},
-		{Session: "s1", Route: "default", RawTokens: 50, OutTokens: 50, Outcome: component.Failed},
-		{Session: "s2", RawTokens: 10, OutTokens: 10, Outcome: component.Bypassed},
-		{Session: "s2", Route: "default", RawTokens: 40, OutTokens: 10, Outcome: component.Optimized, Steps: []component.Step{
+		{Session: "s1", Command: "npm install", Route: "default", RawTokens: 50, OutTokens: 50, Outcome: component.Failed},
+		{Session: "s2", Command: "ls", RawTokens: 10, OutTokens: 10, Outcome: component.Bypassed, Filter: "minsize"},
+		{Session: "s2", Command: "bun test", Route: "default", RawTokens: 40, OutTokens: 10, Outcome: component.Optimized, Steps: []component.Step{
 			{Optimizer: "bun", Family: "js", RawTokens: 40, OutTokens: 10},
 		}},
 	}
@@ -118,13 +118,26 @@ func TestStats(t *testing.T) {
 			{Group: "s1", Runs: 2, Optimized: 1, Failed: 1, RawTokens: 150, OutTokens: 70},
 			{Group: "s2", Runs: 2, Optimized: 1, RawTokens: 50, OutTokens: 20},
 		}},
+		{component.StatsQuery{By: component.ByCommand}, []component.Stat{
+			{Group: "npm install", Runs: 2, Optimized: 1, Failed: 1, RawTokens: 150, OutTokens: 70},
+			{Group: "bun test", Runs: 1, Optimized: 1, RawTokens: 40, OutTokens: 10},
+			{Group: "ls", Runs: 1, RawTokens: 10, OutTokens: 10},
+		}},
+		{component.StatsQuery{By: component.ByOutcome}, []component.Stat{
+			{Group: "optimized", Runs: 2, Optimized: 2, RawTokens: 140, OutTokens: 30},
+			{Group: "bypassed", Runs: 1, RawTokens: 10, OutTokens: 10},
+			{Group: "error", Runs: 1, Failed: 1, RawTokens: 50, OutTokens: 50},
+		}},
+		{component.StatsQuery{By: component.BySkip}, []component.Stat{
+			{Group: "minsize", Runs: 1, RawTokens: 10, OutTokens: 10},
+		}},
 		{component.StatsQuery{By: component.ByFamily}, []component.Stat{
-			{Group: "js", Runs: 2, Optimized: 2, RawTokens: 140, OutTokens: 60},
-			{Group: "data", Runs: 1, Optimized: 1, RawTokens: 50, OutTokens: 20},
+			{Group: "js", Family: "js", Runs: 2, Optimized: 2, RawTokens: 140, OutTokens: 60},
+			{Group: "data", Family: "data", Runs: 1, Optimized: 1, RawTokens: 50, OutTokens: 20},
 		}},
 		{component.StatsQuery{By: component.ByOptimizer, Session: "s1"}, []component.Stat{
-			{Group: "npm", Runs: 1, Optimized: 1, RawTokens: 100, OutTokens: 50},
-			{Group: "log", Runs: 1, Optimized: 1, RawTokens: 50, OutTokens: 20},
+			{Group: "npm", Family: "js", Runs: 1, Optimized: 1, RawTokens: 100, OutTokens: 50},
+			{Group: "log", Family: "data", Runs: 1, Optimized: 1, RawTokens: 50, OutTokens: 20},
 		}},
 	}
 	for _, tt := range tests {

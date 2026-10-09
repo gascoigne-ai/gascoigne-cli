@@ -116,14 +116,14 @@ func TestCompressRetrieveStats(t *testing.T) {
 	if _, isErr := call(t, cs, "retrieve", map[string]any{"id": "nope"}); !isErr {
 		t.Fatal("unknown id should be a tool error")
 	}
-	if text, _ := call(t, cs, "stats", map[string]any{}); !strings.Contains(text, "js") || !strings.Contains(text, "60.0%") {
-		t.Fatalf("stats = %q", text)
+	if text, _ := call(t, cs, "stats", map[string]any{}); !strings.Contains(text, "by outcome") || !strings.Contains(text, "60.0%") {
+		t.Fatalf("stats overview = %q", text)
 	}
 	session := pl.got.Attrs[payload.AttrSession]
-	if !strings.HasPrefix(session, "mcp-") || l.query != (component.StatsQuery{By: component.ByFamily, Session: session}) {
+	if !strings.HasPrefix(session, "mcp-") || l.query.Session != session {
 		t.Fatalf("session %q, stats query %+v", session, l.query)
 	}
-	if text, _ := call(t, cs, "stats", map[string]any{"format": "json"}); !strings.Contains(text, `"group":"js"`) || !strings.Contains(text, `"saved_pct":60`) {
+	if text, _ := call(t, cs, "stats", map[string]any{"by": "family", "format": "json"}); !strings.Contains(text, `"group":"js"`) || !strings.Contains(text, `"saved_pct":60`) {
 		t.Fatalf("stats json = %q", text)
 	}
 	call(t, cs, "stats", map[string]any{"session": "all", "by": "route"})

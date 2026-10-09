@@ -105,7 +105,7 @@ func cmdGain(ctx context.Context, args []string) error {
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
-		fs.StringVar(&by, "by", "", "group by route (default), session, family or optimizer")
+		fs.StringVar(&by, "by", "", "one grouping instead of the overview: command, optimizer, family, outcome, skip, session or route")
 		fs.BoolVar(&all, "all", false, "every session, even when -session or $GASCOIGNE_SESSION is set")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
@@ -120,6 +120,9 @@ func cmdGain(ctx context.Context, args []string) error {
 		q := component.StatsQuery{By: by, Session: c.sessionID()}
 		if all {
 			q.Session = ""
+		}
+		if by == "" {
+			return overview(ctx, l, q.Session, asJSON)
 		}
 		stats, err := l.Stats(ctx, q)
 		if err != nil {
@@ -170,4 +173,26 @@ func writeJSON(v any) error {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	return enc.Encode(v)
+}
+
+func overview(ctx context.Context, l *ledger.Ledger, session string, asJSON bool) error {
+	o, err := mcptool.BuildOverview(ctx, l, session)
+	if err != nil {
+		return err
+	}
+	failing, err := l.FailureList(ctx)
+	if err != nil {
+		return err
+	}
+	if asJSON {
+		return writeJSON(struct {
+			mcptool.Overview
+			FailingSources int `json:"failing_sources"`
+		}{o, len(failing)})
+	}
+	_, err = io.WriteString(os.Stdout, o.Table())
+	if err == nil && len(failing) > 0 {
+		_, err = fmt.Printf("\n%d sources marked as badly optimized; they bypass optimization (gain -failures)\n", len(failing))
+	}
+	return err
 }

@@ -111,6 +111,8 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 	return l.db.WithContext(ctx).Create(&event{
 		TS:         ev.TS.UnixMilli(),
 		Session:    ev.Session,
+		Command:    ev.Command,
+		Filter:     ev.Filter,
 		Pipeline:   ev.Pipeline,
 		Key:        ev.Key,
 		Route:      ev.Route,

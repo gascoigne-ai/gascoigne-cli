@@ -9,6 +9,7 @@ type event struct {
 	ID         uint   `gorm:"primaryKey"`
 	TS         int64  `gorm:"not null"`
 	Session    string `gorm:"not null;default:'';index"`
+	Command    string `gorm:"not null;default:''"`
 	Pipeline   string `gorm:"not null"`
 	Key        string `gorm:"not null;index"`
 	Route      string `gorm:"not null"`
@@ -18,6 +19,7 @@ type event struct {
 	DurationMS int64  `gorm:"not null"`
 	RawID      string `gorm:"not null"`
 	Outcome    string `gorm:"not null"`
+	Filter     string `gorm:"not null;default:''"`
 	Steps      []step `gorm:"foreignKey:EventID"`
 }
 

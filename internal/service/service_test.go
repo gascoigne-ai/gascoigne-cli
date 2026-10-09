@@ -277,3 +277,17 @@ func TestStepsAndSessionRecorded(t *testing.T) {
 		t.Fatalf("by session: %+v", got)
 	}
 }
+
+func TestCommandAndSkipFilterRecorded(t *testing.T) {
+	s, _ := newService(t, cfgYAML)
+	process(t, s, "up -v x", "a b c d e f g h")
+	process(t, s, "up x", "raw please", payload.AttrRaw, "true")
+	got, err := s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.ByCommand})
+	if err != nil || len(got) != 1 || got[0].Group != "up" || got[0].Runs != 2 {
+		t.Fatalf("by command: %+v, %v", got, err)
+	}
+	got, _ = s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.BySkip})
+	if len(got) != 1 || got[0].Group != "bypass" {
+		t.Fatalf("by skip: %+v", got)
+	}
+}

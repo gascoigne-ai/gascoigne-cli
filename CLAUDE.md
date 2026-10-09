@@ -9,7 +9,7 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 - `make eval` — token savings on `testdata/eval` fixtures
 - `make build` → `bin/gascoigne`; `bin/gascoigne components`
 - `bin/gascoigne exec -- <cmd>`, `bin/gascoigne mcp`, `bin/gascoigne mcp-proxy -- <server>`
-- savings: `bin/gascoigne gain -by session`, `gain -session ID -by family|optimizer`
+- savings: `bin/gascoigne gain [-session ID] [-json]` overview; `gain -by command|optimizer|family|outcome|skip|session`
 - per agent/run tuning: `-set path=yaml`, `-only`, `-disable` (or `GASCOIGNE_SET/ONLY/DISABLE`); `bin/gascoigne config` shows the result
 
 ## Harness
