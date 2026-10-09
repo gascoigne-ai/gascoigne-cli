@@ -21,6 +21,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/npmoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/nxoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/passthroughoptimizer"
+	"github.com/lukaszb/gascoigne/receiver/execreceiver"
 	"github.com/lukaszb/gascoigne/receiver/stdinreceiver"
 )
 
@@ -28,6 +29,7 @@ func Factories() []component.Factory {
 	return []component.Factory{
 		// receivers
 		stdinreceiver.NewFactory(),
+		execreceiver.NewFactory(),
 		// filters
 		bypassfilter.NewFactory(),
 		minsizefilter.NewFactory(),

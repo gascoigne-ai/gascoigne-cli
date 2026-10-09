@@ -5,6 +5,7 @@ extensions:
 
 receivers:
   stdin: { kind: cmd_output }
+  exec: { kind: cmd_output } # gascoigne exec -- <cmd>
 
 filters:
   bypass: {}                   # attr raw=true or GASCOIGNE_RAW=1
@@ -37,5 +38,9 @@ exporters:
 pipelines:
   cli:
     receivers: [stdin]
+    filters: [bypass, detect, minsize, history]
+    exporters: [stdout]
+  exec:
+    receivers: [exec]
     filters: [bypass, detect, minsize, history]
     exporters: [stdout]

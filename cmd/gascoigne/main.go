@@ -18,12 +18,14 @@ import (
 	"github.com/lukaszb/gascoigne/internal/registry"
 	"github.com/lukaszb/gascoigne/internal/service"
 	"github.com/lukaszb/gascoigne/payload"
+	"github.com/lukaszb/gascoigne/receiver/execreceiver"
 )
 
 const usage = `usage: gascoigne <command> [flags]
 
 commands:
-  run         run pipelines (stdin → optimized stdout)
+  run         run a pipeline (default cli: stdin → optimized stdout)
+  exec -- <cmd> [args]  run cmd, print its optimized output, keep its exit code
   raw <id>    print original payload; marks its source as badly optimized
   fail <key|raw_id>  mark a source as badly optimized
   forget <key>       clear failure history for a source
@@ -35,6 +37,7 @@ run 'gascoigne <command> -h' for flags`
 
 var commands = map[string]func(ctx context.Context, args []string) error{
 	"run":        cmdRun,
+	"exec":       cmdExec,
 	"raw":        cmdRaw,
 	"fail":       cmdFail,
 	"forget":     cmdForget,
@@ -56,6 +59,10 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	if err := cmd(ctx, os.Args[2:]); err != nil {
+		var code exitCode
+		if errors.As(err, &code) {
+			os.Exit(int(code))
+		}
 		if !errors.Is(err, flag.ErrHelp) {
 			fmt.Fprintln(os.Stderr, "gascoigne:", err)
 		}
@@ -135,6 +142,7 @@ func cmdRun(ctx context.Context, args []string) error {
 	fs := flag.NewFlagSet("run", flag.ContinueOnError)
 	c.register(fs)
 	raw := fs.Bool("raw", false, "bypass optimization, output verbatim")
+	pipeline := fs.String("pipeline", "cli", "pipeline to run")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -145,5 +153,40 @@ func cmdRun(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	return errors.Join(svc.Run(ctx), svc.Shutdown(context.WithoutCancel(ctx)))
+	return errors.Join(svc.Run(ctx, *pipeline), svc.Shutdown(context.WithoutCancel(ctx)))
+}
+
+// exitCode makes main exit with the wrapped command's status.
+type exitCode int
+
+func (c exitCode) Error() string { return fmt.Sprintf("exit status %d", int(c)) }
+
+func cmdExec(ctx context.Context, args []string) error {
+	var c common
+	fs := flag.NewFlagSet("exec", flag.ContinueOnError)
+	c.register(fs)
+	raw := fs.Bool("raw", false, "bypass optimization, output verbatim")
+	pipeline := fs.String("pipeline", "exec", "pipeline to run")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if fs.NArg() == 0 {
+		return errors.New("exec: want a command: gascoigne exec [flags] -- cmd args...")
+	}
+	if *raw {
+		c.attrs[payload.AttrRaw] = "true"
+	}
+	svc, err := c.start(ctx)
+	if err != nil {
+		return err
+	}
+	inv := &execreceiver.Invocation{Args: fs.Args()}
+	runErr := svc.Run(execreceiver.With(ctx, inv), *pipeline)
+	if err := errors.Join(runErr, svc.Shutdown(context.WithoutCancel(ctx))); err != nil {
+		fmt.Fprintln(os.Stderr, "gascoigne:", err)
+	}
+	if inv.ExitCode != 0 || runErr != nil {
+		return exitCode(max(inv.ExitCode, 1))
+	}
+	return nil
 }

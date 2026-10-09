@@ -1,4 +1,4 @@
-status: todo
+status: done
 
 # exec receiver + `gascoigne exec` command
 

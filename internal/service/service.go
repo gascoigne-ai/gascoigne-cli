@@ -29,7 +29,7 @@ type Service struct {
 	filters    map[string]component.Filter
 	optimizers map[string]component.Optimizer
 	exporters  map[string]component.Exporter
-	receivers  []component.Receiver
+	receivers  map[string][]component.Receiver // by pipeline
 	pipelines  map[string]*Pipeline
 	ledger     component.Ledger
 	started    []component.Component
@@ -45,6 +45,7 @@ func New(ctx context.Context, cfg *config.Config, factories []component.Factory,
 		optimizers: map[string]component.Optimizer{},
 		exporters:  map[string]component.Exporter{},
 		pipelines:  map[string]*Pipeline{},
+		receivers:  map[string][]component.Receiver{},
 	}
 	if s.log == nil {
 		s.log = slog.New(slog.DiscardHandler)
@@ -103,7 +104,7 @@ func (s *Service) build(ctx context.Context, cfg *config.Config) error {
 			if !ok {
 				return fmt.Errorf("receiver %s: does not implement Receiver", id)
 			}
-			s.receivers = append(s.receivers, r)
+			s.receivers[name] = append(s.receivers[name], r)
 		}
 		s.pipelines[name] = pl
 	}
@@ -162,8 +163,10 @@ func (s *Service) Start(ctx context.Context) error {
 	order = appendSorted(order, s.exporters)
 	order = appendSorted(order, s.optimizers)
 	order = appendSorted(order, s.filters)
-	for _, r := range s.receivers {
-		order = append(order, r)
+	for _, name := range s.PipelineNames() {
+		for _, r := range s.receivers[name] {
+			order = append(order, r)
+		}
 	}
 	for _, c := range order {
 		if err := c.Start(ctx, s); err != nil {
@@ -181,21 +184,30 @@ func appendSorted[T component.Component](order []component.Component, m map[stri
 	return order
 }
 
-// Run runs all receivers until they finish or ctx is done.
-func (s *Service) Run(ctx context.Context) error {
+// Run runs the receivers of the named pipelines (all when none are named)
+// until they finish or ctx is done.
+func (s *Service) Run(ctx context.Context, pipelines ...string) error {
+	if len(pipelines) == 0 {
+		pipelines = s.PipelineNames()
+	}
 	var (
 		wg   sync.WaitGroup
 		mu   sync.Mutex
 		errs []error
 	)
-	for _, r := range s.receivers {
-		wg.Go(func() {
-			if err := r.Run(ctx); err != nil {
-				mu.Lock()
-				errs = append(errs, err)
-				mu.Unlock()
-			}
-		})
+	for _, name := range pipelines {
+		if _, ok := s.pipelines[name]; !ok {
+			return fmt.Errorf("no pipeline %q", name)
+		}
+		for _, r := range s.receivers[name] {
+			wg.Go(func() {
+				if err := r.Run(ctx); err != nil {
+					mu.Lock()
+					errs = append(errs, err)
+					mu.Unlock()
+				}
+			})
+		}
 	}
 	wg.Wait()
 	return errors.Join(errs...)
