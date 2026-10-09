@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/internal/payload"
+	"github.com/lukaszb/gascoigne/payload"
 )
 
 func TestGlob(t *testing.T) {

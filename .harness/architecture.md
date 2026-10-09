@@ -4,6 +4,17 @@ Gascoigne shrinks what LLM agents read (command output, tool results, API traffi
 ever losing information. The design borrows from the OpenTelemetry Collector: typed pluggable
 components built by factories, `type/name` ids, pipelines wired by YAML, explicit registry.
 
+## Layout
+```
+component/  payload/  tokens/        public contracts: what component authors import
+receiver/  filter/  optimizer/       components, one package each, OTel-contrib style;
+exporter/  extension/                  only import public packages → can become own modules
+internal/config  router  service     engine: YAML, routing, pipeline execution
+internal/registry                    built-in component list (the "distribution")
+cmd/gascoigne  configs/              CLI + embedded default config
+```
+`make imports` fails if a public package imports `internal/`.
+
 ## Flow
 ```
            ┌──────────────── pipeline (sync, request → response) ────────────────┐
@@ -42,7 +53,7 @@ Lives in core (`service/pipeline.go`), not in optimizers:
 4. Up-front opt-out: `bypass` filter (`-raw`, `GASCOIGNE_RAW=1`, attr `raw=true`).
 5. Retrieval: `gascoigne raw <id>` (later MCP `get_raw`, proxy `GET /raw/<id>`).
 
-## Ledger (sqlite, `internal/extension/ledger`)
+## Ledger (sqlite, `extension/ledger`)
 Tables: `events` (every trip: route, tokens, outcome), `raw` (originals, TTL-pruned),
 `failures` (per-key count). Migrations embedded in `migrations/NNN_*.sql`, tracked by
 `PRAGMA user_version` — add a new file, never edit an applied one.
@@ -60,7 +71,7 @@ Optimizers configured in a pipeline's router require a ledger extension.
 ## Adding a component
 See skill `add-component`. Package shape:
 ```
-internal/<kind>/<name><kind>/
+<kind>/<name><kind>/
   factory.go   NewFactory() via component.NewFactory, const typ
   config.go    Config struct with yaml tags + Validate() if constraints
   <name>.go    implementation (package doc here)

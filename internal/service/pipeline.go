@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lukaszb/gascoigne/internal/component"
-	"github.com/lukaszb/gascoigne/internal/payload"
+	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/internal/router"
+	"github.com/lukaszb/gascoigne/payload"
 )
 
 // Pipeline runs filter → router → optimizers → exporters for one payload.

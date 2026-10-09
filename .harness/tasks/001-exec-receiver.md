@@ -7,7 +7,7 @@ status: todo
 rewrite shell commands to go through gascoigne.
 
 ## Scope
-- Package `internal/receiver/execreceiver` (see skill add-component). Config: `kind` (default `cmd_output`).
+- Package `receiver/execreceiver` (see skill add-component). Config: `kind` (default `cmd_output`).
 - Receiver runs argv from attrs/flags, captures stdout as one block, sets `cmd` attr (argv joined).
 - stderr streams through untouched; exit code of the child is preserved by `gascoigne exec`.
 - New CLI subcommand `exec` in `cmd/gascoigne` using pipeline `exec` from config.

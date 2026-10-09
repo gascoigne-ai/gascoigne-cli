@@ -17,7 +17,11 @@ Hard rules for every agent and human change. Breaking one = change rejected.
 ## Architecture
 - Extend by adding a component (receiver, filter, optimizer, exporter, extension) + config.
   Never special-case a component inside core.
-- Core = `internal/{component,config,router,service,payload}`. Changing core needs user approval.
+- Core = public contracts `component/`, `payload/`, `tokens/` + engine `internal/{config,router,service}`.
+  Changing core needs user approval. Contract changes break every component — treat as API changes.
+- Module boundary: component dirs (`receiver/`, `filter/`, `optimizer/`, `exporter/`, `extension/`)
+  import only public packages, never `internal/` (enforced by `make imports`). Each component dir
+  must be able to become its own Go module later. No imports between component packages.
 - New optimizer = new package + registry line + route in `configs/default.yaml` + eval case.
 - Never lose information. Optimized output must stay reversible through the ledger;
   bypass output stays byte-exact. Optimizers never write to the ledger themselves — core does.

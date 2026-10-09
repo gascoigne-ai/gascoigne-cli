@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/internal/component"
+	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/extension/ledger"
 	"github.com/lukaszb/gascoigne/internal/config"
-	"github.com/lukaszb/gascoigne/internal/extension/ledger"
-	"github.com/lukaszb/gascoigne/internal/payload"
 	"github.com/lukaszb/gascoigne/internal/registry"
+	"github.com/lukaszb/gascoigne/payload"
 )
 
 type empty struct{}

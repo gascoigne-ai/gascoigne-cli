@@ -6,7 +6,7 @@ status: todo
 Cut tokens in large JSON payloads (API responses, `go list -json`, tool results).
 
 ## Scope
-- Package `internal/optimizer/jsoncompactoptimizer`. Stdlib `encoding/json` only.
+- Package `optimizer/jsoncompactoptimizer`. Stdlib `encoding/json` only.
 - Minify; drop `null`, `""`, `[]`, `{}` values (config `drop_empty`, default true).
 - Arrays of objects with identical key sets → compact table form
   `{"_cols":[...],"_rows":[[...],...]}` (config `tabulate_min_rows`, default 3).

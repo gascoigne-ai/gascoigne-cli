@@ -2,14 +2,14 @@
 package registry
 
 import (
-	"github.com/lukaszb/gascoigne/internal/component"
-	"github.com/lukaszb/gascoigne/internal/exporter/stdoutexporter"
-	"github.com/lukaszb/gascoigne/internal/extension/ledger"
-	"github.com/lukaszb/gascoigne/internal/filter/bypassfilter"
-	"github.com/lukaszb/gascoigne/internal/filter/historyfilter"
-	"github.com/lukaszb/gascoigne/internal/filter/minsizefilter"
-	"github.com/lukaszb/gascoigne/internal/optimizer/passthroughoptimizer"
-	"github.com/lukaszb/gascoigne/internal/receiver/stdinreceiver"
+	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/exporter/stdoutexporter"
+	"github.com/lukaszb/gascoigne/extension/ledger"
+	"github.com/lukaszb/gascoigne/filter/bypassfilter"
+	"github.com/lukaszb/gascoigne/filter/historyfilter"
+	"github.com/lukaszb/gascoigne/filter/minsizefilter"
+	"github.com/lukaszb/gascoigne/optimizer/passthroughoptimizer"
+	"github.com/lukaszb/gascoigne/receiver/stdinreceiver"
 )
 
 func Factories() []component.Factory {

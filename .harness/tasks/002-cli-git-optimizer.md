@@ -6,7 +6,7 @@ status: todo
 Shrink `git status`, `git log`, `git diff` output while keeping everything an agent acts on.
 
 ## Scope
-- Package `internal/optimizer/cligitoptimizer`, type `cli`, configured as `cli/git` (id name selects
+- Package `optimizer/cligitoptimizer`, type `cli`, configured as `cli/git` (id name selects
   git rules; keep room for `cli/gotest` later via config field `tool: git`).
 - status: drop `(use "git ...")` hint lines and blank padding; group files by state:
   `staged: M router.go, A glob.go` style lines.

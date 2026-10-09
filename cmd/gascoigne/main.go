@@ -15,9 +15,9 @@ import (
 
 	"github.com/lukaszb/gascoigne/configs"
 	"github.com/lukaszb/gascoigne/internal/config"
-	"github.com/lukaszb/gascoigne/internal/payload"
 	"github.com/lukaszb/gascoigne/internal/registry"
 	"github.com/lukaszb/gascoigne/internal/service"
+	"github.com/lukaszb/gascoigne/payload"
 )
 
 const usage = `usage: gascoigne <command> [flags]

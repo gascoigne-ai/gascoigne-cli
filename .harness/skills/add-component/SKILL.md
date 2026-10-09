@@ -5,11 +5,12 @@ description: Add a new gascoigne component (receiver, filter, optimizer, exporte
 
 # Add component
 
-Read `.harness/architecture.md` first. Never edit core (`internal/{component,config,router,service,payload}`)
+Read `.harness/architecture.md` first. Never edit core (`component/`, `payload/`, `tokens/`, `internal/{config,router,service}`)
 to make a component work — if you think you must, stop and ask the user.
 
 ## Steps
-1. Package `internal/<kind>/<name><kind>/` (e.g. `internal/optimizer/jsoncompactoptimizer/`).
+1. Package `<kind>/<name><kind>/` at repo root — never under `internal/`; import only
+   `component`, `payload`, `tokens` and stdlib/approved deps (`make imports` enforces) (e.g. `optimizer/jsoncompactoptimizer/`).
 2. `factory.go`:
    ```go
    const typ = "jsoncompact"

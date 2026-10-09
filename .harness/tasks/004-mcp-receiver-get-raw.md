@@ -6,7 +6,7 @@ status: todo
 Expose gascoigne to agents as an MCP server: optimize text and fetch originals.
 
 ## Scope
-- Package `internal/receiver/mcpreceiver`; hand-rolled JSON-RPC 2.0 over stdio (stdlib only),
+- Package `receiver/mcpreceiver`; hand-rolled JSON-RPC 2.0 over stdio (stdlib only),
   MCP methods: `initialize`, `tools/list`, `tools/call`, notifications ignored.
 - Tools:
   - `optimize {text, kind?, attrs?, raw?}` → runs pipeline `mcp`; `raw: true` sets attr `raw=true`.

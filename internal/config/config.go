@@ -12,7 +12,7 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/lukaszb/gascoigne/internal/component"
+	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/internal/router"
 )
 

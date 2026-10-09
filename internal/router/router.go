@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/internal/payload"
+	"github.com/lukaszb/gascoigne/payload"
 )
 
 const DefaultRoute = "default"

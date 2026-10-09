@@ -11,8 +11,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/lukaszb/gascoigne/internal/component"
-	"github.com/lukaszb/gascoigne/internal/extension/ledger"
+	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/extension/ledger"
 )
 
 // withLedger parses flags, starts the service and hands the ledger to fn.

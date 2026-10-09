@@ -11,7 +11,7 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/lukaszb/gascoigne/internal/component"
+	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/internal/config"
 )
 
