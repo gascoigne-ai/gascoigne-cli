@@ -224,7 +224,8 @@
 - file: log/app.log
   attrs: { file: /var/log/shop/app.log }
   expect_type: log
-  keep: ["pq: deadlock detected", "connection pool exhausted", "FATAL [main] shutting down", "upstream timeout"]
+  keep: ["pq: deadlock detected", "src/orders/repo.ts:142:11", "connection pool exhausted", "FATAL [main] shutting down", "upstream timeout", "(×60)"]
+  min_saved: 90
 - name: detect/log
   file: log/app.log
   expect_type: log
@@ -236,4 +237,5 @@
     - { file: log/app.log, kind: tool_result }
     - { file: git/diff.txt, kind: tool_result }
   expect_type: json+log+diff
-  keep: ["FATAL [main] shutting down", "func OnlyValidArgs"]
+  keep: ["FATAL [main] shutting down", "func OnlyValidArgs", "\"_affix\""]
+  min_saved: 60

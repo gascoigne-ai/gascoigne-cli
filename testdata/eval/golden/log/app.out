@@ -1,0 +1,35 @@
+2026-10-01T12:00:00.409Z INFO  [http] GET /api/cart status=200 dur_ms=20 req_id=892f902bd23f0824 (×77)
+2026-10-01T12:00:00.473Z INFO  [http] GET /api/users/me status=200 dur_ms=11 req_id=6f03675a1600a35a (×63)
+2026-10-01T12:00:00.570Z INFO  [http] POST /api/cart status=200 dur_ms=17 req_id=90c192cfd3ac94af (×65)
+… 5 lines omitted
+2026-10-01T12:00:03.227Z INFO  [http] POST /api/users/me status=200 dur_ms=121 req_id=ec66a78795e761d1 (×50)
+… 3 lines omitted
+2026-10-01T12:00:04.273Z INFO  [http] POST /api/orders status=200 dur_ms=44 req_id=5790f82ec1d3fcff (×60)
+2026-10-01T12:00:04.709Z INFO  [http] GET /healthz status=200 dur_ms=173 req_id=c3baea9e13deef86 (×56)
+… 1 line omitted
+2026-10-01T12:00:06.135Z INFO  [http] POST /api/products status=200 dur_ms=150 req_id=74c9df6acc011cdd (×54)
+… 6 lines omitted
+2026-10-01T12:00:08.640Z INFO  [http] POST /healthz status=200 dur_ms=61 req_id=153e7c2a26a2c0bd (×57)
+… 8 lines omitted
+2026-10-01T12:00:12.621Z INFO  [http] GET /api/orders status=200 dur_ms=20 req_id=353c631cdfd43f37 (×56)
+… 1 line omitted
+2026-10-01T12:00:13.399Z INFO  [worker] processed batch size=56 (×54)
+… 13 lines omitted
+2026-10-01T12:00:19.116Z INFO  [http] GET /api/products status=200 dur_ms=58 req_id=3a12917c1a26f889 (×66)
+… 650 lines omitted
+2026-10-01T12:05:04.388Z INFO  [http] POST /api/users/me status=200 dur_ms=45 req_id=10fab18896380ea0
+2026-10-01T12:05:04.651Z INFO  [http] POST /api/products status=200 dur_ms=20 req_id=30b36275ebd55d5a
+2026-10-01T12:05:04.737Z ERROR [orders] failed to commit order id=ord_86667: pq: deadlock detected
+    at OrderRepo.commit (src/orders/repo.ts:142:11)
+    at OrderService.place (src/orders/service.ts:88:5)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+… 198 lines omitted
+2026-10-01T12:06:25.276Z DEBUG [cache] hit key=product:476 ttl=139 (×2)
+2026-10-01T12:06:25.665Z WARN  [payments] upstream timeout, retrying attempt=1 backoff_ms=100 (×60)
+2026-10-01T12:06:53.197Z INFO  [http] POST /api/orders status=200 dur_ms=92 req_id=f09ec3739a263c03
+2026-10-01T12:06:53.273Z INFO  [http] GET /api/cart status=200 dur_ms=156 req_id=d40c72f7ad95cae8
+… 436 lines omitted
+2026-10-01T12:10:18.376Z INFO  [http] POST /api/cart status=200 dur_ms=132 req_id=1c827fbe1e8ce740
+2026-10-01T12:10:18.831Z DEBUG [db] query took 33ms rows=25
+2026-10-01T12:10:19.445Z ERROR [db] connection pool exhausted (max=20, waiting=57)
+2026-10-01T12:10:19.711Z FATAL [main] shutting down: database unavailable after 5 retries
