@@ -1,0 +1,6 @@
+npm warn deprecated (5): inflight@1.0.6, har-validator@5.1.5, glob@7.2.3, uuid@3.4.0, request@2.88.2
+
+added 378 packages, and audited 379 packages in 1s
+
+38 vulnerabilities (8 moderate, 28 high, 2 critical)
+

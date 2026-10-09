@@ -13,11 +13,12 @@ import (
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/extension/ledger"
+	"github.com/lukaszb/gascoigne/mcptool"
 )
 
 // withLedger parses flags, starts the service and hands the ledger to fn.
 func withLedger(ctx context.Context, name string, args []string, nargs int, flags func(*flag.FlagSet),
-	fn func(l *ledger.Ledger, args []string) error) error {
+	fn func(l *ledger.Ledger, c *common, args []string) error) error {
 	var c common
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
 	c.register(fs)
@@ -39,11 +40,11 @@ func withLedger(ctx context.Context, name string, args []string, nargs int, flag
 	if !ok {
 		return errors.New("no ledger extension configured")
 	}
-	return fn(l, fs.Args())
+	return fn(l, &c, fs.Args())
 }
 
 func cmdRaw(ctx context.Context, args []string) error {
-	return withLedger(ctx, "raw", args, 1, nil, func(l *ledger.Ledger, args []string) error {
+	return withLedger(ctx, "raw", args, 1, nil, func(l *ledger.Ledger, _ *common, args []string) error {
 		key, p, err := l.GetRaw(ctx, args[0])
 		if err != nil {
 			return err
@@ -63,7 +64,7 @@ func cmdFail(ctx context.Context, args []string) error {
 	var reason string
 	return withLedger(ctx, "fail", args, 1, func(fs *flag.FlagSet) {
 		fs.StringVar(&reason, "reason", component.ReasonManual, "failure reason")
-	}, func(l *ledger.Ledger, args []string) error {
+	}, func(l *ledger.Ledger, _ *common, args []string) error {
 		key := args[0]
 		if !isKey(key) {
 			k, _, err := l.GetRaw(ctx, key)
@@ -80,7 +81,7 @@ func cmdFail(ctx context.Context, args []string) error {
 }
 
 func cmdForget(ctx context.Context, args []string) error {
-	return withLedger(ctx, "forget", args, 1, nil, func(l *ledger.Ledger, args []string) error {
+	return withLedger(ctx, "forget", args, 1, nil, func(l *ledger.Ledger, _ *common, args []string) error {
 		return l.Forget(ctx, args[0])
 	})
 }
@@ -95,49 +96,35 @@ func isKey(s string) bool {
 }
 
 func cmdGain(ctx context.Context, args []string) error {
-	var failures bool
+	var (
+		failures bool
+		by       string
+		all      bool
+	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
-	}, func(l *ledger.Ledger, _ []string) error {
+		fs.StringVar(&by, "by", "", "group by route (default), session, family or optimizer")
+		fs.BoolVar(&all, "all", false, "every session, even when -session or $GASCOIGNE_SESSION is set")
+	}, func(l *ledger.Ledger, c *common, _ []string) error {
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		defer w.Flush()
 		if failures {
 			return printFailures(ctx, w, l)
 		}
-		return printGain(ctx, w, l)
-	})
-}
-
-func printGain(ctx context.Context, w io.Writer, l *ledger.Ledger) error {
-	stats, err := l.Stats(ctx)
-	if err != nil {
+		q := component.StatsQuery{By: by, Session: c.sessionID()}
+		if all {
+			q.Session = ""
+		}
+		stats, err := l.Stats(ctx, q)
+		if err != nil {
+			return err
+		}
+		if q.Session != "" {
+			fmt.Printf("session %s\n", q.Session)
+		}
+		_, err = io.WriteString(os.Stdout, mcptool.StatsTable(q.By, stats))
 		return err
-	}
-	fmt.Fprintln(w, "route\truns\toptimized\tfailed\traw tok\tout tok\tsaved\tsaved %\t")
-	var total component.Stat
-	for _, s := range stats {
-		printStat(w, s)
-		total.Runs += s.Runs
-		total.Optimized += s.Optimized
-		total.Failed += s.Failed
-		total.RawTokens += s.RawTokens
-		total.OutTokens += s.OutTokens
-	}
-	total.Route = "total"
-	printStat(w, total)
-	return nil
-}
-
-func printStat(w io.Writer, s component.Stat) {
-	fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t\n",
-		s.Route, s.Runs, s.Optimized, s.Failed, s.RawTokens, s.OutTokens, s.Saved(), percent(s.Saved(), s.RawTokens))
-}
-
-func percent(part, whole int) string {
-	if whole == 0 {
-		return "-"
-	}
-	return fmt.Sprintf("%.1f%%", 100*float64(part)/float64(whole))
+	})
 }
 
 func printFailures(ctx context.Context, w io.Writer, l *ledger.Ledger) error {

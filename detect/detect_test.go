@@ -66,6 +66,7 @@ func TestSniff(t *testing.T) {
 		{"nx", "\n > nx run app:build\n\n NX   Successfully ran target build for 3 projects\n", NX},
 		{"jest", "PASS src/a.test.ts\nFAIL src/b.test.ts\nTests:       1 failed, 3 passed, 4 total\n", JSTest},
 		{"npm", "npm warn deprecated inflight@1.0.6: leaks\nadded 120 packages in 3s\n", NPM},
+		{"npm verbose", "npm http fetch GET 200 https://registry.npmjs.org/ms 12ms (cache hit)\n", NPM},
 		{"grep", "a.go:12:func x()\nb.go:3:var y\nc.go:9:  z\n", Grep},
 		{"ls", "total 8\ndrwxr-xr-x 2 u g 4096 Oct 1 12:00 .\n-rw-r--r-- 1 u g 12 Oct 1 12:00 a.txt\n", LS},
 		{"log", "2026-10-01 12:00:00 INFO start\n2026-10-01 12:00:01 ERROR boom\n", Log},

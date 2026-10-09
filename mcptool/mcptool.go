@@ -3,10 +3,13 @@
 package mcptool
 
 import (
+	"cmp"
 	"context"
 	"fmt"
+	"math/rand/v2"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
@@ -73,23 +76,103 @@ func AddRetrieve(s *mcp.Server, name string, l component.Ledger) {
 	})
 }
 
-// AddStats registers a tool reporting token savings per route.
-func AddStats(s *mcp.Server, l component.Ledger) {
+type StatsInput struct {
+	By      string `json:"by,omitempty" jsonschema:"route, session, family or optimizer; default family"`
+	Session string `json:"session,omitempty" jsonschema:"session id; default this session, 'all' for every session"`
+}
+
+// AddStats registers a tool reporting token savings, by default per optimizer
+// family in the calling session.
+func AddStats(s *mcp.Server, l component.Ledger, sessions *Sessions) {
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "stats",
-		Description: "Token savings so far, per route.",
-	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ any) (*mcp.CallToolResult, any, error) {
-		stats, err := l.Stats(ctx)
+		Description: "Token savings so far: by family (default), optimizer, route or session; this session by default.",
+	}, func(ctx context.Context, req *mcp.CallToolRequest, in StatsInput) (*mcp.CallToolResult, any, error) {
+		q := component.StatsQuery{By: cmp.Or(in.By, component.ByFamily), Session: in.Session}
+		switch q.Session {
+		case "":
+			q.Session = sessions.Of(req)
+		case "all":
+			q.Session = ""
+		}
+		stats, err := l.Stats(ctx, q)
 		if err != nil {
 			return nil, nil, err
 		}
-		var b strings.Builder
-		w := tabwriter.NewWriter(&b, 0, 0, 2, ' ', 0)
-		fmt.Fprintln(w, "route\truns\traw tok\tout tok\tsaved")
-		for _, st := range stats {
-			fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\n", st.Route, st.Runs, st.RawTokens, st.OutTokens, st.Saved())
-		}
-		w.Flush()
-		return Result(b.String()), nil, nil
+		return Result(StatsTable(q.By, stats)), nil, nil
 	})
+}
+
+type sessionKey struct{}
+
+// WithSession sets an explicit session id (e.g. from the CLI) for MCP servers run with ctx.
+func WithSession(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, sessionKey{}, id)
+}
+
+// Sessions resolves the session of tool calls: explicit id from the context,
+// else the MCP transport's session id, else one id generated per server run.
+type Sessions struct{ explicit, generated string }
+
+func NewSessions(ctx context.Context) *Sessions {
+	explicit, _ := ctx.Value(sessionKey{}).(string)
+	return &Sessions{explicit: explicit, generated: fmt.Sprintf("mcp-%s-%04x", time.Now().Format("20060102-150405"), rand.N(1<<16))}
+}
+
+func (s *Sessions) Of(req *mcp.CallToolRequest) string {
+	if s.explicit != "" {
+		return s.explicit
+	}
+	if req != nil && req.Session != nil && req.Session.ID() != "" {
+		return req.Session.ID()
+	}
+	return s.generated
+}
+
+// StatsTable renders stats with a total row.
+func StatsTable(by string, stats []component.Stat) string {
+	by = cmp.Or(by, component.ByRoute)
+	steps := by == component.ByFamily || by == component.ByOptimizer
+	var b strings.Builder
+	w := tabwriter.NewWriter(&b, 0, 0, 2, ' ', 0)
+	switch {
+	case steps:
+		fmt.Fprintf(w, "%s\tsteps\traw tok\tout tok\tsaved\tsaved %%\n", by)
+	case by == component.BySession:
+		fmt.Fprintf(w, "%s\truns\toptimized\tfailed\traw tok\tout tok\tsaved\tsaved %%\tfirst\tlast\n", by)
+	default:
+		fmt.Fprintf(w, "%s\truns\toptimized\tfailed\traw tok\tout tok\tsaved\tsaved %%\n", by)
+	}
+	total := component.Stat{Group: "total"}
+	row := func(s component.Stat) {
+		saved := fmt.Sprintf("%d\t%d\t%d\t%s", s.RawTokens, s.OutTokens, s.Saved(), Percent(s.Saved(), s.RawTokens))
+		switch {
+		case steps:
+			fmt.Fprintf(w, "%s\t%d\t%s\n", s.Group, s.Runs, saved)
+		case by == component.BySession && s.Group != "total":
+			fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%s\t%s\t%s\n", s.Group, s.Runs, s.Optimized, s.Failed, saved,
+				s.First.Format(time.DateTime), s.Last.Format(time.DateTime))
+		default:
+			fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%s\n", s.Group, s.Runs, s.Optimized, s.Failed, saved)
+		}
+	}
+	for _, s := range stats {
+		row(s)
+		total.Runs += s.Runs
+		total.Optimized += s.Optimized
+		total.Failed += s.Failed
+		total.RawTokens += s.RawTokens
+		total.OutTokens += s.OutTokens
+	}
+	row(total)
+	w.Flush()
+	return b.String()
+}
+
+// Percent formats part/whole, "-" when whole is 0.
+func Percent(part, whole int) string {
+	if whole == 0 {
+		return "-"
+	}
+	return fmt.Sprintf("%.1f%%", 100*float64(part)/float64(whole))
 }

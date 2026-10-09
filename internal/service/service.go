@@ -28,6 +28,7 @@ type Service struct {
 	extensions map[component.ID]component.Component
 	filters    map[string]component.Filter
 	optimizers map[string]component.Optimizer
+	families   map[string]string // optimizer id → family
 	exporters  map[string]component.Exporter
 	receivers  map[string][]component.Receiver // by pipeline
 	pipelines  map[string]*Pipeline
@@ -43,6 +44,7 @@ func New(ctx context.Context, cfg *config.Config, factories []component.Factory,
 		extensions: map[component.ID]component.Component{},
 		filters:    map[string]component.Filter{},
 		optimizers: map[string]component.Optimizer{},
+		families:   map[string]string{},
 		exporters:  map[string]component.Exporter{},
 		pipelines:  map[string]*Pipeline{},
 		receivers:  map[string][]component.Receiver{},
@@ -143,6 +145,9 @@ func (s *Service) create(ctx context.Context, kind component.Kind, rawID string,
 		if err := v.Validate(); err != nil {
 			return nil, fmt.Errorf("%s %s: %w", kind, id, err)
 		}
+	}
+	if kind == component.KindOptimizer {
+		s.families[rawID] = f.Family()
 	}
 	set := component.Settings{ID: id, Logger: s.log.With(string(kind), id.String())}
 	if pl != nil {

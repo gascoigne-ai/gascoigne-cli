@@ -28,6 +28,7 @@ type Receiver struct {
 	ledger    component.Ledger
 	transport mcp.Transport
 	http      *http.Client
+	sessions  *mcptool.Sessions
 }
 
 func (r *Receiver) Start(_ context.Context, host component.Host) error {
@@ -42,6 +43,7 @@ func (r *Receiver) Start(_ context.Context, host component.Host) error {
 func (r *Receiver) Shutdown(context.Context) error { return nil }
 
 func (r *Receiver) Run(ctx context.Context) error {
+	r.sessions = mcptool.NewSessions(ctx)
 	return r.server().Run(ctx, r.transport)
 }
 
@@ -60,7 +62,7 @@ func (r *Receiver) server() *mcp.Server {
 		Description: "Compress text (command output, logs, JSON, code) to fewer tokens. cmd/file hints improve detection.",
 	}, r.compress)
 	mcptool.AddRetrieve(s, r.cfg.Retrieve, r.ledger)
-	mcptool.AddStats(s, r.ledger)
+	mcptool.AddStats(s, r.ledger, r.sessions)
 	return s
 }
 
@@ -70,7 +72,7 @@ type FetchInput struct {
 	Raw   bool   `json:"raw,omitempty" jsonschema:"return the body unoptimized"`
 }
 
-func (r *Receiver) fetch(ctx context.Context, _ *mcp.CallToolRequest, in FetchInput) (*mcp.CallToolResult, any, error) {
+func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in FetchInput) (*mcp.CallToolResult, any, error) {
 	u, err := url.Parse(in.URL)
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") {
 		return nil, nil, fmt.Errorf("url must be http or https: %q", in.URL)
@@ -98,6 +100,7 @@ func (r *Receiver) fetch(ctx context.Context, _ *mcp.CallToolRequest, in FetchIn
 	p.Set(payload.AttrTool, "fetch")
 	p.Set("mime", resp.Header.Get("Content-Type"))
 	p.Set(payload.AttrQuery, in.Query)
+	p.Set(payload.AttrSession, r.sessions.Of(call))
 	text, err := r.process(ctx, p, in.Raw)
 	if err != nil {
 		return nil, nil, err
@@ -117,7 +120,7 @@ type CompressInput struct {
 	Raw   bool   `json:"raw,omitempty" jsonschema:"return text unchanged"`
 }
 
-func (r *Receiver) compress(ctx context.Context, _ *mcp.CallToolRequest, in CompressInput) (*mcp.CallToolResult, any, error) {
+func (r *Receiver) compress(ctx context.Context, req *mcp.CallToolRequest, in CompressInput) (*mcp.CallToolResult, any, error) {
 	if in.Text == "" {
 		return nil, nil, errors.New("text is empty")
 	}
@@ -125,6 +128,7 @@ func (r *Receiver) compress(ctx context.Context, _ *mcp.CallToolRequest, in Comp
 	p.Set(payload.AttrCmd, in.Cmd)
 	p.Set(payload.AttrFile, in.File)
 	p.Set(payload.AttrQuery, in.Query)
+	p.Set(payload.AttrSession, r.sessions.Of(req))
 	text, err := r.process(ctx, p, in.Raw)
 	if err != nil {
 		return nil, nil, err

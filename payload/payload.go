@@ -24,7 +24,8 @@ const (
 	AttrCmd       = "cmd"
 	AttrTool      = "tool"
 	AttrURL       = "url"
-	AttrQuery     = "query" // what the agent looks for; guides lossy selection
+	AttrQuery     = "query"   // what the agent looks for; guides lossy selection
+	AttrSession   = "session" // agent session, for per-session stats
 	AttrRaw       = "raw"
 	AttrRawID     = "raw_id"
 	AttrRoute     = "route"

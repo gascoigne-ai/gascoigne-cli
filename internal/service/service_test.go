@@ -21,7 +21,7 @@ type upper struct{ component.Nop }
 
 func (upper) Optimize(_ context.Context, p *payload.Payload) error {
 	for i := range p.Blocks {
-		p.Blocks[i].Text = strings.ToUpper(p.Blocks[i].Text)
+		p.Blocks[i].Text = strings.ToUpper(strings.ReplaceAll(p.Blocks[i].Text, " ", ""))
 	}
 	return nil
 }
@@ -45,7 +45,8 @@ func (c *capture) Export(_ context.Context, p *payload.Payload) error {
 
 func factory[C component.Component](kind component.Kind, typ string, c C) component.Factory {
 	return component.NewFactory(kind, typ, func() *empty { return &empty{} },
-		func(context.Context, component.Settings, *empty) (component.Component, error) { return c, nil })
+		func(context.Context, component.Settings, *empty) (component.Component, error) { return c, nil },
+		component.WithFamily("test"))
 }
 
 const cfgYAML = `
@@ -253,5 +254,26 @@ pipelines: { p: { receivers: [r], filters: [r], exporters: [r] } }
 	}
 	if !slices.Equal(log, want) {
 		t.Fatalf("order = %v\nwant    %v", log, want)
+	}
+}
+
+func TestStepsAndSessionRecorded(t *testing.T) {
+	s, _ := newService(t, cfgYAML)
+	process(t, s, "up x", "a b c d e f g h", payload.AttrSession, "s1")
+	process(t, s, "ls", "unchanged", payload.AttrSession, "s1")
+	got, err := s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.ByOptimizer, Session: "s1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].Group != "upper" || got[0].Runs != 1 {
+		t.Fatalf("by optimizer: %+v", got)
+	}
+	got, _ = s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.ByFamily})
+	if len(got) != 1 || got[0].Group != "test" {
+		t.Fatalf("by family: %+v", got)
+	}
+	got, _ = s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.BySession})
+	if len(got) != 1 || got[0].Group != "s1" || got[0].Runs != 2 {
+		t.Fatalf("by session: %+v", got)
 	}
 }

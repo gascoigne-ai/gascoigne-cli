@@ -17,6 +17,7 @@ import (
 	"github.com/lukaszb/gascoigne/internal/config"
 	"github.com/lukaszb/gascoigne/internal/registry"
 	"github.com/lukaszb/gascoigne/internal/service"
+	"github.com/lukaszb/gascoigne/mcptool"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -111,12 +112,12 @@ func cmdEval(ctx context.Context, args []string) error {
 				errs = append(errs, tc.name()+": "+p)
 			}
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%d\t%s\t%s\n", tc.name(), r.types, r.route, r.raw, r.out, percent(r.raw-r.out, r.raw), check)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%d\t%s\t%s\n", tc.name(), r.types, r.route, r.raw, r.out, mcptool.Percent(r.raw-r.out, r.raw), check)
 		if ef.show != "" && strings.Contains(tc.name(), ef.show) {
 			shows = append(shows, fmt.Sprintf("=== %s ===\n%s", tc.name(), r.text))
 		}
 	}
-	fmt.Fprintf(w, "total\t\t\t%d\t%d\t%s\t\n", rawTotal, outTotal, percent(rawTotal-outTotal, rawTotal))
+	fmt.Fprintf(w, "total\t\t\t%d\t%d\t%s\t\n", rawTotal, outTotal, mcptool.Percent(rawTotal-outTotal, rawTotal))
 	w.Flush()
 	for _, s := range shows {
 		fmt.Println(s)

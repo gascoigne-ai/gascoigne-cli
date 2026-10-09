@@ -34,6 +34,7 @@ func (p *pipeline) Process(_ context.Context, in *payload.Payload) (*payload.Pay
 type ledger struct {
 	component.Ledger
 	failed []string
+	query  component.StatsQuery
 }
 
 func (l *ledger) GetRaw(_ context.Context, id string) (string, *payload.Payload, error) {
@@ -48,8 +49,9 @@ func (l *ledger) MarkFailure(_ context.Context, key, _ string) error {
 	return nil
 }
 
-func (l *ledger) Stats(context.Context) ([]component.Stat, error) {
-	return []component.Stat{{Route: "default", Runs: 2, RawTokens: 100, OutTokens: 40}}, nil
+func (l *ledger) Stats(_ context.Context, q component.StatsQuery) ([]component.Stat, error) {
+	l.query = q
+	return []component.Stat{{Group: "js", Runs: 2, RawTokens: 100, OutTokens: 40}}, nil
 }
 
 func connect(t *testing.T) (*mcp.ClientSession, *pipeline, *ledger) {
@@ -114,7 +116,15 @@ func TestCompressRetrieveStats(t *testing.T) {
 	if _, isErr := call(t, cs, "retrieve", map[string]any{"id": "nope"}); !isErr {
 		t.Fatal("unknown id should be a tool error")
 	}
-	if text, _ := call(t, cs, "stats", map[string]any{}); !strings.Contains(text, "default") || !strings.Contains(text, "60") {
+	if text, _ := call(t, cs, "stats", map[string]any{}); !strings.Contains(text, "js") || !strings.Contains(text, "60.0%") {
 		t.Fatalf("stats = %q", text)
+	}
+	session := pl.got.Attrs[payload.AttrSession]
+	if !strings.HasPrefix(session, "mcp-") || l.query != (component.StatsQuery{By: component.ByFamily, Session: session}) {
+		t.Fatalf("session %q, stats query %+v", session, l.query)
+	}
+	call(t, cs, "stats", map[string]any{"session": "all", "by": "route"})
+	if l.query != (component.StatsQuery{By: component.ByRoute}) {
+		t.Fatalf("stats query %+v", l.query)
 	}
 }

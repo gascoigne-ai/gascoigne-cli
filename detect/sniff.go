@@ -41,7 +41,7 @@ var sniffers = []sniffer{
 	{Bun, anyLine(`^bun (test|install|add|run) v\d`)},
 	{NX, anyLine(`^\s*> nx run |NX\s+(Successfully ran|Ran target|Running target)`)},
 	{JSTest, anyLine(`^\s*(PASS|FAIL)\s+\S+\.(test|spec)\.\w+|^Tests:\s+\d|^\s*Test Files\s+\d`)},
-	{NPM, anyLine(`^npm (warn|WARN|ERR!|error|notice) |^added \d+ packages?|^up to date, audited|^> \S+@\S+ \S+`)},
+	{NPM, anyLine(`^npm (warn|WARN|ERR!|error|notice|http|info|verb|sill|timing) |^added \d+ packages?|^up to date, audited|^> \S+@\S+ \S+`)},
 	{Grep, ratio(`^[^\s:\d][^\s:]*:\d+[:-]`, 0.6)}, // path can't start with a digit: timestamps
 	{LS, func(t string, l []string) bool { return lsTotal(t, l) && lsMode(t, l) }},
 	{Log, ratio(`^\[?(\d{4}-\d\d-\d\d[T ]\d\d:\d\d|\d\d:\d\d:\d\d|[A-Z][a-z]{2} [ \d]\d \d\d:\d\d)|^\[?(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL)\b|\blevel=(debug|info|warn|error)`, 0.5)},

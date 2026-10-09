@@ -8,6 +8,7 @@ package ledger
 type event struct {
 	ID         uint   `gorm:"primaryKey"`
 	TS         int64  `gorm:"not null"`
+	Session    string `gorm:"not null;default:'';index"`
 	Pipeline   string `gorm:"not null"`
 	Key        string `gorm:"not null;index"`
 	Route      string `gorm:"not null"`
@@ -17,6 +18,17 @@ type event struct {
 	DurationMS int64  `gorm:"not null"`
 	RawID      string `gorm:"not null"`
 	Outcome    string `gorm:"not null"`
+	Steps      []step `gorm:"foreignKey:EventID"`
+}
+
+// step is one optimizer's effect within an event.
+type step struct {
+	ID        uint   `gorm:"primaryKey"`
+	EventID   uint   `gorm:"not null;index"`
+	Optimizer string `gorm:"not null"`
+	Family    string `gorm:"not null;index"`
+	RawTokens int    `gorm:"not null"`
+	OutTokens int    `gorm:"not null"`
 }
 
 // raw is an original payload kept retrievable until TTL prune.

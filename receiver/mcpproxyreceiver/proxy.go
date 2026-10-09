@@ -22,6 +22,7 @@ type Receiver struct {
 	log      *slog.Logger
 	ledger   component.Ledger
 	upstream mcp.Transport
+	sessions *mcptool.Sessions
 }
 
 type ctxKey struct{}
@@ -53,6 +54,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 	if down == nil {
 		return nil
 	}
+	r.sessions = mcptool.NewSessions(ctx)
 	client := mcp.NewClient(&mcp.Implementation{Name: "gascoigne-proxy", Version: "0.1.0"}, nil)
 	cs, err := client.Connect(ctx, down, nil)
 	if err != nil {
@@ -108,6 +110,7 @@ func (r *Receiver) forward(cs *mcp.ClientSession, name string) mcp.ToolHandler {
 			}
 			p := payload.New(payload.ToolResult, tc.Text)
 			p.Set(payload.AttrTool, name)
+			p.Set(payload.AttrSession, r.sessions.Of(req))
 			out, err := r.next.Process(ctx, p)
 			if err != nil {
 				r.log.Warn("optimize tool result, passing original", "tool", name, "err", err)

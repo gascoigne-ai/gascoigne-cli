@@ -44,7 +44,7 @@ func (pl *Pipeline) Optimize(ctx context.Context, in *payload.Payload) (*payload
 			p.Set(k, v)
 		}
 	}
-	ev := component.Event{TS: start, Pipeline: pl.name, Key: p.Key(), RawTokens: p.Tokens()}
+	ev := component.Event{TS: start, Session: p.Attrs[payload.AttrSession], Pipeline: pl.name, Key: p.Key(), RawTokens: p.Tokens()}
 	p, err := pl.run(ctx, p, &ev)
 	if err != nil {
 		return nil, err
@@ -80,12 +80,16 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 	p.Set(payload.AttrRoute, ev.Route)
 	orig := p.Clone()
 	for _, id := range ev.Optimizers {
+		before := p.Tokens()
 		if err := pl.svc.optimizers[id].Optimize(ctx, p); err != nil {
 			// Never fail the agent: fall back to the original and remember the source.
 			pl.svc.log.Warn("optimizer failed, using original", "optimizer", id, "err", err)
-			ev.Outcome = component.Failed
+			ev.Outcome, ev.Steps = component.Failed, nil
 			pl.markFailure(ctx, ev.Key, component.ReasonError)
 			return orig, nil
+		}
+		if after := p.Tokens(); after != before {
+			ev.Steps = append(ev.Steps, component.Step{Optimizer: id, Family: pl.svc.families[id], RawTokens: before, OutTokens: after})
 		}
 	}
 	if p.SameContent(orig) {
@@ -97,7 +101,7 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 	if err != nil {
 		// Without a saved original the optimized output would be lossy.
 		pl.svc.log.Warn("save raw failed, using original", "err", err)
-		ev.Outcome = component.Failed
+		ev.Outcome, ev.Steps = component.Failed, nil
 		return orig, nil
 	}
 	p.Set(payload.AttrRawID, id)

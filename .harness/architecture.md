@@ -46,7 +46,7 @@ Start order: extensions → exporters → optimizers → filters → receivers. 
 `payload.Payload{Blocks []Block{Kind, Text, Type}, Attrs map[string]string}`.
 Kinds (where it came from): `cmd_output`, `tool_result`, `message`, `json`.
 Type (what it is): detected content type, per block — see below.
-Well-known attrs: `cmd`, `file`, `url`, `tool`, `mime`, `query`, `raw`, `raw_id`, `route`, `raw_tokens`, `out_tokens`.
+Well-known attrs: `cmd`, `file`, `url`, `tool`, `mime`, `query`, `session`, `raw`, `raw_id`, `route`, `raw_tokens`, `out_tokens`.
 `Key()` = stable source identity (`file:` > `url:` > `cmd:` > `tool:`), used for failure history.
 
 ## Content detection (`detect/`, `filter/detectfilter`)
@@ -120,6 +120,21 @@ Tables: `events` (every trip: route, tokens, outcome), `raw` (originals, TTL-pru
 `failures` (per-key count). Gorm models in `models.go`; `AutoMigrate` on Start adds new
 tables/columns/indexes. Renames, drops or type changes need an explicit migration step — ask first.
 Pure-Go driver (`gormlite`), WAL mode, busy timeout 5s.
+
+Tables also include `steps` (per event, each optimizer that changed tokens: optimizer, family,
+tokens before/after) and `events.session`.
+
+Sessions: `-session ID` on any command (or `$GASCOIGNE_SESSION`) tags events; MCP servers use
+explicit `-session`, else the MCP transport session id, else one id per server run.
+Reports — `gascoigne gain`:
+| Command | Shows |
+|---|---|
+| `gain` | per route, all sessions |
+| `gain -by session` | per session with time range |
+| `gain -session ID -by family` | how much each optimizer family saved in that session |
+| `gain -by optimizer [-session ID]` | per optimizer |
+| `gain -all` | ignore `-session`/`$GASCOIGNE_SESSION` |
+MCP `stats {by?, session?}` defaults to family breakdown of the calling session (`session: all`).
 
 Failure signals → `MarkFailure(key, reason)`:
 - optimizer error (`error`), agent fetched raw (`raw_requested`), `gascoigne fail` (`manual`).

@@ -20,6 +20,7 @@ import (
 	"github.com/lukaszb/gascoigne/internal/config"
 	"github.com/lukaszb/gascoigne/internal/registry"
 	"github.com/lukaszb/gascoigne/internal/service"
+	"github.com/lukaszb/gascoigne/mcptool"
 	"github.com/lukaszb/gascoigne/payload"
 	"github.com/lukaszb/gascoigne/receiver/execreceiver"
 	"github.com/lukaszb/gascoigne/receiver/mcpproxyreceiver"
@@ -88,6 +89,7 @@ type common struct {
 	sets    listFlag
 	only    string
 	disable string
+	session string
 }
 
 func (c *common) register(fs *flag.FlagSet) {
@@ -98,7 +100,10 @@ func (c *common) register(fs *flag.FlagSet) {
 	fs.Var(&c.sets, "set", "config override path=yaml (repeatable, after $GASCOIGNE_SET), e.g. -set optimizers.grep.max_per_file=50")
 	fs.StringVar(&c.only, "only", "", "comma list: run only these optimizers (default $GASCOIGNE_ONLY)")
 	fs.StringVar(&c.disable, "disable", "", "comma list: skip these optimizers (default $GASCOIGNE_DISABLE)")
+	fs.StringVar(&c.session, "session", "", "agent session id for stats (default $GASCOIGNE_SESSION)")
 }
+
+func (c *common) sessionID() string { return cmp.Or(c.session, os.Getenv("GASCOIGNE_SESSION")) }
 
 // overrides merges env (per agent, set once in its environment) with flags (per run).
 func (c *common) overrides() config.Overrides {
@@ -135,6 +140,9 @@ func (c *common) start(ctx context.Context) (*service.Service, error) {
 		level = slog.LevelDebug
 	}
 	log := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level}))
+	if id := c.sessionID(); id != "" {
+		c.attrs[payload.AttrSession] = id
+	}
 	svc, err := service.New(ctx, cfg, registry.Factories(), service.Options{Logger: log, Attrs: c.attrs})
 	if err != nil {
 		return nil, err
@@ -260,7 +268,8 @@ func serve(ctx context.Context, pipeline string, args []string, with func(contex
 	if err != nil {
 		return err
 	}
-	return errors.Join(svc.Run(with(ctx, fs.Args()), *name), svc.Shutdown(context.WithoutCancel(ctx)))
+	run := mcptool.WithSession(with(ctx, fs.Args()), c.sessionID())
+	return errors.Join(svc.Run(run, *name), svc.Shutdown(context.WithoutCancel(ctx)))
 }
 
 func cmdConfig(_ context.Context, args []string) error {

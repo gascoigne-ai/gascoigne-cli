@@ -50,7 +50,7 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 	if err != nil {
 		return err
 	}
-	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &raw{}, &failure{}); err != nil {
+	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &step{}, &raw{}, &failure{}); err != nil {
 		return fmt.Errorf("ledger migrate: %w", err)
 	}
 	return l.prune(ctx)
@@ -104,8 +104,13 @@ func (l *Ledger) GetRaw(ctx context.Context, id string) (string, *payload.Payloa
 }
 
 func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
+	steps := make([]step, len(ev.Steps))
+	for i, s := range ev.Steps {
+		steps[i] = step{Optimizer: s.Optimizer, Family: s.Family, RawTokens: s.RawTokens, OutTokens: s.OutTokens}
+	}
 	return l.db.WithContext(ctx).Create(&event{
 		TS:         ev.TS.UnixMilli(),
+		Session:    ev.Session,
 		Pipeline:   ev.Pipeline,
 		Key:        ev.Key,
 		Route:      ev.Route,
@@ -115,6 +120,7 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 		DurationMS: ev.Duration.Milliseconds(),
 		RawID:      ev.RawID,
 		Outcome:    string(ev.Outcome),
+		Steps:      steps,
 	}).Error
 }
 

@@ -166,6 +166,10 @@
   attrs: { cmd: npm run build }
   expect_type: npm
   keep: ["src/order.ts(3,3): error TS2322", "src/order.ts(12,22): error TS7006"]
+- name: detect/npm-verbose
+  file: npm/install-verbose.txt
+  expect_type: npm
+  min_saved: 95
 - name: detect/jest
   file: npm/test-jest-fail.txt
   expect_type: js-test

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"slices"
 	"testing"
 	"time"
 
@@ -85,13 +86,19 @@ func TestFailures(t *testing.T) {
 	}
 }
 
-func TestGain(t *testing.T) {
+func TestStats(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()
 	events := []component.Event{
-		{Route: "git", RawTokens: 100, OutTokens: 20, Outcome: component.Optimized},
-		{Route: "git", RawTokens: 50, OutTokens: 50, Outcome: component.Failed},
-		{RawTokens: 10, OutTokens: 10, Outcome: component.Bypassed},
+		{Session: "s1", Route: "default", RawTokens: 100, OutTokens: 20, Outcome: component.Optimized, Steps: []component.Step{
+			{Optimizer: "npm", Family: "js", RawTokens: 100, OutTokens: 50},
+			{Optimizer: "log", Family: "data", RawTokens: 50, OutTokens: 20},
+		}},
+		{Session: "s1", Route: "default", RawTokens: 50, OutTokens: 50, Outcome: component.Failed},
+		{Session: "s2", RawTokens: 10, OutTokens: 10, Outcome: component.Bypassed},
+		{Session: "s2", Route: "default", RawTokens: 40, OutTokens: 10, Outcome: component.Optimized, Steps: []component.Step{
+			{Optimizer: "bun", Family: "js", RawTokens: 40, OutTokens: 10},
+		}},
 	}
 	for _, ev := range events {
 		ev.TS = time.Now()
@@ -99,16 +106,44 @@ func TestGain(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	stats, err := l.Stats(ctx)
-	if err != nil {
-		t.Fatal(err)
+	tests := []struct {
+		q    component.StatsQuery
+		want []component.Stat
+	}{
+		{component.StatsQuery{}, []component.Stat{
+			{Group: "default", Runs: 3, Optimized: 2, Failed: 1, RawTokens: 190, OutTokens: 80},
+			{Group: "-", Runs: 1, RawTokens: 10, OutTokens: 10},
+		}},
+		{component.StatsQuery{By: component.BySession}, []component.Stat{
+			{Group: "s1", Runs: 2, Optimized: 1, Failed: 1, RawTokens: 150, OutTokens: 70},
+			{Group: "s2", Runs: 2, Optimized: 1, RawTokens: 50, OutTokens: 20},
+		}},
+		{component.StatsQuery{By: component.ByFamily}, []component.Stat{
+			{Group: "js", Runs: 2, Optimized: 2, RawTokens: 140, OutTokens: 60},
+			{Group: "data", Runs: 1, Optimized: 1, RawTokens: 50, OutTokens: 20},
+		}},
+		{component.StatsQuery{By: component.ByOptimizer, Session: "s1"}, []component.Stat{
+			{Group: "npm", Runs: 1, Optimized: 1, RawTokens: 100, OutTokens: 50},
+			{Group: "log", Runs: 1, Optimized: 1, RawTokens: 50, OutTokens: 20},
+		}},
 	}
-	want := []component.Stat{
-		{Route: "git", Runs: 2, Optimized: 1, Failed: 1, RawTokens: 150, OutTokens: 70},
-		{Route: "-", Runs: 1, RawTokens: 10, OutTokens: 10},
+	for _, tt := range tests {
+		got, err := l.Stats(ctx, tt.q)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for i := range got {
+			if got[i].First.IsZero() || got[i].Last.Before(got[i].First) {
+				t.Errorf("%+v: bad time range %v..%v", tt.q, got[i].First, got[i].Last)
+			}
+			got[i].First, got[i].Last = time.Time{}, time.Time{}
+		}
+		if !slices.Equal(got, tt.want) {
+			t.Errorf("%+v:\n got  %+v\n want %+v", tt.q, got, tt.want)
+		}
 	}
-	if len(stats) != len(want) || stats[0] != want[0] || stats[1] != want[1] {
-		t.Fatalf("Gain = %+v, want %+v", stats, want)
+	if _, err := l.Stats(ctx, component.StatsQuery{By: "bogus"}); err == nil {
+		t.Error("unknown grouping accepted")
 	}
 }
 
