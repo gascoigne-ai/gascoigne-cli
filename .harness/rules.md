@@ -8,6 +8,8 @@ Hard rules for every agent and human change. Breaking one = change rejected.
   - `gorm.io/gorm` — ledger ORM
   - `github.com/ncruces/go-sqlite3/gormlite` — gorm sqlite dialect, pure Go (wasm), no cgo.
     Never swap in a cgo driver (`gorm.io/driver/sqlite`, mattn): builds must stay `CGO_ENABLED=0`.
+  - `golang.org/x/net` — HTML parsing (`html`, `html/atom`) for web data
+  - `github.com/modelcontextprotocol/go-sdk` — MCP server/client
 - New dep only when the user explicitly asks. Never add one to "save time".
 
 ## Verification

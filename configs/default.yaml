@@ -15,7 +15,7 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [go, git, grep, ls, json, log, cat, npm, bun, nx]
+  default: [go, git, grep, ls, json, log, cat, npm, bun, nx, html]
 
 optimizers:
   go: {}
@@ -29,6 +29,7 @@ optimizers:
   npm: {}
   bun: {}
   nx: {}
+  html: { links: true }
 
 exporters:
   stdout: { hint: true }

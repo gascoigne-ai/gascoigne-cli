@@ -1,7 +1,8 @@
 # Eval cases. Fixtures are real tool output where the tool was available
 # (go, git, grep, rg, ls, npm, curl), realistic synthetic otherwise (nx, bun, logs).
 #   attrs        hints as an agent wrapper would set them; omit to test pure detection
-#   expect_type  detected block type(s), "a+b" for multi-block
+#   expect_type  block type(s) after optimization, "a+b" for multi-block
+#                (detected type, except html which becomes markdown)
 #   keep         substrings that must survive optimization
 #   min_saved    lowest acceptable saving, percent
 # Goldens in golden/<name>.out; review diffs, then `gascoigne eval -update`.
@@ -226,15 +227,17 @@
 # --- html (web data)
 - file: html/go-dev-layout.html
   attrs: { mime: text/html }
-  expect_type: html
-  keep: ["Organizing a Go module"]
+  expect_type: markdown
+  keep: ["Organizing a Go module", "## ", "```"]
+  min_saved: 70
 - file: html/go-dev-blog.html
   attrs: { mime: text/html }
-  expect_type: html
-  keep: ["Routing Enhancements for Go 1.22"]
+  expect_type: markdown
+  keep: ["Routing Enhancements for Go 1.22", "## Precedence", "http.HandleFunc(\"GET /posts/{id}\", handlePost2)", "[GitHub discussion](https://github.com/golang/go/discussions/60227)"]
+  min_saved: 70
 - name: detect/html
   file: html/go-dev-blog.html
-  expect_type: html
+  expect_type: markdown
 
 # --- log
 - file: log/app.log

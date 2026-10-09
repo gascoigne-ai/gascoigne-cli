@@ -14,6 +14,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/gitoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/gooptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/grepoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/htmloptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/jsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/logoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/lsoptimizer"
@@ -44,6 +45,7 @@ func Factories() []component.Factory {
 		npmoptimizer.NewFactory(),
 		bunoptimizer.NewFactory(),
 		nxoptimizer.NewFactory(),
+		htmloptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),
 		// extensions
