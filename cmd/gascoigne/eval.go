@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"errors"
@@ -8,38 +9,70 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/lukaszb/gascoigne/extension/ledger"
 	"github.com/lukaszb/gascoigne/internal/config"
 	"github.com/lukaszb/gascoigne/internal/registry"
+	"github.com/lukaszb/gascoigne/internal/service"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
+type evalBlock struct {
+	File string       `yaml:"file"`
+	Kind payload.Kind `yaml:"kind"`
+}
+
 type evalCase struct {
+	Name  string            `yaml:"name"`
 	File  string            `yaml:"file"`
 	Kind  payload.Kind      `yaml:"kind"`
 	Attrs map[string]string `yaml:"attrs"`
+	// Blocks builds a multi-block payload instead of File.
+	Blocks []evalBlock `yaml:"blocks"`
+	// ExpectType is the detected type of the blocks ("a+b" for several kinds).
+	ExpectType string `yaml:"expect_type"`
+	// Keep lists substrings that must survive optimization.
+	Keep []string `yaml:"keep"`
+	// MinSaved is the lowest acceptable saving in percent.
+	MinSaved float64 `yaml:"min_saved"`
+}
+
+func (c *evalCase) name() string {
+	return cmp.Or(c.Name, strings.TrimSuffix(c.File, filepath.Ext(c.File)))
+}
+
+type evalFlags struct {
+	cases, pipeline, show string
+	update                bool
 }
 
 // cmdEval pushes fixtures through a pipeline (without exporters) against a
-// throwaway ledger, reports savings and checks every original is retrievable.
+// throwaway ledger, reports savings and checks assertions, goldens and that
+// every original is retrievable byte-exact.
 func cmdEval(ctx context.Context, args []string) error {
-	var c common
+	var (
+		c  common
+		ef evalFlags
+	)
 	fs := flag.NewFlagSet("eval", flag.ContinueOnError)
 	c.register(fs)
-	casesPath := fs.String("cases", "testdata/eval/cases.yaml", "eval cases file; fixture paths are relative to it")
-	pipeline := fs.String("pipeline", "cli", "pipeline to evaluate")
+	fs.StringVar(&ef.cases, "cases", "testdata/eval/cases.yaml", "eval cases file; fixture paths are relative to it")
+	fs.StringVar(&ef.pipeline, "pipeline", "cli", "pipeline to evaluate")
+	fs.StringVar(&ef.show, "show", "", "print optimized output of cases whose name contains this")
+	fs.BoolVar(&ef.update, "update", false, "rewrite golden outputs")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
-	data, err := os.ReadFile(*casesPath)
+	data, err := os.ReadFile(ef.cases)
 	if err != nil {
 		return err
 	}
 	var cases []evalCase
 	if err := config.Decode(data, &cases); err != nil {
-		return fmt.Errorf("%s: %w", *casesPath, err)
+		return fmt.Errorf("%s: %w", ef.cases, err)
 	}
 
 	tmp, err := os.MkdirTemp("", "gascoigne-eval-")
@@ -54,44 +87,131 @@ func cmdEval(ctx context.Context, args []string) error {
 		return err
 	}
 	defer svc.Shutdown(context.WithoutCancel(ctx))
-	pl, ok := svc.Pipeline(*pipeline)
+	pl, ok := svc.Pipeline(ef.pipeline)
 	if !ok {
-		return fmt.Errorf("no pipeline %q", *pipeline)
+		return fmt.Errorf("no pipeline %q", ef.pipeline)
 	}
 
+	dir := filepath.Dir(ef.cases)
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "case\troute\traw tok\tout tok\tsaved %\traw ok")
+	fmt.Fprintln(w, "case\ttype\troute\traw tok\tout tok\tsaved\tcheck")
 	var rawTotal, outTotal int
-	var errs []error
+	var errs, shows []string
 	for _, tc := range cases {
-		text, err := os.ReadFile(filepath.Join(filepath.Dir(*casesPath), tc.File))
+		r, err := runCase(ctx, svc, pl, dir, &tc, ef.update)
 		if err != nil {
-			return err
+			return fmt.Errorf("%s: %w", tc.name(), err)
 		}
-		in := payload.New(tc.Kind, string(text))
-		for k, v := range tc.Attrs {
-			in.Set(k, v)
-		}
-		out, err := pl.Optimize(ctx, in)
-		if err != nil {
-			return fmt.Errorf("%s: %w", tc.File, err)
-		}
-		rawOK := "-"
-		if id := out.Attrs[payload.AttrRawID]; id != "" {
-			rawOK = "yes"
-			if _, orig, err := svc.Ledger().GetRaw(ctx, id); err != nil || !orig.SameContent(in) {
-				rawOK = "NO"
-				errs = append(errs, fmt.Errorf("%s: original not retrievable byte-exact (%v)", tc.File, err))
+		rawTotal += r.raw
+		outTotal += r.out
+		check := "ok"
+		if len(r.problems) > 0 {
+			check = "FAIL"
+			for _, p := range r.problems {
+				errs = append(errs, tc.name()+": "+p)
 			}
 		}
-		raw, opt := in.Tokens(), out.Tokens()
-		rawTotal += raw
-		outTotal += opt
-		fmt.Fprintf(w, "%s\t%s\t%d\t%d\t%s\t%s\n", tc.File, cmp.Or(out.Attrs[payload.AttrRoute], "-"), raw, opt, percent(raw-opt, raw), rawOK)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%d\t%s\t%s\n", tc.name(), r.types, r.route, r.raw, r.out, percent(r.raw-r.out, r.raw), check)
+		if ef.show != "" && strings.Contains(tc.name(), ef.show) {
+			shows = append(shows, fmt.Sprintf("=== %s ===\n%s", tc.name(), r.text))
+		}
 	}
-	fmt.Fprintf(w, "total\t\t%d\t%d\t%s\t\n", rawTotal, outTotal, percent(rawTotal-outTotal, rawTotal))
+	fmt.Fprintf(w, "total\t\t\t%d\t%d\t%s\t\n", rawTotal, outTotal, percent(rawTotal-outTotal, rawTotal))
 	w.Flush()
-	return errors.Join(errs...)
+	for _, s := range shows {
+		fmt.Println(s)
+	}
+	if len(errs) > 0 {
+		fmt.Fprintln(os.Stderr, "\nfailures:\n  "+strings.Join(errs, "\n  "))
+		return errors.New("eval failed")
+	}
+	return nil
+}
+
+type caseResult struct {
+	types, route, text string
+	raw, out           int
+	problems           []string
+}
+
+func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, dir string, tc *evalCase, update bool) (*caseResult, error) {
+	in, err := tc.payload(dir)
+	if err != nil {
+		return nil, err
+	}
+	out, err := pl.Optimize(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	r := &caseResult{
+		types: blockTypes(out),
+		route: cmp.Or(out.Attrs[payload.AttrRoute], "-"),
+		text:  out.Text(),
+		raw:   in.Tokens(),
+		out:   out.Tokens(),
+	}
+	fail := func(format string, args ...any) { r.problems = append(r.problems, fmt.Sprintf(format, args...)) }
+
+	if id := out.Attrs[payload.AttrRawID]; id != "" {
+		if _, orig, err := svc.Ledger().GetRaw(ctx, id); err != nil || !sameText(orig, in) {
+			fail("original not retrievable byte-exact (%v)", err)
+		}
+	}
+	if tc.ExpectType != "" && r.types != tc.ExpectType {
+		fail("type %s, want %s", r.types, tc.ExpectType)
+	}
+	for _, k := range tc.Keep {
+		if !strings.Contains(r.text, k) {
+			fail("lost %q", k)
+		}
+	}
+	if saved := 100 * float64(r.raw-r.out) / float64(max(r.raw, 1)); saved < tc.MinSaved {
+		fail("saved %.1f%% < min %.0f%%", saved, tc.MinSaved)
+	}
+
+	golden := filepath.Join(dir, "golden", tc.name()+".out")
+	if update {
+		if err := os.MkdirAll(filepath.Dir(golden), 0o755); err != nil {
+			return nil, err
+		}
+		return r, os.WriteFile(golden, []byte(r.text), 0o644)
+	}
+	if want, err := os.ReadFile(golden); err == nil && !bytes.Equal(want, []byte(r.text)) {
+		fail("differs from golden %s (review, then rerun with -update)", golden)
+	}
+	return r, nil
+}
+
+// sameText compares block texts only: detection fills in Block.Type on the stored original.
+func sameText(a, b *payload.Payload) bool {
+	return slices.EqualFunc(a.Blocks, b.Blocks, func(x, y payload.Block) bool { return x.Kind == y.Kind && x.Text == y.Text })
+}
+
+func (c *evalCase) payload(dir string) (*payload.Payload, error) {
+	blocks := c.Blocks
+	if len(blocks) == 0 {
+		blocks = []evalBlock{{c.File, c.Kind}}
+	}
+	p := &payload.Payload{Attrs: map[string]string{}}
+	for _, b := range blocks {
+		text, err := os.ReadFile(filepath.Join(dir, b.File))
+		if err != nil {
+			return nil, err
+		}
+		p.Blocks = append(p.Blocks, payload.Block{Kind: cmp.Or(b.Kind, payload.CmdOutput), Text: string(text)})
+	}
+	for k, v := range c.Attrs {
+		p.Set(k, v)
+	}
+	return p, nil
+}
+
+func blockTypes(p *payload.Payload) string {
+	var types []string
+	for _, b := range p.Blocks {
+		types = append(types, cmp.Or(b.Type, "-"))
+	}
+	return strings.Join(slices.Compact(types), "+")
 }
 
 func cmdComponents(_ context.Context, args []string) error {

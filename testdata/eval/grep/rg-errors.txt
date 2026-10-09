@@ -1,0 +1,979 @@
+active_help_test.go:45:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:54:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:71:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:80:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:106:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:117:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:130:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:141:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:154:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:165:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:191:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:201:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:215:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:227:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:250:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:262:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:286:			t.Errorf("expected activeHelpConfig: %q, but got: %q", activeHelpCfg, receivedActiveHelpCfg)
+active_help_test.go:293:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:308:			t.Errorf("expected activeHelpConfig: %q, but got: %q", activeHelpCfg, receivedActiveHelpCfg)
+active_help_test.go:315:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:346:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:357:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:368:		t.Errorf("Unexpected error: %v", err)
+active_help_test.go:378:		t.Errorf("expected: %q, got: %q", expected, output)
+active_help_test.go:391:			t.Errorf("expected activeHelpConfig: %q, but got: %q", activeHelpCfg, receivedActiveHelpCfg)
+active_help_test.go:398:		t.Errorf("Unexpected error: %v", err)
+args_test.go:35:func expectSuccess(output string, err error, t *testing.T) {
+args_test.go:37:		t.Errorf("Unexpected output: %v", output)
+args_test.go:40:		t.Fatalf("Unexpected error: %v", err)
+args_test.go:44:func validOnlyWithInvalidArgs(err error, t *testing.T) {
+args_test.go:46:		t.Fatal("Expected an error")
+args_test.go:48:	got := err.Error()
+args_test.go:51:		t.Errorf("Expected: %q, got: %q", expected, got)
+args_test.go:55:func noArgsWithArgs(err error, t *testing.T, arg string) {
+args_test.go:57:		t.Fatal("Expected an error")
+args_test.go:59:	got := err.Error()
+args_test.go:62:		t.Errorf("Expected: %q, got: %q", expected, got)
+args_test.go:66:func minimumNArgsWithLessArgs(err error, t *testing.T) {
+args_test.go:68:		t.Fatal("Expected an error")
+args_test.go:70:	got := err.Error()
+args_test.go:77:func maximumNArgsWithMoreArgs(err error, t *testing.T) {
+args_test.go:79:		t.Fatal("Expected an error")
+args_test.go:81:	got := err.Error()
+args_test.go:88:func exactArgsWithInvalidCount(err error, t *testing.T) {
+args_test.go:90:		t.Fatal("Expected an error")
+args_test.go:92:	got := err.Error()
+args_test.go:99:func rangeArgsWithInvalidCount(err error, t *testing.T) {
+args_test.go:101:		t.Fatal("Expected an error")
+args_test.go:103:	got := err.Error()
+args_test.go:110:func noDuplicateArgsWithDuplicate(err error, t *testing.T, arg string) {
+args_test.go:112:		t.Fatal("Expected an error")
+args_test.go:114:	got := err.Error()
+args_test.go:117:		t.Errorf("Expected: %q, got: %q", expected, got)
+args_test.go:428:		t.Fatal("Expected an error")
+args_test.go:431:	got := err.Error()
+args_test.go:434:		t.Errorf("expected %q, got %q", expected, got)
+args_test.go:445:		t.Errorf("Unexpected error: %v", err)
+args_test.go:456:		t.Fatal("Expected an error")
+args_test.go:459:	got := err.Error()
+args_test.go:462:		t.Errorf("expected %q, got %q", expected, got)
+args_test.go:473:		t.Fatalf("Unexpected error: %v", err)
+args_test.go:482:		func(cmd *Command, args []string) error {
+args_test.go:485:					return fmt.Errorf("expected to be exactly 2 bytes long")
+args_test.go:516:				t.Errorf("unexpected: %v\n", err)
+args_test.go:519:				t.Errorf("expected error")
+args_test.go:560:		t.Fatalf("Unexpected error: %v", err)
+args_test.go:576:		t.Fatalf("Unexpected error: %v", err)
+bash_completions.go:79:    local shellCompDirectiveError=%[3]d
+bash_completions.go:119:    if [ $((directive & shellCompDirectiveError)) -ne 0 ]; then
+bash_completions.go:120:        # Error code.  No completion.
+bash_completions.go:121:        __%[1]s_debug "${FUNCNAME[0]}: received error from custom completion go code"
+bash_completions.go:400:		ShellCompDirectiveError, ShellCompDirectiveNoSpace, ShellCompDirectiveNoFileComp,
+bash_completions.go:683:func (c *Command) GenBashCompletion(w io.Writer) error {
+bash_completions.go:701:func (c *Command) GenBashCompletionFile(filename string) error {
+bash_completionsV2.go:24:func (c *Command) genBashCompletion(w io.Writer, includeDesc bool) error {
+bash_completionsV2.go:99:    local shellCompDirectiveError=%[3]d
+bash_completionsV2.go:106:    if (((directive & shellCompDirectiveError) != 0)); then
+bash_completionsV2.go:107:        # Error code.  No completion.
+bash_completionsV2.go:108:        __%[1]s_debug "Received error from custom completion go code"
+bash_completionsV2.go:464:		ShellCompDirectiveError, ShellCompDirectiveNoSpace, ShellCompDirectiveNoFileComp,
+bash_completionsV2.go:470:func (c *Command) GenBashCompletionFileV2(filename string, includeDesc bool) error {
+bash_completionsV2.go:482:func (c *Command) GenBashCompletionV2(w io.Writer, includeDesc bool) error {
+bash_completions_test.go:29:		t.Errorf("Got: %q\nBut should not have!\n", unexpected)
+bash_completions_test.go:35:		t.Errorf("Expecting to contain: \n %q\nGot:\n %q\n", expected, found)
+bash_completions_test.go:42:		t.Errorf("Expecting to contain %d occurrences of: \n %q\nGot %d:\n %q\n", expectedOccurrences, expected, numOccurrences, found)
+bash_completions_test.go:49:		t.Errorf("Error thrown performing MatchString: \n %s\n", err)
+bash_completions_test.go:52:		t.Errorf("Expecting to match: \n %q\nGot:\n %q\n", pattern, found)
+bash_completions_test.go:56:func runShellCheck(s string) error {
+bash_completions_test.go:241:		t.Errorf("Expected completion to not include %q flag: Got %v", flagName, output)
+bash_completions_test.go:257:		t.Errorf("expected completion to not include %q flag: Got %v", flagName, output)
+cobra_test.go:27:func assertNoErr(t *testing.T, e error) {
+cobra_test.go:29:		t.Error(e)
+cobra_test.go:45:		t.Errorf("Expected UsageString: %v\nGot: %v", expected, got)
+cobra_test.go:115:				t.Errorf("Expected ld: %v\nGot: %v", tt.expected, got)
+cobra_test.go:179:				t.Errorf("Expected stringInSlice: %v\nGot: %v", tt.expected, got)
+cobra_test.go:225:				t.Errorf("Expected rpad: %v\nGot: %v", tt.expected, got)
+cobra_test.go:281:		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
+cobra_test.go:299:		t.Error("compiled programs contains MethodByName symbol")
+command.go:22:	"errors"
+command.go:41:// FParseErrWhitelist configures Flag parse errors to be ignored
+command.go:42:type FParseErrWhitelist flag.ParseErrorsAllowlist
+command.go:129:	// PersistentPreRunE: PersistentPreRun but returns an error.
+command.go:130:	PersistentPreRunE func(cmd *Command, args []string) error
+command.go:133:	// PreRunE: PreRun but returns an error.
+command.go:134:	PreRunE func(cmd *Command, args []string) error
+command.go:137:	// RunE: Run but returns an error.
+command.go:138:	RunE func(cmd *Command, args []string) error
+command.go:141:	// PostRunE: PostRun but returns an error.
+command.go:142:	PostRunE func(cmd *Command, args []string) error
+command.go:145:	// PersistentPostRunE: PersistentPostRun but returns an error.
+command.go:146:	PersistentPostRunE func(cmd *Command, args []string) error
+command.go:153:	// flagErrorBuf contains all error messages from pflag.
+command.go:154:	flagErrorBuf *bytes.Buffer
+command.go:172:	usageFunc func(*Command) error
+command.go:175:	// flagErrorFunc is func defined by user and it's called when the parsing of
+command.go:176:	// flags returns an error.
+command.go:177:	flagErrorFunc func(*Command, error) error
+command.go:194:	// errPrefix is the error message prefix defined by user.
+command.go:204:	// FParseErrWhitelist flag parse errors to be ignored
+command.go:235:	// SilenceErrors is an option to quiet errors down stream.
+command.go:236:	SilenceErrors bool
+command.go:238:	// SilenceUsage is an option to silence usage when an error occurs.
+command.go:285:// SetOutput sets the destination for usage and error messages.
+command.go:300:// SetErr sets the destination for error messages.
+command.go:313:func (c *Command) SetUsageFunc(f func(*Command) error) {
+command.go:326:// SetFlagErrorFunc sets a function to generate an error when flag parsing
+command.go:328:func (c *Command) SetFlagErrorFunc(f func(*Command, error) error) {
+command.go:329:	c.flagErrorFunc = f
+command.go:375:// SetErrPrefix sets error message prefix to be used. Application can use it to set custom prefix.
+command.go:402:// ErrOrStderr returns output to stderr
+command.go:403:func (c *Command) ErrOrStderr() io.Writer {
+command.go:444:func (c *Command) UsageFunc() (f func(*Command) error) {
+command.go:451:	return func(c *Command) error {
+command.go:464:func (c *Command) getUsageTemplateFunc() func(w io.Writer, data interface{}) error {
+command.go:478:func (c *Command) Usage() error {
+command.go:505:func (c *Command) getHelpTemplateFunc() func(w io.Writer, data interface{}) error {
+command.go:520:func (c *Command) Help() error {
+command.go:544:// FlagErrorFunc returns either the function set by SetFlagErrorFunc for this
+command.go:546:// error.
+command.go:547:func (c *Command) FlagErrorFunc() (f func(*Command, error) error) {
+command.go:548:	if c.flagErrorFunc != nil {
+command.go:549:		return c.flagErrorFunc
+command.go:553:		return c.parent.FlagErrorFunc()
+command.go:555:	return func(c *Command, err error) error {
+command.go:631:func (c *Command) getVersionTemplateFunc() func(w io.Writer, data interface{}) error {
+command.go:642:// ErrPrefix return error message prefix for the command
+command.go:651:	return "Error:"
+command.go:757:func (c *Command) Find(args []string) (*Command, []string, error) {
+command.go:821:func (c *Command) Traverse(args []string) (*Command, []string, error) {
+command.go:905:func (c *Command) execute(a []string) (err error) {
+command.go:907:		return fmt.Errorf("called Execute() on a nil Command")
+command.go:921:		return c.FlagErrorFunc()(c, err)
+command.go:1062:func (c *Command) ExecuteContext(ctx context.Context) error {
+command.go:1070:func (c *Command) Execute() error {
+command.go:1078:func (c *Command) ExecuteContextC(ctx context.Context) (*Command, error) {
+command.go:1084:func (c *Command) ExecuteC() (cmd *Command, err error) {
+command.go:1130:		if !c.SilenceErrors {
+command.go:1131:			c.PrintErrln(c.ErrPrefix(), err.Error())
+command.go:1150:		// Always show help if requested, even if SilenceErrors is in
+command.go:1152:		if errors.Is(err, flag.ErrHelp) {
+command.go:1157:		// If root command has SilenceErrors flagged,
+command.go:1159:		if !cmd.SilenceErrors && !c.SilenceErrors {
+command.go:1160:			c.PrintErrln(cmd.ErrPrefix(), err.Error())
+command.go:1172:func (c *Command) ValidateArgs(args []string) error {
+command.go:1179:// ValidateRequiredFlags validates all required flags are present and returns an error otherwise
+command.go:1180:func (c *Command) ValidateRequiredFlags() error {
+command.go:1198:		return fmt.Errorf(`required flag(s) "%s" not set`, strings.Join(missingFlagNames, `", "`))
+command.go:1204:// If so, we panic because it indicates a coding error that should be corrected.
+command.go:1451:	fmt.Fprint(c.ErrOrStderr(), i...)
+command.go:1529:		c.Println(x.flagErrorBuf)
+command.go:1690:		c.flags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)
+command.go:1691:		if c.flagErrorBuf == nil {
+command.go:1692:			c.flagErrorBuf = new(bytes.Buffer)
+command.go:1694:		c.flags.SetOutput(c.flagErrorBuf)
+command.go:1705:	out := flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)
+command.go:1720:		c.lflags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)
+command.go:1721:		if c.flagErrorBuf == nil {
+command.go:1722:			c.flagErrorBuf = new(bytes.Buffer)
+command.go:1724:		c.lflags.SetOutput(c.flagErrorBuf)
+command.go:1748:		c.iflags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)
+command.go:1749:		if c.flagErrorBuf == nil {
+command.go:1750:			c.flagErrorBuf = new(bytes.Buffer)
+command.go:1752:		c.iflags.SetOutput(c.flagErrorBuf)
+command.go:1777:		c.pflags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)
+command.go:1778:		if c.flagErrorBuf == nil {
+command.go:1779:			c.flagErrorBuf = new(bytes.Buffer)
+command.go:1781:		c.pflags.SetOutput(c.flagErrorBuf)
+command.go:1788:	c.flagErrorBuf = new(bytes.Buffer)
+command.go:1789:	c.flagErrorBuf.Reset()
+command.go:1790:	c.flags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)
+command.go:1791:	c.flags.SetOutput(c.flagErrorBuf)
+command.go:1792:	c.pflags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)
+command.go:1793:	c.pflags.SetOutput(c.flagErrorBuf)
+command.go:1868:func (c *Command) ParseFlags(args []string) error {
+command.go:1873:	if c.flagErrorBuf == nil {
+command.go:1874:		c.flagErrorBuf = new(bytes.Buffer)
+command.go:1876:	beforeErrorBufLen := c.flagErrorBuf.Len()
+command.go:1880:	c.Flags().ParseErrorsAllowlist = flag.ParseErrorsAllowlist(c.FParseErrWhitelist)
+command.go:1884:	if c.flagErrorBuf.Len()-beforeErrorBufLen > 0 && err == nil {
+command.go:1885:		c.Print(c.flagErrorBuf.String())
+command.go:1909:		c.parentsPflags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)
+command.go:1910:		c.parentsPflags.SetOutput(c.flagErrorBuf)
+command.go:1939:	fn   func(io.Writer, interface{}) error
+command.go:1974:func defaultUsageFunc(w io.Writer, in interface{}) error {
+command.go:2047:func defaultHelpFunc(w io.Writer, in interface{}) error {
+command.go:2068:func defaultVersionFunc(w io.Writer, in interface{}) error {
+command_test.go:32:func executeCommand(root *Command, args ...string) (output string, err error) {
+command_test.go:37:func executeCommandWithContext(ctx context.Context, root *Command, args ...string) (output string, err error) {
+command_test.go:48:func executeCommandC(root *Command, args ...string) (c *Command, output string, err error) {
+command_test.go:59:func executeCommandWithContextC(ctx context.Context, root *Command, args ...string) (c *Command, output string, err error) {
+command_test.go:71:	pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
+command_test.go:76:		t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", expected, got)
+command_test.go:82:		t.Errorf("Expected to not contain: \n %v\nGot: %v", expected, got)
+command_test.go:101:		t.Errorf("Unexpected output: %v", output)
+command_test.go:104:		t.Errorf("Unexpected error: %v", err)
+command_test.go:109:		t.Errorf("rootCmdArgs expected: %q, got: %q", onetwo, got)
+command_test.go:126:		t.Errorf("Unexpected output: %v", output)
+command_test.go:129:		t.Errorf("Unexpected error: %v", err)
+command_test.go:134:		t.Errorf("child1CmdArgs expected: %q, got: %q", onetwo, got)
+command_test.go:142:		t.Errorf("Calling command without subcommands should not have error: %v", err)
+command_test.go:152:	expected := "Error: unknown command \"unknown\" for \"root\"\nRun 'root --help' for usage.\n"
+command_test.go:155:		t.Errorf("Expected:\n %q\nGot:\n %q\n", expected, output)
+command_test.go:166:		t.Errorf("Unexpected output: %v", output)
+command_test.go:169:		t.Errorf("Unexpected error: %v", err)
+command_test.go:173:		t.Errorf(`invalid command returned from ExecuteC: expected "child"', got: %q`, c.Name())
+command_test.go:182:			t.Errorf("Command %q must have context when called with ExecuteContext", cmd.Use)
+command_test.go:194:		t.Errorf("Root command must not fail: %+v", err)
+command_test.go:198:		t.Errorf("Subcommand must not fail: %+v", err)
+command_test.go:202:		t.Errorf("Command child must not fail: %+v", err)
+command_test.go:211:			t.Errorf("Command %q must have context when called with ExecuteContext", cmd.Use)
+command_test.go:223:		t.Errorf("Root command must not fail: %+v", err)
+command_test.go:227:		t.Errorf("Subcommand must not fail: %+v", err)
+command_test.go:231:		t.Errorf("Command child must not fail: %+v", err)
+command_test.go:238:			t.Errorf("Command %s must have background context", cmd.Use)
+command_test.go:250:		t.Errorf("Root command must not fail: %+v", err)
+command_test.go:254:		t.Errorf("Subcommand must not fail: %+v", err)
+command_test.go:258:		t.Errorf("Command child must not fail: %+v", err)
+command_test.go:264:	rootCmd.SilenceErrors = true
+command_test.go:270:		t.Errorf("Expected blank output, because of silenced usage.\nGot:\n %q\n", output)
+command_test.go:293:		t.Errorf("Unexpected output: %v", output)
+command_test.go:296:		t.Errorf("Unexpected error: %v", err)
+command_test.go:301:		t.Errorf("timesCmdArgs expected: %v, got: %v", onetwo, got)
+command_test.go:320:		t.Errorf("Unexpected output: %v", output)
+command_test.go:323:		t.Errorf("Unexpected error: %v", err)
+command_test.go:328:		t.Errorf("aCmdArgs expected: %q, got: %q", onetwo, got)
+command_test.go:355:		t.Errorf("Unexpected output: %v", output)
+command_test.go:358:		t.Errorf("Unexpected error: %v", err)
+command_test.go:363:		t.Errorf("timesCmdArgs expected: %v, got: %v", onetwo, got)
+command_test.go:385:		t.Errorf("Unexpected error: %v", err)
+command_test.go:409:		t.Errorf("Unexpected error: %v", err)
+command_test.go:419:		t.Errorf("Unexpected error: %v", err)
+command_test.go:427:		t.Errorf("Unexpected error: %v", err)
+command_test.go:450:		t.Errorf("Unexpected output: %v", output)
+command_test.go:453:		t.Errorf("Unexpected error: %v", err)
+command_test.go:458:		t.Errorf("fooCmdArgs expected: %v, got: %v", onetwo, got)
+command_test.go:479:		t.Errorf("Unexpected output: %v", output)
+command_test.go:482:		t.Errorf("Unexpected error: %v", err)
+command_test.go:487:		t.Errorf("fooCmdArgs expected: %v, got: %v", onetwo, got)
+command_test.go:506:		t.Errorf("Unexpected output: %v", output)
+command_test.go:509:		t.Errorf("Unexpected error: %v", err)
+command_test.go:513:		t.Errorf("Expected ArgsLenAtDash: %v but got %v", 1, c.ArgsLenAtDash())
+command_test.go:516:		t.Errorf("Expected intFlagValue: %v, got %v", 7, intFlagValue)
+command_test.go:519:		t.Errorf("Expected stringFlagValue: %q, got %q", "abc", stringFlagValue)
+command_test.go:524:		t.Errorf("rootCmdArgs expected: %q, got: %q", onetwo, got)
+command_test.go:543:		t.Errorf("Unexpected output: %v", output)
+command_test.go:546:		t.Errorf("Unexpected error: %v", err)
+command_test.go:550:		t.Errorf("Expected flag value: %v, got %v", 7, intFlagValue)
+command_test.go:553:		t.Errorf("Expected stringFlagValue: %q, got %q", "abc", stringFlagValue)
+command_test.go:558:		t.Errorf("rootCmdArgs expected: %q, got: %q", onetwo, got)
+command_test.go:572:		t.Errorf("Unexpected output: %v", output)
+command_test.go:575:		t.Errorf("Unexpected error: %v", err)
+command_test.go:579:		t.Errorf("Expected flag value: %v, got %v", 7, intFlagValue)
+command_test.go:594:		t.Errorf("Invalid flag should generate error")
+command_test.go:597:	checkStringContains(t, err.Error(), "unknown shorthand")
+command_test.go:600:		t.Errorf("Expected flag value: %v, got %v", 7, intFlagValue)
+command_test.go:610:		t.Errorf("Invalid flag value should generate error")
+command_test.go:613:	checkStringContains(t, err.Error(), "invalid syntax")
+command_test.go:627:		t.Errorf("Unexpected error: %v", err)
+command_test.go:630:		t.Errorf("Expected flag value: %v, got %v", 7, flagValue)
+command_test.go:636:		t.Errorf("Unexpected error: %v", err)
+command_test.go:639:		t.Errorf("Expected flag value: %v, got %v", 9, flagValue)
+command_test.go:711:			t.Errorf("(%v) Expected: %v, got: %v", i, test.output, got)
+command_test.go:729:		t.Errorf("Unexpected output: %v", output)
+command_test.go:732:		t.Errorf("Unexpected error: %v", err)
+command_test.go:736:		t.Errorf("Expected: %v, got: %v", args, cArgs)
+command_test.go:753:		t.Errorf("Unexpected output: %v", output)
+command_test.go:756:		t.Errorf("Unexpected error: %v", err)
+command_test.go:761:		t.Errorf("rootCmdArgs expected: %q, got %q", onetwo, got)
+command_test.go:764:		t.Errorf("flagValue expected: %v, got %v", 7, flagValue)
+command_test.go:778:		t.Errorf("Unexpected output: %v", output)
+command_test.go:781:		t.Errorf("Unexpected error: %v", err)
+command_test.go:785:		t.Errorf("flagValue expected: %v, got %v", 7, flagValue)
+command_test.go:804:		t.Error(`LocalFlags expected to contain "strf", got "nil"`)
+command_test.go:807:		t.Error(`InheritedFlags expected to contain "boolf", got "nil"`)
+command_test.go:811:		t.Errorf(`InheritedFlags should not contain shadowed flag "intf"`)
+command_test.go:814:		t.Error(`LocalFlags expected to contain "intf", got "nil"`)
+command_test.go:835:		t.Errorf("Unexpected output: %v", output)
+command_test.go:838:		t.Errorf("Unexpected error: %v", err)
+command_test.go:843:		t.Errorf("rootCmdArgs expected: %q, got: %q", onetwo, got)
+command_test.go:846:		t.Errorf("parentFlagValue expected: %v, got %v", 8, parentFlagValue)
+command_test.go:849:		t.Errorf("childFlagValue expected: %v, got %v", 7, childFlagValue)
+command_test.go:864:	got := err.Error()
+command_test.go:867:		t.Errorf("Expected error: %q, got: %q", expected, got)
+command_test.go:891:	if err.Error() != expected {
+command_test.go:892:		t.Errorf("Expected %q, got %q", expected, err.Error())
+command_test.go:911:		t.Errorf("Unexpected error: %v", err)
+command_test.go:917:		t.Errorf("Unexpected error: %v", err)
+command_test.go:923:		t.Errorf("Unexpected error: %v", err)
+command_test.go:937:		t.Errorf("Expected the help flag from the root command with usage: %v\nGot the default with usage: %v", usage, got)
+command_test.go:947:		t.Errorf("Unexpected error: %v", err)
+command_test.go:960:		t.Errorf("Unexpected error: %v", err)
+command_test.go:978:		t.Errorf("Unexpected error: %v", err)
+command_test.go:994:		t.Errorf("Help text mismatch.\nExpected:\n%s\n\nGot:\n%s\n", expected, got)
+command_test.go:1013:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1017:		t.Errorf("Expected to contain %q, got %q", expected, got)
+command_test.go:1031:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1036:		t.Errorf("Expected %q, got %q", expected, got)
+command_test.go:1043:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1048:		t.Errorf("Expected %q, got %q", expected, got)
+command_test.go:1056:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1060:		t.Errorf("Expected to contain %q, got %q", "Usage:", got)
+command_test.go:1069:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1082:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1100:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1110:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1123:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1139:		t.Errorf("Expected error but did not get one")
+command_test.go:1149:		t.Errorf("Expected error but did not get one")
+command_test.go:1160:		t.Errorf("Expected error but did not get one")
+command_test.go:1164:		t.Errorf("Expected to contain %q, got %q", "Usage:", got)
+command_test.go:1173:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1191:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1202:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1213:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1225:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1237:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1249:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1261:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1269:	rootCmd.SetErrPrefix("root error prefix:")
+command_test.go:1274:		t.Errorf("Expected error")
+command_test.go:1277:	checkStringContains(t, output, "root error prefix: unknown flag: --unknown-flag")
+command_test.go:1284:	rootCmd.SetErrPrefix("root error prefix:")
+command_test.go:1285:	subCmd.SetErrPrefix("sub error prefix:")
+command_test.go:1288:		t.Errorf("Expected error")
+command_test.go:1290:		checkStringContains(t, output, "root error prefix: unknown flag: --unknown-root-flag")
+command_test.go:1294:		t.Errorf("Expected error")
+command_test.go:1296:		checkStringContains(t, output, "sub error prefix: unknown flag: --unknown-sub-flag")
+command_test.go:1306:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1318:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1330:		t.Errorf("Expected error")
+command_test.go:1333:	checkStringContains(t, err.Error(), "unknown flag: --version")
+command_test.go:1342:		t.Errorf("Expected error")
+command_test.go:1345:	checkStringContains(t, err.Error(), "unknown shorthand flag: 'v' in -v")
+command_test.go:1353:		t.Errorf("Expected error")
+command_test.go:1355:	checkStringContains(t, err.Error(), "unknown flag: --version")
+command_test.go:1363:		t.Errorf("Expected error")
+command_test.go:1365:	checkStringContains(t, err.Error(), "unknown shorthand flag: 'v' in -v")
+command_test.go:1374:		t.Errorf("Expected error")
+command_test.go:1377:	checkStringContains(t, err.Error(), "flag needs an argument: 'v' in -v")
+command_test.go:1386:		t.Errorf("Expected error")
+command_test.go:1388:	checkStringContains(t, err.Error(), "unknown shorthand flag: 'v' in -v")
+command_test.go:1398:		t.Error("Usage output is not printed exactly once")
+command_test.go:1415:		t.Errorf("Should have visited 1 parent but visited %d", total)
+command_test.go:1421:		t.Errorf("Should have visited 2 parents but visited %d", total)
+command_test.go:1427:		t.Errorf("Should have visited no parents but visited %d", total)
+command_test.go:1440:	templateWithSuggestions := "Error: unknown command \"%s\" for \"root\"\n\nDid you mean this?\n\t%s\n\nRun 'root --help' for usage.\n"
+command_test.go:1441:	templateWithoutSuggestions := "Error: unknown command \"%s\" for \"root\"\nRun 'root --help' for usage.\n"
+command_test.go:1472:				t.Errorf("Unexpected response.\nExpected:\n %q\nGot:\n %q\n", expected, output)
+command_test.go:1560:				t.Errorf("Unexpected output: %v", output)
+command_test.go:1563:				t.Errorf("Unexpected error: %v", err)
+command_test.go:1580:		t.Error("Expected error on calling a command in upper case while command names are case sensitive. Got nil.")
+command_test.go:1593:		t.Error("Expected error on calling removed command. Got nil.")
+command_test.go:1614:		t.Errorf("Unexpected output: %v", output)
+command_test.go:1617:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1621:		t.Error("Removed command shouldn't be called")
+command_test.go:1624:		t.Error("Replacing command should have been called but didn't")
+command_test.go:1639:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1675:		t.Errorf("Unexpected output: %v", output)
+command_test.go:1678:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1692:			t.Errorf("Expected %s %q, got %q", v.name, onetwo, v.got)
+command_test.go:1726:			t.Errorf("Expected %s %q, got %q", hookName, onetwo, got)
+command_test.go:1771:		t.Errorf("Unexpected output: %v", output)
+command_test.go:1774:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1780:				t.Errorf("Expected %q at %d, got %q", exp, idx, act)
+command_test.go:1783:			t.Errorf("Expected %q at %d, got nothing", exp, idx)
+command_test.go:1800:		t.Error("rootCmd seems to have a wrong normalization function")
+command_test.go:1804:		t.Error("childCmd should have had the normalization function of rootCmd")
+command_test.go:1818:		t.Error("Normalization function should be passed on to Local flag set")
+command_test.go:1841:		t.Error("Normalization function should be passed on to inherited flag set in command added before flag")
+command_test.go:1846:		t.Error("Normalization function should be passed on to inherited flag set in command added after flag")
+command_test.go:1865:		t.Error("Normalizing flag names should not result in duplicate flags")
+command_test.go:1894:		t.Errorf("Unexpected output: %v", output)
+command_test.go:1897:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1901:		t.Error("Hidden command should have been executed")
+command_test.go:1909:		t.Errorf("Hidden command should be unavailable")
+command_test.go:1928:			t.Errorf("Expected: %s, got: %s", expectedNames[i], got)
+command_test.go:1949:			t.Errorf("expected: %s, got: %s", originalNames[i], got)
+command_test.go:1968:		t.Errorf("Unexpected error: %v", err)
+command_test.go:1987:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2007:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2030:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2045:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2060:			t.Errorf("The code should have panicked due to a missing group")
+command_test.go:2065:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2080:			t.Errorf("The code should have panicked due to a missing group")
+command_test.go:2085:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2100:			t.Errorf("The code should have panicked due to a missing group")
+command_test.go:2105:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2120:			t.Errorf("The code should have panicked due to a missing group")
+command_test.go:2125:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2133:		t.Errorf("Expected setting output to nil to revert back to stdout")
+command_test.go:2141:		t.Errorf("Expected setting output to nil to revert back to stdout")
+command_test.go:2148:	if out := c.ErrOrStderr(); out != os.Stderr {
+command_test.go:2149:		t.Errorf("Expected setting error to nil to revert back to stderr")
+command_test.go:2157:		t.Errorf("Expected setting input to nil to revert back to stdin")
+command_test.go:2164:	c.usageFunc = func(cmd *Command) error {
+command_test.go:2173:		t.Errorf("Expected usage string to consider both stdout and stderr")
+command_test.go:2196:		t.Error(err)
+command_test.go:2201:		t.Error(err)
+command_test.go:2206:		t.Error(err)
+command_test.go:2210:		t.Errorf("got: '%s' want: '%s'", gotErrBytes, wantErr)
+command_test.go:2214:		t.Errorf("got: '%s' want: '%s'", gotOutBytes, wantOut)
+command_test.go:2218:func TestFlagErrorFunc(t *testing.T) {
+command_test.go:2222:	c.SetFlagErrorFunc(func(_ *Command, err error) error {
+command_test.go:2223:		return fmt.Errorf(expectedFmt, err)
+command_test.go:2228:	got := err.Error()
+command_test.go:2231:		t.Errorf("Expected %v, got %v", expected, got)
+command_test.go:2235:func TestFlagErrorFuncHelp(t *testing.T) {
+command_test.go:2238:	c.SetFlagErrorFunc(func(_ *Command, err error) error {
+command_test.go:2239:		return fmt.Errorf("wrap error: %w", err)
+command_test.go:2244:		t.Errorf("--help should not fail: %v", err)
+command_test.go:2254:		t.Errorf("Expected: %v, got: %v", expected, out)
+command_test.go:2259:		t.Errorf("-h should not fail: %v", err)
+command_test.go:2263:		t.Errorf("Expected: %v, got: %v", expected, out)
+command_test.go:2285:				t.Errorf("Incorrect order. Expected %v, got %v", names[i], f.Name)
+command_test.go:2317:		t.Error("Unexpected error:", err)
+command_test.go:2334:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2337:		t.Errorf("Wrong args: %v", args)
+command_test.go:2340:		t.Errorf("Expected command: %q, got: %q", childCmd.Name(), c.Name())
+command_test.go:2354:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2357:		t.Errorf("Wrong args %v", args)
+command_test.go:2360:		t.Errorf("Expected command: %q, got: %q", childCmd.Name(), c.Name())
+command_test.go:2374:	if err == nil || !strings.Contains(err.Error(), expected) {
+command_test.go:2375:		t.Errorf("Expected error, %q, got %q", expected, err)
+command_test.go:2378:		t.Errorf("Expected nil command")
+command_test.go:2389:	// Expect no error because the last commands args shouldn't be parsed in
+command_test.go:2393:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2396:		t.Errorf("Wrong args: %v", args)
+command_test.go:2399:		t.Errorf("Expected command %q, got: %q", childCmd.Name(), c.Name())
+command_test.go:2416:		t.Fatalf("Unexpected error: %v", err)
+command_test.go:2431:		t.Error("c.Name() should be updated on changed c.Use")
+command_test.go:2465:			t.Errorf("missing expected call to command: %s", tc.call)
+command_test.go:2471:		t.Errorf("called command == %q; Wanted %q", called.Name(), tc.call)
+command_test.go:2473:		t.Errorf("%s.CalledAs() == %q; Wanted: %q", tc.call, got, tc.want)
+command_test.go:2504:		t.Error("expected unknown flag error")
+command_test.go:2521:		t.Error("unexpected error: ", err)
+command_test.go:2544:		t.Error("expected unknown flag error")
+command_test.go:2568:		t.Error("unexpected error: ", err.Error())
+command_test.go:2598:		t.Error("expected unknown flag error")
+command_test.go:2612:				t.Error("key not found in context")
+command_test.go:2615:				t.Errorf("Expected value: \n %v\nGot:\n %v\n", val, got)
+command_test.go:2624:		t.Error(err)
+command_test.go:2641:				t.Error("key not found in context")
+command_test.go:2644:				t.Errorf("Expected value: \n %v\nGot:\n %v\n", val, got)
+command_test.go:2650:		t.Error(err)
+command_test.go:2663:				t.Error("key found in context when not expected")
+command_test.go:2671:		t.Error(err)
+command_test.go:2691:				t.Error("key not found in context")
+command_test.go:2694:				t.Errorf("Expected value: \n %v\nGot:\n %v\n", val, got)
+command_test.go:2702:		t.Error(err)
+command_test.go:2715:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2729:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2743:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2757:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2771:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2785:		t.Errorf("Unexpected error: %v", err)
+command_test.go:2882:func TestUnknownFlagShouldReturnSameErrorRegardlessOfArgPosition(t *testing.T) {
+command_test.go:2884:		// {"--unknown", "--namespace", "foo", "child", "--bar"}, // FIXME: This test case fails, returning the error `unknown command "foo" for "root"` instead of the expected error `unknown flag: --unknown`
+command_test.go:2918:				t.Error("expected unknown flag error")
+command_test.go:2936:			t.Error(err)
+command_test.go:2941:			t.Error("Context doesn't equal the execution context")
+command_test.go:2950:		t.Errorf("Unexpected error: %v", err)
+completions.go:47:type flagCompError struct {
+completions.go:52:func (e *flagCompError) Error() string {
+completions.go:57:	// ShellCompDirectiveError indicates an error occurred and completions should be ignored.
+completions.go:58:	ShellCompDirectiveError ShellCompDirective = 1 << iota
+completions.go:170:func (c *Command) RegisterFlagCompletionFunc(flagName string, f CompletionFunc) error {
+completions.go:173:		return fmt.Errorf("RegisterFlagCompletionFunc: flag '%s' does not exist", flagName)
+completions.go:179:		return fmt.Errorf("RegisterFlagCompletionFunc: flag '%s' already registered", flagName)
+completions.go:202:	if d&ShellCompDirectiveError != 0 {
+completions.go:203:		directives = append(directives, "ShellCompDirectiveError")
+completions.go:225:		return fmt.Sprintf("ERROR: unexpected ShellCompDirective value: %d", d)
+completions.go:245:				CompErrorln(err.Error())
+completions.go:247:				// 1- There could be some valid completions even though there was an error
+completions.go:293:			fmt.Fprintf(finalCmd.ErrOrStderr(), "Completion ended with directive: %s\n", directive.string())
+completions.go:316:func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCompDirective, error) {
+completions.go:327:	var err error
+completions.go:336:		// call to Find() -> legacyArgs() will return an error if there are any arguments.
+completions.go:347:		return c, []Completion{}, ShellCompDirectiveDefault, fmt.Errorf("unable to find a command for arguments: %v", trimmedArgs)
+completions.go:377:		return finalCmd, []Completion{}, ShellCompDirectiveDefault, fmt.Errorf("Error while parsing flags from args %v: %s", finalArgs, err.Error())
+completions.go:385:	// Error while attempting to parse flags
+completions.go:387:		// If error type is flagCompError and we don't want flagCompletion we should ignore the error
+completions.go:388:		if _, ok := flagErr.(*flagCompError); !ok || flagCompletion {
+completions.go:657:func checkIfFlagCompletion(finalCmd *Command, args []string, lastArg string) (*pflag.Flag, []string, string, error) {
+completions.go:711:					// Remove the uncompleted flag or else there could be an error created
+completions.go:727:		return nil, args, orgLastArg, &flagCompError{subCommand: finalCmd.Name(), flagName: flagName}
+completions.go:831:		RunE: func(cmd *Command, args []string) error {
+completions.go:867:		RunE: func(cmd *Command, args []string) error {
+completions.go:895:		RunE: func(cmd *Command, args []string) error {
+completions.go:917:		RunE: func(cmd *Command, args []string) error {
+completions.go:984:// CompError prints the specified completion message to stderr.
+completions.go:985:func CompError(msg string) {
+completions.go:986:	msg = fmt.Sprintf("[Error] %s", msg)
+completions.go:990:// CompErrorln prints the specified completion message to stderr with a newline at the end.
+completions.go:991:func CompErrorln(msg string) {
+completions.go:992:	CompError(fmt.Sprintf("%s\n", msg))
+completions_test.go:91:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:104:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:110:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:119:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:126:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:134:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:140:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:153:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:185:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:193:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:199:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:209:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:218:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:231:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:240:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:253:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:260:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:268:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:274:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:284:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:290:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:301:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:307:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:318:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:332:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:343:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:349:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:358:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:364:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:372:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:393:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:406:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:412:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:422:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:444:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:457:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:463:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:473:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:479:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:489:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:512:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:523:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:529:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:543:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:549:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:558:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:564:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:579:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:603:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:614:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:620:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:634:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:640:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:649:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:655:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:670:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:684:func (s *customMultiString) Set(v string) error {
+completions_test.go:725:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:741:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:747:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:763:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:769:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:789:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:795:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:821:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:827:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:840:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:876:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:892:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:898:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:910:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:916:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:925:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:931:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:944:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:949:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:961:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:966:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:975:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:981:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:994:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1000:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1016:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1022:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1034:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1064:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1072:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1077:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1086:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1091:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1100:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1105:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1114:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1119:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1128:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1133:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1142:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1147:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1156:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1182:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1190:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1195:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1203:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1208:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1217:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1222:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1231:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1236:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1245:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1250:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1259:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1264:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1272:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1281:			t.Error("Received nil context in completion func")
+completions_test.go:1283:			t.Error("Received invalid context")
+completions_test.go:1306:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1314:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1328:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1338:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1344:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1353:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1372:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1380:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1401:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1411:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1417:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1426:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1432:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1440:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1446:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1456:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1461:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1470:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1476:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1484:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1501:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1511:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1517:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1526:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1532:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1540:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1653:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1664:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1670:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1680:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1686:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1697:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1703:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1713:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1734:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1744:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1750:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1759:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1765:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1773:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1779:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1789:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1794:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1803:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1809:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1817:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1845:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1856:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1862:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1872:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1878:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1888:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1897:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1907:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1913:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1923:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1929:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1939:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1945:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1955:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1961:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1971:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1977:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:1987:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:1993:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2003:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2012:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2021:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2030:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2040:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2066:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2075:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2099:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2108:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2163:		var err error
+completions_test.go:2173:			t.Errorf("Unexpected error: %v", err)
+completions_test.go:2182:			t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2216:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2227:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2233:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2243:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2249:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2260:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2266:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2276:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2294:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2304:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2310:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2319:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2335:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2346:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2352:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2362:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2368:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2377:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2402:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2414:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2420:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2432:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2438:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2447:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2472:			t.Errorf("Should not have a 'completion' command when there are no other sub-commands of root")
+completions_test.go:2480:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2504:		t.Errorf("Should have a 'completion' command when there are other sub-commands of root")
+completions_test.go:2514:			t.Errorf("Should not have a 'completion' command when the feature is disabled")
+completions_test.go:2524:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2536:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2550:			t.Errorf("Unexpected error: %v", err)
+completions_test.go:2553:			t.Errorf("Missing --%s flag for %s shell", compCmdNoDescFlagName, shell)
+completions_test.go:2564:			t.Errorf("Unexpected error: %v", err)
+completions_test.go:2567:			t.Errorf("Unexpected --%s flag for %s shell", compCmdNoDescFlagName, shell)
+completions_test.go:2580:			t.Errorf("Unexpected error: %v", err)
+completions_test.go:2583:			t.Errorf("Unexpected --%s flag for %s shell", compCmdNoDescFlagName, shell)
+completions_test.go:2596:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2599:		t.Error("Default 'completion' command should be hidden but it is not")
+completions_test.go:2614:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2622:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2629:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2641:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2654:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2666:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2681:			t.Errorf("Unexpected error: %v", err)
+completions_test.go:2689:			t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2711:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2721:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2727:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2737:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2743:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2752:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2758:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2767:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2773:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2783:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2810:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2824:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2831:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2846:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2865:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2875:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2881:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:2892:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:2992:		t.Errorf("Unexpected error: %v", err)
+completions_test.go:3003:		t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:3021:			t.Errorf("Unexpected error: %v", err)
+completions_test.go:3033:			t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:3040:			t.Errorf("Unexpected error: %v", err)
+completions_test.go:3052:			t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:3149:				t.Errorf("expected: %q, got: %q", tc.expectedOutput, output)
+completions_test.go:3151:				t.Errorf("Unexpected error %q", err)
+completions_test.go:3247:				t.Errorf("expected: %q, got: %q", tc.expectedOutput, output)
+completions_test.go:3249:				t.Errorf("Unexpected error %q", err)
+completions_test.go:3341:				t.Errorf("expected: %q, got: %q", tc.expectedOutput, output)
+completions_test.go:3343:				t.Errorf("Unexpected error %q", err)
+completions_test.go:3575:				t.Errorf("expected: %q, got: %q", tc.expectedOutput, output)
+completions_test.go:3577:				t.Errorf("Unexpected error %q", err)
+completions_test.go:3639:				t.Errorf("expected: %q, got: %q", tc.expectedOutput, output)
+completions_test.go:3641:				t.Errorf("Unexpected error %q", err)
+completions_test.go:3721:				t.Errorf("Unexpected result looking for flag completion function")
+completions_test.go:3727:					t.Errorf("Unexpected completions %q", comps)
+completions_test.go:3730:					t.Errorf("Unexpected directive %q", directive)
+completions_test.go:3816:				t.Errorf("expected: %q, got: %q", tc.expected, got)
+completions_test.go:3888:				t.Errorf("Unexpected error setting %s: %v", specificDescriptionsEnvVar, err)
+completions_test.go:3891:				t.Errorf("Unexpected error setting %s: %v", globalDescriptionsEnvVar, err)
+completions_test.go:3897:					t.Errorf("Unexpected error: %v", err)
+completions_test.go:3905:					t.Errorf("expected: %q, got: %q", expected, output)
+completions_test.go:3914:					t.Errorf("Unexpected error unsetting %s: %v", specificDescriptionsEnvVar, err)
+completions_test.go:3920:					t.Errorf("Unexpected error unsetting %s: %v", globalDescriptionsEnvVar, err)
+completions_test.go:4013:				t.Errorf("Expected %d subcommands, got %d", expectedNumSubCommands, len(rootCmd.Commands()))
+completions_test.go:4063:				t.Errorf("Unexpected error: %v", err)
+completions_test.go:4070:				t.Errorf("expected: %q, got: %q", tc.expectedDirective, directive)
+completions_test.go:4111:		t.Fatalf("Unexpected error: %v", err)
+completions_test.go:4121:		t.Errorf("os.Args[0] was mutated: expected %q, got %q", "root", os.Args[0])
+completions_test.go:4124:		t.Errorf("os.Args[1] was mutated: expected %q, got %q", ShellCompNoDescRequestCmd, os.Args[1])
+completions_test.go:4127:		t.Errorf("os.Args[2] was mutated: expected %q, got %q", "x", os.Args[2])
+doc/cmd_test.go:97:		t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", expected, got)
+doc/cmd_test.go:103:		t.Errorf("Expected to not contain: \n %v\nGot: %v", expected, got)
+doc/man_docs.go:38:func GenManTree(cmd *cobra.Command, header *GenManHeader, dir string) error {
+doc/man_docs.go:48:func GenManTreeFromOpts(cmd *cobra.Command, opts GenManTreeOptions) error {
+doc/man_docs.go:105:func GenMan(cmd *cobra.Command, header *GenManHeader, w io.Writer) error {
+doc/man_docs.go:118:func fillHeader(header *GenManHeader, name string, disableAutoGen bool) error {
+doc/man_docs.go:130:				return fmt.Errorf("invalid SOURCE_DATE_EPOCH: %v", err)
+doc/man_docs_test.go:29:func assertNoErr(t *testing.T, e error) {
+doc/man_docs_test.go:31:		t.Error(e)
+doc/man_docs_test.go:160:		t.Errorf("Expected %v, got %v", expected, got)
+doc/man_docs_test.go:169:		t.Fatalf("Failed to create tmpdir: %s", err.Error())
+doc/man_docs_test.go:174:		t.Fatalf("GenManTree failed: %s", err.Error())
+doc/man_docs_test.go:186:func assertLineFound(scanner *bufio.Scanner, expectedLine string) error {
+doc/man_docs_test.go:195:		return fmt.Errorf("scan failed: %s", err)
+doc/man_docs_test.go:198:	return fmt.Errorf("hit EOF before finding %v", expectedLine)
+doc/man_docs_test.go:201:func assertNextLineEquals(scanner *bufio.Scanner, expectedLine string) error {
+doc/man_docs_test.go:207:		return fmt.Errorf("got %v, not %v", line, expectedLine)
+doc/man_docs_test.go:211:		return fmt.Errorf("scan failed: %v", err)
+doc/man_docs_test.go:214:	return fmt.Errorf("hit EOF before finding %v", expectedLine)
+doc/md_docs.go:32:func printOptions(buf *bytes.Buffer, cmd *cobra.Command, name string) error {
+doc/md_docs.go:52:func GenMarkdown(cmd *cobra.Command, w io.Writer) error {
+doc/md_docs.go:57:func GenMarkdownCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string) string) error {
+doc/md_docs.go:125:func GenMarkdownTree(cmd *cobra.Command, dir string) error {
+doc/md_docs.go:133:func GenMarkdownTreeCustom(cmd *cobra.Command, dir string, filePrepender, linkHandler func(string) string) error {
+doc/rest_docs.go:30:func printOptionsReST(buf *bytes.Buffer, cmd *cobra.Command, name string) error {
+doc/rest_docs.go:57:func GenReST(cmd *cobra.Command, w io.Writer) error {
+doc/rest_docs.go:62:func GenReSTCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string, string) string) error {
+doc/rest_docs.go:138:func GenReSTTree(cmd *cobra.Command, dir string) error {
+doc/rest_docs.go:145:func GenReSTTreeCustom(cmd *cobra.Command, dir string, filePrepender func(string) string, linkHandler func(string, string) string) error {
+doc/rest_docs_test.go:85:		t.Fatalf("Failed to create tmpdir: %s", err.Error())
+doc/rest_docs_test.go:90:		t.Fatalf("GenReSTTree failed: %s", err.Error())
+doc/yaml_docs.go:53:func GenYamlTree(cmd *cobra.Command, dir string) error {
+doc/yaml_docs.go:60:func GenYamlTreeCustom(cmd *cobra.Command, dir string, filePrepender, linkHandler func(string) string) error {
+doc/yaml_docs.go:88:func GenYaml(cmd *cobra.Command, w io.Writer) error {
+doc/yaml_docs.go:93:func GenYamlCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string) string) error {
+doc/yaml_docs_test.go:62:		t.Fatalf("Failed to create tmpdir: %s", err.Error())
+doc/yaml_docs_test.go:67:		t.Fatalf("GenYamlTree failed: %s", err.Error())
+fish_completions.go:125:        __%[1]s_debug "Error determining if order preservation is required"
+fish_completions.go:171:    set -l shellCompDirectiveError %[4]d
+fish_completions.go:181:    set -l compErr (math (math --scale 0 $directive / $shellCompDirectiveError) %% 2)
+fish_completions.go:183:        __%[1]s_debug "Received error directive: aborting."
+fish_completions.go:250:# Only do this if the program can be found, or else fish may print some errors; besides,
+fish_completions.go:271:		ShellCompDirectiveError, ShellCompDirectiveNoSpace, ShellCompDirectiveNoFileComp,
+fish_completions.go:276:func (c *Command) GenFishCompletion(w io.Writer, includeDesc bool) error {
+fish_completions.go:284:func (c *Command) GenFishCompletionFile(filename string, includeDesc bool) error {
+fish_completions_test.go:19:	"errors"
+fish_completions_test.go:104:		t.Fatal(err.Error())
+fish_completions_test.go:123:		t.Fatal(err.Error())
+fish_completions_test.go:140:	if !errors.Is(got, os.ErrPermission) {
+fish_completions_test.go:141:		t.Errorf("got: %s, want: %s", got.Error(), os.ErrPermission.Error())
+flag_groups.go:31:// MarkFlagsRequiredTogether marks the given flags with annotations so that Cobra errors
+flag_groups.go:47:// MarkFlagsOneRequired marks the given flags with annotations so that Cobra errors
+flag_groups.go:63:// MarkFlagsMutuallyExclusive marks the given flags with annotations so that Cobra errors
+flag_groups.go:80:// first error encountered.
+flag_groups.go:81:func (c *Command) ValidateFlagGroups() error {
+flag_groups.go:144:func validateRequiredFlagGroups(data map[string]map[string]bool) error {
+flag_groups.go:161:		return fmt.Errorf("if any flags in the group [%v] are set they must all be set; missing %v", flagList, unset)
+flag_groups.go:167:func validateOneRequiredFlagGroups(data map[string]map[string]bool) error {
+flag_groups.go:183:		return fmt.Errorf("at least one of the flags in the group [%v] is required", flagList)
+flag_groups.go:188:func validateExclusiveFlagGroups(data map[string]map[string]bool) error {
+flag_groups.go:204:		return fmt.Errorf("if any flags in the group [%v] are set none of the others can be; %v were all set", flagList, set)
+flag_groups_test.go:78:			desc:               "Multiple required flag group not satisfied returns first error",
+flag_groups_test.go:83:			desc:                  "Multiple one-required flag group not satisfied returns first error",
+flag_groups_test.go:88:			desc:                "Multiple exclusive flag group not satisfied returns first error",
+flag_groups_test.go:189:				t.Errorf("Expected error %q but got nil", tc.expectErr)
+flag_groups_test.go:190:			case err != nil && err.Error() != tc.expectErr:
+flag_groups_test.go:191:				t.Errorf("Expected error %q but got %q", tc.expectErr, err)
+powershell_completions.go:75:    $ShellCompDirectiveError=%[4]d
+powershell_completions.go:143:    if (($Directive -band $ShellCompDirectiveError) -ne 0 ) {
+powershell_completions.go:144:        # Error code.  No completion.
+powershell_completions.go:145:        __%[1]s_debug "Received error from custom completion go code"
+powershell_completions.go:309:		ShellCompDirectiveError, ShellCompDirectiveNoSpace, ShellCompDirectiveNoFileComp,
+powershell_completions.go:313:func (c *Command) genPowerShellCompletion(w io.Writer, includeDesc bool) error {
+powershell_completions.go:320:func (c *Command) genPowerShellCompletionFile(filename string, includeDesc bool) error {
+powershell_completions.go:331:func (c *Command) GenPowerShellCompletionFile(filename string) error {
+powershell_completions.go:337:func (c *Command) GenPowerShellCompletion(w io.Writer) error {
+powershell_completions.go:342:func (c *Command) GenPowerShellCompletionFileWithDesc(filename string) error {
+powershell_completions.go:348:func (c *Command) GenPowerShellCompletionWithDesc(w io.Writer) error {
+shell_completions.go:23:// and causes your command to report an error if invoked without the flag.
+shell_completions.go:24:func (c *Command) MarkFlagRequired(name string) error {
+shell_completions.go:30:// and causes your command to report an error if invoked without the flag.
+shell_completions.go:31:func (c *Command) MarkPersistentFlagRequired(name string) error {
+shell_completions.go:37:// and causes your command to report an error if invoked without the flag.
+shell_completions.go:38:func MarkFlagRequired(flags *pflag.FlagSet, name string) error {
+shell_completions.go:44:func (c *Command) MarkFlagFilename(name string, extensions ...string) error {
+shell_completions.go:54:func (c *Command) MarkFlagCustom(name string, f string) error {
+shell_completions.go:61:func (c *Command) MarkPersistentFlagFilename(name string, extensions ...string) error {
+shell_completions.go:67:func MarkFlagFilename(flags *pflag.FlagSet, name string, extensions ...string) error {
+shell_completions.go:77:func MarkFlagCustom(flags *pflag.FlagSet, name string, f string) error {
+shell_completions.go:83:func (c *Command) MarkFlagDirname(name string) error {
+shell_completions.go:90:func (c *Command) MarkPersistentFlagDirname(name string) error {
+shell_completions.go:96:func MarkFlagDirname(flags *pflag.FlagSet, name string) error {
+site/content/active_help.md:41:	RunE: func(cmd *cobra.Command, args []string) error {
+site/content/completions/_index.md:202:// Indicates an error occurred and completions should be ignored.
+site/content/completions/_index.md:203:ShellCompDirectiveError
+site/content/completions/_index.md:268:cobra.CompError(msg string)
+site/content/completions/_index.md:269:cobra.CompErrorln(msg string)
+site/content/docgen/md.md:77:func GenMarkdownTreeCustom(cmd *Command, dir string, filePrepender, linkHandler func(string) string) error {
+site/content/docgen/md.md:83:func GenMarkdownCustom(cmd *Command, out *bytes.Buffer, linkHandler func(string) string) error {
+site/content/docgen/rest.md:77:func GenReSTTreeCustom(cmd *Command, dir string, filePrepender func(string) string, linkHandler func(string, string) string) error {
+site/content/docgen/rest.md:83:func GenReSTCustom(cmd *Command, out *bytes.Buffer, linkHandler func(string, string) string) error {
+site/content/docgen/yaml.md:74:func GenYamlTreeCustom(cmd *Command, dir string, filePrepender, linkHandler func(string) string) error {
+site/content/docgen/yaml.md:80:func GenYamlCustom(cmd *Command, out *bytes.Buffer, linkHandler func(string) string) error {
+site/content/user_guide.md:96:func Execute() error {
+site/content/user_guide.md:218:### Returning and handling errors
+site/content/user_guide.md:220:If you wish to return an error to the caller of a command, `RunE` can be used.
+site/content/user_guide.md:238:  RunE: func(cmd *cobra.Command, args []string) error {
+site/content/user_guide.md:247:The error can then be caught at the execute function call.
+site/content/user_guide.md:318:Flags are optional by default. If instead you wish your command to report an error
+site/content/user_guide.md:442:  - `NoArgs` - report an error if there are any positional args.
+site/content/user_guide.md:444:  - `MinimumNArgs(int)` - report an error if less than N positional args are provided.
+site/content/user_guide.md:445:  - `MaximumNArgs(int)` - report an error if more than N positional args are provided.
+site/content/user_guide.md:446:  - `ExactArgs(int)` - report an error if there are not exactly N positional args.
+site/content/user_guide.md:447:  - `RangeArgs(min, max)` - report an error if the number of args is not between `min` and `max`.
+site/content/user_guide.md:449:  - `OnlyValidArgs` - report an error if there are any positional args not specified in the `ValidArgs` field of `Command`, which can optionally be set to a list of valid values for positional args.
+site/content/user_guide.md:450:  - `NoDuplicateArgs` - report an error if any positional argument value is provided more than once.
+site/content/user_guide.md:455:For instance, if you want to report an error if there are not exactly N positional args OR if there are any positional
+site/content/user_guide.md:469:It is possible to set any custom validator that satisfies `func(cmd *cobra.Command, args []string) error`.
+site/content/user_guide.md:475:  Args: func(cmd *cobra.Command, args []string) error {
+site/content/user_guide.md:484:    return fmt.Errorf("invalid color specified: %s", args[0])
+site/content/user_guide.md:639:Error: unknown flag: --invalid
+site/content/user_guide.md:665:cmd.SetUsageFunc(f func(*Command) error)
+site/content/user_guide.md:682:## Error Message Prefix
+site/content/user_guide.md:684:Cobra prints an error message when receiving a non-nil error value.
+site/content/user_guide.md:685:The default error message is `Error: <error contents>`.
+site/content/user_guide.md:686:The Prefix, `Error:` can be customized using the `cmd.SetErrPrefix(s string)` function.
+site/content/user_guide.md:779:Cobra will print automatic suggestions when "unknown command" errors happen. This allows Cobra to behave similarly to the `git` command when a typo happens. For example:
+site/content/user_guide.md:783:Error: unknown command "srever" for "hugo"
+site/content/user_guide.md:810:Error: unknown command "remove" for "kubectl"
+zsh_completions.go:25:func (c *Command) GenZshCompletionFile(filename string) error {
+zsh_completions.go:31:func (c *Command) GenZshCompletion(w io.Writer) error {
+zsh_completions.go:36:func (c *Command) GenZshCompletionFileNoDesc(filename string) error {
+zsh_completions.go:42:func (c *Command) GenZshCompletionNoDesc(w io.Writer) error {
+zsh_completions.go:55:func (c *Command) MarkZshCompPositionalArgumentFile(argPosition int, patterns ...string) error {
+zsh_completions.go:66:func (c *Command) MarkZshCompPositionalArgumentWords(argPosition int, words ...string) error {
+zsh_completions.go:70:func (c *Command) genZshCompletionFile(filename string, includeDesc bool) error {
+zsh_completions.go:80:func (c *Command) genZshCompletion(w io.Writer, includeDesc bool) error {
+zsh_completions.go:107:    local shellCompDirectiveError=%[3]d
+zsh_completions.go:177:    if [ $((directive & shellCompDirectiveError)) -ne 0 ]; then
+zsh_completions.go:178:        __%[1]s_debug "Completion received error. Ignoring completions."
+zsh_completions.go:283:                # We must return an error code here to let zsh know that there were no
+zsh_completions.go:305:		ShellCompDirectiveError, ShellCompDirectiveNoSpace, ShellCompDirectiveNoFileComp,
+cobra.go:182:		fn: func(w io.Writer, data interface{}) error {
+cobra.go:234:// CheckErr prints the msg with the prefix 'Error:' and exits with error code 1. If the msg is nil, it does nothing.
+cobra.go:237:		fmt.Fprintln(os.Stderr, "Error:", msg)
+cobra.go:242:// WriteStringAndCheck writes a string into a buffer, and checks if the error is not nil.
+args.go:22:type PositionalArgs func(cmd *Command, args []string) error
+args.go:28:func legacyArgs(cmd *Command, args []string) error {
+args.go:36:		return fmt.Errorf("unknown command %q for %q%s", args[0], cmd.CommandPath(), cmd.findSuggestions(args[0]))
+args.go:41:// NoArgs returns an error if any args are included.
+args.go:42:func NoArgs(cmd *Command, args []string) error {
+args.go:44:		return fmt.Errorf("unknown command %q for %q", args[0], cmd.CommandPath())
+args.go:49:// OnlyValidArgs returns an error if there are any positional args that are not in
+args.go:51:func OnlyValidArgs(cmd *Command, args []string) error {
+args.go:61:				return fmt.Errorf("invalid argument %q for %q%s", v, cmd.CommandPath(), cmd.findSuggestions(args[0]))
+args.go:68:// NoDuplicateArgs returns an error if there are any duplicate positional args.
+args.go:69:func NoDuplicateArgs(cmd *Command, args []string) error {
+args.go:73:			return fmt.Errorf("duplicate argument %q for %q", arg, cmd.CommandPath())
+args.go:81:// ArbitraryArgs never returns an error.
+args.go:82:func ArbitraryArgs(cmd *Command, args []string) error {
+args.go:86:// MinimumNArgs returns an error if there is not at least N args.
+args.go:88:	return func(cmd *Command, args []string) error {
+args.go:90:			return fmt.Errorf("requires at least %d arg(s), only received %d", n, len(args))
+args.go:96:// MaximumNArgs returns an error if there are more than N args.
+args.go:98:	return func(cmd *Command, args []string) error {
+args.go:100:			return fmt.Errorf("accepts at most %d arg(s), received %d", n, len(args))
+args.go:106:// ExactArgs returns an error if there are not exactly n args.
+args.go:108:	return func(cmd *Command, args []string) error {
+args.go:110:			return fmt.Errorf("accepts %d arg(s), received %d", n, len(args))
+args.go:116:// RangeArgs returns an error if the number of args is not within the expected range.
+args.go:118:	return func(cmd *Command, args []string) error {
+args.go:120:			return fmt.Errorf("accepts between %d and %d arg(s), received %d", min, max, len(args))
+args.go:128:	return func(cmd *Command, args []string) error {
+args.go:138:// ExactValidArgs returns an error if there are not exactly N positional args OR

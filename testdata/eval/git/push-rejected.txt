@@ -1,0 +1,16 @@
+Enumerating objects: 12, done.
+Counting objects:  50% (6/12)
+Counting objects: 100% (12/12), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (7/7), done.
+Writing objects:  42% (3/7)
+Writing objects: 100% (7/7), 1.02 KiB | 1.02 MiB/s, done.
+Total 7 (delta 5), reused 0 (delta 0), pack-reused 0 (from 0)
+To github.com:example/shop.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'github.com:example/shop.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.

@@ -3,22 +3,12 @@ package ledger
 import (
 	"context"
 	"time"
+
+	"github.com/lukaszb/gascoigne/component"
 )
 
-type Stat struct {
-	Route     string
-	Runs      int
-	Optimized int
-	Failed    int
-	RawTokens int
-	OutTokens int
-}
-
-func (s Stat) Saved() int { return s.RawTokens - s.OutTokens }
-
-// Gain aggregates events per route, biggest savings first.
-func (l *Ledger) Gain(ctx context.Context) ([]Stat, error) {
-	var stats []Stat
+func (l *Ledger) Stats(ctx context.Context) ([]component.Stat, error) {
+	var stats []component.Stat
 	err := l.db.WithContext(ctx).Model(&event{}).
 		Select(`CASE route WHEN '' THEN '-' ELSE route END AS route,
 			count(*) AS runs,

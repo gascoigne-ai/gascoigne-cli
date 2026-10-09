@@ -1,6 +1,218 @@
-# Eval fixtures: raw outputs as an agent would see them.
-- { file: git-status.txt, kind: cmd_output, attrs: { cmd: git status } }
-- { file: git-diff.txt,   kind: cmd_output, attrs: { cmd: git diff } }
-- { file: go-test-v.txt,  kind: cmd_output, attrs: { cmd: go test -v ./... } }
-- { file: ls-la.txt,      kind: cmd_output, attrs: { cmd: ls -la /usr/lib } }
-- { file: go-list-m.json, kind: json,       attrs: { cmd: go list -m -json all } }
+# Eval cases. Fixtures are real tool output where the tool was available
+# (go, git, grep, rg, ls, npm, curl), realistic synthetic otherwise (nx, bun, logs).
+#   attrs        hints as an agent wrapper would set them; omit to test pure detection
+#   expect_type  detected block type(s), "a+b" for multi-block
+#   keep         substrings that must survive optimization
+#   min_saved    lowest acceptable saving, percent
+# Goldens in golden/<name>.out; review diffs, then `gascoigne eval -update`.
+
+# --- go
+- file: go/test-pass.txt
+  attrs: { cmd: go test ./... }
+  expect_type: go-test
+  keep: ["github.com/lukaszb/gascoigne/internal/service"]
+- file: go/test-v-pass.txt
+  attrs: { cmd: go test -v ./... }
+  expect_type: go-test
+- file: go/test-fail.txt
+  attrs: { cmd: go test ./... }
+  expect_type: go-test
+  keep: ["--- FAIL: TestReserve", "panic: assignment to entry in nil map", "stock_test.go:7", "--- FAIL: TestTotal/negative_guard", "Total([1], 5) = -4, want 0", "FAIL\texample.com/shop/price"]
+- file: go/test-fail-v.txt
+  attrs: { cmd: go test -v ./... }
+  expect_type: go-test
+  keep: ["--- FAIL: TestReserve", "stock_test.go:7", "Total([1], 5) = -4, want 0", "FAIL\texample.com/shop/inventory"]
+- file: go/test-json.ndjson
+  attrs: { cmd: go test -json ./... }
+  expect_type: go-test-json
+  keep: ["TestReserve", "assignment to entry in nil map", "Total([1], 5) = -4, want 0"]
+- file: go/build-errors.txt
+  attrs: { cmd: go build ./... }
+  expect_type: go-build
+  keep: ["broken/broken.go:15:9: undefined: undefinedHelper", "broken/broken.go:21:3"]
+- name: detect/go-test-fail-v
+  file: go/test-fail-v.txt
+  expect_type: go-test
+- name: detect/go-test-json
+  file: go/test-json.ndjson
+  expect_type: go-test-json
+
+# --- git
+- file: git/status.txt
+  attrs: { cmd: git status }
+  expect_type: git-status
+  keep: ["internal/router/glob.go", "internal/router/match.go", "notes.txt", "ahead of 'origin/feature/router' by 3"]
+- file: git/status-big.txt
+  attrs: { cmd: git status }
+  expect_type: git-status
+  keep: ["args.go -> arguments.go", "cobra.go", "doc/yaml_docs_test.go", "internal/newpkg/b.go"]
+- file: git/log.txt
+  attrs: { cmd: git log }
+  expect_type: git-log
+  keep: ["adbc881", "fix: resolve macOS test link failure"]
+- file: git/diff.txt
+  attrs: { cmd: git diff HEAD~12 }
+  expect_type: diff
+  keep: ["args.go", "func OnlyValidArgs"]
+- file: git/show.txt
+  attrs: { cmd: git show HEAD~17 }
+  expect_type: diff
+- file: git/push.txt
+  attrs: { cmd: git push -u origin feature/router }
+  expect_type: git-remote
+  keep: ["feature/router -> feature/router", "pull/new/feature/router"]
+- name: detect/git-log
+  file: git/log.txt
+  expect_type: git-log
+- name: detect/git-diff
+  file: git/diff.txt
+  expect_type: diff
+
+# --- grep
+- file: grep/grep-rn.txt
+  attrs: { cmd: grep -rn Handler --include=*.go . }
+  expect_type: grep
+  keep: ["server.go", "csrf.go"]
+- file: grep/rg.txt
+  attrs: { cmd: rg -n "ctx context.Context" }
+  expect_type: grep
+- file: grep/rg-errors.txt
+  attrs: { cmd: rg -n -i error }
+  expect_type: grep
+  keep: ["active_help_test.go"]
+- name: detect/grep
+  file: grep/grep-rn.txt
+  expect_type: grep
+
+# --- ls
+- file: ls/usr-lib.txt
+  attrs: { cmd: ls -la /usr/lib }
+  expect_type: ls
+- file: ls/many-same-ext.txt
+  attrs: { cmd: ls -la /usr/share/man/man1 }
+  expect_type: ls
+- file: ls/repo.txt
+  attrs: { cmd: ls -la }
+  expect_type: ls
+  keep: ["active_help.go", "doc"]
+- name: detect/ls
+  file: ls/repo.txt
+  expect_type: ls
+
+# --- cat (code)
+- file: cat/server.go.txt
+  attrs: { cmd: cat net/http/server.go }
+  expect_type: code
+  keep: ["func (s *Server) ListenAndServe() error", "type Handler interface"]
+- file: cat/router.go.txt
+  attrs: { cmd: cat internal/router/router.go }
+  expect_type: code
+  keep: ["func Glob(pattern, s string) bool"]
+- file: cat/args.go.txt
+  attrs: { cmd: cat args.go }
+  expect_type: code
+- file: cat/decoder.py.txt
+  attrs: { cmd: cat json/decoder.py }
+  expect_type: code
+  keep: ["class JSONDecoder", "def decode(self, s"]
+- name: detect/go-code
+  file: cat/server.go.txt
+  expect_type: code
+
+# --- npm
+- file: npm/install.txt
+  attrs: { cmd: npm install }
+  expect_type: npm
+  keep: ["added 378 packages", "38 vulnerabilities (8 moderate, 28 high, 2 critical)", "deprecated"]
+- file: npm/install-verbose.txt
+  attrs: { cmd: npm install --loglevel=http }
+  expect_type: npm
+  keep: ["added 378 packages", "38 vulnerabilities"]
+- file: npm/test-jest-fail.txt
+  attrs: { cmd: npm test }
+  expect_type: npm
+  keep: ["FAIL src/cart.test.js", "● total › never negative", "Received: -4", "● applyCoupon › lowercase", "Tests:"]
+- file: npm/tsc-errors.txt
+  attrs: { cmd: npm run build }
+  expect_type: npm
+  keep: ["src/order.ts(3,3): error TS2322", "src/order.ts(12,22): error TS7006"]
+- name: detect/jest
+  file: npm/test-jest-fail.txt
+  expect_type: js-test
+
+# --- nx
+- file: nx/run-many-build.txt
+  attrs: { cmd: npx nx run-many -t build }
+  expect_type: nx
+  keep: ["nx run web:build", "\"formatPrice\" is not exported", "Checkout.tsx:42:18", "6/7 succeeded", "1/7 targets failed"]
+- file: nx/run-many-test.txt
+  attrs: { cmd: nx run-many -t test }
+  expect_type: nx
+  keep: ["● Checkout › shows total with tax", "Received:", "$20.00", "Checkout.spec.tsx:20:41", "1/4 targets failed"]
+- name: detect/nx
+  file: nx/run-many-build.txt
+  expect_type: nx
+
+# --- bun
+- file: bun/install-verbose.txt
+  attrs: { cmd: bun install --verbose }
+  expect_type: bun
+  keep: ["482 packages installed", "+ hono@4.9.6"]
+- file: bun/test-fail.txt
+  attrs: { cmd: bun test }
+  expect_type: bun
+  keep: ["✗ total > never negative", "Received: -4", "cart.test.ts:6:73", "✗ applyCoupon > lowercase", "53 pass", "2 fail"]
+- name: detect/bun
+  file: bun/test-fail.txt
+  expect_type: bun
+
+# --- json
+- file: json/github-repos.json
+  attrs: { cmd: curl https://api.github.com/orgs/golang/repos }
+  expect_type: json
+  keep: ["\"full_name\"", "golang/"]
+- file: json/package-lock.json
+  attrs: { cmd: cat package-lock.json }
+  expect_type: json
+  keep: ["\"express\""]
+- file: json/go-list-m.json
+  attrs: { cmd: go list -m -json all }
+  expect_type: json
+- file: log/structured.ndjson
+  attrs: { cmd: kubectl logs api }
+  expect_type: ndjson
+  keep: ["card_declined: insufficient funds"]
+- name: detect/json
+  file: json/github-repos.json
+  expect_type: json
+
+# --- html (web data)
+- file: html/go-dev-layout.html
+  attrs: { mime: text/html }
+  expect_type: html
+  keep: ["Organizing a Go module"]
+- file: html/go-dev-blog.html
+  attrs: { mime: text/html }
+  expect_type: html
+  keep: ["Routing Enhancements for Go 1.22"]
+- name: detect/html
+  file: html/go-dev-blog.html
+  expect_type: html
+
+# --- log
+- file: log/app.log
+  attrs: { file: /var/log/shop/app.log }
+  expect_type: log
+  keep: ["pq: deadlock detected", "connection pool exhausted", "FATAL [main] shutting down", "upstream timeout"]
+- name: detect/log
+  file: log/app.log
+  expect_type: log
+
+# --- mixed multi-block (e.g. several tool results in one request)
+- name: mixed/json-log-diff
+  blocks:
+    - { file: json/github-repos.json, kind: tool_result }
+    - { file: log/app.log, kind: tool_result }
+    - { file: git/diff.txt, kind: tool_result }
+  expect_type: json+log+diff
+  keep: ["FATAL [main] shutting down", "func OnlyValidArgs"]

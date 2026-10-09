@@ -1,0 +1,90 @@
+bun test v1.2.21 (7c45ed97)
+
+src/util1.test.ts:
+✓ util1 > case 1 [0.03ms]
+✓ util1 > case 2 [0.04ms]
+✓ util1 > case 3 [0.05ms]
+✓ util1 > case 4 [0.06ms]
+✓ util1 > case 5 [0.07ms]
+✓ util1 > case 6 [0.08ms]
+✓ util1 > case 7 [0.09ms]
+✓ util1 > case 8 [0.10ms]
+
+src/util2.test.ts:
+✓ util2 > case 1 [0.03ms]
+✓ util2 > case 2 [0.04ms]
+✓ util2 > case 3 [0.05ms]
+✓ util2 > case 4 [0.06ms]
+✓ util2 > case 5 [0.07ms]
+✓ util2 > case 6 [0.08ms]
+✓ util2 > case 7 [0.09ms]
+✓ util2 > case 8 [0.10ms]
+
+src/util3.test.ts:
+✓ util3 > case 1 [0.03ms]
+✓ util3 > case 2 [0.04ms]
+✓ util3 > case 3 [0.05ms]
+✓ util3 > case 4 [0.06ms]
+✓ util3 > case 5 [0.07ms]
+✓ util3 > case 6 [0.08ms]
+✓ util3 > case 7 [0.09ms]
+✓ util3 > case 8 [0.10ms]
+
+src/util4.test.ts:
+✓ util4 > case 1 [0.03ms]
+✓ util4 > case 2 [0.04ms]
+✓ util4 > case 3 [0.05ms]
+✓ util4 > case 4 [0.06ms]
+✓ util4 > case 5 [0.07ms]
+✓ util4 > case 6 [0.08ms]
+✓ util4 > case 7 [0.09ms]
+✓ util4 > case 8 [0.10ms]
+
+src/util5.test.ts:
+✓ util5 > case 1 [0.03ms]
+✓ util5 > case 2 [0.04ms]
+✓ util5 > case 3 [0.05ms]
+✓ util5 > case 4 [0.06ms]
+✓ util5 > case 5 [0.07ms]
+✓ util5 > case 6 [0.08ms]
+✓ util5 > case 7 [0.09ms]
+✓ util5 > case 8 [0.10ms]
+
+src/util6.test.ts:
+✓ util6 > case 1 [0.03ms]
+✓ util6 > case 2 [0.04ms]
+✓ util6 > case 3 [0.05ms]
+✓ util6 > case 4 [0.06ms]
+✓ util6 > case 5 [0.07ms]
+✓ util6 > case 6 [0.08ms]
+✓ util6 > case 7 [0.09ms]
+✓ util6 > case 8 [0.10ms]
+
+src/cart.test.ts:
+✓ total > empty cart [0.11ms]
+✓ total > single item [0.03ms]
+✓ total > discount [0.02ms]
+4 | test('never negative', () => expect(total([{ price: 1, qty: 1 }], 5)).toBe(0));
+                                                                          ^
+error: expect(received).toBe(expected)
+
+Expected: 0
+Received: -4
+
+      at <anonymous> (/home/user/src/webapp/src/cart.test.ts:6:73)
+✗ total > never negative [0.42ms]
+✓ applyCoupon > HALF [0.02ms]
+✓ applyCoupon > unknown [0.01ms]
+error: expect(received).toBe(expected)
+
+Expected: 5
+Received: 10
+
+      at <anonymous> (/home/user/src/webapp/src/cart.test.ts:11:59)
+✗ applyCoupon > lowercase [0.31ms]
+
+ 53 pass
+ 2 fail
+ 55 expect() calls
+Ran 55 tests across 7 files. [118.00ms]
+

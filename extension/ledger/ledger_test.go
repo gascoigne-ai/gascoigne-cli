@@ -99,11 +99,11 @@ func TestGain(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	stats, err := l.Gain(ctx)
+	stats, err := l.Stats(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []Stat{
+	want := []component.Stat{
 		{Route: "git", Runs: 2, Optimized: 1, Failed: 1, RawTokens: 150, OutTokens: 70},
 		{Route: "-", Runs: 1, RawTokens: 10, OutTokens: 10},
 	}

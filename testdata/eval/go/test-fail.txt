@@ -1,0 +1,26 @@
+ok  	example.com/shop/api	0.001s
+ok  	example.com/shop/cart	0.001s
+--- FAIL: TestReserve (0.00s)
+panic: assignment to entry in nil map [recovered, repanicked]
+
+goroutine 31 [running]:
+testing.tRunner.func1.2({0x55b7a0, 0x6d1c60})
+	/usr/local/go/src/testing/testing.go:1974 +0x232
+testing.tRunner.func1()
+	/usr/local/go/src/testing/testing.go:1977 +0x349
+panic({0x55b7a0?, 0x6d1c60?})
+	/usr/local/go/src/runtime/panic.go:860 +0x13a
+example.com/shop/inventory.TestReserve(0x25b71f857d48?)
+	/home/user/src/shop/inventory/stock_test.go:7 +0x28
+testing.tRunner(0x25b71f857d48, 0x594078)
+	/usr/local/go/src/testing/testing.go:2036 +0xea
+created by testing.(*T).Run in goroutine 1
+	/usr/local/go/src/testing/testing.go:2101 +0x4c5
+FAIL	example.com/shop/inventory	0.003s
+--- FAIL: TestTotal (0.00s)
+    --- FAIL: TestTotal/negative_guard (0.00s)
+        price_test.go:21: Total([1], 5) = -4, want 0
+FAIL
+FAIL	example.com/shop/price	0.001s
+ok  	example.com/shop/util	0.001s
+FAIL

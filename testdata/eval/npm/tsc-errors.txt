@@ -1,0 +1,9 @@
+npm notice run webapp@1.0.0 build
+npm notice run tsc --noEmit
+src/order.ts(3,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/order.ts(6,3): error TS2322: Type 'Item | undefined' is not assignable to type 'Item'.
+  Type 'undefined' is not assignable to type 'Item'.
+src/order.ts(9,15): error TS2339: Property 'name' does not exist on type 'Item'.
+src/order.ts(9,41): error TS2339: Property 'priceTag' does not exist on type 'Item'.
+src/order.ts(11,7): error TS2322: Type 'string' is not assignable to type 'number'.
+src/order.ts(12,22): error TS7006: Parameter 'addr' implicitly has an 'any' type.

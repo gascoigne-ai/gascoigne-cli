@@ -1,0 +1,216 @@
+
+ NX   Running target build for 7 projects and 3 tasks they depend on:
+
+- shared-util
+- shared-ui
+- data-access
+- api
+- web
+- admin
+- docs
+
+ —————————————————————————————————————————————————————————————————————————————
+
+   ✔  nx run shared-util:build  [existing outputs match the cache, left as is]
+
+   ✔  nx run shared-ui:build  [existing outputs match the cache, left as is]
+
+   ✔  nx run data-access:build  [existing outputs match the cache, left as is]
+
+> nx run api:build
+
+> webpack-cli build --node-env=production
+
+asset main.00.js 10.0 KiB [emitted] [minimized] (name: main)
+asset vendor.01.js 13.1 KiB [emitted] [minimized] (name: main)
+asset runtime.02.js 16.2 KiB [emitted] [minimized] (name: main)
+asset main.03.js 19.3 KiB [emitted] [minimized] (name: main)
+asset vendor.04.js 22.4 KiB [emitted] [minimized] (name: main)
+asset runtime.05.js 25.5 KiB [emitted] [minimized] (name: main)
+asset main.06.js 28.6 KiB [emitted] [minimized] (name: main)
+asset vendor.07.js 31.7 KiB [emitted] [minimized] (name: main)
+asset runtime.08.js 34.8 KiB [emitted] [minimized] (name: main)
+asset main.09.js 37.9 KiB [emitted] [minimized] (name: main)
+asset vendor.10.js 40.0 KiB [emitted] [minimized] (name: main)
+asset runtime.11.js 43.1 KiB [emitted] [minimized] (name: main)
+asset main.12.js 46.2 KiB [emitted] [minimized] (name: main)
+asset vendor.13.js 49.3 KiB [emitted] [minimized] (name: main)
+asset runtime.14.js 52.4 KiB [emitted] [minimized] (name: main)
+asset main.15.js 55.5 KiB [emitted] [minimized] (name: main)
+asset vendor.16.js 58.6 KiB [emitted] [minimized] (name: main)
+asset runtime.17.js 61.7 KiB [emitted] [minimized] (name: main)
+asset main.18.js 64.8 KiB [emitted] [minimized] (name: main)
+asset vendor.19.js 67.9 KiB [emitted] [minimized] (name: main)
+asset runtime.20.js 70.0 KiB [emitted] [minimized] (name: main)
+asset main.21.js 73.1 KiB [emitted] [minimized] (name: main)
+asset vendor.22.js 76.2 KiB [emitted] [minimized] (name: main)
+asset runtime.23.js 79.3 KiB [emitted] [minimized] (name: main)
+asset main.24.js 82.4 KiB [emitted] [minimized] (name: main)
+asset vendor.25.js 85.5 KiB [emitted] [minimized] (name: main)
+asset runtime.26.js 88.6 KiB [emitted] [minimized] (name: main)
+asset main.27.js 91.7 KiB [emitted] [minimized] (name: main)
+asset vendor.28.js 94.8 KiB [emitted] [minimized] (name: main)
+asset runtime.29.js 97.9 KiB [emitted] [minimized] (name: main)
+asset main.30.js 100.0 KiB [emitted] [minimized] (name: main)
+asset vendor.31.js 103.1 KiB [emitted] [minimized] (name: main)
+asset runtime.32.js 106.2 KiB [emitted] [minimized] (name: main)
+asset main.33.js 109.3 KiB [emitted] [minimized] (name: main)
+asset vendor.34.js 112.4 KiB [emitted] [minimized] (name: main)
+asset runtime.35.js 115.5 KiB [emitted] [minimized] (name: main)
+asset main.36.js 118.6 KiB [emitted] [minimized] (name: main)
+asset vendor.37.js 121.7 KiB [emitted] [minimized] (name: main)
+asset runtime.38.js 124.8 KiB [emitted] [minimized] (name: main)
+asset main.39.js 127.9 KiB [emitted] [minimized] (name: main)
+orphan modules 412 KiB [orphan] 188 modules
+runtime modules 2.47 KiB 5 modules
+cacheable modules 1.21 MiB
+  modules by path ./src/app/orders/ 20.0 KiB 3 modules
+  modules by path ./src/app/cart/ 21.1 KiB 4 modules
+  modules by path ./src/app/users/ 22.2 KiB 5 modules
+  modules by path ./src/app/auth/ 23.3 KiB 6 modules
+  modules by path ./src/app/products/ 24.4 KiB 3 modules
+  modules by path ./src/app/orders/ 25.5 KiB 4 modules
+  modules by path ./src/app/cart/ 26.6 KiB 5 modules
+  modules by path ./src/app/users/ 27.0 KiB 6 modules
+  modules by path ./src/app/auth/ 28.1 KiB 3 modules
+  modules by path ./src/app/products/ 29.2 KiB 4 modules
+  modules by path ./src/app/orders/ 30.3 KiB 5 modules
+  modules by path ./src/app/cart/ 31.4 KiB 6 modules
+  modules by path ./src/app/users/ 32.5 KiB 3 modules
+  modules by path ./src/app/auth/ 33.6 KiB 4 modules
+  modules by path ./src/app/products/ 34.0 KiB 5 modules
+  modules by path ./src/app/orders/ 35.1 KiB 6 modules
+  modules by path ./src/app/cart/ 36.2 KiB 3 modules
+  modules by path ./src/app/users/ 37.3 KiB 4 modules
+  modules by path ./src/app/auth/ 38.4 KiB 5 modules
+  modules by path ./src/app/products/ 39.5 KiB 6 modules
+  modules by path ./src/app/orders/ 40.6 KiB 3 modules
+  modules by path ./src/app/cart/ 41.0 KiB 4 modules
+  modules by path ./src/app/users/ 42.1 KiB 5 modules
+  modules by path ./src/app/auth/ 43.2 KiB 6 modules
+  modules by path ./src/app/products/ 44.3 KiB 3 modules
+  modules by path ./src/app/orders/ 45.4 KiB 4 modules
+  modules by path ./src/app/cart/ 46.5 KiB 5 modules
+  modules by path ./src/app/users/ 47.6 KiB 6 modules
+  modules by path ./src/app/auth/ 48.0 KiB 3 modules
+  modules by path ./src/app/products/ 49.1 KiB 4 modules
+webpack 5.94.0 compiled successfully in 8421 ms
+
+> nx run docs:build
+
+> vite build
+
+vite v5.4.8 building for production...
+transforming...
+✓ 1284 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/apps/docs/assets/page-000-ab12cd.js      3.00 kB │ gzip:  1.00 kB
+dist/apps/docs/assets/page-001-ab169e.js      3.70 kB │ gzip:  1.20 kB
+dist/apps/docs/assets/page-002-ab1a6f.js      4.40 kB │ gzip:  1.40 kB
+dist/apps/docs/assets/page-003-ab1e40.js      5.10 kB │ gzip:  1.60 kB
+dist/apps/docs/assets/page-004-ab2211.js      5.80 kB │ gzip:  1.80 kB
+dist/apps/docs/assets/page-005-ab25e2.js      6.50 kB │ gzip:  2.00 kB
+dist/apps/docs/assets/page-006-ab29b3.js      7.20 kB │ gzip:  2.20 kB
+dist/apps/docs/assets/page-007-ab2d84.js      7.90 kB │ gzip:  2.40 kB
+dist/apps/docs/assets/page-008-ab3155.js      8.60 kB │ gzip:  2.60 kB
+dist/apps/docs/assets/page-009-ab3526.js      9.30 kB │ gzip:  2.80 kB
+dist/apps/docs/assets/page-010-ab38f7.js     10.00 kB │ gzip:  3.00 kB
+dist/apps/docs/assets/page-011-ab3cc8.js     10.70 kB │ gzip:  3.20 kB
+dist/apps/docs/assets/page-012-ab4099.js     11.40 kB │ gzip:  3.40 kB
+dist/apps/docs/assets/page-013-ab446a.js     12.10 kB │ gzip:  3.60 kB
+dist/apps/docs/assets/page-014-ab483b.js     12.80 kB │ gzip:  3.80 kB
+dist/apps/docs/assets/page-015-ab4c0c.js     13.50 kB │ gzip:  4.00 kB
+dist/apps/docs/assets/page-016-ab4fdd.js     14.20 kB │ gzip:  4.20 kB
+dist/apps/docs/assets/page-017-ab53ae.js     14.90 kB │ gzip:  4.40 kB
+dist/apps/docs/assets/page-018-ab577f.js     15.60 kB │ gzip:  4.60 kB
+dist/apps/docs/assets/page-019-ab5b50.js     16.30 kB │ gzip:  4.80 kB
+dist/apps/docs/assets/page-020-ab5f21.js     17.00 kB │ gzip:  5.00 kB
+dist/apps/docs/assets/page-021-ab62f2.js     17.70 kB │ gzip:  5.20 kB
+dist/apps/docs/assets/page-022-ab66c3.js     18.40 kB │ gzip:  5.40 kB
+dist/apps/docs/assets/page-023-ab6a94.js     19.10 kB │ gzip:  5.60 kB
+dist/apps/docs/assets/page-024-ab6e65.js     19.80 kB │ gzip:  5.80 kB
+dist/apps/docs/assets/page-025-ab7236.js     20.50 kB │ gzip:  6.00 kB
+dist/apps/docs/assets/page-026-ab7607.js     21.20 kB │ gzip:  6.20 kB
+dist/apps/docs/assets/page-027-ab79d8.js     21.90 kB │ gzip:  6.40 kB
+dist/apps/docs/assets/page-028-ab7da9.js     22.60 kB │ gzip:  6.60 kB
+dist/apps/docs/assets/page-029-ab817a.js     23.30 kB │ gzip:  6.80 kB
+dist/apps/docs/assets/page-030-ab854b.js     24.00 kB │ gzip:  7.00 kB
+dist/apps/docs/assets/page-031-ab891c.js     24.70 kB │ gzip:  7.20 kB
+dist/apps/docs/assets/page-032-ab8ced.js     25.40 kB │ gzip:  7.40 kB
+dist/apps/docs/assets/page-033-ab90be.js     26.10 kB │ gzip:  7.60 kB
+dist/apps/docs/assets/page-034-ab948f.js     26.80 kB │ gzip:  7.80 kB
+✓ built in 6.12s
+
+> nx run admin:build
+
+> vite build
+
+vite v5.4.8 building for production...
+transforming...
+✓ 902 modules transformed.
+dist/apps/admin/assets/chunk-000-1f2e3d.js      2.00 kB │ gzip:  1.00 kB
+dist/apps/admin/assets/chunk-001-1f2f74.js      2.90 kB │ gzip:  1.30 kB
+dist/apps/admin/assets/chunk-002-1f30ab.js      3.80 kB │ gzip:  1.60 kB
+dist/apps/admin/assets/chunk-003-1f31e2.js      4.70 kB │ gzip:  1.90 kB
+dist/apps/admin/assets/chunk-004-1f3319.js      5.60 kB │ gzip:  2.20 kB
+dist/apps/admin/assets/chunk-005-1f3450.js      6.50 kB │ gzip:  2.50 kB
+dist/apps/admin/assets/chunk-006-1f3587.js      7.40 kB │ gzip:  2.80 kB
+dist/apps/admin/assets/chunk-007-1f36be.js      8.30 kB │ gzip:  3.10 kB
+dist/apps/admin/assets/chunk-008-1f37f5.js      9.20 kB │ gzip:  3.40 kB
+dist/apps/admin/assets/chunk-009-1f392c.js     10.10 kB │ gzip:  3.70 kB
+dist/apps/admin/assets/chunk-010-1f3a63.js     11.00 kB │ gzip:  4.00 kB
+dist/apps/admin/assets/chunk-011-1f3b9a.js     11.90 kB │ gzip:  4.30 kB
+dist/apps/admin/assets/chunk-012-1f3cd1.js     12.80 kB │ gzip:  4.60 kB
+dist/apps/admin/assets/chunk-013-1f3e08.js     13.70 kB │ gzip:  4.90 kB
+dist/apps/admin/assets/chunk-014-1f3f3f.js     14.60 kB │ gzip:  5.20 kB
+dist/apps/admin/assets/chunk-015-1f4076.js     15.50 kB │ gzip:  5.50 kB
+dist/apps/admin/assets/chunk-016-1f41ad.js     16.40 kB │ gzip:  5.80 kB
+dist/apps/admin/assets/chunk-017-1f42e4.js     17.30 kB │ gzip:  6.10 kB
+dist/apps/admin/assets/chunk-018-1f441b.js     18.20 kB │ gzip:  6.40 kB
+dist/apps/admin/assets/chunk-019-1f4552.js     19.10 kB │ gzip:  6.70 kB
+✓ built in 4.80s
+
+> nx run web:build
+
+> vite build
+
+vite v5.4.8 building for production...
+transforming...
+✓ 311 modules transformed.
+x Build failed in 2.31s
+error during build:
+apps/web/src/app/checkout/Checkout.tsx (42:18): "formatPrice" is not exported by "libs/shared/util/src/index.ts", imported by "apps/web/src/app/checkout/Checkout.tsx".
+file: /home/user/src/shop/apps/web/src/app/checkout/Checkout.tsx:42:18
+
+40: import { useCart } from '@shop/data-access';
+41: import { Button } from '@shop/shared-ui';
+42: import { formatPrice } from '@shop/shared-util';
+                     ^
+43: 
+44: export function Checkout() {
+
+    at getRollupError (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:414:34)
+    at error (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:405:25)
+    at Module.error (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:412:32)
+    at Module.traceVariable (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:420:40)
+    at ModuleScope.findVariable (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:424:44)
+    at ChildScope.findVariable (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:423:43)
+    at FunctionScope.findVariable (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:426:46)
+    at Identifier.bind (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:415:35)
+    at CallExpression.bind (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:419:39)
+    at Program.bind (file:///home/user/src/shop/node_modules/rollup/dist/es/shared/parseAst.js:412:32)
+Warning: command "vite build" exited with non-zero status code
+
+ —————————————————————————————————————————————————————————————————————————————
+
+ NX   Ran target build for 7 projects and 3 tasks they depend on (21s)
+
+   ✔  6/7 succeeded [3 read from cache]
+
+   ✖  1/7 targets failed, including the following:
+
+      - nx run web:build
+
+   View structured, searchable error logs at https://cloud.nx.app/runs/AbCdEf1234
+

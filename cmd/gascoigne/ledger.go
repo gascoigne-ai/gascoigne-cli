@@ -109,12 +109,12 @@ func cmdGain(ctx context.Context, args []string) error {
 }
 
 func printGain(ctx context.Context, w io.Writer, l *ledger.Ledger) error {
-	stats, err := l.Gain(ctx)
+	stats, err := l.Stats(ctx)
 	if err != nil {
 		return err
 	}
 	fmt.Fprintln(w, "route\truns\toptimized\tfailed\traw tok\tout tok\tsaved\tsaved %\t")
-	var total ledger.Stat
+	var total component.Stat
 	for _, s := range stats {
 		printStat(w, s)
 		total.Runs += s.Runs
@@ -128,7 +128,7 @@ func printGain(ctx context.Context, w io.Writer, l *ledger.Ledger) error {
 	return nil
 }
 
-func printStat(w io.Writer, s ledger.Stat) {
+func printStat(w io.Writer, s component.Stat) {
 	fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t\n",
 		s.Route, s.Runs, s.Optimized, s.Failed, s.RawTokens, s.OutTokens, s.Saved(), percent(s.Saved(), s.RawTokens))
 }

@@ -1,0 +1,21 @@
+doc:
+total 64
+drwxr-xr-x 2 user user  260 Oct 10 01:04 .
+drwxr-xr-x 7 user user  880 Oct 10 01:04 ..
+-rw-r--r-- 1 user user 3539 Oct 10 01:04 cmd_test.go
+-rw-r--r-- 1 user user 7349 Oct 10 01:04 man_docs.go
+-rw-r--r-- 1 user user 6560 Oct 10 01:04 man_docs_test.go
+-rw-r--r-- 1 user user 1189 Oct 10 01:04 man_examples_test.go
+-rw-r--r-- 1 user user 4654 Oct 10 01:04 md_docs.go
+-rw-r--r-- 1 user user 3634 Oct 10 01:04 md_docs_test.go
+-rw-r--r-- 1 user user 5294 Oct 10 01:04 rest_docs.go
+-rw-r--r-- 1 user user 3118 Oct 10 01:04 rest_docs_test.go
+-rw-r--r-- 1 user user 1553 Oct 10 01:04 util.go
+-rw-r--r-- 1 user user 4945 Oct 10 01:04 yaml_docs.go
+-rw-r--r-- 1 user user 2645 Oct 10 01:04 yaml_docs_test.go
+
+site:
+total 0
+drwxr-xr-x 3 user user  60 Oct 10 01:04 .
+drwxr-xr-x 7 user user 880 Oct 10 01:04 ..
+drwxr-xr-x 4 user user 140 Oct 10 01:04 content

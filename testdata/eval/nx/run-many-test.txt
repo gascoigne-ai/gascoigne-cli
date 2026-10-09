@@ -1,0 +1,111 @@
+
+ NX   Running target test for 4 projects:
+
+- shared-util
+- data-access
+- api
+- web
+
+ —————————————————————————————————————————————————————————————————————————————
+
+> nx run shared-util:test
+
+PASS shared-util libs/shared-util/src/lib/module0.spec.ts
+PASS shared-util libs/shared-util/src/lib/module1.spec.ts
+PASS shared-util libs/shared-util/src/lib/module2.spec.ts
+PASS shared-util libs/shared-util/src/lib/module3.spec.ts
+PASS shared-util libs/shared-util/src/lib/module4.spec.ts
+PASS shared-util libs/shared-util/src/lib/module5.spec.ts
+
+Test Suites: 6 passed, 6 total
+Tests:       42 passed, 42 total
+Snapshots:   0 total
+Time:        3.222 s
+Ran all test suites.
+
+> nx run data-access:test
+
+PASS data-access libs/data-access/src/lib/module0.spec.ts
+PASS data-access libs/data-access/src/lib/module1.spec.ts
+PASS data-access libs/data-access/src/lib/module2.spec.ts
+PASS data-access libs/data-access/src/lib/module3.spec.ts
+PASS data-access libs/data-access/src/lib/module4.spec.ts
+PASS data-access libs/data-access/src/lib/module5.spec.ts
+PASS data-access libs/data-access/src/lib/module6.spec.ts
+PASS data-access libs/data-access/src/lib/module7.spec.ts
+
+Test Suites: 8 passed, 8 total
+Tests:       56 passed, 56 total
+Snapshots:   0 total
+Time:        4.296 s
+Ran all test suites.
+
+> nx run api:test
+
+PASS api libs/api/src/lib/module0.spec.ts
+PASS api libs/api/src/lib/module1.spec.ts
+PASS api libs/api/src/lib/module2.spec.ts
+PASS api libs/api/src/lib/module3.spec.ts
+PASS api libs/api/src/lib/module4.spec.ts
+PASS api libs/api/src/lib/module5.spec.ts
+PASS api libs/api/src/lib/module6.spec.ts
+PASS api libs/api/src/lib/module7.spec.ts
+PASS api libs/api/src/lib/module8.spec.ts
+PASS api libs/api/src/lib/module9.spec.ts
+
+Test Suites: 10 passed, 10 total
+Tests:       70 passed, 70 total
+Snapshots:   0 total
+Time:        4.370 s
+Ran all test suites.
+
+> nx run web:test
+
+PASS web apps/web/src/app/page0.spec.tsx
+PASS web apps/web/src/app/page1.spec.tsx
+PASS web apps/web/src/app/page2.spec.tsx
+PASS web apps/web/src/app/page3.spec.tsx
+PASS web apps/web/src/app/page4.spec.tsx
+PASS web apps/web/src/app/page5.spec.tsx
+PASS web apps/web/src/app/page6.spec.tsx
+PASS web apps/web/src/app/page7.spec.tsx
+PASS web apps/web/src/app/page8.spec.tsx
+FAIL web apps/web/src/app/checkout/Checkout.spec.tsx
+  ● Checkout › shows total with tax
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      $21.60
+    Received:
+      $20.00
+
+      18 |     render(<Checkout />);
+      19 |     await user.click(screen.getByRole('button', { name: /review/i }));
+    > 20 |     expect(screen.getByTestId('total')).toHaveTextContent('$21.60');
+         |                                         ^
+      21 |   });
+
+      at Object.<anonymous> (apps/web/src/app/checkout/Checkout.spec.tsx:20:41)
+      at Promise.then.completed (node_modules/jest-circus/build/utils.js:298:28)
+      at new Promise (<anonymous>)
+      at callAsyncCircusFn (node_modules/jest-circus/build/utils.js:231:10)
+      at _callCircusTest (node_modules/jest-circus/build/run.js:316:40)
+
+Test Suites: 1 failed, 9 passed, 10 total
+Tests:       1 failed, 63 passed, 64 total
+Snapshots:   0 total
+Time:        6.204 s
+Ran all test suites.
+Warning: command "jest" exited with non-zero status code
+
+ —————————————————————————————————————————————————————————————————————————————
+
+ NX   Ran target test for 4 projects (14s)
+
+   ✔  3/4 succeeded [0 read from cache]
+
+   ✖  1/4 targets failed, including the following:
+
+      - nx run web:test
+

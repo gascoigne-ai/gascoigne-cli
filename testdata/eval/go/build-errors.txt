@@ -1,0 +1,6 @@
+# example.com/shop/broken
+broken/broken.go:12:10: cannot use nil as string value in return statement
+broken/broken.go:14:30: cannot use data (variable of type []byte) as string value in argument to strings.ToUpper
+broken/broken.go:15:9: undefined: undefinedHelper
+broken/broken.go:21:3: invalid operation: total += x (mismatched types string and int)
+broken/broken.go:23:9: cannot use total (variable of type string) as int value in return statement

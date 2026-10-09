@@ -1,0 +1,29 @@
+Enumerating objects: 47, done.
+Counting objects:   2% (1/47)
+Counting objects:  25% (12/47)
+Counting objects:  51% (24/47)
+Counting objects:  76% (36/47)
+Counting objects: 100% (47/47), done.
+Delta compression using up to 16 threads
+Compressing objects:   3% (1/29)
+Compressing objects:  27% (8/29)
+Compressing objects:  55% (16/29)
+Compressing objects:  82% (24/29)
+Compressing objects: 100% (29/29), done.
+Writing objects:   3% (1/30)
+Writing objects:  33% (10/30)
+Writing objects:  66% (20/30)
+Writing objects: 100% (30/30), 12.41 KiB | 4.14 MiB/s, done.
+Total 30 (delta 17), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas:   0% (0/17)
+remote: Resolving deltas:  23% (4/17)
+remote: Resolving deltas:  47% (8/17)
+remote: Resolving deltas:  76% (13/17)
+remote: Resolving deltas: 100% (17/17), completed with 9 local objects.
+remote: 
+remote: Create a pull request for 'feature/router' on GitHub by visiting:
+remote:      https://github.com/example/shop/pull/new/feature/router
+remote: 
+To github.com:example/shop.git
+ * [new branch]      feature/router -> feature/router
+branch 'feature/router' set up to track 'origin/feature/router'.

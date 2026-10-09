@@ -1,0 +1,345 @@
+bun install v1.2.21 (7c45ed97)
+Resolving dependencies
+[619.70ms] Downloaded esbuild tarball
+Extracted esbuild@9.4.11
+[858.70ms] Downloaded tinyspy tarball
+[735.70ms] Downloaded @esbuild/linux-x64 tarball
+[655.29ms] Downloaded estree-walker tarball
+[760.11ms] Downloaded esbuild tarball
+Extracted esbuild@3.16.12
+[606.15ms] Downloaded pathe tarball
+[610.59ms] Downloaded undici tarball
+[821.83ms] Downloaded std-env tarball
+[37.27ms] Downloaded postcss tarball
+Extracted postcss@3.11.3
+[689.65ms] Downloaded nanoid tarball
+[854.59ms] Downloaded loupe tarball
+[418.84ms] Downloaded rollup tarball
+[287.87ms] Downloaded esbuild tarball
+Extracted esbuild@6.0.27
+[555.83ms] Downloaded pathe tarball
+[649.83ms] Downloaded rollup tarball
+[494.91ms] Downloaded @esbuild/linux-x64 tarball
+[69.62ms] Downloaded nanoid tarball
+Extracted nanoid@2.11.25
+[788.63ms] Downloaded semver tarball
+[780.15ms] Downloaded ms tarball
+[286.74ms] Downloaded source-map tarball
+[79.23ms] Downloaded esbuild tarball
+Extracted esbuild@1.9.0
+[203.62ms] Downloaded vite-node tarball
+[44.53ms] Downloaded undici tarball
+[883.58ms] Downloaded ws tarball
+[660.86ms] Downloaded source-map tarball
+Extracted source-map@8.16.12
+[831.74ms] Downloaded pathe tarball
+[733.40ms] Downloaded @esbuild/linux-x64 tarball
+[311.80ms] Downloaded undici tarball
+[323.12ms] Downloaded ws tarball
+Extracted ws@1.13.18
+[643.52ms] Downloaded source-map tarball
+[724.45ms] Downloaded postcss tarball
+[63.96ms] Downloaded cac tarball
+[468.48ms] Downloaded ansi-styles tarball
+Extracted ansi-styles@6.8.20
+[190.50ms] Downloaded rollup tarball
+[308.58ms] Downloaded loupe tarball
+[753.26ms] Downloaded ms tarball
+[824.44ms] Downloaded undici tarball
+Extracted undici@9.7.20
+[446.93ms] Downloaded esbuild tarball
+[330.52ms] Downloaded std-env tarball
+[877.31ms] Downloaded pathe tarball
+[583.67ms] Downloaded debug tarball
+Extracted debug@6.20.6
+[543.34ms] Downloaded @esbuild/linux-x64 tarball
+[827.92ms] Downloaded ws tarball
+[432.47ms] Downloaded debug tarball
+[650.63ms] Downloaded acorn tarball
+Extracted acorn@5.14.11
+[37.62ms] Downloaded undici tarball
+[853.89ms] Downloaded semver tarball
+[735.38ms] Downloaded acorn tarball
+[296.79ms] Downloaded chalk tarball
+Extracted chalk@8.16.30
+[603.46ms] Downloaded ws tarball
+[823.98ms] Downloaded ms tarball
+[51.11ms] Downloaded acorn tarball
+[308.40ms] Downloaded nanoid tarball
+Extracted nanoid@2.5.16
+[424.16ms] Downloaded pathe tarball
+[259.79ms] Downloaded vite-node tarball
+[203.25ms] Downloaded nanoid tarball
+[811.45ms] Downloaded estree-walker tarball
+Extracted estree-walker@2.5.7
+[644.83ms] Downloaded pretty-format tarball
+[276.89ms] Downloaded source-map tarball
+[485.51ms] Downloaded acorn tarball
+[130.15ms] Downloaded loupe tarball
+Extracted loupe@1.1.24
+[34.21ms] Downloaded ms tarball
+[161.50ms] Downloaded acorn tarball
+[399.85ms] Downloaded debug tarball
+[337.64ms] Downloaded undici tarball
+Extracted undici@6.8.6
+[734.58ms] Downloaded ms tarball
+[44.57ms] Downloaded pretty-format tarball
+[821.15ms] Downloaded postcss tarball
+[643.73ms] Downloaded vite-node tarball
+Extracted vite-node@7.1.11
+[711.63ms] Downloaded loupe tarball
+[549.44ms] Downloaded postcss tarball
+[437.26ms] Downloaded std-env tarball
+[573.43ms] Downloaded ansi-styles tarball
+Extracted ansi-styles@6.11.28
+[833.94ms] Downloaded ms tarball
+[327.82ms] Downloaded acorn tarball
+[6.70ms] Downloaded estree-walker tarball
+[540.21ms] Downloaded semver tarball
+Extracted semver@4.12.1
+[840.13ms] Downloaded rollup tarball
+[118.96ms] Downloaded ws tarball
+[818.21ms] Downloaded nanoid tarball
+[245.23ms] Downloaded chalk tarball
+Extracted chalk@9.16.22
+[564.51ms] Downloaded estree-walker tarball
+[185.92ms] Downloaded rollup tarball
+[772.60ms] Downloaded esbuild tarball
+[359.81ms] Downloaded @esbuild/linux-x64 tarball
+Extracted @esbuild/linux-x64@6.19.12
+[241.62ms] Downloaded magic-string tarball
+[583.84ms] Downloaded cac tarball
+[659.61ms] Downloaded pathe tarball
+[767.71ms] Downloaded semver tarball
+Extracted semver@3.3.15
+[737.33ms] Downloaded std-env tarball
+[600.75ms] Downloaded semver tarball
+[799.47ms] Downloaded ws tarball
+[599.84ms] Downloaded pathe tarball
+Extracted pathe@7.19.27
+[275.71ms] Downloaded @esbuild/linux-x64 tarball
+[584.56ms] Downloaded pretty-format tarball
+[885.28ms] Downloaded esbuild tarball
+[480.84ms] Downloaded magic-string tarball
+Extracted magic-string@8.19.6
+[739.19ms] Downloaded tinyspy tarball
+[236.40ms] Downloaded source-map tarball
+[261.40ms] Downloaded tinyspy tarball
+[637.96ms] Downloaded fast-glob tarball
+Extracted fast-glob@5.4.5
+[47.50ms] Downloaded chalk tarball
+[819.20ms] Downloaded picomatch tarball
+[299.14ms] Downloaded ms tarball
+[692.53ms] Downloaded yaml tarball
+Extracted yaml@8.18.23
+[447.58ms] Downloaded ansi-styles tarball
+[600.72ms] Downloaded nanoid tarball
+[123.45ms] Downloaded source-map tarball
+[541.42ms] Downloaded debug tarball
+Extracted debug@7.3.14
+[791.57ms] Downloaded ms tarball
+[693.95ms] Downloaded loupe tarball
+[347.96ms] Downloaded tinyspy tarball
+[683.73ms] Downloaded rollup tarball
+Extracted rollup@9.16.3
+[302.96ms] Downloaded acorn tarball
+[748.90ms] Downloaded cac tarball
+[672.68ms] Downloaded semver tarball
+[340.92ms] Downloaded ms tarball
+Extracted ms@2.17.4
+[664.33ms] Downloaded cac tarball
+[181.18ms] Downloaded postcss tarball
+[590.60ms] Downloaded ms tarball
+[393.16ms] Downloaded yaml tarball
+Extracted yaml@2.8.8
+[278.41ms] Downloaded semver tarball
+[341.61ms] Downloaded std-env tarball
+[510.24ms] Downloaded postcss tarball
+[698.24ms] Downloaded semver tarball
+Extracted semver@5.18.3
+[194.82ms] Downloaded rollup tarball
+[623.28ms] Downloaded magic-string tarball
+[175.82ms] Downloaded source-map tarball
+[801.47ms] Downloaded picomatch tarball
+Extracted picomatch@4.8.11
+[835.59ms] Downloaded ansi-styles tarball
+[649.73ms] Downloaded ws tarball
+[616.34ms] Downloaded acorn tarball
+[775.94ms] Downloaded cac tarball
+Extracted cac@1.3.24
+[641.68ms] Downloaded esbuild tarball
+[38.74ms] Downloaded fast-glob tarball
+[291.94ms] Downloaded tinyspy tarball
+[91.89ms] Downloaded semver tarball
+Extracted semver@3.14.25
+[240.74ms] Downloaded chalk tarball
+[348.51ms] Downloaded debug tarball
+[879.86ms] Downloaded ws tarball
+[352.36ms] Downloaded loupe tarball
+Extracted loupe@1.2.23
+[776.38ms] Downloaded debug tarball
+[44.62ms] Downloaded nanoid tarball
+[510.70ms] Downloaded debug tarball
+[433.36ms] Downloaded std-env tarball
+Extracted std-env@2.17.27
+[476.68ms] Downloaded tinyspy tarball
+[467.14ms] Downloaded loupe tarball
+[380.67ms] Downloaded cac tarball
+[230.10ms] Downloaded acorn tarball
+Extracted acorn@6.19.12
+[379.28ms] Downloaded pretty-format tarball
+[215.12ms] Downloaded postcss tarball
+[652.13ms] Downloaded picomatch tarball
+[454.72ms] Downloaded semver tarball
+Extracted semver@2.19.5
+[459.50ms] Downloaded picomatch tarball
+[413.15ms] Downloaded magic-string tarball
+[225.40ms] Downloaded source-map tarball
+[169.52ms] Downloaded ms tarball
+Extracted ms@7.15.6
+[127.86ms] Downloaded vite-node tarball
+[477.48ms] Downloaded chalk tarball
+[31.53ms] Downloaded nanoid tarball
+[59.97ms] Downloaded tinyspy tarball
+Extracted tinyspy@6.10.2
+[4.23ms] Downloaded magic-string tarball
+[516.14ms] Downloaded ansi-styles tarball
+[522.52ms] Downloaded nanoid tarball
+[491.54ms] Downloaded fast-glob tarball
+Extracted fast-glob@8.10.25
+[770.87ms] Downloaded pathe tarball
+[301.33ms] Downloaded tinyspy tarball
+[561.52ms] Downloaded magic-string tarball
+[758.59ms] Downloaded estree-walker tarball
+Extracted estree-walker@7.5.26
+[821.63ms] Downloaded estree-walker tarball
+[720.71ms] Downloaded postcss tarball
+[738.87ms] Downloaded yaml tarball
+[158.31ms] Downloaded std-env tarball
+Extracted std-env@7.15.1
+[777.98ms] Downloaded std-env tarball
+[616.92ms] Downloaded pathe tarball
+[890.92ms] Downloaded chalk tarball
+[200.61ms] Downloaded ws tarball
+Extracted ws@6.0.2
+[319.24ms] Downloaded pretty-format tarball
+[247.98ms] Downloaded postcss tarball
+[600.11ms] Downloaded chalk tarball
+[214.38ms] Downloaded ms tarball
+Extracted ms@4.9.30
+[800.87ms] Downloaded estree-walker tarball
+[182.89ms] Downloaded ws tarball
+[25.22ms] Downloaded debug tarball
+[477.61ms] Downloaded fast-glob tarball
+Extracted fast-glob@5.2.3
+[780.95ms] Downloaded esbuild tarball
+[677.67ms] Downloaded std-env tarball
+[609.66ms] Downloaded loupe tarball
+[8.69ms] Downloaded source-map tarball
+Extracted source-map@4.3.17
+[197.72ms] Downloaded undici tarball
+[753.56ms] Downloaded loupe tarball
+[220.41ms] Downloaded magic-string tarball
+[442.66ms] Downloaded yaml tarball
+Extracted yaml@1.10.7
+[170.36ms] Downloaded debug tarball
+[729.78ms] Downloaded cac tarball
+[639.62ms] Downloaded magic-string tarball
+[36.47ms] Downloaded nanoid tarball
+Extracted nanoid@7.15.18
+[740.29ms] Downloaded ansi-styles tarball
+[655.70ms] Downloaded undici tarball
+[504.65ms] Downloaded chalk tarball
+[202.46ms] Downloaded chalk tarball
+Extracted chalk@6.14.23
+[421.66ms] Downloaded semver tarball
+[782.99ms] Downloaded debug tarball
+[166.65ms] Downloaded undici tarball
+[556.38ms] Downloaded undici tarball
+Extracted undici@8.15.16
+[475.57ms] Downloaded yaml tarball
+[827.76ms] Downloaded yaml tarball
+[544.29ms] Downloaded ansi-styles tarball
+[52.10ms] Downloaded estree-walker tarball
+Extracted estree-walker@1.5.30
+[805.56ms] Downloaded fast-glob tarball
+[245.11ms] Downloaded estree-walker tarball
+[53.87ms] Downloaded @esbuild/linux-x64 tarball
+[269.41ms] Downloaded estree-walker tarball
+Extracted estree-walker@2.14.9
+[267.53ms] Downloaded pathe tarball
+[643.96ms] Downloaded chalk tarball
+[777.62ms] Downloaded picomatch tarball
+[287.12ms] Downloaded acorn tarball
+Extracted acorn@6.17.4
+[659.17ms] Downloaded picomatch tarball
+[773.87ms] Downloaded postcss tarball
+[648.31ms] Downloaded acorn tarball
+[143.80ms] Downloaded undici tarball
+Extracted undici@3.2.21
+[466.45ms] Downloaded ms tarball
+[543.29ms] Downloaded pretty-format tarball
+[39.62ms] Downloaded rollup tarball
+[600.88ms] Downloaded nanoid tarball
+Extracted nanoid@4.14.29
+[613.80ms] Downloaded @esbuild/linux-x64 tarball
+[805.44ms] Downloaded ms tarball
+[35.75ms] Downloaded ms tarball
+[355.33ms] Downloaded nanoid tarball
+Extracted nanoid@8.6.9
+[51.44ms] Downloaded tinyspy tarball
+[626.60ms] Downloaded fast-glob tarball
+[428.42ms] Downloaded estree-walker tarball
+[205.20ms] Downloaded magic-string tarball
+Extracted magic-string@2.15.7
+[648.25ms] Downloaded std-env tarball
+[709.18ms] Downloaded tinyspy tarball
+[275.47ms] Downloaded magic-string tarball
+[242.72ms] Downloaded estree-walker tarball
+Extracted estree-walker@9.1.5
+[723.32ms] Downloaded picomatch tarball
+[9.28ms] Downloaded std-env tarball
+[642.32ms] Downloaded source-map tarball
+[134.28ms] Downloaded undici tarball
+Extracted undici@4.20.26
+[220.58ms] Downloaded chalk tarball
+[187.13ms] Downloaded loupe tarball
+[149.47ms] Downloaded @esbuild/linux-x64 tarball
+[619.19ms] Downloaded semver tarball
+Extracted semver@7.11.30
+[490.41ms] Downloaded fast-glob tarball
+[497.23ms] Downloaded debug tarball
+[758.54ms] Downloaded std-env tarball
+[476.78ms] Downloaded acorn tarball
+Extracted acorn@8.18.13
+[548.68ms] Downloaded estree-walker tarball
+[768.32ms] Downloaded source-map tarball
+[861.35ms] Downloaded undici tarball
+[420.88ms] Downloaded semver tarball
+Extracted semver@1.19.1
+[162.25ms] Downloaded picomatch tarball
+[384.77ms] Downloaded pretty-format tarball
+[554.84ms] Downloaded std-env tarball
+[615.37ms] Downloaded postcss tarball
+Extracted postcss@6.4.18
+[383.91ms] Downloaded ws tarball
+[741.54ms] Downloaded ws tarball
+[277.33ms] Downloaded std-env tarball
+Resolved, downloaded and extracted [482]
+Saved lockfile
+
++ @hono/zod-validator@0.4.3
++ drizzle-orm@0.44.5
++ hono@4.9.6
++ pino@9.9.4
++ postgres@3.4.7
++ zod@3.25.76
++ @types/bun@1.2.21
++ drizzle-kit@0.31.4
++ typescript@5.9.2
++ @biomejs/biome@2.2.4
++ vitest@3.2.4
++ prettier@3.6.2
+
+482 packages installed [3.18s]
+

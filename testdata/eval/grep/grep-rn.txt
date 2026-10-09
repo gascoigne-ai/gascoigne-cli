@@ -1,0 +1,300 @@
+csrf.go:40:	deny      atomic.Pointer[Handler]
+csrf.go:80:type noopHandler struct{}
+csrf.go:82:func (noopHandler) ServeHTTP(ResponseWriter, *Request) {}
+csrf.go:84:var sentinelHandler Handler = &noopHandler{}
+csrf.go:114:	bypass.Handle(pattern, sentinelHandler)
+csrf.go:117:// SetDenyHandler sets a handler to invoke when a request is rejected.
+csrf.go:120:// SetDenyHandler can be called concurrently with other methods
+csrf.go:124:func (c *CrossOriginProtection) SetDenyHandler(h Handler) {
+csrf.go:187:		if h, _ := bypass.Handler(req); h == sentinelHandler {
+csrf.go:200:// Handler returns a handler that applies cross-origin checks
+csrf.go:205:// to [CrossOriginProtection.SetDenyHandler].
+csrf.go:206:func (c *CrossOriginProtection) Handler(h Handler) Handler {
+csrf.go:207:	return HandlerFunc(func(w ResponseWriter, r *Request) {
+fs.go:103:// See the [FileServer] function to convert a FileSystem to a [Handler].
+fs.go:883:type fileHandler struct {
+fs.go:979:func FileServer(root FileSystem) Handler {
+fs.go:980:	return &fileHandler{root}
+fs.go:992:func FileServerFS(root fs.FS) Handler {
+fs.go:996:func (f *fileHandler) ServeHTTP(w ResponseWriter, r *Request) {
+doc.go:65:	http.Handle("/foo", fooHandler)
+doc.go:78:		Handler:        myHandler,
+http.go:234:	// Handlers that wish to push URL X should call Push before sending any
+responsecontroller.go:16:// A ResponseController may not be used after the [Handler.ServeHTTP] method has returned.
+responsecontroller.go:23:// The ResponseWriter should be the original value passed to the [Handler.ServeHTTP] method,
+cgi/child.go:144:// Serve executes the provided [Handler] on the currently active CGI
+cgi/child.go:148:func Serve(handler http.Handler) error {
+httptest/httptest.go:24:// for passing to an [http.Handler] for testing.
+omithttp2.go:23:func (s *Server) serveHTTP2Conn(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte) {
+filetransport.go:15:	fh fileHandler
+filetransport.go:32:	return fileTransport{fileHandler{fs}}
+http2.go:74:		s.TLSNextProto = make(map[string]func(*Server, *tls.Conn, Handler))
+http2.go:78:	s.TLSNextProto["h2"] = func(hs *Server, c *tls.Conn, h Handler) {
+http2.go:94:func (s *Server) serveHTTP2Conn(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte) {
+http2.go:104:		Handler:          http2Handler{h},
+http2.go:132:type http2Handler struct {
+http2.go:133:	h Handler
+http2.go:136:func (h http2Handler) ServeHTTP(w *http2.ResponseWriter, req *http2.ServerRequest) {
+http2.go:238:	ServeConnFunc(func(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte))
+cgi/cgi_main.go:105:	Serve(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+servemux121.go:47:	h       Handler
+servemux121.go:52:func (mux *serveMux121) handle(pattern string, handler Handler) {
+servemux121.go:100:	mux.handle(pattern, HandlerFunc(handler))
+servemux121.go:103:// Formerly ServeMux.Handler.
+servemux121.go:104:func (mux *serveMux121) findHandler(r *Request) (h Handler, pattern string) {
+servemux121.go:112:			return RedirectHandler(u.String(), StatusMovedPermanently), u.Path
+servemux121.go:126:		return RedirectHandler(u.String(), StatusMovedPermanently), u.Path
+servemux121.go:132:		return RedirectHandler(u.String(), StatusMovedPermanently), pattern
+servemux121.go:138:// handler is the main implementation of findHandler.
+servemux121.go:140:func (mux *serveMux121) handler(host, path string) (h Handler, pattern string) {
+servemux121.go:152:		h, pattern = NotFoundHandler(), ""
+servemux121.go:159:func (mux *serveMux121) match(path string) (h Handler, pattern string) {
+internal/http2/api.go:35:	ErrAbortHandler    = internal.ErrAbortHandler
+internal/http2/api.go:122:type Handler interface {
+fcgi/child.go:154:	handler http.Handler
+fcgi/child.go:159:func newChild(rwc io.ReadWriteCloser, handler http.Handler) *child {
+fcgi/child.go:339:func Serve(l net.Listener, handler http.Handler) error {
+triv.go:130:	http.Handle("/", http.HandlerFunc(Logger))
+request.go:184:	// Handler does not need to.
+request.go:220:	// and this field is not needed by Handlers.
+request.go:236:	// To prevent DNS rebinding attacks, server Handlers should
+request.go:238:	// Handler considers itself authoritative. The included
+request.go:240:	// names and thus protects its registered Handlers.
+request.go:886:// testing a Server Handler, either use the [net/http/httptest.NewRequest] function,
+request.go:1066:// requests and handle them via the [Handler] interface. ReadRequest
+routing_tree.go:28:	// A leaf node holds a single pattern and the Handler it was registered
+routing_tree.go:31:	handler Handler
+routing_tree.go:42:// addPattern adds a pattern and its associated Handler to the tree
+routing_tree.go:44:func (root *routingNode) addPattern(p *pattern, h Handler) {
+routing_tree.go:56:func (n *routingNode) addSegments(segs []segment, p *pattern, h Handler) {
+routing_tree.go:78:func (n *routingNode) set(p *pattern, h Handler) {
+pprof/testdata/delta_mutex.go:30:	h := pprof.Handler("mutex")
+transfer.go:843:// read after an HTTP [Handler] calls WriteHeader or Write on its
+transfer.go:1020:		// Read up to maxPostHandlerReadBytes bytes of the body, looking
+transfer.go:1022:		if lr, ok := b.src.(*io.LimitedReader); ok && lr.N > maxPostHandlerReadBytes {
+transfer.go:1024:			// than our maxPostHandlerReadBytes tolerance. So, give up.
+transfer.go:1030:			n, err = io.CopyN(io.Discard, bodyLocked{b}, maxPostHandlerReadBytes+1)
+transfer.go:1032:			if err == io.EOF && n <= maxPostHandlerReadBytes {
+httptest/recorder.go:24:	// Note that if a Handler never calls WriteHeader or Write,
+httptest/recorder.go:30:	// HeaderMap contains the headers explicitly set by the Handler.
+httptest/recorder.go:38:	// Body is the buffer to which the Handler's Write calls are sent.
+httptest/recorder.go:42:	// Flushed is whether the Handler called Flush.
+httptest/server.go:54://     any value other than [http.ErrAbortHandler].
+httptest/server.go:177:func NewTestServer(t testing.TB, handler http.Handler) *Server {
+httptest/server.go:180:		Config: &http.Server{Handler: testServerHandler{t: t, h: handler}},
+httptest/server.go:188:type testServerHandler struct {
+httptest/server.go:190:	h http.Handler
+httptest/server.go:193:func (h testServerHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+httptest/server.go:196:			if err != http.ErrAbortHandler {
+httptest/server.go:204:			// Convert panic to ErrAbortHandler to suppress http.Server's logging.
+httptest/server.go:205:			panic(http.ErrAbortHandler)
+httptest/server.go:266:func NewServer(handler http.Handler) *Server {
+httptest/server.go:282:func NewUnstartedServer(handler http.Handler) *Server {
+httptest/server.go:285:		Config:   &http.Server{Handler: handler},
+httptest/server.go:458:func NewTLSServer(handler http.Handler) *Server {
+cgi/host.go:56:// Handler runs an executable in a subprocess with a CGI environment.
+cgi/host.go:57:type Handler struct {
+cgi/host.go:73:	// PathLocationHandler specifies the root http Handler that
+cgi/host.go:81:	PathLocationHandler http.Handler
+cgi/host.go:84:func (h *Handler) stderr() io.Writer {
+cgi/host.go:94://	cgi.Handler{
+cgi/host.go:117:func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+cgi/host.go:312:		if strings.HasPrefix(loc, "/") && h.PathLocationHandler != nil {
+cgi/host.go:355:func (h *Handler) printf(format string, v ...any) {
+cgi/host.go:363:func (h *Handler) handleInternalRedirect(rw http.ResponseWriter, req *http.Request, path string) {
+cgi/host.go:390:	h.PathLocationHandler.ServeHTTP(rw, newReq)
+httputil/reverseproxy.go:100:// ReverseProxy is an HTTP Handler that takes an incoming request and
+httputil/reverseproxy.go:166:	// If the backend is unreachable, the optional ErrorHandler is
+httputil/reverseproxy.go:173:	// If ModifyResponse returns an error, ErrorHandler is called
+httputil/reverseproxy.go:174:	// with its error value. If ErrorHandler is nil, its default
+httputil/reverseproxy.go:178:	// ErrorHandler is an optional function that handles errors
+httputil/reverseproxy.go:183:	ErrorHandler func(http.ResponseWriter, *http.Request, error)
+httputil/reverseproxy.go:376:func (p *ReverseProxy) defaultErrorHandler(rw http.ResponseWriter, req *http.Request, err error) {
+httputil/reverseproxy.go:381:func (p *ReverseProxy) getErrorHandler() func(http.ResponseWriter, *http.Request, error) {
+httputil/reverseproxy.go:382:	if p.ErrorHandler != nil {
+httputil/reverseproxy.go:383:		return p.ErrorHandler
+httputil/reverseproxy.go:385:	return p.defaultErrorHandler
+httputil/reverseproxy.go:396:		p.getErrorHandler()(rw, req, err)
+httputil/reverseproxy.go:452:		p.getErrorHandler()(rw, req, errors.New("ReverseProxy must have exactly one of Director or Rewrite set"))
+httputil/reverseproxy.go:466:		p.getErrorHandler()(rw, req, fmt.Errorf("client tried to switch to invalid protocol %q", reqUpType))
+httputil/reverseproxy.go:523:		// (Perhaps we should just send a 405 and never call ErrorHandler?
+httputil/reverseproxy.go:524:		// More consistent to always call ErrorHandler or ModifyResponse,
+httputil/reverseproxy.go:527:		if p.ErrorHandler != nil {
+httputil/reverseproxy.go:528:			p.ErrorHandler(rw, outreq, err)
+httputil/reverseproxy.go:571:		p.getErrorHandler()(rw, outreq, err)
+httputil/reverseproxy.go:609:		// is abort the request. Issue 23643: ReverseProxy should use ErrAbortHandler
+httputil/reverseproxy.go:615:		panic(http.ErrAbortHandler)
+httputil/reverseproxy.go:642:// panic with http.ErrAbortHandler. This is the right thing to do by
+httputil/reverseproxy.go:826:		p.getErrorHandler()(rw, req, fmt.Errorf("backend tried to switch to invalid protocol %q", resUpType))
+httputil/reverseproxy.go:830:		p.getErrorHandler()(rw, req, fmt.Errorf("backend tried to switch protocol %q when %q was requested", resUpType, reqUpType))
+httputil/reverseproxy.go:836:		p.getErrorHandler()(rw, req, fmt.Errorf("internal error: 101 switching protocols response with non-writable body"))
+httputil/reverseproxy.go:843:		p.getErrorHandler()(rw, req, fmt.Errorf("can't switch protocols using non-Hijacker ResponseWriter type %T", rw))
+httputil/reverseproxy.go:860:		p.getErrorHandler()(rw, req, fmt.Errorf("Hijack failed on protocol switch: %v", hijackErr))
+httputil/reverseproxy.go:870:		p.getErrorHandler()(rw, req, fmt.Errorf("response write: %v", err))
+httputil/reverseproxy.go:874:		p.getErrorHandler()(rw, req, fmt.Errorf("response flush: %v", err))
+internal/http2/server.go:14:// Handlers running) and not be woken up again until the PING packet
+internal/http2/server.go:17:// TODO (maybe): add a mechanism for Handlers to going into
+internal/http2/server.go:23:// the Handler ServeHTTP function means you're both done reading and
+internal/http2/server.go:72:	errHandlerComplete    = errors.New("http2: request body closed due to handler exiting")
+internal/http2/server.go:198:	// Handler specifies which handler to use for processing
+internal/http2/server.go:199:	// requests. If nil, BaseConfig.Handler is used. If BaseConfig
+internal/http2/server.go:200:	// or BaseConfig.Handler is nil, http.DefaultServeMux is used.
+internal/http2/server.go:201:	Handler Handler
+internal/http2/server.go:229:// the Request.TLS field in Handlers.
+internal/http2/server.go:268:		handler:                     opts.Handler,
+internal/http2/server.go:411:	handler          Handler
+internal/http2/server.go:442:	curHandlers                 uint32 // number of running handler goroutines
+internal/http2/server.go:446:	unstartedHandlers           []unstartedHandler
+internal/http2/server.go:507:// the http.Handler's goroutine in the responseWriter. Because the
+internal/http2/server.go:510:// *responseWriter{,State} itself, as the Handler ending nils out the
+internal/http2/server.go:525:	flow             outflow // limits writing from Handler to client
+internal/http2/server.go:743:	// Note: this is for serverConn.serve panicking, not http.Handler code.
+internal/http2/server.go:1000:// writeDataFromHandler writes DATA response frames from a handler on
+internal/http2/server.go:1002:func (sc *serverConn) writeDataFromHandler(stream *stream, data []byte, endStream bool) error {
+internal/http2/server.go:1006:	err := sc.writeFrameFromHandler(FrameWriteRequest{
+internal/http2/server.go:1022:		// happen on the final Write after an http.Handler
+internal/http2/server.go:1042:// writeFrameFromHandler sends wr to sc.wantWriteFrameCh, but aborts
+internal/http2/server.go:1049:func (sc *serverConn) writeFrameFromHandler(wr FrameWriteRequest) error {
+internal/http2/server.go:1065:// the http.Handlers that block, waiting for their previous frames to
+internal/http2/server.go:1068:// If you're not on the serve goroutine, use writeFrameFromHandler instead.
+internal/http2/server.go:1193:// errHandlerPanicked is the error given to any callers blocked in a read from
+internal/http2/server.go:1196:var errHandlerPanicked = errors.New("http2: handler panicked")
+internal/http2/server.go:1238:			sc.closeStream(st, errHandlerComplete)
+internal/http2/server.go:1248:			sc.closeStream(wr.stream, errHandlerPanicked)
+internal/http2/server.go:1612:	st.cw.Close() // signals Handler's CloseNotifier, unblocks writes, etc
+internal/http2/server.go:1728:		// the http.Handler returned, so it's done reading &
+internal/http2/server.go:1828:		st.body.closeWithErrorAndCode(io.EOF, st.copyTrailersToHandlerRequest)
+internal/http2/server.go:1834:// copyTrailersToHandlerRequest is run in the Handler's goroutine in
+internal/http2/server.go:1836:func (st *stream) copyTrailersToHandlerRequest() {
+internal/http2/server.go:1858:	st.sc.writeFrameFromHandler(FrameWriteRequest{write: StreamError{
+internal/http2/server.go:1978:		handler = serve400Handler{err}.ServeHTTP
+internal/http2/server.go:1985:	return sc.scheduleHandler(st, rw, req, handler)
+internal/http2/server.go:2003:	// through scheduleHandler.
+internal/http2/server.go:2004:	sc.curHandlers++
+internal/http2/server.go:2005:	go sc.runHandler(rw, req, sc.handler.ServeHTTP)
+internal/http2/server.go:2240:type unstartedHandler struct {
+internal/http2/server.go:2248:// scheduleHandler starts a handler goroutine,
+internal/http2/server.go:2250:func (sc *serverConn) scheduleHandler(st *stream, rw *responseWriter, req *ServerRequest, handler func(*ResponseWriter, *ServerRequest)) error {
+internal/http2/server.go:2252:	maxHandlers := sc.advMaxStreams
+internal/http2/server.go:2253:	if sc.curHandlers < maxHandlers {
+internal/http2/server.go:2254:		sc.curHandlers++
+internal/http2/server.go:2255:		go sc.runHandler(rw, req, handler)
+internal/http2/server.go:2258:	if len(sc.unstartedHandlers) > int(4*sc.advMaxStreams) {
+internal/http2/server.go:2261:	sc.unstartedHandlers = append(sc.unstartedHandlers, unstartedHandler{
+internal/http2/server.go:2273:	sc.curHandlers--
+internal/http2/server.go:2275:	maxHandlers := sc.advMaxStreams
+internal/http2/server.go:2276:	for ; i < len(sc.unstartedHandlers); i++ {
+internal/http2/server.go:2277:		u := sc.unstartedHandlers[i]
+internal/http2/server.go:2286:		if sc.curHandlers >= maxHandlers {
+internal/http2/server.go:2289:		sc.curHandlers++
+internal/http2/server.go:2290:		go sc.runHandler(u.rw, u.req, u.handler)
+internal/http2/server.go:2291:		sc.unstartedHandlers[i] = unstartedHandler{} // don't retain references
+internal/http2/server.go:2293:	sc.unstartedHandlers = sc.unstartedHandlers[i:]
+internal/http2/server.go:2294:	if len(sc.unstartedHandlers) == 0 {
+internal/http2/server.go:2295:		sc.unstartedHandlers = nil
+internal/http2/server.go:2300:func (sc *serverConn) runHandler(rw *responseWriter, req *ServerRequest, handler func(*ResponseWriter, *ServerRequest)) {
+internal/http2/server.go:2316:			sc.writeFrameFromHandler(FrameWriteRequest{
+internal/http2/server.go:2321:			if e != nil && e != ErrAbortHandler {
+internal/http2/server.go:2357:	if err := sc.writeFrameFromHandler(FrameWriteRequest{
+internal/http2/server.go:2380:	sc.writeFrameFromHandler(FrameWriteRequest{
+internal/http2/server.go:2386:// A bodyReadMsg tells the server loop that the http.Handler read n
+internal/http2/server.go:2396:func (sc *serverConn) noteBodyReadFromHandler(st *stream, n int, err error) {
+internal/http2/server.go:2441:// requestBody is the Handler's Request.Body type.
+internal/http2/server.go:2458:				b.conn.noteBodyReadFromHandler(nil, unread, errClosedBody)
+internal/http2/server.go:2477:	b.conn.noteBodyReadFromHandler(b.stream, n, err)
+internal/http2/server.go:2500:	// mutated by http.Handler goroutine:
+internal/http2/server.go:2648:		if err := rws.conn.writeDataFromHandler(rws.stream, p, endStream); err != nil {
+internal/http2/server.go:2680:// promoteUndeclaredTrailers permits http.Handlers to set trailers
+internal/http2/server.go:2699:// This method runs after the Handler is done and promotes any Header
+internal/http2/server.go:2780:		panic("Header called after Handler finished")
+internal/http2/server.go:2805:		panic("CloseNotify called after Handler finished")
+internal/http2/server.go:2825:		panic("Header called after Handler finished")
+internal/http2/server.go:2853:		panic("WriteHeader called after Handler finished")
+internal/http2/server.go:2907:// * Handler calls w.Write or w.WriteString ->
+internal/http2/server.go:2909:// * (Handler might call Flush)
+internal/http2/server.go:2925:		panic("Write called after Handler finished")
+internal/http2/server.go:3128:		sc.curHandlers++
+internal/http2/server.go:3129:		go sc.runHandler(rw, req, sc.handler.ServeHTTP)
+internal/http2/server.go:3189:type serve400Handler struct {
+internal/http2/server.go:3193:func (handler serve400Handler) ServeHTTP(w *ResponseWriter, r *ServerRequest) {
+transport.go:2419:// closed. This number is chosen for consistency with maxPostHandlerReadBytes.
+internal/common.go:10:	ErrAbortHandler    = errors.New("net/http: abort Handler")
+server.go:54:	// when a Handler set a Content-Length response header with a
+server.go:65:// A Handler responds to an HTTP request.
+server.go:67:// [Handler.ServeHTTP] should write reply headers and data to the [ResponseWriter]
+server.go:88:// an error, panic with the value [ErrAbortHandler].
+server.go:89:type Handler interface {
+server.go:96:// A ResponseWriter may not be used after [Handler.ServeHTTP] has returned.
+server.go:100:	// [Handler] implementations can set HTTP trailers.
+server.go:112:	// keys not known to the [Handler] until after the first [ResponseWriter.Write],
+server.go:139:	// by all HTTP/2 clients. Handlers should read before writing if
+server.go:168:// support [Flusher], but ResponseWriter wrappers may not. Handlers
+server.go:185:// ResponseWriter wrappers may also not support Hijacker. Handlers
+server.go:226:	// After the Handler has returned, there is no guarantee
+server.go:272:	// This is the value of a Handler's (*Request).RemoteAddr.
+server.go:306:	// by a Handler with the Hijacker interface.
+server.go:450:	// handlerHeader is the Header that Handlers get access to,
+server.go:529:// finalTrailers is called after the Handler exits and returns a non-nil
+server.go:530:// value if the Handler set any trailers.
+server.go:701:// After a Handler has hijacked the conn and exited, connReader behaves like a
+server.go:757:		// added context support, people used a Handler's
+server.go:908:	// TestHandlerBodyClose's assumptions.
+server.go:1114:		// reading from req.Header after their Handler starts
+server.go:1133:	// Accept "PRI * HTTP/2.0" upgrade requests, so Handlers can
+server.go:1155:// maxPostHandlerReadBytes is the max number of Request.Body bytes not
+server.go:1164:const maxPostHandlerReadBytes = 256 << 10
+server.go:1465:		case w.reqBody.unreadDataSizeLocked() >= maxPostHandlerReadBytes:
+server.go:1638:// Handler starts. No header has been sent. The handler can either
+server.go:1925:// ErrAbortHandler is a sentinel panic value to abort a handler.
+server.go:1927:// panicking with ErrAbortHandler also suppresses logging of a stack
+server.go:1929:var ErrAbortHandler = internal.ErrAbortHandler
+server.go:1956:		if err := recover(); err != nil && err != ErrAbortHandler {
+server.go:2024:			c.server.serveHTTP2Conn(ctx, c.rwc, serverHandler{c.server}, sawClientPreface, nil, nil)
+server.go:2031:				h := initALPNRequest{ctx, tlsConn, serverHandler{c.server}}
+server.go:2157:		serverHandler{c.server}.ServeHTTP(w, w.req)
+server.go:2212:	h   serverHandler
+server.go:2247:	var nextFunc func(*Server, *tls.Conn, Handler)
+server.go:2270:		c.server.serveHTTP2Conn(ctx, c.rwc, serverHandler{c.server}, sawClientPreface, nil, nil)
+server.go:2274:		h := unencryptedHTTP2Request{ctx, c.rwc, serverHandler{c.server}}
+server.go:2350:// The HandlerFunc type is an adapter to allow the use of
+server.go:2352:// with the appropriate signature, HandlerFunc(f) is a
+server.go:2353:// [Handler] that calls f.
+server.go:2354:type HandlerFunc func(ResponseWriter, *Request)
+server.go:2357:func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
+server.go:2396:// NotFoundHandler returns a simple request handler
+server.go:2398:func NotFoundHandler() Handler { return HandlerFunc(NotFound) }
+server.go:2406:func StripPrefix(prefix string, h Handler) Handler {
+server.go:2410:	return HandlerFunc(func(w ResponseWriter, r *Request) {
+server.go:2509:type redirectHandler struct {
+server.go:2514:func (rh *redirectHandler) ServeHTTP(w ResponseWriter, r *Request) {
+server.go:2518:// RedirectHandler returns a request handler that redirects
+server.go:2524:func RedirectHandler(url string, code int) Handler {
+server.go:2525:	return &redirectHandler{url, code}
+server.go:2699:// Handler returns the handler to use for the given request,
+server.go:2708:// Handler also returns the registered pattern that matches the
+server.go:2713:// Handler returns a “page not found” or “method not supported”
+server.go:2716:// Handler does not modify its argument. In particular, it does not
+server.go:2719:func (mux *ServeMux) Handler(r *Request) (h Handler, pattern string) {
+server.go:2721:		return mux.mux121.findHandler(r)
+server.go:2723:	h, p, _, _ := mux.findHandler(r)
+server.go:2727:// findHandler finds a handler for a request.
+server.go:2731:func (mux *ServeMux) findHandler(r *Request) (h Handler, patStr string, _ *pattern, matches []string) {
+server.go:2743:			return RedirectHandler(u.String(), StatusTemporaryRedirect), u.Path, nil, nil
+server.go:2759:			return RedirectHandler(u.String(), StatusTemporaryRedirect), n.pattern.String(), nil, nil
+server.go:2768:			return RedirectHandler(u.String(), StatusTemporaryRedirect), patStr, nil, nil
+server.go:2777:			return HandlerFunc(func(w ResponseWriter, r *Request) {
+server.go:2782:		return NotFoundHandler(), "", nil, nil
+server.go:2808:			// It is safe to return n2 here: it is used only in the second RedirectHandler case
+server.go:2809:			// of findHandler, and that method returns before it does the "n == nil" check where
+server.go:2811:			// to findHandler.
+server.go:2917:	var h Handler
+server.go:2919:		h, _ = mux.mux121.findHandler(r)
+server.go:2921:		h, r.Pattern, r.pat, r.matches = mux.findHandler(r)
+server.go:2934:func (mux *ServeMux) Handle(pattern string, handler Handler) {
+server.go:2951:		mux.register(pattern, HandlerFunc(handler))
+server.go:2957:func Handle(pattern string, handler Handler) {
+server.go:2971:		DefaultServeMux.register(pattern, HandlerFunc(handler))
+server.go:2975:func (mux *ServeMux) register(pattern string, handler Handler) {
+server.go:2981:func (mux *ServeMux) registerErr(patstr string, handler Handler) error {
+server.go:2988:	if f, ok := handler.(HandlerFunc); ok && f == nil {
+server.go:3036:func Serve(l net.Listener, handler Handler) error {

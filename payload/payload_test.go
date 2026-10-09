@@ -35,7 +35,7 @@ func TestCloneIsDeep(t *testing.T) {
 }
 
 func TestText(t *testing.T) {
-	p := &Payload{Blocks: []Block{{Message, "a"}, {Message, "b"}}}
+	p := &Payload{Blocks: []Block{{Kind: Message, Text: "a"}, {Kind: Message, Text: "b"}}}
 	if got := p.Text(); got != "a\nb" {
 		t.Fatalf("Text = %q", got)
 	}

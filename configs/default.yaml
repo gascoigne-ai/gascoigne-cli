@@ -10,20 +10,15 @@ filters:
   bypass: {}                   # attr raw=true or GASCOIGNE_RAW=1
   minsize: { min_tokens: 200 } # small payloads are not worth it
   history: { max_failures: 1 } # skip sources that optimized badly before
+  detect: {}                   # tag each block with its content type
 
+# Optimizers select the blocks whose detected type they understand, so one
+# default chain serves every input. Add routes only to override per command.
 router:
-  routes:
-    - name: git
-      match: { attrs: { cmd: "git *" } }
-      optimizers: [passthrough]
-    - name: big-json
-      match: { kind: json, min_tokens: 500 }
-      optimizers: [passthrough/big]
-  default: []
+  default: [passthrough]
 
 optimizers:
   passthrough: {}
-  passthrough/big: {}
 
 exporters:
   stdout: { hint: true }
@@ -31,5 +26,5 @@ exporters:
 pipelines:
   cli:
     receivers: [stdin]
-    filters: [bypass, minsize, history]
+    filters: [bypass, detect, minsize, history]
     exporters: [stdout]

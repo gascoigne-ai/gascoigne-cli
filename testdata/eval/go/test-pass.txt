@@ -1,0 +1,19 @@
+?   	github.com/lukaszb/gascoigne/cmd/gascoigne	[no test files]
+ok  	github.com/lukaszb/gascoigne/component	(cached)
+ok  	github.com/lukaszb/gascoigne/compress	(cached)
+?   	github.com/lukaszb/gascoigne/configs	[no test files]
+ok  	github.com/lukaszb/gascoigne/detect	(cached)
+ok  	github.com/lukaszb/gascoigne/exporter/stdoutexporter	(cached)
+ok  	github.com/lukaszb/gascoigne/extension/ledger	(cached)
+ok  	github.com/lukaszb/gascoigne/filter/bypassfilter	(cached)
+ok  	github.com/lukaszb/gascoigne/filter/detectfilter	(cached)
+ok  	github.com/lukaszb/gascoigne/filter/historyfilter	(cached)
+ok  	github.com/lukaszb/gascoigne/filter/minsizefilter	(cached)
+ok  	github.com/lukaszb/gascoigne/internal/config	(cached)
+?   	github.com/lukaszb/gascoigne/internal/registry	[no test files]
+ok  	github.com/lukaszb/gascoigne/internal/router	(cached)
+ok  	github.com/lukaszb/gascoigne/internal/service	(cached)
+ok  	github.com/lukaszb/gascoigne/optimizer/passthroughoptimizer	(cached)
+ok  	github.com/lukaszb/gascoigne/payload	(cached)
+ok  	github.com/lukaszb/gascoigne/receiver/stdinreceiver	(cached)
+ok  	github.com/lukaszb/gascoigne/tokens	(cached)

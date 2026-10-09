@@ -37,6 +37,18 @@ const (
 	ReasonManual       = "manual"
 )
 
+// Stat aggregates events of one route.
+type Stat struct {
+	Route     string
+	Runs      int
+	Optimized int
+	Failed    int
+	RawTokens int
+	OutTokens int
+}
+
+func (s Stat) Saved() int { return s.RawTokens - s.OutTokens }
+
 // Ledger is the extension contract the service relies on to keep originals
 // retrievable and to learn which sources optimize badly.
 type Ledger interface {
@@ -45,4 +57,6 @@ type Ledger interface {
 	Record(ctx context.Context, ev Event) error
 	MarkFailure(ctx context.Context, key, reason string) error
 	Failures(ctx context.Context, key string) (int, error)
+	// Stats aggregates recorded events per route, biggest savings first.
+	Stats(ctx context.Context) ([]Stat, error)
 }

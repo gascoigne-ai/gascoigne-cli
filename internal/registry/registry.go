@@ -6,6 +6,7 @@ import (
 	"github.com/lukaszb/gascoigne/exporter/stdoutexporter"
 	"github.com/lukaszb/gascoigne/extension/ledger"
 	"github.com/lukaszb/gascoigne/filter/bypassfilter"
+	"github.com/lukaszb/gascoigne/filter/detectfilter"
 	"github.com/lukaszb/gascoigne/filter/historyfilter"
 	"github.com/lukaszb/gascoigne/filter/minsizefilter"
 	"github.com/lukaszb/gascoigne/optimizer/passthroughoptimizer"
@@ -19,6 +20,7 @@ func Factories() []component.Factory {
 		// filters
 		bypassfilter.NewFactory(),
 		minsizefilter.NewFactory(),
+		detectfilter.NewFactory(),
 		historyfilter.NewFactory(),
 		// optimizers
 		passthroughoptimizer.NewFactory(),

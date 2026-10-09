@@ -1,0 +1,85 @@
+./clientconn.go:113:func (t *Transport) NewClientConn(ctx context.Context, scheme, address string) (*ClientConn, error) {
+./client_test.go:2158:			var ctx context.Context
+./client.go:314:func timeBeforeContextDeadline(t time.Time, ctx context.Context) bool {
+./transport_test.go:1801:		c.Transport.(*Transport).DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+./transport_test.go:1816:		c.Transport.(*Transport).OnProxyConnectResponse = func(ctx context.Context, proxyURL *url.URL, connectReq *Request, connectRes *Response) error {
+./transport_test.go:1851:	SetTestHookProxyConnectTimeout(t, func(ctx context.Context, timeout time.Duration) (context.Context, context.CancelFunc) {
+./transport_test.go:2239:func (d *countingDialer) DialContext(ctx context.Context, network, address string) (net.Conn, error) {
+./transport_test.go:2319:func (cc *contextCounter) Track(ctx context.Context) context.Context {
+./transport_test.go:4295:	c.Transport.(*Transport).DialContext = func(ctx context.Context, netw, addr string) (net.Conn, error) {
+./transport_test.go:4339:	c.Transport.(*Transport).DialTLSContext = func(ctx context.Context, netw, addr string) (net.Conn, error) {
+./transport_test.go:5306:	ctx := context.WithValue(context.Background(), nettrace.LookupIPAltResolverKey{}, func(ctx context.Context, network, host string) ([]net.IPAddr, error) {
+./transport_test.go:5658:	ctx := context.WithValue(context.Background(), nettrace.LookupIPAltResolverKey{}, func(ctx context.Context, _, host string) ([]net.IPAddr, error) {
+./transport_test.go:5913:	ctx := context.WithValue(context.Background(), nettrace.LookupIPAltResolverKey{}, func(ctx context.Context, network, host string) ([]net.IPAddr, error) {
+./transport_test.go:6021:	c.Transport.(*Transport).GetProxyConnectHeader = func(ctx context.Context, proxyURL *url.URL, target string) (Header, error) {
+./transport_test.go:6675:				tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+./transport_test.go:6736:		OnProxyConnectResponse: func(ctx context.Context, proxyURL *url.URL, connectReq *Request, connectRes *Response) error {
+./transport_test.go:6739:		DialContext:            func(ctx context.Context, network, addr string) (net.Conn, error) { panic("") },
+./transport_test.go:6742:		DialTLSContext:         func(ctx context.Context, network, addr string) (net.Conn, error) { panic("") },
+./transport_test.go:8054:func (testHTTP2ServerConfig) ServeConnFunc(func(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte)) {
+./transport_dial_test.go:449:		tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+./transport_dial_test.go:452:		tr.DialTLSContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+./transport.go:135:	OnProxyConnectResponse func(ctx context.Context, proxyURL *url.URL, connectReq *Request, connectRes *Response) error
+./transport.go:145:	DialContext func(ctx context.Context, network, addr string) (net.Conn, error)
+./transport.go:172:	DialTLSContext func(ctx context.Context, network, addr string) (net.Conn, error)
+./transport.go:273:	GetProxyConnectHeader func(ctx context.Context, proxyURL *url.URL, target string) (Header, error)
+./transport.go:416:	DialClientConn(ctx context.Context, address string, proxy *url.URL, internalStateHook func()) (RoundTripper, error)
+./transport.go:777:func awaitLegacyCancel(ctx context.Context, cancel context.CancelCauseFunc, req *Request) {
+./transport.go:1372:func (t *Transport) dial(ctx context.Context, network, addr string) (net.Conn, error) {
+./transport.go:1567:func (t *Transport) customDialTLS(ctx context.Context, network, addr string) (conn net.Conn, err error) {
+./transport.go:1781:func (pconn *persistConn) addTLS(ctx context.Context, name string, trace *httptrace.ClientTrace) error {
+./transport.go:1836:func (t *Transport) dialConn(ctx context.Context, cm connectMethod, isClientConn bool, internalStateHook func()) (pconn *persistConn, err error) {
+./transport.go:2983:func (pc *persistConn) waitForAvailability(ctx context.Context) error {
+./socks_bundle.go:27:func (d *socksDialer) connect(ctx context.Context, c net.Conn, address string) (_ net.Addr, ctxErr error) {
+./socks_bundle.go:307:func (d *socksDialer) DialContext(ctx context.Context, network, address string) (net.Conn, error) {
+./socks_bundle.go:343:func (d *socksDialer) DialWithConn(ctx context.Context, c net.Conn, network, address string) (net.Addr, error) {
+./socks_bundle.go:443:func (up *socksUsernamePassword) Authenticate(ctx context.Context, rw io.ReadWriter, auth socksAuthMethod) error {
+./internal/httpcommon/httpcommon.go:215:func EncodeHeaders(ctx context.Context, param EncodeHeadersParam, headerf func(name, value string)) (res EncodeHeadersResult, _ error) {
+./server.go:1032:func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
+./server.go:1949:func (c *conn) serve(ctx context.Context) {
+./server.go:1980:		HandshakeContext(ctx context.Context) error
+./server.go:2210:	ctx context.Context
+./server.go:2246:func (c *conn) maybeServeUnencryptedHTTP2(ctx context.Context) bool {
+./server.go:3168:	ConnContext func(ctx context.Context, c net.Conn) context.Context
+./server.go:3272:func (s *Server) Shutdown(ctx context.Context) error {
+./server.go:4204:	ctx context.Context
+./serve_test.go:6858:		ts.Config.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
+./serve_test.go:6888:		ts.Config.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
+./request.go:338:	ctx context.Context
+./request.go:373:func (r *Request) WithContext(ctx context.Context) *Request {
+./request.go:391:func (r *Request) Clone(ctx context.Context) *Request {
+./request.go:899:func NewRequestWithContext(ctx context.Context, method, url string, body io.Reader) (*Request, error) {
+./internal/http2/transport_test.go:197:	tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+./internal/http2/transport_test.go:5272:		ctxfn: func(ctx context.Context) context.Context {
+./internal/http2/transport_test.go:5291:		ctxfn: func(ctx context.Context) context.Context {
+./internal/http2/transport_test.go:5587:	tt.tr1.DialContext = func(ctx context.Context, network, address string) (net.Conn, error) {
+./internal/http2/transport.go:546:func (t *Transport) dialClientConn(ctx context.Context, addr string, singleUse bool) (*ClientConn, error) {
+./internal/http2/transport.go:572:func (t *Transport) dialTLS(ctx context.Context, network, addr string, tlsCfg *tls.Config) (net.Conn, error) {
+./internal/http2/transport.go:966:func (cc *ClientConn) Shutdown(ctx context.Context) error {
+./internal/http2/transport.go:2863:func (cc *ClientConn) Ping(ctx context.Context) error {
+./internal/http2/transport.go:3175:func (cc NetHTTPClientConn) Ping(ctx context.Context) error {
+./internal/http2/transport.go:3257:func (t *Transport) dialTLSWithContext(ctx context.Context, network, addr string, cfg *tls.Config) (*tls.Conn, error) {
+./omithttp2.go:23:func (s *Server) serveHTTP2Conn(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte) {
+./omithttp2.go:30:func (t *Transport) http2ExternalDial(ctx context.Context, cm connectMethod) (RoundTripper, error) {
+./omithttp2.go:36:func (t *Transport) http2NewClientConnFromContext(ctx context.Context) (*ClientConn, error) {
+./internal/http2/server_test.go:253:	h1server.ConnContext = func(ctx context.Context, conn net.Conn) context.Context {
+./internal/http2/server.go:393:func serverConnBaseContext(c net.Conn, opts *ServeConnOpts) (ctx context.Context, cancel func()) {
+./httptrace/trace.go:23:func ContextClientTrace(ctx context.Context) *ClientTrace {
+./httptrace/trace.go:33:func WithClientTrace(ctx context.Context, trace *ClientTrace) context.Context {
+./internal/http2/export_test.go:109:func (t *Transport) DialClientConn(ctx context.Context, addr string, singleUse bool) (*ClientConn, error) {
+./httptest/server.go:331:	tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+./httptest/server.go:404:	tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+./httptest/server.go:439:	tr.DialContext = func(ctx context.Context, network, address string) (net.Conn, error) {
+./httptest/server.go:442:	tr.DialTLSContext = func(ctx context.Context, network, address string) (net.Conn, error) {
+./internal/http2/clientconn_test.go:535:		DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
+./httptest/httptest.go:46:func NewRequestWithContext(ctx context.Context, method, target string, body io.Reader) *http.Request {
+./internal/http2/client_conn_pool.go:100:func (p *clientConnPool) getStartDialLocked(ctx context.Context, addr string) *dialCall {
+./internal/http2/client_conn_pool.go:115:func (c *dialCall) dial(ctx context.Context, addr string) {
+./http2.go:94:func (s *Server) serveHTTP2Conn(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte) {
+./http2.go:238:	ServeConnFunc(func(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte))
+./http2.go:268:	DialFromContext(ctx context.Context, network, addr string) (net.Conn, error)
+./http2.go:391:func (t *Transport) http2NewClientConnFromContext(ctx context.Context) (*ClientConn, error) {
+./http2.go:421:func (t *Transport) http2ExternalDial(ctx context.Context, cm connectMethod) (RoundTripper, error) {
+./http1_transport_test.go:175:func (tt *http1TransportTestDialer) dialContext(ctx context.Context, network, address string) (net.Conn, error) {
+./export_test.go:97:func NewTestTimeoutHandler(handler Handler, ctx context.Context) Handler {
+./clientserver_test.go:244:			tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {

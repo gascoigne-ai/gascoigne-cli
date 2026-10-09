@@ -1,0 +1,368 @@
+commit adbc8813901bba65827259daa8e22ff94ec1f30e
+Author: Shudhanshu Singh <dev@example.com>
+Date:   Sat Jul 11 06:13:07 2026 +0530
+
+    fix: resolve macOS test link failure and update lint rules (#2429)
+    
+    * chore(ci): fix macOS test linking and tune linter exclusions
+    
+    * fix: resolve macOS linking errors and suppress unused staticcheck nolint warnings in tests
+    
+    * fix(ci): restrict macOS link workaround to Go < 1.24
+
+commit ad460ea8f249db69c943a365fb84f3a59042d54e
+Author: takanuva15 <dev@example.com>
+Date:   Sat Apr 25 19:07:41 2026 -0400
+
+    Add cobra unique args validator (#2397)
+
+commit 746ef07158728502482cea9f880a6f4b21ef29a9
+Author: Varun Chawla <dev@example.com>
+Date:   Fri Apr 24 13:41:57 2026 -0700
+
+    fix: prevent completions from mutating os.Args via append side effect (#2356)
+    
+    Fixes #2257
+    
+    When getCompletions() checks for interspersed flags, it calls
+    append(finalArgs, "--") to temporarily add a "--" sentinel. However,
+    finalArgs is a sub-slice of the original args (ultimately derived from
+    os.Args[1:] or SetArgs), and if the sub-slice has spare capacity in its
+    backing array, append writes "--" into the shared array, corrupting
+    the caller's data.
+    
+    This is particularly visible when TraverseChildren is enabled: the
+    Traverse method returns sub-slices that share the original backing
+    array. A user's ValidArgsFunction inspecting os.Args would then see
+    "--" where a real argument should be.
+    
+    Copy trimmedArgs at the top of getCompletions to prevent any future
+    append from accidentally mutating the caller's backing array.
+    
+    Co-authored-by: Claude Opus 4.6 <dev@example.com>
+
+commit f2878bab8c96afd6e36968af96343b35dbb82a82
+Author: Marc Khouzam <dev@example.com>
+Date:   Wed Apr 15 12:23:05 2026 -0700
+
+    Ignore the linter error (#2390)
+
+commit 85c12c2201a7d2bb8d2a731d41cfd8557a025c90
+Author: Artur Aronov <dev@example.com>
+Date:   Thu Apr 16 02:47:24 2026 +0800
+
+    projects_using_cobra: add Ollama (#2389)
+
+commit 61968e893eee2f27696c2fbc8e34fa5c4afaf7c4
+Author: Niklas Vogel <dev@example.com>
+Date:   Wed Dec 10 03:18:50 2025 +0100
+
+    fix: quote args in fish shell completion (#2285)
+    
+    * fix: quote args in fish shell completion
+    
+    The arguments used for dynamic completions in fish were missing quotes.
+    This resulted in an error when one of the arguments had a `*` in it
+    whose expansion matched no file. Once the completion got triggered, fish
+    errored with the message `No matches for wildcard [...]`. Don't quote
+    the first argument as that is the name of the binary.
+    
+    * Protect against arguments that start with --
+    
+    Signed-off-by: Marc Khouzam <dev@example.com>
+    
+    ---------
+    
+    Co-authored-by: Marc Khouzam <dev@example.com>
+
+commit 10d4b48a79be3d4e89e6c45cb59f4d32a3d2ae19
+Author: Jeffrey Faer <dev@example.com>
+Date:   Sat Dec 6 07:14:39 2025 -0700
+
+    perf: Loop over the bash variable directly instead of starting subprocesses. (#2333)
+    
+    Today, the loop is printing the completions one value per line and then
+    reading one line to a variable. We can just skip the whole IO rigamarole
+    by looping over the completions directly.
+
+commit 88b30ab89da2d0d0abb153818746c5a2d30eccec
+Author: Davanum Srinivas <dev@example.com>
+Date:   Wed Dec 3 18:51:15 2025 -0500
+
+    chore: Migrate from gopkg.in/yaml.v3 to go.yaml.in/yaml/v3 (#2336)
+    
+    The original gopkg.in/yaml.v3 was marked unmaintained (April 2025).
+    go.yaml.in/yaml/v3 is now maintained by the official YAML organization
+    and is a drop-in replacement with an identical API.
+    
+    Signed-off-by: Davanum Srinivas <dev@example.com>
+
+commit 346d408fe7d4be00ff9481ea4d43c4abb5e5f77d
+Author: John McBride <dev@example.com>
+Date:   Wed Dec 3 18:46:02 2025 -0500
+
+    fix: actions/setup-go v6 (#2337)
+    
+    Signed-off-by: John McBride <dev@example.com>
+
+commit fc81d2003469e2a5c440306d04a6d82a54065979
+Author: SamareshSingh <dev@example.com>
+Date:   Mon Nov 17 21:33:27 2025 -0600
+
+    refactor: change minUsagePadding from var to const (#2325)
+
+commit 117698a604b65e80a1ad5b76df67b604bcd992e0
+Author: htoyoda18 <dev@example.com>
+Date:   Mon Nov 17 23:48:10 2025 +0900
+
+    refactor: replace several vars with consts (#2328)
+
+commit e2dd29ddc39acacf3af13013b06e1fe58b5c3599
+Author: Ron Vergis <dev@example.com>
+Date:   Mon Nov 17 08:47:19 2025 -0600
+
+    Add documentation for repeated flags functionality (#2316)
+    
+    Resolves #2298
+    
+    - Added comprehensive "Repeated Flags" section to user guide
+    - Documented CountVarP for SSH-style verbose flags (-v, -vv, -vvv)
+    - Documented StringArrayVarP for multiple value collection
+    - Provided complete code examples and usage patterns
+    
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    
+    Co-authored-by: Vergis_Ron <dev@example.com>
+    Co-authored-by: Claude <dev@example.com>
+
+commit 062989255670f5e100abf70fa5e291a394915f89
+Author: Marc Khouzam <dev@example.com>
+Date:   Fri Nov 14 09:01:44 2025 -0500
+
+    Fix linter (#2327)
+    
+    We need to keep the old "+build" syntax because Cobra still allows to
+    use a Go version as old as 1.15.
+    
+    Signed-off-by: Marc Khouzam <dev@example.com>
+
+commit 7da941c3547e93b8c9f70bbd3befca79c6335388
+Author: John McBride <dev@example.com>
+Date:   Mon Sep 1 12:19:51 2025 -0400
+
+    chore: Bump pflag to v1.0.9 (#2305)
+    
+    Signed-off-by: John McBride <dev@example.com>
+
+commit 51d675196729be769ce235b710ab7058b3aad03a
+Author: Tomas Aschan <dev@example.com>
+Date:   Mon Sep 1 01:15:08 2025 +0200
+
+    Bump pflag to 1.0.8 (#2303)
+    
+    In pflag, we recently made a breaking change in naming to be more inclusive. This change, while doing nothing to address the same uninclusive naming in cobra itself, adjusts to those changes to ensure automatic bumps (if you do them) can continue uninterrupted.
+
+commit 3f3b81882534a51628f3286e93c6842d9b2e29ea
+Author: Steve Francia <dev@example.com>
+Date:   Mon Aug 11 09:58:23 2025 -0400
+
+    Update README.md with new logo
+
+commit dcaf42e2633496bf97d5476d7419071e5c48f40a
+Author: Anish Athalye <dev@example.com>
+Date:   Sun Aug 3 22:14:01 2025 -0700
+
+    Add Periscope to the list of projects using Cobra (#2299)
+
+commit 6dec1ae26659a130bdb4c985768d1853b0e1bc06
+Author: Harald Albers <dev@example.com>
+Date:   Sat May 31 12:36:04 2025 +0000
+
+    The default ShellCompDirective can be customized for a command and its subcommands (#2238)
+
+commit c8289c10302063b9a2e26357e7e0f0bb599f29ce
+Author: Ville Skyttä <dev@example.com>
+Date:   Wed May 28 22:35:15 2025 +0300
+
+    chore(golangci-lint): add some exclusion presets
+    
+    To avoid cropping up new findings for commonly ignored issues for now.
+
+commit 4af7b64d31989e78e86d65304f693a6d9c77c932
+Author: Ville Skyttä <dev@example.com>
+Date:   Thu Mar 27 00:45:29 2025 +0200
+
+    refactor: apply golangci-lint autofixes, work around false positives
+
+commit 75790e48fb73c8ba027e0163157a86ce8604ca3e
+Author: Ville Skyttä <dev@example.com>
+Date:   Thu Mar 27 00:44:15 2025 +0200
+
+    chore(golangci-lint): upgrade to v2
+
+commit db3ddb5cf4968b320ea21f6ee5c2d2202a2e7b22
+Merge: ceb39ab 67171d6
+Author: Steve Francia <dev@example.com>
+Date:   Mon May 5 22:12:42 2025 -0400
+
+    Adding sponsorship to README.md
+
+commit 67171d6909986ee86fb946f808b87aba88ee417a
+Author: Steve Francia <dev@example.com>
+Date:   Mon May 5 22:11:24 2025 -0400
+
+    putting sponsorship below header
+
+commit 0ed70dcfd4d22bc39ba138fefb9f37ed3d2e87ec
+Author: Eric Chen <dev@example.com>
+Date:   Tue Apr 15 15:44:27 2025 -0400
+
+    Update README.md
+
+commit 0846d166eeddf8290755d95646725c139922635d
+Author: Eric Chen <dev@example.com>
+Date:   Fri Apr 11 19:32:40 2025 -0400
+
+    Update README.md
+
+commit 73f7846ba97514885fe3c3e89bf007b4683ba03e
+Author: Eric Chen <dev@example.com>
+Date:   Fri Apr 11 19:31:17 2025 -0400
+
+    Update README.md
+
+commit ba5108a4701cb242e60243e38f250852b40542c0
+Author: Eric Chen <dev@example.com>
+Date:   Fri Apr 11 19:30:14 2025 -0400
+
+    Update README.md
+
+commit ceb39aba25c86233e4888210c4b57cdb0a78d1e1
+Author: John McBride <dev@example.com>
+Date:   Tue Mar 11 06:56:36 2025 -0600
+
+    chore: Rm GitHub Action PR size labeler (#2256)
+    
+    Signed-off-by: John McBirde <dev@example.com>
+
+commit c25b598345317bed94d045873fc1d1a94c21495f
+Author: John McBride <dev@example.com>
+Date:   Mon Mar 10 16:46:30 2025 -0600
+
+    feat: Add security policy (#2253)
+    
+    Signed-off-by: John McBirde <dev@example.com>
+
+commit 4f9ef8cdbbc88c5302be95e0e67fd78ebbfa9dd2
+Author: styee <dev@example.com>
+Date:   Fri Mar 7 06:53:22 2025 -0800
+
+    Update command.go (#2248)
+    
+    Fix spelling in the help output.
+    
+    topcis -> topics
+
+commit 1995054b003053cc1e404bccfbf6d168e8731509
+Author: Fraser Waters <dev@example.com>
+Date:   Fri Feb 21 12:46:14 2025 +0000
+
+    Flow context to command in SetHelpFunc (#2241)
+    
+    Fixes https://github.com/spf13/cobra/issues/2240
+
+commit f98cf4216d3cb5235e6e0cd00ee00959deb1dc65
+Author: Yedaya Katsman <dev@example.com>
+Date:   Mon Feb 17 21:16:17 2025 +0200
+
+    Remove traling curlybrace (#2237)
+
+commit 0d417d8f77c3bfe2de281cce36ca9bea807aa00c
+Author: Chongyi Zheng <dev@example.com>
+Date:   Mon Feb 17 13:59:07 2025 -0500
+
+    Test with Go 1.24 (#2236)
+
+commit 40b5bc1437a564fc795d388b23835e84f54cd1d1
+Author: Marc Khouzam <dev@example.com>
+Date:   Sun Feb 16 18:42:04 2025 -0500
+
+    Revert "Make detection for test-binary more universal (#2173)" (#2235)
+    
+    This reverts commit d1e9d85fcf592461f3bc2f4b6d5e140c4c0aabf8.
+    
+    Some programs set os.Args in their unit tests and this change would
+    break those tests.
+    
+    Ref: https://github.com/spf13/cobra/pull/2173#issuecomment-2661544195
+
+commit a97f9fd47b290016526c8af2dac0531fea5cd773
+Author: ccoVeille <dev@example.com>
+Date:   Sun Feb 16 19:08:14 2025 +0100
+
+    fix CompletionFunc implementation (#2234)
+    
+    The new type CompletionFunc could lead to a regression.
+    This commit make the new `CompletionFunc` type a type alias instead,
+    in case projects using Cobra have created their own similar type.
+    
+    This commit also adds a test to ensure that the completion function
+    remains backwards-compatible.
+    
+    Signed-off-by: ccoVeille <dev@example.com>
+
+commit 5f9c40898e795a9fb0fd5ca83b6e05c3720523d1
+Author: John McBride <dev@example.com>
+Date:   Sat Feb 15 11:17:48 2025 -0700
+
+    chore: Upgrade dependencies for v1.9.0 (#2233)
+    
+    Signed-off-by: John McBirde <dev@example.com>
+
+commit 24ada7fe71e3a3a8741dd52e0a7fc3b97450535a
+Author: Marc Khouzam <dev@example.com>
+Date:   Sat Feb 15 13:07:02 2025 -0500
+
+    Remove the default "completion" cmd if it is alone (#1559)
+    
+    When a program has no sub-commands, its root command can accept
+    arguments.  If we add the default "completion" command to such programs
+    they will now have a sub-command and will no longer accept arguments.
+    
+    What we do instead for this special case, is only add the "completion"
+    command if it is being called, or if it is being completed itself.
+    
+    We want to have the "completion" command for such programs because it
+    will allow the completion of flags and of arguments (if provided
+    by the program).
+    
+    Signed-off-by: Marc Khouzam <dev@example.com>
+
+commit 680936a2200be363c61feda8cd29287f0726a48c
+Author: Steve Francia <dev@example.com>
+Date:   Tue Feb 11 20:00:54 2025 -0500
+
+    New logo
+
+commit 8cb30f9ca53a004a6fe88c5cfcc79ac7b24fc638
+Author: ccoVeille <dev@example.com>
+Date:   Sun Feb 9 17:06:07 2025 +0100
+
+    feat: add CompletionWithDesc helper (#2231)
+    
+    The code has also been refactored to use a type alias for completion and a completion helper
+    
+    Using a type alias is a non-breaking change and it makes the code more readable and easier to understand.
+    
+    Signed-off-by: ccoVeille <dev@example.com>
+    Co-authored-by: Marc Khouzam <dev@example.com>
+
+commit 17b6dca2ffaf6113cbd1cf433ec988fa7d63c6f3
+Author: Raúl Barroso <dev@example.com>
+Date:   Thu Feb 6 21:35:25 2025 +0100
+
+    doc: add Conduit (#2230)
+    
+    We recently added a CLI to a our Conduit project, and we use Cobra to power it.
+    
+    Here's a blog post mentioning it https://meroxa.com/blog/introducing-the-new-conduit-cli:-a-powerful-tool-for-managing-your-pipelines/

@@ -1,0 +1,29 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	renamed:    args.go -> arguments.go
+	new file:   internal/newpkg/a.go
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    cobra.go
+	modified:   doc/cmd_test.go
+	modified:   doc/man_docs.go
+	modified:   doc/man_docs_test.go
+	modified:   doc/man_examples_test.go
+	modified:   doc/md_docs.go
+	modified:   doc/md_docs_test.go
+	modified:   doc/rest_docs.go
+	modified:   doc/rest_docs_test.go
+	modified:   doc/util.go
+	modified:   doc/yaml_docs.go
+	modified:   doc/yaml_docs_test.go
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	internal/newpkg/b.go
+	notes.txt
+

@@ -1,0 +1,184 @@
+=== RUN   TestApiCase1
+    api_test.go:6: checking case 1
+--- PASS: TestApiCase1 (0.00s)
+=== RUN   TestApiCase2
+    api_test.go:13: checking case 2
+--- PASS: TestApiCase2 (0.00s)
+=== RUN   TestApiCase3
+    api_test.go:20: checking case 3
+--- PASS: TestApiCase3 (0.00s)
+=== RUN   TestApiCase4
+    api_test.go:27: checking case 4
+--- PASS: TestApiCase4 (0.00s)
+=== RUN   TestApiCase5
+    api_test.go:34: checking case 5
+--- PASS: TestApiCase5 (0.00s)
+=== RUN   TestApiCase6
+    api_test.go:41: checking case 6
+--- PASS: TestApiCase6 (0.00s)
+=== RUN   TestApiCase7
+    api_test.go:48: checking case 7
+--- PASS: TestApiCase7 (0.00s)
+=== RUN   TestApiCase8
+    api_test.go:55: checking case 8
+--- PASS: TestApiCase8 (0.00s)
+=== RUN   TestApiCase9
+    api_test.go:62: checking case 9
+--- PASS: TestApiCase9 (0.00s)
+=== RUN   TestApiCase10
+    api_test.go:69: checking case 10
+--- PASS: TestApiCase10 (0.00s)
+=== RUN   TestApiCase11
+    api_test.go:76: checking case 11
+--- PASS: TestApiCase11 (0.00s)
+=== RUN   TestApiCase12
+    api_test.go:83: checking case 12
+--- PASS: TestApiCase12 (0.00s)
+PASS
+ok  	example.com/shop/api	0.001s
+=== RUN   TestCartCase1
+    cart_test.go:6: checking case 1
+--- PASS: TestCartCase1 (0.00s)
+=== RUN   TestCartCase2
+    cart_test.go:13: checking case 2
+--- PASS: TestCartCase2 (0.00s)
+=== RUN   TestCartCase3
+    cart_test.go:20: checking case 3
+--- PASS: TestCartCase3 (0.00s)
+=== RUN   TestCartCase4
+    cart_test.go:27: checking case 4
+--- PASS: TestCartCase4 (0.00s)
+=== RUN   TestCartCase5
+    cart_test.go:34: checking case 5
+--- PASS: TestCartCase5 (0.00s)
+=== RUN   TestCartCase6
+    cart_test.go:41: checking case 6
+--- PASS: TestCartCase6 (0.00s)
+=== RUN   TestCartCase7
+    cart_test.go:48: checking case 7
+--- PASS: TestCartCase7 (0.00s)
+=== RUN   TestCartCase8
+    cart_test.go:55: checking case 8
+--- PASS: TestCartCase8 (0.00s)
+=== RUN   TestCartCase9
+    cart_test.go:62: checking case 9
+--- PASS: TestCartCase9 (0.00s)
+=== RUN   TestCartCase10
+    cart_test.go:69: checking case 10
+--- PASS: TestCartCase10 (0.00s)
+=== RUN   TestCartCase11
+    cart_test.go:76: checking case 11
+--- PASS: TestCartCase11 (0.00s)
+=== RUN   TestCartCase12
+    cart_test.go:83: checking case 12
+--- PASS: TestCartCase12 (0.00s)
+PASS
+ok  	example.com/shop/cart	0.001s
+=== RUN   TestInventoryCase1
+    inventory_test.go:6: checking case 1
+--- PASS: TestInventoryCase1 (0.00s)
+=== RUN   TestInventoryCase2
+    inventory_test.go:13: checking case 2
+--- PASS: TestInventoryCase2 (0.00s)
+=== RUN   TestInventoryCase3
+    inventory_test.go:20: checking case 3
+--- PASS: TestInventoryCase3 (0.00s)
+=== RUN   TestInventoryCase4
+    inventory_test.go:27: checking case 4
+--- PASS: TestInventoryCase4 (0.00s)
+=== RUN   TestInventoryCase5
+    inventory_test.go:34: checking case 5
+--- PASS: TestInventoryCase5 (0.00s)
+=== RUN   TestInventoryCase6
+    inventory_test.go:41: checking case 6
+--- PASS: TestInventoryCase6 (0.00s)
+=== RUN   TestInventoryCase7
+    inventory_test.go:48: checking case 7
+--- PASS: TestInventoryCase7 (0.00s)
+=== RUN   TestInventoryCase8
+    inventory_test.go:55: checking case 8
+--- PASS: TestInventoryCase8 (0.00s)
+=== RUN   TestInventoryCase9
+    inventory_test.go:62: checking case 9
+--- PASS: TestInventoryCase9 (0.00s)
+=== RUN   TestInventoryCase10
+    inventory_test.go:69: checking case 10
+--- PASS: TestInventoryCase10 (0.00s)
+=== RUN   TestInventoryCase11
+    inventory_test.go:76: checking case 11
+--- PASS: TestInventoryCase11 (0.00s)
+=== RUN   TestInventoryCase12
+    inventory_test.go:83: checking case 12
+--- PASS: TestInventoryCase12 (0.00s)
+=== RUN   TestReserve
+--- FAIL: TestReserve (0.00s)
+panic: assignment to entry in nil map [recovered, repanicked]
+
+goroutine 19 [running]:
+testing.tRunner.func1.2({0x55b7a0, 0x6d1c60})
+	/usr/local/go/src/testing/testing.go:1974 +0x232
+testing.tRunner.func1()
+	/usr/local/go/src/testing/testing.go:1977 +0x349
+panic({0x55b7a0?, 0x6d1c60?})
+	/usr/local/go/src/runtime/panic.go:860 +0x13a
+example.com/shop/inventory.TestReserve(0x337cd285d48?)
+	/home/user/src/shop/inventory/stock_test.go:7 +0x28
+testing.tRunner(0x337cd285d48, 0x594078)
+	/usr/local/go/src/testing/testing.go:2036 +0xea
+created by testing.(*T).Run in goroutine 1
+	/usr/local/go/src/testing/testing.go:2101 +0x4c5
+FAIL	example.com/shop/inventory	0.003s
+=== RUN   TestTotal
+=== RUN   TestTotal/empty
+=== RUN   TestTotal/one
+=== RUN   TestTotal/discount
+=== RUN   TestTotal/negative_guard
+    price_test.go:21: Total([1], 5) = -4, want 0
+=== RUN   TestTotal/many
+--- FAIL: TestTotal (0.00s)
+    --- PASS: TestTotal/empty (0.00s)
+    --- PASS: TestTotal/one (0.00s)
+    --- PASS: TestTotal/discount (0.00s)
+    --- FAIL: TestTotal/negative_guard (0.00s)
+    --- PASS: TestTotal/many (0.00s)
+FAIL
+FAIL	example.com/shop/price	0.001s
+=== RUN   TestUtilCase1
+    util_test.go:6: checking case 1
+--- PASS: TestUtilCase1 (0.00s)
+=== RUN   TestUtilCase2
+    util_test.go:13: checking case 2
+--- PASS: TestUtilCase2 (0.00s)
+=== RUN   TestUtilCase3
+    util_test.go:20: checking case 3
+--- PASS: TestUtilCase3 (0.00s)
+=== RUN   TestUtilCase4
+    util_test.go:27: checking case 4
+--- PASS: TestUtilCase4 (0.00s)
+=== RUN   TestUtilCase5
+    util_test.go:34: checking case 5
+--- PASS: TestUtilCase5 (0.00s)
+=== RUN   TestUtilCase6
+    util_test.go:41: checking case 6
+--- PASS: TestUtilCase6 (0.00s)
+=== RUN   TestUtilCase7
+    util_test.go:48: checking case 7
+--- PASS: TestUtilCase7 (0.00s)
+=== RUN   TestUtilCase8
+    util_test.go:55: checking case 8
+--- PASS: TestUtilCase8 (0.00s)
+=== RUN   TestUtilCase9
+    util_test.go:62: checking case 9
+--- PASS: TestUtilCase9 (0.00s)
+=== RUN   TestUtilCase10
+    util_test.go:69: checking case 10
+--- PASS: TestUtilCase10 (0.00s)
+=== RUN   TestUtilCase11
+    util_test.go:76: checking case 11
+--- PASS: TestUtilCase11 (0.00s)
+=== RUN   TestUtilCase12
+    util_test.go:83: checking case 12
+--- PASS: TestUtilCase12 (0.00s)
+PASS
+ok  	example.com/shop/util	0.001s
+FAIL

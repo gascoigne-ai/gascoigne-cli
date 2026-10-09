@@ -33,6 +33,8 @@ const (
 type Block struct {
 	Kind Kind   `json:"kind"`
 	Text string `json:"text"`
+	// Type is the detected content type (see package detect); empty until detected.
+	Type string `json:"type,omitempty"`
 }
 
 type Payload struct {
@@ -41,7 +43,7 @@ type Payload struct {
 }
 
 func New(kind Kind, text string) *Payload {
-	return &Payload{Blocks: []Block{{kind, text}}, Attrs: map[string]string{}}
+	return &Payload{Blocks: []Block{{Kind: kind, Text: text}}, Attrs: map[string]string{}}
 }
 
 func (p *Payload) Clone() *Payload {

@@ -15,6 +15,7 @@ const DefaultRoute = "default"
 type Match struct {
 	Attrs     map[string]string `yaml:"attrs"`
 	Kind      payload.Kind      `yaml:"kind"`
+	Content   string            `yaml:"content"` // glob over block content types; any block matches
 	MinTokens int               `yaml:"min_tokens"`
 }
 
@@ -60,6 +61,9 @@ func (m Match) matches(p *payload.Payload) bool {
 		return false
 	}
 	if m.MinTokens > 0 && p.Tokens() < m.MinTokens {
+		return false
+	}
+	if m.Content != "" && !slices.ContainsFunc(p.Blocks, func(b payload.Block) bool { return Glob(m.Content, b.Type) }) {
 		return false
 	}
 	for k, pattern := range m.Attrs {
