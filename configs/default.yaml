@@ -15,11 +15,12 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [go, git]
+  default: [go, git, grep]
 
 optimizers:
   go: {}
   git: { context_lines: 1, max_file_lines: 200 }
+  grep: { max_per_file: 20, max_files: 100, max_line_len: 160 }
 
 exporters:
   stdout: { hint: true }

@@ -11,6 +11,7 @@ import (
 	"github.com/lukaszb/gascoigne/filter/minsizefilter"
 	"github.com/lukaszb/gascoigne/optimizer/gitoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/gooptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/grepoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/receiver/stdinreceiver"
 )
@@ -28,6 +29,7 @@ func Factories() []component.Factory {
 		passthroughoptimizer.NewFactory(),
 		gooptimizer.NewFactory(),
 		gitoptimizer.NewFactory(),
+		grepoptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),
 		// extensions

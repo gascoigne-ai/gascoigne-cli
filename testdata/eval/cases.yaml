@@ -84,13 +84,16 @@
   attrs: { cmd: grep -rn Handler --include=*.go . }
   expect_type: grep
   keep: ["server.go", "csrf.go"]
+  min_saved: 45
 - file: grep/rg.txt
   attrs: { cmd: rg -n "ctx context.Context" }
   expect_type: grep
+  min_saved: 5
 - file: grep/rg-errors.txt
   attrs: { cmd: rg -n -i error }
   expect_type: grep
   keep: ["active_help_test.go"]
+  min_saved: 60
 - name: detect/grep
   file: grep/grep-rn.txt
   expect_type: grep

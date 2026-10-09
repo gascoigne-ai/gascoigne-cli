@@ -1,0 +1,197 @@
+csrf.go
+  40: deny      atomic.Pointer[Handler]
+  80: type noopHandler struct{}
+  82: func (noopHandler) ServeHTTP(ResponseWriter, *Request) {}
+  84: var sentinelHandler Handler = &noopHandler{}
+  114: bypass.Handle(pattern, sentinelHandler)
+  117: // SetDenyHandler sets a handler to invoke when a request is rejected.
+  120: // SetDenyHandler can be called concurrently with other methods
+  124: func (c *CrossOriginProtection) SetDenyHandler(h Handler) {
+  187: if h, _ := bypass.Handler(req); h == sentinelHandler {
+  200: // Handler returns a handler that applies cross-origin checks
+  205: // to [CrossOriginProtection.SetDenyHandler].
+  206: func (c *CrossOriginProtection) Handler(h Handler) Handler {
+  207: return HandlerFunc(func(w ResponseWriter, r *Request) {
+fs.go
+  103: // See the [FileServer] function to convert a FileSystem to a [Handler].
+  883: type fileHandler struct {
+  979: func FileServer(root FileSystem) Handler {
+  980: return &fileHandler{root}
+  992: func FileServerFS(root fs.FS) Handler {
+  996: func (f *fileHandler) ServeHTTP(w ResponseWriter, r *Request) {
+doc.go
+  65: http.Handle("/foo", fooHandler)
+  78: Handler:        myHandler,
+http.go
+  234: // Handlers that wish to push URL X should call Push before sending any
+responsecontroller.go
+  16: // A ResponseController may not be used after the [Handler.ServeHTTP] method has returned.
+  23: // The ResponseWriter should be the original value passed to the [Handler.ServeHTTP] method,
+cgi/child.go
+  144: // Serve executes the provided [Handler] on the currently active CGI
+  148: func Serve(handler http.Handler) error {
+httptest/httptest.go
+  24: // for passing to an [http.Handler] for testing.
+omithttp2.go
+  23: func (s *Server) serveHTTP2Conn(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte) {
+filetransport.go
+  15: fh fileHandler
+  32: return fileTransport{fileHandler{fs}}
+http2.go
+  74: s.TLSNextProto = make(map[string]func(*Server, *tls.Conn, Handler))
+  78: s.TLSNextProto["h2"] = func(hs *Server, c *tls.Conn, h Handler) {
+  94: func (s *Server) serveHTTP2Conn(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte) {
+  104: Handler:          http2Handler{h},
+  132: type http2Handler struct {
+  133: h Handler
+  136: func (h http2Handler) ServeHTTP(w *http2.ResponseWriter, req *http2.ServerRequest) {
+  238: ServeConnFunc(func(ctx context.Context, nc net.Conn, h Handler, sawClientPreface bool, upgradeReq *Request, settings []byte))
+cgi/cgi_main.go
+  105: Serve(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+servemux121.go
+  47: h       Handler
+  52: func (mux *serveMux121) handle(pattern string, handler Handler) {
+  100: mux.handle(pattern, HandlerFunc(handler))
+  103: // Formerly ServeMux.Handler.
+  104: func (mux *serveMux121) findHandler(r *Request) (h Handler, pattern string) {
+  112: return RedirectHandler(u.String(), StatusMovedPermanently), u.Path
+  126: return RedirectHandler(u.String(), StatusMovedPermanently), u.Path
+  132: return RedirectHandler(u.String(), StatusMovedPermanently), pattern
+  138: // handler is the main implementation of findHandler.
+  140: func (mux *serveMux121) handler(host, path string) (h Handler, pattern string) {
+  152: h, pattern = NotFoundHandler(), ""
+  159: func (mux *serveMux121) match(path string) (h Handler, pattern string) {
+internal/http2/api.go
+  35: ErrAbortHandler    = internal.ErrAbortHandler
+  122: type Handler interface {
+fcgi/child.go
+  154: handler http.Handler
+  159: func newChild(rwc io.ReadWriteCloser, handler http.Handler) *child {
+  339: func Serve(l net.Listener, handler http.Handler) error {
+triv.go
+  130: http.Handle("/", http.HandlerFunc(Logger))
+request.go
+  184: // Handler does not need to.
+  220: // and this field is not needed by Handlers.
+  236: // To prevent DNS rebinding attacks, server Handlers should
+  238: // Handler considers itself authoritative. The included
+  240: // names and thus protects its registered Handlers.
+  886: // testing a Server Handler, either use the [net/http/httptest.NewRequest] function,
+  1066: // requests and handle them via the [Handler] interface. ReadRequest
+routing_tree.go
+  28: // A leaf node holds a single pattern and the Handler it was registered
+  31: handler Handler
+  42: // addPattern adds a pattern and its associated Handler to the tree
+  44: func (root *routingNode) addPattern(p *pattern, h Handler) {
+  56: func (n *routingNode) addSegments(segs []segment, p *pattern, h Handler) {
+  78: func (n *routingNode) set(p *pattern, h Handler) {
+pprof/testdata/delta_mutex.go
+  30: h := pprof.Handler("mutex")
+transfer.go
+  843: // read after an HTTP [Handler] calls WriteHeader or Write on its
+  1020: // Read up to maxPostHandlerReadBytes bytes of the body, looking
+  1022: if lr, ok := b.src.(*io.LimitedReader); ok && lr.N > maxPostHandlerReadBytes {
+  1024: // than our maxPostHandlerReadBytes tolerance. So, give up.
+  1030: n, err = io.CopyN(io.Discard, bodyLocked{b}, maxPostHandlerReadBytes+1)
+  1032: if err == io.EOF && n <= maxPostHandlerReadBytes {
+httptest/recorder.go
+  24: // Note that if a Handler never calls WriteHeader or Write,
+  30: // HeaderMap contains the headers explicitly set by the Handler.
+  38: // Body is the buffer to which the Handler's Write calls are sent.
+  42: // Flushed is whether the Handler called Flush.
+httptest/server.go
+  54: //     any value other than [http.ErrAbortHandler].
+  177: func NewTestServer(t testing.TB, handler http.Handler) *Server {
+  180: Config: &http.Server{Handler: testServerHandler{t: t, h: handler}},
+  188: type testServerHandler struct {
+  190: h http.Handler
+  193: func (h testServerHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+  196: if err != http.ErrAbortHandler {
+  204: // Convert panic to ErrAbortHandler to suppress http.Server's logging.
+  205: panic(http.ErrAbortHandler)
+  266: func NewServer(handler http.Handler) *Server {
+  282: func NewUnstartedServer(handler http.Handler) *Server {
+  285: Config:   &http.Server{Handler: handler},
+  458: func NewTLSServer(handler http.Handler) *Server {
+cgi/host.go
+  56: // Handler runs an executable in a subprocess with a CGI environment.
+  57: type Handler struct {
+  73: // PathLocationHandler specifies the root http Handler that
+  81: PathLocationHandler http.Handler
+  84: func (h *Handler) stderr() io.Writer {
+  94: //	cgi.Handler{
+  117: func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+  312: if strings.HasPrefix(loc, "/") && h.PathLocationHandler != nil {
+  355: func (h *Handler) printf(format string, v ...any) {
+  363: func (h *Handler) handleInternalRedirect(rw http.ResponseWriter, req *http.Request, path string) {
+  390: h.PathLocationHandler.ServeHTTP(rw, newReq)
+httputil/reverseproxy.go
+  100: // ReverseProxy is an HTTP Handler that takes an incoming request and
+  166: // If the backend is unreachable, the optional ErrorHandler is
+  173: // If ModifyResponse returns an error, ErrorHandler is called
+  174: // with its error value. If ErrorHandler is nil, its default
+  178: // ErrorHandler is an optional function that handles errors
+  183: ErrorHandler func(http.ResponseWriter, *http.Request, error)
+  376: func (p *ReverseProxy) defaultErrorHandler(rw http.ResponseWriter, req *http.Request, err error) {
+  381: func (p *ReverseProxy) getErrorHandler() func(http.ResponseWriter, *http.Request, error) {
+  382: if p.ErrorHandler != nil {
+  383: return p.ErrorHandler
+  385: return p.defaultErrorHandler
+  396: p.getErrorHandler()(rw, req, err)
+  452: p.getErrorHandler()(rw, req, errors.New("ReverseProxy must have exactly one of Director or Rewrite set"))
+  466: p.getErrorHandler()(rw, req, fmt.Errorf("client tried to switch to invalid protocol %q", reqUpType))
+  523: // (Perhaps we should just send a 405 and never call ErrorHandler?
+  524: // More consistent to always call ErrorHandler or ModifyResponse,
+  527: if p.ErrorHandler != nil {
+  528: p.ErrorHandler(rw, outreq, err)
+  571: p.getErrorHandler()(rw, outreq, err)
+  609: // is abort the request. Issue 23643: ReverseProxy should use ErrAbortHandler
+  … 9 more matches omitted
+internal/http2/server.go
+  14: // Handlers running) and not be woken up again until the PING packet
+  17: // TODO (maybe): add a mechanism for Handlers to going into
+  23: // the Handler ServeHTTP function means you're both done reading and
+  72: errHandlerComplete    = errors.New("http2: request body closed due to handler exiting")
+  198: // Handler specifies which handler to use for processing
+  199: // requests. If nil, BaseConfig.Handler is used. If BaseConfig
+  200: // or BaseConfig.Handler is nil, http.DefaultServeMux is used.
+  201: Handler Handler
+  229: // the Request.TLS field in Handlers.
+  268: handler:                     opts.Handler,
+  411: handler          Handler
+  442: curHandlers                 uint32 // number of running handler goroutines
+  446: unstartedHandlers           []unstartedHandler
+  507: // the http.Handler's goroutine in the responseWriter. Because the
+  510: // *responseWriter{,State} itself, as the Handler ending nils out the
+  525: flow             outflow // limits writing from Handler to client
+  743: // Note: this is for serverConn.serve panicking, not http.Handler code.
+  1000: // writeDataFromHandler writes DATA response frames from a handler on
+  1002: func (sc *serverConn) writeDataFromHandler(stream *stream, data []byte, endStream bool) error {
+  1006: err := sc.writeFrameFromHandler(FrameWriteRequest{
+  … 65 more matches omitted
+transport.go
+  2419: // closed. This number is chosen for consistency with maxPostHandlerReadBytes.
+internal/common.go
+  10: ErrAbortHandler    = errors.New("net/http: abort Handler")
+server.go
+  54: // when a Handler set a Content-Length response header with a
+  65: // A Handler responds to an HTTP request.
+  67: // [Handler.ServeHTTP] should write reply headers and data to the [ResponseWriter]
+  88: // an error, panic with the value [ErrAbortHandler].
+  89: type Handler interface {
+  96: // A ResponseWriter may not be used after [Handler.ServeHTTP] has returned.
+  100: // [Handler] implementations can set HTTP trailers.
+  112: // keys not known to the [Handler] until after the first [ResponseWriter.Write],
+  139: // by all HTTP/2 clients. Handlers should read before writing if
+  168: // support [Flusher], but ResponseWriter wrappers may not. Handlers
+  185: // ResponseWriter wrappers may also not support Hijacker. Handlers
+  226: // After the Handler has returned, there is no guarantee
+  272: // This is the value of a Handler's (*Request).RemoteAddr.
+  306: // by a Handler with the Hijacker interface.
+  450: // handlerHeader is the Header that Handlers get access to,
+  529: // finalTrailers is called after the Handler exits and returns a non-nil
+  530: // value if the Handler set any trailers.
+  701: // After a Handler has hijacked the conn and exited, connReader behaves like a
+  757: // added context support, people used a Handler's
+  908: // TestHandlerBodyClose's assumptions.
+  … 59 more matches omitted
