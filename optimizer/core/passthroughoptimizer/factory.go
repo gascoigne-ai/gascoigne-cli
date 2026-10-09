@@ -1,4 +1,4 @@
-package npmoptimizer
+package passthroughoptimizer
 
 import (
 	"context"
@@ -6,12 +6,16 @@ import (
 	"github.com/lukaszb/gascoigne/component"
 )
 
-const typ = "npm"
+const (
+	typ    = "passthrough"
+	family = "core"
+)
 
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{} },
 		func(context.Context, component.Settings, *Config) (component.Component, error) {
 			return Optimizer{}, nil
-		})
+		},
+		component.WithFamily(family))
 }

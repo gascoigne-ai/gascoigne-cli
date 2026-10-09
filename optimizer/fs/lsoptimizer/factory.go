@@ -1,4 +1,4 @@
-package gitoptimizer
+package lsoptimizer
 
 import (
 	"context"
@@ -6,12 +6,16 @@ import (
 	"github.com/lukaszb/gascoigne/component"
 )
 
-const typ = "git"
+const (
+	typ    = "ls"
+	family = "fs"
+)
 
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
-		func() *Config { return &Config{ContextLines: 1, MaxFileLines: 200} },
+		func() *Config { return &Config{SizesUpTo: 60, Width: 120} },
 		func(_ context.Context, _ component.Settings, cfg *Config) (component.Component, error) {
 			return &Optimizer{cfg: cfg}, nil
-		})
+		},
+		component.WithFamily(family))
 }

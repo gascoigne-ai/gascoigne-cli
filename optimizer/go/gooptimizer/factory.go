@@ -1,4 +1,4 @@
-package bunoptimizer
+package gooptimizer
 
 import (
 	"context"
@@ -6,12 +6,16 @@ import (
 	"github.com/lukaszb/gascoigne/component"
 )
 
-const typ = "bun"
+const (
+	typ    = "go"
+	family = "go"
+)
 
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{} },
 		func(context.Context, component.Settings, *Config) (component.Component, error) {
 			return Optimizer{}, nil
-		})
+		},
+		component.WithFamily(family))
 }

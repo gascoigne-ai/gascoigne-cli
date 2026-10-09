@@ -8,8 +8,9 @@ components built by factories, `type/name` ids, pipelines wired by YAML, explici
 ```
 component/  payload/  tokens/        public contracts: what component authors import
 detect/  compress/  mcptool/         public libraries: content detection, text primitives, MCP tools
-receiver/  filter/  optimizer/       components, one package each, OTel-contrib style;
-exporter/  extension/                  only import public packages → can become own modules
+receiver/  filter/  exporter/        components, one package each, OTel-contrib style;
+extension/                             only import public packages → can become own modules
+optimizer/<family>/<name>optimizer   optimizers grouped by family (see below)
 internal/config  router  service     engine: YAML, routing, pipeline execution
 internal/registry                    built-in component list (the "distribution")
 cmd/gascoigne  configs/              CLI + embedded default config
@@ -58,6 +59,22 @@ results in one request) and each part meets the right optimizer. Order of eviden
    tsc, bun, nx, jest/vitest, npm, grep results, `ls -l`, logs, source code, else `text`.
 Types are constants in `detect` (`detect.GoTest`, `detect.JSON`, …). New format = new constant +
 cmd mapping and/or sniffer + table test, then an optimizer that selects it.
+
+## Optimizer families
+`optimizer/<family>/<name>optimizer`; the factory declares the same family
+(`component.WithFamily`) and `gain -by family` reports per family.
+| Family | Optimizers | Inputs |
+|---|---|---|
+| `go` | `go` | go test (-json), go build/vet |
+| `js` | `npm`, `bun`, `nx` | package managers, jest/vitest/bun test, tsc, nx tasks |
+| `vcs` | `git` | status, log, diff/show, push/pull/fetch |
+| `search` | `grep` | grep, rg, git grep |
+| `fs` | `ls`, `cat` | listings, source files |
+| `data` | `json`, `log` | JSON/NDJSON, logs, plain text |
+| `web` | `html` | web pages → markdown |
+| `core` | `passthrough` | baseline / placeholder |
+New tool for an existing ecosystem joins its family (`cargo` → new `rust` family, `pnpm`-only
+quirks → `js`). Families are for grouping and stats only; routing uses content types.
 
 ## Built-in components
 | Kind | Components |

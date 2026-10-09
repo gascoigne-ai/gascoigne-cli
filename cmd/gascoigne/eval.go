@@ -226,9 +226,9 @@ func cmdComponents(_ context.Context, args []string) error {
 	}
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	defer w.Flush()
-	fmt.Fprintln(w, "kind\ttype")
+	fmt.Fprintln(w, "kind\tfamily\ttype")
 	for _, f := range registry.Factories() {
-		fmt.Fprintf(w, "%s\t%s\n", f.Kind(), f.Type())
+		fmt.Fprintf(w, "%s\t%s\t%s\n", f.Kind(), cmp.Or(f.Family(), "-"), f.Type())
 	}
 	return nil
 }

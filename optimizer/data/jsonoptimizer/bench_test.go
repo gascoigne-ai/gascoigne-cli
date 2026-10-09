@@ -14,8 +14,8 @@ func benchInputs(b *testing.B) map[string]string {
 	b.Helper()
 	in := map[string]string{}
 	for name, path := range map[string]string{
-		"github-repos": "../../testdata/eval/json/github-repos.json",
-		"package-lock": "../../testdata/eval/json/package-lock.json",
+		"github-repos": "../../../testdata/eval/json/github-repos.json",
+		"package-lock": "../../../testdata/eval/json/package-lock.json",
 	} {
 		data, err := os.ReadFile(path)
 		if err != nil {
