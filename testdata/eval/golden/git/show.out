@@ -1,0 +1,117 @@
+6dec1ae 2025-05-31 Harald Albers: The default ShellCompDirective can be customized for a command and its subcommands (#2238)
+diff completions.go
+@@ -115,6 +115,13 @@ type CompletionOptions struct {
+ 	HiddenDefaultCmd bool
++	// DefaultShellCompDirective sets the ShellCompDirective that is returned
++	// if no special directive can be determined
++	DefaultShellCompDirective *ShellCompDirective
++}
++
++func (receiver *CompletionOptions) SetDefaultShellCompDirective(directive ShellCompDirective) {
++	receiver.DefaultShellCompDirective = &directive
+ }
+@@ -480,6 +487,14 @@ func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCo
+ 		directive = ShellCompDirectiveDefault
++		// check current and parent commands for a custom DefaultShellCompDirective
++		for cmd := finalCmd; cmd != nil; cmd = cmd.parent {
++			if cmd.CompletionOptions.DefaultShellCompDirective != nil {
++				directive = *cmd.CompletionOptions.DefaultShellCompDirective
++				break
++			}
++		}
++
+ 		if flag == nil {
+diff completions_test.go
+@@ -4015,3 +4015,60 @@ func TestInitDefaultCompletionCmd(t *testing.T) {
+ }
++
++func TestCustomDefaultShellCompDirective(t *testing.T) {
++	rootCmd := &Command{Use: "root", Run: emptyRun}
++	rootCmd.PersistentFlags().String("string", "", "test string flag")
++	// use ShellCompDirectiveNoFileComp instead of the default, which is ShellCompDirectiveDefault.
++	rootCmd.CompletionOptions.SetDefaultShellCompDirective(ShellCompDirectiveNoFileComp)
++
++	// child1 inherits the custom DefaultShellCompDirective.
++	childCmd1 := &Command{Use: "child1", Run: emptyRun}
++	// child2 resets the custom DefaultShellCompDirective to the default value.
++	childCmd2 := &Command{Use: "child2", Run: emptyRun}
++	childCmd2.CompletionOptions.SetDefaultShellCompDirective(ShellCompDirectiveDefault)
++
++	rootCmd.AddCommand(childCmd1, childCmd2)
++
++	testCases := []struct {
++		desc              string
++		args              []string
++		expectedDirective string
++	}{
++		{
++			"flag completion on root command with custom DefaultShellCompDirective",
++			[]string{"--string", ""},
++			"ShellCompDirectiveNoFileComp",
++		},
++		{
++			"flag completion on subcommand with inherited custom DefaultShellCompDirective",
++			[]string{"child1", "--string", ""},
++			"ShellCompDirectiveNoFileComp",
++		},
++		{
++			"flag completion on subcommand with reset DefaultShellCompDirective",
++			[]string{"child2", "--string", ""},
++			"ShellCompDirectiveDefault",
++		},
++	}
++
++	for _, tc := range testCases {
++		t.Run(tc.desc, func(t *testing.T) {
++			args := []string{ShellCompNoDescRequestCmd}
++			args = append(args, tc.args...)
++
++			output, err := executeCommand(rootCmd, args...)
++
++			if err != nil {
++				t.Errorf("Unexpected error: %v", err)
++			}
++
++			outputWords := strings.Split(strings.TrimSpace(output), " ")
++			directive := outputWords[len(outputWords)-1]
++
++			if directive != tc.expectedDirective {
++				t.Errorf("expected: %q, got: %q", tc.expectedDirective, directive)
++			}
++		})
++	}
++}
+diff site/content/completions/_index.md
+@@ -305,6 +305,36 @@ $ helm status --output [tab][tab]
+
++#### Change the default ShellCompDirective
++
++When no completion function is registered for a leaf command or for a flag, Cobra will
++automatically use `ShellCompDirectiveDefault`, which will invoke the shell's filename completion.
++This implies that when file completion does not apply to a leaf command or to a flag (the command
++or flag does not operate on a filename), turning off file completion requires you to register a
++completion function for that command/flag.
++For example:
++
++```go
++cmd.RegisterFlagCompletionFunc("flag-name", cobra.NoFileCompletions)
++```
++
++If you find that there are more situations where file completion should be turned off than
++when it is applicable, you can recursively change the default `ShellCompDirective` for a command
++and its subcommands to `ShellCompDirectiveNoFileComp`:
++
++```go
++cmd.CompletionOptions.SetDefaultShellCompDirective(ShellCompDirectiveNoFileComp)
++```
++
++If doing so, keep in mind that you should instead register a completion function for leaf commands or
++flags where file completion is applicable. For example:
++
++```go
++cmd.RegisterFlagCompletionFunc("flag-name", cobra.FixedCompletions(nil, ShellCompDirectiveDefault))
++```
++
++To change the default directive for the entire program, set the DefaultShellCompDirective on the root command.
++
+ #### Debugging

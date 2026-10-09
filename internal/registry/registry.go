@@ -9,6 +9,7 @@ import (
 	"github.com/lukaszb/gascoigne/filter/detectfilter"
 	"github.com/lukaszb/gascoigne/filter/historyfilter"
 	"github.com/lukaszb/gascoigne/filter/minsizefilter"
+	"github.com/lukaszb/gascoigne/optimizer/gitoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/gooptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/receiver/stdinreceiver"
@@ -26,6 +27,7 @@ func Factories() []component.Factory {
 		// optimizers
 		passthroughoptimizer.NewFactory(),
 		gooptimizer.NewFactory(),
+		gitoptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),
 		// extensions

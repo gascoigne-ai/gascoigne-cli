@@ -1,0 +1,191 @@
+diff args.go
+@@ -65,6 +65,19 @@ func OnlyValidArgs(cmd *Command, args []string) error {
+
++// NoDuplicateArgs returns an error if there are any duplicate positional args.
++func NoDuplicateArgs(cmd *Command, args []string) error {
++	seen := make(map[string]struct{}, len(args))
++	for _, arg := range args {
++		if _, ok := seen[arg]; ok {
++			return fmt.Errorf("duplicate argument %q for %q", arg, cmd.CommandPath())
++		}
++		seen[arg] = struct{}{}
++	}
++
++	return nil
++}
++
+ // ArbitraryArgs never returns an error.
+diff args_test.go
+@@ -107,6 +107,17 @@ func rangeArgsWithInvalidCount(err error, t *testing.T) {
+
++func noDuplicateArgsWithDuplicate(err error, t *testing.T, arg string) {
++	if err == nil {
++		t.Fatal("Expected an error")
++	}
++	got := err.Error()
++	expected := `duplicate argument "` + arg + `" for "c"`
++	if got != expected {
++		t.Errorf("Expected: %q, got: %q", expected, got)
++	}
++}
++
+ // NoArgs
+@@ -153,6 +164,32 @@ func TestOnlyValidArgs_WithInvalidArgs(t *testing.T) {
+
++// NoDuplicateArgs
++
++func TestNoDuplicateArgs(t *testing.T) {
++	c := getCommand(NoDuplicateArgs, false)
++	output, err := executeCommand(c, "one", "two")
++	expectSuccess(output, err, t)
++}
++
++func TestNoDuplicateArgs_WithDuplicateArgs(t *testing.T) {
++	c := getCommand(NoDuplicateArgs, false)
++	_, err := executeCommand(c, "one", "one")
++	noDuplicateArgsWithDuplicate(err, t, "one")
++}
++
++func TestNoDuplicateArgs_WithValid_WithDuplicateArgs(t *testing.T) {
++	c := getCommand(NoDuplicateArgs, true)
++	_, err := executeCommand(c, "one", "one")
++	noDuplicateArgsWithDuplicate(err, t, "one")
++}
++
++func TestNoDuplicateArgs_WithValidOnly_WithInvalidArgs(t *testing.T) {
++	c := getCommand(MatchAll(OnlyValidArgs, NoDuplicateArgs), true)
++	_, err := executeCommand(c, "a", "a")
++	validOnlyWithInvalidArgs(err, t)
++}
++
+ // ArbitraryArgs
+diff bash_completionsV2.go
+@@ -326,7 +326,7 @@ __%[1]s_handle_standard_completion_case() {
+     # Look for the longest completion so that we can format things nicely
+-    while IFS='' read -r compline; do
++    for compline in "${completions[@]}"; do
+         [[ -z $compline ]] && continue
+@@ -352,7 +352,7 @@ __%[1]s_handle_standard_completion_case() {
+         fi
+-    done < <(printf "%%s\n" "${completions[@]}")
++    done
+
+diff command.go
+@@ -557,7 +557,7 @@ func (c *Command) FlagErrorFunc() (f func(*Command, error) error) {
+
+-var minUsagePadding = 25
++const minUsagePadding = 25
+
+@@ -567,7 +567,7 @@ func (c *Command) UsagePadding() int {
+
+-var minCommandPathPadding = 11
++const minCommandPathPadding = 11
+
+@@ -577,7 +577,7 @@ func (c *Command) CommandPathPadding() int {
+
+-var minNamePadding = 11
++const minNamePadding = 11
+
+@@ -1939,7 +1939,7 @@ type tmplFunc struct {
+
+-var defaultUsageTemplate = `Usage:{{if .Runnable}}
++const defaultUsageTemplate = `Usage:{{if .Runnable}}
+   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
+@@ -2039,7 +2039,7 @@ func defaultUsageFunc(w io.Writer, in interface{}) error {
+
+-var defaultHelpTemplate = `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
++const defaultHelpTemplate = `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
+
+@@ -2061,7 +2061,7 @@ func defaultHelpFunc(w io.Writer, in interface{}) error {
+
+-var defaultVersionTemplate = `{{with .DisplayName}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}
++const defaultVersionTemplate = `{{with .DisplayName}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}
+ `
+diff completions.go
+@@ -317,7 +317,10 @@ func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCo
+ 	toComplete := args[len(args)-1]
+-	trimmedArgs := args[:len(args)-1]
++	// Copy trimmedArgs to a new slice to avoid mutating the caller's
++	// backing array (which may be os.Args) when later appending "--".
++	trimmedArgs := make([]string, len(args)-1)
++	copy(trimmedArgs, args[:len(args)-1])
+
+@@ -955,6 +958,7 @@ func CompDebug(msg string, printToStdErr bool) {
+ 	if path := os.Getenv("BASH_COMP_DEBUG_FILE"); path != "" {
++		//nolint:gosec // G703:BASH_COMP_DEBUG_FILE intentionally user-controlled for completion debug logging.
+ 		f, err := os.OpenFile(path,
+diff completions_test.go
+@@ -4072,3 +4072,58 @@ func TestCustomDefaultShellCompDirective(t *testing.T) {
+ }
++
++func TestCompletionDoesNotMutateOsArgs(t *testing.T) {
++	// Test for https://github.com/spf13/cobra/issues/2257
++	// Verify that os.Args is not corrupted when shell completion runs
++	// with TraverseChildren enabled.
++	//
++	// The bug: getCompletions() calls append(finalArgs, "--") where
++	// finalArgs is a sub-slice of the original args (from os.Args[1:]).
++	// If there's spare capacity, append writes "--" into the shared
++	// backing array, mutating os.Args in place.
++
++	// Save and restore os.Args since we need to override it.
++	origArgs := os.Args
++	defer func() { os.Args = origArgs }()
++
++	// Set os.Args to simulate: root __completeNoDesc x
++	// We do NOT use SetArgs so the code falls through to os.Args[1:].
++	// The program name must not be "cobra.test" to bypass the test guard
++	// in ExecuteC().
++	os.Args = []string{"root", ShellCompNoDescRequestCmd, "x"}
++
++	rootCmd := &Command{
++		Use:              "root",
++		TraverseChildren: true,
++		ValidArgsFunction: func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
++			return []string{"mycompletion"}, ShellCompDirectiveDefault
++		},
++		Run: emptyRun,
++	}
++
++	buf := new(bytes.Buffer)
++	rootCmd.SetOut(buf)
++	rootCmd.SetErr(buf)
++
++	_, err := rootCmd.ExecuteC()
++	if err != nil {
++		t.Fatalf("Unexpected error: %v", err)
++	}
++
++	// Without the fix, os.Args[2] would be changed from "x" to "--"
++	// because append(finalArgs, "--") in getCompletions wrote into
++	// the shared backing array of os.Args.
++	if len(os.Args) != 3 {
++		t.Fatalf("os.Args length changed: expected 3, got %d", len(os.Args))
++	}
++	if os.Args[0] != "root" {
++		t.Errorf("os.Args[0] was mutated: expected %q, got %q", "root", os.Args[0])
++	}
++	if os.Args[1] != ShellCompNoDescRequestCmd {
++		t.Errorf("os.Args[1] was mutated: expected %q, got %q", ShellCompNoDescRequestCmd, os.Args[1])
++	}
++	if os.Args[2] != "x" {
++		t.Errorf("os.Args[2] was mutated: expected %q, got %q", "x", os.Args[2])
++	}
++}
+diff doc/yaml_docs.go
+@@ -24,7 +24,7 @@ import (
+ 	"github.com/spf13/pflag"
+-	"gopkg.in/yaml.v3"
++	"go.yaml.in/yaml/v3"
+ )
+diff fish_completions.go
+@@ -46,14 +46,14 @@ function __%[1]s_perform_completion
+     set -l args (commandline -opc)
+-    # Extract the last arg and escape it in case it is a space
++    # Extract the last arg and escape it in case it is a space or wildcard
+     set -l lastArg (string escape -- (commandline -ct))
+ …
+     # Disable ActiveHelp which is not supported for fish shell
+-    set -l requestComp "%[10]s=0 $args[1] %[3]s $args[2..-1] $lastArg"
++    set -l requestComp "%[10]s=0 $args[1] %[3]s $(string join ' ' -- (string escape -- $args[2..-1])) $lastArg"
+

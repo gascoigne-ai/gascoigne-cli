@@ -1,0 +1,11 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+staged:
+  R args.go -> arguments.go
+  A internal/newpkg/a.go
+unstaged:
+  D cobra.go
+  M doc/{cmd_test.go,man_docs.go,man_docs_test.go,man_examples_test.go,md_docs.go,md_docs_test.go,rest_docs.go,rest_docs_test.go,util.go,yaml_docs.go,yaml_docs_test.go}
+untracked:
+  ? internal/newpkg/b.go
+  ? notes.txt

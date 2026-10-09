@@ -1,0 +1,14 @@
+On branch feature/router
+Your branch is ahead of 'origin/feature/router' by 3 commits.
+staged:
+  M internal/router/router.go
+  A internal/router/glob.go
+  A internal/router/glob_test.go
+unstaged:
+  M internal/service/{pipeline.go,service.go,service_test.go}
+  M configs/default.yaml
+  D internal/router/match.go
+untracked:
+  ? .harness/logs/
+  ? internal/optimizer/jsoncompact/
+  ? notes.txt

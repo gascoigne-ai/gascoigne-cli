@@ -47,25 +47,31 @@
   attrs: { cmd: git status }
   expect_type: git-status
   keep: ["internal/router/glob.go", "internal/router/match.go", "notes.txt", "ahead of 'origin/feature/router' by 3"]
+  min_saved: 45
 - file: git/status-big.txt
   attrs: { cmd: git status }
   expect_type: git-status
-  keep: ["args.go -> arguments.go", "cobra.go", "doc/yaml_docs_test.go", "internal/newpkg/b.go"]
+  keep: ["args.go -> arguments.go", "cobra.go", "yaml_docs_test.go", "internal/newpkg/b.go"]
+  min_saved: 45
 - file: git/log.txt
   attrs: { cmd: git log }
   expect_type: git-log
   keep: ["adbc881", "fix: resolve macOS test link failure"]
+  min_saved: 65
 - file: git/diff.txt
   attrs: { cmd: git diff HEAD~12 }
   expect_type: diff
-  keep: ["args.go", "func OnlyValidArgs"]
+  keep: ["args.go", "func OnlyValidArgs", "+func NoDuplicateArgs"]
+  min_saved: 20
 - file: git/show.txt
   attrs: { cmd: git show HEAD~17 }
   expect_type: diff
+  min_saved: 10
 - file: git/push.txt
   attrs: { cmd: git push -u origin feature/router }
   expect_type: git-remote
   keep: ["feature/router -> feature/router", "pull/new/feature/router"]
+  min_saved: 60
 - name: detect/git-log
   file: git/log.txt
   expect_type: git-log

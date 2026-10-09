@@ -1,0 +1,40 @@
+adbc881 2026-07-11 Shudhanshu Singh: fix: resolve macOS test link failure and update lint rules (#2429) (+3 body lines)
+ad460ea 2026-04-25 takanuva15: Add cobra unique args validator (#2397)
+746ef07 2026-04-24 Varun Chawla: fix: prevent completions from mutating os.Args via append side effect (#2356) (+14 body lines)
+f2878ba 2026-04-15 Marc Khouzam: Ignore the linter error (#2390)
+85c12c2 2026-04-16 Artur Aronov: projects_using_cobra: add Ollama (#2389)
+61968e8 2025-12-10 Niklas Vogel: fix: quote args in fish shell completion (#2285) (+10 body lines)
+10d4b48 2025-12-06 Jeffrey Faer: perf: Loop over the bash variable directly instead of starting subprocesses. (#2333) (+3 body lines)
+88b30ab 2025-12-03 Davanum Srinivas: chore: Migrate from gopkg.in/yaml.v3 to go.yaml.in/yaml/v3 (#2336) (+4 body lines)
+346d408 2025-12-03 John McBride: fix: actions/setup-go v6 (#2337) (+1 body lines)
+fc81d20 2025-11-17 SamareshSingh: refactor: change minUsagePadding from var to const (#2325)
+117698a 2025-11-17 htoyoda18: refactor: replace several vars with consts (#2328)
+e2dd29d 2025-11-17 Ron Vergis: Add documentation for repeated flags functionality (#2316) (+8 body lines)
+0629892 2025-11-14 Marc Khouzam: Fix linter (#2327) (+3 body lines)
+7da941c 2025-09-01 John McBride: chore: Bump pflag to v1.0.9 (#2305) (+1 body lines)
+51d6751 2025-09-01 Tomas Aschan: Bump pflag to 1.0.8 (#2303) (+1 body lines)
+3f3b818 2025-08-11 Steve Francia: Update README.md with new logo
+dcaf42e 2025-08-03 Anish Athalye: Add Periscope to the list of projects using Cobra (#2299)
+6dec1ae 2025-05-31 Harald Albers: The default ShellCompDirective can be customized for a command and its subcommands (#2238)
+c8289c1 2025-05-28 Ville Skyttä: chore(golangci-lint): add some exclusion presets (+1 body lines)
+4af7b64 2025-03-27 Ville Skyttä: refactor: apply golangci-lint autofixes, work around false positives
+75790e4 2025-03-27 Ville Skyttä: chore(golangci-lint): upgrade to v2
+db3ddb5 2025-05-05 Steve Francia: Adding sponsorship to README.md [merge]
+67171d6 2025-05-05 Steve Francia: putting sponsorship below header
+0ed70dc 2025-04-15 Eric Chen: Update README.md
+0846d16 2025-04-11 Eric Chen: Update README.md
+73f7846 2025-04-11 Eric Chen: Update README.md
+ba5108a 2025-04-11 Eric Chen: Update README.md
+ceb39ab 2025-03-11 John McBride: chore: Rm GitHub Action PR size labeler (#2256) (+1 body lines)
+c25b598 2025-03-10 John McBride: feat: Add security policy (#2253) (+1 body lines)
+4f9ef8c 2025-03-07 styee: Update command.go (#2248) (+2 body lines)
+1995054 2025-02-21 Fraser Waters: Flow context to command in SetHelpFunc (#2241) (+1 body lines)
+f98cf42 2025-02-17 Yedaya Katsman: Remove traling curlybrace (#2237)
+0d417d8 2025-02-17 Chongyi Zheng: Test with Go 1.24 (#2236)
+40b5bc1 2025-02-16 Marc Khouzam: Revert "Make detection for test-binary more universal (#2173)" (#2235) (+4 body lines)
+a97f9fd 2025-02-16 ccoVeille: fix CompletionFunc implementation (#2234) (+6 body lines)
+5f9c408 2025-02-15 John McBride: chore: Upgrade dependencies for v1.9.0 (#2233) (+1 body lines)
+24ada7f 2025-02-15 Marc Khouzam: Remove the default "completion" cmd if it is alone (#1559) (+9 body lines)
+680936a 2025-02-11 Steve Francia: New logo
+8cb30f9 2025-02-09 ccoVeille: feat: add CompletionWithDesc helper (#2231) (+4 body lines)
+17b6dca 2025-02-06 Raúl Barroso: doc: add Conduit (#2230) (+2 body lines)
