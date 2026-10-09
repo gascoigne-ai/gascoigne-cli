@@ -25,7 +25,22 @@ optimizers:
   git: { context_lines: 1, max_file_lines: 200 }
   grep: { max_per_file: 20, max_files: 100, max_line_len: 160 }
   ls: { sizes_up_to: 60, width: 120 }
-  json: { drop_empty: true, max_items: 30, keep_ends: 3, tabulate_min: 3, max_string: 300, shorten_hashes: true }
+  # json: lossless table first; else sample long arrays keeping errors, anomalies,
+  # change points, query matches (-attr query=...) and both ends
+  json:
+    drop_empty: true
+    max_string: 300
+    shorten_hashes: true
+    tabulate_min: 3
+    lossless_min_saving: 0.3
+    lossless_max_tokens: 1500
+    min_items: 5
+    min_tokens: 200
+    max_items: 15
+    head_share: 0.3
+    tail_share: 0.15
+    anomaly_std: 2
+    relevance_k: 3
   log: { context: 2, drop_debug: true, max_lines: 300 }
   # mode auto|full|clean|outline; per run: -attr cat_mode=full or GASCOIGNE_CAT_MODE
   cat: { mode: auto, clean_min_tokens: 800, outline_min_tokens: 4000, min_body: 4 }

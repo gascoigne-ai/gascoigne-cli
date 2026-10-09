@@ -13,19 +13,19 @@ import (
 
 const keyCol = "_key"
 
-// tabulate turns an array with at least TabulateMin similar objects into
+// table turns an array with at least TabulateMin similar objects into
 // {"_cols": [...], "_rows": [[...], ...]}. Non-object items (omission
 // markers) stay in place as rows.
-func (o *Optimizer) tabulate(items []any) any {
+func (c *crusher) table(items []any) (map[string]any, bool) {
 	var objs []map[string]any
 	for _, it := range items {
 		if obj, ok := it.(map[string]any); ok {
 			objs = append(objs, obj)
 		}
 	}
-	cols, ok := o.columns(objs)
+	cols, ok := c.columns(objs)
 	if !ok {
-		return items
+		return nil, false
 	}
 	rows := make([]any, 0, len(items))
 	for _, it := range items {
@@ -35,18 +35,18 @@ func (o *Optimizer) tabulate(items []any) any {
 			continue
 		}
 		row := make([]any, len(cols))
-		for i, c := range cols {
-			row[i] = obj[c]
+		for i, col := range cols {
+			row[i] = obj[col]
 		}
 		rows = append(rows, row)
 	}
-	return hoist(cols, rows)
+	return hoist(cols, rows), true
 }
 
 // tabulateMap turns a map whose values are similar objects (e.g. lockfile
 // "packages") into a table with the map key as first column.
-func (o *Optimizer) tabulateMap(m map[string]any) any {
-	if len(m) < o.cfg.TabulateMin {
+func (c *crusher) tabulateMap(m map[string]any) any {
+	if len(m) < c.cfg.TabulateMin {
 		return m
 	}
 	keys := sortedKeys(m)
@@ -58,15 +58,15 @@ func (o *Optimizer) tabulateMap(m map[string]any) any {
 		}
 		objs = append(objs, obj)
 	}
-	cols, ok := o.columns(objs)
+	cols, ok := c.columns(objs)
 	if !ok {
 		return m
 	}
 	rows := make([]any, len(keys))
 	for i, k := range keys {
 		row := []any{k}
-		for _, c := range cols {
-			row = append(row, objs[i][c])
+		for _, col := range cols {
+			row = append(row, objs[i][col])
 		}
 		rows[i] = row
 	}
@@ -75,8 +75,8 @@ func (o *Optimizer) tabulateMap(m map[string]any) any {
 
 // columns is the sorted key union, when objects share enough of it to make
 // a table cheaper than repeating keys.
-func (o *Optimizer) columns(objs []map[string]any) ([]string, bool) {
-	if len(objs) < o.cfg.TabulateMin {
+func (c *crusher) columns(objs []map[string]any) ([]string, bool) {
+	if len(objs) < c.cfg.TabulateMin {
 		return nil, false
 	}
 	union := map[string]bool{}
@@ -203,13 +203,14 @@ func isSep(c byte) bool {
 	return c < utf8.RuneSelf && !unicode.IsLetter(rune(c)) && !unicode.IsDigit(rune(c))
 }
 
-var hashLike = regexp.MustCompile(`^(sha\d+-|sha\d+:)?[A-Za-z0-9+/=_-]{40,}$`)
+// hashLike matches checksums and ids: "sha512-…", "h1:…=", long hex/base64.
+var hashLike = regexp.MustCompile(`^([A-Za-z0-9]{1,10}[:-])?[A-Za-z0-9+/=_-]{40,}$`)
 
-func (o *Optimizer) str(s string) any {
-	if o.cfg.ShortenHashes && hashLike.MatchString(s) && digits(s) >= 4 {
+func (c *crusher) str(s string) any {
+	if c.cfg.ShortenHashes && len(s) >= 40 && !strings.ContainsAny(s, " .") && hashLike.MatchString(s) && digits(s) >= 4 {
 		return s[:min(len(s), 16)] + "…"
 	}
-	return compress.TruncateLine(s, o.cfg.MaxString)
+	return compress.TruncateLine(s, c.cfg.MaxString)
 }
 
 func digits(s string) int {
@@ -220,4 +221,13 @@ func digits(s string) int {
 		}
 	}
 	return n
+}
+
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+	return keys
 }

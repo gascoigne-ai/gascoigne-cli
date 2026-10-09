@@ -65,8 +65,9 @@ func (r *Receiver) server() *mcp.Server {
 }
 
 type FetchInput struct {
-	URL string `json:"url" jsonschema:"http or https URL"`
-	Raw bool   `json:"raw,omitempty" jsonschema:"return the body unoptimized"`
+	URL   string `json:"url" jsonschema:"http or https URL"`
+	Query string `json:"query,omitempty" jsonschema:"what you are looking for; matching items survive compression"`
+	Raw   bool   `json:"raw,omitempty" jsonschema:"return the body unoptimized"`
 }
 
 func (r *Receiver) fetch(ctx context.Context, _ *mcp.CallToolRequest, in FetchInput) (*mcp.CallToolResult, any, error) {
@@ -96,6 +97,7 @@ func (r *Receiver) fetch(ctx context.Context, _ *mcp.CallToolRequest, in FetchIn
 	p.Set(payload.AttrURL, u.String())
 	p.Set(payload.AttrTool, "fetch")
 	p.Set("mime", resp.Header.Get("Content-Type"))
+	p.Set(payload.AttrQuery, in.Query)
 	text, err := r.process(ctx, p, in.Raw)
 	if err != nil {
 		return nil, nil, err
@@ -108,10 +110,11 @@ func (r *Receiver) fetch(ctx context.Context, _ *mcp.CallToolRequest, in FetchIn
 }
 
 type CompressInput struct {
-	Text string `json:"text"`
-	Cmd  string `json:"cmd,omitempty" jsonschema:"command that produced the text, e.g. go test ./..."`
-	File string `json:"file,omitempty" jsonschema:"file the text came from"`
-	Raw  bool   `json:"raw,omitempty" jsonschema:"return text unchanged"`
+	Text  string `json:"text"`
+	Cmd   string `json:"cmd,omitempty" jsonschema:"command that produced the text, e.g. go test ./..."`
+	File  string `json:"file,omitempty" jsonschema:"file the text came from"`
+	Query string `json:"query,omitempty" jsonschema:"what you are looking for; matching items survive compression"`
+	Raw   bool   `json:"raw,omitempty" jsonschema:"return text unchanged"`
 }
 
 func (r *Receiver) compress(ctx context.Context, _ *mcp.CallToolRequest, in CompressInput) (*mcp.CallToolResult, any, error) {
@@ -121,6 +124,7 @@ func (r *Receiver) compress(ctx context.Context, _ *mcp.CallToolRequest, in Comp
 	p := payload.New(payload.ToolResult, in.Text)
 	p.Set(payload.AttrCmd, in.Cmd)
 	p.Set(payload.AttrFile, in.File)
+	p.Set(payload.AttrQuery, in.Query)
 	text, err := r.process(ctx, p, in.Raw)
 	if err != nil {
 		return nil, nil, err

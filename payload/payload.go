@@ -24,6 +24,7 @@ const (
 	AttrCmd       = "cmd"
 	AttrTool      = "tool"
 	AttrURL       = "url"
+	AttrQuery     = "query" // what the agent looks for; guides lossy selection
 	AttrRaw       = "raw"
 	AttrRawID     = "raw_id"
 	AttrRoute     = "route"

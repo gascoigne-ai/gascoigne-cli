@@ -25,6 +25,13 @@ Keep each one deterministic and idempotent (running twice changes nothing more).
 - `upstream` exporter: forwards rewritten request for `httpproxy`.
 - `tokenizer` extension: swap bytes/4 estimate for a real count when accuracy matters.
 
+## Performance notes
+JSON optimizer: ~35–70 MB/s (`go test ./optimizer/jsonoptimizer -bench .`). Decoding into
+`map[string]any` is ~30% of time after removing re-encoding (size estimator, hash dedupe).
+SIMD JSON parsing (e.g. a simdjson port; amd64/AVX2 only, needs a scalar fallback) would only
+speed that part and still has to build Go values — revisit only if decode dominates real
+workloads. `simd/archsimd` still needs GOEXPERIMENT=simd; stats loops are not a bottleneck.
+
 ## Practices
 - Deterministic output ⇒ prompt-cache friendly. No timestamps or random ids in optimized text.
 - Measure before claiming: every optimizer gets eval cases with real-shaped fixtures.

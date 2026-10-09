@@ -45,7 +45,7 @@ Start order: extensions → exporters → optimizers → filters → receivers. 
 `payload.Payload{Blocks []Block{Kind, Text, Type}, Attrs map[string]string}`.
 Kinds (where it came from): `cmd_output`, `tool_result`, `message`, `json`.
 Type (what it is): detected content type, per block — see below.
-Well-known attrs: `cmd`, `file`, `url`, `tool`, `mime`, `raw`, `raw_id`, `route`, `raw_tokens`, `out_tokens`.
+Well-known attrs: `cmd`, `file`, `url`, `tool`, `mime`, `query`, `raw`, `raw_id`, `route`, `raw_tokens`, `out_tokens`.
 `Key()` = stable source identity (`file:` > `url:` > `cmd:` > `tool:`), used for failure history.
 
 ## Content detection (`detect/`, `filter/detectfilter`)
@@ -67,6 +67,15 @@ cmd mapping and/or sniffer + table test, then an optimizer that selects it.
 | optimizer | `go`, `git`, `grep`, `ls`, `json`, `log`, `cat`, `npm`, `bun`, `nx`, `html`, `passthrough` |
 | exporter | `stdout` |
 | extension | `ledger` |
+
+JSON arrays (`optimizer/jsonoptimizer`): small arrays (< `min_items`, < `min_tokens`, ≤ `max_items`)
+are never sampled. Otherwise lossless first — similar objects become a table (`_cols/_rows`,
+constant columns in `_same`, shared prefixes/suffixes in `_affix`), kept when it saves
+≥ `lossless_min_saving` and fits `lossless_max_tokens`. Else scored sampling to ~`max_items`:
+errors always (error fields, bad statuses, 4xx/5xx, keys or enum values few items have),
+then by score anomalies (> `anomaly_std` σ), change points (numeric jumps, enum flips) and
+BM25 matches of the `query` attr (`-attr query=...`, MCP `query` param), then head/tail
+shares, then an even sample; identical items collapse. Gaps become `… N items omitted`.
 
 Optimizers self-select by `Block.Type` through `payload.Rewrite`, so the default router sends
 every payload through one chain of all optimizers; routes only override per command/content.
