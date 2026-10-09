@@ -15,7 +15,7 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [go, git, grep, ls, json, log]
+  default: [go, git, grep, ls, json, log, cat]
 
 optimizers:
   go: {}
@@ -24,6 +24,8 @@ optimizers:
   ls: { sizes_up_to: 60, width: 120 }
   json: { drop_empty: true, max_items: 30, keep_ends: 3, tabulate_min: 3, max_string: 300, shorten_hashes: true }
   log: { context: 2, drop_debug: true, max_lines: 300 }
+  # mode auto|full|clean|outline; per run: -attr cat_mode=full or GASCOIGNE_CAT_MODE
+  cat: { mode: auto, clean_min_tokens: 800, outline_min_tokens: 4000, min_body: 4 }
 
 exporters:
   stdout: { hint: true }

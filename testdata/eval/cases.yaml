@@ -121,17 +121,26 @@
   attrs: { cmd: cat net/http/server.go }
   expect_type: code
   keep: ["func (s *Server) ListenAndServe() error", "type Handler interface"]
+  min_saved: 55
 - file: cat/router.go.txt
   attrs: { cmd: cat internal/router/router.go }
   expect_type: code
-  keep: ["func Glob(pattern, s string) bool"]
+  keep: ["func Glob(pattern, s string) bool", "return strings.HasSuffix(s, last)"]
 - file: cat/args.go.txt
   attrs: { cmd: cat args.go }
   expect_type: code
+  keep: ["func OnlyValidArgs(cmd *Command, args []string) error {", "return nil"]
+  min_saved: 10
 - file: cat/decoder.py.txt
   attrs: { cmd: cat json/decoder.py }
   expect_type: code
   keep: ["class JSONDecoder", "def decode(self, s"]
+- name: cat/decoder-outline
+  file: cat/decoder.py.txt
+  attrs: { cmd: cat json/decoder.py, cat_mode: outline }
+  expect_type: code
+  keep: ["class JSONDecoder", "def decode(self, s", "def raw_decode(self, s, idx=0):", "lines"]
+  min_saved: 40
 - name: detect/go-code
   file: cat/server.go.txt
   expect_type: code

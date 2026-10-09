@@ -9,6 +9,7 @@ import (
 	"github.com/lukaszb/gascoigne/filter/detectfilter"
 	"github.com/lukaszb/gascoigne/filter/historyfilter"
 	"github.com/lukaszb/gascoigne/filter/minsizefilter"
+	"github.com/lukaszb/gascoigne/optimizer/catoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/gitoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/gooptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/grepoptimizer"
@@ -36,6 +37,7 @@ func Factories() []component.Factory {
 		lsoptimizer.NewFactory(),
 		jsonoptimizer.NewFactory(),
 		logoptimizer.NewFactory(),
+		catoptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),
 		// extensions
