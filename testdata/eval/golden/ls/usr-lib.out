@@ -1,0 +1,18 @@
+dirs: alsa-lib/  alsa-topology/  ascompose/  audit/  avahi/  awk/  babl-0.1/  bash/  bfd-plugins/  binfmt.d/  blender/
+  bluetooth/  cairo/  chromium/  cifs-utils/  clang/  cmake/  coreutils/  crda/  credstore/  cryptsetup/  cups/  db5.3/
+  dbus-1.0/  depmod.d/  docker/  dpkg/  dracut/  dri/  e2fsprogs/  electron43/  enchant-2/  engines-3/  environment.d/
+  evince/  exfatprogs/  fcitx5/  ffmpeg4.4/  firewalld/  firmware/  flatpak-xdg-utils/  fwupd/  fwupd-2.1.7/  gamemode/
+  gawk/  gbm/  gcc/  gconv/  gdk-pixbuf-2.0/  gegl-0.4/  getconf/  gettext/  gimp/  gio/  girepository-1.0/  git-core/
+  gjs/  glade/  glib-2.0/  glycin-loaders/  gnome-keyring/  gnome-settings-daemon-3.0/  gnupg/  gprofng/  graphene-1.0/
+  gstreamer-1.0/  gtk-3.0/  gtk-4.0/  guile/  gupnp-dlna/  gvfs/
+files (46): accounts-daemon* 194.5K  appstreamcli-compose* 30.2K  at-spi2-registryd* 82.6K  at-spi-bus-launcher* 26.2K
+  boltd* 286.5K  crt1.o 2.4K  crti.o 1.2K  crtn.o 808  cups-pk-helper-mechanism* 94.1K
+  dbus-bash-completion-helper* 26.1K  dbus-daemon-launch-helper* 140.2K  dconf-service* 70.2K  e2initrd_helper* 18.1K
+  evinced* 30.2K  fcitx5-qt5-gui-wrapper* 54.3K  fcitx5-qt6-gui-wrapper* 55K  fcitx5-wayland-launcher* 26.3K
+  flatpak-oci-authenticator* 102.3K  flatpak-portal* 838.9K  flatpak-session-helper* 58.3K
+  flatpak-system-helper* 638.9K  flatpak-validate-icon* 18.4K  gcr4-ssh-askpass* 18.1K  gcr-prompter* 14K
+  gcr-ssh-agent* 58.2K  gcr-ssh-askpass* 18.1K  gcrt1.o 3.7K  gio-launch-desktop* 14.1K  glib-pacrunner* 18.1K
+  grcrt1.o 2.7K  gsd-disk-utility-notify* 18.1K  gvfsd* 34.1K  gvfsd-admin* 42.2K  gvfsd-afp* 119K
+  gvfsd-afp-browse* 67K  gvfsd-archive* 34.2K  gvfsd-cdda* 34.2K  gvfsd-computer* 42.3K  gvfsd-ftp* 106.2K
+  gvfsd-fuse* 42.4K  gvfsd-http* 38.2K  gvfsd-localtest* 42.1K  gvfsd-metadata* 58.2K  gvfsd-mtp* 70.2K
+  gvfsd-network* 34.2K  gvfsd-nfs* 50.3K

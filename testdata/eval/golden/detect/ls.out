@@ -1,0 +1,9 @@
+dirs: assets/  doc/  .git/  .github/  site/
+files (37): active_help.go 2.6K  active_help_test.go 12K  args.go 4.4K  args_test.go 15.6K  bash_completions.go 22.5K
+  bash_completions_test.go 10K  bash_completionsV2.go 17.4K  bash_completionsV2_test.go 1007  cobra.go 7.3K
+  cobra_test.go 6.9K  command.go 59.7K  command_notwin.go 689  command_test.go 78.2K  command_win.go 1K
+  completions.go 38.1K  completions_test.go 116.3K  CONDUCT.md 3K  CONTRIBUTING.md 2K  fish_completions.go 11.3K
+  fish_completions_test.go 3.9K  flag_groups.go 9.4K  flag_groups_test.go 8.7K  .gitignore 484  .golangci.yml 2.1K
+  go.mod 196  go.sum 1.1K  LICENSE.txt 9.9K  .mailmap 172  MAINTAINERS 137  Makefile 941
+  powershell_completions.go 13.3K  powershell_completions_test.go 1000  README.md 4.8K  SECURITY.md 5K
+  shell_completions.go 4.2K  zsh_completions.go 10.8K  zsh_completions_test.go 995

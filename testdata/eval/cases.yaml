@@ -102,13 +102,16 @@
 - file: ls/usr-lib.txt
   attrs: { cmd: ls -la /usr/lib }
   expect_type: ls
+  min_saved: 60
 - file: ls/many-same-ext.txt
   attrs: { cmd: ls -la /usr/share/man/man1 }
   expect_type: ls
+  min_saved: 60
 - file: ls/repo.txt
   attrs: { cmd: ls -la }
   expect_type: ls
-  keep: ["active_help.go", "doc"]
+  keep: ["active_help.go 2.6K", "doc/", "command.go 59.7K"]
+  min_saved: 55
 - name: detect/ls
   file: ls/repo.txt
   expect_type: ls
