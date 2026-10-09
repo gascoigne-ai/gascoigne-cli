@@ -23,6 +23,7 @@ const (
 	AttrFile      = "file"
 	AttrCmd       = "cmd"
 	AttrTool      = "tool"
+	AttrURL       = "url"
 	AttrRaw       = "raw"
 	AttrRawID     = "raw_id"
 	AttrRoute     = "route"
@@ -107,6 +108,9 @@ func (p *Payload) Rewrite(fn func(b Block) (string, error), types ...string) err
 func (p *Payload) Key() string {
 	if f := p.Attrs[AttrFile]; f != "" {
 		return "file:" + f
+	}
+	if u := p.Attrs[AttrURL]; u != "" {
+		return "url:" + u
 	}
 	if c := strings.Join(strings.Fields(p.Attrs[AttrCmd]), " "); c != "" {
 		return "cmd:" + c

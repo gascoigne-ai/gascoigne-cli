@@ -19,6 +19,7 @@ import (
 	"github.com/lukaszb/gascoigne/internal/service"
 	"github.com/lukaszb/gascoigne/payload"
 	"github.com/lukaszb/gascoigne/receiver/execreceiver"
+	"github.com/lukaszb/gascoigne/receiver/mcpproxyreceiver"
 )
 
 const usage = `usage: gascoigne <command> [flags]
@@ -26,6 +27,8 @@ const usage = `usage: gascoigne <command> [flags]
 commands:
   run         run a pipeline (default cli: stdin → optimized stdout)
   exec -- <cmd> [args]  run cmd, print its optimized output, keep its exit code
+  mcp         MCP server on stdio: fetch, compress, retrieve, stats
+  mcp-proxy -- <server cmd>  MCP proxy optimizing another server's tool results
   raw <id>    print original payload; marks its source as badly optimized
   fail <key|raw_id>  mark a source as badly optimized
   forget <key>       clear failure history for a source
@@ -38,6 +41,8 @@ run 'gascoigne <command> -h' for flags`
 var commands = map[string]func(ctx context.Context, args []string) error{
 	"run":        cmdRun,
 	"exec":       cmdExec,
+	"mcp":        cmdMCP,
+	"mcp-proxy":  cmdMCPProxy,
 	"raw":        cmdRaw,
 	"fail":       cmdFail,
 	"forget":     cmdForget,
@@ -189,4 +194,28 @@ func cmdExec(ctx context.Context, args []string) error {
 		return exitCode(max(inv.ExitCode, 1))
 	}
 	return nil
+}
+
+func cmdMCP(ctx context.Context, args []string) error {
+	return serve(ctx, "mcp", args, func(ctx context.Context, _ []string) context.Context { return ctx })
+}
+
+func cmdMCPProxy(ctx context.Context, args []string) error {
+	return serve(ctx, "mcp-proxy", args, mcpproxyreceiver.With)
+}
+
+// serve runs one long-lived pipeline; with sets per-run receiver input from positional args.
+func serve(ctx context.Context, pipeline string, args []string, with func(context.Context, []string) context.Context) error {
+	var c common
+	fs := flag.NewFlagSet(pipeline, flag.ContinueOnError)
+	c.register(fs)
+	name := fs.String("pipeline", pipeline, "pipeline to run")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	svc, err := c.start(ctx)
+	if err != nil {
+		return err
+	}
+	return errors.Join(svc.Run(with(ctx, fs.Args()), *name), svc.Shutdown(context.WithoutCancel(ctx)))
 }

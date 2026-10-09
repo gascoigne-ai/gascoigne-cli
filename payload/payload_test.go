@@ -11,6 +11,7 @@ func TestKey(t *testing.T) {
 		{map[string]string{AttrCmd: "  git   status "}, "cmd:git status"},
 		{map[string]string{AttrCmd: "cat x", AttrFile: "/a/x"}, "file:/a/x"},
 		{map[string]string{AttrTool: "Read"}, "tool:Read"},
+		{map[string]string{AttrURL: "https://x.io/a", AttrTool: "fetch"}, "url:https://x.io/a"},
 	}
 	for _, tt := range tests {
 		p := &Payload{Attrs: tt.attrs}

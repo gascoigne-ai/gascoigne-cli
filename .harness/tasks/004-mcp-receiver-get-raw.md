@@ -1,4 +1,4 @@
-status: todo
+status: done
 
 # mcp receiver (stdio) with get_raw
 

@@ -22,6 +22,8 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/nxoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/receiver/execreceiver"
+	"github.com/lukaszb/gascoigne/receiver/mcpproxyreceiver"
+	"github.com/lukaszb/gascoigne/receiver/mcpreceiver"
 	"github.com/lukaszb/gascoigne/receiver/stdinreceiver"
 )
 
@@ -30,6 +32,8 @@ func Factories() []component.Factory {
 		// receivers
 		stdinreceiver.NewFactory(),
 		execreceiver.NewFactory(),
+		mcpreceiver.NewFactory(),
+		mcpproxyreceiver.NewFactory(),
 		// filters
 		bypassfilter.NewFactory(),
 		minsizefilter.NewFactory(),
