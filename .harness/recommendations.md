@@ -2,28 +2,24 @@
 
 Direction for upcoming work. Rules are in `rules.md`; this is advice.
 
-## Optimizer roadmap
-| Optimizer | Technique | Route on |
-|---|---|---|
-| `cli/git` | status: group by state, drop hint lines; log: one line per commit; diff: trim context | `cmd: "git *"` |
-| `cli/gotest` | keep failures + summary, drop passing `=== RUN`/`--- PASS` | `cmd: "go test*"` |
-| `cli/ls` | drop perms/owner/date columns, group by extension | `cmd: "ls *"` |
-| `jsoncompact` | minify, drop nulls/empties, collapse repeated object shapes into a table | `kind: json` |
-| `logdedupe` | collapse repeated lines (`… ×42`), normalize timestamps/ids before compare | `kind: cmd_output` |
-| `difftrim` | shrink unified diff context, summarize pure moves/renames | `cmd: "*diff*"` |
-| `truncate` | head + tail with elision marker, last resort | default chain tail |
+## Optimizer ideas (not built yet)
+| Idea | Technique |
+|---|---|
+| `cargo`, `pytest`, `mvn/gradle` | same shape as `go`: failures + summary, passing collapsed |
+| `docker`/`kubectl logs` | `log` already applies; add pod/container prefix normalization |
+| `tsc --watch`, webpack/vite | keep errors, drop module/asset listings |
+| `diff` moves/renames | detect moved blocks, summarize pure renames |
+| `truncate` | head + tail with marker, last resort at the end of the default chain |
 
-Prefer chains of small optimizers over one big one. Keep each one idempotent.
+Prefer small optimizers selecting one content type; shared primitives go to `compress/`.
+Keep each one deterministic and idempotent (running twice changes nothing more).
 
 ## Receivers
-- `exec`: `gascoigne exec -- git status` runs cmd, sets `cmd` attr, preserves exit code,
-  stderr passthrough. Agent hooks rewrite commands to this.
-- `mcp`: stdio JSON-RPC (hand-rolled, stdlib `encoding/json`). Tools: `optimize(text, kind, attrs)`,
-  `get_raw(id)` (marks failure). Arg `raw: true` → bypass.
-- `httpproxy`: `net/http/httputil.ReverseProxy` in front of LLM APIs. Optimize `tool_result`
-  blocks in request bodies; never touch system prompts or the last user message by default.
-  Header `X-Gascoigne-Raw: 1` → bypass. `GET /raw/<id>` serves originals.
-  Streaming responses pass through untouched.
+- Agent integration: a Claude Code PreToolUse hook rewriting Bash commands to
+  `gascoigne exec -- <cmd>` (task 007); MCP config `gascoigne mcp` for web data.
+- `httpproxy` (task 005): `net/http/httputil.ReverseProxy` in front of LLM APIs, optimizing
+  `tool_result` blocks; never touch system prompts or the last user message by default.
+  Header `X-Gascoigne-Raw: 1` → bypass. `GET /raw/<id>` serves originals. Streaming passes through.
 
 ## Exporters / extensions
 - `upstream` exporter: forwards rewritten request for `httpproxy`.

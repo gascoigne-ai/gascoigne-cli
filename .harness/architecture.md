@@ -7,6 +7,7 @@ components built by factories, `type/name` ids, pipelines wired by YAML, explici
 ## Layout
 ```
 component/  payload/  tokens/        public contracts: what component authors import
+detect/  compress/  mcptool/         public libraries: content detection, text primitives, MCP tools
 receiver/  filter/  optimizer/       components, one package each, OTel-contrib style;
 exporter/  extension/                  only import public packages → can become own modules
 internal/config  router  service     engine: YAML, routing, pipeline execution
@@ -19,6 +20,8 @@ cmd/gascoigne  configs/              CLI + embedded default config
 ```
            ┌──────────────── pipeline (sync, request → response) ────────────────┐
 input ─▶ receiver ─▶ filter* ─▶ router ─▶ optimizer chain ─▶ exporter* ─▶ output
+                   (bypass, detect,          (each optimizer touches only
+                    minsize, history)         blocks of its content types)
                         │ bypass                    ▲
                         └───────────────────────────┘ (skip optimizers)
 
@@ -39,10 +42,43 @@ All embed lifecycle `Start(ctx, Host)` / `Shutdown(ctx)` (`component.Nop` for no
 Start order: extensions → exporters → optimizers → filters → receivers. Shutdown reversed.
 
 ## Payload
-`payload.Payload{Blocks []Block{Kind, Text}, Attrs map[string]string}`.
-Kinds: `cmd_output`, `tool_result`, `message`, `json`.
-Well-known attrs: `cmd`, `file`, `tool`, `raw`, `raw_id`, `route`, `raw_tokens`, `out_tokens`.
-`Key()` = stable source identity (`file:` > `cmd:` > `tool:`), used for failure history.
+`payload.Payload{Blocks []Block{Kind, Text, Type}, Attrs map[string]string}`.
+Kinds (where it came from): `cmd_output`, `tool_result`, `message`, `json`.
+Type (what it is): detected content type, per block — see below.
+Well-known attrs: `cmd`, `file`, `url`, `tool`, `mime`, `raw`, `raw_id`, `route`, `raw_tokens`, `out_tokens`.
+`Key()` = stable source identity (`file:` > `url:` > `cmd:` > `tool:`), used for failure history.
+
+## Content detection (`detect/`, `filter/detectfilter`)
+The `detect` filter sets `Block.Type` on every block, so one payload can mix types (several tool
+results in one request) and each part meets the right optimizer. Order of evidence:
+1. command hint (`cmd` attr): `go test`, `git status|log|diff|show|push`, `npm|pnpm|yarn`, `bun`,
+   `nx`/`npx nx`, `tsc`, `jest|vitest`, `grep|rg|ag`, `ls`, `cat|head|tail <file>`;
+2. file name or MIME (`file`, `mime` attrs);
+3. content sniffing: json/ndjson/json streams, html, diff, go test(-json)/build, git status/log,
+   tsc, bun, nx, jest/vitest, npm, grep results, `ls -l`, logs, source code, else `text`.
+Types are constants in `detect` (`detect.GoTest`, `detect.JSON`, …). New format = new constant +
+cmd mapping and/or sniffer + table test, then an optimizer that selects it.
+
+## Built-in components
+| Kind | Components |
+|---|---|
+| receiver | `stdin`, `exec` (`gascoigne exec -- cmd`), `mcp` (server: fetch, compress, retrieve, stats), `mcp_proxy` (wraps another MCP server) |
+| filter | `bypass`, `detect`, `minsize`, `history` |
+| optimizer | `go`, `git`, `grep`, `ls`, `json`, `log`, `cat`, `npm`, `bun`, `nx`, `html`, `passthrough` |
+| exporter | `stdout` |
+| extension | `ledger` |
+
+Optimizers self-select by `Block.Type` through `payload.Rewrite`, so the default router sends
+every payload through one chain of all optimizers; routes only override per command/content.
+
+## MCP
+- `gascoigne mcp`: stdio server. `fetch` turns web pages into markdown and compresses API JSON
+  (http/https only, timeout, size cap) — the way to read web data cheaply. `compress` takes any
+  text with optional `cmd`/`file` hints. `retrieve id` returns originals and marks the source as
+  badly optimized. `stats` reports savings.
+- `gascoigne mcp-proxy -- <server cmd>`: mirrors a downstream server's tools, optimizes their text
+  results, adds `gascoigne_retrieve`. Non-text content passes untouched.
+- MCP pipelines have no exporters: stdout is the protocol channel.
 
 ## Full-payload guarantee
 Lives in core (`service/pipeline.go`), not in optimizers:
@@ -51,7 +87,7 @@ Lives in core (`service/pipeline.go`), not in optimizers:
    `[gascoigne: optimized 4120→610 tokens · full: gascoigne raw <id>]`.
 3. Ledger save fails → original returned. Optimizer errors → original returned + failure recorded.
 4. Up-front opt-out: `bypass` filter (`-raw`, `GASCOIGNE_RAW=1`, attr `raw=true`).
-5. Retrieval: `gascoigne raw <id>` (later MCP `get_raw`, proxy `GET /raw/<id>`).
+5. Retrieval: `gascoigne raw <id>`, MCP `retrieve` / `gascoigne_retrieve` (later HTTP proxy `GET /raw/<id>`).
 
 ## Ledger (gorm + sqlite, `extension/ledger`)
 Tables: `events` (every trip: route, tokens, outcome), `raw` (originals, TTL-pruned),
