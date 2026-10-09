@@ -187,18 +187,22 @@
 - file: json/github-repos.json
   attrs: { cmd: curl https://api.github.com/orgs/golang/repos }
   expect_type: json
-  keep: ["\"full_name\"", "golang/"]
+  keep: ["\"full_name\"", "golang/", "\"_same\""]
+  min_saved: 70
 - file: json/package-lock.json
   attrs: { cmd: cat package-lock.json }
   expect_type: json
-  keep: ["\"express\""]
+  keep: ["\"express\"", "node_modules/express"]
+  min_saved: 40
 - file: json/go-list-m.json
   attrs: { cmd: go list -m -json all }
   expect_type: json
+  min_saved: 15
 - file: log/structured.ndjson
   attrs: { cmd: kubectl logs api }
   expect_type: ndjson
-  keep: ["card_declined: insufficient funds"]
+  keep: ["card_declined: insufficient funds", "items omitted"]
+  min_saved: 90
 - name: detect/json
   file: json/github-repos.json
   expect_type: json

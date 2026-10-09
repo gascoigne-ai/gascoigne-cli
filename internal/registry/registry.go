@@ -12,6 +12,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/gitoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/gooptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/grepoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/jsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/lsoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/receiver/stdinreceiver"
@@ -32,6 +33,7 @@ func Factories() []component.Factory {
 		gitoptimizer.NewFactory(),
 		grepoptimizer.NewFactory(),
 		lsoptimizer.NewFactory(),
+		jsonoptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),
 		// extensions
