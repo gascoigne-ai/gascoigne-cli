@@ -13,6 +13,8 @@ Lift dialects that save little on real output, without losing what agents need.
 - `log/journal` (70%): template unit start/stop pairs ("Starting X…" + "Started X.") into one.
 - `jsonx` tables: flatten nested objects to dotted columns (as the cloud engine does) so leaf
   constants hoist for any JSON, then drop the cloud-specific flatten.
+- `fs/code`: doc comments separated from their declaration by a blank line (Ruby rdoc) are
+  dropped whole; keep their first line. Files under `clean_min_tokens` (800) stay untouched.
 - Real fixtures to replace synthetic ones once tools are at hand: terraform/tofu, pulumi, cdk,
   helm diff, kubectl, aws/gcloud/az, mysql, gh (authenticated).
 

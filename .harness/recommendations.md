@@ -25,7 +25,10 @@ Keep optimizers deterministic and idempotent (running twice changes nothing more
 
 ## Exporters / extensions
 - `upstream` exporter: forwards rewritten request for `httpproxy`.
-- `tokenizer` extension: swap bytes/4 estimate for a real count when accuracy matters.
+- `tokenizer` extension: swap bytes/4 estimate for a real count when accuracy matters. Bytes/4
+  overrates whitespace: on Python source, indentation changes "save" 14% by bytes/4 but 2.7%
+  with a real tokenizer (runs of spaces/newlines merge into one token). Never pick a transform
+  for whitespace alone; comments are where source tokens are (14–50%).
 
 ## Performance notes
 JSON optimizer: ~35–70 MB/s (`go test ./optimizer/data/jsonoptimizer -bench .`). Decoding into

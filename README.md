@@ -45,6 +45,7 @@ on (failures, diffs, errors, anomalies, summaries) and folds the rest.
 | `terraform plan` | 10,000 | 1,311 | **86.9%** |
 | `kubectl get pods -o yaml` | 34,682 | 8,273 | **76.1%** |
 | `git log` | 3,086 | 845 | **72.6%** |
+| `cat lib/benchmark.rb` (comments) | 4,778 | 2,096 | **56.1%** |
 
 <sub>Tokens on the eval fixtures in <code>testdata/eval</code> · <code>make eval</code></sub>
 
@@ -64,7 +65,9 @@ gascoigne exec -raw -- git diff          # skip optimization for one run
 gascoigne gain                           # where the savings come from
 ```
 
-**Agents** — one command registers gascoigne (shell output + MCP server) for a run:
+**Agents** — one command registers gascoigne (shell output + MCP server) for a run. Claude,
+Cursor and pi route known shell commands through `gascoigne exec`; Codex gets its shell
+output optimized after the run:
 
 ```sh
 gascoigne wrap claude                    # also: codex, pi
@@ -103,6 +106,8 @@ Output is detected as `family/dialect` and handled by one engine per family.
 - **Lossless by retrieval** — originals go to a local sqlite ledger first; every optimized
   output carries its `raw` id.
 - **Deterministic** — same input, same output. Prompt caches stay warm.
+- **Edit-safe source** — source files only lose whole lines (comments, outlined bodies); kept
+  lines are byte-exact and every gap names its original lines (`// … comments L12-30`).
 - **Self-correcting** — sources whose originals agents keep fetching get bypassed next time.
 - **Tunable per agent** — `-set`, `-only`, `-disable` flags or `GASCOIGNE_*` env, no config file needed.
 
