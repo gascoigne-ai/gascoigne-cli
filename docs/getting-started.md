@@ -9,8 +9,16 @@ go install github.com/lukaszb/gascoigne/cmd/gascoigne@latest
 Or from a checkout:
 
 ```sh
-make build          # → bin/gascoigne
+make install                          # → ~/.local/bin/gascoigne
+make install PREFIX=/opt/gascoigne    # → /opt/gascoigne/bin/gascoigne
+make uninstall                        # same PREFIX as install
+make build                            # → bin/gascoigne, for development
 ```
+
+For every user: `make build && sudo install -m755 bin/gascoigne /usr/local/bin/` (root's
+`PATH` often lacks `go`). Install it where `PATH` finds it: rewritten agent commands then call
+plain `gascoigne` instead of a full path. Reinstalling replaces a running background server
+from the old build on its next use.
 
 gascoigne is pure Go (`CGO_ENABLED=0`), including its sqlite driver, so the binary has no
 system dependencies.

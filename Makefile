@@ -1,9 +1,18 @@
 BIN := bin/gascoigne
+PREFIX ?= $(HOME)/.local
 
-.PHONY: build test vet fmt fmt-check imports cover eval check clean
+.PHONY: build install uninstall test vet fmt fmt-check imports cover eval check clean
 
 build:
 	go build -o $(BIN) ./cmd/gascoigne
+
+# Installs for every shell and agent; a running server from another build is replaced on next use.
+install:
+	CGO_ENABLED=0 go build -trimpath -o $(PREFIX)/bin/gascoigne ./cmd/gascoigne
+	@case ":$$PATH:" in *":$(PREFIX)/bin:"*) ;; *) echo "note: add $(PREFIX)/bin to PATH";; esac
+
+uninstall:
+	rm -f $(PREFIX)/bin/gascoigne
 
 test:
 	go test ./...

@@ -55,6 +55,8 @@ on (failures, diffs, errors, anomalies, summaries) and folds the rest.
 go install github.com/lukaszb/gascoigne/cmd/gascoigne@latest
 ```
 
+Or from a checkout: `make install` (→ `~/.local/bin`; `PREFIX=…` elsewhere).
+
 ## Use
 
 ```sh

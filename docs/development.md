@@ -3,7 +3,7 @@
 Go 1.27, module `github.com/lukaszb/gascoigne`. Builds stay `CGO_ENABLED=0`.
 
 ```sh
-make build      # bin/gascoigne
+make build      # bin/gascoigne (make install → ~/.local/bin)
 make check      # gofmt check, go vet, import boundaries, tests: must pass before a change is done
 make eval       # token savings on testdata/eval fixtures
 make cover      # test coverage
