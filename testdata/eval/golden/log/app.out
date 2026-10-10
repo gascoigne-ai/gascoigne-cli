@@ -6,13 +6,13 @@
 … 3 lines omitted
 2026-10-01T12:00:04.273Z INFO  [http] POST /api/orders status=200 dur_ms=44 req_id=5790f82ec1d3fcff (×60)
 2026-10-01T12:00:04.709Z INFO  [http] GET /healthz status=200 dur_ms=173 req_id=c3baea9e13deef86 (×56)
-… 1 line omitted
+… 1 lines omitted
 2026-10-01T12:00:06.135Z INFO  [http] POST /api/products status=200 dur_ms=150 req_id=74c9df6acc011cdd (×54)
 … 6 lines omitted
 2026-10-01T12:00:08.640Z INFO  [http] POST /healthz status=200 dur_ms=61 req_id=153e7c2a26a2c0bd (×57)
 … 8 lines omitted
 2026-10-01T12:00:12.621Z INFO  [http] GET /api/orders status=200 dur_ms=20 req_id=353c631cdfd43f37 (×56)
-… 1 line omitted
+… 1 lines omitted
 2026-10-01T12:00:13.399Z INFO  [worker] processed batch size=56 (×54)
 … 13 lines omitted
 2026-10-01T12:00:19.116Z INFO  [http] GET /api/products status=200 dur_ms=58 req_id=3a12917c1a26f889 (×66)

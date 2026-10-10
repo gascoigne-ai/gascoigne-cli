@@ -178,6 +178,19 @@
 - { name: detect/compose-up, file: task/compose-up.txt, expect_type: task/compose }
 - { name: detect/gh-run-log, file: task/gh-run-log.txt, expect_type: task/ci }
 
+# --- table family
+- { file: table/ps-aux.txt, attrs: { cmd: ps aux }, expect_type: table/ps, keep: ["PID", "%CPU", "items omitted"], min_saved: 80 }
+- { file: table/lsof.txt, attrs: { cmd: lsof -n -P }, expect_type: table/lsof, keep: ["COMMAND", "dbus-brok"], min_saved: 80 }
+- { file: table/top.txt, attrs: { cmd: top -b -n1 }, expect_type: table/top, keep: ["top - ", "Tasks:", "PID"], min_saved: 45 }
+- { file: table/systemctl-units.txt, attrs: { cmd: systemctl list-units --type=service --all }, expect_type: table/systemctl, keep: ["UNIT", "LOAD"], min_saved: 70 }
+- { file: table/docker-ps.txt, attrs: { cmd: docker ps -a }, expect_type: table/docker,
+    keep: ["Exited (1) 3 minutes ago", "(unhealthy)", "shop-api-1", "same in all rows: COMMAND"], min_saved: 45 }
+- { name: detect/ps, file: table/ps-aux.txt, expect_type: table/ps }
+- { name: detect/lsof, file: table/lsof.txt, expect_type: table/lsof }
+- { name: detect/top, file: table/top.txt, expect_type: table/top }
+- { name: detect/systemctl, file: table/systemctl-units.txt, expect_type: table/systemctl }
+- { name: detect/docker-ps, file: table/docker-ps.txt, expect_type: table/docker }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }

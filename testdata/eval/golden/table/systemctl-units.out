@@ -1,0 +1,55 @@
+UNIT | LOAD | ACTIVE | SUB | DESCRIPTION
+accounts-daemon.service | loaded | active | running | Accounts Service
+alsa-restore.service | loaded | active | exited | Save/Restore Sound Card State
+alsa-state.service | loaded | inactive | dead | Manage Sound Card State (restore and store)
+archlinux-keyring-wkd-sync.service | loaded | inactive | dead | Refresh existing keys of archlinux-keyring
+audit-rules.service | loaded | inactive | dead | Load Audit Rules
+auditd.service | loaded | inactive | dead | Security Audit Logging Service
+● auto-cpufreq.service |  | not-found | inactive dead | auto-cpufreq.service
+avahi-daemon.service | loaded | active | running | Avahi mDNS/DNS-SD Stack
+bluetooth.service | loaded | active | running | Bluetooth service
+… 6 items omitted
+● dracut-shutdown.service |  | not-found | inactive dead | dracut-shutdown.service
+… 3 items omitted
+gpg-agent@etc-pacman.d-gnupg.service | loaded | inactive | dead | GnuPG cryptographic agent and  …  cache for /etc/pacman.d/gnupg
+… 8 items omitted
+linux-modules-cleanup.service | loaded | inactive | dead | Clean up modules from old kernels
+… 7 items omitted
+● NetworkManager-wait-online.service | masked |  | inactive dead | NetworkManager-wait-online.service
+… 1 item omitted
+nix-daemon.service | loaded | active | running | Nix Daemon
+… 8 items omitted
+plymouth-read-write.service | loaded | active | exited | Tell Plymouth To Write Out Runtime Data
+… 8 items omitted
+sddm.service | loaded | active | running | Simple Desktop Display Manager
+… 8 items omitted
+systemd-binfmt.service | loaded | active | exited | Set Up Additional Binary Formats
+… 9 items omitted
+systemd-hibernate-clear.service | loaded | inactive | dead | Clear Stale Hibernate Storage Info
+… 8 items omitted
+systemd-logind.service | loaded | active | running | User Login Management
+… 8 items omitted
+systemd-pcrphase-initrd.service | loaded | inactive | dead | TPM PCR Barrier (initrd)
+… 8 items omitted
+systemd-remount-fs.service | loaded | active | exited | Remount Root and Kernel File Systems
+… 8 items omitted
+systemd-timesyncd.service | loaded | active | running | Network Time Synchronization
+… 7 items omitted
+systemd-udev-settle.service | loaded | inactive | dead | Wait for udev To Complete Device Initialization
+… 1 item omitted
+systemd-udevd.service | loaded | active | running | Rule-based Manager for Device Events and Files
+… 8 items omitted
+● tuned.service |  | not-found | inactive dead | tuned.service
+… 1 item omitted
+ufw.service | loaded | active | exited | CLI Netfilter Manager
+upower.service | loaded | active | running | Daemon for power management
+user-runtime-dir@1000.service | loaded | active | exited | User Runtime Directory /run/user/1000
+user@1000.service | loaded | active | running | User Manager for UID 1000
+wpa_supplicant.service | loaded | active | running | WPA supplicant
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+137 loaded units listed.
+To show all installed unit files use 'systemctl list-unit-files'.

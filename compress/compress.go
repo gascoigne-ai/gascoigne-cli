@@ -33,9 +33,9 @@ func Join(lines []string) string {
 func Omitted(n int, what string) string {
 	if what == "" {
 		what = "lines"
-		if n == 1 {
-			what = "line"
-		}
+	}
+	if n == 1 && strings.HasSuffix(what, "s") && !strings.HasSuffix(what, "es") {
+		what = what[:len(what)-1] // "1 item", "1 line"
 	}
 	return fmt.Sprintf("… %d %s omitted", n, what)
 }

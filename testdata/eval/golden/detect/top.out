@@ -1,0 +1,52 @@
+top - 06:03:35 up  5:58,  1 user,  load average: 0.15, 0.07, 0.01
+Tasks: 385 total, 1 running, 383 sleep, 0 d-sleep, 0 stopped, 1 zombie
+%Cpu(s):  0.9 us,  0.3 sy,  0.0 ni, 98.8 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+MiB Mem :  63939.8 total,  38497.3 free,   9807.0 used,  19659.8 buff/cache     
+MiB Swap:  63939.0 total,  63939.0 free,      0.0 used.  54132.8 avail Mem 
+
+PID USER | PR | NI | VIRT | RES | SHR S | %CPU | %MEM | TIME+ COMMAND
+37891 user   20 | 0 |  | 40.3g | 591808 | 299656 S | 19.7 | 0.9 | 5:44.97 zed-edi+
+1530 user   20 | 0 |  | 1022856 | 226992 | 140532 S | 4.9 | 0.3 | 2:56.35 Hyprland
+1 root | 20 | 0 | 20640 | 15452 | 11156 S | 0.0 | 0.0 | 0:01.52 systemd
+2 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.01 kthreadd
+3 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 pool_wo+
+4 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
+5 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
+6 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
+7 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
+… 7 items omitted
+19 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 rcu_exp+
+… 2 items omitted
+22 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+… 2 items omitted
+25 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+… 2 items omitted
+29 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
+… 1 item omitted
+31 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+… 4 items omitted
+37 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+… 1 item omitted
+39 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.09 ksoftir+
+… 2 items omitted
+43 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+… 4 items omitted
+49 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+50 root | rt | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.37 migrati+
+… 3 items omitted
+55 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+… 3 items omitted
+60 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 cpuhp/7
+61 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+… 4 items omitted
+67 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+… 2 items omitted
+70 root | 20 | 0 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.14 kworker+
+… 2 items omitted
+73 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+… 4 items omitted
+79 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
+80 root | rt | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.19 migrati+
+81 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.02 ksoftir+
+83 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
+84 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 cpuhp/11

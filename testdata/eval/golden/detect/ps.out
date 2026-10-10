@@ -1,0 +1,45 @@
+USER | PID %CPU %MEM | VSZ | RSS TTY | STAT START | TIME COMMAND
+root | 1  0.0  0.0 | 20640 | 15452 ? | Ss   00:05 | 0:01 /sbin/init splash
+root | 2  0.0  0.0 | 0 | 0 ? | S    00:05 | 0:00 [kthreadd]
+root | 3  0.0  0.0 | 0 | 0 ? | S    00:05 | 0:00 [pool_workqueue_release]
+root | 4  0.0  0.0 | 0 | 0 ? | I<   00:05 | 0:00 [kworker/R-rcu_gp]
+root | 5  0.0  0.0 | 0 | 0 ? | I<   00:05 | 0:00 [kworker/R-sync_wq]
+root | 6  0.0  0.0 | 0 | 0 ? | I<   00:05 | 0:00 [kworker/R-kvfree_rcu_reclaim]
+root | 7  0.0  0.0 | 0 | 0 ? | I<   00:05 | 0:00 [kworker/R-slub_flushwq]
+root | 8  0.0  0.0 | 0 | 0 ? | I<   00:05 | 0:00 [kworker/R-netns]
+root | 11  0.0  0.0 | 0 | 0 ? | I<   00:05 | 0:00 [kworker/0:0H-kblockd]
+… 42 items omitted
+root | 62  0.0  0.0 | 0 | 0 ? | S    00:05 | 0:00 [migration/7]
+… 42 items omitted
+root | 113  0.0  0.0 | 0 | 0 ? | I<   00:05 | 0:00 [kworker/15:0H-kblockd]
+… 42 items omitted
+root | 169  0.0  0.0 | 0 | 0 ? | I    00:05 | 0:00 [kworker/7:1-events]
+… 42 items omitted
+root | 632  0.0  0.0 | 0 | 0 ? | I<   00:05 | 0:00 [kworker/R-kcryptd_io-253:0-1]
+… 30 items omitted
+systemd+ | 863  0.0  0.0 | 28164 | 18444 ? | Ss   00:05 | 0:00 /usr/lib/systemd/systemd-resolved
+systemd+ | 864  0.0  0.0 | 85408 | 7476 ? | Ssl  00:05 | 0:00 /usr/lib/systemd/systemd-timesyncd
+… 8 items omitted
+systemd+ | 1013  0.0  0.0 | 9676 | 5940 ? | Ss   00:05 | 0:07 /usr/lib/systemd/systemd-oomd
+… 1 item omitted
+dbus | 1204  0.0  0.0 | 8068 | 4452 ? | Ss   00:05 | 0:00 /usr/bin/dbus-broker-launch --scope system --audit
+dbus | 1206  0.0  0.0 | 8488 | 4528 ? | S    00:05 | 0:00 dbus-broker --log 10 --co … 6 --max-matches 131072 --audit
+… 1 item omitted
+avahi | 1210  0.0  0.0 | 6184 | 4564 ? | Ss   00:05 | 0:00 avahi-daemon: running [host.local]
+… 2 items omitted
+root | 1215  0.0  0.0 | 613448 | 31688 ? | Ssl  00:05 | 0:00 nix-daemon --daemon
+… 1 item omitted
+avahi | 1228  0.0  0.0 | 6184 | 1624 ? | S    00:05 | 0:00 avahi-daemon: chroot helper
+… 8 items omitted
+polkitd | 1324  0.0  0.0 | 383308 | 11192 ? | Ssl  00:05 | 0:00 /usr/lib/polkit-1/polkitd --no-debug --log-level=notice
+… 33 items omitted
+root | 17618  0.0  0.0 | 0 | 0 ? | I    00:15 | 0:00 [kworker/3:0-events]
+… 3 items omitted
+user | 37891  1.7  0.9 | 42216072 | 591808 ? | Rsl  00:37 | 5:44 /usr/lib/zed/zed-editor z … d-cli:///tmp/.tmpt6py6B/socket
+root | 38138  0.0  0.0 | 0 | 0 ? | S    00:37 | 0:00 [nvidia-drm/timeline-84]
+… 39 items omitted
+root | 248064  0.0  0.0 | 9608 | 4720 ? | S    06:01 | 0:00 systemd-userwork: waiting...
+root | 248193  0.0  0.0 | 0 | 0 ? | I    06:01 | 0:00 [kworker/u64:6-btrfs-delayed-meta]
+root | 248194  0.0  0.0 | 0 | 0 ? | I    06:01 | 0:00 [kworker/u64:7-mt76]
+root | 248195  0.0  0.0 | 0 | 0 ? | I    06:01 | 0:00 [kworker/u64:8-btrfs-delayed-meta]
+root | 250296  0.0  0.0 | 0 | 0 ? | I    06:03 | 0:00 [kworker/u64:9]

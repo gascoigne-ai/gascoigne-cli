@@ -1,0 +1,48 @@
+COMMAND | PID | USER | FD | TYPE | DEVICE | SIZE/OFF | NODE NAME
+systemd | 1312 | user  cwd |  | unknown |  |  | /proc/1312/cwd (readlink: Permission denied)
+systemd | 1312 | user  rtd |  | unknown |  |  | /proc/1312/root (readlink: Permission denied)
+systemd | 1312 | user  txt |  | unknown |  |  | /proc/1312/exe (readlink: Permission denied)
+systemd | 1312 | user    0 |  | unknown |  |  | /proc/1312/fd/0 (readlink: Permission denied)
+systemd | 1312 | user    1 |  | unknown |  |  | /proc/1312/fd/1 (readlink: Permission denied)
+systemd | 1312 | user    2 |  | unknown |  |  | /proc/1312/fd/2 (readlink: Permission denied)
+systemd | 1312 | user    3 |  | unknown |  |  | /proc/1312/fd/3 (readlink: Permission denied)
+systemd | 1312 | user    4 |  | unknown |  |  | /proc/1312/fd/4 (readlink: Permission denied)
+systemd | 1312 | user    5 |  | unknown |  |  | /proc/1312/fd/5 (readlink: Permission denied)
+… 21 items omitted
+systemd | 1312 | user   28 |  | unknown |  |  | /proc/1312/fd/28 (readlink: Permission denied)
+… 20 items omitted
+systemd | 1312 | user   52 |  | unknown |  |  | /proc/1312/fd/52 (readlink: Permission denied)
+… 20 items omitted
+systemd | 1312 | user   73 |  | unknown |  |  | /proc/1312/fd/73 (readlink: Permission denied)
+… 21 items omitted
+systemd | 1312 | user   95 |  | unknown |  |  | /proc/1312/fd/95 (readlink: Permission denied)
+… 16 items omitted
+dbus-brok | 1327 | user  cwd |  | DIR | 0,57 | 1458 | 99167 /home/user
+… 4 items omitted
+dbus-brok | 1327 | user  mem |  | REG | 0,29 |  | 35999327 /usr/lib/libc.so.6 (path dev=0,31)
+… 7 items omitted
+dbus-brok | 1327 | user | 0r | CHR | 1,3 | 0t0 | 4 /dev/null
+… 13 items omitted
+dbus-brok | 1327 | user | 14u | a_inode | 0,17 | 0 | 1094 [timerfd]
+… 11 items omitted
+dbus-brok | 1328 | user | 0r | CHR | 1,3 | 0t0 | 4 /dev/null
+… 10 items omitted
+dbus-brok | 1328 | user | 11u | unix | 0x000000002772851b | 0t0 | 10978 type=DGRAM (CONNECTED)
+… 20 items omitted
+dbus-brok | 1328 | user | 32u | a_inode | 0,6 | 0 | 16448 [pidfd:1584]
+… 20 items omitted
+dbus-brok | 1328 | user | 53u | unix | 0x00000000d9b80a3e | 0t0 | 19434 /run/user/1000/bus type=STREAM (CONNECTED)
+… 21 items omitted
+dbus-brok | 1328 | user | 75u | unix | 0x00000000b8b7f18c | 0t0 | 14300 /run/user/1000/bus type=STREAM (CONNECTED)
+… 20 items omitted
+dbus-brok | 1328 | user | 98u | a_inode | 0,6 | 0 | 162713 [pidfd:180360]
+… 16 items omitted
+pipewire | 1329 | user  cwd |  | DIR | 0,57 | 1458 | 99167 /home/user
+… 4 items omitted
+pipewire | 1329 | user  mem |  | REG | 0,29 |  | 34082713 /usr/lib/libasound.so.2.0.0 (path dev=0,31)
+… 21 items omitted
+pipewire | 1329 | user  mem |  | REG | 0,29 |  | 35999327 /usr/lib/libc.so.6 (path dev=0,31)
+pipewire | 1329 | user  mem |  | REG | 0,29 |  | 34127126 /usr/lib/pipewire-0.3 … ient-device.so (path dev=0,31)
+pipewire | 1329 | user  mem |  | REG | 0,29 |  | 34127127 /usr/lib/pipewire-0.3 … client-node.so (path dev=0,31)
+pipewire | 1329 | user  mem |  | REG | 0,29 |  | 34127139 /usr/lib/pipewire-0.3 … ode-factory.so (path dev=0,31)
+pipewire | 1329 | user  mem |  | REG | 0,29 |  | 34127137 /usr/lib/pipewire-0.3 … ice-factory.so (path dev=0,31)

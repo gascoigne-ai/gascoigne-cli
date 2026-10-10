@@ -18,7 +18,7 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [task, test, build, git, grep, ls, json, log, cat, pkg, html]
+  default: [task, test, build, git, grep, ls, json, log, cat, pkg, table, html]
 
 optimizers:
   test: {}
@@ -46,6 +46,7 @@ optimizers:
   # mode auto|full|clean|outline; per run: -attr cat_mode=full or GASCOIGNE_CAT_MODE
   cat: { mode: auto, clean_min_tokens: 800, outline_min_tokens: 4000, min_body: 4 }
   pkg: {}
+  table: { max_rows: 30, max_cell: 60 }
   task: {}
   html: { links: true }
 

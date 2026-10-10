@@ -43,7 +43,7 @@ func Sample(items []any, o Options) []any {
 	objs := objects(items, uniq)
 
 	keep := map[int]bool{}
-	for _, i := range slices.Concat(errorItems(objs), rareKeys(objs), rareValues(objs)) {
+	for _, i := range slices.Concat(errorItems(objs, o.MaxItems), rareKeys(objs), rareValues(objs)) {
 		keep[i] = true
 	}
 	score := map[int]float64{}
@@ -177,14 +177,15 @@ func sortedByScore(score map[int]float64) []int {
 
 var (
 	errorKeys  = map[string]bool{"error": true, "errors": true, "err": true, "exception": true, "failure": true, "fault": true}
-	statusKeys = map[string]bool{"status": true, "state": true, "level": true, "severity": true, "result": true, "outcome": true, "conclusion": true}
+	statusKeys = map[string]bool{"status": true, "state": true, "level": true, "severity": true, "result": true, "outcome": true, "conclusion": true, "health": true, "sub": true, "active": true, "phase": true}
 	codeKeys   = map[string]bool{"status": true, "status_code": true, "statuscode": true, "code": true, "http_status": true}
-	badStatus  = regexp.MustCompile(`(?i)error|fail|fatal|crit|panic|declin|denied|reject|timeout|abort`)
+	badStatus  = regexp.MustCompile(`(?i)error|fail|fatal|crit|panic|declin|denied|reject|timeout|abort|crash|backoff|oomkill|evicted|unhealthy|not ?ready|exited \([1-9]|\bdead\b|degraded|errimage|terminating|unknown`)
+	readyRe    = regexp.MustCompile(`^(\d+)/(\d+)$`)
 )
 
 // errorItems finds error-like items: an error field, a bad status word or an
 // HTTP 4xx/5xx code.
-func errorItems(objs []object) []int {
+func errorItems(objs []object, limit int) []int {
 	bad := map[string]bool{} // statuses repeat: match each distinct value once
 	isBadStatus := func(v any) bool {
 		s, ok := v.(string)
@@ -199,15 +200,40 @@ func errorItems(objs []object) []int {
 		return b
 	}
 	var idx []int
+	kinds := map[string][]int{} // error kind (field=value) → items, for capping
+	var order []string
 	for _, o := range objs {
-		for k, v := range o.m {
-			k = strings.ToLower(k)
-			if errorKeys[k] && !empty(v) && v != false ||
-				statusKeys[k] && isBadStatus(v) ||
-				codeKeys[k] && isHTTPError(v) {
+		for _, k := range sortedKeys(o.m) {
+			v := o.m[k]
+			lk := strings.ToLower(k)
+			if lk == "ready" && notReady(v) ||
+				errorKeys[lk] && !empty(v) && v != false ||
+				statusKeys[lk] && isBadStatus(v) ||
+				codeKeys[lk] && isHTTPError(v) {
+				kind := lk + "=" + fmt.Sprint(v)
+				if errorKeys[lk] {
+					kind = lk // any error message is one kind
+				}
+				if kinds[kind] == nil {
+					order = append(order, kind)
+				}
+				kinds[kind] = append(kinds[kind], o.i)
 				idx = append(idx, o.i)
 				break
 			}
+		}
+	}
+	if len(idx) <= max(limit, 1) {
+		return idx
+	}
+	// Too many to be exceptions: a shared status is the state, not an outlier.
+	// Keep the first two and the last of each kind.
+	idx = idx[:0]
+	for _, k := range order {
+		is := kinds[k]
+		idx = append(idx, is[:min(2, len(is))]...)
+		if len(is) > 2 {
+			idx = append(idx, is[len(is)-1])
 		}
 	}
 	return idx
@@ -402,4 +428,23 @@ func empty(v any) bool {
 		return len(v) == 0
 	}
 	return false
+}
+
+// notReady matches "0/1"-style readiness below its total.
+func notReady(v any) bool {
+	s, ok := v.(string)
+	if !ok {
+		return false
+	}
+	m := readyRe.FindStringSubmatch(s)
+	return m != nil && m[1] != m[2]
+}
+
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+	return keys
 }

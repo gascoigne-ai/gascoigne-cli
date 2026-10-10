@@ -1,0 +1,296 @@
+COMMAND      PID    TID TASKCMD      USER   FD      TYPE             DEVICE  SIZE/OFF     NODE NAME
+systemd     1312                  user  cwd   unknown                                       /proc/1312/cwd (readlink: Permission denied)
+systemd     1312                  user  rtd   unknown                                       /proc/1312/root (readlink: Permission denied)
+systemd     1312                  user  txt   unknown                                       /proc/1312/exe (readlink: Permission denied)
+systemd     1312                  user    0   unknown                                       /proc/1312/fd/0 (readlink: Permission denied)
+systemd     1312                  user    1   unknown                                       /proc/1312/fd/1 (readlink: Permission denied)
+systemd     1312                  user    2   unknown                                       /proc/1312/fd/2 (readlink: Permission denied)
+systemd     1312                  user    3   unknown                                       /proc/1312/fd/3 (readlink: Permission denied)
+systemd     1312                  user    4   unknown                                       /proc/1312/fd/4 (readlink: Permission denied)
+systemd     1312                  user    5   unknown                                       /proc/1312/fd/5 (readlink: Permission denied)
+systemd     1312                  user    6   unknown                                       /proc/1312/fd/6 (readlink: Permission denied)
+systemd     1312                  user    7   unknown                                       /proc/1312/fd/7 (readlink: Permission denied)
+systemd     1312                  user    8   unknown                                       /proc/1312/fd/8 (readlink: Permission denied)
+systemd     1312                  user    9   unknown                                       /proc/1312/fd/9 (readlink: Permission denied)
+systemd     1312                  user   10   unknown                                       /proc/1312/fd/10 (readlink: Permission denied)
+systemd     1312                  user   11   unknown                                       /proc/1312/fd/11 (readlink: Permission denied)
+systemd     1312                  user   12   unknown                                       /proc/1312/fd/12 (readlink: Permission denied)
+systemd     1312                  user   14   unknown                                       /proc/1312/fd/14 (readlink: Permission denied)
+systemd     1312                  user   15   unknown                                       /proc/1312/fd/15 (readlink: Permission denied)
+systemd     1312                  user   16   unknown                                       /proc/1312/fd/16 (readlink: Permission denied)
+systemd     1312                  user   17   unknown                                       /proc/1312/fd/17 (readlink: Permission denied)
+systemd     1312                  user   18   unknown                                       /proc/1312/fd/18 (readlink: Permission denied)
+systemd     1312                  user   19   unknown                                       /proc/1312/fd/19 (readlink: Permission denied)
+systemd     1312                  user   20   unknown                                       /proc/1312/fd/20 (readlink: Permission denied)
+systemd     1312                  user   21   unknown                                       /proc/1312/fd/21 (readlink: Permission denied)
+systemd     1312                  user   22   unknown                                       /proc/1312/fd/22 (readlink: Permission denied)
+systemd     1312                  user   23   unknown                                       /proc/1312/fd/23 (readlink: Permission denied)
+systemd     1312                  user   24   unknown                                       /proc/1312/fd/24 (readlink: Permission denied)
+systemd     1312                  user   25   unknown                                       /proc/1312/fd/25 (readlink: Permission denied)
+systemd     1312                  user   26   unknown                                       /proc/1312/fd/26 (readlink: Permission denied)
+systemd     1312                  user   27   unknown                                       /proc/1312/fd/27 (readlink: Permission denied)
+systemd     1312                  user   28   unknown                                       /proc/1312/fd/28 (readlink: Permission denied)
+systemd     1312                  user   29   unknown                                       /proc/1312/fd/29 (readlink: Permission denied)
+systemd     1312                  user   30   unknown                                       /proc/1312/fd/30 (readlink: Permission denied)
+systemd     1312                  user   31   unknown                                       /proc/1312/fd/31 (readlink: Permission denied)
+systemd     1312                  user   32   unknown                                       /proc/1312/fd/32 (readlink: Permission denied)
+systemd     1312                  user   33   unknown                                       /proc/1312/fd/33 (readlink: Permission denied)
+systemd     1312                  user   35   unknown                                       /proc/1312/fd/35 (readlink: Permission denied)
+systemd     1312                  user   36   unknown                                       /proc/1312/fd/36 (readlink: Permission denied)
+systemd     1312                  user   37   unknown                                       /proc/1312/fd/37 (readlink: Permission denied)
+systemd     1312                  user   40   unknown                                       /proc/1312/fd/40 (readlink: Permission denied)
+systemd     1312                  user   41   unknown                                       /proc/1312/fd/41 (readlink: Permission denied)
+systemd     1312                  user   42   unknown                                       /proc/1312/fd/42 (readlink: Permission denied)
+systemd     1312                  user   43   unknown                                       /proc/1312/fd/43 (readlink: Permission denied)
+systemd     1312                  user   44   unknown                                       /proc/1312/fd/44 (readlink: Permission denied)
+systemd     1312                  user   45   unknown                                       /proc/1312/fd/45 (readlink: Permission denied)
+systemd     1312                  user   46   unknown                                       /proc/1312/fd/46 (readlink: Permission denied)
+systemd     1312                  user   47   unknown                                       /proc/1312/fd/47 (readlink: Permission denied)
+systemd     1312                  user   48   unknown                                       /proc/1312/fd/48 (readlink: Permission denied)
+systemd     1312                  user   49   unknown                                       /proc/1312/fd/49 (readlink: Permission denied)
+systemd     1312                  user   50   unknown                                       /proc/1312/fd/50 (readlink: Permission denied)
+systemd     1312                  user   51   unknown                                       /proc/1312/fd/51 (readlink: Permission denied)
+systemd     1312                  user   52   unknown                                       /proc/1312/fd/52 (readlink: Permission denied)
+systemd     1312                  user   53   unknown                                       /proc/1312/fd/53 (readlink: Permission denied)
+systemd     1312                  user   54   unknown                                       /proc/1312/fd/54 (readlink: Permission denied)
+systemd     1312                  user   55   unknown                                       /proc/1312/fd/55 (readlink: Permission denied)
+systemd     1312                  user   56   unknown                                       /proc/1312/fd/56 (readlink: Permission denied)
+systemd     1312                  user   57   unknown                                       /proc/1312/fd/57 (readlink: Permission denied)
+systemd     1312                  user   58   unknown                                       /proc/1312/fd/58 (readlink: Permission denied)
+systemd     1312                  user   59   unknown                                       /proc/1312/fd/59 (readlink: Permission denied)
+systemd     1312                  user   60   unknown                                       /proc/1312/fd/60 (readlink: Permission denied)
+systemd     1312                  user   61   unknown                                       /proc/1312/fd/61 (readlink: Permission denied)
+systemd     1312                  user   62   unknown                                       /proc/1312/fd/62 (readlink: Permission denied)
+systemd     1312                  user   63   unknown                                       /proc/1312/fd/63 (readlink: Permission denied)
+systemd     1312                  user   64   unknown                                       /proc/1312/fd/64 (readlink: Permission denied)
+systemd     1312                  user   65   unknown                                       /proc/1312/fd/65 (readlink: Permission denied)
+systemd     1312                  user   66   unknown                                       /proc/1312/fd/66 (readlink: Permission denied)
+systemd     1312                  user   67   unknown                                       /proc/1312/fd/67 (readlink: Permission denied)
+systemd     1312                  user   68   unknown                                       /proc/1312/fd/68 (readlink: Permission denied)
+systemd     1312                  user   69   unknown                                       /proc/1312/fd/69 (readlink: Permission denied)
+systemd     1312                  user   70   unknown                                       /proc/1312/fd/70 (readlink: Permission denied)
+systemd     1312                  user   71   unknown                                       /proc/1312/fd/71 (readlink: Permission denied)
+systemd     1312                  user   72   unknown                                       /proc/1312/fd/72 (readlink: Permission denied)
+systemd     1312                  user   73   unknown                                       /proc/1312/fd/73 (readlink: Permission denied)
+systemd     1312                  user   74   unknown                                       /proc/1312/fd/74 (readlink: Permission denied)
+systemd     1312                  user   75   unknown                                       /proc/1312/fd/75 (readlink: Permission denied)
+systemd     1312                  user   76   unknown                                       /proc/1312/fd/76 (readlink: Permission denied)
+systemd     1312                  user   77   unknown                                       /proc/1312/fd/77 (readlink: Permission denied)
+systemd     1312                  user   78   unknown                                       /proc/1312/fd/78 (readlink: Permission denied)
+systemd     1312                  user   79   unknown                                       /proc/1312/fd/79 (readlink: Permission denied)
+systemd     1312                  user   80   unknown                                       /proc/1312/fd/80 (readlink: Permission denied)
+systemd     1312                  user   81   unknown                                       /proc/1312/fd/81 (readlink: Permission denied)
+systemd     1312                  user   82   unknown                                       /proc/1312/fd/82 (readlink: Permission denied)
+systemd     1312                  user   83   unknown                                       /proc/1312/fd/83 (readlink: Permission denied)
+systemd     1312                  user   84   unknown                                       /proc/1312/fd/84 (readlink: Permission denied)
+systemd     1312                  user   85   unknown                                       /proc/1312/fd/85 (readlink: Permission denied)
+systemd     1312                  user   86   unknown                                       /proc/1312/fd/86 (readlink: Permission denied)
+systemd     1312                  user   87   unknown                                       /proc/1312/fd/87 (readlink: Permission denied)
+systemd     1312                  user   88   unknown                                       /proc/1312/fd/88 (readlink: Permission denied)
+systemd     1312                  user   89   unknown                                       /proc/1312/fd/89 (readlink: Permission denied)
+systemd     1312                  user   90   unknown                                       /proc/1312/fd/90 (readlink: Permission denied)
+systemd     1312                  user   91   unknown                                       /proc/1312/fd/91 (readlink: Permission denied)
+systemd     1312                  user   92   unknown                                       /proc/1312/fd/92 (readlink: Permission denied)
+systemd     1312                  user   93   unknown                                       /proc/1312/fd/93 (readlink: Permission denied)
+systemd     1312                  user   94   unknown                                       /proc/1312/fd/94 (readlink: Permission denied)
+systemd     1312                  user   95   unknown                                       /proc/1312/fd/95 (readlink: Permission denied)
+systemd     1312                  user   96   unknown                                       /proc/1312/fd/96 (readlink: Permission denied)
+systemd     1312                  user   97   unknown                                       /proc/1312/fd/97 (readlink: Permission denied)
+systemd     1312                  user   98   unknown                                       /proc/1312/fd/98 (readlink: Permission denied)
+systemd     1312                  user   99   unknown                                       /proc/1312/fd/99 (readlink: Permission denied)
+systemd     1312                  user  101   unknown                                       /proc/1312/fd/101 (readlink: Permission denied)
+systemd     1312                  user  102   unknown                                       /proc/1312/fd/102 (readlink: Permission denied)
+systemd     1312                  user  103   unknown                                       /proc/1312/fd/103 (readlink: Permission denied)
+systemd     1312                  user  105   unknown                                       /proc/1312/fd/105 (readlink: Permission denied)
+systemd     1312                  user  106   unknown                                       /proc/1312/fd/106 (readlink: Permission denied)
+systemd     1312                  user  107   unknown                                       /proc/1312/fd/107 (readlink: Permission denied)
+systemd     1312                  user  108   unknown                                       /proc/1312/fd/108 (readlink: Permission denied)
+systemd     1312                  user  109   unknown                                       /proc/1312/fd/109 (readlink: Permission denied)
+systemd     1312                  user  111   unknown                                       /proc/1312/fd/111 (readlink: Permission denied)
+systemd     1312                  user  112   unknown                                       /proc/1312/fd/112 (readlink: Permission denied)
+systemd     1312                  user  113   unknown                                       /proc/1312/fd/113 (readlink: Permission denied)
+systemd     1312                  user  115   unknown                                       /proc/1312/fd/115 (readlink: Permission denied)
+dbus-brok   1327                  user  cwd       DIR               0,57      1458    99167 /home/user
+dbus-brok   1327                  user  rtd       DIR               0,31       148      256 /
+dbus-brok   1327                  user  txt       REG               0,31    129224 34073629 /usr/bin/dbus-broker-launch
+dbus-brok   1327                  user  mem       REG               0,29           34073629 /usr/bin/dbus-broker-launch (path dev=0,31)
+dbus-brok   1327                  user  DEL       REG                0,1              13321 /memfd:dbus-broker-log
+dbus-brok   1327                  user  mem       REG               0,29           35999327 /usr/lib/libc.so.6 (path dev=0,31)
+dbus-brok   1327                  user  mem       REG               0,29           36000077 /usr/lib/libgcc_s.so.1 (path dev=0,31)
+dbus-brok   1327                  user  mem       REG               0,29           36001284 /usr/lib/libsystemd.so.0.44.0 (path dev=0,31)
+dbus-brok   1327                  user  mem       REG               0,29           39834497 /usr/lib/libexpat.so.1.12.4 (path dev=0,31)
+dbus-brok   1327                  user  mem       REG               0,29           39833884 /usr/lib/libcap-ng.so.0.0.0 (path dev=0,31)
+dbus-brok   1327                  user  mem       REG               0,29           36002195 /usr/lib/libaudit.so.1.0.0 (path dev=0,31)
+dbus-brok   1327                  user  mem       REG               0,29           45407566 /etc/ld.so.cache (path dev=0,31)
+dbus-brok   1327                  user  mem       REG               0,29           35999318 /usr/lib/ld-linux-x86-64.so.2 (path dev=0,31)
+dbus-brok   1327                  user    0r      CHR                1,3       0t0        4 /dev/null
+dbus-brok   1327                  user    1u     unix 0x00000000b77de542       0t0    22566 type=STREAM (CONNECTED)
+dbus-brok   1327                  user    2u     unix 0x00000000b77de542       0t0    22566 type=STREAM (CONNECTED)
+dbus-brok   1327                  user    3u     unix 0x0000000060f918aa       0t0    19857 /run/user/1000/bus type=STREAM (LISTEN)
+dbus-brok   1327                  user    4u     unix 0x0000000067434bae       0t0    22568 type=DGRAM (CONNECTED)
+dbus-brok   1327                  user    5u  a_inode               0,17         0     1094 [eventpoll:6,7,8,11,12,14]
+dbus-brok   1327                  user    6u  a_inode               0,17         0     1094 [signalfd]
+dbus-brok   1327                  user    7r  a_inode               0,17         0     1094 inotify
+dbus-brok   1327                  user    8u     unix 0x00000000e61a99ad       0t0    19249 type=STREAM (CONNECTED)
+dbus-brok   1327                  user    9u      REG                0,1   2097152    13321 /memfd:dbus-broker-log (deleted)
+dbus-brok   1327                  user   10u  a_inode                0,6         0    20565 [pidfd:1327]
+dbus-brok   1327                  user   11u  a_inode                0,6         0    20566 [pidfd:1328]
+dbus-brok   1327                  user   12u     unix 0x00000000bf1288ba       0t0    14910 @f0cae28932c1f698/bus/dbus-broker-lau/user type=STREAM (CONNECTED)
+dbus-brok   1327                  user   13u  a_inode                0,6         0    20562 [pidfd:1312]
+dbus-brok   1327                  user   14u  a_inode               0,17         0     1094 [timerfd]
+dbus-brok   1328                  user  cwd       DIR               0,57      1458    99167 /home/user
+dbus-brok   1328                  user  rtd       DIR               0,31       148      256 /
+dbus-brok   1328                  user  txt       REG               0,31    223464 34073628 /usr/bin/dbus-broker
+dbus-brok   1328                  user  mem       REG               0,29           34073628 /usr/bin/dbus-broker (path dev=0,31)
+dbus-brok   1328                  user  mem       REG               0,29           35999327 /usr/lib/libc.so.6 (path dev=0,31)
+dbus-brok   1328                  user  mem       REG               0,29           36000077 /usr/lib/libgcc_s.so.1 (path dev=0,31)
+dbus-brok   1328                  user  mem       REG               0,29           39833884 /usr/lib/libcap-ng.so.0.0.0 (path dev=0,31)
+dbus-brok   1328                  user  mem       REG               0,29           36002195 /usr/lib/libaudit.so.1.0.0 (path dev=0,31)
+dbus-brok   1328                  user  mem       REG               0,29           35999337 /usr/lib/libm.so.6 (path dev=0,31)
+dbus-brok   1328                  user  mem       REG               0,29           45407566 /etc/ld.so.cache (path dev=0,31)
+dbus-brok   1328                  user  mem       REG               0,29           35999318 /usr/lib/ld-linux-x86-64.so.2 (path dev=0,31)
+dbus-brok   1328                  user    0r      CHR                1,3       0t0        4 /dev/null
+dbus-brok   1328                  user    1u     unix 0x00000000b77de542       0t0    22566 type=STREAM (CONNECTED)
+dbus-brok   1328                  user    2u     unix 0x00000000b77de542       0t0    22566 type=STREAM (CONNECTED)
+dbus-brok   1328                  user    3u  a_inode                0,6         0    20565 [pidfd:1327]
+dbus-brok   1328                  user    4u  a_inode               0,17         0     1094 [eventpoll:5,6,7,9,10,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,51,53,55,57,59,67,69,83,85,113...]
+dbus-brok   1328                  user    5u  a_inode               0,17         0     1094 [signalfd]
+dbus-brok   1328                  user    6u     unix 0x0000000060f918aa       0t0    19857 /run/user/1000/bus type=STREAM (LISTEN)
+dbus-brok   1328                  user    7u     unix 0x0000000086f06d14       0t0    15778 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user    8u  a_inode                0,6         0    20562 [pidfd:1312]
+dbus-brok   1328                  user    9u     unix 0x000000003fe8baa0       0t0    15780 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   10u     unix 0x000000007b016e90       0t0    19250 type=STREAM (CONNECTED)
+dbus-brok   1328                  user   11u     unix 0x000000002772851b       0t0    10978 type=DGRAM (CONNECTED)
+dbus-brok   1328                  user   12u  a_inode                0,6         0    20565 [pidfd:1327]
+dbus-brok   1328                  user   13u     unix 0x000000001dfd5ce7       0t0    22584 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   14u  a_inode                0,6         0    53334 [pidfd:1329]
+dbus-brok   1328                  user   15u     unix 0x000000001b5773b3       0t0    22586 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   16u  a_inode                0,6         0    20569 [pidfd:1333]
+dbus-brok   1328                  user   17u     unix 0x000000009f792318       0t0    22588 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   18u  a_inode                0,6         0    20568 [pidfd:1331]
+dbus-brok   1328                  user   19u     unix 0x00000000ce9730ad       0t0    22609 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   20u  a_inode                0,6         0    20567 [pidfd:1330]
+dbus-brok   1328                  user   21u     unix 0x00000000b40a852f       0t0    20827 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   22u  a_inode                0,6         0    61464 [pidfd:1394]
+dbus-brok   1328                  user   23u     unix 0x00000000b69a9785       0t0    19426 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   24u  a_inode                0,6         0    45190 [pidfd:1673]
+dbus-brok   1328                  user   25u     unix 0x00000000ac12f708       0t0    19428 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   26u  a_inode                0,6         0    36900 [pidfd:1689]
+dbus-brok   1328                  user   27u     unix 0x000000007da33a49       0t0    23636 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   28u  a_inode                0,6         0    28781 [pidfd:1530]
+dbus-brok   1328                  user   29u     unix 0x00000000c1825fa0       0t0    23638 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   30u  a_inode                0,6         0    45178 [pidfd:1567]
+dbus-brok   1328                  user   31u     unix 0x0000000083129b16       0t0    14943 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   32u  a_inode                0,6         0    16448 [pidfd:1584]
+dbus-brok   1328                  user   33u     unix 0x000000000eae5339       0t0    14946 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   34u  a_inode                0,6         0    16448 [pidfd:1584]
+dbus-brok   1328                  user   35u     unix 0x00000000d4db6661       0t0    21666 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   36u  a_inode                0,6         0    16448 [pidfd:1584]
+dbus-brok   1328                  user   37u     unix 0x000000004c6a04a0       0t0    21683 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   38u  a_inode                0,6         0    16454 [pidfd:1638]
+dbus-brok   1328                  user   39u     unix 0x00000000921ffc23       0t0    21685 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   40u  a_inode                0,6         0    20604 [pidfd:1645]
+dbus-brok   1328                  user   41u     unix 0x00000000730f41ad       0t0    17094 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   42u  a_inode                0,6         0    16455 [pidfd:1647]
+dbus-brok   1328                  user   43u     unix 0x000000000015ac92       0t0    25657 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   44u  a_inode                0,6         0    61485 [pidfd:1653]
+dbus-brok   1328                  user   45u     unix 0x0000000095f516cf       0t0    18217 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   46u  a_inode                0,6         0    16448 [pidfd:1584]
+dbus-brok   1328                  user   47u     unix 0x00000000f4dad789       0t0      951 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   48u  a_inode                0,6         0    41112 [pidfd:1775]
+dbus-brok   1328                  user   49u     unix 0x00000000efe2537d       0t0    20063 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   50u  a_inode                0,6         0    32881 [pidfd:1820]
+dbus-brok   1328                  user   51u     unix 0x0000000022dfa564       0t0    19432 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   52u  a_inode                0,6         0    28804 [pidfd:1829]
+dbus-brok   1328                  user   53u     unix 0x00000000d9b80a3e       0t0    19434 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   54u  a_inode                0,6         0    28804 [pidfd:1829]
+dbus-brok   1328                  user   55u     unix 0x00000000051508fe       0t0      958 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   56u  a_inode                0,6         0    28805 [pidfd:1846]
+dbus-brok   1328                  user   57u     unix 0x00000000f194e4d7       0t0    11052 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   58u  a_inode                0,6         0    28805 [pidfd:1846]
+dbus-brok   1328                  user   59u     unix 0x0000000073d79c84       0t0    11055 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   60u  a_inode                0,6         0    28806 [pidfd:1849]
+dbus-brok   1328                  user   61u     unix 0x00000000f256ddf4       0t0    23734 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   62u  a_inode                0,6         0    32880 [pidfd:1814]
+dbus-brok   1328                  user   63u     unix 0x00000000791d0bbd       0t0    23740 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   64u  a_inode                0,6         0    32888 [pidfd:1866]
+dbus-brok   1328                  user   65u     unix 0x00000000f751a291       0t0    25728 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   66u  a_inode                0,6         0    45190 [pidfd:1673]
+dbus-brok   1328                  user   67u     unix 0x00000000a16ac71d       0t0    20090 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   68u  a_inode                0,6         0    45190 [pidfd:1673]
+dbus-brok   1328                  user   69u     unix 0x00000000d8ff4bf3       0t0    21903 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   70u  a_inode                0,6         0    20677 [pidfd:3124]
+dbus-brok   1328                  user   71u     unix 0x00000000d8d85fe9       0t0    18253 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   72u  a_inode                0,6         0    20567 [pidfd:1330]
+dbus-brok   1328                  user   73u     unix 0x000000004e736576       0t0    20961 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   74u  a_inode                0,6         0     4219 [pidfd:2034]
+dbus-brok   1328                  user   75u     unix 0x00000000b8b7f18c       0t0    14300 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   76u  a_inode                0,6         0    45193 [pidfd:1681]
+dbus-brok   1328                  user   77u     unix 0x0000000045d543a0       0t0    15046 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   78u  a_inode                0,6         0    45193 [pidfd:1681]
+dbus-brok   1328                  user   79u     unix 0x0000000023167f61       0t0    15048 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   80u  a_inode                0,6         0    45193 [pidfd:1681]
+dbus-brok   1328                  user   81u     unix 0x00000000cacd920d       0t0    15050 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   82u  a_inode                0,6         0    45193 [pidfd:1681]
+dbus-brok   1328                  user   83u     unix 0x0000000047f07846       0t0    14302 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   84u  a_inode                0,6         0    16448 [pidfd:1584]
+dbus-brok   1328                  user   85u     unix 0x00000000428b6e5e       0t0    28181 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   86u  a_inode                0,6         0    20598 [pidfd:1582]
+dbus-brok   1328                  user   87u     unix 0x00000000119c4766       0t0    21874 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   88u  a_inode                0,6         0    20598 [pidfd:1582]
+dbus-brok   1328                  user   89u     unix 0x0000000052711316       0t0    21028 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   90u  a_inode                0,6         0    20677 [pidfd:3124]
+dbus-brok   1328                  user   91u     unix 0x0000000047869960       0t0    21030 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   92u  a_inode                0,6         0    20677 [pidfd:3124]
+dbus-brok   1328                  user   93u     unix 0x0000000057aae854       0t0    15985 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   94u  a_inode                0,6         0      259 [pidfd:3165]
+dbus-brok   1328                  user   97u     unix 0x00000000caa05fbb       0t0   245260 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user   98u  a_inode                0,6         0   162713 [pidfd:180360]
+dbus-brok   1328                  user   99u     unix 0x000000003c03c62a       0t0    53213 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user  100u  a_inode                0,6         0    17769 [pidfd:21086]
+dbus-brok   1328                  user  101u     unix 0x000000006e2ffb35       0t0   246959 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user  102u  a_inode                0,6         0   206250 [pidfd:180371]
+dbus-brok   1328                  user  103u     unix 0x000000007e3cd39b       0t0   239367 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user  104u  a_inode                0,6         0   162713 [pidfd:180360]
+dbus-brok   1328                  user  105u     unix 0x0000000012942d1a       0t0   239369 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user  106u  a_inode                0,6         0   162713 [pidfd:180360]
+dbus-brok   1328                  user  107u     unix 0x00000000f4004ee8       0t0    86431 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user  108u  a_inode                0,6         0    70270 [pidfd:37891]
+dbus-brok   1328                  user  109u     unix 0x0000000044edc565       0t0   108414 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user  110u  a_inode                0,6         0    78601 [pidfd:69249]
+dbus-brok   1328                  user  111u     unix 0x00000000b3a40326       0t0   116508 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user  112u  a_inode                0,6         0    78601 [pidfd:69249]
+dbus-brok   1328                  user  113u     unix 0x00000000f6b76110       0t0   250203 /run/user/1000/bus type=STREAM (CONNECTED)
+dbus-brok   1328                  user  114u  a_inode                0,6         0   162713 [pidfd:180360]
+pipewire    1329                  user  cwd       DIR               0,57      1458    99167 /home/user
+pipewire    1329                  user  rtd       DIR               0,31       148      256 /
+pipewire    1329                  user  txt       REG               0,31     14504 34127109 /usr/bin/pipewire
+pipewire    1329                  user  mem       REG               0,29           34127109 /usr/bin/pipewire (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           36001287 /usr/lib/libudev.so.1.7.14 (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34082713 /usr/lib/libasound.so.2.0.0 (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127861 /usr/lib/spa-0.2/alsa/libspa-alsa.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127863 /usr/lib/spa-0.2/audiomixer/libspa-audiomixer.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127862 /usr/lib/spa-0.2/audioconvert/libspa-audioconvert.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           36000901 /usr/lib/libglib-2.0.so.0.8800.3 (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           36001284 /usr/lib/libsystemd.so.0.44.0 (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           35999337 /usr/lib/libm.so.6 (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           36107301 /usr/lib/locale/locale-archive (path dev=0,31)
+pipewire    1329                  user  DEL       REG                0,1              13334 /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312
+pipewire    1329                  user  DEL       REG                0,1              13332 /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312
+pipewire    1329                  user  DEL       REG                0,1               7172 /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312
+pipewire    1329                  user  DEL       REG                0,1               8195 /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=4096
+pipewire    1329                  user  DEL       REG                0,1              15360 /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312
+pipewire    1329                  user  DEL       REG                0,1              13333 /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312
+pipewire    1329                  user  DEL       REG                0,1                  4 /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312
+pipewire    1329                  user  DEL       REG                0,1                  3 /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312
+pipewire    1329                  user  mem       REG               0,29           34127136 /usr/lib/pipewire-0.3/libpipewire-module-session-manager.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127129 /usr/lib/pipewire-0.3/libpipewire-module-link-factory.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127125 /usr/lib/pipewire-0.3/libpipewire-module-adapter.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           39834575 /usr/lib/libpcre2-8.so.0.16.0 (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127124 /usr/lib/pipewire-0.3/libpipewire-module-access.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127131 /usr/lib/pipewire-0.3/libpipewire-module-portal.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           35999327 /usr/lib/libc.so.6 (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127126 /usr/lib/pipewire-0.3/libpipewire-module-client-device.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127127 /usr/lib/pipewire-0.3/libpipewire-module-client-node.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127139 /usr/lib/pipewire-0.3/libpipewire-module-spa-node-factory.so (path dev=0,31)
+pipewire    1329                  user  mem       REG               0,29           34127137 /usr/lib/pipewire-0.3/libpipewire-module-spa-device-factory.so (path dev=0,31)
