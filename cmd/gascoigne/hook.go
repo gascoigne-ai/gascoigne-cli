@@ -25,6 +25,7 @@ import (
 type hookInput struct {
 	SessionID      string          `json:"session_id"`
 	HookEventName  string          `json:"hook_event_name"`
+	ToolName       string          `json:"tool_name"`
 	TranscriptPath string          `json:"transcript_path"`
 	ToolInput      map[string]any  `json:"tool_input"`
 	ToolResponse   json.RawMessage `json:"tool_response"`
@@ -98,6 +99,17 @@ func rewriteHook(reply func(updated map[string]any) any) hookFunc {
 // hooks can replace a result but not rewrite a command without approving it.
 func optimizeHook(reply func(text string) any) hookFunc {
 	return func(ctx context.Context, c *common, in hookInput, _ string) (any, error) {
+		if isOtherMCP(in.ToolName) {
+			text, ok := mcpText(in.ToolResponse)
+			if !ok {
+				return nil, nil
+			}
+			out, err := optimizeText(ctx, c, text, map[string]string{payload.AttrTool: in.ToolName})
+			if err != nil || out == "" {
+				return nil, err
+			}
+			return reply(out), nil
+		}
 		cmd, _ := in.ToolInput["command"].(string)
 		text, code, ok := shellOutput(in.ToolResponse)
 		if !ok || ownCommand(cmd) {

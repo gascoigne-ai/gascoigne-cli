@@ -65,7 +65,9 @@ func removeClaude() ([]string, error) {
 	var done []string
 	var errs []error
 	for _, f := range configFiles(".claude/settings.json", ".claude/settings.json", ".claude/settings.local.json") {
-		d, err := editJSON(f, removeClaudeSettings)
+		d, err := editJSON(f, func(root *object) []string {
+			return append(removeClaudeSettings(root), removeDenies(f, root)...)
+		})
 		done, errs = append(done, d...), append(errs, err)
 	}
 	d, err := editJSON(".mcp.json", mcpEdit)
@@ -92,6 +94,9 @@ func removeClaudeSettings(root *object) []string {
 	}
 	if n := removeHooks(root, "SessionStart", ourHook("claude")); n > 0 {
 		what = append(what, "SessionStart hook")
+	}
+	if n := removeHooks(root, "PostToolUse", ourHook("claude")); n > 0 {
+		what = append(what, "PostToolUse hook")
 	}
 	if env, ok := root.get("env").(*object); ok && env.get("GASCOIGNE_AGENT") == "claude" {
 		env.del("GASCOIGNE_AGENT")

@@ -66,18 +66,30 @@ the pi extension. Other keys keep their order. The original file is saved as
 | opencode | `OPENCODE_CONFIG_DIR` (plugin) and `OPENCODE_CONFIG_CONTENT` (MCP servers) | The plugin's `tool.execute.before` rewrites the bash command. Not available when you set `OPENCODE_CONFIG_DIR` yourself: use `install`. |
 | Cursor | — (`wrap -print cursor` only) | A `preToolUse` hook returns `updated_input` with `permission: allow`; shell approval stays with `beforeShellExecution`. |
 
-### Claude Code: built-in search tools
+### Results the rewrite cannot reach
 
-Hooks cannot shrink what Claude Code's built-in tools return. `wrap claude` therefore denies
-**Grep** and **Glob** for that run, so Claude searches with `rg` and `find` through Bash, where
-the hook wraps them, and **WebFetch**, so pages are read with gascoigne's `fetch` tool: whole
-and compressed, where WebFetch hands back a small model's retelling of the page. **Read** stays:
-Edit refuses to change a file Read has not loaded. **WebSearch** stays: gascoigne has no search. The
-deny rule is not part of `wrap -print`, because `unwrap` could not tell it apart from a rule
-you added yourself; add it by hand if you want it for good.
+Rewriting a command before it runs covers most shell output. What it leaves is optimized after the
+tool ran, by replacing the result the model sees:
 
-WebFetch is left alone: it returns a short summary of a page, which is usually cheaper than
-the page itself. Use the MCP `fetch` tool when you need the page's own text.
+| Agent | Hook | Covers |
+|---|---|---|
+| claude | PostToolUse `updatedToolOutput` (same shape as the tool's output) | Bash commands left as they were (pipes, redirects, loops, background runs), Grep in content mode, every MCP server's results (remote, plugin and claude.ai ones included) |
+| codex | PostToolUse `decision: block` + `reason` | MCP servers' results (shell output already) |
+| gemini | AfterTool `decision: deny` + `reason` | shell commands left as they were, MCP servers' results |
+
+Output gascoigne already optimized (exec, its MCP server, the proxy) is recognized by its hint and
+left alone, as are gascoigne's own MCP tools. **Read** is never replaced: Claude numbers the lines
+it shows, and dropped lines would shift those numbers. **WebSearch** is left too: its results
+(a median of 608 tokens in measured sessions) are rendered by Claude Code from a fixed structure.
+
+### Claude Code: built-in search and fetch tools
+
+`wrap claude` and `install claude` deny **Grep**, **Glob** and **WebFetch**: Claude then searches
+with `rg` and `find` through Bash, where the rewrite optimizes them fully, and reads pages with
+gascoigne's `fetch`, whole and compressed, where WebFetch hands back a small model's retelling of
+the page. **Read** stays: Edit refuses to change a file Read has not loaded. `install` records the
+rules it added (`$XDG_STATE_HOME/gascoigne/denies.json`), so `unwrap` removes those and keeps
+deny rules you wrote yourself.
 
 ## Usage guide for the agent
 

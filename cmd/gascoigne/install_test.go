@@ -135,3 +135,25 @@ func TestPerRunEnv(t *testing.T) {
 		t.Errorf("plugin: %q", got)
 	}
 }
+
+func TestInstallDeniesRoundTrip(t *testing.T) {
+	home := sandbox(t)
+	t.Setenv("XDG_STATE_HOME", filepath.Join(home, ".state"))
+	write(t, ".claude/settings.json", `{"permissions": {"deny": ["Bash(rm -rf:*)", "Glob"]}}`)
+	if _, err := addClaude("gascoigne", false); err != nil {
+		t.Fatal(err)
+	}
+	got := read(t, ".claude/settings.json")
+	for _, want := range []string{`"Bash(rm -rf:*)"`, `"Glob"`, `"Grep"`, `"WebFetch"`, `"PostToolUse"`} {
+		if !strings.Contains(got, want) {
+			t.Errorf("settings lack %s:\n%s", want, got)
+		}
+	}
+	if _, err := removeClaude(); err != nil {
+		t.Fatal(err)
+	}
+	got = read(t, ".claude/settings.json")
+	if !strings.Contains(got, `"Bash(rm -rf:*)"`) || !strings.Contains(got, `"Glob"`) || strings.Contains(got, "Grep") || strings.Contains(got, "WebFetch") {
+		t.Errorf("unwrap should keep the user's rules (Glob was theirs) and drop gascoigne's:\n%s", got)
+	}
+}

@@ -93,8 +93,19 @@ func addClaude(exe string, global bool) ([]string, error) {
 		return nil, err
 	}
 	var done []string
-	d, err := addJSON(settings, removeClaudeSettings, claudeSettings(exe), "PreToolUse hook, GASCOIGNE_AGENT env", nil)
+	var denied []string
+	deny := func(root *object) proxyResult {
+		denied = addDenies(root, claudeDenies)
+		return proxyResult{}
+	}
+	d, err := addJSON(settings, removeClaudeSettings, claudeSettings(exe), "PreToolUse, PostToolUse and SessionStart hooks, GASCOIGNE_AGENT env", deny)
 	if err != nil {
+		return nil, err
+	}
+	if len(denied) > 0 {
+		d += "; denied " + strings.Join(denied, ", ") + " (searches through Bash, pages through gascoigne fetch)"
+	}
+	if err := recordDenies(settings, denied); err != nil {
 		return nil, err
 	}
 	done = append(done, d)

@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/lukaszb/gascoigne/payload"
 )
 
 // Gemini CLI: a BeforeTool hook rewrites run_shell_command through
@@ -18,6 +21,7 @@ func geminiSettings(exe string) map[string]any {
 	return map[string]any{
 		"hooks": map[string]any{
 			"BeforeTool":   []any{map[string]any{"matcher": "run_shell_command", "hooks": hook}},
+			"AfterTool":    []any{map[string]any{"matcher": "run_shell_command|mcp_.*", "hooks": hook}},
 			"SessionStart": []any{map[string]any{"hooks": hook}},
 		},
 		"mcpServers": mcpServers(exe)["mcpServers"],
@@ -26,12 +30,42 @@ func geminiSettings(exe string) map[string]any {
 
 // geminiHook answers BeforeTool with the rewritten command; Gemini merges
 // tool_input over the model's arguments. No decision: approval stays the user's.
-var geminiHook = withGuide(rewriteHook(func(updated map[string]any) any {
+var geminiHook = geminiAfter(withGuide(rewriteHook(func(updated map[string]any) any {
 	if updated == nil {
 		return nil
 	}
 	return map[string]any{"hookSpecificOutput": map[string]any{"tool_input": map[string]any{"command": updated["command"]}}}
-}))
+})))
+
+// geminiAfter answers AfterTool: output the BeforeTool rewrite did not
+// reach (commands left as they were, MCP servers' results) is optimized,
+// and "deny" with a reason replaces the result the model sees.
+func geminiAfter(h hookFunc) hookFunc {
+	return func(ctx context.Context, c *common, in hookInput, prefix string) (any, error) {
+		if in.HookEventName != "AfterTool" {
+			return h(ctx, c, in, prefix)
+		}
+		attrs := map[string]string{payload.AttrTool: in.ToolName}
+		if in.ToolName == "run_shell_command" {
+			cmd, _ := in.ToolInput["command"].(string)
+			if ownCommand(cmd) {
+				return nil, nil
+			}
+			attrs = map[string]string{payload.AttrCmd: cmd}
+		} else if !isOtherMCP(in.ToolName) {
+			return nil, nil
+		}
+		text, ok := mcpText(in.ToolResponse)
+		if !ok {
+			return nil, nil
+		}
+		out, err := optimizeText(ctx, c, text, attrs)
+		if err != nil || out == "" {
+			return nil, err
+		}
+		return map[string]any{"decision": "deny", "reason": out}, nil
+	}
+}
 
 // geminiSystemSettings is the system settings file Gemini reads, unless
 // GEMINI_CLI_SYSTEM_SETTINGS_PATH points elsewhere.
@@ -112,7 +146,7 @@ func addGemini(exe string, global bool) ([]string, error) {
 
 func removeGeminiSettings(root *object) []string {
 	what := mcpEdit(root)
-	for _, ev := range []string{"BeforeTool", "SessionStart"} {
+	for _, ev := range []string{"BeforeTool", "AfterTool", "SessionStart"} {
 		if removeHooks(root, ev, ourHook("gemini")) > 0 {
 			what = append(what, ev+" hook")
 		}

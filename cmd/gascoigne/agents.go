@@ -29,12 +29,12 @@ type agent struct {
 
 var agents = map[string]agent{
 	"claude": {bin: "claude", launch: claudeArgs, install: claudeInstall, add: addClaude, remove: removeClaude,
-		hook: withGuide(rewriteHook(func(updated map[string]any) any {
+		hook: withResults(withGuide(rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil
 			}
 			return map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "PreToolUse", "updatedInput": updated}}
-		}))},
+		})))},
 	// Codex rewrites a command only together with approving it, so its
 	// output is optimized after the run instead and replaces the result.
 	"codex": {bin: "codex", launch: codexArgs, install: codexInstall, add: addCodex, remove: removeCodex,
@@ -143,6 +143,12 @@ func claudeSettings(exe string) map[string]any {
 				"matcher": "Bash",
 				"hooks":   []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
 			}},
+			// Optimizes what the rewrite could not reach: Bash left as it was,
+			// Grep's content, every MCP server's results.
+			"PostToolUse": []any{map[string]any{
+				"matcher": "Bash|Grep|mcp__.*",
+				"hooks":   []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
+			}},
 			// Adds the usage guide at start, and again after compaction or /clear.
 			"SessionStart": []any{map[string]any{
 				"hooks": []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
@@ -159,7 +165,7 @@ func claudeArgs(exe string) ([]string, error) {
 	// WebSearch stays, gascoigne has no search. Per run only: unwrap could not
 	// tell this deny rule from the user's own.
 	settings := claudeSettings(exe)
-	settings["permissions"] = map[string]any{"deny": []string{"Grep", "Glob", "WebFetch"}}
+	settings["permissions"] = map[string]any{"deny": claudeDenies}
 	// Same-named servers given with --mcp-config replace the configured ones
 	// for the run, so other servers' results get optimized too.
 	servers, r := claudeProxies(exe)
@@ -189,7 +195,7 @@ func codexArgs(exe string) ([]string, error) {
 	}
 	return append([]string{
 		"-c", fmt.Sprintf(`mcp_servers.gascoigne={command=%s,args=["mcp"]}`, strconv.Quote(exe)),
-		"-c", fmt.Sprintf(`hooks.PostToolUse=[{matcher="^Bash$",hooks=[{type="command",command=%s}]}]`, strconv.Quote(hookCommand(exe, "codex"))),
+		"-c", fmt.Sprintf(`hooks.PostToolUse=[{matcher=%s,hooks=[{type="command",command=%s}]}]`, strconv.Quote(codexMatcher), strconv.Quote(hookCommand(exe, "codex"))),
 	}, proxies...), nil
 }
 
@@ -242,13 +248,17 @@ command = %s
 args = ["mcp"]
 
 [[hooks.PostToolUse]]
-matcher = "^Bash$"
+matcher = %s
 
 [[hooks.PostToolUse.hooks]]
 type = "command"
 command = %s
-`, strconv.Quote(exe), strconv.Quote(hookCommand(exe, "codex")))
+`, strconv.Quote(exe), strconv.Quote(codexMatcher), strconv.Quote(hookCommand(exe, "codex")))
 }
+
+// codexMatcher: shell commands and every MCP server's tools (the hook
+// skips gascoigne's own).
+const codexMatcher = "^Bash$|^mcp__.*"
 
 func cursorInstall(exe string) string {
 	hooks := map[string]any{"version": 1, "hooks": map[string]any{"preToolUse": []any{

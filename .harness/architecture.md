@@ -152,6 +152,13 @@ Other stdio MCP servers start through `gascoigne mcp-proxy -- <cmd>` (`proxy.go`
 same-named copies (claude `--mcp-config` beats configured scopes for the run, approved/enabled
 ones only; codex `-c` overrides), install rewrites `.mcp.json`/`~/.claude.json`/codex tables/
 cursor `mcp.json`, unwrap restores from the kept args; remote servers stay direct.
+Results the rewrite cannot reach are replaced after the tool ran (`posthook.go`): claude
+PostToolUse `updatedToolOutput` in the tool's shape (Bash stdout, Grep content mode, `mcp__*`),
+codex PostToolUse `decision: block` + `reason` (`^Bash$|^mcp__.*`), gemini AfterTool
+`decision: deny` + `reason` (shell, `mcp_*`). Hinted output (`hintRe`) and gascoigne's own MCP
+tools are skipped; Read is never replaced (Claude numbers its lines). `install claude` adds the
+same deny rules as wrap (Grep, Glob, WebFetch) and records them in `$XDG_STATE_HOME/gascoigne/
+denies.json`; unwrap removes only recorded ones (`denies.go`).
 Hooks call `gascoigne hook <agent>`, which never
 fails the tool call (bad input → no answer → call unchanged).
 | Agent | Per run | How shell output is optimized |
