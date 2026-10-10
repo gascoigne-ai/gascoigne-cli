@@ -142,10 +142,12 @@ fails the tool call (bad input → no answer → call unchanged).
 | codex | `-c mcp_servers…` + `-c hooks.PostToolUse…` | PostToolUse runs the output through pipeline `hook` and replaces the result (`decision: block`); codex rewrites a command only by approving it. Trust the hook once with `/hooks` |
 | pi | `--extension` (written to the user cache dir) | `tool_call` rewrites the bash command; no MCP |
 | cursor | — (config files only: `-print`) | preToolUse `updated_input`, `permission: allow` (shell approval stays with `beforeShellExecution`) |
-Rewrites touch only the last command of a `&&` list when `detect.FromCmd` knows it; pipes,
-redirects (except `2>&1`), subshells, other lists, background runs and commands that run until
-stopped (`-f`/`--follow`, `--watch`, `dev`, `serve`, `start`, `up`) stay as they are, since
-exec shows output only when the command exits.
+Rewrites touch only the last command of a `&&`/`;` list when `detect.FromCmd` knows it, and
+may keep trailing `| head`/`| tail` stages (they then cut optimized text; other filters would
+search it, so other pipes stay). Redirects (except `2>&1`), subshells, `||`, background runs,
+commands running gascoigne itself and commands that run until stopped (`-f`/`--follow`,
+`--watch`, `dev`, `serve`, `start`, `up`) stay as they are, since exec shows output only when
+the command exits.
 
 ## Full-payload guarantee
 Lives in core (`service/pipeline.go`), not in optimizers:

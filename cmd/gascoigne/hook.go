@@ -88,7 +88,7 @@ func optimizeHook(reply func(text string) any) hookFunc {
 	return func(ctx context.Context, c *common, in hookInput, _ string) (any, error) {
 		cmd, _ := in.ToolInput["command"].(string)
 		text, code, ok := shellOutput(in.ToolResponse)
-		if !ok || strings.Contains(strings.ToLower(cmd), "gascoigne") {
+		if !ok || ownCommand(cmd) {
 			return nil, nil
 		}
 		p, err := c.optimize(ctx, text, cmd)
@@ -142,21 +142,24 @@ func hinted(p *payload.Payload) string {
 
 // wrapCommand routes the last command of a shell line through gascoigne exec
 // when gascoigne knows the tool: "cd api && go test ./..." becomes
-// "cd api && gascoigne exec -- go test ./...". Pipes, redirects, subshells and
-// lists other than && are left alone: the agent post-processes those itself.
+// "cd api && gascoigne exec -- go test ./...", and "go test ./... | tail -5"
+// becomes "gascoigne exec -- go test ./... | tail -5". Commands may be joined
+// by && or ;, and only head/tail may follow a pipe: other filters would see
+// optimized text instead of what they search. Redirects, subshells and other
+// lists are left alone.
 func wrapCommand(line, gascoigne string) (string, bool) {
 	line = strings.TrimSpace(line)
-	body, merged := strings.CutSuffix(line, " 2>&1") // exec merges stderr anyway
-	if strings.ContainsAny(strings.ReplaceAll(body, "&&", ""), "|;&<>`\n") || strings.Contains(body, "$(") ||
-		strings.Contains(strings.ToLower(line), "gascoigne") {
+	if ownCommand(line) {
+		return line, false
+	}
+	body, pipe := splitPipe(line)
+	body, merged := strings.CutSuffix(body, " 2>&1") // exec merges stderr anyway
+	if strings.ContainsAny(strings.NewReplacer("&&", "", ";", "").Replace(body), "|&<>`\n") || strings.Contains(body, "$(") {
 		return line, false
 	}
 	head, last := "", body
-	if i := strings.LastIndex(body, "&&"); i >= 0 {
-		head, last = body[:i+2]+" ", strings.TrimSpace(body[i+2:])
-		if strings.Count(head, `"`)%2 == 1 || strings.Count(head, "'")%2 == 1 {
-			return line, false // the && is inside quotes
-		}
+	if i := lastSeparator(body); i >= 0 {
+		head, last = body[:i+1]+" ", strings.TrimSpace(body[i+1:])
 	}
 	env, cmd := splitEnv(last)
 	if detect.FromCmd(cmd) == "" || streams(cmd) {
@@ -166,7 +169,65 @@ func wrapCommand(line, gascoigne string) (string, bool) {
 	if merged {
 		out += " 2>&1"
 	}
-	return out, true
+	return out + pipe, true
+}
+
+// lastSeparator is the index of the last byte of the last && or ; outside
+// quotes, or -1.
+func lastSeparator(s string) int {
+	last := -1
+	var quote byte
+	for i := 0; i < len(s); i++ {
+		switch c := s[i]; {
+		case quote != 0:
+			if c == quote {
+				quote = 0
+			}
+		case c == '"' || c == '\'':
+			quote = c
+		case c == ';':
+			last = i
+		case c == '&' && i+1 < len(s) && s[i+1] == '&':
+			i++
+			last = i
+		}
+	}
+	return last
+}
+
+// splitPipe cuts trailing "| head …" and "| tail …" stages off a line; pipe is
+// empty when there are none or another command follows a pipe.
+func splitPipe(line string) (body, pipe string) {
+	stages := strings.Split(line, "|")
+	if len(stages) == 1 {
+		return line, ""
+	}
+	for _, s := range stages[1:] {
+		args := strings.Fields(s)
+		if len(args) == 0 || args[0] != "head" && args[0] != "tail" || streams(s) {
+			return line, ""
+		}
+		for _, a := range args[1:] {
+			if strings.Trim(a, "-+ncq0123456789") != "" {
+				return line, ""
+			}
+		}
+	}
+	body = strings.TrimSpace(stages[0])
+	return body, strings.TrimPrefix(line, body)
+}
+
+// ownCommand reports lines that run gascoigne itself or ask for raw output.
+func ownCommand(line string) bool {
+	if strings.Contains(line, "GASCOIGNE_RAW") {
+		return true
+	}
+	for s := range strings.FieldsFuncSeq(line, func(r rune) bool { return strings.ContainsRune("|;&", r) }) {
+		if args := detect.Argv(s); len(args) > 0 && args[0] == "gascoigne" {
+			return true
+		}
+	}
+	return false
 }
 
 // splitEnv splits leading VAR=value assignments off a command.
