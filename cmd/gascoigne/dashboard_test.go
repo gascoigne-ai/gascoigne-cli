@@ -211,23 +211,65 @@ func TestFlushOriginals(t *testing.T) {
 }
 
 func TestServerAction(t *testing.T) {
-	info := serverInfo{Build: "b1", Ledger: "/data/l.db"}
+	built := time.Date(2026, 10, 1, 12, 0, 0, 0, time.UTC)
+	info := serverInfo{Build: "b1", Modified: built, Ledger: "/data/l.db"}
+	newer, older := built.Add(time.Hour), built.Add(-time.Hour)
 	tests := []struct {
-		name    string
-		running bool
-		ledger  string
-		build   string
-		want    action
+		name     string
+		info     serverInfo
+		running  bool
+		ledger   string
+		build    string
+		modified time.Time
+		want     action
 	}{
-		{"none running", false, "/data/l.db", "b1", startServer},
-		{"same build and ledger", true, "/data/l.db", "b1", keepServer},
-		{"rebuilt binary", true, "/data/l.db", "b2", replaceServer},
-		{"another ledger", true, "/tmp/eval.db", "b2", keepServer},
+		{"none running", info, false, "/data/l.db", "b1", built, startServer},
+		{"same build and ledger", info, true, "/data/l.db", "b1", built, keepServer},
+		{"rebuilt binary", info, true, "/data/l.db", "b2", newer, replaceServer},
+		{"older binary", info, true, "/data/l.db", "b0", older, keepServer},
+		{"server without mtime", serverInfo{Build: "b1", Ledger: "/data/l.db"}, true, "/data/l.db", "b2", older, replaceServer},
+		{"another ledger", info, true, "/tmp/eval.db", "b2", newer, keepServer},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := serverAction(info, tt.running, tt.ledger, tt.build); got != tt.want {
+			if got := serverAction(tt.info, tt.running, tt.ledger, tt.build, tt.modified); got != tt.want {
 				t.Fatalf("got %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestWatchBinary(t *testing.T) {
+	tests := []struct {
+		name  string
+		reads []string
+		want  bool
+	}{
+		{"unchanged", []string{"b1", "b1", "b1", "b1"}, false},
+		{"replaced", []string{"b1", "b2", "b2"}, true},
+		{"still writing", []string{"b2", "b3", "unknown", "b4", "b1"}, false},
+		{"missing for a moment", []string{"unknown", "unknown", "b1"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(t.Context())
+			reads := make(chan string, len(tt.reads))
+			for _, r := range tt.reads {
+				reads <- r
+			}
+			read := func() string {
+				select {
+				case r := <-reads:
+					return r
+				default:
+					cancel() // every read was seen
+					return "b1"
+				}
+			}
+			changed := false
+			watchBinary(ctx, "b1", time.Millisecond, read, func() { changed = true })
+			if changed != tt.want {
+				t.Fatalf("changed = %v, want %v", changed, tt.want)
 			}
 		})
 	}

@@ -151,8 +151,9 @@ The dashboard is served by one background process per user, like a build daemon:
   on its address. `wrap` prints the address before the agent starts. Checking costs about
   0.3 ms per command.
 - **One instance.** The listening port is the lock: a second server cannot start.
-- **Follows upgrades.** The server reports a build id (the binary's path, size and mtime). A
-  command from a rebuilt or upgraded gascoigne stops the old server and starts a new one.
+- **Follows upgrades.** The server checks its binary every 2 seconds and restarts itself once a
+  rebuilt or upgraded one is in place. A command from a newer gascoigne elsewhere (another path)
+  replaces the server too; an older one leaves it alone and optimizes by itself.
 - **Keeps the pipeline warm.** `exec`, `run` and the codex hook run the command themselves and
   hand its output to the server, which keeps config, optimizers and the ledger open between
   runs (about 1 ms and 40% CPU less per command). The server only takes requests from the same

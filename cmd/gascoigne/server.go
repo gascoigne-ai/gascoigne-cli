@@ -17,6 +17,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/lukaszb/gascoigne/extension/ledger"
@@ -26,11 +27,14 @@ const defaultServerAddr = "127.0.0.1:7878"
 
 // serverInfo is what a running server says about itself.
 type serverInfo struct {
-	PID     int       `json:"pid"`
-	Build   string    `json:"build"`
-	Ledger  string    `json:"ledger"`
-	Addr    string    `json:"addr"`
-	Started time.Time `json:"started"`
+	PID   int    `json:"pid"`
+	Build string `json:"build"`
+	// Modified is when the binary was built or installed: an older one never
+	// replaces a newer server.
+	Modified time.Time `json:"modified"`
+	Ledger   string    `json:"ledger"`
+	Addr     string    `json:"addr"`
+	Started  time.Time `json:"started"`
 }
 
 // serverAddr is where the one server per user listens.
@@ -53,9 +57,15 @@ func cmdServer(ctx context.Context, args []string) error {
 	}
 	switch sub {
 	case "run":
-		return withLedger(ctx, "server run", args, 0, flags, func(l *ledger.Ledger, _ *common, _ []string) error {
+		err := withLedger(ctx, "server run", args, 0, flags, func(l *ledger.Ledger, _ *common, _ []string) error {
 			return runServer(ctx, l, addr)
 		})
+		if errors.Is(err, errNewBuild) {
+			// The ledger is closed and the port free: the new binary takes over.
+			fmt.Fprintln(os.Stderr, "gascoigne server: binary changed, restarting")
+			return spawnServer(addr)
+		}
+		return err
 	case "start":
 		return withLedger(ctx, "server start", args, 0, flags, func(l *ledger.Ledger, _ *common, _ []string) error {
 			if err := ensureServer(ctx, addr, l.Path(), true); err != nil {
@@ -90,8 +100,12 @@ func cmdServer(ctx context.Context, args []string) error {
 	}
 }
 
+// errNewBuild: the server's binary was replaced (rebuilt, upgraded).
+var errNewBuild = errors.New("binary changed")
+
 // runServer serves the dashboard in the foreground until ctx ends or a
-// client asks it to stop.
+// client asks it to stop. It returns errNewBuild once its binary changes,
+// so the new version restarts it.
 func runServer(ctx context.Context, l *ledger.Ledger, addr string) error {
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -99,7 +113,13 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string) error {
 	}
 	ctx, stop := context.WithCancel(ctx)
 	defer stop()
-	info := serverInfo{PID: os.Getpid(), Build: build(), Ledger: l.Path(), Addr: ln.Addr().String(), Started: time.Now()}
+	b, modified := binary()
+	info := serverInfo{PID: os.Getpid(), Build: b, Modified: modified, Ledger: l.Path(), Addr: ln.Addr().String(), Started: time.Now()}
+	var rebuilt atomic.Bool
+	go watchBinary(ctx, b, 2*time.Second, func() string { b, _ := binary(); return b }, func() {
+		rebuilt.Store(true)
+		stop()
+	})
 	w := newWarm(ctx, info.Build, info.Ledger)
 	defer w.Close()
 	mux := http.NewServeMux()
@@ -114,7 +134,35 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string) error {
 	if err := srv.Serve(ln); !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
+	if rebuilt.Load() {
+		return errNewBuild
+	}
 	return nil
+}
+
+// watchBinary calls changed once read reports a build other than current
+// twice in a row, so a binary still being written is not started.
+func watchBinary(ctx context.Context, current string, every time.Duration, read func() string, changed func()) {
+	t := time.NewTicker(every)
+	defer t.Stop()
+	seen := current
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+		}
+		b := read()
+		switch {
+		case b == current || b == "unknown":
+			seen = current
+		case b == seen:
+			changed()
+			return
+		default:
+			seen = b
+		}
+	}
 }
 
 // ensureServer starts the server unless one for this ledger and build
@@ -126,7 +174,8 @@ func ensureServer(ctx context.Context, addr, ledgerPath string, wait bool) error
 		return nil
 	}
 	info, err := health(addr)
-	switch serverAction(info, err == nil, ledgerPath, build()) {
+	b, modified := binary()
+	switch serverAction(info, err == nil, ledgerPath, b, modified) {
 	case keepServer:
 		return nil
 	case replaceServer:
@@ -162,14 +211,17 @@ const (
 )
 
 // serverAction decides what to do about the server found (or not) on the
-// address, for a command using ledgerPath from binary build.
-func serverAction(info serverInfo, running bool, ledgerPath, build string) action {
+// address, for a command using ledgerPath from binary build, modified then.
+// A server from an older binary is replaced; a newer one stays (this run
+// optimizes locally), so two installed versions don't keep replacing each
+// other.
+func serverAction(info serverInfo, running bool, ledgerPath, build string, modified time.Time) action {
 	switch {
 	case !running:
 		return startServer
 	case info.Ledger != ledgerPath: // someone else's ledger, e.g. an isolated eval
 		return keepServer
-	case info.Build != build:
+	case info.Build != build && (info.Modified.IsZero() || modified.After(info.Modified)):
 		return replaceServer
 	}
 	return keepServer
@@ -253,14 +305,20 @@ func stopServer(addr string) error {
 // build identifies this binary, so a rebuilt gascoigne replaces a server
 // still running the old one.
 func build() string {
+	b, _ := binary()
+	return b
+}
+
+// binary is this binary's build id (path, size, mtime) and mtime.
+func binary() (string, time.Time) {
 	exe, err := os.Executable()
 	if err != nil {
-		return "unknown"
+		return "unknown", time.Time{}
 	}
 	st, err := os.Stat(exe)
 	if err != nil {
-		return "unknown"
+		return "unknown", time.Time{}
 	}
 	sum := sha256.Sum256(fmt.Appendf(nil, "%s|%d|%d", exe, st.Size(), st.ModTime().UnixNano()))
-	return hex.EncodeToString(sum[:6])
+	return hex.EncodeToString(sum[:6]), st.ModTime()
 }

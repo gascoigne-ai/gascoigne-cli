@@ -8,6 +8,7 @@ components built by factories, `type/name` ids, pipelines wired by YAML, explici
 ```
 component/  payload/  tokens/        public contracts: what component authors import
 detect/  compress/  mcptool/         public libraries: content detection, text primitives, MCP tools
+lazyre/                              package-level regexps compiled on first use (init stays ~1 ms)
 receiver/  filter/  exporter/        components, one package each, OTel-contrib style;
 extension/                             only import public packages → can become own modules
 optimizer/<family>/<name>optimizer   optimizers grouped by family (see below)
@@ -220,8 +221,9 @@ Background server (`cmd/gascoigne/server.go`): one per user on `$GASCOIGNE_SERVE
 (default `127.0.0.1:7878`; the port is the lock), started detached (setsid, log in the user cache
 dir) by commands with `common.server` set (`exec`, `serve` for mcp/mcp-proxy, the codex hook's
 `optimize`) and by `wrap`, when `/api/health` does not answer. Health reports pid, build (binary
-path+size+mtime hash) and ledger path: another build is replaced (stop + spawn), another ledger
-left alone. Server mode (`remote.go`): `exec`, `run` and the codex hook (`common.useServer`)
+path+size+mtime hash), binary mtime and ledger path: an older build is replaced (stop + spawn),
+a newer one kept, another ledger left alone. The server stats its binary every 2 s; a new build
+seen twice in a row → shut down, close the ledger, spawn the new binary (`watchBinary`). Server mode (`remote.go`): `exec`, `run` and the codex hook (`common.useServer`)
 build only their pipeline's receivers and exporters (`service.Options.Remote`) and POST the
 payload to `/api/optimize`, where a warm service per config hash (defaults+user file and
 overrides; receivers/exporters stripped, ≤ 8 kept, one payload at a time) runs
@@ -229,7 +231,8 @@ overrides; receivers/exporters stripped, ≤ 8 kept, one payload at a time) runs
 broken server → the full pipeline is built locally for that payload (which also starts/replaces
 the server); pipeline errors (422) are returned. Runs with other `GASCOIGNE_*` env (raw,
 cat mode, ledger) stay local; a spawned server drops the spawner's `GASCOIGNE_*` env except
-ledger/config/addr. ~7.7 → 6.5 ms per exec, client CPU −40%; Go init (~3 ms) is the floor. `server run|start|stop|status`, `dashboard` =
+ledger/config/addr. Package-level patterns use `lazyre` (`TestPatternsCompile` runs
+`lazyre.Check`), so a served run never compiles them. `server run|start|stop|status`, `dashboard` =
 `server start`, `GASCOIGNE_SERVER=off`. `gascoigne reset` / `POST /api/reset` → `ledger.Reset`:
 events+steps by filters (flags only, never env); `-all` also raw and failures, no filters.
 The server (`dashboard.go`, one embedded `dashboard.html`, no build step) serves the ledger live: totals, days, outcomes, commands,
