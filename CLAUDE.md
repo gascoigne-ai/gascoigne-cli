@@ -1,7 +1,8 @@
 # gascoigne
 
-Token optimizer for LLM agents: command output optimizers (go, git, grep, ls, cat, npm, bun, nx),
-JSON/log/HTML compression with per-block content detection, MCP server + proxy, LLM API proxy (planned). Go 1.27, module `github.com/lukaszb/gascoigne`.
+Token optimizer for LLM agents: family engines (test, build, pkg, task, vcs, search, fs, data,
+log, web) with tools as declarative dialects (`family/dialect` types), JSON/log/HTML compression,
+MCP server + proxy, LLM API proxy (planned). Go 1.27, module `github.com/lukaszb/gascoigne`.
 Flow: receiver → filter → router → optimizer → exporter; sqlite ledger keeps originals + gains + failures.
 
 ## Commands

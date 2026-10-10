@@ -49,41 +49,33 @@ Type (what it is): detected content type, per block — see below.
 Well-known attrs: `cmd`, `file`, `url`, `tool`, `mime`, `query`, `session`, `raw`, `raw_id`, `route`, `raw_tokens`, `out_tokens`.
 `Key()` = stable source identity (`file:` > `url:` > `cmd:` > `tool:`), used for failure history.
 
-## Content detection (`detect/`, `filter/detectfilter`)
-The `detect` filter sets `Block.Type` on every block, so one payload can mix types (several tool
-results in one request) and each part meets the right optimizer. Order of evidence:
-1. command hint (`cmd` attr): `go test`, `git status|log|diff|show|push`, `npm|pnpm|yarn`, `bun`,
-   `nx`/`npx nx`, `tsc`, `jest|vitest`, `grep|rg|ag`, `ls`, `cat|head|tail <file>`;
-2. file name or MIME (`file`, `mime` attrs);
-3. content sniffing: json/ndjson/json streams, html, diff, go test(-json)/build, git status/log,
-   tsc, bun, nx, jest/vitest, npm, grep results, `ls -l`, logs, source code, else `text`.
-Types are constants in `detect` (`detect.GoTest`, `detect.JSON`, …). New format = new constant +
-cmd mapping and/or sniffer + table test, then an optimizer that selects it.
+## Content detection: `family/dialect` (`detect/`, `filter/detectfilter`)
+Every block gets a type `family/dialect` (`test/jest`, `build/tsc`, `pkg/pip`, `task/nx`), so one
+payload can mix types and each part meets its family engine. Dialects are declarative `Spec`s in
+`detect/<family>.go`: command patterns (`program sub sub -flag`, most specific wins, `CmdFunc` for
+flag values), file globs, MIME types and a sniffer with a priority (composite runners first,
+generic formats last). `Argv` unwraps wrappers and runners (`sudo`, `npx`, `uv run`,
+`bundle exec`, `python -m`). Evidence order: command → file/MIME → sniffing → `doc/text`.
+`detect.Family`/`detect.Dialect` split a type; `detect.Command` names commands for stats.
 
-## Optimizer families
-`optimizer/<family>/<name>optimizer`; the factory declares the same family
-(`component.WithFamily`) and `gain -by family` reports per family.
-| Family | Optimizers | Inputs |
+## Families
+One engine per family (`optimizer/<family>/<family>optimizer`), dialects tune it. Shared logic
+lives in public libs so engines and composite families can reuse it:
+| Family | Engine (lib) | Dialects |
 |---|---|---|
-| `go` | `go` | go test (-json), go build/vet |
-| `js` | `npm`, `bun`, `nx` | package managers, jest/vitest/bun test, tsc, nx tasks |
-| `vcs` | `git` | status, log, diff/show, push/pull/fetch |
-| `search` | `grep` | grep, rg, git grep |
-| `fs` | `ls`, `cat` | listings, source files |
-| `data` | `json`, `log` | JSON/NDJSON, logs, plain text |
-| `web` | `html` | web pages → markdown |
-| `core` | `passthrough` | baseline / placeholder |
-New tool for an existing ecosystem joins its family (`cargo` → new `rust` family, `pnpm`-only
-quirks → `js`). Families are for grouping and stats only; routing uses content types.
-
-## Built-in components
-| Kind | Components |
-|---|---|
-| receiver | `stdin`, `exec` (`gascoigne exec -- cmd`), `mcp` (server: fetch, compress, retrieve, stats), `mcp_proxy` (wraps another MCP server) |
-| filter | `bypass`, `detect`, `minsize`, `history` |
-| optimizer | `go`, `git`, `grep`, `ls`, `json`, `log`, `cat`, `npm`, `bun`, `nx`, `html`, `passthrough` |
-| exporter | `stdout` |
-| extension | `ledger` |
+| `test` | `compress/testreport`: go parsed; others via rules (passes counted, noise and dependency frames dropped, failures/summaries kept) | go, go-json, jest, vitest, bun, mocha, deno, pytest, cargo, rspec, maven, dotnet |
+| `build` | `compress/diag`: diagnostics grouped by file, identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed) |
+| `pkg` | `compress/pkgnoise`: progress/downloads dropped, warnings folded by kind | npm, pnpm, yarn, bun, pip, uv, poetry, go-mod, cargo, os |
+| `task` | sections; ok/cached collapse; failing ones via `compress/compose` | nx, turbo, make, just, gradle, compose, ci |
+| `vcs` | git engine | git-status, git-log, git-diff, git-remote |
+| `search` | grep engine | grep (grep, rg, ag, git grep) |
+| `fs` | ls, cat (outline) | ls, code |
+| `data` | json crusher (`compress/rows`), log engine | json, ndjson |
+| `log` | log engine | app |
+| `doc`, `web` | text dedupe, html→markdown | text, markdown, html |
+`compress/compose` sniffs a section and calls the test/build/pkg engine: used by `task` and docker
+builds. `compress/rows` samples records (errors, anomalies, change points, query, ends).
+Families are what `gain -by family` reports; `gain -by dialect` splits them.
 
 JSON arrays (`optimizer/jsonoptimizer`): small arrays (< `min_items`, < `min_tokens`, ≤ `max_items`)
 are never sampled. Otherwise lossless first — similar objects become a table (`_cols/_rows`,

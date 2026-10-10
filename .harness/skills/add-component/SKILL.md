@@ -34,7 +34,9 @@ to make a component work — if you think you must, stop and ask the user.
      falls back to the original and records the failure). Reuse `compress/` primitives.
    - When a filter bypasses or an optimizer deliberately leaves its blocks alone, set
      `payload.AttrSkip` to a factual reason (numbers, thresholds, flags) — `gain` shows it.
-   - New content type: add constant, cmd mapping/sniffer and tests in `detect/` first.
+   - New tool of an existing family: add a dialect, not an optimizer — a `Spec` in
+     `detect/<family>.go` (cmd patterns, sniffer, priority) plus rules in the family lib
+     (`testreport`, `diag`, `pkgnoise`) or a splitter (task). New optimizer only for a new family.
 5. `<name>_test.go`: table-driven, real-shaped inputs.
 6. Register: one line in `internal/registry/registry.go` under the right kind comment.
 7. Optimizers: add to `optimizers:` and the router `default:` chain in `configs/default.yaml`.
