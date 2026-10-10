@@ -583,6 +583,12 @@
     keep: ["DataIntegrityViolationException", "OrderService.java:88", "Caused by: org.postgresql.util.PSQLException", "cache warm-up took"], min_saved: 80 }
 - { file: log/docker-logs-postgres.txt, attrs: { cmd: docker logs shop-db }, expect_type: log/docker,
     keep: ["deadlock detected", "STATEMENT:  UPDATE stock", "checkpoint complete"], min_saved: 75 }
+- { file: log/compose-logs.txt, attrs: { cmd: docker compose logs }, expect_type: log/docker,
+    keep: ["worker-1| ConnectionError: payment gateway timed out", "/app/shop/tasks.py\", line 88", "Key (order_id)=(1042) already exists"], min_saved: 50 }
+- { file: log/kubectl-logs-prefix.txt, attrs: { cmd: kubectl logs -l app=shop-api --prefix }, expect_type: log/kubectl,
+    keep: ["[sources: A=pod/shop-api-7d9f8b6c5-2xkqp/api", "Unable to acquire JDBC Connection", "OrderService.java:58", "cache warm-up took 1457ms"], min_saved: 50 }
+- { name: detect/compose-logs, file: log/compose-logs.txt, expect_type: log/docker }
+- { name: detect/kubectl-prefix, file: log/kubectl-logs-prefix.txt, expect_type: log/kubectl }
 - { name: detect/syslog, file: log/journalctl.txt, expect_type: log/syslog }
 - { name: detect/access, file: log/nginx-access.log, expect_type: log/access }
 

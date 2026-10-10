@@ -1,0 +1,134 @@
+redis-1   | 1:C 10 Oct 2026 07:00:00.112 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+redis-1   | 1:M 10 Oct 2026 07:00:00.114 * Ready to accept connections tcp
+db-1      | 2026-10-10 07:00:00.201 UTC [1] LOG:  starting PostgreSQL 16.4 on x86_64-pc-linux-gnu
+db-1      | 2026-10-10 07:00:00.207 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+db-1      | 2026-10-10 07:00:00.230 UTC [1] LOG:  database system is ready to accept connections
+web-1     | [2026-10-10 07:00:01 +0000] [1] [INFO] Starting gunicorn 22.0.0
+web-1     | [2026-10-10 07:00:01 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+web-1     | [2026-10-10 07:00:01 +0000] [7] [INFO] Booting worker with pid: 7
+web-1     | [2026-10-10 07:00:01 +0000] [8] [INFO] Booting worker with pid: 8
+web-1     | [2026-10-10 07:00:01 +0000] [9] [INFO] Booting worker with pid: 9
+web-1     | [2026-10-10 07:00:01 +0000] [10] [INFO] Booting worker with pid: 10
+worker-1  | [2026-10-10 07:00:02,004: INFO/MainProcess] Connected to redis://redis:6379/0
+worker-1  | [2026-10-10 07:00:02,010: INFO/MainProcess] celery@worker ready.
+redis-1   | 1:M 10 Oct 2026 07:00:04.504 * 100 changes in 300 seconds. Saving...
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:04 +0000] "GET /api/products HTTP/1.1" 200 1577 "-" "python-requests/2.32.3"
+redis-1   | 1:M 10 Oct 2026 07:00:04.319 * 100 changes in 300 seconds. Saving...
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:04 +0000] "GET /health HTTP/1.1" 200 366 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:04 +0000] "GET /health HTTP/1.1" 200 322 "-" "python-requests/2.32.3"
+redis-1   | 1:M 10 Oct 2026 07:00:04.745 * 100 changes in 300 seconds. Saving...
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:04 +0000] "GET /health HTTP/1.1" 200 283 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:04 +0000] "GET /api/cart HTTP/1.1" 200 1266 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:05 +0000] "GET /api/products HTTP/1.1" 200 2418 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:06 +0000] "GET /api/cart HTTP/1.1" 200 502 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:06 +0000] "GET /api/products HTTP/1.1" 200 2391 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:06,608: INFO/ForkPoolWorker-4] Task shop.tasks.send_receipt[c6f87718-5c1d] succeeded in 0.314s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:07 +0000] "GET /api/cart HTTP/1.1" 200 3333 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:07,349: INFO/ForkPoolWorker-1] Task shop.tasks.send_receipt[930d6eaf-5c1d] succeeded in 0.300s: None
+db-1      | 2026-10-10 07:00:08.846 UTC [74] LOG:  connection authorized: user=shop database=shop
+worker-1  | [2026-10-10 07:00:09,174: INFO/ForkPoolWorker-1] Task shop.tasks.send_receipt[830e07bc-5c1d] succeeded in 0.418s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:10 +0000] "GET /health HTTP/1.1" 200 1807 "-" "python-requests/2.32.3"
+redis-1   | 1:M 10 Oct 2026 07:00:10.179 * 100 changes in 300 seconds. Saving...
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:11 +0000] "GET /api/products/42 HTTP/1.1" 200 2514 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:12 +0000] "GET /health HTTP/1.1" 200 361 "-" "python-requests/2.32.3"
+redis-1   | 1:M 10 Oct 2026 07:00:12.585 * 100 changes in 300 seconds. Saving...
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:12 +0000] "GET /api/products/42 HTTP/1.1" 200 2730 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:13 +0000] "GET /health HTTP/1.1" 200 3713 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:14 +0000] "GET /health HTTP/1.1" 200 1535 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:14,605: INFO/ForkPoolWorker-1] Task shop.tasks.send_receipt[37dc76fb-5c1d] succeeded in 0.768s: None
+worker-1  | [2026-10-10 07:00:14,507: INFO/ForkPoolWorker-4] Task shop.tasks.send_receipt[eab477d2-5c1d] succeeded in 0.871s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:14 +0000] "GET /health HTTP/1.1" 200 2330 "-" "python-requests/2.32.3"
+db-1      | 2026-10-10 07:00:15.938 UTC [73] LOG:  connection authorized: user=shop database=shop
+worker-1  | [2026-10-10 07:00:16,467: INFO/ForkPoolWorker-4] Task shop.tasks.send_receipt[f52ddf5d-5c1d] succeeded in 0.231s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:16 +0000] "GET /api/cart HTTP/1.1" 200 2777 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:16 +0000] "GET /api/cart HTTP/1.1" 200 1156 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:17 +0000] "GET /health HTTP/1.1" 200 2269 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:18,426: INFO/ForkPoolWorker-2] Task shop.tasks.send_receipt[b0c4312d-5c1d] succeeded in 0.859s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:18 +0000] "GET /health HTTP/1.1" 200 1710 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:19 +0000] "GET /health HTTP/1.1" 200 2678 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:20 +0000] "GET /api/products HTTP/1.1" 200 935 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:21 +0000] "GET /api/products/42 HTTP/1.1" 200 2540 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:21 +0000] "GET /api/cart HTTP/1.1" 200 2277 "-" "python-requests/2.32.3"
+redis-1   | 1:M 10 Oct 2026 07:00:21.728 * 100 changes in 300 seconds. Saving...
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:21 +0000] "GET /api/cart HTTP/1.1" 200 2595 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:22 +0000] "GET /api/products/42 HTTP/1.1" 200 3993 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:23,585: INFO/ForkPoolWorker-1] Task shop.tasks.send_receipt[1d87cec3-5c1d] succeeded in 0.849s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:24 +0000] "GET /api/products/42 HTTP/1.1" 200 431 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:24 +0000] "GET /api/products/42 HTTP/1.1" 200 3112 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:25 +0000] "GET /api/cart HTTP/1.1" 200 2194 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:25 +0000] "GET /api/products/42 HTTP/1.1" 200 680 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:25,405: INFO/ForkPoolWorker-1] Task shop.tasks.send_receipt[b239f3c7-5c1d] succeeded in 0.845s: None
+redis-1   | 1:M 10 Oct 2026 07:00:26.464 * 100 changes in 300 seconds. Saving...
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:26 +0000] "GET /api/products/42 HTTP/1.1" 200 2686 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:26,907: INFO/ForkPoolWorker-2] Task shop.tasks.send_receipt[ce5b2a92-5c1d] succeeded in 0.239s: None
+worker-1  | [2026-10-10 07:00:27,332: INFO/ForkPoolWorker-2] Task shop.tasks.send_receipt[8483f8b8-5c1d] succeeded in 0.493s: None
+redis-1   | 1:M 10 Oct 2026 07:00:27.909 * 100 changes in 300 seconds. Saving...
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:28 +0000] "GET /api/cart HTTP/1.1" 200 2916 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:29 +0000] "GET /api/products/42 HTTP/1.1" 200 3991 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:30 +0000] "GET /api/products HTTP/1.1" 200 1009 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:31 +0000] "GET /api/cart HTTP/1.1" 200 2056 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:31 +0000] "GET /api/products/42 HTTP/1.1" 200 3355 "-" "python-requests/2.32.3"
+db-1      | 2026-10-10 07:00:31.222 UTC [89] LOG:  connection authorized: user=shop database=shop
+worker-1  | [2026-10-10 07:00:32,868: INFO/ForkPoolWorker-2] Task shop.tasks.send_receipt[7a605a91-5c1d] succeeded in 0.889s: None
+worker-1  | [2026-10-10 07:00:33,440: INFO/ForkPoolWorker-1] Task shop.tasks.send_receipt[cd02c5e1-5c1d] succeeded in 0.946s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:34 +0000] "GET /api/products HTTP/1.1" 200 3048 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:34 +0000] "GET /api/cart HTTP/1.1" 200 192 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:34 +0000] "GET /health HTTP/1.1" 200 3383 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:34,710: INFO/ForkPoolWorker-4] Task shop.tasks.send_receipt[a842bc19-5c1d] succeeded in 0.937s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:34 +0000] "GET /api/cart HTTP/1.1" 200 167 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:34,843: INFO/ForkPoolWorker-1] Task shop.tasks.send_receipt[86ce03f9-5c1d] succeeded in 0.749s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:34 +0000] "GET /api/cart HTTP/1.1" 200 3463 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:34 +0000] "GET /api/cart HTTP/1.1" 200 1279 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:34,433: INFO/ForkPoolWorker-3] Task shop.tasks.send_receipt[8b5ab3ee-5c1d] succeeded in 0.419s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:34 +0000] "GET /api/products/42 HTTP/1.1" 200 3756 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:35,934: INFO/ForkPoolWorker-4] Task shop.tasks.send_receipt[d3bf6d01-5c1d] succeeded in 0.918s: None
+worker-1  | [2026-10-10 07:00:35,512: ERROR/ForkPoolWorker-2] Task shop.tasks.charge_card[9f1c2e44-5c1d] raised unexpected: ConnectionError('payment gateway timed out')
+worker-1  | Traceback (most recent call last):
+worker-1  |   File "/usr/local/lib/python3.12/site-packages/celery/app/trace.py", line 453, in trace_task
+worker-1  |     R = retval = fun(*args, **kwargs)
+worker-1  |   File "/app/shop/tasks.py", line 88, in charge_card
+worker-1  |     resp = gateway.charge(order.total, token)
+worker-1  |   File "/app/shop/payments.py", line 41, in charge
+worker-1  |     raise ConnectionError("payment gateway timed out")
+worker-1  | ConnectionError: payment gateway timed out
+db-1      | 2026-10-10 07:00:35.601 UTC [77] ERROR:  duplicate key value violates unique constraint "payments_order_id_key"
+db-1      | 2026-10-10 07:00:35.601 UTC [77] DETAIL:  Key (order_id)=(1042) already exists.
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:35 +0000] "GET /api/products HTTP/1.1" 200 3655 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:36,723: INFO/ForkPoolWorker-1] Task shop.tasks.send_receipt[c6aa7d55-5c1d] succeeded in 0.799s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:36 +0000] "GET /api/products HTTP/1.1" 200 2359 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:36 +0000] "GET /health HTTP/1.1" 200 3292 "-" "python-requests/2.32.3"
+db-1      | 2026-10-10 07:00:36.158 UTC [67] LOG:  connection authorized: user=shop database=shop
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:36 +0000] "GET /api/products HTTP/1.1" 200 2159 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:37 +0000] "GET /api/products HTTP/1.1" 200 1895 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:38,617: INFO/ForkPoolWorker-2] Task shop.tasks.send_receipt[b156d1ad-5c1d] succeeded in 0.277s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:39 +0000] "GET /api/cart HTTP/1.1" 200 2943 "-" "python-requests/2.32.3"
+redis-1   | 1:M 10 Oct 2026 07:00:40.307 * 100 changes in 300 seconds. Saving...
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:41 +0000] "GET /api/products HTTP/1.1" 200 1687 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:42 +0000] "GET /api/cart HTTP/1.1" 200 1834 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:42 +0000] "GET /api/products/42 HTTP/1.1" 200 3291 "-" "python-requests/2.32.3"
+db-1      | 2026-10-10 07:00:42.258 UTC [90] LOG:  connection authorized: user=shop database=shop
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:43 +0000] "GET /api/cart HTTP/1.1" 200 1995 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:43,196: INFO/ForkPoolWorker-4] Task shop.tasks.send_receipt[e28af604-5c1d] succeeded in 0.487s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:43 +0000] "GET /health HTTP/1.1" 200 2191 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:44 +0000] "GET /api/cart HTTP/1.1" 200 1540 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:45 +0000] "GET /api/products/42 HTTP/1.1" 200 159 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:46 +0000] "GET /health HTTP/1.1" 200 2960 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:46 +0000] "GET /api/products/42 HTTP/1.1" 200 2178 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:46 +0000] "GET /api/cart HTTP/1.1" 200 3669 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:46 +0000] "GET /api/products/42 HTTP/1.1" 200 242 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:46 +0000] "GET /api/cart HTTP/1.1" 200 3437 "-" "python-requests/2.32.3"
+db-1      | 2026-10-10 07:00:47.792 UTC [86] LOG:  connection authorized: user=shop database=shop
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:48 +0000] "GET /health HTTP/1.1" 200 2948 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:49 +0000] "GET /api/products HTTP/1.1" 200 3355 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:49 +0000] "GET /api/products HTTP/1.1" 200 1181 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:49,920: INFO/ForkPoolWorker-3] Task shop.tasks.send_receipt[1570266b-5c1d] succeeded in 0.608s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:49 +0000] "GET /api/products HTTP/1.1" 200 1938 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:49 +0000] "GET /health HTTP/1.1" 200 3875 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:50,144: INFO/ForkPoolWorker-2] Task shop.tasks.send_receipt[f0290531-5c1d] succeeded in 0.109s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:50 +0000] "GET /api/cart HTTP/1.1" 200 906 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:51,643: INFO/ForkPoolWorker-2] Task shop.tasks.send_receipt[4a3adf99-5c1d] succeeded in 0.446s: None
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:51 +0000] "GET /api/products HTTP/1.1" 200 1105 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:51 +0000] "GET /api/cart HTTP/1.1" 200 2186 "-" "python-requests/2.32.3"
+web-1     | 172.18.0.1 - - [10/Oct/2026:07:00:52 +0000] "GET /health HTTP/1.1" 200 515 "-" "python-requests/2.32.3"
+worker-1  | [2026-10-10 07:00:53,659: INFO/ForkPoolWorker-4] Task shop.tasks.send_receipt[f86664ae-5c1d] succeeded in 0.507s: None
+redis-1   | 1:M 10 Oct 2026 07:00:53.450 * 100 changes in 300 seconds. Saving...

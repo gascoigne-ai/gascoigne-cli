@@ -22,8 +22,11 @@ func init() {
 			Sniff: all(firstLine(`^-- (Logs begin at|Journal begins at|Boot [0-9a-f]+ --)`), ratio(syslogLine+`|^-- `, 0.6))},
 		Spec{Type: Syslog, Files: []string{"syslog", "messages", "auth.log", "kern.log", "daemon.log", "syslog.*", "messages.*"}, Priority: 61,
 			Sniff: ratio(syslogLine, 0.6)},
-		Spec{Type: DockerLogs, Cmds: []string{"docker logs", "docker compose logs", "docker-compose logs", "podman logs", "docker service logs"}},
-		Spec{Type: KubeLogs, Cmds: []string{"kubectl logs", "oc logs", "k logs", "stern"}},
+		// Prefixed by the source: compose "web-1  | …", kubectl --prefix "[pod/web-x/app] …".
+		Spec{Type: DockerLogs, Cmds: []string{"docker logs", "docker compose logs", "docker-compose logs", "podman logs", "docker service logs"}, Priority: 63,
+			Sniff: all(ratio(`^[A-Za-z0-9][\w.-]*\s+\| `, 0.8), noLine(`^-+\+-`))}, // psql rules
+		Spec{Type: KubeLogs, Cmds: []string{"kubectl logs", "oc logs", "k logs", "stern"}, Priority: 63,
+			Sniff: ratio(`^\[(pod|deployment|statefulset|daemonset|job|replicaset)/[^\]\s]+\] `, 0.8)},
 		Spec{Type: Access, Files: []string{"access.log", "access_log", "*access.log", "*access.log.*", "*-access_log"}, Priority: 62,
 			Sniff: ratio(accessLine, 0.6)},
 		Spec{Type: CloudWatch, Cmds: []string{"aws logs tail", "aws logs filter-log-events", "aws logs get-log-events", "saw get", "saw watch"}},

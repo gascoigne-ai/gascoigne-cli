@@ -44,7 +44,7 @@ func Omitted(n int, what string) string {
 var volatile = lazyre.New(
 	`\d{4}-\d\d-\d\d[T ]\d\d:\d\d:\d\d(\.\d+)?(Z|[+-]\d\d:?\d\d)?` + // timestamps
 		`|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b` + // uuids
-		`|\b0x[0-9a-fA-F]+\b|\b[0-9a-f]{12,}\b` + // hex ids, hashes
+		`|\b0x[0-9a-fA-F]+\b|\b[0-9a-f]{8,}\b` + // hex ids, hashes (task ids, short shas)
 		`|\d+(\.\d+)?`) // numbers
 
 // Normalize replaces volatile tokens (timestamps, ids, numbers) so lines that

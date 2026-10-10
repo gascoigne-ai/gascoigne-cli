@@ -1,0 +1,138 @@
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:00.101Z  INFO 1 --- [           main] c.e.shop.ShopApplication                 : Starting ShopApplication v2.4.1 using Java 21.0.4
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:03.877Z  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http)
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:03.902Z  INFO 1 --- [           main] c.e.shop.ShopApplication                 : Started ShopApplication in 4.112 seconds
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:00.101Z  INFO 1 --- [           main] c.e.shop.ShopApplication                 : Starting ShopApplication v2.4.1 using Java 21.0.4
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:03.877Z  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http)
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:03.902Z  INFO 1 --- [           main] c.e.shop.ShopApplication                 : Started ShopApplication in 4.112 seconds
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:00.101Z  INFO 1 --- [           main] c.e.shop.ShopApplication                 : Starting ShopApplication v2.4.1 using Java 21.0.4
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:03.877Z  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http)
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:03.902Z  INFO 1 --- [           main] c.e.shop.ShopApplication                 : Started ShopApplication in 4.112 seconds
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:04.243Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/356 200 83ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:04.114Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/641 200 18ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:04.541Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/57 200 34ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:04.961Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/892 200 87ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:05.388Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/710 200 87ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:05.570Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/162 200 7ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:05.103Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/373 200 59ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:05.431Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/36 200 72ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:06.465Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/2 200 29ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:06.185Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/286 200 50ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:06.305Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/517 200 85ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:06.370Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/148 200 13ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:07.142Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/24 200 77ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:07.744Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/87 200 40ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:07.973Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/674 200 69ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:07.498Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/738 200 78ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:08.390Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/45 200 21ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:08.742Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/752 200 67ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:08.242Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/771 200 66ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:08.954Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/847 200 74ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:09.917Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/88 200 76ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:09.236Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/983 200 7ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:09.955Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/572 200 50ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:09.119Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/698 200 82ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:10.370Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/468 200 64ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:10.648Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/676 200 66ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:10.863Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/259 200 10ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:10.340Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/237 200 35ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:11.571Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/866 200 85ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:11.590Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/786 200 11ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:11.747Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/80 200 80ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:11.439Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/668 200 20ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:12.411Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/13 200 90ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:12.597Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/996 200 9ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:12.808Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/692 200 14ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:12.825Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/293 200 39ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:13.577Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/916 200 61ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:13.419Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/959 200 27ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:13.396Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/79 200 4ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:13.375Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/215 200 59ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:14.695Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/146 200 11ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:14.368Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/136 200 69ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:14.620Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/909 200 82ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:14.336Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/920 200 48ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:15.125Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/4 200 52ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:15.561Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/310 200 89ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:15.526Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/386 200 20ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:15.960Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/2 200 17ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:16.959Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/123 200 45ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:16.857Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/260 200 3ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:16.502Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/891 200 10ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:16.469Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/774 200 11ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:17.387Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/53 200 8ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:17.750Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/256 200 38ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:17.623Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/195 200 57ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:17.129Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/936 200 56ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:18.308Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/51 200 72ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:18.561Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/660 200 54ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:18.150Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/131 200 64ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:18.524Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/289 200 62ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:19.856Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/416 200 34ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:19.408Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/571 200 32ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:19.222Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/659 200 52ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:19.312Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/928 200 11ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:20.325Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/929 200 72ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:20.537Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/561 200 59ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:20.192Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/351 200 33ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:20.426Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/378 200 13ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:21.306Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/768 200 74ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:21.523Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/216 200 51ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:21.446Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/511 200 36ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:21.468Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/704 200 75ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:22.744Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/95 200 69ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:22.493Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/662 200 33ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:22.419Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/131 200 57ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:22.826Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/992 200 56ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:23.100Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/401 200 64ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:23.559Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/802 200 61ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:23.258Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/535 200 30ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:23.945Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/88 200 15ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:24.101Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/239 200 7ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:24.310Z ERROR 1 --- [nio-8080-exec-3] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() threw exception
+[pod/shop-api-7d9f8b6c5-8mz4t/api] org.springframework.dao.DataAccessResourceFailureException: Unable to acquire JDBC Connection
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:277)
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 	at com.example.shop.orders.OrderService.place(OrderService.java:58)
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 	at com.example.shop.web.OrderController.create(OrderController.java:31)
+[pod/shop-api-7d9f8b6c5-8mz4t/api] Caused by: java.sql.SQLTransientConnectionException: HikariPool-1 - Connection is not available, request timed out after 30000ms.
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 	at com.zaxxer.hikari.pool.HikariPool.createTimeoutException(HikariPool.java:696)
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 	... 48 more
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:24.760Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/986 200 6ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:24.357Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/652 200 82ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:24.201Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/308 200 16ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:25.296Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/268 200 76ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:25.101Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/551 200 78ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:25.385Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/661 200 60ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:25.638Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/561 200 62ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:26.521Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/57 200 5ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:26.610Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/84 200 26ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:26.783Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/948 200 31ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:26.604Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/713 200 31ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:27.471Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/203 200 55ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:27.856Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/70 200 39ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:27.305Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/785 200 65ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:27.576Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/272 200 31ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:28.738Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/625 200 15ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:28.596Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/933 200 30ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:28.709Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/945 200 9ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:28.318Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/998 200 8ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:29.525Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/727 200 20ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:29.004Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 1457ms (threshold 1000ms)
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:29.502Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/920 200 25ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:29.850Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/82 200 42ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:29.295Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/669 200 44ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:30.132Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/681 200 61ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:30.959Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/340 200 50ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:30.211Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/81 200 23ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:30.459Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/979 200 12ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:31.877Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/390 200 73ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:31.941Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/90 200 41ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:31.300Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/555 200 62ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:31.431Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/756 200 26ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:32.746Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/254 200 5ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:32.141Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/36 200 53ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:32.922Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/264 200 10ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:32.720Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/372 200 10ms
+[pod/shop-api-7d9f8b6c5-8mz4t/api] 2026-10-10T07:00:33.731Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/269 200 44ms
+[pod/shop-api-7d9f8b6c5-qw7rn/api] 2026-10-10T07:00:33.424Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/305 200 90ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:33.924Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/25 200 78ms
+[pod/shop-api-7d9f8b6c5-2xkqp/api] 2026-10-10T07:00:33.586Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/977 200 15ms

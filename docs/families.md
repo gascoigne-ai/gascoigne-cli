@@ -187,16 +187,22 @@ around them; DEBUG/TRACE dropped. Structured cloud events become lines. Access l
 traffic summary: totals by status class, routes with ids folded (`/api/products/:id ×369
 (200 350, 404 19)`), top clients, and the server errors themselves.
 
+Container prefixes (`kubectl logs --prefix` `[pod/web-x/app] `, compose `web-1  | `) are cut
+off first, so levels, stack frames and repeats are seen, then put back as labels: one source is
+named once on top (`[source: …]`), several label each line (`web-1| …`); long pod names become
+letters defined once (`[sources: A=pod/shop-api-…-2xkqp/api …]`), and a line repeated by
+replicas shows all of them (`A+B+C| … (×3)`).
+
 | Dialect | Detected by |
 |---|---|
 | `log/app` | `*.log`, sniffing |
 | `log/journal` | `journalctl` |
 | `log/syslog` | `syslog`, `messages`, `auth.log`, … |
-| `log/docker`, `log/kubectl` | `docker logs`, `docker compose logs`; `kubectl logs`, `stern` |
+| `log/docker`, `log/kubectl` | `docker logs`, `docker compose logs`; `kubectl logs`, `stern`; sniffing of prefixed lines |
 | `log/access` | `access.log`, sniffing |
 | `log/cloudwatch`, `log/gcp`, `log/azure` | `aws logs …`; `gcloud logging read`; `az monitor …` |
 
-nginx access log: 34,382 → 215 (99.4%). `kubectl logs` with JSON lines: 13,459 → 1,351.
+nginx access log: 34,382 → 215 (99.4%). `kubectl logs` with JSON lines: 13,459 → 1,351. `kubectl logs --prefix`, three replicas: 5,537 → 523.
 
 ## doc
 

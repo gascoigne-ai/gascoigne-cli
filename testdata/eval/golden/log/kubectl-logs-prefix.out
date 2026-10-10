@@ -1,0 +1,21 @@
+[sources: A=pod/shop-api-7d9f8b6c5-2xkqp/api B=pod/shop-api-7d9f8b6c5-8mz4t/api C=pod/shop-api-7d9f8b6c5-qw7rn/api]
+A+B+C| 2026-10-10T07:00:00.101Z  INFO 1 --- [           main] c.e.shop.ShopApplication                 : Starting ShopApplication v2.4.1 using Java 21.0.4 (×3)
+A+B+C| 2026-10-10T07:00:03.877Z  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) (×3)
+A+B+C| 2026-10-10T07:00:03.902Z  INFO 1 --- [           main] c.e.shop.ShopApplication                 : Started ShopApplication in 4.112 seconds (×3)
+… 6 lines omitted
+A+B+C| 2026-10-10T07:00:04.243Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/356 200 83ms (×114)
+… 78 lines omitted
+C| 2026-10-10T07:00:23.945Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/88 200 15ms (×2)
+B| 2026-10-10T07:00:24.310Z ERROR 1 --- [nio-8080-exec-3] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() threw exception
+B| org.springframework.dao.DataAccessResourceFailureException: Unable to acquire JDBC Connection
+B| 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:277)
+B| 	at com.example.shop.orders.OrderService.place(OrderService.java:58)
+B| 	at com.example.shop.web.OrderController.create(OrderController.java:31)
+B| Caused by: java.sql.SQLTransientConnectionException: HikariPool-1 - Connection is not available, request timed out after 30000ms.
+B| 	at com.zaxxer.hikari.pool.HikariPool.createTimeoutException(HikariPool.java:696)
+B| 	... 48 more
+… 18 lines omitted
+B+C| 2026-10-10T07:00:28.318Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/998 200 8ms (×2)
+C| 2026-10-10T07:00:29.004Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 1457ms (threshold 1000ms)
+A+C| 2026-10-10T07:00:29.502Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/920 200 25ms (×2)
+… 17 lines omitted

@@ -197,6 +197,8 @@ var sniffFixtures = map[string]string{
 	"test/jest":       "npm/test-jest-fail.txt",
 	"test/maven":      "test/maven-test-fail.txt",
 	"test/mocha":      "test/mocha-fail.txt",
+	"log/docker":      "log/compose-logs.txt",
+	"log/kubectl":     "log/kubectl-logs-prefix.txt",
 	"test/pytest":     "test/pytest-fail.txt",
 	"test/rspec":      "test/rspec-fail.txt",
 	"test/vitest":     "test/vitest-fail.txt",

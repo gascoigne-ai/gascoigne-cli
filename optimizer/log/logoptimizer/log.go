@@ -8,6 +8,7 @@ package logoptimizer
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
@@ -42,6 +43,10 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 					lines = ev
 				}
 			}
+			if s, ok := split(lines); ok {
+				lines = render(o.template(s.lines, s.src), s.names)
+				break
+			}
 			lines = o.log(lines)
 		}
 		p.Blocks[i].Text = compress.Join(lines)
@@ -75,6 +80,32 @@ func isDebug(l string) bool {
 }
 
 func (o *Optimizer) log(lines []string) []string {
+	return texts(o.template(lines, nil))
+}
+
+// entry is one output line and the sources (container prefixes) it came
+// from: none without prefixes and for markers, several for merged repeats.
+type entry struct {
+	text string
+	srcs []int
+}
+
+func texts(es []entry) []string {
+	out := make([]string, len(es))
+	for i, e := range es {
+		out[i] = e.text
+	}
+	return out
+}
+
+// template templates lines; src[i] is line i's source, nil when there are none.
+func (o *Optimizer) template(lines []string, src []int) []entry {
+	sources := func(i int) []int {
+		if src == nil {
+			return nil
+		}
+		return []int{src[i]}
+	}
 	important := make([]bool, len(lines))
 	for i, l := range lines {
 		if severity(l) == compress.None {
@@ -89,12 +120,15 @@ func (o *Optimizer) log(lines []string) []string {
 	}
 
 	counts := map[string]int{}
+	srcsOf := map[string][]int{}
 	for i, l := range lines {
 		if !important[i] {
-			counts[compress.Normalize(l)]++
+			norm := compress.Normalize(l)
+			counts[norm]++
+			srcsOf[norm] = union(srcsOf[norm], sources(i))
 		}
 	}
-	var out []string
+	var out []entry
 	seen := map[string]bool{}
 	dropped := 0
 	for i, l := range lines {
@@ -105,38 +139,71 @@ func (o *Optimizer) log(lines []string) []string {
 			continue
 		}
 		if dropped > 0 {
-			out = append(out, compress.Omitted(dropped, ""))
+			out = append(out, entry{text: compress.Omitted(dropped, "")})
 			dropped = 0
 		}
+		e := entry{l, sources(i)}
 		if !important[i] {
 			seen[norm] = true
+			e.srcs = srcsOf[norm]
 			if n := counts[norm]; n > 1 {
-				l = fmt.Sprintf("%s (×%d)", l, n)
+				e.text = fmt.Sprintf("%s (×%d)", l, n)
 			}
 		}
-		out = append(out, l)
+		out = append(out, e)
 	}
 	if dropped > 0 {
-		out = append(out, compress.Omitted(dropped, ""))
+		out = append(out, entry{text: compress.Omitted(dropped, "")})
 	}
-	return o.limit(compress.DedupeRuns(out))
+	return o.limit(dedupeRuns(out))
+}
+
+// dedupeRuns collapses consecutive entries equal after Normalize into the
+// first one suffixed with "(×N)", like compress.DedupeRuns.
+func dedupeRuns(es []entry) []entry {
+	var out []entry
+	for i := 0; i < len(es); {
+		j := i + 1
+		norm := compress.Normalize(es[i].text)
+		e := es[i]
+		for j < len(es) && compress.Normalize(es[j].text) == norm {
+			e.srcs = union(e.srcs, es[j].srcs)
+			j++
+		}
+		if n := j - i; n > 1 && strings.TrimSpace(e.text) != "" {
+			e.text = fmt.Sprintf("%s (×%d)", e.text, n)
+		}
+		out = append(out, e)
+		i = j
+	}
+	return out
+}
+
+// union adds b's sources to a, keeping them sorted and distinct.
+func union(a, b []int) []int {
+	for _, s := range b {
+		if i, found := slices.BinarySearch(a, s); !found {
+			a = slices.Insert(slices.Clone(a), i, s)
+		}
+	}
+	return a
 }
 
 // limit keeps warnings/errors plus head and tail when still too long.
-func (o *Optimizer) limit(lines []string) []string {
-	if len(lines) <= o.cfg.MaxLines {
-		return lines
+func (o *Optimizer) limit(es []entry) []entry {
+	if len(es) <= o.cfg.MaxLines {
+		return es
 	}
 	head, tail := o.cfg.MaxLines/4, o.cfg.MaxLines/4
-	var out []string
+	var out []entry
 	dropped := 0
-	for i, l := range lines {
-		if i < head || i >= len(lines)-tail || severity(l) != compress.None || continuation.MatchString(l) {
+	for i, e := range es {
+		if i < head || i >= len(es)-tail || severity(e.text) != compress.None || continuation.MatchString(e.text) {
 			if dropped > 0 {
-				out = append(out, compress.Omitted(dropped, ""))
+				out = append(out, entry{text: compress.Omitted(dropped, "")})
 				dropped = 0
 			}
-			out = append(out, l)
+			out = append(out, e)
 			continue
 		}
 		dropped++

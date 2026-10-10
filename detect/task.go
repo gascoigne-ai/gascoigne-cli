@@ -23,7 +23,7 @@ func init() {
 		Spec{Type: Just, Cmds: []string{"just"}},
 		Spec{Type: Gradle, Cmds: []string{"gradle", "gradlew"}, Priority: 44,
 			Sniff: anyLine(`^> Task :\S+|^BUILD (SUCCESSFUL|FAILED) in \d`)},
-		Spec{Type: ComposeUp, Cmds: []string{"docker compose up", "docker-compose up", "podman compose up", "docker compose logs"}, Priority: 44,
+		Spec{Type: ComposeUp, Cmds: []string{"docker compose up", "docker-compose up", "podman compose up"}, Priority: 44,
 			Sniff: all(anyLine(`^(Attaching to |\s*\[\+\] Running \d+/\d+)`), ratio(`^\S+\s+\| `, 0.3))},
 		Spec{Type: CILog, Cmds: []string{"gh run view --log", "gh run view --log-failed"}, Priority: 44,
 			Sniff: ratio(`^[^\t]+\t[^\t]+\t\d{4}-\d\d-\d\dT[\d:.]+Z `, 0.5)},

@@ -67,6 +67,12 @@ func ratio(pattern string, share float64) Sniffer {
 	}
 }
 
+// noLine matches when no sampled line matches pattern.
+func noLine(pattern string) Sniffer {
+	any := anyLine(pattern)
+	return func(text string, lines []string) bool { return !any(text, lines) }
+}
+
 // all matches when every sniffer matches.
 func all(sniffers ...Sniffer) Sniffer {
 	return func(text string, lines []string) bool {
