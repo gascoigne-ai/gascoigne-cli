@@ -174,9 +174,33 @@ In some cases you are required to the `CC` environment variable with the cross c
 ## Cross Compiling from macOS
 … 8 lines omitted
 # Google Cloud Platform
-… 5 lines omitted
+
+Building on GCP is not possible because Google Cloud Platform does not allow `gcc` to be executed.
+
+Please work only with compiled final binaries.
+
 ## Linux
-… 35 lines omitted
+… 15 lines omitted
+### Alpine
+
+When building in an `alpine` container  run the following command before building:
+
+```
+apk add --update gcc musl-dev
+```
+
+### Fedora
+
+```bash
+sudo yum groupinstall "Development Tools" "Development Libraries"
+```
+
+### Ubuntu
+
+```bash
+sudo apt-get install build-essential
+```
+
 ## macOS
 … 42 lines omitted
 ## Windows
@@ -216,7 +240,8 @@ In some cases you are required to the `CC` environment variable with the cross c
 ## Compile
 … 3 lines omitted
 ## Usage
-… 102 lines omitted
+
+… 101 lines omitted
 # Extensions
 … 3 lines omitted
 ## Spatialite

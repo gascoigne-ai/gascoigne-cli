@@ -316,7 +316,32 @@ To use the User authentication module, the package has to be compiled with the t
 
 ## Usage
 
-… 101 lines omitted
+… 21 lines omitted
+### Password Encoding
+
+The passwords within the user authentication module of SQLite are encoded with the SQLite function `sqlite_cryp`.
+This function uses a ceasar-cypher which is quite insecure.
+This library provides several additional password encoders which can be configured through the connection string.
+
+The password cypher can be configured with the key `_auth_crypt`. And if the configured password encoder also requires an
+salt this can be configured with `_auth_salt`.
+
+#### Available Encoders
+
+- SHA1
+- SSHA1 (Salted SHA1)
+- SHA256
+- SSHA256 (salted SHA256)
+- SHA384
+- SSHA384 (salted SHA384)
+- SHA512
+- SSHA512 (salted SHA512)
+
+### Restrictions
+
+Operations on the database regarding user management can only be preformed by an administrator user.
+
+… 56 lines omitted
 # Extensions
 … 3 lines omitted
 ## Spatialite
@@ -326,7 +351,11 @@ To use the User authentication module, the package has to be compiled with the t
 # FAQ
 … 68 lines omitted
 ## Contributors
-… 17 lines omitted
+
+… 8 lines omitted
+#### Individuals
+
+… 5 lines omitted
 # License
 … 9 lines omitted
 # Author
