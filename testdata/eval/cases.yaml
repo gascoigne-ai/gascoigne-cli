@@ -191,6 +191,25 @@
 - { name: detect/systemctl, file: table/systemctl-units.txt, expect_type: table/systemctl }
 - { name: detect/docker-ps, file: table/docker-ps.txt, expect_type: table/docker }
 
+# --- db family
+- { file: db/psql-select.txt, attrs: { cmd: psql -c "select * from orders; \\d orders" }, expect_type: db/psql,
+    keep: ["refunded", "98000.00", "(120 rows)", "orders_status_created_idx", "same in all rows: currency=EUR", "timestamp with time zone"], min_saved: 60 }
+- { file: db/mysql-select.txt, attrs: { cmd: mysql -e "select * from orders" }, expect_type: db/mysql, keep: ["failed", "80 rows in set"], min_saved: 55 }
+- { file: db/sqlite-column.txt, attrs: { cmd: sqlite3 -column -header shop.db "select * from orders" }, expect_type: db/sqlite,
+    keep: ["refunded", "98000.0", "same in all rows: currency=EUR", "items omitted"], min_saved: 80 }
+- { file: db/sqlite-box.txt, attrs: { cmd: sqlite3 -box shop.db "select id, customer, status, total from orders limit 60" }, expect_type: db/sqlite, keep: ["customer", "items omitted"], min_saved: 45 }
+- { file: db/explain-analyze.txt, attrs: { cmd: psql -c "EXPLAIN (ANALYZE, BUFFERS) select …" }, expect_type: db/explain,
+    keep: ["Seq Scan on order_items oi (time=512.880ms rows=500000", "Execution Time: 812.911 ms", "Hash Cond: (oi.order_id = o.id)", "cheap plan node"], min_saved: 40 }
+- { file: db/redis-keys.txt, attrs: { cmd: redis-cli --scan }, expect_type: db/redis, keep: ["session:* ×420", "rate:ip:*.*.*.* ×90", "config:feature_flags"], min_saved: 95 }
+- { file: db/mongosh-find.txt, attrs: { cmd: mongosh shop --eval "db.orders.find()" }, expect_type: db/mongosh, keep: ["\"status\":\"failed\"", "omitted"], min_saved: 40 }
+- { file: db/alembic-upgrade.txt, attrs: { cmd: alembic upgrade head }, expect_type: db/migrate, keep: ["DuplicateColumn", "Running upgrade", "ALTER TABLE orders ADD COLUMN currency"], min_saved: 15 }
+- { name: detect/psql, file: db/psql-select.txt, expect_type: db/psql }
+- { name: detect/mysql, file: db/mysql-select.txt, expect_type: db/mysql }
+- { name: detect/explain, file: db/explain-analyze.txt, expect_type: db/explain }
+- { name: detect/redis, file: db/redis-keys.txt, expect_type: db/redis }
+- { name: detect/mongosh, file: db/mongosh-find.txt, expect_type: db/mongosh }
+- { name: detect/alembic, file: db/alembic-upgrade.txt, expect_type: db/migrate }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }

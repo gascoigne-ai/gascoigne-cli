@@ -16,7 +16,7 @@ src/main.rs
     |         ^^^ help: if this is intentional, prefix it with an underscore: `_cfg`
     |
     = note: `#[warn(unused_variables)]` on by default
-    … 1 frame lines omitted
+    … 1 frame line omitted
 src/server.rs
   14:9 warning unused variable: `cfg`
     |

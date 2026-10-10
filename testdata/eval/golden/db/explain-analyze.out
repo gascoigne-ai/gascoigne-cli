@@ -1,0 +1,19 @@
+                                                                     QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit (time=812.355ms rows=100 est=100 loops=1)
+   ->  Sort (time=812.343ms rows=100 est=10000 loops=1)
+       Sort Key: (sum(oi.quantity * oi.price)) DESC
+       Sort Method: top-N heapsort  Memory: 41kB
+         ->  HashAggregate (time=806.904ms rows=9847 est=10000 loops=1)
+             Group Key: c.id
+               ->  Hash Join (time=702.512ms rows=198734 est=200000 loops=1)
+                   Hash Cond: (o.customer_id = c.id)
+                     ->  Hash Join (time=655.013ms rows=198734 est=200000 loops=1)
+                         Hash Cond: (oi.order_id = o.id)
+                           ->  Seq Scan on order_items oi (time=512.880ms rows=500000 est=500000 loops=1)
+… 4 cheap plan nodes omitted
+                                 Buckets: 16384  Batches: 1  Memory Usage: 516kB
+                           Buckets: 2048  Batches: 1  Memory Usage: 142kB
+ Planning Time: 1.204 ms
+ Execution Time: 812.911 ms
+(31 rows)

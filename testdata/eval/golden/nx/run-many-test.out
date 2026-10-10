@@ -21,7 +21,7 @@ FAIL web apps/web/src/app/checkout/Checkout.spec.tsx
       21 |   });
 
       at Object.<anonymous> (apps/web/src/app/checkout/Checkout.spec.tsx:20:41)
-… 1 dependency stack frames omitted
+… 1 dependency stack frame omitted
       at new Promise (<anonymous>)
 … 2 dependency stack frames omitted
 

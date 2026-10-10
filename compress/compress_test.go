@@ -135,3 +135,11 @@ Tests:       1 failed, 7 passed, 8 total
 		t.Errorf("missing pass marker:\n%s", got)
 	}
 }
+
+func TestOmittedSingular(t *testing.T) {
+	for what, want := range map[string]string{"items": "… 1 item omitted", "more matches": "… 1 more match omitted", "cheap plan nodes": "… 1 cheap plan node omitted", "": "… 1 line omitted"} {
+		if got := Omitted(1, what); got != want {
+			t.Errorf("Omitted(1, %q) = %q, want %q", what, got, want)
+		}
+	}
+}

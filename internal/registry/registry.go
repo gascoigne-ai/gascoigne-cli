@@ -13,6 +13,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/core/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/jsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/logoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/db/dboptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/catoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/lsoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/pkg/pkgoptimizer"
@@ -52,6 +53,7 @@ func Factories() []component.Factory {
 		catoptimizer.NewFactory(),
 		pkgoptimizer.NewFactory(),
 		tableoptimizer.NewFactory(),
+		dboptimizer.NewFactory(),
 		taskoptimizer.NewFactory(),
 		htmloptimizer.NewFactory(),
 		// exporters

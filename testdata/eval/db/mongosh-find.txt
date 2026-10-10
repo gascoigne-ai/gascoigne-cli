@@ -1,0 +1,362 @@
+[
+  {
+    _id: ObjectId('e8f62f28d685156ba83b2198'),
+    orderId: 'ord_57468',
+    customer: { id: 'cust_070', tier: 'gold' },
+    status: 'ok',
+    total: 188.37,
+    items: [ { sku: 'SKU-661', qty: 1 } ],
+    createdAt: ISODate('2026-09-27T17:00:00.000Z')
+  },
+  {
+    _id: ObjectId('8e1ccb85d535a168e3a1202f'),
+    orderId: 'ord_66546',
+    customer: { id: 'cust_014', tier: 'silver' },
+    status: 'ok',
+    total: 59.48,
+    items: [ { sku: 'SKU-535', qty: 2 } ],
+    createdAt: ISODate('2026-09-17T11:00:00.000Z')
+  },
+  {
+    _id: ObjectId('c60d9fce4f5d8f2df1b66f43'),
+    orderId: 'ord_70682',
+    customer: { id: 'cust_008', tier: 'basic' },
+    status: 'ok',
+    total: 174.33,
+    items: [ { sku: 'SKU-852', qty: 2 } ],
+    createdAt: ISODate('2026-09-18T12:00:00.000Z')
+  },
+  {
+    _id: ObjectId('ec810e7b7a8a24fd154795a1'),
+    orderId: 'ord_24181',
+    customer: { id: 'cust_032', tier: 'silver' },
+    status: 'ok',
+    total: 21.78,
+    items: [ { sku: 'SKU-916', qty: 4 } ],
+    createdAt: ISODate('2026-09-28T23:00:00.000Z')
+  },
+  {
+    _id: ObjectId('c369ec2e1647f656755ff2c2'),
+    orderId: 'ord_76158',
+    customer: { id: 'cust_002', tier: 'gold' },
+    status: 'ok',
+    total: 189.29,
+    items: [ { sku: 'SKU-765', qty: 1 } ],
+    createdAt: ISODate('2026-09-25T07:00:00.000Z')
+  },
+  {
+    _id: ObjectId('564251bafe1c3061167c55e9'),
+    orderId: 'ord_79345',
+    customer: { id: 'cust_029', tier: 'silver' },
+    status: 'ok',
+    total: 48.29,
+    items: [ { sku: 'SKU-937', qty: 2 } ],
+    createdAt: ISODate('2026-09-10T04:00:00.000Z')
+  },
+  {
+    _id: ObjectId('fec8ea32406f61305579db58'),
+    orderId: 'ord_89472',
+    customer: { id: 'cust_057', tier: 'gold' },
+    status: 'ok',
+    total: 77.27,
+    items: [ { sku: 'SKU-367', qty: 4 } ],
+    createdAt: ISODate('2026-09-06T08:00:00.000Z')
+  },
+  {
+    _id: ObjectId('36e66666656cce2a243a4bb6'),
+    orderId: 'ord_33597',
+    customer: { id: 'cust_018', tier: 'gold' },
+    status: 'ok',
+    total: 23.58,
+    items: [ { sku: 'SKU-712', qty: 2 } ],
+    createdAt: ISODate('2026-09-11T00:00:00.000Z')
+  },
+  {
+    _id: ObjectId('9afd7bc3ff20fb0555fc9874'),
+    orderId: 'ord_93894',
+    customer: { id: 'cust_003', tier: 'gold' },
+    status: 'ok',
+    total: 151.31,
+    items: [ { sku: 'SKU-577', qty: 3 } ],
+    createdAt: ISODate('2026-09-24T05:00:00.000Z')
+  },
+  {
+    _id: ObjectId('eb05cef0915205a2d250d9a5'),
+    orderId: 'ord_28961',
+    customer: { id: 'cust_002', tier: 'gold' },
+    status: 'ok',
+    total: 56.16,
+    items: [ { sku: 'SKU-452', qty: 4 } ],
+    createdAt: ISODate('2026-09-18T09:00:00.000Z')
+  },
+  {
+    _id: ObjectId('b313fb116f65eaa1e6b0d21c'),
+    orderId: 'ord_75901',
+    customer: { id: 'cust_035', tier: 'gold' },
+    status: 'ok',
+    total: 22.27,
+    items: [ { sku: 'SKU-308', qty: 2 } ],
+    createdAt: ISODate('2026-09-24T13:00:00.000Z')
+  },
+  {
+    _id: ObjectId('934abfa85b5f60050adb6d26'),
+    orderId: 'ord_41601',
+    customer: { id: 'cust_049', tier: 'gold' },
+    status: 'ok',
+    total: 18.7,
+    items: [ { sku: 'SKU-500', qty: 4 } ],
+    createdAt: ISODate('2026-09-07T04:00:00.000Z')
+  },
+  {
+    _id: ObjectId('d498927b171da3e3a2ebf37e'),
+    orderId: 'ord_75324',
+    customer: { id: 'cust_044', tier: 'gold' },
+    status: 'ok',
+    total: 151.39,
+    items: [ { sku: 'SKU-787', qty: 1 } ],
+    createdAt: ISODate('2026-09-29T00:00:00.000Z')
+  },
+  {
+    _id: ObjectId('53126e91ccdb16b7769e952d'),
+    orderId: 'ord_36179',
+    customer: { id: 'cust_039', tier: 'gold' },
+    status: 'ok',
+    total: 33.2,
+    items: [ { sku: 'SKU-201', qty: 4 } ],
+    createdAt: ISODate('2026-09-06T00:00:00.000Z')
+  },
+  {
+    _id: ObjectId('c3a7ccc98fdab6d164d372ef'),
+    orderId: 'ord_51101',
+    customer: { id: 'cust_033', tier: 'silver' },
+    status: 'ok',
+    total: 35.58,
+    items: [ { sku: 'SKU-326', qty: 1 } ],
+    createdAt: ISODate('2026-09-11T02:00:00.000Z')
+  },
+  {
+    _id: ObjectId('73af5075896382cbf4b6c676'),
+    orderId: 'ord_85378',
+    customer: { id: 'cust_062', tier: 'silver' },
+    status: 'ok',
+    total: 135.51,
+    items: [ { sku: 'SKU-182', qty: 1 } ],
+    createdAt: ISODate('2026-09-23T11:00:00.000Z')
+  },
+  {
+    _id: ObjectId('50fedc77ba65d3fab7a3c1a6'),
+    orderId: 'ord_52703',
+    customer: { id: 'cust_040', tier: 'silver' },
+    status: 'ok',
+    total: 141.47,
+    items: [ { sku: 'SKU-826', qty: 4 } ],
+    createdAt: ISODate('2026-09-10T15:00:00.000Z')
+  },
+  {
+    _id: ObjectId('bf37ff47480554023a332af5'),
+    orderId: 'ord_73820',
+    customer: { id: 'cust_031', tier: 'gold' },
+    status: 'ok',
+    total: 112.08,
+    items: [ { sku: 'SKU-209', qty: 3 } ],
+    createdAt: ISODate('2026-09-26T23:00:00.000Z')
+  },
+  {
+    _id: ObjectId('41b1302285397d4f8a7001bb'),
+    orderId: 'ord_62487',
+    customer: { id: 'cust_027', tier: 'basic' },
+    status: 'ok',
+    total: 86.5,
+    items: [ { sku: 'SKU-328', qty: 2 } ],
+    createdAt: ISODate('2026-09-02T15:00:00.000Z')
+  },
+  {
+    _id: ObjectId('fea11874f561ad5ff8a95c7e'),
+    orderId: 'ord_87549',
+    customer: { id: 'cust_073', tier: 'basic' },
+    status: 'ok',
+    total: 113.85,
+    items: [ { sku: 'SKU-658', qty: 3 } ],
+    createdAt: ISODate('2026-09-07T21:00:00.000Z')
+  },
+  {
+    _id: ObjectId('de7070ab3deecb8ddf8eb64e'),
+    orderId: 'ord_76784',
+    customer: { id: 'cust_065', tier: 'gold' },
+    status: 'ok',
+    total: 53.15,
+    items: [ { sku: 'SKU-379', qty: 4 } ],
+    createdAt: ISODate('2026-09-15T22:00:00.000Z')
+  },
+  {
+    _id: ObjectId('2954d08dd1435bb738d6a083'),
+    orderId: 'ord_18760',
+    customer: { id: 'cust_064', tier: 'basic' },
+    status: 'ok',
+    total: 169.51,
+    items: [ { sku: 'SKU-199', qty: 1 } ],
+    createdAt: ISODate('2026-09-08T02:00:00.000Z')
+  },
+  {
+    _id: ObjectId('4c6030e1e1745f09a3dbdb7f'),
+    orderId: 'ord_58501',
+    customer: { id: 'cust_029', tier: 'gold' },
+    status: 'ok',
+    total: 196.75,
+    items: [ { sku: 'SKU-434', qty: 2 } ],
+    createdAt: ISODate('2026-09-09T15:00:00.000Z')
+  },
+  {
+    _id: ObjectId('4b04ed81ceb9e9afb9ae9941'),
+    orderId: 'ord_20187',
+    customer: { id: 'cust_037', tier: 'basic' },
+    status: 'ok',
+    total: 42.55,
+    items: [ { sku: 'SKU-192', qty: 2 } ],
+    createdAt: ISODate('2026-09-28T15:00:00.000Z')
+  },
+  {
+    _id: ObjectId('611b19d7f6a9dc019bf2e5a7'),
+    orderId: 'ord_99617',
+    customer: { id: 'cust_072', tier: 'silver' },
+    status: 'ok',
+    total: 159.09,
+    items: [ { sku: 'SKU-530', qty: 1 } ],
+    createdAt: ISODate('2026-09-19T17:00:00.000Z')
+  },
+  {
+    _id: ObjectId('01b94e9591f0033bfa0b45e5'),
+    orderId: 'ord_31807',
+    customer: { id: 'cust_067', tier: 'basic' },
+    status: 'ok',
+    total: 27.49,
+    items: [ { sku: 'SKU-530', qty: 3 } ],
+    createdAt: ISODate('2026-09-10T16:00:00.000Z')
+  },
+  {
+    _id: ObjectId('bf2a22391fc454cac9f2f365'),
+    orderId: 'ord_25406',
+    customer: { id: 'cust_048', tier: 'silver' },
+    status: 'ok',
+    total: 35.5,
+    items: [ { sku: 'SKU-725', qty: 1 } ],
+    createdAt: ISODate('2026-09-13T19:00:00.000Z')
+  },
+  {
+    _id: ObjectId('2f5b650de6b268d88b7cc209'),
+    orderId: 'ord_29435',
+    customer: { id: 'cust_075', tier: 'basic' },
+    status: 'failed',
+    total: 176.48,
+    items: [ { sku: 'SKU-178', qty: 1 } ],
+    createdAt: ISODate('2026-09-19T01:00:00.000Z')
+  },
+  {
+    _id: ObjectId('b171715552b3f6fa0d3c1638'),
+    orderId: 'ord_73080',
+    customer: { id: 'cust_035', tier: 'gold' },
+    status: 'ok',
+    total: 52.1,
+    items: [ { sku: 'SKU-226', qty: 4 } ],
+    createdAt: ISODate('2026-09-04T09:00:00.000Z')
+  },
+  {
+    _id: ObjectId('a4969dbe500b2644905cf278'),
+    orderId: 'ord_94203',
+    customer: { id: 'cust_063', tier: 'basic' },
+    status: 'ok',
+    total: 174.92,
+    items: [ { sku: 'SKU-157', qty: 2 } ],
+    createdAt: ISODate('2026-09-06T16:00:00.000Z')
+  },
+  {
+    _id: ObjectId('e70a50dc7180a30da7483828'),
+    orderId: 'ord_21238',
+    customer: { id: 'cust_025', tier: 'gold' },
+    status: 'ok',
+    total: 112.75,
+    items: [ { sku: 'SKU-541', qty: 3 } ],
+    createdAt: ISODate('2026-09-21T02:00:00.000Z')
+  },
+  {
+    _id: ObjectId('4be8f9d0b4a478e02208595a'),
+    orderId: 'ord_30316',
+    customer: { id: 'cust_030', tier: 'basic' },
+    status: 'ok',
+    total: 83.2,
+    items: [ { sku: 'SKU-618', qty: 2 } ],
+    createdAt: ISODate('2026-09-01T10:00:00.000Z')
+  },
+  {
+    _id: ObjectId('0abd7f8468a9419ebe5e5936'),
+    orderId: 'ord_68171',
+    customer: { id: 'cust_006', tier: 'basic' },
+    status: 'ok',
+    total: 117.8,
+    items: [ { sku: 'SKU-383', qty: 3 } ],
+    createdAt: ISODate('2026-09-09T14:00:00.000Z')
+  },
+  {
+    _id: ObjectId('7c8180aaaf7bd127836e0eeb'),
+    orderId: 'ord_65082',
+    customer: { id: 'cust_003', tier: 'gold' },
+    status: 'ok',
+    total: 176.18,
+    items: [ { sku: 'SKU-713', qty: 3 } ],
+    createdAt: ISODate('2026-09-27T19:00:00.000Z')
+  },
+  {
+    _id: ObjectId('03dda392ed301307c73d15cb'),
+    orderId: 'ord_59161',
+    customer: { id: 'cust_001', tier: 'basic' },
+    status: 'ok',
+    total: 114.99,
+    items: [ { sku: 'SKU-772', qty: 4 } ],
+    createdAt: ISODate('2026-09-03T21:00:00.000Z')
+  },
+  {
+    _id: ObjectId('cb085d41c722a95660e9dc16'),
+    orderId: 'ord_60807',
+    customer: { id: 'cust_068', tier: 'gold' },
+    status: 'ok',
+    total: 114.76,
+    items: [ { sku: 'SKU-838', qty: 3 } ],
+    createdAt: ISODate('2026-09-03T16:00:00.000Z')
+  },
+  {
+    _id: ObjectId('881f744e1b127d2648791e57'),
+    orderId: 'ord_10240',
+    customer: { id: 'cust_077', tier: 'basic' },
+    status: 'ok',
+    total: 71.15,
+    items: [ { sku: 'SKU-731', qty: 2 } ],
+    createdAt: ISODate('2026-09-25T21:00:00.000Z')
+  },
+  {
+    _id: ObjectId('dcd71d7772ee9bf7dc3d65c3'),
+    orderId: 'ord_19102',
+    customer: { id: 'cust_054', tier: 'gold' },
+    status: 'ok',
+    total: 91.37,
+    items: [ { sku: 'SKU-709', qty: 3 } ],
+    createdAt: ISODate('2026-09-17T21:00:00.000Z')
+  },
+  {
+    _id: ObjectId('e2a8bf376892218c68f1a572'),
+    orderId: 'ord_11309',
+    customer: { id: 'cust_005', tier: 'basic' },
+    status: 'ok',
+    total: 166.61,
+    items: [ { sku: 'SKU-557', qty: 2 } ],
+    createdAt: ISODate('2026-09-11T08:00:00.000Z')
+  },
+  {
+    _id: ObjectId('b3c3e12a3d8149088972cab9'),
+    orderId: 'ord_80862',
+    customer: { id: 'cust_075', tier: 'gold' },
+    status: 'ok',
+    total: 61.62,
+    items: [ { sku: 'SKU-393', qty: 2 } ],
+    createdAt: ISODate('2026-09-09T08:00:00.000Z')
+  }
+]

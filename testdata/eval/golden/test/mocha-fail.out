@@ -30,7 +30,7 @@
       +0
 
       at Context.<anonymous> (mt/cart.spec.js:5:37)
-… 1 dependency stack frames omitted
+… 1 dependency stack frame omitted
 
   2) coupon
        lowercase:
@@ -45,5 +45,5 @@
       +5
 
       at Context.<anonymous> (mt/cart.spec.js:9:32)
-… 1 dependency stack frames omitted
+… 1 dependency stack frame omitted
 … 42 passing test lines omitted

@@ -1,0 +1,48 @@
+same in all rows: currency=EUR
+id | customer | status | total | created_at
+1 | cust_012 | paid | 21.55 | 2026-09-27 05:47
+2 | cust_033 | paid | 123.16 | 2026-09-20 01:37
+3 | cust_056 | paid | 129.5 | 2026-09-26 23:55
+4 | cust_070 | paid | 187.46 | 2026-09-17 08:57
+5 | cust_004 | paid | 75.98 | 2026-09-30 10:58
+6 | cust_055 | shipped | 178.9 | 2026-09-17 05:35
+7 | cust_031 | paid | 49.97 | 2026-09-06 10:11
+8 | cust_066 | paid | 104.49 | 2026-09-17 21:35
+9 | cust_058 | paid | 160.37 | 2026-09-24 16:58
+… 21 items omitted
+31 | cust_063 | shipped | 105.39 | 2026-09-05 10:16
+… 21 items omitted
+53 | cust_028 | shipped | 140.07 | 2026-09-01 19:42
+… 21 items omitted
+75 | cust_079 | shipped | 31.89 | 2026-09-20 21:27
+… 1 item omitted
+77 | cust_027 | refunded | 194.62 | 2026-09-25 02:22
+… 19 items omitted
+97 | cust_077 | paid | 103.01 | 2026-09-23 23:20
+… 21 items omitted
+119 | cust_007 | shipped | 172.35 | 2026-09-16 07:04
+… 21 items omitted
+141 | cust_056 | paid | 155.58 | 2026-09-23 05:50
+… 8 items omitted
+150 | cust_078 | paid | 98000.0 | 2026-09-25 12:46
+151 | cust_076 | paid | 92.21 | 2026-09-09 20:05
+… 12 items omitted
+164 | cust_014 | paid | 130.09 | 2026-09-18 02:43
+… 21 items omitted
+186 | cust_071 | paid | 98.07 | 2026-09-09 21:17
+… 21 items omitted
+208 | cust_076 | paid | 96.34 | 2026-09-13 08:37
+… 2 items omitted
+211 | cust_078 | refunded | 185.37 | 2026-09-28 15:39
+… 18 items omitted
+230 | cust_012 | paid | 180.06 | 2026-09-12 22:09
+… 21 items omitted
+252 | cust_073 | paid | 6.54 | 2026-09-30 13:56
+… 21 items omitted
+274 | cust_045 | paid | 180.29 | 2026-09-04 12:42
+… 21 items omitted
+296 | cust_016 | paid | 182.54 | 2026-09-30 06:53
+297 | cust_011 | paid | 180.12 | 2026-09-09 16:58
+298 | cust_015 | paid | 155.73 | 2026-09-26 05:49
+299 | cust_026 | paid | 148.57 | 2026-09-03 05:43
+300 | cust_001 | paid | 135.28 | 2026-09-29 20:51

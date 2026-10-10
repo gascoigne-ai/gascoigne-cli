@@ -1,0 +1,34 @@
+                                                                     QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=15234.12..15234.37 rows=100 width=72) (actual time=812.334..812.355 rows=100 loops=1)
+   Buffers: shared hit=1204 read=9311
+   ->  Sort  (cost=15234.12..15259.12 rows=10000 width=72) (actual time=812.331..812.343 rows=100 loops=1)
+         Sort Key: (sum(oi.quantity * oi.price)) DESC
+         Sort Method: top-N heapsort  Memory: 41kB
+         Buffers: shared hit=1204 read=9311
+         ->  HashAggregate  (cost=14671.62..14771.62 rows=10000 width=72) (actual time=801.120..806.904 rows=9847 loops=1)
+               Group Key: c.id
+               Batches: 1  Memory Usage: 2321kB
+               Buffers: shared hit=1204 read=9311
+               ->  Hash Join  (cost=389.00..13171.62 rows=200000 width=44) (actual time=6.881..702.512 rows=198734 loops=1)
+                     Hash Cond: (o.customer_id = c.id)
+                     Buffers: shared hit=1204 read=9311
+                     ->  Hash Join  (cost=309.00..12538.62 rows=200000 width=20) (actual time=4.102..655.013 rows=198734 loops=1)
+                           Hash Cond: (oi.order_id = o.id)
+                           ->  Seq Scan on order_items oi  (cost=0.00..9845.00 rows=500000 width=20) (actual time=0.011..512.880 rows=500000 loops=1)
+                                 Buffers: shared hit=534 read=9311
+                           ->  Hash  (cost=184.00..184.00 rows=10000 width=8) (actual time=4.044..4.045 rows=9921 loops=1)
+                                 Buckets: 16384  Batches: 1  Memory Usage: 516kB
+                                 ->  Seq Scan on orders o  (cost=0.00..184.00 rows=10000 width=8) (actual time=0.007..2.315 rows=9921 loops=1)
+                                       Filter: (created_at >= '2026-09-01 00:00:00+00'::timestamp with time zone)
+                                       Rows Removed by Filter: 79
+                                       Buffers: shared hit=84
+                     ->  Hash  (cost=55.00..55.00 rows=2000 width=32) (actual time=2.721..2.722 rows=2000 loops=1)
+                           Buckets: 2048  Batches: 1  Memory Usage: 142kB
+                           ->  Index Scan using customers_pkey on customers c  (cost=0.28..55.00 rows=2000 width=32) (actual time=0.019..1.411 rows=2000 loops=1)
+                                 Buffers: shared hit=20
+ Planning:
+   Buffers: shared hit=212
+ Planning Time: 1.204 ms
+ Execution Time: 812.911 ms
+(31 rows)

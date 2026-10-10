@@ -14,7 +14,7 @@ org.opentest4j.AssertionFailedError: expected: <0> but was: <-4>
 org.opentest4j.AssertionFailedError: expected: <5> but was: <10>
 … 2 dependency stack frames omitted
 	at com.example.shop.CartTest.lowercaseCoupon(CartTest.java:31)
-… 1 dependency stack frames omitted
+… 1 dependency stack frame omitted
 [INFO] Results:
 [ERROR] Failures:
 [ERROR]   CartTest.lowercaseCoupon:31 expected: <5> but was: <10>

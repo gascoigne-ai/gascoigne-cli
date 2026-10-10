@@ -1,0 +1,32 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 42a1d9422eca -> 7aea542275e6, add orders index
+INFO  [alembic.runtime.migration] Running upgrade 011db48e2c20 -> e8c0cc35ec36, create carts
+INFO  [alembic.runtime.migration] Running upgrade 25cbf071e8c4 -> b95edbd0861a, drop legacy table
+INFO  [alembic.runtime.migration] Running upgrade 03eb421bc6ff -> 89b8225d37ba, add orders index
+INFO  [alembic.runtime.migration] Running upgrade d752406ca2d0 -> 007474abde0e, add currency column
+INFO  [alembic.runtime.migration] Running upgrade 7ff12fcc419c -> 603fb3e849b2, add orders index
+INFO  [alembic.runtime.migration] Running upgrade 0b53c849f614 -> 1e9a1561e54b, add currency column
+INFO  [alembic.runtime.migration] Running upgrade b12e60258616 -> 72961cd7e9e5, add currency column
+INFO  [alembic.runtime.migration] Running upgrade 47ae6e0eee89 -> e3047d9314ff, create carts
+INFO  [alembic.runtime.migration] Running upgrade 9455c4579761 -> 068af282d7f8, add orders index
+INFO  [alembic.runtime.migration] Running upgrade 2944611662f8 -> 4df165442d3c, add currency column
+INFO  [alembic.runtime.migration] Running upgrade 050ed5e90903 -> 50ce4953f851, create carts
+INFO  [alembic.runtime.migration] Running upgrade 7a43761e0f3d -> 00d1c04eca6c, create carts
+INFO  [alembic.runtime.migration] Running upgrade 11a65befb5dd -> 7e849d08eb3b, drop legacy table
+INFO  [alembic.runtime.migration] Running upgrade deb24175934f -> 74fb52d26411, add orders index
+INFO  [alembic.runtime.migration] Running upgrade 57cd8a54479c -> 97c32256570e, drop legacy table
+INFO  [alembic.runtime.migration] Running upgrade e3a433fb9077 -> 9a7df86d0903, add orders index
+INFO  [alembic.runtime.migration] Running upgrade 69118cf3bbf3 -> c0fdb670dedf, add orders index
+INFO  [alembic.runtime.migration] Running upgrade e9fc10779cb8 -> c6348495e74f, add orders index
+INFO  [alembic.runtime.migration] Running upgrade 7482a116c45f -> 44b3c2c1893d, backfill totals
+INFO  [alembic.runtime.migration] Running upgrade a6ebe4945c38 -> 7c46d877bf35, create carts
+INFO  [alembic.runtime.migration] Running upgrade 4f66b974b0a5 -> 4bd68a63f951, drop legacy table
+INFO  [alembic.runtime.migration] Running upgrade e03c4dbb7dc6 -> 7aff9d52ea75, drop legacy table
+INFO  [alembic.runtime.migration] Running upgrade e597654c2c79 -> 25cf4f31050e, add currency column
+INFO  [alembic.runtime.migration] Running upgrade a83a9b9dbf41 -> cd3ce9ae2a07, drop legacy table
+Traceback (most recent call last):
+  File "/app/.venv/bin/alembic", line 8, in <module>
+    sys.exit(main())
+sqlalchemy.exc.ProgrammingError: (psycopg.errors.DuplicateColumn) column "currency" of relation "orders" already exists
+[SQL: ALTER TABLE orders ADD COLUMN currency CHAR(3) DEFAULT 'EUR' NOT NULL]

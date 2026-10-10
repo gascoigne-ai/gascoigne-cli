@@ -9,37 +9,24 @@ c3e1fd724452 | shop/db:1.4.0 | 5 minutes ago | Up 53 minutes | 0.0.0.0:8003->808
 36e243000de0 | shop/queue:1.4.0 | 3 minutes ago | Up 8 minutes | 0.0.0.0:8006->8080/tcp | shop-queue-1
 ce80a4042bb3 | shop/scheduler:1.4.1 | 18 minutes ago | Up 55 minutes |  | shop-scheduler-1
 3184459142de | shop/search:1.4.2 | 12 minutes ago | Up 53 minutes |  | shop-search-1
-… 1 item omitted
+de08a0817910 | shop/auth:1.4.0 | 48 minutes ago | Up 3 hours (healthy) | 0.0.0.0:8009->8080/tcp | shop-auth-1
 e14bd93936e1 | shop/api:1.4.1 | 25 minutes ago | Up 56 minutes |  | shop-api-2
-… 1 item omitted
+9b19d8441b56 | shop/worker:1.4.2 | 23 minutes ago | Up 7 minutes |  | shop-worker-2
 8186634f806f | shop/web:1.4.0 | 17 minutes ago | Up 44 minutes | 0.0.0.0:8012->80/tcp | shop-web-2
-… 1 item omitted
+793d3f508249 | shop/db:1.4.1 | 19 minutes ago | Up 13 minutes |  | shop-db-2
 ef41f1cfd992 | shop/redis:1.4.2 | 54 minutes ago | Up 7 minutes |  | shop-redis-2
-… 1 item omitted
+8c32f1347e0c | shop/nginx:1.4.0 | 55 minutes ago | Up 57 minutes | 0.0.0.0:8015->80/tcp | shop-nginx-2
 e8ab01d89a02 | shop/queue:1.4.1 | 20 minutes ago | Up 21 minutes |  | shop-queue-2
 e1dfb474c7e8 | shop/scheduler:1.4.2 | 21 minutes ago | Exited (1) 3 minutes ago |  | shop-scheduler-2
-… 1 item omitted
+69f831f3b923 | shop/search:1.4.0 | 29 minutes ago | Up 5 hours (healthy) | 0.0.0.0:8018->8080/tcp | shop-search-2
 6e5849c7b59b | shop/auth:1.4.1 | 30 minutes ago | Up 40 minutes |  | shop-auth-2
-… 1 item omitted
+4e1b3bb4a570 | shop/api:1.4.2 | 18 minutes ago | Up 12 minutes |  | shop-api-3
 0b11cc21ce88 | shop/worker:1.4.0 | 7 minutes ago | Up 54 minutes | 0.0.0.0:8021->8080/tcp | shop-worker-3
-… 1 item omitted
+a0587671863c | shop/web:1.4.1 | 19 minutes ago | Up 4 minutes |  | shop-web-3
 a5e388dcf943 | shop/db:1.4.2 | 32 minutes ago | Up 35 minutes |  | shop-db-3
-… 1 item omitted
-69ac11021c9e | shop/nginx:1.4.1 | 14 minutes ago | Up 14 minutes |  | shop-nginx-3
-… 1 item omitted
-bf376f98bca3 | shop/scheduler:1.4.0 | 39 minutes ago | Up 3 hours (healthy) | 0.0.0.0:8027->8080/tcp | shop-scheduler-3
-… 1 item omitted
-19d952d32377 | shop/auth:1.4.2 | 55 minutes ago | Up 59 minutes |  | shop-auth-3
-… 1 item omitted
+… 7 items omitted
 9d8c950b16ff | shop/worker:1.4.1 | 57 minutes ago | Up 12 minutes (unhealthy) |  | shop-worker-4
-54c01f44ebd1 | shop/web:1.4.2 | 13 minutes ago | Up 17 minutes |  | shop-web-4
-… 1 item omitted
-1525b281b888 | shop/redis:1.4.1 | 59 minutes ago | Up 24 minutes |  | shop-redis-4
-… 1 item omitted
-525949fbac36 | shop/queue:1.4.0 | 11 minutes ago | Up 3 hours (healthy) | 0.0.0.0:8036->8080/tcp | shop-queue-4
-… 1 item omitted
-ae179ed9c621 | shop/search:1.4.2 | 54 minutes ago | Up 57 minutes |  | shop-search-4
-… 1 item omitted
+… 8 items omitted
 4ac071b34e47 | shop/api:1.4.1 | 10 minutes ago | Up 59 minutes |  | shop-api-5
 994b61b2ceba | shop/worker:1.4.2 | 12 minutes ago | Up 18 minutes |  | shop-worker-5
 026792b607d5 | shop/web:1.4.0 | 25 minutes ago | Up 23 minutes | 0.0.0.0:8042->80/tcp | shop-web-5

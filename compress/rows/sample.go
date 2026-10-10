@@ -130,6 +130,14 @@ func fill(keep map[int]bool, uniq []int, budget int) {
 	if slots <= 0 || len(rest) == 0 {
 		return
 	}
+	// A spread sample of a list barely over budget leaves one-item gaps whose
+	// markers cost as much as the items: fill contiguously instead.
+	if len(uniq) <= 3*budget {
+		for _, i := range rest[:min(slots, len(rest))] {
+			keep[i] = true
+		}
+		return
+	}
 	step := float64(len(rest)) / float64(slots+1)
 	for k := 1; k <= slots && int(float64(k)*step) < len(rest); k++ {
 		keep[rest[int(float64(k)*step)]] = true

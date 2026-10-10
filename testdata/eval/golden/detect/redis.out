@@ -1,0 +1,5 @@
+session:* ×420 (session:23145, session:96789…)
+cart:* ×180 (cart:73708, cart:94008…)
+rate:ip:*.*.*.* ×90 (rate:ip:10.0.10865.144, rate:ip:10.0.4264.127…)
+user:*:profile ×60 (user:19987:profile, user:15399:profile…)
+config:feature_flags

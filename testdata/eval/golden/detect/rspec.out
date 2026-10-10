@@ -20,7 +20,7 @@ Failures:
 
        (compared using ==)
      # ./spec/cart_spec.rb:6:in 'block (2 levels) in <top (required)>'
-… 1 dependency stack frames omitted
+… 1 dependency stack frame omitted
 
 Finished in 0.01452 seconds (files took 0.08123 seconds to load)
 54 examples, 2 failures

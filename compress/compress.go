@@ -34,8 +34,8 @@ func Omitted(n int, what string) string {
 	if what == "" {
 		what = "lines"
 	}
-	if n == 1 && strings.HasSuffix(what, "s") && !strings.HasSuffix(what, "es") {
-		what = what[:len(what)-1] // "1 item", "1 line"
+	if n == 1 {
+		what = singular(what)
 	}
 	return fmt.Sprintf("… %d %s omitted", n, what)
 }
@@ -190,3 +190,13 @@ func SeverityOf(line string) Severity {
 }
 
 func IsError(line string) bool { return SeverityOf(line) == Error }
+
+// singular drops the plural ending: items→item, matches→match, nodes→node.
+func singular(s string) string {
+	for _, suf := range []string{"ches", "shes", "sses", "xes"} {
+		if strings.HasSuffix(s, suf) {
+			return s[:len(s)-2]
+		}
+	}
+	return strings.TrimSuffix(s, "s")
+}

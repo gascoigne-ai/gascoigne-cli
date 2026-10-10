@@ -29,7 +29,7 @@ func TestCaps(t *testing.T) {
 	}
 	b.WriteString("b.go:1:y\nc.go:1:z\n")
 	got := run(&Config{MaxPerFile: 5, MaxFiles: 2, MaxLineLen: 40}, b.String())
-	for _, want := range []string{"… 25 more matches omitted", "… 1 files omitted", "x … x"} {
+	for _, want := range []string{"… 25 more matches omitted", "… 1 file omitted", "x … x"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("missing %q in:\n%s", want, got)
 		}

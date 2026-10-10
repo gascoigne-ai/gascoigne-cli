@@ -14,35 +14,31 @@ PID USER | PR | NI | VIRT | RES | SHR S | %CPU | %MEM | TIME+ COMMAND
 5 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
 6 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
 7 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
-… 7 items omitted
-19 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 rcu_exp+
-… 2 items omitted
+8 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
+11 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
+14 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
+15 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.04 ksoftir+
+16 root | -2 | 0 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:01.74 rcu_pre+
+17 root | -2 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 rcub/0
+… 4 items omitted
 22 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
 … 2 items omitted
 25 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
-… 2 items omitted
-29 root | 0 | -20 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.00 kworker+
-… 1 item omitted
+… 4 items omitted
 31 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
 … 4 items omitted
 37 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
-… 1 item omitted
-39 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.09 ksoftir+
-… 2 items omitted
+… 4 items omitted
 43 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
 … 4 items omitted
 49 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
-50 root | rt | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.37 migrati+
-… 3 items omitted
+… 4 items omitted
 55 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
-… 3 items omitted
-60 root | 20 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 cpuhp/7
+… 4 items omitted
 61 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
 … 4 items omitted
 67 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
-… 2 items omitted
-70 root | 20 | 0 | 0 | 0 | 0 I | 0.0 | 0.0 | 0:00.14 kworker+
-… 2 items omitted
+… 5 items omitted
 73 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+
 … 4 items omitted
 79 root | -51 | 0 | 0 | 0 | 0 S | 0.0 | 0.0 | 0:00.00 idle_in+

@@ -97,6 +97,9 @@ func nonBorder(lines []string) []string {
 // parseAligned handles whitespace-aligned columns with an upper-case header
 // (kubectl get, docker ps, ps aux, systemctl, gcloud list).
 func parseAligned(lines []string) (Table, bool) {
+	if t, ok := parseRuled(lines); ok {
+		return t, true
+	}
 	var t Table
 	h := -1
 	for i, l := range lines {
@@ -321,4 +324,31 @@ func slice(l string, starts []int) []string {
 		out[i] = strings.TrimSpace(l[cuts[i]:end])
 	}
 	return out
+}
+
+var ruleRe = regexp.MustCompile(`^\s*-{2,}(\s+-{2,})+\s*$`)
+
+// parseRuled handles a header underlined by dash groups (sqlite -column,
+// SQL*Plus, many reports): the groups give exact column positions.
+func parseRuled(lines []string) (Table, bool) {
+	for i := 0; i+2 < len(lines) && i < 6; i++ {
+		if !ruleRe.MatchString(lines[i+1]) {
+			continue
+		}
+		var starts []int
+		rule := lines[i+1]
+		for j := 0; j < len(rule); j++ {
+			if rule[j] == '-' && (j == 0 || rule[j-1] == ' ') {
+				starts = append(starts, j)
+			}
+		}
+		t := Table{Before: lines[:i], Header: slice(lines[i], starts)}
+		k := i + 2
+		for ; k < len(lines) && strings.TrimSpace(lines[k]) != ""; k++ {
+			t.Rows = append(t.Rows, slice(lines[k], starts))
+		}
+		t.After = lines[k:]
+		return t, len(t.Rows) > 0
+	}
+	return Table{}, false
 }
