@@ -1,0 +1,95 @@
+[+] Running 5/5
+ ✔ Network shop_default       Created
+ ✔ Volume "shop_pgdata"        Created
+ ✔ Container shop-db-1        Started
+ ✔ Container shop-redis-1     Started
+ ✔ Container shop-api-1       Started
+Attaching to api-1, db-1, redis-1
+db-1     | 2026-10-10 08:00:00.215 UTC [65] LOG:  checkpoint starting: time
+db-1     | 2026-10-10 08:00:01.785 UTC [65] LOG:  connection received: host=172.18.0.4 port=50529
+db-1     | 2026-10-10 08:00:02.456 UTC [86] LOG:  connection received: host=172.18.0.4 port=40891
+db-1     | 2026-10-10 08:00:03.454 UTC [1] LOG:  database system is ready to accept connections
+db-1     | 2026-10-10 08:00:04.880 UTC [79] LOG:  connection received: host=172.18.0.4 port=40047
+db-1     | 2026-10-10 08:00:05.351 UTC [63] LOG:  connection received: host=172.18.0.4 port=35527
+db-1     | 2026-10-10 08:00:06.167 UTC [89] LOG:  connection received: host=172.18.0.4 port=56663
+db-1     | 2026-10-10 08:00:07.278 UTC [84] LOG:  connection received: host=172.18.0.4 port=44048
+db-1     | 2026-10-10 08:00:08.483 UTC [65] LOG:  connection received: host=172.18.0.4 port=52392
+db-1     | 2026-10-10 08:00:09.137 UTC [81] LOG:  connection received: host=172.18.0.4 port=47028
+db-1     | 2026-10-10 08:00:10.773 UTC [90] LOG:  checkpoint starting: time
+db-1     | 2026-10-10 08:00:11.347 UTC [73] LOG:  connection received: host=172.18.0.4 port=35344
+db-1     | 2026-10-10 08:00:12.859 UTC [78] LOG:  connection received: host=172.18.0.4 port=30467
+db-1     | 2026-10-10 08:00:13.454 UTC [75] LOG:  connection received: host=172.18.0.4 port=46584
+db-1     | 2026-10-10 08:00:14.484 UTC [81] LOG:  connection received: host=172.18.0.4 port=38100
+db-1     | 2026-10-10 08:00:15.997 UTC [67] LOG:  connection received: host=172.18.0.4 port=35318
+db-1     | 2026-10-10 08:00:16.675 UTC [62] LOG:  connection received: host=172.18.0.4 port=44392
+db-1     | 2026-10-10 08:00:17.924 UTC [73] LOG:  connection received: host=172.18.0.4 port=55359
+db-1     | 2026-10-10 08:00:18.859 UTC [75] LOG:  connection received: host=172.18.0.4 port=31881
+db-1     | 2026-10-10 08:00:19.957 UTC [69] LOG:  connection received: host=172.18.0.4 port=31709
+db-1     | 2026-10-10 08:00:20.973 UTC [68] LOG:  checkpoint starting: time
+db-1     | 2026-10-10 08:00:21.774 UTC [69] LOG:  connection received: host=172.18.0.4 port=31139
+db-1     | 2026-10-10 08:00:22.529 UTC [67] LOG:  connection received: host=172.18.0.4 port=35591
+db-1     | 2026-10-10 08:00:23.503 UTC [62] LOG:  connection received: host=172.18.0.4 port=58520
+db-1     | 2026-10-10 08:00:24.446 UTC [80] LOG:  connection received: host=172.18.0.4 port=59463
+db-1     | 2026-10-10 08:00:25.249 UTC [64] LOG:  connection received: host=172.18.0.4 port=54439
+db-1     | 2026-10-10 08:00:26.845 UTC [75] LOG:  connection received: host=172.18.0.4 port=31618
+db-1     | 2026-10-10 08:00:27.358 UTC [64] LOG:  connection received: host=172.18.0.4 port=51307
+db-1     | 2026-10-10 08:00:28.638 UTC [89] LOG:  connection received: host=172.18.0.4 port=53875
+db-1     | 2026-10-10 08:00:29.590 UTC [60] LOG:  connection received: host=172.18.0.4 port=36949
+redis-1  | 1:M 10 Oct 2026 08:00:00.958 * DB saved on disk
+redis-1  | 1:M 10 Oct 2026 08:00:01.474 * Ready to accept connections tcp
+redis-1  | 1:M 10 Oct 2026 08:00:02.914 * Background saving started by pid 39
+redis-1  | 1:M 10 Oct 2026 08:00:03.477 * Background saving started by pid 74
+redis-1  | 1:M 10 Oct 2026 08:00:04.596 * Background saving started by pid 81
+redis-1  | 1:M 10 Oct 2026 08:00:05.415 * DB saved on disk
+redis-1  | 1:M 10 Oct 2026 08:00:06.242 * Background saving started by pid 88
+redis-1  | 1:M 10 Oct 2026 08:00:07.702 * Background saving started by pid 55
+redis-1  | 1:M 10 Oct 2026 08:00:08.242 * Background saving started by pid 21
+redis-1  | 1:M 10 Oct 2026 08:00:09.491 * Background saving started by pid 36
+redis-1  | 1:M 10 Oct 2026 08:00:10.832 * DB saved on disk
+redis-1  | 1:M 10 Oct 2026 08:00:11.124 * Background saving started by pid 53
+redis-1  | 1:M 10 Oct 2026 08:00:12.707 * Background saving started by pid 61
+redis-1  | 1:M 10 Oct 2026 08:00:13.759 * Background saving started by pid 51
+redis-1  | 1:M 10 Oct 2026 08:00:14.972 * Background saving started by pid 73
+api-1    | 2026-10-10T08:00:00.363Z INFO [http] POST /api/orders status=200 dur_ms=19
+api-1    | 2026-10-10T08:00:01.245Z INFO [http] GET /api/cart status=200 dur_ms=14
+api-1    | 2026-10-10T08:00:02.291Z INFO [http] GET /api/products status=200 dur_ms=59
+api-1    | 2026-10-10T08:00:03.905Z INFO [http] GET /api/orders status=200 dur_ms=17
+api-1    | 2026-10-10T08:00:04.771Z INFO [http] POST /api/orders status=200 dur_ms=40
+api-1    | 2026-10-10T08:00:05.651Z INFO [http] POST /api/cart status=200 dur_ms=65
+api-1    | 2026-10-10T08:00:06.324Z INFO [http] GET /api/orders status=200 dur_ms=25
+api-1    | 2026-10-10T08:00:07.978Z INFO [http] POST /api/orders status=200 dur_ms=72
+api-1    | 2026-10-10T08:00:08.875Z INFO [http] GET /api/products status=200 dur_ms=66
+api-1    | 2026-10-10T08:00:09.994Z INFO [http] GET /api/orders status=200 dur_ms=51
+api-1    | 2026-10-10T08:00:10.575Z INFO [http] GET /api/cart status=200 dur_ms=74
+api-1    | 2026-10-10T08:00:11.279Z INFO [http] GET /api/cart status=200 dur_ms=79
+api-1    | 2026-10-10T08:00:12.421Z INFO [http] GET /api/orders status=200 dur_ms=51
+api-1    | 2026-10-10T08:00:13.259Z INFO [http] POST /api/products status=200 dur_ms=39
+api-1    | 2026-10-10T08:00:14.937Z INFO [http] POST /api/products status=200 dur_ms=14
+api-1    | 2026-10-10T08:00:15.658Z INFO [http] GET /api/products status=200 dur_ms=78
+api-1    | 2026-10-10T08:00:16.852Z INFO [http] POST /api/products status=200 dur_ms=41
+api-1    | 2026-10-10T08:00:17.398Z INFO [http] GET /api/orders status=200 dur_ms=80
+api-1    | 2026-10-10T08:00:18.934Z INFO [http] POST /api/orders status=200 dur_ms=47
+api-1    | 2026-10-10T08:00:19.166Z INFO [http] POST /api/products status=200 dur_ms=55
+api-1    | 2026-10-10T08:00:20.210Z INFO [http] GET /api/products status=200 dur_ms=11
+api-1    | 2026-10-10T08:00:21.741Z INFO [http] POST /api/products status=200 dur_ms=81
+api-1    | 2026-10-10T08:00:22.120Z INFO [http] POST /api/cart status=200 dur_ms=68
+api-1    | 2026-10-10T08:00:23.625Z INFO [http] POST /api/cart status=200 dur_ms=11
+api-1    | 2026-10-10T08:00:24.330Z INFO [http] GET /api/orders status=200 dur_ms=86
+api-1    | 2026-10-10T08:00:25.512Z ERROR [orders] failed to commit order ord_51234: pq: deadlock detected
+api-1    |     at OrderRepo.commit (src/orders/repo.ts:142:11)
+api-1    |     at OrderService.place (src/orders/service.ts:88:5)
+api-1    | 2026-10-10T08:00:26.544Z INFO [http] GET /api/orders status=200 dur_ms=37
+api-1    | 2026-10-10T08:00:27.821Z INFO [http] POST /api/products status=200 dur_ms=56
+api-1    | 2026-10-10T08:00:28.566Z INFO [http] GET /api/cart status=200 dur_ms=51
+api-1    | 2026-10-10T08:00:29.435Z INFO [http] POST /api/orders status=200 dur_ms=82
+api-1    | 2026-10-10T08:00:30.770Z INFO [http] GET /api/orders status=200 dur_ms=63
+api-1    | 2026-10-10T08:00:31.276Z INFO [http] POST /api/cart status=200 dur_ms=79
+api-1    | 2026-10-10T08:00:32.321Z INFO [http] POST /api/products status=200 dur_ms=82
+api-1    | 2026-10-10T08:00:33.876Z INFO [http] POST /api/orders status=200 dur_ms=63
+api-1    | 2026-10-10T08:00:34.610Z INFO [http] POST /api/cart status=200 dur_ms=80
+api-1    | 2026-10-10T08:00:35.491Z INFO [http] GET /api/orders status=200 dur_ms=42
+api-1    | 2026-10-10T08:00:36.306Z INFO [http] POST /api/cart status=200 dur_ms=20
+api-1    | 2026-10-10T08:00:37.192Z INFO [http] GET /api/orders status=200 dur_ms=68
+api-1    | 2026-10-10T08:00:38.409Z INFO [http] POST /api/products status=200 dur_ms=61
+api-1    | 2026-10-10T08:00:39.210Z INFO [http] GET /api/products status=200 dur_ms=57
+api-1 exited with code 1

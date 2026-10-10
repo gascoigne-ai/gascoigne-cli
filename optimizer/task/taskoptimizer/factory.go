@@ -1,4 +1,4 @@
-package nxoptimizer
+package taskoptimizer
 
 import (
 	"context"
@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	typ    = "nx"
-	family = "js"
+	typ    = "task"
+	family = "task"
 )
 
 func NewFactory() component.Factory {

@@ -1,0 +1,14 @@
+resources: network created ×1, volume created ×1, container started ×3
+Attaching to api-1, db-1, redis-1
+api-1 exited with code 1
+db-1:
+  … 8 lines omitted
+redis-1:
+  … 7 lines omitted
+api-1:
+  … 21 lines omitted
+  2026-10-10T08:00:24.330Z INFO [http] GET /api/orders status=200 dur_ms=86
+  2026-10-10T08:00:25.512Z ERROR [orders] failed to commit order ord_51234: pq: deadlock detected
+      at OrderRepo.commit (src/orders/repo.ts:142:11)
+      at OrderService.place (src/orders/service.ts:88:5)
+  … 14 lines omitted

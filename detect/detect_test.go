@@ -35,7 +35,7 @@ func TestFromCmd(t *testing.T) {
 		{"cat data.json", JSON},
 		{"head -50 app.log", Log},
 		{"go run .", ""},
-		{"make", ""},
+		{"make", Make},
 		{"", ""},
 	}
 	for _, tt := range tests {

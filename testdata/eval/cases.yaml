@@ -120,7 +120,7 @@
 - { file: build/dotnet-build.txt, attrs: { cmd: dotnet build }, expect_type: build/dotnet,
     keep: ["Cart.cs", "CS0029", "OrderService.cs", "Build FAILED."], min_saved: 55 }
 - { file: build/docker-build-fail.txt, attrs: { cmd: docker build -t shop . }, expect_type: build/docker,
-    keep: ["error TS2322", "src/orders.ts", "failed to solve", "RUN npm run build"], min_saved: 20 }
+    keep: ["error TS2322", "src/orders.ts", "failed to solve", "RUN npm run build", "npm warn deprecated (6)"], min_saved: 60 }
 - { file: build/golangci.txt, attrs: { cmd: golangci-lint run }, expect_type: build/golangci,
     keep: ["internal/service/pipeline.go", "(errcheck)"], min_saved: 40 }
 - { file: build/eslint.txt, attrs: { cmd: npx eslint src }, expect_type: build/eslint,
@@ -160,6 +160,23 @@
 - { name: detect/poetry, file: pkg/poetry-install.txt, expect_type: pkg/poetry }
 - { name: detect/apt, file: pkg/apt-install.txt, expect_type: pkg/os }
 - { name: detect/brew, file: pkg/brew-install.txt, expect_type: pkg/os }
+
+# --- task family (composite: failing parts compressed by their own family)
+- { file: task/make-fail.txt, attrs: { cmd: make -k }, expect_type: task/make,
+    keep: ["‘struct item’ has no member named ‘qtty’", "make: *** [Makefile:6: lib] Error 2", "c.c"], min_saved: 45 }
+- { file: task/turbo-build-fail.txt, attrs: { cmd: turbo run build }, expect_type: task/turbo,
+    keep: ["failed: @shop/web:build", "has no exported member 'formatPrice'", "cached: @shop/utils:build", "Failed:    @shop/web#build"], min_saved: 65 }
+- { file: task/gradle-fail.txt, attrs: { cmd: ./gradlew build }, expect_type: task/gradle,
+    keep: ["Cart.java", "incompatible types: String cannot be converted to int", "BUILD FAILED in 14s", "5 up-to-date"], min_saved: 65 }
+- { file: task/compose-up.txt, attrs: { cmd: docker compose up }, expect_type: task/compose,
+    keep: ["pq: deadlock detected", "src/orders/repo.ts:142:11", "api-1 exited with code 1", "container started ×3"], min_saved: 85 }
+- { file: task/gh-run-log.txt, attrs: { cmd: gh run view 123 --log }, expect_type: task/ci,
+    keep: ["failed: test / Run go test ./...", "Total([1], 5) = -4, want 0", "Process completed with exit code 1", "lint / Run golangci-lint run"], min_saved: 85 }
+- { name: detect/make, file: task/make-fail.txt, expect_type: task/make }
+- { name: detect/turbo, file: task/turbo-build-fail.txt, expect_type: task/turbo }
+- { name: detect/gradle, file: task/gradle-fail.txt, expect_type: task/gradle }
+- { name: detect/compose-up, file: task/compose-up.txt, expect_type: task/compose }
+- { name: detect/gh-run-log, file: task/gh-run-log.txt, expect_type: task/ci }
 
 # --- git
 - file: git/status.txt

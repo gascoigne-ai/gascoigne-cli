@@ -1,0 +1,11 @@
+succeeded: lint / Set up job (12 lines), lint / Run actions/checkout@v4 (21 lines), lint / Run actions/setup-go@v5 (11 lines), test / Set up job (12 lines), test / Run actions/checkout@v4 (21 lines), test / Run actions/setup-go@v5 (11 lines), lint / Run golangci-lint run (2 lines), lint / Post Run actions/checkout@v4 (1 lines), lint / Complete job (1 lines), test / Post Run actions/checkout@v4 (1 lines), test / Complete job (1 lines)
+
+failed: test / Run go test ./...
+Run go test ./...
+go test ./...
+--- FAIL: TestTotal (0.00s)
+    --- FAIL: TestTotal/negative_guard (0.00s)
+        price_test.go:21: Total([1], 5) = -4, want 0
+FAIL	example.com/shop/price	0.004s
+##[error]Process completed with exit code 1.
+ok 5 packages in example.com/shop: api, cart, util, search, users

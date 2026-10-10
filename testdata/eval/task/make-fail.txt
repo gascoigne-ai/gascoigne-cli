@@ -1,0 +1,95 @@
+checking deps
+make -C lib -k
+make[1]: Entering directory '/home/user/src/mk/lib'
+gcc -Wall -Wextra -c a.c -o a.o
+a.c: In function ‘total’:
+a.c:6:64: error: ‘struct item’ has no member named ‘qtty’; did you mean ‘qty’?
+    6 |     for (int i = 0; i < n; i++) s += items[i].price * items[i].qtty;
+      |                                                                ^~~~
+      |                                                                qty
+a.c:7:24: error: expected ‘;’ before ‘}’ token
+    7 |     return s - discount
+      |                        ^
+      |                        ;
+    8 | }
+      | ~                       
+a.c: In function ‘main_a’:
+a.c:11:18: error: initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   11 |     char *name = 42;
+      |                  ^~
+a.c:12:23: error: too few arguments to function ‘total’; expected 3, have 2
+   12 |     printf("%d %s\n", total(it, 2), name);
+      |                       ^~~~~
+a.c:4:5: note: declared here
+    4 | int total(struct item *items, int n, int discount) {
+      |     ^~~~~
+a.c:13:5: error: implicit declaration of function ‘undefined_fn’ [-Wimplicit-function-declaration]
+   13 |     undefined_fn(it);
+      |     ^~~~~~~~~~~~
+a.c:14:12: error: returning ‘char *’ from a function with return type ‘int’ makes integer from pointer without a cast [-Wint-conversion]
+   14 |     return "ok";
+      |            ^~~~
+make[1]: *** [Makefile:3: a.o] Error 1
+gcc -Wall -Wextra -c b.c -o b.o
+b.c: In function ‘total’:
+b.c:6:64: error: ‘struct item’ has no member named ‘qtty’; did you mean ‘qty’?
+    6 |     for (int i = 0; i < n; i++) s += items[i].price * items[i].qtty;
+      |                                                                ^~~~
+      |                                                                qty
+b.c:7:24: error: expected ‘;’ before ‘}’ token
+    7 |     return s - discount
+      |                        ^
+      |                        ;
+    8 | }
+      | ~                       
+b.c: In function ‘main_b’:
+b.c:11:18: error: initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   11 |     char *name = 42;
+      |                  ^~
+b.c:12:23: error: too few arguments to function ‘total’; expected 3, have 2
+   12 |     printf("%d %s\n", total(it, 2), name);
+      |                       ^~~~~
+b.c:4:5: note: declared here
+    4 | int total(struct item *items, int n, int discount) {
+      |     ^~~~~
+b.c:13:5: error: implicit declaration of function ‘undefined_fn’ [-Wimplicit-function-declaration]
+   13 |     undefined_fn(it);
+      |     ^~~~~~~~~~~~
+b.c:14:12: error: returning ‘char *’ from a function with return type ‘int’ makes integer from pointer without a cast [-Wint-conversion]
+   14 |     return "ok";
+      |            ^~~~
+make[1]: *** [Makefile:3: b.o] Error 1
+gcc -Wall -Wextra -c c.c -o c.o
+c.c: In function ‘total’:
+c.c:6:64: error: ‘struct item’ has no member named ‘qtty’; did you mean ‘qty’?
+    6 |     for (int i = 0; i < n; i++) s += items[i].price * items[i].qtty;
+      |                                                                ^~~~
+      |                                                                qty
+c.c:7:24: error: expected ‘;’ before ‘}’ token
+    7 |     return s - discount
+      |                        ^
+      |                        ;
+    8 | }
+      | ~                       
+c.c: In function ‘main_c’:
+c.c:11:18: error: initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   11 |     char *name = 42;
+      |                  ^~
+c.c:12:23: error: too few arguments to function ‘total’; expected 3, have 2
+   12 |     printf("%d %s\n", total(it, 2), name);
+      |                       ^~~~~
+c.c:4:5: note: declared here
+    4 | int total(struct item *items, int n, int discount) {
+      |     ^~~~~
+c.c:13:5: error: implicit declaration of function ‘undefined_fn’ [-Wimplicit-function-declaration]
+   13 |     undefined_fn(it);
+      |     ^~~~~~~~~~~~
+c.c:14:12: error: returning ‘char *’ from a function with return type ‘int’ makes integer from pointer without a cast [-Wint-conversion]
+   14 |     return "ok";
+      |            ^~~~
+make[1]: *** [Makefile:3: c.o] Error 1
+make[1]: Target 'all' not remade because of errors.
+make[1]: Leaving directory '/home/user/src/mk/lib'
+make: *** [Makefile:6: lib] Error 2
+linking app
+make: Target 'all' not remade because of errors.

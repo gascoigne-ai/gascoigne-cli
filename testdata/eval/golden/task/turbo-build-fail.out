@@ -1,0 +1,28 @@
+• Packages in scope: @shop/api, @shop/ui, @shop/utils, @shop/web
+• Running build in 4 packages
+• Remote caching disabled
+cached: @shop/utils:build
+succeeded: @shop/ui:build, @shop/api:build
+
+failed: @shop/web:build
+> @shop/web@0.0.0 build /repo/apps/web
+  ▲ Next.js 14.2.13
+   Creating an optimized production build ...
+Failed to compile.
+app/checkout/page.tsx
+  42 18
+Type error: Module '"@shop/utils"' has no exported member 'formatPrice'.
+  40 | import { useCart } from '@/hooks/useCart';
+  41 | import { Button } from '@shop/ui';
+> 42 | import { formatPrice } from '@shop/utils';
+     |                  ^
+Next.js build worker exited with code: 1 and signal: null
+ERROR: command finished with error: command (/repo/apps/web) /usr/bin/npm run build exited (1)
+1 error in 1 file
+
+ Tasks:    3 successful, 4 total
+Cached:    1 cached, 4 total
+  Time:    24.712s
+Failed:    @shop/web#build
+
+ ERROR  run failed: command  exited (1)

@@ -1,0 +1,111 @@
+lint	Set up job	2026-10-10T08:00:01.4453062Z Current runner version: '2.320.0'
+lint	Set up job	2026-10-10T08:00:02.6625295Z Operating System
+lint	Set up job	2026-10-10T08:00:03.7240707Z Runner Image
+lint	Set up job	2026-10-10T08:00:04.4167739Z Runner Image Provisioner
+lint	Set up job	2026-10-10T08:00:05.5376661Z GITHUB_TOKEN Permissions
+lint	Set up job	2026-10-10T08:00:06.2375656Z Secret source: Actions
+lint	Set up job	2026-10-10T08:00:07.1479673Z Prepare workflow directory
+lint	Set up job	2026-10-10T08:00:08.6404140Z Prepare all required actions
+lint	Set up job	2026-10-10T08:00:09.9634792Z Getting action download info
+lint	Set up job	2026-10-10T08:00:10.5265420Z Download action repository 'actions/checkout@v4'
+lint	Set up job	2026-10-10T08:00:11.3573748Z Download action repository 'actions/setup-go@v5'
+lint	Set up job	2026-10-10T08:00:12.9506871Z Complete job name: lint
+lint	Run actions/checkout@v4	2026-10-10T08:00:13.4353447Z ##[group]Run actions/checkout@v4
+lint	Run actions/checkout@v4	2026-10-10T08:00:14.7358486Z [command]/usr/bin/git fetch --progress step 0
+lint	Run actions/checkout@v4	2026-10-10T08:00:15.8834383Z [command]/usr/bin/git fetch --depth=1 step 1
+lint	Run actions/checkout@v4	2026-10-10T08:00:16.8729574Z [command]/usr/bin/git log --depth=1 step 2
+lint	Run actions/checkout@v4	2026-10-10T08:00:17.7453094Z [command]/usr/bin/git checkout --prune step 3
+lint	Run actions/checkout@v4	2026-10-10T08:00:18.4161779Z [command]/usr/bin/git checkout --local step 4
+lint	Run actions/checkout@v4	2026-10-10T08:00:19.6882073Z [command]/usr/bin/git fetch --local step 5
+lint	Run actions/checkout@v4	2026-10-10T08:00:20.2256247Z [command]/usr/bin/git checkout --local step 6
+lint	Run actions/checkout@v4	2026-10-10T08:00:21.8402712Z [command]/usr/bin/git config --depth=1 step 7
+lint	Run actions/checkout@v4	2026-10-10T08:00:22.1127539Z [command]/usr/bin/git log --prune step 8
+lint	Run actions/checkout@v4	2026-10-10T08:00:23.6183532Z [command]/usr/bin/git fetch --local step 9
+lint	Run actions/checkout@v4	2026-10-10T08:00:24.7217186Z [command]/usr/bin/git fetch --depth=1 step 10
+lint	Run actions/checkout@v4	2026-10-10T08:00:25.3788423Z [command]/usr/bin/git config --progress step 11
+lint	Run actions/checkout@v4	2026-10-10T08:00:26.9882118Z [command]/usr/bin/git fetch --depth=1 step 12
+lint	Run actions/checkout@v4	2026-10-10T08:00:27.4146967Z [command]/usr/bin/git config --progress step 13
+lint	Run actions/checkout@v4	2026-10-10T08:00:28.5099063Z [command]/usr/bin/git log --depth=1 step 14
+lint	Run actions/checkout@v4	2026-10-10T08:00:29.1295373Z [command]/usr/bin/git fetch --depth=1 step 15
+lint	Run actions/checkout@v4	2026-10-10T08:00:30.8311298Z [command]/usr/bin/git config --local step 16
+lint	Run actions/checkout@v4	2026-10-10T08:00:31.2000684Z [command]/usr/bin/git fetch --prune step 17
+lint	Run actions/checkout@v4	2026-10-10T08:00:32.8903889Z [command]/usr/bin/git log --depth=1 step 18
+lint	Run actions/checkout@v4	2026-10-10T08:00:33.5525297Z [command]/usr/bin/git checkout --prune step 19
+lint	Run actions/checkout@v4	2026-10-10T08:00:34.3574817Z ##[endgroup]
+lint	Run actions/setup-go@v5	2026-10-10T08:00:35.6924475Z Setup go version spec 1.27
+lint	Run actions/setup-go@v5	2026-10-10T08:00:36.5831378Z Attempting to download 0...
+lint	Run actions/setup-go@v5	2026-10-10T08:00:37.5999410Z Attempting to download 1...
+lint	Run actions/setup-go@v5	2026-10-10T08:00:38.1155065Z Attempting to download 2...
+lint	Run actions/setup-go@v5	2026-10-10T08:00:39.2191434Z Attempting to download 3...
+lint	Run actions/setup-go@v5	2026-10-10T08:00:40.2134661Z Attempting to download 4...
+lint	Run actions/setup-go@v5	2026-10-10T08:00:41.4126389Z Attempting to download 5...
+lint	Run actions/setup-go@v5	2026-10-10T08:00:42.9585835Z Attempting to download 6...
+lint	Run actions/setup-go@v5	2026-10-10T08:00:43.2646731Z Attempting to download 7...
+lint	Run actions/setup-go@v5	2026-10-10T08:00:44.4184024Z Attempting to download 8...
+lint	Run actions/setup-go@v5	2026-10-10T08:00:45.7043001Z Attempting to download 9...
+test	Set up job	2026-10-10T08:00:46.5527479Z Current runner version: '2.320.0'
+test	Set up job	2026-10-10T08:00:47.6911806Z Operating System
+test	Set up job	2026-10-10T08:00:48.1985834Z Runner Image
+test	Set up job	2026-10-10T08:00:49.3719586Z Runner Image Provisioner
+test	Set up job	2026-10-10T08:00:50.1623234Z GITHUB_TOKEN Permissions
+test	Set up job	2026-10-10T08:00:51.9305704Z Secret source: Actions
+test	Set up job	2026-10-10T08:00:52.5617907Z Prepare workflow directory
+test	Set up job	2026-10-10T08:00:53.7702002Z Prepare all required actions
+test	Set up job	2026-10-10T08:00:54.3653939Z Getting action download info
+test	Set up job	2026-10-10T08:00:55.1544244Z Download action repository 'actions/checkout@v4'
+test	Set up job	2026-10-10T08:00:56.2746658Z Download action repository 'actions/setup-go@v5'
+test	Set up job	2026-10-10T08:00:57.4903678Z Complete job name: test
+test	Run actions/checkout@v4	2026-10-10T08:00:58.7016133Z ##[group]Run actions/checkout@v4
+test	Run actions/checkout@v4	2026-10-10T08:00:59.4338175Z [command]/usr/bin/git checkout --depth=1 step 0
+test	Run actions/checkout@v4	2026-10-10T08:01:00.2313850Z [command]/usr/bin/git fetch --depth=1 step 1
+test	Run actions/checkout@v4	2026-10-10T08:01:01.4585545Z [command]/usr/bin/git checkout --prune step 2
+test	Run actions/checkout@v4	2026-10-10T08:01:02.9934711Z [command]/usr/bin/git config --progress step 3
+test	Run actions/checkout@v4	2026-10-10T08:01:03.7182310Z [command]/usr/bin/git fetch --local step 4
+test	Run actions/checkout@v4	2026-10-10T08:01:04.3718083Z [command]/usr/bin/git log --depth=1 step 5
+test	Run actions/checkout@v4	2026-10-10T08:01:05.5690403Z [command]/usr/bin/git log --local step 6
+test	Run actions/checkout@v4	2026-10-10T08:01:06.9946535Z [command]/usr/bin/git config --prune step 7
+test	Run actions/checkout@v4	2026-10-10T08:01:07.7545561Z [command]/usr/bin/git config --progress step 8
+test	Run actions/checkout@v4	2026-10-10T08:01:08.7156758Z [command]/usr/bin/git fetch --depth=1 step 9
+test	Run actions/checkout@v4	2026-10-10T08:01:09.3908348Z [command]/usr/bin/git config --progress step 10
+test	Run actions/checkout@v4	2026-10-10T08:01:10.7310804Z [command]/usr/bin/git checkout --local step 11
+test	Run actions/checkout@v4	2026-10-10T08:01:11.9996390Z [command]/usr/bin/git fetch --prune step 12
+test	Run actions/checkout@v4	2026-10-10T08:01:12.4797030Z [command]/usr/bin/git log --prune step 13
+test	Run actions/checkout@v4	2026-10-10T08:01:13.7079376Z [command]/usr/bin/git checkout --depth=1 step 14
+test	Run actions/checkout@v4	2026-10-10T08:01:14.7804404Z [command]/usr/bin/git config --prune step 15
+test	Run actions/checkout@v4	2026-10-10T08:01:15.7077033Z [command]/usr/bin/git fetch --progress step 16
+test	Run actions/checkout@v4	2026-10-10T08:01:16.8095929Z [command]/usr/bin/git fetch --local step 17
+test	Run actions/checkout@v4	2026-10-10T08:01:17.2795862Z [command]/usr/bin/git config --prune step 18
+test	Run actions/checkout@v4	2026-10-10T08:01:18.9622409Z [command]/usr/bin/git fetch --progress step 19
+test	Run actions/checkout@v4	2026-10-10T08:01:19.5967740Z ##[endgroup]
+test	Run actions/setup-go@v5	2026-10-10T08:01:20.3061037Z Setup go version spec 1.27
+test	Run actions/setup-go@v5	2026-10-10T08:01:21.3702569Z Attempting to download 0...
+test	Run actions/setup-go@v5	2026-10-10T08:01:22.5027318Z Attempting to download 1...
+test	Run actions/setup-go@v5	2026-10-10T08:01:23.8117891Z Attempting to download 2...
+test	Run actions/setup-go@v5	2026-10-10T08:01:24.8793957Z Attempting to download 3...
+test	Run actions/setup-go@v5	2026-10-10T08:01:25.9299707Z Attempting to download 4...
+test	Run actions/setup-go@v5	2026-10-10T08:01:26.4200294Z Attempting to download 5...
+test	Run actions/setup-go@v5	2026-10-10T08:01:27.4560111Z Attempting to download 6...
+test	Run actions/setup-go@v5	2026-10-10T08:01:28.5243825Z Attempting to download 7...
+test	Run actions/setup-go@v5	2026-10-10T08:01:29.4093583Z Attempting to download 8...
+test	Run actions/setup-go@v5	2026-10-10T08:01:30.8216375Z Attempting to download 9...
+lint	Run golangci-lint run	2026-10-10T08:01:31.7342458Z golangci-lint has version 1.61.0
+lint	Run golangci-lint run	2026-10-10T08:01:32.4728941Z 0 issues.
+test	Run go test ./...	2026-10-10T08:01:33.9213754Z ##[group]Run go test ./...
+test	Run go test ./...	2026-10-10T08:01:34.9006098Z go test ./...
+test	Run go test ./...	2026-10-10T08:01:35.5454134Z ##[endgroup]
+test	Run go test ./...	2026-10-10T08:01:36.8697082Z ok  	example.com/shop/api	0.015s
+test	Run go test ./...	2026-10-10T08:01:37.1596462Z ok  	example.com/shop/cart	0.036s
+test	Run go test ./...	2026-10-10T08:01:38.8387118Z ok  	example.com/shop/util	0.053s
+test	Run go test ./...	2026-10-10T08:01:39.3338110Z ok  	example.com/shop/search	0.048s
+test	Run go test ./...	2026-10-10T08:01:40.3659418Z ok  	example.com/shop/users	0.038s
+test	Run go test ./...	2026-10-10T08:01:41.7322878Z --- FAIL: TestTotal (0.00s)
+test	Run go test ./...	2026-10-10T08:01:42.3387320Z     --- FAIL: TestTotal/negative_guard (0.00s)
+test	Run go test ./...	2026-10-10T08:01:43.7603710Z         price_test.go:21: Total([1], 5) = -4, want 0
+test	Run go test ./...	2026-10-10T08:01:44.1549423Z FAIL
+test	Run go test ./...	2026-10-10T08:01:45.1062837Z FAIL	example.com/shop/price	0.004s
+test	Run go test ./...	2026-10-10T08:01:46.5976227Z FAIL
+test	Run go test ./...	2026-10-10T08:01:47.8681691Z ##[error]Process completed with exit code 1.
+lint	Post Run actions/checkout@v4	2026-10-10T08:01:48.4303919Z Post job cleanup.
+lint	Complete job	2026-10-10T08:01:49.9153868Z Cleaning up orphan processes
+test	Post Run actions/checkout@v4	2026-10-10T08:01:50.4812945Z Post job cleanup.
+test	Complete job	2026-10-10T08:01:51.9100613Z Cleaning up orphan processes

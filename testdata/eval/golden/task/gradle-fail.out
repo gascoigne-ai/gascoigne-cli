@@ -1,0 +1,27 @@
+tasks: 3 executed, 5 up-to-date, 1 from-cache, 1 no-source, 1 failed
+
+failed: :app:compileJava
+/home/user/src/shop/app/src/main/java/com/example/shop/Cart.java
+  14 error incompatible types: String cannot be converted to int
+    int total = "0";
+    ^
+  22 error cannot find symbol
+    return formatPrice(total);
+    ^
+    symbol:   method formatPrice(int)
+    location: class Cart
+2 errors
+2 errors in 1 file
+
+failed: :app:compileJava
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileJava'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+
+BUILD FAILED in 14s
+9 actionable tasks: 3 executed, 1 from cache, 5 up-to-date

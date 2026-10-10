@@ -3,48 +3,24 @@
 #6 [2/6] WORKDIR /app
 #7 [3/6] COPY package*.json ./
 #8 [4/6] RUN npm ci
-npm warn deprecated pkg0@1.0.0: no longer supported
-npm http fetch GET 200 https://registry.npmjs.org/dep1 89ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep2 42ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep3 55ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep4 77ms (cache miss)
-npm warn deprecated pkg5@1.5.0: no longer supported
-npm http fetch GET 200 https://registry.npmjs.org/dep6 13ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep7 69ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep8 41ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep9 16ms (cache miss)
-npm warn deprecated pkg10@1.10.0: no longer supported
-npm http fetch GET 200 https://registry.npmjs.org/dep11 30ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep12 24ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep13 57ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep14 70ms (cache miss)
-npm warn deprecated pkg15@1.15.0: no longer supported
-npm http fetch GET 200 https://registry.npmjs.org/dep16 41ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep17 58ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep18 79ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep19 23ms (cache miss)
-npm warn deprecated pkg20@1.20.0: no longer supported
-npm http fetch GET 200 https://registry.npmjs.org/dep21 83ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep22 41ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep23 11ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep24 37ms (cache miss)
-npm warn deprecated pkg25@1.25.0: no longer supported
-npm http fetch GET 200 https://registry.npmjs.org/dep26 62ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep27 45ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep28 33ms (cache miss)
-npm http fetch GET 200 https://registry.npmjs.org/dep29 59ms (cache miss)
-added 412 packages, and audited 413 packages in 10s
+#8 npm warn deprecated (6): pkg0@1.0.0, pkg5@1.5.0, pkg10@1.10.0, pkg15@1.15.0, pkg20@1.20.0, pkg25@1.25.0
+#8 added 412 packages, and audited 413 packages in 10s
 #9 [5/6] COPY . .
 #10 [6/6] RUN npm run build
-> shop@1.0.0 build
-> tsc -p tsconfig.build.json
-src/cart.ts
-  12:5 error TS2322 Type 'string' is not assignable to type 'number'. (×2, first shown)
-src/orders.ts
-  41:18 error TS2339 Property 'totl' does not exist on type 'Order'. (×2, first shown)
+#10 > shop@1.0.0 build
+#10 > tsc -p tsconfig.build.json
+#10 src/cart.ts
+#10   12:5 error TS2322 Type 'string' is not assignable to type 'number'.
+#10 src/orders.ts
+#10   41:18 error TS2339 Property 'totl' does not exist on type 'Order'.
+#10 2 errors in 2 files
 #10 ERROR: process "/bin/sh -c npm run build" did not complete successfully: exit code: 2
 ------
  > [6/6] RUN npm run build:
+src/cart.ts
+  12:5 error TS2322 Type 'string' is not assignable to type 'number'.
+src/orders.ts
+  41:18 error TS2339 Property 'totl' does not exist on type 'Order'.
 ------
 Dockerfile:9
 --------------------
@@ -54,4 +30,4 @@ Dockerfile:9
   10 |     CMD ["node", "dist/server.js"]
 --------------------
 ERROR: failed to solve: process "/bin/sh -c npm run build" did not complete successfully: exit code: 2
-4 errors in 2 files
+2 errors in 2 files

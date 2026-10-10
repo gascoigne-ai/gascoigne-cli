@@ -1,0 +1,77 @@
+• Packages in scope: @shop/api, @shop/ui, @shop/utils, @shop/web
+• Running build in 4 packages
+• Remote caching disabled
+
+@shop/utils:build: cache hit, replaying logs 5b2c1e9f0a3d4e67
+@shop/utils:build: 
+@shop/utils:build: > @shop/utils@0.0.0 build /repo/packages/utils
+@shop/utils:build: > tsc -p tsconfig.json
+@shop/utils:build: 
+@shop/ui:build: cache miss, executing 8c1d2e3f4a5b6c7d
+@shop/ui:build: 
+@shop/ui:build: > @shop/ui@0.0.0 build /repo/packages/ui
+@shop/ui:build: > vite build
+@shop/ui:build: 
+@shop/ui:build: vite v5.4.8 building for production...
+@shop/ui:build: transforming...
+@shop/ui:build: ✓ 211 modules transformed.
+@shop/ui:build: rendering chunks...
+@shop/ui:build: computing gzip size...
+@shop/ui:build: dist/assets/chunk-000-2a3a2107.js    17.30 kB │ gzip:  4.47 kB
+@shop/ui:build: dist/assets/chunk-001-48007596.js    19.68 kB │ gzip:  2.55 kB
+@shop/ui:build: dist/assets/chunk-002-caea0518.js    19.51 kB │ gzip:  9.65 kB
+@shop/ui:build: dist/assets/chunk-003-2eff2f12.js    20.70 kB │ gzip:  2.74 kB
+@shop/ui:build: dist/assets/chunk-004-00d0722d.js     1.55 kB │ gzip:  9.36 kB
+@shop/ui:build: dist/assets/chunk-005-6d9deeee.js     3.70 kB │ gzip:  8.04 kB
+@shop/ui:build: dist/assets/chunk-006-3b74e9fb.js    36.94 kB │ gzip:  7.09 kB
+@shop/ui:build: dist/assets/chunk-007-6fd5ca04.js    39.90 kB │ gzip:  7.52 kB
+@shop/ui:build: dist/assets/chunk-008-e0029715.js    16.86 kB │ gzip:  4.70 kB
+@shop/ui:build: dist/assets/chunk-009-f4ee9a03.js    13.83 kB │ gzip:  5.23 kB
+@shop/ui:build: dist/assets/chunk-010-1da5b627.js    26.30 kB │ gzip:  9.41 kB
+@shop/ui:build: dist/assets/chunk-011-05f204ab.js     7.04 kB │ gzip:  8.27 kB
+@shop/ui:build: dist/assets/chunk-012-1ff7f212.js    32.54 kB │ gzip:  0.69 kB
+@shop/ui:build: dist/assets/chunk-013-293dc206.js    22.53 kB │ gzip:  3.76 kB
+@shop/ui:build: dist/assets/chunk-014-7c1589b4.js     6.89 kB │ gzip:  6.82 kB
+@shop/ui:build: dist/assets/chunk-015-784e1ea4.js    34.77 kB │ gzip:  2.73 kB
+@shop/ui:build: dist/assets/chunk-016-c7bf13aa.js     8.70 kB │ gzip:  6.90 kB
+@shop/ui:build: dist/assets/chunk-017-cd8bbe9c.js    35.86 kB │ gzip:  7.67 kB
+@shop/ui:build: dist/assets/chunk-018-c34660fc.js    36.00 kB │ gzip:  9.89 kB
+@shop/ui:build: dist/assets/chunk-019-122842b4.js     5.78 kB │ gzip:  5.03 kB
+@shop/ui:build: dist/assets/chunk-020-d3b7750f.js    16.13 kB │ gzip:  3.74 kB
+@shop/ui:build: dist/assets/chunk-021-256a28b4.js    35.61 kB │ gzip:  4.39 kB
+@shop/ui:build: dist/assets/chunk-022-5d7f17ea.js    38.23 kB │ gzip:  5.26 kB
+@shop/ui:build: dist/assets/chunk-023-51654acd.js    39.80 kB │ gzip:  4.17 kB
+@shop/ui:build: dist/assets/chunk-024-06deb3b1.js    33.53 kB │ gzip:  2.01 kB
+@shop/ui:build: ✓ built in 3.12s
+@shop/api:build: cache miss, executing 1a2b3c4d5e6f7a8b
+@shop/api:build: 
+@shop/api:build: > @shop/api@0.0.0 build /repo/apps/api
+@shop/api:build: > tsc -p tsconfig.build.json
+@shop/api:build: 
+@shop/web:build: cache miss, executing 9f8e7d6c5b4a3210
+@shop/web:build: 
+@shop/web:build: > @shop/web@0.0.0 build /repo/apps/web
+@shop/web:build: > next build
+@shop/web:build: 
+@shop/web:build:   ▲ Next.js 14.2.13
+@shop/web:build: 
+@shop/web:build:    Creating an optimized production build ...
+@shop/web:build: Failed to compile.
+@shop/web:build: 
+@shop/web:build: ./app/checkout/page.tsx:42:18
+@shop/web:build: Type error: Module '"@shop/utils"' has no exported member 'formatPrice'.
+@shop/web:build: 
+@shop/web:build:   40 | import { useCart } from '@/hooks/useCart';
+@shop/web:build:   41 | import { Button } from '@shop/ui';
+@shop/web:build: > 42 | import { formatPrice } from '@shop/utils';
+@shop/web:build:      |                  ^
+@shop/web:build: Next.js build worker exited with code: 1 and signal: null
+@shop/web:build: ERROR: command finished with error: command (/repo/apps/web) /usr/bin/npm run build exited (1)
+@shop/web#build: command (/repo/apps/web) /usr/bin/npm run build exited (1)
+
+ Tasks:    3 successful, 4 total
+Cached:    1 cached, 4 total
+  Time:    24.712s 
+Failed:    @shop/web#build
+
+ ERROR  run failed: command  exited (1)

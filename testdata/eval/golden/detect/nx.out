@@ -1,28 +1,20 @@
 
 NX   Running target build for 7 projects and 3 tasks they depend on:
+
 cached: shared-util:build, shared-ui:build, data-access:build
 succeeded: api:build, docs:build, admin:build
 
-> nx run web:build
-
-> vite build
-
-vite v5.4.8 building for production...
-transforming...
-✓ 311 modules transformed.
+failed: web:build
 x Build failed in 2.31s
 error during build:
 apps/web/src/app/checkout/Checkout.tsx (42:18): "formatPrice" is not exported by "libs/shared/util/src/index.ts", imported by "apps/web/src/app/checkout/Checkout.tsx".
 file: /home/user/src/shop/apps/web/src/app/checkout/Checkout.tsx:42:18
-
 40: import { useCart } from '@shop/data-access';
 41: import { Button } from '@shop/shared-ui';
 42: import { formatPrice } from '@shop/shared-util';
                      ^
 43:
 44: export function Checkout() {
-
-… 10 dependency stack frames omitted
 Warning: command "vite build" exited with non-zero status code
 
  NX   Ran target build for 7 projects and 3 tasks they depend on (21s)

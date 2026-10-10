@@ -1,3 +1,3 @@
-package nxoptimizer
+package taskoptimizer
 
 type Config struct{}

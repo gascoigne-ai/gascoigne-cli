@@ -1,9 +1,9 @@
 
 NX   Running target test for 4 projects:
+
 succeeded: shared-util:test, data-access:test, api:test
 
-> nx run web:test
-
+failed: web:test
 FAIL web apps/web/src/app/checkout/Checkout.spec.tsx
   ● Checkout › shows total with tax
 
@@ -29,9 +29,7 @@ Test Suites: 1 failed, 9 passed, 10 total
 Tests:       1 failed, 63 passed, 64 total
 Snapshots:   0 total
 Time:        6.204 s
-Ran all test suites.
 Warning: command "jest" exited with non-zero status code
-
 … 9 passing test lines omitted
 
  NX   Ran target test for 4 projects (14s)

@@ -15,9 +15,9 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/data/logoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/catoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/lsoptimizer"
-	"github.com/lukaszb/gascoigne/optimizer/js/nxoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/pkg/pkgoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/search/grepoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/task/taskoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/test/testoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/vcs/gitoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/web/htmloptimizer"
@@ -50,7 +50,7 @@ func Factories() []component.Factory {
 		logoptimizer.NewFactory(),
 		catoptimizer.NewFactory(),
 		pkgoptimizer.NewFactory(),
-		nxoptimizer.NewFactory(),
+		taskoptimizer.NewFactory(),
 		htmloptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),

@@ -6,9 +6,11 @@ package buildoptimizer
 
 import (
 	"context"
+	"regexp"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/compress/compose"
 	"github.com/lukaszb/gascoigne/compress/diag"
 	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/payload"
@@ -24,11 +26,48 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if detect.Family(b.Type) != detect.FamilyBuild {
 			continue
 		}
-		r := diag.For(detect.Dialect(b.Type))
+		dialect := detect.Dialect(b.Type)
+		r := diag.For(dialect)
 		if r.MaxFrame == 0 {
 			r.MaxFrame = o.cfg.MaxFrame
 		}
-		p.Blocks[i].Text = compress.Join(diag.Compress(compress.Lines(compress.StripANSI(b.Text)), r))
+		lines := compress.Lines(compress.StripANSI(b.Text))
+		if dialect == "docker" {
+			lines = dockerSteps(lines)
+		}
+		p.Blocks[i].Text = compress.Join(diag.Compress(lines, r))
 	}
 	return nil
+}
+
+var (
+	dockerStep = regexp.MustCompile(`^#(\d+) \[[^\]]*\d+/\d+\] RUN (.+)$`)
+	dockerOut  = regexp.MustCompile(`^#(\d+) \d+\.\d+ ?(.*)$`)
+)
+
+// dockerSteps compresses each RUN step's output as the tool it runs (npm ci
+// as pkg, tsc as build…), keeping step headers and everything else.
+func dockerSteps(lines []string) []string {
+	cmds := map[string]string{}
+	bodies := map[string][]string{}
+	for _, l := range lines {
+		if m := dockerStep.FindStringSubmatch(l); m != nil {
+			cmds[m[1]] = m[2]
+		} else if m := dockerOut.FindStringSubmatch(l); m != nil && cmds[m[1]] != "" {
+			bodies[m[1]] = append(bodies[m[1]], m[2])
+		}
+	}
+	var out []string
+	for _, l := range lines {
+		if m := dockerOut.FindStringSubmatch(l); m != nil && cmds[m[1]] != "" {
+			continue // replaced by the step's compressed body
+		}
+		out = append(out, l)
+		if m := dockerStep.FindStringSubmatch(l); m != nil {
+			for _, b := range compose.Lines(bodies[m[1]], m[2]) {
+				out = append(out, "#"+m[1]+" "+b)
+			}
+		}
+	}
+	return out
 }
