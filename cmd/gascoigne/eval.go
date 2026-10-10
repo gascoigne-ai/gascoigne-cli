@@ -5,7 +5,6 @@ import (
 	"cmp"
 	"context"
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -58,11 +57,11 @@ func cmdEval(ctx context.Context, args []string) error {
 		c  common
 		ef evalFlags
 	)
-	fs := flag.NewFlagSet("eval", flag.ContinueOnError)
+	fs := newFlags("eval")
 	c.register(fs)
-	fs.StringVar(&ef.cases, "cases", "testdata/eval/cases.yaml", "eval cases file; fixture paths are relative to it")
-	fs.StringVar(&ef.pipeline, "pipeline", "cli", "pipeline to evaluate")
-	fs.StringVar(&ef.show, "show", "", "print optimized output of cases whose name contains this")
+	fs.StringVar(&ef.cases, "cases", "testdata/eval/cases.yaml", "eval cases `file`; fixture paths are relative to it")
+	fs.StringVar(&ef.pipeline, "pipeline", "cli", "`pipeline` to evaluate")
+	fs.StringVar(&ef.show, "show", "", "print optimized output of cases whose name contains `text`")
 	fs.BoolVar(&ef.update, "update", false, "rewrite golden outputs")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -228,7 +227,7 @@ func blockTypes(p *payload.Payload) string {
 }
 
 func cmdComponents(_ context.Context, args []string) error {
-	fs := flag.NewFlagSet("components", flag.ContinueOnError)
+	fs := newFlags("components")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}

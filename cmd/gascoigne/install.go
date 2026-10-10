@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -16,12 +15,8 @@ import (
 // config files, or with -g in the user's. Earlier gascoigne entries are
 // replaced, so running it again refreshes them; unwrap removes them.
 func cmdInstall(_ context.Context, args []string) error {
-	fset := flag.NewFlagSet("install", flag.ContinueOnError)
+	fset := newFlags("install")
 	global := fset.Bool("g", false, "register for every project (user config) instead of this one")
-	fset.Usage = func() {
-		fmt.Fprintf(fset.Output(), "usage: gascoigne install [-g] [agent...]  (default: agents found on PATH)\nagents: %s\n", agentNames())
-		fset.PrintDefaults()
-	}
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
@@ -41,8 +36,7 @@ func cmdInstall(_ context.Context, args []string) error {
 	for _, name := range names {
 		a, ok := agents[name]
 		if !ok {
-			fset.Usage()
-			return flag.ErrHelp
+			return unknownAgent(name)
 		}
 		done, err := a.add(cmd, *global)
 		errs = append(errs, err)

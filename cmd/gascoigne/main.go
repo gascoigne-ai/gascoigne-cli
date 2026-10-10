@@ -25,75 +25,32 @@ import (
 	"github.com/lukaszb/gascoigne/receiver/mcpproxyreceiver"
 )
 
-const usage = `usage: gascoigne <command> [flags]
-
-commands:
-  run         run a pipeline (default cli: stdin → optimized stdout)
-  exec -- <cmd> [args]  run cmd, print its optimized output, keep its exit code
-  wrap <agent> [args]   start claude, codex or pi with gascoigne registered (-print: config for good, also cursor)
-  install [-g] [agent...]  register gascoigne with agents for good: this project, -g every project
-  unwrap [agent...]     deregister gascoigne from agents' config files (default: all)
-  hook <agent>          agent hook handler (installed by wrap)
-  mcp         MCP server on stdio: fetch, compress, retrieve, stats
-  mcp-proxy -- <server cmd>  MCP proxy optimizing another server's tool results
-  raw <id>    print original payload; marks its source as badly optimized
-  fail <key|raw_id>  mark a source as badly optimized
-  forget <key>       clear failure history for a source
-  gain        token savings report
-  reset       clear savings stats (-session/-agent/-since; -all: also originals and failures)
-  flush       delete stored originals, the cache behind raw ids (-older 7d: only older ones)
-  dashboard   start the background server if needed, print the dashboard address
-  server run|start|stop|status  the background server hosting the dashboard (one per user)
-  eval        benchmark pipeline on fixtures
-  components  list built-in components
-  config      print the effective config (after -set/-only/-disable and env)
-
-run 'gascoigne <command> -h' for flags`
-
-var commands = map[string]func(ctx context.Context, args []string) error{
-	"run":        cmdRun,
-	"exec":       cmdExec,
-	"wrap":       cmdWrap,
-	"unwrap":     cmdUnwrap,
-	"install":    cmdInstall,
-	"hook":       cmdHook,
-	"mcp":        cmdMCP,
-	"mcp-proxy":  cmdMCPProxy,
-	"raw":        cmdRaw,
-	"fail":       cmdFail,
-	"forget":     cmdForget,
-	"gain":       cmdGain,
-	"dashboard":  cmdDashboard,
-	"server":     cmdServer,
-	"reset":      cmdReset,
-	"flush":      cmdFlush,
-	"eval":       cmdEval,
-	"components": cmdComponents,
-	"config":     cmdConfig,
-}
-
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, usage)
+		printOverview(os.Stderr)
 		os.Exit(2)
 	}
-	cmd, ok := commands[os.Args[1]]
+	name := os.Args[1]
+	if name == "-h" || name == "-help" || name == "--help" {
+		name = "help"
+	}
+	cmd, ok := lookup(name)
 	if !ok {
-		fmt.Fprintf(os.Stderr, "unknown command %q\n%s\n", os.Args[1], usage)
+		fmt.Fprintln(os.Stderr, "gascoigne:", unknownCommand(name))
 		os.Exit(2)
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	if err := cmd(ctx, os.Args[2:]); err != nil {
-		var code exitCode
-		if errors.As(err, &code) {
-			os.Exit(int(code))
-		}
-		if !errors.Is(err, flag.ErrHelp) {
-			fmt.Fprintln(os.Stderr, "gascoigne:", err)
-		}
-		os.Exit(1)
+	err := cmd.run(ctx, os.Args[2:])
+	if err == nil || errors.Is(err, flag.ErrHelp) {
+		return
 	}
+	var code exitCode
+	if errors.As(err, &code) {
+		os.Exit(int(code))
+	}
+	fmt.Fprintln(os.Stderr, "gascoigne:", err)
+	os.Exit(1)
 }
 
 // common holds flags shared by commands that build the service.
@@ -113,16 +70,16 @@ type common struct {
 }
 
 func (c *common) register(fs *flag.FlagSet) {
-	fs.StringVar(&c.config, "config", "", "config file (default: $GASCOIGNE_CONFIG, $XDG_CONFIG_HOME/gascoigne/config.yaml, built-in)")
+	fs.StringVar(&c.config, "config", "", "config `file` (default: $GASCOIGNE_CONFIG, $XDG_CONFIG_HOME/gascoigne/config.yaml, built-in)")
 	fs.BoolVar(&c.verbose, "v", false, "debug logs to stderr")
 	c.attrs = attrFlag{}
-	fs.Var(c.attrs, "attr", "payload attribute k=v (repeatable), e.g. -attr cmd='git status'")
-	fs.Var(&c.sets, "set", "config override path=yaml (repeatable, after $GASCOIGNE_SET), e.g. -set optimizers.grep.max_per_file=50")
-	fs.StringVar(&c.only, "only", "", "comma list: run only these optimizers (default $GASCOIGNE_ONLY)")
-	fs.StringVar(&c.disable, "disable", "", "comma list: skip these optimizers (default $GASCOIGNE_DISABLE)")
-	fs.StringVar(&c.session, "session", "", "agent session id for stats (default $GASCOIGNE_SESSION)")
-	fs.StringVar(&c.agent, "agent", "", "agent name for stats, e.g. claude-code (default $GASCOIGNE_AGENT; MCP: client name)")
-	fs.StringVar(&c.model, "model", "", "LLM model the output is for (default $GASCOIGNE_MODEL)")
+	fs.Var(c.attrs, "attr", "payload attribute `k=v` (repeatable), e.g. -attr cmd='git status'")
+	fs.Var(&c.sets, "set", "config override `path=yaml` (repeatable, after $GASCOIGNE_SET), e.g. -set optimizers.grep.max_per_file=50")
+	fs.StringVar(&c.only, "only", "", "run only these optimizers, a comma `list` (default $GASCOIGNE_ONLY)")
+	fs.StringVar(&c.disable, "disable", "", "skip these optimizers, a comma `list` (default $GASCOIGNE_DISABLE)")
+	fs.StringVar(&c.session, "session", "", "agent session `id` for stats (default $GASCOIGNE_SESSION)")
+	fs.StringVar(&c.agent, "agent", "", "agent `name` for stats, e.g. claude-code (default $GASCOIGNE_AGENT; MCP: client name)")
+	fs.StringVar(&c.model, "model", "", "LLM `model` the output is for (default $GASCOIGNE_MODEL)")
 }
 
 // identity is session, agent and model from flags, else env.
@@ -221,10 +178,10 @@ func (a attrFlag) Set(s string) error {
 
 func cmdRun(ctx context.Context, args []string) error {
 	var c common
-	fs := flag.NewFlagSet("run", flag.ContinueOnError)
+	fs := newFlags("run")
 	c.register(fs)
 	raw := fs.Bool("raw", false, "bypass optimization, output verbatim")
-	pipeline := fs.String("pipeline", "cli", "pipeline to run")
+	pipeline := fs.String("pipeline", "cli", "`pipeline` to run")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -245,10 +202,10 @@ func (c exitCode) Error() string { return fmt.Sprintf("exit status %d", int(c)) 
 
 func cmdExec(ctx context.Context, args []string) error {
 	var c common
-	fs := flag.NewFlagSet("exec", flag.ContinueOnError)
+	fs := newFlags("exec")
 	c.register(fs)
 	raw := fs.Bool("raw", false, "bypass optimization, output verbatim")
-	pipeline := fs.String("pipeline", "exec", "pipeline to run")
+	pipeline := fs.String("pipeline", "exec", "`pipeline` to run")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -285,9 +242,9 @@ func cmdMCPProxy(ctx context.Context, args []string) error {
 // serve runs one long-lived pipeline; with sets per-run receiver input from positional args.
 func serve(ctx context.Context, pipeline string, args []string, with func(context.Context, []string) context.Context) error {
 	var c common
-	fs := flag.NewFlagSet(pipeline, flag.ContinueOnError)
+	fs := newFlags(pipeline)
 	c.register(fs)
-	name := fs.String("pipeline", pipeline, "pipeline to run")
+	name := fs.String("pipeline", pipeline, "`pipeline` to run")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -302,7 +259,7 @@ func serve(ctx context.Context, pipeline string, args []string, with func(contex
 
 func cmdConfig(_ context.Context, args []string) error {
 	var c common
-	fs := flag.NewFlagSet("config", flag.ContinueOnError)
+	fs := newFlags("config")
 	c.register(fs)
 	if err := fs.Parse(args); err != nil {
 		return err

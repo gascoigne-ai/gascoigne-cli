@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -65,23 +64,25 @@ func agentNames() string {
 	return strings.Join(names, ", ")
 }
 
+func unknownAgent(name string) error {
+	if name == "" {
+		return fmt.Errorf("want an agent: %s", agentNames())
+	}
+	return fmt.Errorf("unknown agent %q, want one of: %s", name, agentNames())
+}
+
 // cmdWrap starts an agent with gascoigne registered for this run only, or
 // prints the config that registers it for good.
 func cmdWrap(_ context.Context, args []string) error {
-	fs := flag.NewFlagSet("wrap", flag.ContinueOnError)
+	fs := newFlags("wrap")
 	print := fs.Bool("print", false, "print the config that registers gascoigne with the agent for good, instead of starting it")
-	fs.Usage = func() {
-		fmt.Fprintf(fs.Output(), "usage: gascoigne wrap [-print] <agent> [agent args...]\nagents: %s\n", agentNames())
-		fs.PrintDefaults()
-	}
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 	name := fs.Arg(0)
 	a, ok := agents[name]
 	if !ok {
-		fs.Usage()
-		return flag.ErrHelp
+		return unknownAgent(name)
 	}
 	exe, err := os.Executable()
 	if err != nil {

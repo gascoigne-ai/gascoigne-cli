@@ -22,7 +22,7 @@ import (
 func withLedger(ctx context.Context, name string, args []string, nargs int, flags func(*flag.FlagSet),
 	fn func(l *ledger.Ledger, c *common, args []string) error) error {
 	var c common
-	fs := flag.NewFlagSet(name, flag.ContinueOnError)
+	fs := newFlags(name)
 	c.register(fs)
 	if flags != nil {
 		flags(fs)
@@ -65,7 +65,7 @@ func cmdRaw(ctx context.Context, args []string) error {
 func cmdFail(ctx context.Context, args []string) error {
 	var reason string
 	return withLedger(ctx, "fail", args, 1, func(fs *flag.FlagSet) {
-		fs.StringVar(&reason, "reason", component.ReasonManual, "failure reason")
+		fs.StringVar(&reason, "reason", component.ReasonManual, "failure `reason`")
 	}, func(l *ledger.Ledger, _ *common, args []string) error {
 		key := args[0]
 		if !isKey(key) {
@@ -108,11 +108,11 @@ func cmdGain(ctx context.Context, args []string) error {
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
-		fs.StringVar(&by, "by", "", "one grouping instead of the overview: day, week, month, agent, model, session, command, optimizer, family, dialect, outcome, reason, route")
+		fs.StringVar(&by, "by", "", "one `grouping` instead of the overview: day, week, month, agent, model, session, command, optimizer, family, dialect, outcome, reason, route")
 		fs.BoolVar(&all, "all", false, "ignore session/agent/model from $GASCOIGNE_* (flags still filter)")
-		fs.StringVar(&since, "since", "", "only the last period: 24h, 7d, 4w, 6mo")
+		fs.StringVar(&since, "since", "", "only the last `period`: 24h, 7d, 4w, 6mo")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
-		fs.StringVar(&color, "color", "auto", "colors: auto (terminal, no NO_COLOR), always or never")
+		fs.StringVar(&color, "color", "auto", "`mode`: auto (terminal, no NO_COLOR), always or never")
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		defer w.Flush()
@@ -232,7 +232,7 @@ func parseSince(s string) (time.Duration, error) {
 func cmdFlush(ctx context.Context, args []string) error {
 	var older string
 	return withLedger(ctx, "flush", args, 0, func(fs *flag.FlagSet) {
-		fs.StringVar(&older, "older", "", "only originals saved before this period: 24h, 7d, 4w, 6mo")
+		fs.StringVar(&older, "older", "", "only originals saved before this `period`: 24h, 7d, 4w, 6mo")
 	}, func(l *ledger.Ledger, _ *common, _ []string) error {
 		var cutoff time.Time
 		if older != "" {
@@ -277,7 +277,7 @@ func cmdReset(ctx context.Context, args []string) error {
 	)
 	return withLedger(ctx, "reset", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&all, "all", false, "also delete stored originals and failure history (no filters)")
-		fs.StringVar(&since, "since", "", "only runs of the last period: 24h, 7d, 4w, 6mo")
+		fs.StringVar(&since, "since", "", "only runs of the last `period`: 24h, 7d, 4w, 6mo")
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
 		q := component.StatsQuery{Session: c.session, Agent: c.agent, Model: c.model}
 		if since != "" {

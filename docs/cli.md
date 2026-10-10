@@ -4,7 +4,9 @@
 gascoigne <command> [flags] [args]
 ```
 
-Run `gascoigne <command> -h` for the flags of one command.
+`gascoigne help` lists the commands by group; `gascoigne help <command>` (or `<command> -h`)
+shows its usage, flags, examples and the flags every optimizing command shares. Help is colored
+on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion.
 
 ## Commands
 

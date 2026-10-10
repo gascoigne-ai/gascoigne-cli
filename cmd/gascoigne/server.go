@@ -47,7 +47,7 @@ func cmdServer(ctx context.Context, args []string) error {
 	}
 	var addr string
 	flags := func(fs *flag.FlagSet) {
-		fs.StringVar(&addr, "addr", serverAddr(), "listen address, loopback only (default $GASCOIGNE_SERVER_ADDR or "+defaultServerAddr+")")
+		fs.StringVar(&addr, "addr", serverAddr(), "listen `address`, loopback only (default $GASCOIGNE_SERVER_ADDR or "+defaultServerAddr+")")
 	}
 	switch sub {
 	case "run":
@@ -63,7 +63,7 @@ func cmdServer(ctx context.Context, args []string) error {
 			return nil
 		})
 	case "stop", "status":
-		fs := flag.NewFlagSet("server "+sub, flag.ContinueOnError)
+		fs := newFlags("server " + sub)
 		flags(fs)
 		if err := fs.Parse(args); err != nil {
 			return err

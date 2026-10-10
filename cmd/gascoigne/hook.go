@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"maps"
 	"os"
@@ -35,7 +34,7 @@ type hookFunc func(ctx context.Context, c *common, in hookInput, prefix string) 
 // on any problem it prints nothing and the call goes on unchanged.
 func cmdHook(ctx context.Context, args []string) error {
 	var c common
-	fs := flag.NewFlagSet("hook", flag.ContinueOnError)
+	fs := newFlags("hook")
 	c.register(fs)
 	if err := fs.Parse(args); err != nil {
 		return err

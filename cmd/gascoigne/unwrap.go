@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -17,10 +16,7 @@ import (
 // wrap -print shows), from user and project config files. Edited files keep
 // their original as <file>.gascoigne-bak.
 func cmdUnwrap(_ context.Context, args []string) error {
-	fset := flag.NewFlagSet("unwrap", flag.ContinueOnError)
-	fset.Usage = func() {
-		fmt.Fprintf(fset.Output(), "usage: gascoigne unwrap [agent...]  (default: all)\nagents: %s\n", agentNames())
-	}
+	fset := newFlags("unwrap")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
@@ -33,8 +29,7 @@ func cmdUnwrap(_ context.Context, args []string) error {
 	for _, name := range names {
 		a, ok := agents[name]
 		if !ok {
-			fset.Usage()
-			return flag.ErrHelp
+			return unknownAgent(name)
 		}
 		done, err := a.remove()
 		errs = append(errs, err)
