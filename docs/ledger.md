@@ -32,7 +32,7 @@ This lives in the pipeline core, not in optimizers:
 | shell | `gascoigne raw <id>` |
 | MCP server | `retrieve` with the id |
 | MCP proxy | `gascoigne_retrieve` with the id |
-| dashboard | open a run → *Reveal the original* |
+| dashboard | open a run → *Show original output* |
 
 Ids are derived from content, so the same original always has the same id.
 
@@ -123,7 +123,7 @@ gascoigne reset -all              # also stored originals and failure history
 
 A reset deletes recorded runs and their steps. Stored originals and failure history stay
 unless you pass `-all`, so `raw <id>` hints already shown to an agent keep working. The
-dashboard's *Reset stats* button does the same for its current filters.
+dashboard's *Reset statistics* button does the same for its current filters.
 
 ## Dashboard
 
@@ -156,19 +156,21 @@ GASCOIGNE_SERVER_ADDR=127.0.0.1:9000
 
 ### The page
 
-One self-contained page served from the binary, styled after a gothic hunter's ledger:
+One self-contained page served from the binary, with no external requests. It follows the
+system's light or dark theme; the *Auto / Light / Dark* switch in the header overrides it and is
+remembered per browser.
 
 | Panel | Shows |
 |---|---|
-| Totals | tokens saved, saved %, runs, optimized, unchanged or bypassed, errors |
-| Nights of the Hunt | tokens saved per day |
+| Summary | tokens saved, savings rate, runs, optimized, not optimized, errors |
+| Daily savings | tokens saved per day |
 | Outcomes | runs and share of input tokens per outcome |
-| The Hunt — live | every run as it lands, newest first: agent, command, content type, tokens, saved, outcome |
-| Prey / Weapons | savings by command; by optimizer and by content type |
-| Why the Hunt Was Abandoned | runs not optimized, by stopping component and command, with the latest reason |
-| Cursed Sources | failing sources, each with a *Cleanse* button (`forget`) |
+| Recent runs | live feed, newest first: agent, command, content type, tokens, saved, outcome |
+| By command / By optimizer | savings by command; by optimizer and by content type |
+| Runs not optimized | by stopping component and command, with the most recent reason |
+| Excluded sources | failing sources, each with a *Re-enable* button (`forget`) |
 
-Filters at the top narrow everything to one session, one agent, or a period. *Reset stats*
+Filters at the top narrow everything to one session, one agent, or a period. *Reset statistics*
 deletes the runs matching the filters (after a confirmation); *Stop server* stops the
 background server. The footer shows the server's pid, uptime, ledger and build. Clicking a run
 opens its details: source key, pipeline and route, the optimizer chain, each step's

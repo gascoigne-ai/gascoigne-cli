@@ -3,146 +3,151 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>gascoigne · Hunter's Ledger</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
+<title>gascoigne · Token Savings</title>
+<script>
+// Apply the saved theme before first paint to avoid a flash.
+try { const t = localStorage.getItem("gascoigne-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}
+</script>
 <style>
 :root {
-  --night: #0a0708;
-  --stone: #141011;
-  --stone-2: #1c1615;
-  --edge: #3b2b24;
-  --edge-2: #5a4232;
-  --parchment: #e2d4b7;
-  --ash: #9a8a72;
-  --dim: #6b5d4c;
-  --blood: #8e1220;
-  --blood-bright: #c8283a;
-  --gold: #b8955a;
-  --gold-bright: #dcbc7c;
-  --moon: #f1e6cf;
-  --ok: #8fa36a;
-  --warn: #c9973f;
-  --serif: "EB Garamond", Garamond, Georgia, "Times New Roman", serif;
-  --title: "Cinzel", "Trajan Pro", Georgia, serif;
-  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f1f3f6;
+  --border: #e2e5ea;
+  --border-strong: #cfd4dc;
+  --text: #1c2330;
+  --muted: #5b6577;
+  --faint: #8a93a3;
+  --accent: #2563eb;
+  --accent-soft: #e8efff;
+  --ok: #15803d;
+  --ok-soft: #e7f6ec;
+  --warn: #b45309;
+  --warn-soft: #fdf3e2;
+  --err: #b91c1c;
+  --err-soft: #fdecec;
+  --track: #e9ecf1;
+  --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .06);
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1218; --surface: #161a22; --surface-2: #1c212b; --border: #262c38; --border-strong: #343b4a;
+    --text: #e6e9ef; --muted: #a3acbb; --faint: #737d8e; --accent: #6b9cff; --accent-soft: #1b2a47;
+    --ok: #4ade80; --ok-soft: #13291b; --warn: #f5b04a; --warn-soft: #2e2312; --err: #f87171; --err-soft: #331618;
+    --track: #232937; --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1218; --surface: #161a22; --surface-2: #1c212b; --border: #262c38; --border-strong: #343b4a;
+  --text: #e6e9ef; --muted: #a3acbb; --faint: #737d8e; --accent: #6b9cff; --accent-soft: #1b2a47;
+  --ok: #4ade80; --ok-soft: #13291b; --warn: #f5b04a; --warn-soft: #2e2312; --err: #f87171; --err-soft: #331618;
+  --track: #232937; --shadow: 0 1px 2px rgba(0, 0, 0, .4);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-html { background: var(--night); }
-body {
-  margin: 0; min-height: 100vh; color: var(--parchment); font: 17px/1.45 var(--serif);
-  background:
-    radial-gradient(ellipse 70% 40% at 50% -5%, rgba(142, 18, 32, .28), transparent 70%),
-    radial-gradient(ellipse 120% 80% at 50% 120%, rgba(0, 0, 0, .9), transparent 60%),
-    var(--night);
-}
-a { color: var(--gold-bright); }
-.wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px 48px; }
+html, body { background: var(--bg); }
+body { margin: 0; color: var(--text); font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px 40px; }
 
-/* Header: the moon over Yharnam */
-header { position: relative; padding: 36px 0 20px; text-align: center; border-bottom: 1px solid var(--edge); }
-.moon {
-  position: absolute; top: 14px; right: 6%; width: 74px; height: 74px; border-radius: 50%;
-  background: radial-gradient(circle at 38% 36%, var(--moon), #cdbb98 55%, #8d7a5a 100%);
-  box-shadow: 0 0 40px 8px rgba(241, 230, 207, .18), 0 0 120px 30px rgba(200, 40, 58, .08);
-  opacity: .85;
-}
-h1 {
-  margin: 0; font: 700 clamp(28px, 5vw, 46px)/1.1 var(--title); letter-spacing: .18em; text-transform: uppercase;
-  color: var(--gold-bright); text-shadow: 0 2px 0 #000, 0 0 24px rgba(200, 40, 58, .35);
-}
-.subtitle { margin-top: 6px; color: var(--ash); font-style: italic; }
-.ornament { color: var(--blood-bright); letter-spacing: .6em; margin: 10px 0 0; font-size: 14px; }
-.live { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font: 13px var(--title); letter-spacing: .12em; color: var(--ash); text-transform: uppercase; }
-.live i { width: 9px; height: 9px; border-radius: 50%; background: var(--dim); }
-.live.on i { background: var(--blood-bright); box-shadow: 0 0 10px var(--blood-bright); animation: pulse 2.2s infinite; }
-@keyframes pulse { 50% { opacity: .35; } }
+/* Header */
+header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 0 16px; border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo { width: 28px; height: 28px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 15px; }
+h1 { margin: 0; font-size: 18px; font-weight: 650; letter-spacing: -.01em; }
+.subtitle { color: var(--muted); font-size: 13px; }
+.head-right { display: flex; align-items: center; gap: 12px; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
+.live.on i { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.theme { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.theme button { border: 0; border-radius: 0; background: transparent; padding: 5px 10px; color: var(--muted); }
+.theme button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 
-/* Filters */
-.filters { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 18px 0 6px; }
-.rites { display: flex; gap: 8px; }
-.filters label { display: flex; flex-direction: column; gap: 3px; font: 11px var(--title); letter-spacing: .14em; text-transform: uppercase; color: var(--ash); }
-select, button {
-  font: 15px var(--serif); color: var(--parchment); background: var(--stone-2);
-  border: 1px solid var(--edge-2); border-radius: 2px; padding: 6px 10px; min-width: 150px;
-}
-button { min-width: 0; cursor: pointer; font-family: var(--title); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
-button:hover, select:hover { border-color: var(--gold); }
-button.blood { border-color: var(--blood); color: var(--blood-bright); }
-button.blood:hover { background: var(--blood); color: var(--moon); }
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 16px 0 4px; }
+.toolbar label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.toolbar .spacer { flex: 1; }
+.actions { display: flex; gap: 8px; }
+select, button { font: 13px var(--sans); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 10px; }
+select { min-width: 170px; }
+button { cursor: pointer; }
+button:hover, select:hover { border-color: var(--accent); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button.danger { color: var(--err); }
+button.danger:hover { border-color: var(--err); background: var(--err-soft); }
+button:disabled { opacity: .55; cursor: default; }
 
-/* Panels */
-.panel {
-  position: relative; background: linear-gradient(180deg, var(--stone-2), var(--stone));
-  border: 1px solid var(--edge); padding: 16px 18px; margin-top: 18px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .6), 0 10px 30px rgba(0, 0, 0, .45);
-}
-.panel::before, .panel::after { content: "✠"; position: absolute; top: 6px; color: var(--edge-2); font-size: 11px; }
-.panel::before { left: 8px; } .panel::after { right: 8px; }
-h2 { margin: 0 0 2px; font: 700 15px var(--title); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
-.hint { margin: 0 0 12px; color: var(--dim); font-style: italic; font-size: 14px; }
-.grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
+/* Cards */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-top: 16px; box-shadow: var(--shadow); }
+h2 { margin: 0; font-size: 15px; font-weight: 650; }
+.hint { margin: 2px 0 12px; color: var(--muted); font-size: 13px; }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); margin-top: 16px; }
 .grid > .panel { margin-top: 0; }
-.row-gap { margin-top: 18px; }
+.row-gap { margin-top: 16px; }
 
-/* Vials: KPI tiles */
-.vials { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-top: 18px; }
-.vial { background: var(--stone); border: 1px solid var(--edge); border-top: 2px solid var(--blood); padding: 12px 14px; }
-.vial .name { font: 11px var(--title); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
-.vial .value { font: 600 30px/1.15 var(--title); color: var(--moon); margin-top: 4px; }
-.vial .plain { color: var(--dim); font-size: 13px; font-style: italic; }
-.vial.blood .value { color: var(--blood-bright); }
+/* KPIs */
+.kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-top: 16px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); }
+.kpi .name { font-size: 12px; font-weight: 600; color: var(--muted); }
+.kpi .value { font-size: 26px; font-weight: 650; letter-spacing: -.02em; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.kpi .plain { color: var(--faint); font-size: 12px; }
+.kpi.accent .value { color: var(--accent); }
+.kpi.alert .value { color: var(--err); }
 
 /* Tables */
-table { width: 100%; border-collapse: collapse; font-size: 15px; }
-th { text-align: left; font: 11px var(--title); letter-spacing: .12em; text-transform: uppercase; color: var(--ash); border-bottom: 1px solid var(--edge-2); padding: 6px 8px; }
-td { padding: 6px 8px; border-bottom: 1px solid rgba(59, 43, 36, .55); vertical-align: top; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); padding: 7px 8px; white-space: nowrap; position: sticky; top: 0; background: var(--surface); }
+td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-td.mono { font-family: var(--mono); font-size: 13px; word-break: break-word; }
+td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-word; }
 .scroll { max-height: 520px; overflow: auto; }
-.empty { color: var(--dim); font-style: italic; padding: 10px 8px; }
+.empty { color: var(--faint); padding: 10px 8px; }
 #feed tr { cursor: pointer; }
-#feed tr:hover td { background: rgba(142, 18, 32, .12); }
-#feed tr.fresh td { animation: blood 1.6s ease-out; }
-@keyframes blood { from { background: rgba(200, 40, 58, .45); } to { background: transparent; } }
-.when { color: var(--dim); white-space: nowrap; font-size: 13px; }
-.dialect { color: var(--ash); font-size: 13px; }
-.none { color: var(--dim); font-style: italic; }
+#feed tr:hover td { background: var(--surface-2); }
+#feed tr.fresh td { animation: fresh 1.6s ease-out; }
+@keyframes fresh { from { background: var(--accent-soft); } to { background: transparent; } }
+.when { color: var(--muted); white-space: nowrap; }
+.dialect { color: var(--muted); font-size: 12.5px; }
+.none { color: var(--faint); font-style: italic; }
 
-/* Bars: a vial of blood, filled by saved % */
-.bar { position: relative; height: 8px; min-width: 70px; background: #0d0a0a; border: 1px solid var(--edge); }
-.bar > span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--blood), var(--blood-bright)); }
-.badge { display: inline-block; font: 10px var(--title); letter-spacing: .12em; text-transform: uppercase; padding: 2px 6px; border: 1px solid; white-space: nowrap; }
-.badge.optimized { color: var(--blood-bright); border-color: var(--blood); }
-.badge.unchanged { color: var(--ash); border-color: var(--edge-2); }
-.badge.bypassed { color: var(--gold); border-color: var(--gold); }
-.badge.error { color: var(--moon); border-color: var(--blood-bright); background: var(--blood); }
+/* Bars and badges */
+.bar { position: relative; height: 6px; min-width: 70px; background: var(--track); border-radius: 3px; overflow: hidden; margin-top: 7px; }
+.bar > span { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 3px; }
+.badge { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.badge.optimized { color: var(--ok); background: var(--ok-soft); }
+.badge.unchanged { color: var(--muted); background: var(--surface-2); }
+.badge.bypassed { color: var(--warn); background: var(--warn-soft); }
+.badge.error { color: var(--err); background: var(--err-soft); }
 
-/* Night chart: last days */
-.nights { display: flex; align-items: flex-end; gap: 10px; height: 150px; padding-top: 8px; }
-.night { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
-.night .col { width: 100%; max-width: 46px; background: linear-gradient(180deg, var(--blood-bright), var(--blood) 70%, #3a070d); border: 1px solid var(--blood); min-height: 2px; }
-.night .lbl { font-size: 12px; color: var(--dim); margin-top: 4px; white-space: nowrap; }
-.night .amt { font-size: 12px; color: var(--ash); margin-bottom: 3px; white-space: nowrap; }
+/* Daily chart */
+.days { display: flex; align-items: flex-end; gap: 10px; height: 160px; padding-top: 8px; }
+.day { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+.day .col { width: 100%; max-width: 44px; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; opacity: .9; }
+.day .lbl { font-size: 12px; color: var(--faint); margin-top: 4px; white-space: nowrap; }
+.day .amt { font-size: 12px; color: var(--muted); margin-bottom: 3px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-/* Detail drawer */
-dialog { width: min(980px, calc(100vw - 32px)); max-height: calc(100vh - 48px); color: var(--parchment); background: var(--stone); border: 1px solid var(--gold); padding: 0; }
-dialog::backdrop { background: rgba(5, 2, 3, .78); }
-.dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--edge); background: var(--stone-2); }
-.dlg-head h3 { margin: 0; font: 700 16px var(--title); letter-spacing: .1em; color: var(--gold-bright); word-break: break-word; }
+/* Detail dialog */
+dialog { width: min(980px, calc(100vw - 32px)); max-height: calc(100vh - 48px); color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); }
+dialog::backdrop { background: rgba(15, 18, 24, .5); }
+.dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.dlg-head h3 { margin: 0; font-size: 15px; font-weight: 650; font-family: var(--mono); word-break: break-word; }
 .dlg-body { padding: 14px 18px 18px; overflow: auto; max-height: calc(100vh - 140px); }
-dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 14px; }
-dt { font: 11px var(--title); letter-spacing: .12em; text-transform: uppercase; color: var(--ash); padding-top: 3px; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0 0 16px; }
+dt { font-size: 12px; font-weight: 600; color: var(--muted); padding-top: 1px; }
 dd { margin: 0; word-break: break-word; }
-pre { margin: 8px 0 0; padding: 12px; background: #070505; border: 1px solid var(--edge); color: var(--parchment); font: 12.5px/1.45 var(--mono); white-space: pre-wrap; word-break: break-word; max-height: 420px; overflow: auto; }
-code { font-family: var(--mono); font-size: 13px; color: var(--gold-bright); }
-footer { margin-top: 28px; text-align: center; color: var(--dim); font-style: italic; font-size: 14px; }
+pre { margin: 8px 0 0; padding: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; font: 12px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; max-height: 420px; overflow: auto; }
+code { font-family: var(--mono); font-size: 12.5px; }
+footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: center; }
 
 @media (max-width: 640px) {
-  .moon { width: 46px; height: 46px; right: 4px; }
   .grid { grid-template-columns: 1fr; }
   .hide-sm { display: none; }
+  select { min-width: 140px; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
 </style>
@@ -150,86 +155,95 @@ footer { margin-top: 28px; text-align: center; color: var(--dim); font-style: it
 <body>
 <div class="wrap">
   <header>
-    <div class="moon" aria-hidden="true"></div>
-    <h1>Gascoigne</h1>
-    <div class="subtitle">The Hunter's Ledger — every token taken, every original kept</div>
-    <div class="ornament" aria-hidden="true">✠ ❦ ✠</div>
-    <div id="live" class="live"><i></i><span>Awaiting the hunt</span></div>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">g</div>
+      <div>
+        <h1>gascoigne</h1>
+        <div class="subtitle">Token savings for coding agents</div>
+      </div>
+    </div>
+    <div class="head-right">
+      <div id="live" class="live"><i></i><span>Connecting…</span></div>
+      <div class="theme" role="group" aria-label="Theme">
+        <button data-theme="auto" aria-pressed="true">Auto</button>
+        <button data-theme="light" aria-pressed="false">Light</button>
+        <button data-theme="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
   </header>
 
-  <div class="filters">
+  <div class="toolbar">
     <label>Session <select id="f-session"><option value="">All sessions</option></select></label>
     <label>Agent <select id="f-agent"><option value="">All agents</option></select></label>
-    <label>Since
+    <label>Period
       <select id="f-since">
         <option value="24h">Last 24 hours</option>
-        <option value="7d" selected>Last 7 nights</option>
+        <option value="7d" selected>Last 7 days</option>
         <option value="4w">Last 4 weeks</option>
-        <option value="">Since the first hunt</option>
+        <option value="">All time</option>
       </select>
     </label>
-    <label>Rites
-      <span class="rites">
-        <button id="reset" class="blood" title="Delete recorded runs matching the filters">Reset stats</button>
-        <button id="stop" title="Stop the background server">Stop server</button>
-      </span>
-    </label>
+    <div class="spacer"></div>
+    <div class="actions">
+      <button id="reset" class="danger" title="Delete recorded runs matching the current filters">Reset statistics</button>
+      <button id="stop" title="Stop the background server">Stop server</button>
+    </div>
   </div>
 
-  <section class="vials" id="vials" aria-label="Totals"></section>
+  <section class="kpis" id="kpis" aria-label="Summary"></section>
 
-  <div class="grid row-gap">
+  <div class="grid">
     <section class="panel">
-      <h2>Nights of the Hunt</h2>
+      <h2>Daily savings</h2>
       <p class="hint">Tokens saved per day</p>
-      <div class="nights" id="nights"></div>
+      <div class="days" id="days"></div>
     </section>
     <section class="panel">
       <h2>Outcomes</h2>
-      <p class="hint">How each run ended, by share of input tokens</p>
+      <p class="hint">How runs ended, by share of input tokens</p>
       <div id="outcomes"></div>
     </section>
   </div>
 
   <section class="panel">
-    <h2>The Hunt — live</h2>
-    <p class="hint">Every run as it lands in the ledger, newest first. Click a run for its steps and original.</p>
+    <h2>Recent runs</h2>
+    <p class="hint">Live feed, newest first. Select a run to see its optimization steps and original output.</p>
     <div class="scroll">
       <table>
-        <thead><tr><th>When</th><th class="hide-sm">Agent</th><th>Command</th><th class="hide-sm">Content</th><th class="num">Tokens</th><th>Saved</th><th>Outcome</th></tr></thead>
-        <tbody id="feed"><tr><td colspan="7" class="empty">No runs yet. Run something through gascoigne.</td></tr></tbody>
+        <thead><tr><th>Time</th><th class="hide-sm">Agent</th><th>Command</th><th class="hide-sm">Content type</th><th class="num">Tokens</th><th>Saved</th><th>Outcome</th></tr></thead>
+        <tbody id="feed"><tr><td colspan="7" class="empty">No runs recorded yet.</td></tr></tbody>
       </table>
     </div>
   </section>
 
-  <div class="grid row-gap">
+  <div class="grid">
     <section class="panel">
-      <h2>Prey</h2>
-      <p class="hint">Savings by command</p>
+      <h2>By command</h2>
+      <p class="hint">Savings per command</p>
       <div id="commands"></div>
     </section>
     <section class="panel">
-      <h2>Weapons</h2>
-      <p class="hint">Savings by optimizer, then by content type</p>
+      <h2>By optimizer</h2>
+      <p class="hint">Savings per optimizer, then per content type</p>
       <div id="optimizers"></div>
       <div id="dialects" class="row-gap"></div>
     </section>
   </div>
 
   <section class="panel">
-    <h2>Why the Hunt Was Abandoned</h2>
-    <p class="hint">Runs not optimized: skipped by a filter, failed, or left unchanged, with the latest reason</p>
+    <h2>Runs not optimized</h2>
+    <p class="hint">Skipped by a filter, failed, or left unchanged, with the most recent reason</p>
     <div id="reasons"></div>
   </section>
 
   <section class="panel">
-    <h2>Cursed Sources</h2>
-    <p class="hint">Sources passed through untouched because their optimized output was not enough. Cleanse one to optimize it again.</p>
+    <h2>Excluded sources</h2>
+    <p class="hint">Sources passed through unmodified because their optimized output was insufficient. Re-enable a source to optimize it again.</p>
     <div id="failures"></div>
   </section>
 
-  <footer>Fear the old tokens. · <span id="server-info">gascoigne server</span><br>
-    Reads the local ledger; nothing leaves this machine. Any gascoigne command, or <code>gascoigne dashboard</code>, wakes the server.</footer>
+  <footer><span id="server-info">gascoigne server</span><br>
+    Data is read from the local ledger and never leaves this machine. Any gascoigne command, or <code>gascoigne dashboard</code>, starts the server.</footer>
 </div>
 
 <dialog id="detail">
@@ -241,6 +255,16 @@ footer { margin-top: 28px; text-align: center; color: var(--dim); font-style: it
 "use strict";
 const $ = (id) => document.getElementById(id);
 const state = { events: new Map(), source: null, refresh: 0 };
+
+// Theme: auto follows the OS; an explicit choice is remembered per browser.
+function applyTheme(t) {
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+  for (const b of document.querySelectorAll(".theme button")) b.setAttribute("aria-pressed", String(b.dataset.theme === (t || "auto")));
+  try { t && t !== "auto" ? localStorage.setItem("gascoigne-theme", t) : localStorage.removeItem("gascoigne-theme"); } catch {}
+}
+for (const b of document.querySelectorAll(".theme button")) b.onclick = () => applyTheme(b.dataset.theme);
+applyTheme(document.documentElement.dataset.theme || "auto");
 
 function el(tag, attrs, ...kids) {
   const n = document.createElement(tag);
@@ -293,7 +317,7 @@ async function getJSON(url) {
 }
 
 function table(cols, rows, empty) {
-  if (!rows || rows.length === 0) return el("div", { class: "empty" }, empty || "Nothing here yet.");
+  if (!rows || rows.length === 0) return el("div", { class: "empty" }, empty || "No data for this period.");
   return el("table", {},
     el("thead", {}, el("tr", {}, cols.map((c) => el("th", { class: c.num ? "num" : "" }, c.title)))),
     el("tbody", {}, rows.map((r) => el("tr", {}, cols.map((c) => {
@@ -305,36 +329,39 @@ function table(cols, rows, empty) {
 const savedCols = (title, get) => [
   { title, get, mono: true },
   { title: "Runs", get: (r) => human(r.runs), num: true },
-  { title: "In", get: (r) => human(r.raw_tokens), num: true },
-  { title: "Out", get: (r) => human(r.out_tokens), num: true },
+  { title: "Input", get: (r) => human(r.raw_tokens), num: true },
+  { title: "Output", get: (r) => human(r.out_tokens), num: true },
   { title: "Saved", get: (r) => human(r.saved_tokens), num: true },
   { title: "", get: (r) => bar(r.saved_pct) },
   { title: "%", get: (r) => fmtPct(r.saved_pct), num: true },
 ];
 
-function renderVials(o) {
+const outcomeLabel = { optimized: "Optimized", unchanged: "Unchanged", bypassed: "Bypassed", error: "Error" };
+const badge = (o) => el("span", { class: "badge " + o }, outcomeLabel[o] || o);
+
+function renderKPIs(o) {
   const t = o.total;
   const count = (name) => (o.outcomes.find((x) => x.group === name) || {}).runs || 0;
-  const vials = [
-    ["Echoes Reclaimed", human(t.saved_tokens), "tokens saved", "blood"],
-    ["Insight", fmtPct(t.saved_pct), "of input tokens saved"],
-    ["Hunts", human(t.runs), "runs recorded"],
-    ["Beasts Slain", human(count("optimized")), "runs optimized"],
-    ["Spared", human(count("unchanged") + count("bypassed")), "unchanged or bypassed"],
-    ["Fallen", human(count("error")), "optimizer errors", count("error") ? "blood" : ""],
+  const kpis = [
+    ["Tokens saved", human(t.saved_tokens), `of ${human(t.raw_tokens)} input tokens`, "accent"],
+    ["Savings rate", fmtPct(t.saved_pct), "of input tokens"],
+    ["Runs", human(t.runs), "recorded"],
+    ["Optimized", human(count("optimized")), "runs with smaller output"],
+    ["Not optimized", human(count("unchanged") + count("bypassed")), "unchanged or bypassed"],
+    ["Errors", human(count("error")), "optimizer failures", count("error") ? "alert" : ""],
   ];
-  $("vials").replaceChildren(...vials.map(([name, value, plain, cls]) =>
-    el("div", { class: "vial " + (cls || "") }, el("div", { class: "name" }, name), el("div", { class: "value" }, value), el("div", { class: "plain" }, plain))));
+  $("kpis").replaceChildren(...kpis.map(([name, value, plain, cls]) =>
+    el("div", { class: "kpi " + (cls || "") }, el("div", { class: "name" }, name), el("div", { class: "value" }, value), el("div", { class: "plain" }, plain))));
 }
 
-function renderNights(days) {
+function renderDays(days) {
   const best = Math.max(1, ...days.map((d) => d.saved_tokens));
-  $("nights").replaceChildren(...days.map((d) => {
+  $("days").replaceChildren(...days.map((d) => {
     const col = el("div", { class: "col", title: `${d.group}: ${human(d.saved_tokens)} saved in ${d.runs} runs` });
     col.style.height = (100 * d.saved_tokens / best) + "%";
-    return el("div", { class: "night" }, el("div", { class: "amt" }, human(d.saved_tokens)), col, el("div", { class: "lbl" }, d.group.slice(5)));
+    return el("div", { class: "day" }, el("div", { class: "amt" }, human(d.saved_tokens)), col, el("div", { class: "lbl" }, d.group.slice(5)));
   }));
-  if (days.length === 0) $("nights").replaceChildren(el("div", { class: "empty" }, "No nights recorded."));
+  if (days.length === 0) $("days").replaceChildren(el("div", { class: "empty" }, "No data for this period."));
 }
 
 function renderReasons(o) {
@@ -344,24 +371,24 @@ function renderReasons(o) {
     ...o.unchanged.map((r) => ({ ...r, kind: "unchanged" })),
   ];
   $("reasons").replaceChildren(table([
-    { title: "Outcome", get: (r) => el("span", { class: "badge " + r.kind }, r.kind) },
+    { title: "Outcome", get: (r) => badge(r.kind) },
     { title: "Stopped by", get: (r) => r.group, mono: true },
     { title: "Command", get: (r) => r.command || "—", mono: true },
     { title: "Runs", get: (r) => human(r.runs), num: true },
     { title: "Tokens", get: (r) => human(r.raw_tokens), num: true },
-    { title: "Latest reason", get: (r) => r.reason || "—", mono: true },
-  ], rows, "Every run was optimized."));
+    { title: "Most recent reason", get: (r) => r.reason || "—", mono: true },
+  ], rows, "All runs in this period were optimized."));
 }
 
 async function refreshOverview() {
   const o = await getJSON("/api/overview?" + filters());
-  renderVials(o);
-  renderNights(o.days || []);
+  renderKPIs(o);
+  renderDays(o.days || []);
   $("outcomes").replaceChildren(table([
-    { title: "Outcome", get: (r) => el("span", { class: "badge " + r.group }, r.group) },
+    { title: "Outcome", get: (r) => badge(r.group) },
     { title: "Runs", get: (r) => human(r.runs), num: true },
-    { title: "In", get: (r) => human(r.raw_tokens), num: true },
-    { title: "Out", get: (r) => human(r.out_tokens), num: true },
+    { title: "Input", get: (r) => human(r.raw_tokens), num: true },
+    { title: "Output", get: (r) => human(r.out_tokens), num: true },
     { title: "Share of input", get: (r) => bar(pct(r.raw_tokens, o.total.raw_tokens)) },
   ], o.outcomes));
   $("commands").replaceChildren(table(savedCols("Command", (r) => r.group), o.commands));
@@ -375,16 +402,16 @@ async function refreshFailures() {
   const fs = await getJSON("/api/failures");
   $("failures").replaceChildren(table([
     { title: "Source", get: (f) => f.key, mono: true },
-    { title: "Times", get: (f) => f.count, num: true },
+    { title: "Count", get: (f) => f.count, num: true },
     { title: "Last", get: (f) => ago(f.last) },
     { title: "Reason", get: (f) => f.reason, mono: true },
-    { title: "", get: (f) => el("button", { class: "blood", onclick: () => forget(f.key) }, "Cleanse") },
-  ], fs, "No cursed sources. Every source is optimized."));
+    { title: "", get: (f) => el("button", { onclick: () => forget(f.key) }, "Re-enable") },
+  ], fs, "No excluded sources."));
 }
 
 async function forget(key) {
   const r = await fetch("/api/forget?key=" + encodeURIComponent(key), { method: "POST" });
-  if (!r.ok) alert("Could not cleanse " + key + ": " + (await r.text()));
+  if (!r.ok) alert("Could not re-enable " + key + ": " + (await r.text()));
   refreshFailures();
 }
 
@@ -405,21 +432,20 @@ async function refreshLists() {
 // agents were tagged.
 function agentLabel(e) {
   if (e.agent) return e.agent;
-  return el("span", { class: "none", title: "Not run by an agent: a terminal or script, or recorded before runs were tagged with their agent" }, "no agent");
+  return el("span", { class: "none", title: "Not run by an agent: a terminal or script, or recorded before runs were tagged with their agent" }, "No agent");
 }
 
 function feedRow(e, fresh) {
   const saved = e.raw_tokens - e.out_tokens;
   const dialects = [...new Set(e.steps.map((s) => s.dialect).filter(Boolean))].join(", ");
-  const tr = el("tr", { class: fresh ? "fresh" : "", onclick: () => showDetail(e.id) },
+  return el("tr", { class: fresh ? "fresh" : "", onclick: () => showDetail(e.id) },
     el("td", { class: "when", title: new Date(e.ts).toLocaleString(), "data-ts": e.ts }, ago(e.ts)),
     el("td", { class: "hide-sm" }, agentLabel(e)),
     el("td", { class: "mono" }, e.command || e.key || "—"),
-    el("td", { class: "hide-sm dialect" }, dialects || (e.filter ? "via " + e.filter : "")),
+    el("td", { class: "hide-sm dialect" }, dialects || (e.filter ? "skipped by " + e.filter : "")),
     el("td", { class: "num" }, e.outcome === "optimized" ? `${human(e.raw_tokens)} → ${human(e.out_tokens)}` : human(e.raw_tokens)),
     el("td", {}, bar(pct(saved, e.raw_tokens))),
-    el("td", {}, el("span", { class: "badge " + e.outcome }, e.outcome)));
-  return tr;
+    el("td", {}, badge(e.outcome)));
 }
 
 function addEvents(list, fresh) {
@@ -431,16 +457,13 @@ function addEvents(list, fresh) {
     state.events.set(e.id, e);
     feed.prepend(feedRow(e, fresh));
   }
-  while (feed.children.length > 300) {
-    const last = feed.lastElementChild;
-    feed.removeChild(last);
-  }
+  while (feed.children.length > 300) feed.removeChild(feed.lastElementChild);
 }
 
 function connect() {
   if (state.source) state.source.close();
   state.events.clear();
-  $("feed").replaceChildren(el("tr", {}, el("td", { colspan: 7, class: "empty" }, "No runs yet. Run something through gascoigne.")));
+  $("feed").replaceChildren(el("tr", {}, el("td", { colspan: 7, class: "empty" }, "No runs recorded yet.")));
   const src = new EventSource("/api/stream?" + filters());
   state.source = src;
   let first = true;
@@ -453,9 +476,9 @@ function connect() {
   };
 }
 
-function setLive(on) {
+function setLive(on, text) {
   $("live").classList.toggle("on", on);
-  $("live").querySelector("span").textContent = on ? "The night is live" : "The dream has faded — reconnecting";
+  $("live").querySelector("span").textContent = text || (on ? "Live" : "Reconnecting…");
 }
 
 function scheduleRefresh() {
@@ -466,24 +489,24 @@ function scheduleRefresh() {
 async function showDetail(id) {
   const e = state.events.get(id);
   if (!e) return;
-  $("d-title").textContent = e.command || e.key || "run " + e.id;
+  $("d-title").textContent = e.command || e.key || "Run " + e.id;
   const saved = e.raw_tokens - e.out_tokens;
   const facts = [
-    ["Outcome", el("span", { class: "badge " + e.outcome }, e.outcome)],
-    ["When", new Date(e.ts).toLocaleString()],
+    ["Outcome", badge(e.outcome)],
+    ["Time", new Date(e.ts).toLocaleString()],
     ["Tokens", `${e.raw_tokens} → ${e.out_tokens} (saved ${saved}, ${fmtPct(pct(saved, e.raw_tokens))})`],
     ["Agent · model", e.agent ? [e.agent, e.model].filter(Boolean).join(" · ") : agentLabel(e)],
     ["Session", e.session || "—"],
     ["Source key", el("code", {}, e.key || "—")],
     ["Pipeline · route", `${e.pipeline} · ${e.route || "—"}`],
-    ["Chain", (e.optimizers || []).join(" → ") || "—"],
+    ["Optimizer chain", (e.optimizers || []).join(" → ") || "—"],
     ["Stopped by", e.filter || "—"],
     ["Reason", e.reason || "—"],
-    ["Took", e.duration_ms + " ms"],
-    ["Original", e.raw_id ? el("code", {}, "gascoigne raw " + e.raw_id) : "not stored (output was not changed)"],
+    ["Duration", e.duration_ms + " ms"],
+    ["Original", e.raw_id ? el("code", {}, "gascoigne raw " + e.raw_id) : "Not stored (output was not changed)"],
   ];
   const body = [el("dl", {}, facts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]))];
-  body.push(el("h2", {}, "Steps"), table([
+  body.push(el("h2", {}, "Optimization steps"), el("p", { class: "hint" }, "Each optimizer that changed the output, in order"), table([
     { title: "Optimizer", get: (s) => s.optimizer, mono: true },
     { title: "Family", get: (s) => s.family },
     { title: "Content type", get: (s) => s.dialect, mono: true },
@@ -498,8 +521,9 @@ async function showDetail(id) {
       const r = await fetch("/api/raw/" + encodeURIComponent(e.raw_id));
       pre.textContent = await r.text();
       body.at(-1).replaceWith(pre);
-    } }, "Reveal the original");
-    body.push(el("h2", { class: "row-gap" }, "Original"), el("p", { class: "hint" }, "Viewing it here does not mark the source as cursed."), btn);
+    } }, "Show original output");
+    body.push(el("h2", { class: "row-gap" }, "Original output"),
+      el("p", { class: "hint" }, "Viewing it here does not exclude the source from optimization."), btn);
   }
   $("d-body").replaceChildren(...body);
   $("detail").showModal();
@@ -512,11 +536,11 @@ function scope() {
   if (f.get("session")) parts.push("session " + f.get("session"));
   if (f.get("agent")) parts.push("agent " + f.get("agent"));
   if (f.get("since")) parts.push("the last " + f.get("since"));
-  return parts.length ? parts.join(", ") : "every session, all time";
+  return parts.length ? parts.join(", ") : "all sessions and all time";
 }
 
 $("reset").onclick = async () => {
-  if (!confirm(`Reset savings stats for ${scope()}?\n\nRecorded runs are deleted. Stored originals and failure history stay.`)) return;
+  if (!confirm(`Reset statistics for ${scope()}?\n\nRecorded runs will be deleted. Stored originals and excluded sources are kept.`)) return;
   const r = await fetch("/api/reset?" + filters(), { method: "POST" });
   if (!r.ok) { alert("Reset failed: " + (await r.text())); return; }
   const { deleted_events } = await r.json();
@@ -530,17 +554,16 @@ $("stop").onclick = async () => {
   if (!confirm("Stop the gascoigne server?\n\nThe next gascoigne command, or `gascoigne dashboard`, starts it again.")) return;
   await fetch("/api/shutdown", { method: "POST" }).catch(() => {});
   state.source && state.source.close();
-  $("live").classList.remove("on");
-  $("live").querySelector("span").textContent = "The hunter rests — server stopped";
-  setTimeout(() => { connect(); }, 5000); // reconnects once something wakes it
+  setLive(false, "Server stopped");
+  setTimeout(() => { connect(); }, 5000); // reconnects once something starts it again
 };
 
 async function refreshServer() {
   try {
     const h = await getJSON("/api/health");
     const up = Math.round((Date.now() - new Date(h.started)) / 60000);
-    $("server-info").textContent = `server pid ${h.pid} on ${h.addr}, up ${up < 60 ? up + "m" : Math.floor(up / 60) + "h " + (up % 60) + "m"} · ledger ${h.ledger} · build ${h.build}`;
-  } catch { $("server-info").textContent = "server not answering"; }
+    $("server-info").textContent = `Server PID ${h.pid} on ${h.addr} · uptime ${up < 60 ? up + "m" : Math.floor(up / 60) + "h " + (up % 60) + "m"} · ledger ${h.ledger} · build ${h.build}`;
+  } catch { $("server-info").textContent = "Server not responding"; }
 }
 refreshServer();
 setInterval(refreshServer, 60000);
