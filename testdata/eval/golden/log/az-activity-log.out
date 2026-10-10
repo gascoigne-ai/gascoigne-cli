@@ -1,0 +1,11 @@
+2026-10-10T07:59:14.252251+00:00 INFORMATIONAL Web sites config write (×5)
+2026-10-10T07:58:23.240813+00:00 INFORMATIONAL Compute virtualMachines write (×9)
+2026-10-10T07:57:32.869827+00:00 INFORMATIONAL Storage storageAccounts listKeys action
+2026-10-10T07:56:40.993136+00:00 INFORMATIONAL Compute virtualMachines restart action
+2026-10-10T07:55:19.226924+00:00 ERROR Compute virtualMachines write (×2)
+2026-10-10T07:53:53.947375+00:00 INFORMATIONAL Compute virtualMachines restart action
+2026-10-10T07:52:15.486185+00:00 INFORMATIONAL Web sites config write
+… 2 lines omitted
+2026-10-10T07:49:33.381678+00:00 INFORMATIONAL Storage storageAccounts listKeys action (×3)
+2026-10-10T07:48:46.714606+00:00 INFORMATIONAL Compute virtualMachines restart action (×7)
+… 18 lines omitted

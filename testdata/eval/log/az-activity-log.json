@@ -1,0 +1,1982 @@
+[
+  {
+    "authorization": {
+      "action": "Microsoft.Web/sites/config/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Web/sites/config/shop-vm-00"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200048982040"
+    },
+    "correlationId": "d0d597aa-0000-4000-8000-e5f18a11727f",
+    "description": "",
+    "eventDataId": "f94d4020-0000-4000-8000-4d1651087e8c",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:59:14.252251+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00/events/25e9e18d/ticks/324358907496153504",
+    "level": "Informational",
+    "operationId": "ad76cc46-0000-4000-8000-edb69f571af9",
+    "operationName": {
+      "localizedValue": "Web sites config write",
+      "value": "Microsoft.Web/sites/config/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Web/sites/config/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200054472378"
+    },
+    "correlationId": "fd3d1734-0000-4000-8000-ce3b5dbaceb4",
+    "description": "",
+    "eventDataId": "4565ba9a-0000-4000-8000-d636972ae8e7",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:58:23.240813+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01/events/1fd27fbb/ticks/551531571377529516",
+    "level": "Informational",
+    "operationId": "07f2171a-0000-4000-8000-3cf60e94ec84",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Storage/storageAccounts/listKeys/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Storage/storageAccounts/listKeys/shop-vm-02"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200061351204"
+    },
+    "correlationId": "bf5ba99f-0000-4000-8000-1225b993656a",
+    "description": "",
+    "eventDataId": "c9c85bd1-0000-4000-8000-e548cac6388f",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:57:32.869827+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-02/events/d297e992/ticks/418595767347982083",
+    "level": "Informational",
+    "operationId": "dfd2f9d9-0000-4000-8000-72abb65ab47e",
+    "operationName": {
+      "localizedValue": "Storage storageAccounts listKeys action",
+      "value": "Microsoft.Storage/storageAccounts/listKeys/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Storage/storageAccounts/listKeys/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-02",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/restart/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/restart/shop-vm-03"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200048226402"
+    },
+    "correlationId": "33fb0574-0000-4000-8000-2d53810ad753",
+    "description": "",
+    "eventDataId": "454e3017-0000-4000-8000-6354d108af93",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:56:40.993136+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-03/events/d7000de9/ticks/767884336188060124",
+    "level": "Informational",
+    "operationId": "7926a0d6-0000-4000-8000-89c3b6fbdd24",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines restart action",
+      "value": "Microsoft.Compute/virtualMachines/restart/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/restart/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-03",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-04"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200051932165"
+    },
+    "correlationId": "4234643d-0000-4000-8000-84030c7fd7ae",
+    "description": "",
+    "eventDataId": "c507f973-0000-4000-8000-b300d5cd2aa7",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:55:19.226924+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-04/events/998d3577/ticks/482926198261521453",
+    "level": "Error",
+    "operationId": "79db6e39-0000-4000-8000-f1eb64ba447a",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "Conflict",
+      "serviceRequestId": null,
+      "statusMessage": "{\"error\":{\"code\":\"OperationNotAllowed\",\"message\":\"Operation could not be completed as it results in exceeding approved standardDSv5Family Cores quota.\"}}",
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-04",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Failed",
+      "value": "Failed"
+    },
+    "subStatus": {
+      "localizedValue": "Conflict",
+      "value": "Conflict"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-05"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200050160310"
+    },
+    "correlationId": "ab82cefd-0000-4000-8000-2fa1dae14f35",
+    "description": "",
+    "eventDataId": "a5366bc0-0000-4000-8000-ecd31b7c337e",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:54:16.769759+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-05/events/c29d4424/ticks/916232331196620099",
+    "level": "Error",
+    "operationId": "e7f97014-0000-4000-8000-d35e0a143d2f",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "Conflict",
+      "serviceRequestId": null,
+      "statusMessage": "{\"error\":{\"code\":\"OperationNotAllowed\",\"message\":\"Operation could not be completed as it results in exceeding approved standardDSv5Family Cores quota.\"}}",
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-05",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Failed",
+      "value": "Failed"
+    },
+    "subStatus": {
+      "localizedValue": "Conflict",
+      "value": "Conflict"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/restart/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/restart/shop-vm-06"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200084226227"
+    },
+    "correlationId": "0ab117ff-0000-4000-8000-ecab437aabc5",
+    "description": "",
+    "eventDataId": "185f8af7-0000-4000-8000-4c8fe9cf16cf",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:53:53.947375+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-06/events/fc77b992/ticks/939979549567234465",
+    "level": "Informational",
+    "operationId": "3a92e31c-0000-4000-8000-0ce6ab127ac8",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines restart action",
+      "value": "Microsoft.Compute/virtualMachines/restart/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/restart/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-06",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Web/sites/config/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Web/sites/config/shop-vm-07"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200073724901"
+    },
+    "correlationId": "49adc793-0000-4000-8000-bc44d25ad2bc",
+    "description": "",
+    "eventDataId": "1850b83b-0000-4000-8000-78e8848b3709",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:52:15.486185+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-07/events/bd1b7b2b/ticks/961761806495721897",
+    "level": "Informational",
+    "operationId": "763a2c67-0000-4000-8000-f60905827ff2",
+    "operationName": {
+      "localizedValue": "Web sites config write",
+      "value": "Microsoft.Web/sites/config/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Web/sites/config/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-07",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Web/sites/config/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Web/sites/config/shop-vm-08"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200012871854"
+    },
+    "correlationId": "e389db34-0000-4000-8000-33a566451dd8",
+    "description": "",
+    "eventDataId": "b221fc7f-0000-4000-8000-777682d1abf2",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:51:55.329460+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-08/events/6c953352/ticks/1060180811405657082",
+    "level": "Informational",
+    "operationId": "2a2bbe52-0000-4000-8000-3975c907cdf4",
+    "operationName": {
+      "localizedValue": "Web sites config write",
+      "value": "Microsoft.Web/sites/config/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Web/sites/config/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-08",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200025490627"
+    },
+    "correlationId": "d5c9fe66-0000-4000-8000-587b05330d35",
+    "description": "",
+    "eventDataId": "7ce1d067-0000-4000-8000-d04635d66352",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:50:17.403186+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00/events/4bf65b3c/ticks/981688957291909652",
+    "level": "Informational",
+    "operationId": "b7502e53-0000-4000-8000-c9beae86883d",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Storage/storageAccounts/listKeys/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Storage/storageAccounts/listKeys/shop-vm-01"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200066003337"
+    },
+    "correlationId": "4a5881d8-0000-4000-8000-62dfea3d5ef2",
+    "description": "",
+    "eventDataId": "e0da211a-0000-4000-8000-076f01eb8bca",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:49:33.381678+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01/events/1b33c5c1/ticks/1054656493806805559",
+    "level": "Informational",
+    "operationId": "95d77c9e-0000-4000-8000-2e6bb85b8b7c",
+    "operationName": {
+      "localizedValue": "Storage storageAccounts listKeys action",
+      "value": "Microsoft.Storage/storageAccounts/listKeys/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Storage/storageAccounts/listKeys/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/restart/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/restart/shop-vm-02"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200055459176"
+    },
+    "correlationId": "71550eaa-0000-4000-8000-0d232a91e889",
+    "description": "",
+    "eventDataId": "f9bd85e4-0000-4000-8000-8c761af97466",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:48:46.714606+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-02/events/7f391f47/ticks/666191754088535640",
+    "level": "Informational",
+    "operationId": "148427ac-0000-4000-8000-3592e246bec8",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines restart action",
+      "value": "Microsoft.Compute/virtualMachines/restart/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/restart/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-02",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Storage/storageAccounts/listKeys/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Storage/storageAccounts/listKeys/shop-vm-03"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200023156285"
+    },
+    "correlationId": "e7b5a56c-0000-4000-8000-6dfdeef059b4",
+    "description": "",
+    "eventDataId": "3f0819cf-0000-4000-8000-38325bcc01eb",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:47:48.939000+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-03/events/744af587/ticks/1111478852078282823",
+    "level": "Informational",
+    "operationId": "f0397297-0000-4000-8000-27c4f60d7ebf",
+    "operationName": {
+      "localizedValue": "Storage storageAccounts listKeys action",
+      "value": "Microsoft.Storage/storageAccounts/listKeys/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Storage/storageAccounts/listKeys/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-03",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-04"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200097547960"
+    },
+    "correlationId": "cbef1555-0000-4000-8000-384d0c8059e3",
+    "description": "",
+    "eventDataId": "14059836-0000-4000-8000-4e084b488509",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:46:29.594687+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-04/events/06053ba3/ticks/678481643390850847",
+    "level": "Informational",
+    "operationId": "15217daa-0000-4000-8000-b8b0c80d9b35",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-04",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/restart/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/restart/shop-vm-05"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200022397103"
+    },
+    "correlationId": "188d04f6-0000-4000-8000-cd7fd13495d6",
+    "description": "",
+    "eventDataId": "9356cee2-0000-4000-8000-b16e81769f35",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:45:15.133314+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-05/events/e6d427f1/ticks/906179473111256172",
+    "level": "Informational",
+    "operationId": "cfdf21d1-0000-4000-8000-32a5d5c771c0",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines restart action",
+      "value": "Microsoft.Compute/virtualMachines/restart/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/restart/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-05",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/restart/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/restart/shop-vm-06"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200039055013"
+    },
+    "correlationId": "1bde2cca-0000-4000-8000-907cc42102d1",
+    "description": "",
+    "eventDataId": "b86256b8-0000-4000-8000-c185b4d89209",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:44:46.954466+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-06/events/57f0f7ca/ticks/564250430357153014",
+    "level": "Informational",
+    "operationId": "e1d05e1b-0000-4000-8000-6f4b3535d543",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines restart action",
+      "value": "Microsoft.Compute/virtualMachines/restart/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/restart/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-06",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-07"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200036979907"
+    },
+    "correlationId": "573a24ad-0000-4000-8000-c3944a68bd7f",
+    "description": "",
+    "eventDataId": "ab97f9dc-0000-4000-8000-4847dbd69038",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:43:57.738404+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-07/events/1e882ce7/ticks/665616948725847237",
+    "level": "Informational",
+    "operationId": "72bd4c55-0000-4000-8000-a7147b5b223d",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-07",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/restart/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/restart/shop-vm-08"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200093981679"
+    },
+    "correlationId": "db908656-0000-4000-8000-ee404368b946",
+    "description": "",
+    "eventDataId": "02035049-0000-4000-8000-fbc5c4c886dc",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:42:35.101500+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-08/events/2f40f6bb/ticks/505670322690103138",
+    "level": "Informational",
+    "operationId": "cbd13ffe-0000-4000-8000-6475f8ef244f",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines restart action",
+      "value": "Microsoft.Compute/virtualMachines/restart/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/restart/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-08",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200053296522"
+    },
+    "correlationId": "4a36e229-0000-4000-8000-f97f510f4385",
+    "description": "",
+    "eventDataId": "8b515f8b-0000-4000-8000-b92fd64e1c7c",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:41:39.161931+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00/events/4d73927e/ticks/799291066574811592",
+    "level": "Informational",
+    "operationId": "25a79646-0000-4000-8000-06fb47c41f69",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/restart/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/restart/shop-vm-01"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200054740634"
+    },
+    "correlationId": "0c437356-0000-4000-8000-dfee22e5a38c",
+    "description": "",
+    "eventDataId": "d15600cb-0000-4000-8000-2cf468b37f49",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:40:28.344740+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01/events/6c8baaa3/ticks/613360975864550373",
+    "level": "Informational",
+    "operationId": "0d6de787-0000-4000-8000-16d58f395038",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines restart action",
+      "value": "Microsoft.Compute/virtualMachines/restart/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/restart/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Storage/storageAccounts/listKeys/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Storage/storageAccounts/listKeys/shop-vm-02"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200027481961"
+    },
+    "correlationId": "3b94db3c-0000-4000-8000-5e29f1641495",
+    "description": "",
+    "eventDataId": "db4a6250-0000-4000-8000-57e89af19dcb",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:39:51.968036+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-02/events/075d9bd9/ticks/1118593220162350393",
+    "level": "Informational",
+    "operationId": "39bc1cbc-0000-4000-8000-a7bc2ebd2437",
+    "operationName": {
+      "localizedValue": "Storage storageAccounts listKeys action",
+      "value": "Microsoft.Storage/storageAccounts/listKeys/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Storage/storageAccounts/listKeys/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-02",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Web/sites/config/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Web/sites/config/shop-vm-03"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200061670373"
+    },
+    "correlationId": "dee92fdc-0000-4000-8000-ca68b8d67eec",
+    "description": "",
+    "eventDataId": "28bc9013-0000-4000-8000-1e612a142a00",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:38:39.520906+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-03/events/93f2fcd4/ticks/952438535583087949",
+    "level": "Informational",
+    "operationId": "dbcff41e-0000-4000-8000-8e4f995aca81",
+    "operationName": {
+      "localizedValue": "Web sites config write",
+      "value": "Microsoft.Web/sites/config/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Web/sites/config/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-03",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Web/sites/config/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Web/sites/config/shop-vm-04"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200015199179"
+    },
+    "correlationId": "b6b4d3c8-0000-4000-8000-2a126304e052",
+    "description": "",
+    "eventDataId": "5ac90ed6-0000-4000-8000-f688d868031a",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:37:49.111298+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-04/events/184281f6/ticks/845781947434611967",
+    "level": "Informational",
+    "operationId": "cb5600f6-0000-4000-8000-fe92ff00e324",
+    "operationName": {
+      "localizedValue": "Web sites config write",
+      "value": "Microsoft.Web/sites/config/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Web/sites/config/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-04",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-05"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200043370045"
+    },
+    "correlationId": "64811de7-0000-4000-8000-03f8d1ed947a",
+    "description": "",
+    "eventDataId": "30ffda60-0000-4000-8000-ce32abe6b069",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:36:13.594865+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-05/events/ea83e036/ticks/1021015354104905321",
+    "level": "Informational",
+    "operationId": "c39b6bd5-0000-4000-8000-d2d04f9b5a02",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-05",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Web/sites/config/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Web/sites/config/shop-vm-06"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200087704646"
+    },
+    "correlationId": "cb63b162-0000-4000-8000-58fbdf6aa0c2",
+    "description": "",
+    "eventDataId": "5a2643a0-0000-4000-8000-e98bf20b5f22",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:35:46.215241+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-06/events/979a3756/ticks/8999060819446343",
+    "level": "Informational",
+    "operationId": "06f66fc2-0000-4000-8000-6ad5440844f6",
+    "operationName": {
+      "localizedValue": "Web sites config write",
+      "value": "Microsoft.Web/sites/config/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Web/sites/config/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-06",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/restart/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/restart/shop-vm-07"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200078471476"
+    },
+    "correlationId": "83f8505e-0000-4000-8000-df5e752cc746",
+    "description": "",
+    "eventDataId": "3b2ca54d-0000-4000-8000-9851b759319b",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:34:10.947106+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-07/events/f3e1e731/ticks/492398805335869265",
+    "level": "Informational",
+    "operationId": "be209511-0000-4000-8000-bef4ca37dd7e",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines restart action",
+      "value": "Microsoft.Compute/virtualMachines/restart/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/restart/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-07",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-08"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200096334482"
+    },
+    "correlationId": "5d7121e8-0000-4000-8000-3433a0f13032",
+    "description": "",
+    "eventDataId": "d98aba09-0000-4000-8000-fccf51885ca8",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:33:54.987925+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-08/events/b3bf711b/ticks/145476617148562756",
+    "level": "Informational",
+    "operationId": "4dff49d3-0000-4000-8000-230b21f3f25c",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-08",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200092634558"
+    },
+    "correlationId": "0e6f3cf1-0000-4000-8000-2ed1cead723c",
+    "description": "",
+    "eventDataId": "419da5dc-0000-4000-8000-f864c37bc60e",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:32:28.259767+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00/events/a4e595ae/ticks/903244345111737896",
+    "level": "Informational",
+    "operationId": "4b0ff45f-0000-4000-8000-b286771c743e",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-00",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/write",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200034305878"
+    },
+    "correlationId": "07474c87-0000-4000-8000-35a8aa12185e",
+    "description": "",
+    "eventDataId": "cd41e0c3-0000-4000-8000-32ee2c3402b7",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:31:59.328829+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01/events/f4680a6e/ticks/799973367957495378",
+    "level": "Informational",
+    "operationId": "31994159-0000-4000-8000-d78400234bb8",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines write",
+      "value": "Microsoft.Compute/virtualMachines/write"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/write",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-01",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "authorization": {
+      "action": "Microsoft.Compute/virtualMachines/restart/action",
+      "scope": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/restart/shop-vm-02"
+    },
+    "caller": "deployer@example.com",
+    "category": {
+      "localizedValue": "Administrative",
+      "value": "Administrative"
+    },
+    "claims": {
+      "aud": "https://management.core.windows.net/",
+      "iss": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/",
+      "iat": "1791615600",
+      "appid": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+      "ipaddr": "203.0.113.7",
+      "name": "Deployer",
+      "puid": "1003200076296883"
+    },
+    "correlationId": "e10ad326-0000-4000-8000-df410947ea75",
+    "description": "",
+    "eventDataId": "d38e940d-0000-4000-8000-9c015b35c46d",
+    "eventName": {
+      "localizedValue": "End request",
+      "value": "EndRequest"
+    },
+    "eventTimestamp": "2026-10-10T07:30:51.767098+00:00",
+    "httpRequest": null,
+    "id": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-02/events/3ed096df/ticks/276215919191824383",
+    "level": "Informational",
+    "operationId": "a6380a3e-0000-4000-8000-65f118062119",
+    "operationName": {
+      "localizedValue": "Compute virtualMachines restart action",
+      "value": "Microsoft.Compute/virtualMachines/restart/action"
+    },
+    "properties": {
+      "statusCode": "OK",
+      "serviceRequestId": null,
+      "statusMessage": null,
+      "eventCategory": "Administrative",
+      "entity": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod",
+      "message": "Microsoft.Compute/virtualMachines/restart/action",
+      "hierarchy": "tenant/mg/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0"
+    },
+    "resourceGroupName": "shop-prod",
+    "resourceId": "/subscriptions/0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0/resourceGroups/shop-prod/providers/Microsoft.Compute/virtualMachines/shop-vm-02",
+    "resourceProviderName": {
+      "localizedValue": "Microsoft.Compute",
+      "value": "Microsoft.Compute"
+    },
+    "resourceType": {
+      "localizedValue": "Microsoft.Compute/virtualMachines",
+      "value": "Microsoft.Compute/virtualMachines"
+    },
+    "status": {
+      "localizedValue": "Succeeded",
+      "value": "Succeeded"
+    },
+    "subStatus": {
+      "localizedValue": "OK",
+      "value": "OK"
+    },
+    "submissionTimestamp": "2026-10-10T08:00:00.000000+00:00",
+    "subscriptionId": "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    "tenantId": "00000000-0000-0000-0000-000000000000"
+  }
+]

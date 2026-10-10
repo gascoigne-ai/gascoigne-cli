@@ -1,0 +1,1359 @@
+httpRequest:
+  latency: 0.604s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.8
+  requestMethod: GET
+  requestSize: '820'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '6834'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: c6c68141ab2d
+labels:
+  instanceId: 00f46b92858398f2da058a26c179ce4e21cd14e594e28e663b
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:00:01.309071Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '201999600163031586'
+timestamp: '2026-10-10T07:00:00.128447Z'
+trace: projects/shop-prod/traces/22c2aa5041916e01684c0246d6977582
+traceSampled: true
+---
+insertId: 0062461d48a1
+jsonPayload:
+  message: 'handled request path=/api/products/715 status=200 ms=30'
+  logger: app
+labels:
+  instanceId: 00f46b9285e7802d3beeafa93de4a100ccf220a52bac400cbb
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:01:01.225195Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:01:00.521287Z'
+---
+insertId: dd53a25220a7
+jsonPayload:
+  message: 'handled request path=/api/products/891 status=200 ms=42'
+  logger: app
+labels:
+  instanceId: 00f46b9285021f3ae5bf41b71a4b090363b520e227ee729e31
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:02:01.919737Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:02:00.584933Z'
+---
+httpRequest:
+  latency: 0.707s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.217
+  requestMethod: POST
+  requestSize: '661'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '7267'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 15abe04291ac
+labels:
+  instanceId: 00f46b9285e9a8a0bcac68099fee1f47d137c63c3bf77dd9f6
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:03:01.101083Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '729305983385202217'
+timestamp: '2026-10-10T07:03:00.667523Z'
+trace: projects/shop-prod/traces/63366f26e3f5a5fb8fa4707b06b6de2f
+traceSampled: true
+---
+insertId: 5415473db1fb
+jsonPayload:
+  message: 'handled request path=/api/products/441 status=200 ms=41'
+  logger: app
+labels:
+  instanceId: 00f46b9285ddf39319ac11acc06530eb1cc8ce68262a77ec81
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:04:01.723695Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:04:00.349197Z'
+---
+insertId: a8b110725a03
+jsonPayload:
+  message: 'handled request path=/api/products/820 status=200 ms=7'
+  logger: app
+labels:
+  instanceId: 00f46b92850bf3fc22db6375e33deae3464a8a504e8f83611d
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:05:01.709973Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:05:00.883210Z'
+---
+httpRequest:
+  latency: 0.89s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.238
+  requestMethod: GET
+  requestSize: '718'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '6402'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 1cf9bac89e60
+labels:
+  instanceId: 00f46b92851f40a540c149a7049da34d32cc97acb977dca90c
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:06:01.297876Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '714546469961307823'
+timestamp: '2026-10-10T07:06:00.482675Z'
+trace: projects/shop-prod/traces/1b979274cd7e370b2368955c8a522e5e
+traceSampled: true
+---
+insertId: a9ca2640efb7
+jsonPayload:
+  message: 'slow query: 812ms SELECT * FROM orders WHERE customer_id=$1'
+  logger: app
+labels:
+  instanceId: 00f46b9285f65e4a17cad8be13f73e5b737e2b135be30ff194
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:07:01.384311Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: WARNING
+timestamp: '2026-10-10T07:07:00.661950Z'
+---
+insertId: 2e2c6b6b5716
+jsonPayload:
+  message: 'handled request path=/api/products/451 status=200 ms=78'
+  logger: app
+labels:
+  instanceId: 00f46b92853cc0003119ceef8fb73333a0dfbc508f25d9fae6
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:08:01.878026Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:08:00.615536Z'
+---
+httpRequest:
+  latency: 0.795s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.83
+  requestMethod: POST
+  requestSize: '456'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '2231'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 521c580733fe
+labels:
+  instanceId: 00f46b92859f84b202ab768898336bc8f57a51e59eba74fd39
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:09:01.713084Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '864336310855455601'
+timestamp: '2026-10-10T07:09:00.451324Z'
+trace: projects/shop-prod/traces/05ff176fb106d95ae8d0f4e6f0c91bd6
+traceSampled: true
+---
+insertId: 602d50f27004
+jsonPayload:
+  message: 'handled request path=/api/products/599 status=200 ms=54'
+  logger: app
+labels:
+  instanceId: 00f46b928564e12228fbdc23a4e76bace30161e67dd143efe0
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:10:01.640478Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:10:00.334017Z'
+---
+insertId: 17b264fe5a93
+jsonPayload:
+  message: 'handled request path=/api/products/981 status=200 ms=66'
+  logger: app
+labels:
+  instanceId: 00f46b92850c005dc19477edfdffefeb55326195df7a173cf1
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:11:01.779330Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:11:00.867395Z'
+---
+httpRequest:
+  latency: 0.271s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.141
+  requestMethod: GET
+  requestSize: '661'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '8368'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: a9669bfd6fdd
+labels:
+  instanceId: 00f46b928535892da45ab860b1ac04ff862a44fa25caeafcc4
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:12:01.989284Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '1059120869675713745'
+timestamp: '2026-10-10T07:12:00.166534Z'
+trace: projects/shop-prod/traces/37c3a144b62c477bbd98175584cb38fb
+traceSampled: true
+---
+insertId: 67fb32200320
+jsonPayload:
+  message: 'handled request path=/api/products/663 status=200 ms=5'
+  logger: app
+labels:
+  instanceId: 00f46b92859594ecd9b52bcefe5e6c268dab1f7f6f2eb70ecd
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:13:01.402693Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:13:00.999360Z'
+---
+insertId: 70e9da49a3a4
+jsonPayload:
+  message: 'handled request path=/api/products/841 status=200 ms=59'
+  logger: app
+labels:
+  instanceId: 00f46b928545aa2ab06e755ba5a3576e01b6b20a1658f1e995
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:14:01.472071Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:14:00.205057Z'
+---
+httpRequest:
+  latency: 0.802s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.68
+  requestMethod: POST
+  requestSize: '781'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '6011'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: a5a15753b048
+labels:
+  instanceId: 00f46b9285eccc4a494a880d7997361357d6d420e02714652f
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:15:01.365205Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '256292568749473835'
+timestamp: '2026-10-10T07:15:00.335838Z'
+trace: projects/shop-prod/traces/88d12a9f5995bb67b861b14806709d00
+traceSampled: true
+---
+insertId: d25f99ff44a3
+jsonPayload:
+  message: 'handled request path=/api/products/372 status=200 ms=73'
+  logger: app
+labels:
+  instanceId: 00f46b92850d4d1c4a00e6640ca933332c0dadca1d2054a02e
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:16:01.243098Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:16:00.306737Z'
+---
+insertId: 8f71a8f29d9d
+jsonPayload:
+  message: 'pq: could not serialize access due to concurrent update'
+  logger: app
+labels:
+  instanceId: 00f46b9285fc877b7ea3e6dccd43512eba0466ca489c5df9e9
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:17:01.248261Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: ERROR
+timestamp: '2026-10-10T07:17:00.375230Z'
+---
+httpRequest:
+  latency: 0.521s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.132
+  requestMethod: GET
+  requestSize: '378'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '7337'
+  serverIp: 216.239.36.53
+  status: 500
+  userAgent: Mozilla/5.0
+insertId: 2b6e00797d9c
+labels:
+  instanceId: 00f46b92851b9f733fc90092a44ec5374406bdef0f95e5d232
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:18:01.461499Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: ERROR
+spanId: '506793426317974312'
+timestamp: '2026-10-10T07:18:00.818349Z'
+trace: projects/shop-prod/traces/a05c7fba8646516e222bb3374a7c84ad
+traceSampled: true
+---
+insertId: 36f5232c64d9
+jsonPayload:
+  message: 'handled request path=/api/products/607 status=200 ms=87'
+  logger: app
+labels:
+  instanceId: 00f46b92852755054e6ac5d34836446abe06aaa43c5c3a448c
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:19:01.661497Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:19:00.625229Z'
+---
+insertId: 7c21c9ceb824
+jsonPayload:
+  message: 'handled request path=/api/products/406 status=200 ms=43'
+  logger: app
+labels:
+  instanceId: 00f46b928585b412770532bad50bfc0cafafc4b6edc2ea40b0
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:20:01.827425Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:20:00.158729Z'
+---
+httpRequest:
+  latency: 0.559s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.10
+  requestMethod: POST
+  requestSize: '693'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '4112'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: e62fd8e7036d
+labels:
+  instanceId: 00f46b92854e9ee8baba044ab3dd662e6f8ea3cc1bb360d42f
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:21:01.526884Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '17852298372126817'
+timestamp: '2026-10-10T07:21:00.419274Z'
+trace: projects/shop-prod/traces/34e6acd781ea54129bae4a7a80e4fda5
+traceSampled: true
+---
+insertId: e2a696c699b5
+jsonPayload:
+  message: 'slow query: 812ms SELECT * FROM orders WHERE customer_id=$1'
+  logger: app
+labels:
+  instanceId: 00f46b9285927befa5f385f8076f8910a14f2a7af6e658a8ae
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:22:01.370586Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: WARNING
+timestamp: '2026-10-10T07:22:00.490932Z'
+---
+insertId: 1e0867240325
+jsonPayload:
+  message: 'handled request path=/api/products/385 status=200 ms=6'
+  logger: app
+labels:
+  instanceId: 00f46b9285ff1cf00eb8ba13d2aac146edb92689d6eebf2ba3
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:23:01.283058Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:23:00.971058Z'
+---
+httpRequest:
+  latency: 0.681s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.204
+  requestMethod: GET
+  requestSize: '467'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '2936'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 231ad6e4f006
+labels:
+  instanceId: 00f46b92854edf4034ee2d5ab729414586a9eb77f69626a320
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:24:01.418217Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '1044176304452849717'
+timestamp: '2026-10-10T07:24:00.220011Z'
+trace: projects/shop-prod/traces/160a6ab8477fe5285846296c9f70f73a
+traceSampled: true
+---
+insertId: 2aa5901947d0
+jsonPayload:
+  message: 'handled request path=/api/products/10 status=200 ms=2'
+  logger: app
+labels:
+  instanceId: 00f46b92853e9f497a1e5099587c877f8fb4004b5999f2c1ab
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:25:01.118470Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:25:00.795190Z'
+---
+insertId: a96a89723193
+jsonPayload:
+  message: 'handled request path=/api/products/716 status=200 ms=59'
+  logger: app
+labels:
+  instanceId: 00f46b9285b20bb4d344b13ccb61dbccb408aea391f5eb27d1
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:26:01.167911Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:26:00.670823Z'
+---
+httpRequest:
+  latency: 0.166s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.27
+  requestMethod: POST
+  requestSize: '289'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '6811'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 4fb2dc7f7da0
+labels:
+  instanceId: 00f46b9285e00fef8c6f8db299b40937e8ecd7056b463c6110
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:27:01.216677Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '404428912197847941'
+timestamp: '2026-10-10T07:27:00.899855Z'
+trace: projects/shop-prod/traces/4345a547fe5243954d708bef681aa289
+traceSampled: true
+---
+insertId: adda7ed2be36
+jsonPayload:
+  message: 'handled request path=/api/products/845 status=200 ms=41'
+  logger: app
+labels:
+  instanceId: 00f46b928531feee5c304cb63b777c015ce57a643121b1eec1
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:28:01.219873Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:28:00.373071Z'
+---
+insertId: f06beba5efb8
+jsonPayload:
+  message: 'handled request path=/api/products/931 status=200 ms=48'
+  logger: app
+labels:
+  instanceId: 00f46b9285f96633d94193ad21ee4b3b4ecb7139964154871b
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:29:01.622189Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:29:00.614757Z'
+---
+httpRequest:
+  latency: 0.793s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.107
+  requestMethod: GET
+  requestSize: '488'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '2174'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: c962e784e3ca
+labels:
+  instanceId: 00f46b92852c886037bd7fd1bb46c7ecc83ea7743478a59f74
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:30:01.758779Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '989450088687819298'
+timestamp: '2026-10-10T07:30:00.422517Z'
+trace: projects/shop-prod/traces/156a2ffe21816a30e4f40b1d58c860eb
+traceSampled: true
+---
+insertId: f1669a7dbf68
+jsonPayload:
+  message: 'handled request path=/api/products/55 status=200 ms=54'
+  logger: app
+labels:
+  instanceId: 00f46b9285fdef99a2daece6f346688ac144f7a3e94ae7f0de
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:31:01.648258Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:31:00.238962Z'
+---
+insertId: d4a99a44852e
+jsonPayload:
+  message: 'handled request path=/api/products/864 status=200 ms=23'
+  logger: app
+labels:
+  instanceId: 00f46b9285e17df0d0fed15138b5195c5c84c0a955851e77e2
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:32:01.371497Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:32:00.156463Z'
+---
+httpRequest:
+  latency: 0.865s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.192
+  requestMethod: POST
+  requestSize: '353'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '217'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 540de984e992
+labels:
+  instanceId: 00f46b9285ac59b165aa0e14fb48f2b68cbf5697e32365ec6f
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:33:01.455515Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '1020173760368720886'
+timestamp: '2026-10-10T07:33:00.946676Z'
+trace: projects/shop-prod/traces/d5a9b095bf0f53be98d953af6d7f67ce
+traceSampled: true
+---
+insertId: cd0801ce181b
+jsonPayload:
+  message: 'handled request path=/api/products/381 status=200 ms=74'
+  logger: app
+labels:
+  instanceId: 00f46b9285fbf807356c57850ebb604a2883018592d3e8368d
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:34:01.348372Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:34:00.962830Z'
+---
+insertId: e6941406e8e8
+jsonPayload:
+  message: 'handled request path=/api/products/557 status=200 ms=47'
+  logger: app
+labels:
+  instanceId: 00f46b9285622fcfc64949bda3da5414c64a5062e8a462b692
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:35:01.368183Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:35:00.771277Z'
+---
+httpRequest:
+  latency: 0.656s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.15
+  requestMethod: GET
+  requestSize: '304'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '4332'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 3cfdfbf99be7
+labels:
+  instanceId: 00f46b928537e448391b76660f306e723a97e2811ecb598901
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:36:01.557034Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '1004633073937971356'
+timestamp: '2026-10-10T07:36:00.467307Z'
+trace: projects/shop-prod/traces/af31f5ab473d768c598d356bbda23ee3
+traceSampled: true
+---
+insertId: 94a473922951
+jsonPayload:
+  message: 'slow query: 812ms SELECT * FROM orders WHERE customer_id=$1'
+  logger: app
+labels:
+  instanceId: 00f46b92856b5a8287ac5a3bb2f4faf7a2d650ca184a6a68bf
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:37:01.810346Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: WARNING
+timestamp: '2026-10-10T07:37:00.881386Z'
+---
+insertId: 57cab2a7040c
+jsonPayload:
+  message: 'handled request path=/api/products/81 status=200 ms=56'
+  logger: app
+labels:
+  instanceId: 00f46b9285a973149bf59c6bb870cd1d278ea277671cf66d21
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:38:01.522959Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:38:00.208246Z'
+---
+httpRequest:
+  latency: 0.411s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.135
+  requestMethod: POST
+  requestSize: '626'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '3497'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: f8d078820361
+labels:
+  instanceId: 00f46b928531f4562b33f2840113d452410915e908bcc68e40
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:39:01.699206Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '697928391993599133'
+timestamp: '2026-10-10T07:39:00.631074Z'
+trace: projects/shop-prod/traces/0ffd948775c5ec2a500df149d9e012ee
+traceSampled: true
+---
+insertId: 5200cbc238a1
+jsonPayload:
+  message: 'handled request path=/api/products/484 status=200 ms=83'
+  logger: app
+labels:
+  instanceId: 00f46b9285c84b19a68caf27999c3b5b7f014e0ebefa16bd35
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:40:01.484226Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:40:00.135693Z'
+---
+insertId: 99eeb4427333
+jsonPayload:
+  message: 'handled request path=/api/products/282 status=200 ms=27'
+  logger: app
+labels:
+  instanceId: 00f46b9285837ed9a4ffb43176613e9765087cc88ceaf84872
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:41:01.680297Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:41:00.284217Z'
+---
+httpRequest:
+  latency: 0.265s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.14
+  requestMethod: GET
+  requestSize: '520'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '2137'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 668ebb75d84b
+labels:
+  instanceId: 00f46b92859ced939cd14b6ccb92e216150e98ac7d86717743
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:42:01.188004Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '676113771902622685'
+timestamp: '2026-10-10T07:42:00.455948Z'
+trace: projects/shop-prod/traces/93b7895463e84aa5fddfa10ef3e211a9
+traceSampled: true
+---
+insertId: 182f28b37375
+jsonPayload:
+  message: 'handled request path=/api/products/830 status=200 ms=67'
+  logger: app
+labels:
+  instanceId: 00f46b9285917ffe58ba23fe704f1934361a0a9ff795380dd9
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:43:01.615140Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:43:00.305462Z'
+---
+insertId: c5c16b89d046
+jsonPayload:
+  message: 'pq: could not serialize access due to concurrent update'
+  logger: app
+labels:
+  instanceId: 00f46b92851c61b5e878b01cc408236af333373964b292371e
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:44:01.867441Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: ERROR
+timestamp: '2026-10-10T07:44:00.182495Z'
+---
+httpRequest:
+  latency: 0.114s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.189
+  requestMethod: POST
+  requestSize: '891'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '5396'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: fab33c516f43
+labels:
+  instanceId: 00f46b92850a15380d19f1a4857d0c6f9a3931bcc86a7f74a2
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:45:01.966445Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '735692000013986005'
+timestamp: '2026-10-10T07:45:00.489482Z'
+trace: projects/shop-prod/traces/3038fbd965b586c93b92ec688678768d
+traceSampled: true
+---
+insertId: 0b16ee1c542e
+jsonPayload:
+  message: 'handled request path=/api/products/315 status=200 ms=42'
+  logger: app
+labels:
+  instanceId: 00f46b92857bfdedf094eb8a202c4c64ddc73c4840dc25ba52
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:46:01.253991Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:46:00.786052Z'
+---
+insertId: 9038b0e891a7
+jsonPayload:
+  message: 'handled request path=/api/products/710 status=200 ms=23'
+  logger: app
+labels:
+  instanceId: 00f46b92854bf9f621e8254630a292ff708fde98518a4ee468
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:47:01.425295Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:47:00.979543Z'
+---
+httpRequest:
+  latency: 0.41s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.247
+  requestMethod: GET
+  requestSize: '243'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '1929'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 7d145e85327b
+labels:
+  instanceId: 00f46b9285f06ebf100de8806541180f9b35278dc1d11aad07
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:48:01.967375Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '474638542104823024'
+timestamp: '2026-10-10T07:48:00.890899Z'
+trace: projects/shop-prod/traces/f1614e780f01042706d0586a216bd7b4
+traceSampled: true
+---
+insertId: 4063dea2b679
+jsonPayload:
+  message: 'handled request path=/api/products/339 status=200 ms=54'
+  logger: app
+labels:
+  instanceId: 00f46b9285307bd5647608e81953c8512f0aa95a0e154ffe91
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:49:01.314367Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:49:00.987875Z'
+---
+insertId: 5be08c581dbc
+jsonPayload:
+  message: 'handled request path=/api/products/400 status=200 ms=10'
+  logger: app
+labels:
+  instanceId: 00f46b9285138fc0a2b6bc9234018ccb3915e3985d870fd2b9
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:50:01.688459Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:50:00.626569Z'
+---
+httpRequest:
+  latency: 0.717s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.50
+  requestMethod: POST
+  requestSize: '458'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '7706'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 80bb8f9eaafa
+labels:
+  instanceId: 00f46b928504b818cde76a82df24102ecd631772e3234ab6fa
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:51:01.543306Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '294674040885093999'
+timestamp: '2026-10-10T07:51:00.370298Z'
+trace: projects/shop-prod/traces/a5f7d2040ea99e685b92be5fb8b32ec3
+traceSampled: true
+---
+insertId: 9dcd0834a7a5
+jsonPayload:
+  message: 'slow query: 812ms SELECT * FROM orders WHERE customer_id=$1'
+  logger: app
+labels:
+  instanceId: 00f46b9285a5d5d548d118a536dbec9271c3d31d5444d59513
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:52:01.711499Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: WARNING
+timestamp: '2026-10-10T07:52:00.783198Z'
+---
+insertId: d646f5ba6d03
+jsonPayload:
+  message: 'handled request path=/api/products/694 status=200 ms=44'
+  logger: app
+labels:
+  instanceId: 00f46b9285d8a8541fed5cebd8d230dacff7fc99aa946965c9
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:53:01.158010Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:53:00.931983Z'
+---
+httpRequest:
+  latency: 0.46s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.229
+  requestMethod: GET
+  requestSize: '469'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/products
+  responseSize: '7672'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 6713b2e369b4
+labels:
+  instanceId: 00f46b9285b29b82e889be9ccd010cf12c57fc46ad09896db5
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:54:01.565394Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '366978100241361020'
+timestamp: '2026-10-10T07:54:00.771973Z'
+trace: projects/shop-prod/traces/79728f8c62a9fbd41df30492669f8855
+traceSampled: true
+---
+insertId: 032a3995bd8e
+jsonPayload:
+  message: 'handled request path=/api/products/642 status=200 ms=81'
+  logger: app
+labels:
+  instanceId: 00f46b92854779e207d02461a192c5bab1225fc915bec2165e
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:55:01.736504Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:55:00.940092Z'
+---
+insertId: 7422276a04b6
+jsonPayload:
+  message: 'handled request path=/api/products/447 status=200 ms=43'
+  logger: app
+labels:
+  instanceId: 00f46b928555b9ff7789f8a1ee2b5c2537958f535348180213
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:56:01.917207Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:56:00.401263Z'
+---
+httpRequest:
+  latency: 0.736s
+  protocol: HTTP/1.1
+  remoteIp: 203.0.113.7
+  requestMethod: POST
+  requestSize: '618'
+  requestUrl: https://shop-api-x7y2z-ew.a.run.app/api/orders
+  responseSize: '3147'
+  serverIp: 216.239.36.53
+  status: 200
+  userAgent: Mozilla/5.0
+insertId: 7e9e57fdbec5
+labels:
+  instanceId: 00f46b9285caa4f63ddcd6b969a25497c4e622992f2d90db52
+logName: projects/shop-prod/logs/run.googleapis.com%2Frequests
+receiveTimestamp: '2026-10-10T07:57:01.676571Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+spanId: '797023205466686342'
+timestamp: '2026-10-10T07:57:00.355224Z'
+trace: projects/shop-prod/traces/bc6b9531949ebcfc6852bdbae880d591
+traceSampled: true
+---
+insertId: 4607bfd53d19
+jsonPayload:
+  message: 'handled request path=/api/products/959 status=200 ms=72'
+  logger: app
+labels:
+  instanceId: 00f46b9285ebecd4edc83490149b01cfc3b2c911ae4acdbecd
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:58:01.718598Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:58:00.466824Z'
+---
+insertId: 5ad04a313103
+jsonPayload:
+  message: 'handled request path=/api/products/780 status=200 ms=23'
+  logger: app
+labels:
+  instanceId: 00f46b9285524bad7b30228f8a3d8b0167dbdf5d3e06105593
+logName: projects/shop-prod/logs/run.googleapis.com%2Fstdout
+receiveTimestamp: '2026-10-10T07:59:01.268551Z'
+resource:
+  labels:
+    configuration_name: shop-api
+    location: europe-west1
+    project_id: shop-prod
+    revision_name: shop-api-00042-xyz
+    service_name: shop-api
+  type: cloud_run_revision
+severity: INFO
+timestamp: '2026-10-10T07:59:00.262465Z'

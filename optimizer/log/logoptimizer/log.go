@@ -1,6 +1,8 @@
-// Package logoptimizer compresses logs: warnings and errors stay with their
-// context and stack traces, debug noise goes, other lines collapse to one
-// example per template with a count. Plain text only loses repeated lines.
+// Package logoptimizer is the log family engine: warnings and errors stay
+// with their context and stack traces, debug noise goes, other lines collapse
+// to one example per template with a count. Structured cloud log events
+// become one line each first; access logs become a traffic summary. Plain
+// text only loses repeated lines.
 package logoptimizer
 
 import (
@@ -21,13 +23,30 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	return p.Rewrite(func(b payload.Block) (string, error) {
-		lines := compress.Lines(compress.StripANSI(b.Text))
-		if b.Type == detect.Text {
-			return compress.Join(compress.SqueezeBlank(dedupeExact(lines))), nil
+	for i, b := range p.Blocks {
+		if b.Type != detect.Text && detect.Family(b.Type) != detect.FamilyLog {
+			continue
 		}
-		return compress.Join(o.log(lines)), nil
-	}, detect.Log, detect.Text)
+		lines := compress.Lines(compress.StripANSI(b.Text))
+		switch {
+		case b.Type == detect.Text:
+			lines = compress.SqueezeBlank(dedupeExact(lines))
+		case b.Type == detect.Access:
+			lines = o.access(lines)
+		default:
+			// Cloud log services and JSON loggers print structured events;
+			// gcloud prints YAML.
+			text := strings.TrimSpace(b.Text)
+			if strings.HasPrefix(text, "{") || strings.HasPrefix(text, "[") || b.Type == detect.GCPLogs {
+				if ev, ok := entries(text); ok {
+					lines = ev
+				}
+			}
+			lines = o.log(lines)
+		}
+		p.Blocks[i].Text = compress.Join(lines)
+	}
+	return nil
 }
 
 var (

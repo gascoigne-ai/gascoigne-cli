@@ -1,0 +1,14 @@
+900 requests 10/Oct/2026:07:00:00 +0000 – 10/Oct/2026:07:14:03 +0000: 2xx 870, 4xx 24, 5xx 6
+routes:
+  GET /api/products/:id ×369 (200 350, 404 19)
+  GET /api/products ×176 (200 176)
+  GET /healthz ×124 (200 124)
+  POST /api/cart/items ×78 (200 73, 422 5)
+  GET /static/js/app.3f9a1c2b.js ×53 (200 53)
+  GET /api/orders/:id ×39 (200 39)
+  POST /api/orders ×37 (200 31, 502 5, 504 1)
+  GET /static/js/app.88e0d1aa.js ×24 (200 24)
+clients: 10.0.1.160 ×70, 203.0.113.7 ×52, 10.0.0.133 ×36, 10.0.1.250 ×35, 10.0.1.70 ×33, … 25 more
+server errors:
+10.0.3.232 - - [10/Oct/2026:07:07:07 +0000] "POST /api/orders HTTP/1.1" 502 277 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.851 (×5)
+10.0.1.250 - - [10/Oct/2026:07:08:27 +0000] "POST /api/orders HTTP/1.1" 502 260 "-" "curl/8.10.1" 0.880

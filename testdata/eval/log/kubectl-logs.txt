@@ -1,0 +1,406 @@
+2026-10-10T07:00:00.355Z DEBUG 1 --- [nio-8080-exec-3] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:00.624Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/112 200 24ms
+2026-10-10T07:00:00.753Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/337 200 3ms
+2026-10-10T07:00:01.126Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/459 200 3ms
+2026-10-10T07:00:01.222Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/546 200 33ms
+2026-10-10T07:00:01.316Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 1457ms (threshold 1000ms)
+2026-10-10T07:00:01.591Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/840 200 70ms
+2026-10-10T07:00:01.758Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:01.802Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/387 200 45ms
+2026-10-10T07:00:01.968Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/498 200 64ms
+2026-10-10T07:00:02.110Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/833 200 68ms
+2026-10-10T07:00:02.343Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/693 200 73ms
+2026-10-10T07:00:02.386Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/118 200 80ms
+2026-10-10T07:00:02.394Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/235 200 76ms
+2026-10-10T07:00:02.762Z DEBUG 1 --- [nio-8080-exec-4] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:02.930Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/888 200 27ms
+2026-10-10T07:00:03.303Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/904 200 36ms
+2026-10-10T07:00:03.555Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/669 200 43ms
+2026-10-10T07:00:03.870Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/821 200 60ms
+2026-10-10T07:00:04.035Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/789 200 55ms
+2026-10-10T07:00:04.400Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/410 200 79ms
+2026-10-10T07:00:04.659Z DEBUG 1 --- [nio-8080-exec-8] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:04.722Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/896 200 76ms
+2026-10-10T07:00:04.996Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/172 200 57ms
+2026-10-10T07:00:05.028Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/262 200 10ms
+2026-10-10T07:00:05.282Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/750 200 66ms
+2026-10-10T07:00:05.412Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/711 200 80ms
+2026-10-10T07:00:05.505Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/260 200 8ms
+2026-10-10T07:00:05.757Z DEBUG 1 --- [nio-8080-exec-1] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:06.060Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/838 200 22ms
+2026-10-10T07:00:06.343Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/969 200 20ms
+2026-10-10T07:00:06.420Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/353 200 52ms
+2026-10-10T07:00:06.554Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/752 200 77ms
+2026-10-10T07:00:06.916Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/940 200 2ms
+2026-10-10T07:00:07.137Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/956 200 56ms
+2026-10-10T07:00:07.308Z DEBUG 1 --- [nio-8080-exec-4] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:07.503Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/912 200 23ms
+2026-10-10T07:00:07.867Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/711 200 37ms
+2026-10-10T07:00:08.215Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/136 200 59ms
+2026-10-10T07:00:08.442Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/932 200 52ms
+2026-10-10T07:00:08.692Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/379 200 49ms
+2026-10-10T07:00:09.079Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/823 200 13ms
+2026-10-10T07:00:09.429Z DEBUG 1 --- [nio-8080-exec-9] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:09.445Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/990 200 26ms
+2026-10-10T07:00:09.818Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/770 200 20ms
+2026-10-10T07:00:09.969Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/956 200 38ms
+2026-10-10T07:00:10.299Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/940 200 73ms
+2026-10-10T07:00:10.648Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/966 200 20ms
+2026-10-10T07:00:10.714Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/663 200 18ms
+2026-10-10T07:00:10.955Z DEBUG 1 --- [nio-8080-exec-3] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:11.119Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/602 200 42ms
+2026-10-10T07:00:11.295Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/365 200 26ms
+2026-10-10T07:00:11.521Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/169 200 35ms
+2026-10-10T07:00:11.815Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/737 200 17ms
+2026-10-10T07:00:12.197Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/95 200 20ms
+2026-10-10T07:00:12.217Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 1287ms (threshold 1000ms)
+2026-10-10T07:00:12.263Z DEBUG 1 --- [nio-8080-exec-6] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:12.364Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/458 200 28ms
+2026-10-10T07:00:12.561Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/974 200 61ms
+2026-10-10T07:00:12.748Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/812 200 67ms
+2026-10-10T07:00:13.057Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/194 200 60ms
+2026-10-10T07:00:13.182Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/784 200 66ms
+2026-10-10T07:00:13.492Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/307 200 26ms
+2026-10-10T07:00:13.538Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:13.665Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/834 200 63ms
+2026-10-10T07:00:13.714Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/444 200 53ms
+2026-10-10T07:00:14.027Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/101 200 41ms
+2026-10-10T07:00:14.144Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/679 200 74ms
+2026-10-10T07:00:14.366Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/717 200 72ms
+2026-10-10T07:00:14.505Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/850 200 65ms
+2026-10-10T07:00:14.880Z DEBUG 1 --- [nio-8080-exec-6] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:15.205Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/748 200 13ms
+2026-10-10T07:00:15.514Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/325 200 30ms
+2026-10-10T07:00:15.610Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/262 200 6ms
+2026-10-10T07:00:15.766Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/152 200 12ms
+2026-10-10T07:00:15.924Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/915 200 54ms
+2026-10-10T07:00:16.078Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/664 200 78ms
+2026-10-10T07:00:16.329Z DEBUG 1 --- [nio-8080-exec-2] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:16.694Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/199 200 38ms
+2026-10-10T07:00:16.913Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/838 200 16ms
+2026-10-10T07:00:17.215Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/376 200 79ms
+2026-10-10T07:00:17.301Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/729 200 7ms
+2026-10-10T07:00:17.645Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/235 200 23ms
+2026-10-10T07:00:17.660Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/755 200 62ms
+2026-10-10T07:00:18.049Z DEBUG 1 --- [nio-8080-exec-1] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:18.160Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/492 200 6ms
+2026-10-10T07:00:18.481Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/423 200 12ms
+2026-10-10T07:00:18.640Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/983 200 40ms
+2026-10-10T07:00:18.829Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/440 200 25ms
+2026-10-10T07:00:18.911Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/106 200 41ms
+2026-10-10T07:00:18.916Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/79 200 70ms
+2026-10-10T07:00:19.107Z DEBUG 1 --- [nio-8080-exec-3] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:19.215Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/880 200 64ms
+2026-10-10T07:00:19.234Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/851 200 11ms
+2026-10-10T07:00:19.300Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/594 200 58ms
+2026-10-10T07:00:19.347Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/73 200 76ms
+2026-10-10T07:00:19.568Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/279 200 31ms
+2026-10-10T07:00:19.874Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/440 200 28ms
+2026-10-10T07:00:20.120Z DEBUG 1 --- [nio-8080-exec-5] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:20.277Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/722 200 54ms
+2026-10-10T07:00:20.668Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/136 200 7ms
+2026-10-10T07:00:20.892Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/759 200 12ms
+2026-10-10T07:00:21.076Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/548 200 30ms
+2026-10-10T07:00:21.413Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/774 200 56ms
+2026-10-10T07:00:21.751Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/359 200 59ms
+2026-10-10T07:00:21.877Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 2025ms (threshold 1000ms)
+2026-10-10T07:00:22.250Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/185 200 42ms
+2026-10-10T07:00:22.421Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/780 200 49ms
+2026-10-10T07:00:22.454Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/287 200 76ms
+2026-10-10T07:00:22.696Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/202 200 2ms
+2026-10-10T07:00:23.007Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/975 200 20ms
+2026-10-10T07:00:23.022Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/143 200 30ms
+2026-10-10T07:00:23.183Z DEBUG 1 --- [nio-8080-exec-4] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:23.466Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/948 200 58ms
+2026-10-10T07:00:23.483Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/249 200 21ms
+2026-10-10T07:00:23.518Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/804 200 67ms
+2026-10-10T07:00:23.599Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/336 200 74ms
+2026-10-10T07:00:23.934Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/956 200 5ms
+2026-10-10T07:00:23.975Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/837 200 79ms
+2026-10-10T07:00:24.242Z DEBUG 1 --- [nio-8080-exec-4] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:24.366Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/762 200 11ms
+2026-10-10T07:00:24.651Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/889 200 78ms
+2026-10-10T07:00:24.750Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/999 200 44ms
+2026-10-10T07:00:24.800Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/536 200 62ms
+2026-10-10T07:00:24.920Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/42 200 61ms
+2026-10-10T07:00:25.012Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/566 200 29ms
+2026-10-10T07:00:25.069Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:25.419Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/275 200 53ms
+2026-10-10T07:00:25.613Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/861 200 7ms
+2026-10-10T07:00:25.674Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/756 200 66ms
+2026-10-10T07:00:25.863Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/803 200 7ms
+2026-10-10T07:00:26.012Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/203 200 49ms
+2026-10-10T07:00:26.338Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/245 200 7ms
+2026-10-10T07:00:26.616Z DEBUG 1 --- [nio-8080-exec-1] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:26.763Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/610 200 50ms
+2026-10-10T07:00:27.145Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/955 200 24ms
+2026-10-10T07:00:27.295Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/806 200 50ms
+2026-10-10T07:00:27.342Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/331 200 37ms
+2026-10-10T07:00:27.357Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/310 200 65ms
+2026-10-10T07:00:27.423Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/364 200 43ms
+2026-10-10T07:00:27.428Z DEBUG 1 --- [nio-8080-exec-6] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:27.652Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/335 200 56ms
+2026-10-10T07:00:27.830Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/584 200 75ms
+2026-10-10T07:00:28.153Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/173 200 30ms
+2026-10-10T07:00:28.285Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/954 200 74ms
+2026-10-10T07:00:28.473Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/73 200 65ms
+2026-10-10T07:00:28.536Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/799 200 79ms
+2026-10-10T07:00:28.595Z DEBUG 1 --- [nio-8080-exec-5] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:28.857Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/635 200 35ms
+2026-10-10T07:00:29.073Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/860 200 56ms
+2026-10-10T07:00:29.382Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/646 200 16ms
+2026-10-10T07:00:29.632Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/110 200 17ms
+2026-10-10T07:00:29.775Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/273 200 40ms
+2026-10-10T07:00:29.840Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/43 200 65ms
+2026-10-10T07:00:29.966Z DEBUG 1 --- [nio-8080-exec-9] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:30.006Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 3731ms (threshold 1000ms)
+2026-10-10T07:00:30.181Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/510 200 37ms
+2026-10-10T07:00:30.521Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/587 200 56ms
+2026-10-10T07:00:30.833Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/220 200 11ms
+2026-10-10T07:00:31.183Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/513 200 70ms
+2026-10-10T07:00:31.305Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/331 200 49ms
+2026-10-10T07:00:31.598Z DEBUG 1 --- [nio-8080-exec-6] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:31.690Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/166 200 32ms
+2026-10-10T07:00:31.756Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/70 200 23ms
+2026-10-10T07:00:31.774Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/412 200 6ms
+2026-10-10T07:00:31.983Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/321 200 73ms
+2026-10-10T07:00:32.318Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/538 200 44ms
+2026-10-10T07:00:32.491Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/746 200 54ms
+2026-10-10T07:00:32.532Z DEBUG 1 --- [nio-8080-exec-6] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:32.686Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/114 200 58ms
+2026-10-10T07:00:33.062Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/623 200 12ms
+2026-10-10T07:00:33.198Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/669 200 5ms
+2026-10-10T07:00:33.338Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/338 200 58ms
+2026-10-10T07:00:33.658Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/441 200 5ms
+2026-10-10T07:00:33.850Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/810 200 42ms
+2026-10-10T07:00:33.958Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:34.309Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/104 200 72ms
+2026-10-10T07:00:34.409Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/195 200 68ms
+2026-10-10T07:00:34.446Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/853 200 8ms
+2026-10-10T07:00:34.649Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/13 200 77ms
+2026-10-10T07:00:34.806Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/814 200 33ms
+2026-10-10T07:00:35.117Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/768 200 68ms
+2026-10-10T07:00:35.495Z DEBUG 1 --- [nio-8080-exec-5] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:35.659Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/358 200 31ms
+2026-10-10T07:00:35.748Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/193 200 9ms
+2026-10-10T07:00:35.997Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/693 200 46ms
+2026-10-10T07:00:36.114Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/942 200 4ms
+2026-10-10T07:00:36.419Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/623 200 29ms
+2026-10-10T07:00:36.578Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/417 200 27ms
+2026-10-10T07:00:36.596Z DEBUG 1 --- [nio-8080-exec-8] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:36.811Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/595 200 58ms
+2026-10-10T07:00:36.922Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/157 200 45ms
+2026-10-10T07:00:37.005Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/3 200 12ms
+2026-10-10T07:00:37.043Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/77 200 5ms
+2026-10-10T07:00:37.405Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/823 200 21ms
+2026-10-10T07:00:37.496Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/588 200 60ms
+2026-10-10T07:00:37.528Z DEBUG 1 --- [nio-8080-exec-1] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:37.919Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/678 200 16ms
+2026-10-10T07:00:37.948Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/181 200 18ms
+2026-10-10T07:00:37.991Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/341 200 78ms
+2026-10-10T07:00:38.255Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/967 200 69ms
+2026-10-10T07:00:38.325Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/393 200 52ms
+2026-10-10T07:00:38.713Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/582 200 44ms
+2026-10-10T07:00:38.987Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:39.321Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/135 200 30ms
+2026-10-10T07:00:39.375Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 3031ms (threshold 1000ms)
+2026-10-10T07:00:39.431Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/300 200 23ms
+2026-10-10T07:00:39.502Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/182 200 45ms
+2026-10-10T07:00:39.896Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/170 200 78ms
+2026-10-10T07:00:40.154Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/589 200 42ms
+2026-10-10T07:00:40.239Z DEBUG 1 --- [nio-8080-exec-5] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:40.451Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/752 200 18ms
+2026-10-10T07:00:40.751Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/200 200 23ms
+2026-10-10T07:00:40.819Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/924 200 27ms
+2026-10-10T07:00:40.996Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/320 200 62ms
+2026-10-10T07:00:41.081Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/439 200 37ms
+2026-10-10T07:00:41.303Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/461 200 46ms
+2026-10-10T07:00:41.593Z DEBUG 1 --- [nio-8080-exec-9] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:41.820Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/553 200 64ms
+2026-10-10T07:00:41.939Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/564 200 5ms
+2026-10-10T07:00:42.153Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/847 200 67ms
+2026-10-10T07:00:42.368Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/898 200 28ms
+2026-10-10T07:00:42.490Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/577 200 79ms
+2026-10-10T07:00:42.874Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/633 200 12ms
+2026-10-10T07:00:43.012Z DEBUG 1 --- [nio-8080-exec-6] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:43.190Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/954 200 40ms
+2026-10-10T07:00:43.455Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/162 200 4ms
+2026-10-10T07:00:43.791Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/528 200 2ms
+2026-10-10T07:00:44.131Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/48 200 9ms
+2026-10-10T07:00:44.142Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/728 200 68ms
+2026-10-10T07:00:44.448Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/958 200 16ms
+2026-10-10T07:00:44.750Z DEBUG 1 --- [nio-8080-exec-3] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:45.039Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/344 200 33ms
+2026-10-10T07:00:45.086Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/883 200 3ms
+2026-10-10T07:00:45.432Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/447 200 51ms
+2026-10-10T07:00:45.580Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/181 200 33ms
+2026-10-10T07:00:45.790Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/970 200 23ms
+2026-10-10T07:00:46.184Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/885 200 14ms
+2026-10-10T07:00:46.428Z DEBUG 1 --- [nio-8080-exec-1] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:46.467Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/376 200 38ms
+2026-10-10T07:00:46.584Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/105 200 15ms
+2026-10-10T07:00:46.839Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/521 200 48ms
+2026-10-10T07:00:46.972Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/469 200 19ms
+2026-10-10T07:00:47.026Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/661 200 74ms
+2026-10-10T07:00:47.304Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/658 200 33ms
+2026-10-10T07:00:47.426Z DEBUG 1 --- [nio-8080-exec-2] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:47.764Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/288 200 37ms
+2026-10-10T07:00:47.834Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/17 200 75ms
+2026-10-10T07:00:48.006Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/628 200 74ms
+2026-10-10T07:00:48.399Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/295 200 62ms
+2026-10-10T07:00:48.789Z ERROR 1 --- [nio-8080-exec-1] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] threw exception
+org.springframework.dao.DataIntegrityViolationException: could not execute statement; SQL [n/a]; constraint [orders_customer_fk]
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:276)
+	at com.example.shop.orders.OrderService.place(OrderService.java:88)
+	at com.example.shop.orders.OrderController.create(OrderController.java:41)
+Caused by: org.postgresql.util.PSQLException: ERROR: insert or update on table "orders" violates foreign key constraint "orders_customer_fk"
+	... 87 more
+2026-10-10T07:00:49.114Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/362 200 17ms
+2026-10-10T07:00:49.232Z DEBUG 1 --- [nio-8080-exec-3] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:49.412Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/952 200 36ms
+2026-10-10T07:00:49.505Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/686 200 4ms
+2026-10-10T07:00:49.808Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 3319ms (threshold 1000ms)
+2026-10-10T07:00:50.033Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/347 200 14ms
+2026-10-10T07:00:50.420Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/596 200 66ms
+2026-10-10T07:00:50.502Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/79 200 8ms
+2026-10-10T07:00:50.644Z DEBUG 1 --- [nio-8080-exec-6] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:51.017Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/134 200 18ms
+2026-10-10T07:00:51.053Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/742 200 4ms
+2026-10-10T07:00:51.072Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/647 200 57ms
+2026-10-10T07:00:51.376Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/96 200 75ms
+2026-10-10T07:00:51.661Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/652 200 69ms
+2026-10-10T07:00:51.780Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/770 200 68ms
+2026-10-10T07:00:52.004Z DEBUG 1 --- [nio-8080-exec-3] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:52.035Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/301 200 37ms
+2026-10-10T07:00:52.379Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/904 200 47ms
+2026-10-10T07:00:52.472Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/718 200 14ms
+2026-10-10T07:00:52.810Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/913 200 69ms
+2026-10-10T07:00:53.059Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/564 200 35ms
+2026-10-10T07:00:53.373Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/613 200 46ms
+2026-10-10T07:00:53.435Z DEBUG 1 --- [nio-8080-exec-5] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:53.576Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/660 200 72ms
+2026-10-10T07:00:53.908Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/317 200 34ms
+2026-10-10T07:00:54.227Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/449 200 40ms
+2026-10-10T07:00:54.584Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/535 200 28ms
+2026-10-10T07:00:54.967Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/135 200 45ms
+2026-10-10T07:00:55.305Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/770 200 55ms
+2026-10-10T07:00:55.664Z DEBUG 1 --- [nio-8080-exec-2] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:55.747Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/207 200 43ms
+2026-10-10T07:00:56.064Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/187 200 59ms
+2026-10-10T07:00:56.287Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/57 200 69ms
+2026-10-10T07:00:56.670Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/293 200 28ms
+2026-10-10T07:00:56.811Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/197 200 41ms
+2026-10-10T07:00:56.969Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/962 200 13ms
+2026-10-10T07:00:57.201Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:57.375Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/467 200 28ms
+2026-10-10T07:00:57.474Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/927 200 30ms
+2026-10-10T07:00:57.518Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/426 200 14ms
+2026-10-10T07:00:57.788Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/208 200 73ms
+2026-10-10T07:00:58.102Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/129 200 51ms
+2026-10-10T07:00:58.113Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/739 200 53ms
+2026-10-10T07:00:58.137Z DEBUG 1 --- [nio-8080-exec-2] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:58.436Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/358 200 21ms
+2026-10-10T07:00:58.659Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/733 200 33ms
+2026-10-10T07:00:58.936Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/164 200 43ms
+2026-10-10T07:00:59.051Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/885 200 22ms
+2026-10-10T07:00:59.305Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/408 200 11ms
+2026-10-10T07:00:59.531Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/302 200 80ms
+2026-10-10T07:00:59.564Z DEBUG 1 --- [nio-8080-exec-9] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:59.954Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/550 200 18ms
+2026-10-10T07:01:00.313Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/443 200 36ms
+2026-10-10T07:01:00.555Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/89 200 71ms
+2026-10-10T07:01:00.728Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 3306ms (threshold 1000ms)
+2026-10-10T07:01:01.017Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/107 200 49ms
+2026-10-10T07:01:01.125Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/408 200 28ms
+2026-10-10T07:01:01.420Z DEBUG 1 --- [nio-8080-exec-1] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:01.620Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/924 200 16ms
+2026-10-10T07:01:01.806Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/487 200 75ms
+2026-10-10T07:01:02.148Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/847 200 23ms
+2026-10-10T07:01:02.461Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/599 200 68ms
+2026-10-10T07:01:02.560Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/557 200 42ms
+2026-10-10T07:01:02.606Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/406 200 48ms
+2026-10-10T07:01:02.853Z DEBUG 1 --- [nio-8080-exec-9] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:02.887Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/557 200 68ms
+2026-10-10T07:01:03.128Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/372 200 47ms
+2026-10-10T07:01:03.198Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/704 200 24ms
+2026-10-10T07:01:03.217Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/797 200 47ms
+2026-10-10T07:01:03.340Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/48 200 54ms
+2026-10-10T07:01:03.612Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/284 200 28ms
+2026-10-10T07:01:03.797Z DEBUG 1 --- [nio-8080-exec-5] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:04.093Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/966 200 78ms
+2026-10-10T07:01:04.145Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/257 200 58ms
+2026-10-10T07:01:04.185Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/970 200 60ms
+2026-10-10T07:01:04.580Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/335 200 71ms
+2026-10-10T07:01:04.673Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/175 200 74ms
+2026-10-10T07:01:04.727Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/934 200 29ms
+2026-10-10T07:01:04.945Z DEBUG 1 --- [nio-8080-exec-5] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:05.006Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/640 200 60ms
+2026-10-10T07:01:05.194Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/194 200 11ms
+2026-10-10T07:01:05.213Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/398 200 13ms
+2026-10-10T07:01:05.486Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/293 200 6ms
+2026-10-10T07:01:05.736Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/100 200 69ms
+2026-10-10T07:01:05.830Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/186 200 25ms
+2026-10-10T07:01:06.065Z DEBUG 1 --- [nio-8080-exec-2] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:06.202Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/771 200 25ms
+2026-10-10T07:01:06.587Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/114 200 19ms
+2026-10-10T07:01:06.764Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/6 200 67ms
+2026-10-10T07:01:06.895Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/343 200 27ms
+2026-10-10T07:01:06.985Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/145 200 19ms
+2026-10-10T07:01:07.110Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/319 200 57ms
+2026-10-10T07:01:07.338Z DEBUG 1 --- [nio-8080-exec-3] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:07.373Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/197 200 62ms
+2026-10-10T07:01:07.512Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/642 200 37ms
+2026-10-10T07:01:07.574Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/752 200 73ms
+2026-10-10T07:01:07.674Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/260 200 77ms
+2026-10-10T07:01:07.980Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/227 200 10ms
+2026-10-10T07:01:08.365Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/471 200 21ms
+2026-10-10T07:01:08.562Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:08.821Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/959 200 59ms
+2026-10-10T07:01:09.154Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/941 200 12ms
+2026-10-10T07:01:09.496Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/496 200 79ms
+2026-10-10T07:01:09.697Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/903 200 56ms
+2026-10-10T07:01:10.030Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 2888ms (threshold 1000ms)
+2026-10-10T07:01:10.077Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/246 200 29ms
+2026-10-10T07:01:10.176Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:10.329Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/432 200 48ms
+2026-10-10T07:01:10.610Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/191 200 25ms
+2026-10-10T07:01:10.633Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/632 200 38ms
+2026-10-10T07:01:10.664Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/11 200 46ms
+2026-10-10T07:01:10.983Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/83 200 58ms
+2026-10-10T07:01:11.071Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/649 200 62ms
+2026-10-10T07:01:11.416Z DEBUG 1 --- [nio-8080-exec-5] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:11.616Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/368 200 3ms
+2026-10-10T07:01:11.902Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/525 200 2ms
+2026-10-10T07:01:12.030Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/268 200 11ms
+2026-10-10T07:01:12.408Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/219 200 31ms
+2026-10-10T07:01:12.527Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/882 200 33ms
+2026-10-10T07:01:12.578Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/530 200 64ms
+2026-10-10T07:01:12.873Z DEBUG 1 --- [nio-8080-exec-3] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:13.161Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/809 200 49ms
+2026-10-10T07:01:13.357Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/363 200 55ms
+2026-10-10T07:01:13.517Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/354 200 51ms
+2026-10-10T07:01:13.617Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/924 200 15ms
+2026-10-10T07:01:13.836Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/158 200 18ms
+2026-10-10T07:01:13.883Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/710 200 43ms
+2026-10-10T07:01:13.896Z DEBUG 1 --- [nio-8080-exec-4] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:14.137Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/235 200 59ms
+2026-10-10T07:01:14.288Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/905 200 27ms
+2026-10-10T07:01:14.299Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/384 200 22ms
+2026-10-10T07:01:14.388Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/717 200 20ms
+2026-10-10T07:01:14.486Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/109 200 25ms
+2026-10-10T07:01:14.681Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/968 200 54ms
+2026-10-10T07:01:14.935Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:15.187Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/314 200 48ms
+2026-10-10T07:01:15.263Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/365 200 4ms
+2026-10-10T07:01:15.644Z  INFO 1 --- [nio-8080-exec-6] c.e.shop.web.AccessLogFilter           : GET /api/products/775 200 28ms
+2026-10-10T07:01:15.786Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/48 200 30ms
+2026-10-10T07:01:15.960Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/392 200 40ms
+2026-10-10T07:01:16.122Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/454 200 54ms
+2026-10-10T07:01:16.317Z DEBUG 1 --- [nio-8080-exec-6] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:01:16.627Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/549 200 6ms
+2026-10-10T07:01:16.707Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/287 200 20ms
+2026-10-10T07:01:17.064Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/234 200 77ms
+2026-10-10T07:01:17.456Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/904 200 59ms
+2026-10-10T07:01:17.472Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/588 200 66ms
+2026-10-10T07:01:17.758Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/771 200 50ms
+2026-10-10T07:01:17.826Z DEBUG 1 --- [nio-8080-exec-4] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?

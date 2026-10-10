@@ -1,9 +1,11 @@
 package logoptimizer
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/payload"
 )
@@ -65,5 +67,39 @@ func TestLimitKeepsErrors(t *testing.T) {
 	got := p.Blocks[0].Text
 	if !strings.Contains(got, "ERROR the one that matters") || strings.Count(got, "\n") > 45 {
 		t.Fatalf("got %d lines:\n%s", strings.Count(got, "\n"), got)
+	}
+}
+
+func TestEntriesCloudEvents(t *testing.T) {
+	got, ok := entries(`{"events": [{"timestamp": 1791615600000, "message": "START\n", "logStreamName": "s"}], "nextToken": "x"}`)
+	if !ok || len(got) != 1 || got[0] != "2026-10-10T07:00:00.000Z START" {
+		t.Fatalf("got %q %v", got, ok)
+	}
+	got, ok = entries("severity: ERROR\ntimestamp: '2026-10-10T07:00:00Z'\nhttpRequest: {requestMethod: GET, requestUrl: /x, status: 500}\n---\nseverity: INFO\njsonPayload: {message: hi}\n")
+	if !ok || got[0] != "2026-10-10T07:00:00Z ERROR GET /x 500" || got[1] != "INFO hi" {
+		t.Fatalf("got %q %v", got, ok)
+	}
+	got, ok = entries(`{"time": "t1", "level": "warn", "msg": "slow", "path": "/a", "ms": 12}` + "\n")
+	if !ok || got[0] != "t1 WARN slow ms=12 path=/a" {
+		t.Fatalf("got %q %v", got, ok)
+	}
+	if _, ok := entries("plain text\nlines\n"); ok {
+		t.Fatal("plain text taken as events")
+	}
+}
+
+func TestAccessSummary(t *testing.T) {
+	var lines []string
+	for i := range 20 {
+		lines = append(lines, fmt.Sprintf(`10.0.0.%d - - [10/Oct/2026:07:00:%02d +0000] "GET /api/items/%d?x=1 HTTP/1.1" 200 512 "-" "curl/8"`, i%3, i, i))
+	}
+	lines = append(lines, `10.0.0.9 - - [10/Oct/2026:07:01:00 +0000] "POST /api/orders HTTP/1.1" 502 0 "-" "curl/8"`)
+	o := &Optimizer{cfg: &Config{Context: 2, MaxLines: 300}}
+	got := compress.Join(o.access(lines))
+	for _, want := range []string{"21 requests 10/Oct/2026:07:00:00 +0000 – 10/Oct/2026:07:01:00 +0000: 2xx 20, 5xx 1",
+		"GET /api/items/:id ×20 (200 20)", "POST /api/orders ×1 (502 1)", "server errors:\n" + lines[20]} {
+		if !strings.Contains(got, want) {
+			t.Errorf("missing %q in:\n%s", want, got)
+		}
 	}
 }

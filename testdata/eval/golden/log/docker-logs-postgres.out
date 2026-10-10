@@ -1,0 +1,14 @@
+2026-10-10 07:00:19.792 UTC [30] LOG:  checkpoint starting: time (×9)
+2026-10-10 07:00:19.792 UTC [36] LOG:  checkpoint complete: wrote 124 buffers (0.6%); 0 WAL file(s) added, 0 removed, 1 recycled; write=13.756 s, sync=0.088 s, total=13.667 s (×9)
+2026-10-10 07:00:28.633 UTC [632] LOG:  connection authorized: user=shop database=shop application_name=api (×287)
+… 119 lines omitted
+2026-10-10 07:19:55.359 UTC [270] LOG:  connection authorized: user=shop database=shop application_name=api (×2)
+2026-10-10 07:20:24.826 UTC [8054] ERROR:  deadlock detected
+2026-10-10 07:20:24.826 UTC [8054] DETAIL:  Process 8054 waits for ShareLock on transaction 81234; blocked by process 8057.
+2026-10-10 07:20:24.826 UTC [8054] HINT:  See server log for query details.
+2026-10-10 07:20:24.826 UTC [8054] STATEMENT:  UPDATE stock SET qty = qty - 1 WHERE product_id = 42
+2026-10-10 07:20:31.658 UTC [2932] ERROR:  deadlock detected
+2026-10-10 07:20:31.658 UTC [2932] DETAIL:  Process 2932 waits for ShareLock on transaction 81234; blocked by process 2935.
+2026-10-10 07:20:31.658 UTC [2932] HINT:  See server log for query details.
+2026-10-10 07:20:31.658 UTC [2932] STATEMENT:  UPDATE stock SET qty = qty - 1 WHERE product_id = 42
+… 183 lines omitted

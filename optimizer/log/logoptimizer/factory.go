@@ -8,7 +8,7 @@ import (
 
 const (
 	typ    = "log"
-	family = "data"
+	family = "log"
 )
 
 func NewFactory() component.Factory {

@@ -1,0 +1,9 @@
+2026-10-10T07:00:00.974Z START RequestId: 11ad88b6-3618-63b2-d303-7ba505048c3c Version: $LATEST (×6)
+2026-10-10T07:00:02.545Z 2026-10-10T07:00:01.228Z	847794d3-0000-4000-8000-7d45b551dd0d	INFO	order processed orderId=11805 items=6 total=439.58 (×204)
+… 37 lines omitted
+2026-10-10T07:01:04.048Z REPORT RequestId: 336b2a7e-0000-4000-8000-56aca575d56a	Duration: 418.86 ms	Billed Duration: 415 ms	Memory Size: 512 MB	Max Memory Used: 121 MB	 (×5)
+… 89 lines omitted
+2026-10-10T07:03:18.042Z 2026-10-10T07:02:09.261Z	73099777-0000-4000-8000-f7c68300cb7e	INFO	order processed orderId=65691 items=2 total=162.1 (×2)
+2026-10-10T07:03:22.118Z 2026-10-10T07:05:11.042Z	b1a2c3d4-0000-4000-8000-000000000001	ERROR	Invoke Error 	{"errorType":"ConditionalCheckFailedException","errorMessage":"The conditional request failed","stack":["ConditionalCheckFailedException: The conditional request failed","    at throwDefaultError (/var/runtime/node_modules/@aws-sdk/smithy-client/dist-cjs/index.js:838:20)"]}
+2026-10-10T07:03:23.422Z 2026-10-10T07:02:12.467Z	23dc6a18-0000-4000-8000-84833882952b	INFO	order processed orderId=83831 items=5 total=249.61 (×2)
+… 86 lines omitted

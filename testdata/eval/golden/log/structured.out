@@ -1,2 +1,20 @@
-// "_table": rows align with _cols; _same: equal in all rows; _affix: value = prefix + cell + suffix
-{"_affix":{"time":["2026-10-01T12:",""]},"_cols":["duration_ms","error","level","method","msg","path","request_id","status","time"],"_rows":[[49,null,"info","POST","request handled","/healthz","c836761e6118adf8",200,"10:19.736Z"],[196,null,"info","POST","request handled","/api/orders","553c763e523157c9",200,"10:19.752Z"],[185,null,"info","GET","request handled","/api/users/me","34f4706b303c5759",200,"10:19.886Z"],[27,null,"info","GET","request handled","/api/products","b548efbd333faa0a",200,"10:19.911Z"],[122,null,"info","GET","request handled","/api/cart","c5b2ea8a9603c77c",200,"10:20.791Z"],"… 48 items omitted",[194,null,"info","GET","request handled","/api/users/me","bec1bd29c418757d",200,"10:40.040Z"],"… 47 items omitted",[134,null,"info","POST","request handled","/healthz","8e616e38c15c3a82",200,"11:01.195Z"],"… 48 items omitted",[176,"card_declined: insufficient funds","error","POST","payment declined","/api/users/me","0c22f291537cbe65",402,"11:20.156Z"],[28,null,"info","POST","request handled","/api/users/me","555235fa09c3f1d0",200,"11:20.673Z"],[112,null,"info","POST","request handled","/api/products","861a7d6cc7230526",200,"11:20.938Z"],"… 47 items omitted",[172,null,"info","GET","request handled","/api/orders","155db04566b72175",200,"11:44.271Z"],"… 47 items omitted",[11,null,"info","GET","request handled","/healthz","c56cb19178351de5",200,"12:04.963Z"],"… 48 items omitted",[27,null,"info","POST","request handled","/api/users/me","d9d4aeefe3d98936",200,"12:24.050Z"],[57,null,"info","GET","request handled","/api/users/me","043f3dc42332fc1e",200,"12:24.578Z"],[82,null,"info","POST","request handled","/api/cart","1fbca2f93a7fe5d0",200,"12:24.677Z"]]}
+2026-10-01T12:10:19.736Z INFO request handled duration_ms=49 method=POST path=/healthz request_id=c836761e6118adf8 status=200 (×33)
+2026-10-01T12:10:19.752Z INFO request handled duration_ms=196 method=POST path=/api/orders request_id=553c763e523157c9 status=200 (×26)
+2026-10-01T12:10:19.886Z INFO request handled duration_ms=185 method=GET path=/api/users/me request_id=34f4706b303c5759 status=200 (×25)
+2026-10-01T12:10:19.911Z INFO request handled duration_ms=27 method=GET path=/api/products request_id=b548efbd333faa0a status=200 (×32)
+2026-10-01T12:10:20.791Z INFO request handled duration_ms=122 method=GET path=/api/cart request_id=c5b2ea8a9603c77c status=200 (×31)
+… 2 lines omitted
+2026-10-01T12:10:22.139Z INFO request handled duration_ms=108 method=POST path=/api/products request_id=5cfb6bb1ea4739ed status=200 (×35)
+2026-10-01T12:10:22.159Z INFO request handled duration_ms=86 method=GET path=/api/orders request_id=6641f7ccfc8400b7 status=200 (×25)
+2026-10-01T12:10:22.410Z INFO request handled duration_ms=87 method=POST path=/api/cart request_id=3d958fad965597f1 status=200 (×28)
+… 3 lines omitted
+2026-10-01T12:10:23.325Z INFO request handled duration_ms=101 method=POST path=/api/users/me request_id=ccb59c9e28e8ea25 status=200 (×26)
+… 11 lines omitted
+2026-10-01T12:10:28.223Z INFO request handled duration_ms=2 method=GET path=/healthz request_id=ff9ae45f2977b4ba status=200 (×34)
+… 122 lines omitted
+2026-10-01T12:11:18.729Z INFO request handled duration_ms=50 method=POST path=/api/cart request_id=b553304517097c4d status=200
+2026-10-01T12:11:19.320Z INFO request handled duration_ms=113 method=POST path=/api/users/me request_id=319a5f53ec02205a status=200
+2026-10-01T12:11:20.156Z ERROR payment declined duration_ms=176 error=card_declined: insufficient funds method=POST path=/api/users/me request_id=0c22f291537cbe65 status=402
+2026-10-01T12:11:20.673Z INFO request handled duration_ms=28 method=POST path=/api/users/me request_id=555235fa09c3f1d0 status=200
+2026-10-01T12:11:20.938Z INFO request handled duration_ms=112 method=POST path=/api/products request_id=861a7d6cc7230526 status=200
+… 147 lines omitted

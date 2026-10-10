@@ -467,8 +467,8 @@
   min_saved: 95
 - file: log/structured.ndjson
   attrs: { cmd: kubectl logs api }
-  expect_type: data/ndjson
-  keep: ["card_declined: insufficient funds", "items omitted"]
+  expect_type: log/kubectl
+  keep: ["card_declined: insufficient funds", "status=402", "lines omitted"]
   min_saved: 90
 - name: detect/json
   file: json/github-repos.json
@@ -498,6 +498,25 @@
 - name: detect/log
   file: log/app.log
   expect_type: log/app
+- file: log/journalctl.txt
+  attrs: { cmd: journalctl -b -n 500 }
+  expect_type: log/journal
+  keep: ["Failed to start Reset Monitor DDC Settings Before Restart", "Failed with result 'exit-code'", "Started Session 1 of User dev"]
+  min_saved: 40
+- { file: log/nginx-access.log, attrs: { file: /var/log/nginx/access.log }, expect_type: log/access,
+    keep: ["POST /api/orders", "502", "GET /api/products/:id", "server errors:", "203.0.113.7"], min_saved: 90 }
+- { file: log/cloudwatch-events.json, attrs: { cmd: aws logs filter-log-events --log-group-name /aws/lambda/orders }, expect_type: log/cloudwatch,
+    keep: ["ConditionalCheckFailedException", "2026-", "REPORT RequestId"], min_saved: 80 }
+- { file: log/gcloud-logging.yaml, attrs: { cmd: gcloud logging read "resource.type=cloud_run_revision" --limit 60 }, expect_type: log/gcp,
+    keep: ["could not serialize access", "ERROR GET https://shop-api-x7y2z-ew.a.run.app/api/products 500", "slow query"], min_saved: 80 }
+- { file: log/az-activity-log.json, attrs: { cmd: az monitor activity-log list -g shop-prod }, expect_type: log/azure,
+    keep: ["ERROR", "Compute virtualMachines write"], min_saved: 85 }
+- { file: log/kubectl-logs.txt, attrs: { cmd: kubectl logs deploy/shop-api -n shop }, expect_type: log/kubectl,
+    keep: ["DataIntegrityViolationException", "OrderService.java:88", "Caused by: org.postgresql.util.PSQLException", "cache warm-up took"], min_saved: 80 }
+- { file: log/docker-logs-postgres.txt, attrs: { cmd: docker logs shop-db }, expect_type: log/docker,
+    keep: ["deadlock detected", "STATEMENT:  UPDATE stock", "checkpoint complete"], min_saved: 75 }
+- { name: detect/syslog, file: log/journalctl.txt, expect_type: log/syslog }
+- { name: detect/access, file: log/nginx-access.log, expect_type: log/access }
 
 # --- mixed multi-block (e.g. several tool results in one request)
 - name: mixed/json-log-diff

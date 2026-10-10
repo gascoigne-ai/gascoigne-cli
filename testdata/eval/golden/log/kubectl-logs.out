@@ -1,0 +1,50 @@
+… 1 line omitted
+2026-10-10T07:00:00.624Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/112 200 24ms (×304)
+… 1 line omitted
+2026-10-10T07:00:01.126Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/459 200 3ms (×2)
+2026-10-10T07:00:01.316Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 1457ms (threshold 1000ms)
+2026-10-10T07:00:01.591Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/840 200 70ms
+2026-10-10T07:00:01.758Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+… 45 lines omitted
+2026-10-10T07:00:11.815Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/737 200 17ms (×2)
+2026-10-10T07:00:12.217Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 1287ms (threshold 1000ms)
+2026-10-10T07:00:12.263Z DEBUG 1 --- [nio-8080-exec-6] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:12.364Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/458 200 28ms
+… 45 lines omitted
+2026-10-10T07:00:21.413Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/774 200 56ms (×2)
+2026-10-10T07:00:21.877Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 2025ms (threshold 1000ms)
+2026-10-10T07:00:22.250Z  INFO 1 --- [nio-8080-exec-1] c.e.shop.web.AccessLogFilter           : GET /api/products/185 200 42ms (×2)
+… 45 lines omitted
+2026-10-10T07:00:29.840Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/43 200 65ms
+2026-10-10T07:00:29.966Z DEBUG 1 --- [nio-8080-exec-9] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:30.006Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 3731ms (threshold 1000ms)
+2026-10-10T07:00:30.181Z  INFO 1 --- [nio-8080-exec-2] c.e.shop.web.AccessLogFilter           : GET /api/products/510 200 37ms (×2)
+… 45 lines omitted
+2026-10-10T07:00:38.987Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+2026-10-10T07:00:39.321Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/135 200 30ms
+2026-10-10T07:00:39.375Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 3031ms (threshold 1000ms)
+2026-10-10T07:00:39.431Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/300 200 23ms (×2)
+… 40 lines omitted
+2026-10-10T07:00:48.006Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/628 200 74ms (×2)
+2026-10-10T07:00:48.789Z ERROR 1 --- [nio-8080-exec-1] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] threw exception
+org.springframework.dao.DataIntegrityViolationException: could not execute statement; SQL [n/a]; constraint [orders_customer_fk]
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:276)
+	at com.example.shop.orders.OrderService.place(OrderService.java:88)
+	at com.example.shop.orders.OrderController.create(OrderController.java:41)
+Caused by: org.postgresql.util.PSQLException: ERROR: insert or update on table "orders" violates foreign key constraint "orders_customer_fk"
+	... 87 more
+2026-10-10T07:00:49.114Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/362 200 17ms
+… 1 line omitted
+2026-10-10T07:00:49.412Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/952 200 36ms (×2)
+2026-10-10T07:00:49.808Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 3319ms (threshold 1000ms)
+2026-10-10T07:00:50.033Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/347 200 14ms (×2)
+… 45 lines omitted
+2026-10-10T07:01:00.313Z  INFO 1 --- [nio-8080-exec-5] c.e.shop.web.AccessLogFilter           : GET /api/products/443 200 36ms (×2)
+2026-10-10T07:01:00.728Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 3306ms (threshold 1000ms)
+2026-10-10T07:01:01.017Z  INFO 1 --- [nio-8080-exec-3] c.e.shop.web.AccessLogFilter           : GET /api/products/107 200 49ms (×2)
+… 45 lines omitted
+2026-10-10T07:01:09.496Z  INFO 1 --- [nio-8080-exec-9] c.e.shop.web.AccessLogFilter           : GET /api/products/496 200 79ms (×2)
+2026-10-10T07:01:10.030Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 2888ms (threshold 1000ms)
+2026-10-10T07:01:10.077Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/246 200 29ms
+2026-10-10T07:01:10.176Z DEBUG 1 --- [nio-8080-exec-7] o.h.SQL                                  : select p1_0.id,p1_0.name,p1_0.price from products p1_0 where p1_0.id=?
+… 42 lines omitted
