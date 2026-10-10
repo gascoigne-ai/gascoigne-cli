@@ -75,15 +75,18 @@ the page itself. Use the MCP `fetch` tool when you need the page's own text.
 
 ## Which commands get rewritten
 
-The hook only rewrites a command when it can do so safely and gascoigne knows the tool:
+The hook rewrites every command it can rewrite safely:
 
 - **Attribution.** Under `wrap`, `GASCOIGNE_AGENT` and `GASCOIGNE_SESSION` tag every run. Hooks
   installed for good (`wrap -print`) have no such environment, so the rewritten command carries
   them: `gascoigne exec -agent cursor -session <hook session> -- …`. Runs from a terminal or a
   script have no agent; the dashboard shows them as *no agent*.
-- **Known tool.** The last command must be detected by `detect.FromCmd` (see
-  [Families](families.md)). `echo hi` stays as it is.
-- **Lists.** In `a && b` and `a; b` every known command is wrapped, each with its own hint:
+- **Any program.** Unknown tools and scripts are wrapped too (`./report.py --json`): their output
+  is detected by content (JSON, logs, tables, see [Families](families.md)). Left out: shell
+  builtins (`cd`, `export`, `source`: they must change the agent's shell), commands that print
+  little (`echo`, `mkdir`, `rm`, `mv`, `cp`, `chmod`, …: they would only add bypassed runs to
+  the stats), editors and pagers, and REPLs started without arguments (`python3`, `psql`).
+- **Lists.** In `a && b` and `a; b` every command is wrapped, each with its own hint:
   `cd api && go test ./...` → `cd api && gascoigne exec -- go test ./...`;
   `git status; git log -5` → `gascoigne exec -- git status; gascoigne exec -- git log -5`.
   Lines with loops, conditionals or `{ }` groups are left whole.

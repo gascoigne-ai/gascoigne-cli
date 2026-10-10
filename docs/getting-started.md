@@ -87,7 +87,7 @@ optimized, the reason. Click a run to see its optimizer steps and the original.
 gascoigne wrap claude      # or: codex, pi
 ```
 
-This starts the agent with gascoigne registered for that run only: shell commands it knows
+This starts the agent with gascoigne registered for that run only: shell commands
 go through `gascoigne exec`, and the MCP server adds `fetch`, `compress`, `retrieve` and
 `stats`. No config file is touched. See [Agents](agents.md).
 
