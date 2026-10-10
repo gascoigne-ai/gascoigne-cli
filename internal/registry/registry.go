@@ -13,6 +13,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/cloud/cloudoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/pathsoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/core/truncateoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/dataoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/jsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/db/dboptimizer"
@@ -53,6 +54,7 @@ func Factories() []component.Factory {
 		// optimizers
 		passthroughoptimizer.NewFactory(),
 		pathsoptimizer.NewFactory(),
+		truncateoptimizer.NewFactory(),
 		testoptimizer.NewFactory(),
 		buildoptimizer.NewFactory(),
 		gitoptimizer.NewFactory(),

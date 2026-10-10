@@ -296,3 +296,12 @@ File names stay visible and the legend gives every full path back. Prefixes are 
 by bytes saved (at least `min_prefix` bytes, repeated, legend entries counted) and applied only
 when the payload shrinks by `min_saving` tokens. eslint output: 646→513 tokens; a Go panic trace
 after frame folding: 162→123. Source files (`fs`) and data are never touched.
+
+## Last resort (`truncate`, after every other optimizer)
+
+A block still over 8000 tokens after its engine keeps its first and last 2500 tokens and up to
+20 error lines (`error`, `failed`, `fatal`, `panic`, `exception`, `traceback`) from the middle;
+each cut leaves `… N lines omitted`, and lines over 2000 bytes are cut in the middle. Source
+files (`fs/code`) and structured families (`data`, `k8s`, `cloud`) are never cut: they would no
+longer parse, and their engines already sample to their own budgets. The original is in the
+ledger as always (`gascoigne raw <id>`).

@@ -88,6 +88,9 @@ lives in public libs so engines and composite families can reuse it:
 `paths` (`optimizer/core/pathsoptimizer`, last in the default chain): long path prefixes repeated
 in test/build/search/log/task blocks → `§1/file.go`, legend `[paths: §1=…]` on top of the first
 such block; greedy by bytes saved, kept only when ≥ `min_saving` tokens; idempotent; never fs/data.
+`truncate` (`optimizer/core/truncateoptimizer`, after `paths`): blocks still > `max_tokens` keep
+head/tail token budgets + `max_errors` error lines from the middle, long lines cut; `skip`
+fs/code, data, k8s, cloud.
 `compress/compose` sniffs a section and calls the test/build/pkg engine: used by `task` and docker
 builds. `compress/rows` samples records (errors, anomalies, change points, query, ends).
 Families are what `gain -by family` reports; `gain -by dialect` splits them.

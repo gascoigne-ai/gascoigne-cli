@@ -277,6 +277,8 @@
     keep: ["# Installation", "go get github.com/mattn/go-sqlite3", "# Features", "table of contents entries omitted"], min_saved: 10 }
 - { name: doc/go-sqlite3-README-query, file: doc/go-sqlite3-README.md, attrs: { cmd: cat README.md, query: loc time zone },
     expect_type: doc/markdown, keep: ["_loc=auto", "# Installation", "table of contents entries omitted"], min_saved: 10 }
+- { file: doc/node-v8-options.txt, attrs: { cmd: node --v8-options }, expect_type: doc/text,
+    keep: ["--flag        (bool flags only)", "--dump-allocations-digest-at-alloc", "lines omitted"], min_saved: 75 }
 - { file: doc/man-ls.txt, attrs: { cmd: man ls }, expect_type: doc/man,
     keep: ["SYNOPSIS", "-a, --all", "--sort=WORD", "Exit status:"], min_saved: 10 }
 - { file: doc/curl-help.txt, attrs: { cmd: curl --help all }, expect_type: doc/help,

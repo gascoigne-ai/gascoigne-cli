@@ -1,0 +1,302 @@
+The following syntax for options is accepted (both '-' and '--' are ok):
+  --flag        (bool flags only)
+  --no-flag     (bool flags only)
+  --flag=value  (non-bool flags only, no spaces around '=')
+  --flag value  (non-bool flags only)
+  --            (captures all remaining args in JavaScript)
+
+Options:
+  --experimental (Indicates that V8 is running with experimental features enabled. This flag is typically not set explicitly but instead enabled as an implication of other flags which enable experimental features.)
+        type: bool  default: --no-experimental
+  --test-only-unsafe (Indicates that V8 is running in an unsupported and unsafe configuration, e.g. used for internal testing. This flag is typically not set explicitly but instead enabled as an implication of other flags)
+        type: bool  default: --no-test-only-unsafe
+  --abort-on-contradictory-flags (Disallow flags or implications overriding each other.)
+        type: bool  default: --no-abort-on-contradictory-flags
+  --exit-on-contradictory-flags (Exit with return code 0 on contradictory flags.)
+        type: bool  default: --no-exit-on-contradictory-flags
+  --allow-overwriting-for-next-flag (temporary disable flag contradiction to allow overwriting just the next flag)
+        type: bool  default: --no-allow-overwriting-for-next-flag
+  --use-strict (enforce strict mode)
+        type: bool  default: --no-use-strict
+  --trace-temporal (trace temporal code)
+        type: bool  default: --no-trace-temporal
+  --harmony (enable all completed harmony features)
+        type: bool  default: --no-harmony
+  --harmony-shipping (enable all shipped harmony features)
+        type: bool  default: --harmony-shipping
+  --js-staging (enable all completed JavaScript features)
+        type: bool  default: --no-js-staging
+  --js-shipping (enable all shipped JavaScript features)
+        type: bool  default: --js-shipping
+  --harmony-shadow-realm (enable "harmony ShadowRealm" (in progress / experimental))
+        type: bool  default: --no-harmony-shadow-realm
+  --harmony-struct (enable "harmony structs, shared structs, and shared arrays" (in progress / experimental))
+        type: bool  default: --no-harmony-struct
+  --harmony-intl-best-fit-matcher (enable "Intl BestFitMatcher" (in progress / experimental))
+        type: bool  default: --no-harmony-intl-best-fit-matcher
+  --js-decorators (enable "decorators" (in progress / experimental))
+        type: bool  default: --no-js-decorators
+  --js-source-phase-imports (enable "source phase imports" (in progress / experimental))
+        type: bool  default: --js-source-phase-imports
+  --js-defer-import-eval (enable "defer import eval" (in progress / experimental))
+        type: bool  default: --no-js-defer-import-eval
+  --js-immutable-arraybuffer (enable "Immutable ArrayBuffer")
+        type: bool  default: --no-js-immutable-arraybuffer
+  --js-sum-precise (enable "Math.sumPrecise")
+        type: bool  default: --no-js-sum-precise
+  --js-intl-locale-variants (enable "Intl.Locale.prototype.variants")
+        type: bool  default: --no-js-intl-locale-variants
+  --harmony-import-attributes (enable "harmony import attributes")
+        type: bool  default: --harmony-import-attributes
+  --harmony-temporal (enable "Temporal")
+        type: bool  default: --harmony-temporal
+  --js-regexp-duplicate-named-groups (enable "RegExp duplicate named groups")
+        type: bool  default: --js-regexp-duplicate-named-groups
+  --js-regexp-modifiers (enable "RegExp modifiers")
+        type: bool  default: --js-regexp-modifiers
+  --js-promise-try (enable "Promise.try")
+        type: bool  default: --js-promise-try
+  --js-atomics-pause (enable "Atomics.pause")
+        type: bool  default: --js-atomics-pause
+  --js-error-iserror (enable "Error.isError")
+        type: bool  default: --js-error-iserror
+  --js-regexp-escape (enable "RegExp.escape")
+        type: bool  default: --js-regexp-escape
+  --js-explicit-resource-management (enable "explicit resource management")
+        type: bool  default: --js-explicit-resource-management
+  --js-float16array (enable "Float16Array, Math.f16round, DataView.getFloat16, DataView.setFloat16")
+        type: bool  default: --js-float16array
+  --js-base-64 (enable "Uint8Array to/from base64 and hex")
+        type: bool  default: --js-base-64
+  --js-esm-ns-reexport (enable "Support diamond-importing re-expored namespaces " "(https://github.com/tc39/ecma262/pull/3715)")
+        type: bool  default: --js-esm-ns-reexport
+  --js-upsert (enable "upsert")
+        type: bool  default: --js-upsert
+  --js-iterator-sequencing (enable "iterator sequencing")
+        type: bool  default: --js-iterator-sequencing
+  --builtin-subclassing (subclassing support in built-in methods)
+        type: bool  default: --builtin-subclassing
+  --enable-sharedarraybuffer-per-context (enable the SharedArrayBuffer constructor per context)
+        type: bool  default: --no-enable-sharedarraybuffer-per-context
+  --js-nonextensible-applies-to-private (non-extensibility includes private fields)
+        type: bool  default: --no-js-nonextensible-applies-to-private
+  --for-of-optimization (Experimental flag for improving ForOf loops on ArrayIterator (experimental))
+        type: bool  default: --no-for-of-optimization
+  --icu-timezone-data (get information about timezones from ICU)
+        type: bool  default: --icu-timezone-data
+  --icu-datetime-compat-lang (limits ICU date time compat changes to the given language)
+        type: string  default: --icu-datetime-compat-lang="*"
+  --icu-default-italian-number-grouping-always (override the default useGrouping rule for Italian to "always" to match behavior of ICU <76)
+        type: bool  default: --no-icu-default-italian-number-grouping-always
+  --icu-british-remove-full-weekday-comma (remove any comma after a full weekday in en-AU, en-GB and en-IN to match behavior of ICU<76)
+        type: bool  default: --no-icu-british-remove-full-weekday-comma
+  --stress-snapshot (disables sharing of the read-only heap for testing)
+        type: bool  default: --no-stress-snapshot
+  --lite-mode (enables trade-off of performance for memory savings)
+        type: bool  default: --no-lite-mode
+  --enable-allocation-folding (Use allocation folding globally)
+        type: bool  default: --enable-allocation-folding
+  --disable-write-barriers (disable write barriers when GC is non-incremental and heap contains single generation.)
+        type: bool  default: --no-disable-write-barriers
+  --enable-unconditional-write-barriers (always use full write barriers)
+        type: bool  default: --no-enable-unconditional-write-barriers
+  --single-generation (allocate all objects from young generation to old generation)
+        type: bool  default: --no-single-generation
+  --conservative-stack-scanning (use conservative stack scanning (experimental))
+        type: bool  default: --no-conservative-stack-scanning
+  --direct-handle (use direct handles with conservative stack scanning)
+        type: bool  default: --no-direct-handle
+  --scavenger-conservative-object-pinning (Objects reachable from the native stack during scavenge will be pinned and won't move.)
+        type: bool  default: --no-scavenger-conservative-object-pinning
+  --stress-scavenger-conservative-object-pinning (Treat some precise references as conservative references to stress test object pinning in Scavenger)
+        type: bool  default: --no-stress-scavenger-conservative-object-pinning
+  --stress-scavenger-conservative-object-pinning-random (Enables random stressing of object pinning in Scavenger, such that each GC would randomly pick a subset of the precise references to treat conservatively)
+        type: bool  default: --no-stress-scavenger-conservative-object-pinning-random
+  --scavenger-precise-object-pinning (Objects reachable from handles during scavenge will be pinned and won't move.)
+        type: bool  default: --no-scavenger-precise-object-pinning
+  --scavenger-updates-allocation-limit (Scavenger updates allocation limits if allocation rate is low)
+        type: bool  default: --scavenger-updates-allocation-limit
+  --precise-object-pinning (Objects reachable from handles during GC will be pinned and won't move.)
+        type: bool  default: --no-precise-object-pinning
+  --scavenger-promote-quarantined-pages (Quarantined pages in the intermediate generation will be promoted to old space)
+        type: bool  default: --scavenger-promote-quarantined-pages
+  --scavenger-chaos-mode (Scavenger will ignore age when making promotion decisions and instead choose objects to be promoted at random. This only applies to non-large objects.)
+        type: bool  default: --no-scavenger-chaos-mode
+  --scavenger-chaos-mode-threshold (Percentage of non-large young objects that will be promoted during Scavenger in chaos mode)
+        type: uint  default: --scavenger-chaos-mode-threshold=50
+  --local-off-stack-check (check for off-stack allocation of v8::Local)
+        type: bool  default: --no-local-off-stack-check
+  --experimental-fuzzing (Implies all experimental pre-staged features that can already be fuzzed but are not ready for staging yet.)
+        type: bool  default: --no-experimental-fuzzing
+  --future (Implies all staged features that we want to ship in the not-too-far future)
+        type: bool  default: --no-future
+… 770 lines omitted
+  --experimental-wasm-legacy-eh (enable legacy exception handling opcodes for Wasm)
+… 109 lines omitted
+  --wasm-allow-mixed-eh-for-testing (Allow mixed legacy and new exception handling instructions in the same wasm module)
+… 127 lines omitted
+  --detect-ineffective-gcs-near-heap-limit (trigger out-of-memory failure to avoid GC storm near heap limit)
+… 1 line omitted
+  --ineffective-gc-includes-global (includes global size in out-of-memory failure near heap limit)
+… 3 lines omitted
+  --ineffective-gc-size-threshold (Threshold on heap size to trigger out-of-memory failure near heap limit.)
+… 1 line omitted
+  --ineffective-gc-mutator-utilization-threshold (Threshold on mutator utilization to trigger out-of-memory failure near heap limit.)
+… 167 lines omitted
+  --late-heap-limit-check (skips heap limit check for early GCs on allocation failure.)
+… 87 lines omitted
+  --expose-trigger-failure (expose trigger-failure extension)
+        type: bool  default: --no-expose-trigger-failure
+… 86 lines omitted
+  --inspector-live-edit (Enable the Debugger.setScriptSource CDP command, otherwise it'll always fail with an error)
+… 7 lines omitted
+  --use-original-message-for-stack-trace (use the message with which the Error constructor was called rather than the value of the "message" property for Error.stack)
+… 67 lines omitted
+  --async-stack-traces (include async stack traces in Error.stack)
+… 1 line omitted
+  --stack-trace-on-illegal (print stack trace when an illegal exception is thrown)
+… 1 line omitted
+  --abort-on-uncaught-exception (abort program (dump core) when an uncaught exception is thrown)
+        type: bool  default: --no-abort-on-uncaught-exception
+  --correctness-fuzzer-suppressions (Suppress certain unspecified behaviors to ease correctness fuzzing: Abort program when the stack overflows or a string exceeds maximum length (as opposed to throwing RangeError). Use a fixed suppression string for error messages.)
+… 11 lines omitted
+  --print-all-exceptions (print exception object and stack trace on each thrown exception)
+… 1 line omitted
+  --detailed-error-stack-trace (includes arguments for each function call in the error stack frames array)
+        type: bool  default: --no-detailed-error-stack-trace
+… 217 lines omitted
+        type: bool  default: --no-regexp-possessive-quantifier
+  --print-break-location (print source location on debug break)
+        type: bool  default: --no-print-break-location
+  --logfile (Specify the name of the log file, use '-' for console, '+' for a temporary file.)
+        type: string  default: --logfile="v8.log"
+  --logfile-per-isolate (Separate log files for each isolate.)
+        type: bool  default: --logfile-per-isolate
+  --log (Minimal logging (no API, code, GC, suspect, or handles samples).)
+        type: bool  default: --no-log
+  --log-all (Log all events to the log file.)
+        type: bool  default: --no-log-all
+  --log-internal-timer-events (See --log-timer-events)
+        type: bool  default: --no-log-internal-timer-events
+  --log-timer-events (Log timer events (incl. console.time* and Date.now).)
+        type: bool  default: --no-log-timer-events
+  --log-source-code (Log source code.)
+        type: bool  default: --no-log-source-code
+  --log-source-position (Log detailed source information.)
+        type: bool  default: --no-log-source-position
+  --log-code (Log code events to the log file without profiling.)
+        type: bool  default: --no-log-code
+  --log-feedback-vector (Log FeedbackVectors on first creation)
+        type: bool  default: --no-log-feedback-vector
+  --log-code-disassemble (Log all disassembled code to the log file.)
+        type: bool  default: --no-log-code-disassemble
+  --log-function-events (Log function events (parse, compile, execute) separately.)
+        type: bool  default: --no-log-function-events
+  --detailed-line-info (Always generate detailed line information for CPU profiling.)
+        type: bool  default: --no-detailed-line-info
+  --prof-include-idle (Include idle samples in the profile)
+        type: bool  default: --no-prof-include-idle
+  --perfetto-code-logger (Enable the Perfetto code data source.)
+        type: bool  default: --no-perfetto-code-logger
+  --prof-sampling-interval (Interval for --prof samples (in microseconds).)
+        type: int  default: --prof-sampling-interval=1000
+  --prof-cpp (Like --prof, but ignore generated code.)
+        type: bool  default: --no-prof-cpp
+  --prof-browser-mode (Used with --prof, turns on browser-compatible mode for profiling.)
+        type: bool  default: --prof-browser-mode
+  --prof (Log statistical profiling information (implies --log-code).)
+        type: bool  default: --no-prof
+  --ll-prof (Enable low-level linux profiler.)
+        type: bool  default: --no-ll-prof
+  --perf-basic-prof (Enable basic support for perf profiler.)
+        type: bool  default: --no-perf-basic-prof
+  --perf-basic-prof-path (directory to write perf-<pid>.map symbol file to)
+        type: string  default: --perf-basic-prof-path="/tmp"
+  --perf-basic-prof-only-functions (Only report function code ranges to perf (i.e. no stubs).)
+        type: bool  default: --no-perf-basic-prof-only-functions
+  --perf-prof (Enable experimental annotate support for perf profiler.)
+        type: bool  default: --no-perf-prof
+  --perf-prof-path (directory to write jit-<pid>.dump symbol file to)
+        type: string  default: --perf-prof-path="."
+  --perf-prof-annotate-wasm (Used with --perf-prof, load wasm source map and provide annotate support (experimental).)
+        type: bool  default: --no-perf-prof-annotate-wasm
+  --perf-prof-delete-file (Remove the perf file right after creating it (for testing only).)
+        type: bool  default: --no-perf-prof-delete-file
+  --perf-prof-unwinding-info (Enable unwinding info for perf linux profiler (experimental).)
+        type: bool  default: --no-perf-prof-unwinding-info
+  --gc-fake-mmap (Specify the name of the file for fake gc mmap used in ll_prof)
+        type: string  default: --gc-fake-mmap="/tmp/__v8_gc__"
+  --redirect-code-traces (output deopt information and disassembly into file code-<pid>-<isolate id>.asm)
+        type: bool  default: --no-redirect-code-traces
+  --redirect-code-traces-to (output deopt information and disassembly into the given file)
+        type: string  default: --redirect-code-traces-to=""
+  --print-opt-source (print source code of optimized and inlined functions)
+        type: bool  default: --no-print-opt-source
+  --vtune-prof-annotate-wasm (Used when v8_enable_vtunejit is enabled, load wasm source map and provide annotate support (experimental).)
+        type: bool  default: --no-vtune-prof-annotate-wasm
+  --win64-unwinding-info (Enable unwinding info for Windows/x64)
+        type: bool  default: --win64-unwinding-info
+  --interpreted-frames-native-stack (Show interpreted frames on the native stack (useful for external profilers).)
+        type: bool  default: --no-interpreted-frames-native-stack
+  --enable-etw-stack-walking (Enable etw stack walking for windows)
+        type: bool  default: --no-enable-etw-stack-walking
+  --etw-trace-debug (Enable etw debug logging (only on debug builds))
+        type: bool  default: --no-etw-trace-debug
+  --enable-etw-by-custom-filter-only (Enable etw stack walking for windows, but only if explicitly specified in a WPR profile)
+        type: bool  default: --no-enable-etw-by-custom-filter-only
+  --print-builtin-size (print code size for builtins)
+        type: bool  default: --no-print-builtin-size
+  --trace-elements-transitions (trace elements transitions)
+        type: bool  default: --no-trace-elements-transitions
+  --trace-creation-allocation-sites (trace the creation of allocation sites)
+        type: bool  default: --no-trace-creation-allocation-sites
+  --print-code (print generated code)
+        type: bool  default: --no-print-code
+  --print-opt-code (print optimized code)
+        type: bool  default: --no-print-opt-code
+  --print-opt-code-filter (filter for printing optimized code)
+        type: string  default: --print-opt-code-filter="*"
+  --print-code-verbose (print more information for code)
+        type: bool  default: --no-print-code-verbose
+  --print-builtin-code (print generated code for builtins)
+        type: bool  default: --no-print-builtin-code
+  --print-builtin-code-filter (filter for printing builtin code)
+        type: string  default: --print-builtin-code-filter="*"
+  --print-regexp-code (print generated regexp code)
+        type: bool  default: --no-print-regexp-code
+  --print-regexp-bytecode (print generated regexp bytecode)
+        type: bool  default: --no-print-regexp-bytecode
+  --print-all-code (enable all flags related to printing code)
+        type: bool  default: --no-print-all-code
+  --predictable (enable predictable mode)
+        type: bool  default: --no-predictable
+  --predictable-gc-schedule (Predictable garbage collection schedule. Fixes heap growing, idle, and memory reducing behavior.)
+        type: bool  default: --no-predictable-gc-schedule
+  --single-threaded (disable the use of background tasks)
+        type: bool  default: --no-single-threaded
+  --single-threaded-gc (disable the use of background gc tasks)
+        type: bool  default: --no-single-threaded-gc
+  --single-threaded-gc-in-background (disable the use of background gc tasks when in background)
+        type: bool  default: --single-threaded-gc-in-background
+  --parallel-pause-for-gc-in-background (Use parallel threads in the atomic pause for background GCs)
+        type: bool  default: --parallel-pause-for-gc-in-background
+  --incremental-marking-for-gc-in-background (Use parallel threads in the atomic pause for background GCs)
+        type: bool  default: --incremental-marking-for-gc-in-background
+  --shared-heap (Enables a shared heap between isolates. (experimental))
+        type: bool  default: --no-shared-heap
+  --proto-assign-seq-opt (Enable optimizing a sequence of `Class_X.prototype.[key] = ...`by replacing it by a runtime code somewhat equivalent to `Object.assign(Class_X.prototype, [boilerplate_obj])`)
+        type: bool  default: --proto-assign-seq-opt
+  --proto-assign-seq-opt-count (The minimum number of consecutive property assignments on the prototype object for replacing it with a single byte code)
+        type: uint  default: --proto-assign-seq-opt-count=2
+  --proto-assign-seq-lazy-func-opt (Functions bulk assigned to prototype via SetPrototypeProperties will remain in SharedFunctionInfo (Rather than JSFunction) State until first access (experimental))
+        type: bool  default: --no-proto-assign-seq-lazy-func-opt
+  --track-array-buffer-views (Track TypedArrays and DataViews attached to array buffers and update them in-place when the buffer detaches (experimental))
+        type: bool  default: --no-track-array-buffer-views
+  --is-standalone-d8-shell (Tells V8 it's running as part of the d8. This flag should not be set in other cases.)
+        type: bool  default: --no-is-standalone-d8-shell
+  --disallow-unsafe-flags (Prevents the use of flags that are considered unsafe. Setting this flag will make V8 treat the unsafe flags below as flag contradiction and either crash or exit gracefully with a message (depending on the curreny AbortMode))
+        type: bool  default: --no-disallow-unsafe-flags
+  --verify-predictable (this mode is used for checking that V8 behaves predictably)
+        type: bool  default: --no-verify-predictable
+  --dump-allocations-digest-at-alloc (dump allocations digest each n-th allocation)
+        type: int  default: --dump-allocations-digest-at-alloc=-1

@@ -8,7 +8,6 @@ Direction for upcoming work. Rules are in `rules.md`; this is advice.
 | `tsc --watch`, `vite`/`webpack` dev servers | watch loops: keep the last cycle's errors, drop earlier cycles |
 | container log prefixes | normalize pod/container prefixes (`kubectl logs --prefix`, compose) before templating |
 | `diff` moved blocks | detect code moved within or across files, show it once as a move (task 008; pure renames are already one line) |
-| `truncate` | head + tail with marker, last resort at the end of the default chain |
 
 New tools of an existing family are dialects, not optimizers (skill `add-component`).
 Dialects that save little are tracked in task 008.
