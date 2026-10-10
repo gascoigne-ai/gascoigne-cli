@@ -19,7 +19,8 @@ import (
 // gascoigne exec (or optimized after the fact), the MCP server for web data.
 type agent struct {
 	bin     string                                          // program wrap starts
-	launch  func(exe string) ([]string, error)              // per-run config args; nil: the agent has none
+	launch  func(exe string) ([]string, error)              // per-run config args
+	env     func(exe string) ([]string, error)              // per-run config env (NAME=value); neither: the agent has no per-run config
 	install func(exe string) string                         // config to register gascoigne for good (wrap -print)
 	add     func(exe string, global bool) ([]string, error) // writes that config: user files, else project ones
 	remove  func() ([]string, error)                        // undoes install: what it removed
@@ -46,6 +47,8 @@ var agents = map[string]agent{
 			}
 			return map[string]any{"permission": "allow", "updated_input": updated}
 		})},
+	"gemini":   {bin: "gemini", env: geminiEnv, install: geminiInstall, add: addGemini, remove: removeGemini, hook: geminiHook},
+	"opencode": {bin: "opencode", env: opencodeEnv, install: opencodeInstall, add: addOpencode, remove: removeOpencode, hook: opencodeHook},
 	"pi": {bin: "pi", launch: piArgs, install: piInstall, add: addPi, remove: removePi,
 		hook: rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
@@ -92,12 +95,19 @@ func cmdWrap(_ context.Context, args []string) error {
 		_, err := fmt.Print(a.install(exe))
 		return err
 	}
-	if a.launch == nil {
-		return fmt.Errorf("wrap: %s takes no per-run config; register gascoigne once with: gascoigne wrap -print %s", name, name)
+	if a.launch == nil && a.env == nil {
+		return fmt.Errorf("wrap: %s takes no per-run config; register gascoigne once with: gascoigne install %s", name, name)
 	}
-	extra, err := a.launch(exe)
-	if err != nil {
-		return err
+	var extra, env []string
+	if a.launch != nil {
+		if extra, err = a.launch(exe); err != nil {
+			return err
+		}
+	}
+	if a.env != nil {
+		if env, err = a.env(exe); err != nil {
+			return err
+		}
 	}
 	if !serverOff() {
 		// The dashboard address goes to stderr before the agent takes the terminal.
@@ -109,7 +119,7 @@ func cmdWrap(_ context.Context, args []string) error {
 	}
 	cmd := exec.Command(a.bin, append(extra, fs.Args()[1:]...)...)
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
-	cmd.Env = append(os.Environ(),
+	cmd.Env = append(append(os.Environ(), env...),
 		"GASCOIGNE_AGENT="+cmp.Or(os.Getenv("GASCOIGNE_AGENT"), name),
 		"GASCOIGNE_SESSION="+cmp.Or(os.Getenv("GASCOIGNE_SESSION"), name+"-"+time.Now().Format("20060102-150405")))
 	err = cmd.Run()

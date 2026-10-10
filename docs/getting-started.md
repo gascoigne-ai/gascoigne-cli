@@ -84,7 +84,7 @@ optimized, the reason. Click a run to see its optimizer steps and the original.
 ## Use it with an agent
 
 ```sh
-gascoigne wrap claude      # or: codex, pi
+gascoigne wrap claude      # or: codex, gemini, opencode, pi
 ```
 
 This starts the agent with gascoigne registered for that run only: shell commands

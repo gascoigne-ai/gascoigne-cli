@@ -12,7 +12,7 @@ func TestInstallProject(t *testing.T) {
 	exe := "/opt/bin/gascoigne"
 	write(t, ".claude/settings.json", `{"model": "opus", "hooks": {"PreToolUse": [{"matcher": "Edit", "hooks": [{"type": "command", "command": "lint"}]}]}}`)
 	write(t, ".codex/config.toml", "model = \"o3\"\n")
-	for _, name := range []string{"claude", "cursor", "codex", "pi"} {
+	for _, name := range []string{"claude", "cursor", "codex", "pi", "gemini", "opencode"} {
 		if _, err := agents[name].add(exe, false); err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}
@@ -24,11 +24,14 @@ func TestInstallProject(t *testing.T) {
 		}
 	}
 	for file, want := range map[string]string{
-		".mcp.json":                   `"args": [`,
-		".cursor/hooks.json":          `hook cursor`,
-		".cursor/mcp.json":            `"command": "/opt/bin/gascoigne"`,
-		".codex/config.toml":          `[mcp_servers.gascoigne]`,
-		".pi/extensions/gascoigne.ts": piHeader,
+		".mcp.json":                      `"args": [`,
+		".cursor/hooks.json":             `hook cursor`,
+		".cursor/mcp.json":               `"command": "/opt/bin/gascoigne"`,
+		".codex/config.toml":             `[mcp_servers.gascoigne]`,
+		".pi/extensions/gascoigne.ts":    piHeader,
+		".gemini/settings.json":          `hook gemini`,
+		"opencode.json":                  `"type": "local"`,
+		".opencode/plugins/gascoigne.ts": opencodeHeader,
 	} {
 		if got := read(t, file); !strings.Contains(got, want) {
 			t.Errorf("%s lacks %s:\n%s", file, want, got)
@@ -41,7 +44,7 @@ func TestInstallProject(t *testing.T) {
 
 func TestInstallTwiceChangesNothing(t *testing.T) {
 	sandbox(t)
-	for _, name := range []string{"claude", "cursor", "codex", "pi"} {
+	for _, name := range []string{"claude", "cursor", "codex", "pi", "gemini", "opencode"} {
 		if _, err := agents[name].add("gascoigne", false); err != nil {
 			t.Fatal(err)
 		}
@@ -62,12 +65,13 @@ func TestInstallTwiceChangesNothing(t *testing.T) {
 
 func TestInstallGlobalUnwrapRoundTrip(t *testing.T) {
 	home := sandbox(t)
-	for _, name := range []string{"claude", "cursor", "codex", "pi"} {
+	for _, name := range []string{"claude", "cursor", "codex", "pi", "gemini", "opencode"} {
 		if _, err := agents[name].add("/opt/bin/gascoigne", true); err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}
 	}
-	for _, f := range []string{".claude/settings.json", ".claude.json", ".cursor/hooks.json", ".cursor/mcp.json", ".codex/config.toml", ".pi/agent/extensions/gascoigne.ts"} {
+	for _, f := range []string{".claude/settings.json", ".claude.json", ".cursor/hooks.json", ".cursor/mcp.json", ".codex/config.toml", ".pi/agent/extensions/gascoigne.ts",
+		".gemini/settings.json", ".config/opencode/opencode.json", ".config/opencode/plugins/gascoigne.ts"} {
 		if _, err := os.Stat(filepath.Join(home, f)); err != nil {
 			t.Errorf("not written: %s", f)
 		}
@@ -75,7 +79,7 @@ func TestInstallGlobalUnwrapRoundTrip(t *testing.T) {
 	if _, err := os.Stat(".claude"); !os.IsNotExist(err) {
 		t.Error("global install touched the project")
 	}
-	for _, name := range []string{"claude", "cursor", "codex", "pi"} {
+	for _, name := range []string{"claude", "cursor", "codex", "pi", "gemini", "opencode"} {
 		if done, err := agents[name].remove(); err != nil || len(done) == 0 {
 			t.Errorf("%s: unwrap done %q, err %v", name, done, err)
 		}
@@ -93,5 +97,41 @@ func TestInstallLeavesForeignPiExtension(t *testing.T) {
 	}
 	if got := read(t, ".pi/extensions/gascoigne.ts"); got != "// mine\n" {
 		t.Errorf("file changed: %q", got)
+	}
+}
+
+func TestPerRunEnv(t *testing.T) {
+	home := sandbox(t)
+	t.Setenv("XDG_CACHE_HOME", filepath.Join(home, ".cache"))
+	t.Setenv("GEMINI_CLI_SYSTEM_SETTINGS_PATH", filepath.Join(home, "no-system.json"))
+	write(t, filepath.Join(home, ".gemini/settings.json"), `{"mcpServers": {"db": {"command": "pg-mcp", "args": ["--ro"]}, "web": {"httpUrl": "https://x"}}}`)
+	write(t, "opencode.json", `{"mcp": {"db": {"type": "local", "command": ["pg-mcp", "--ro"]}}}`)
+	env, err := geminiEnv("/opt/bin/gascoigne")
+	if err != nil {
+		t.Fatal(err)
+	}
+	file := strings.TrimPrefix(env[0], "GEMINI_CLI_SYSTEM_SETTINGS_PATH=")
+	got := read(t, file)
+	for _, want := range []string{`"run_shell_command"`, `hook gemini`, `"mcp-proxy"`, `"pg-mcp"`} {
+		if !strings.Contains(got, want) {
+			t.Errorf("gemini run settings lack %s:\n%s", want, got)
+		}
+	}
+	if strings.Contains(got, `"web"`) {
+		t.Errorf("remote server copied:\n%s", got)
+	}
+	env, err = opencodeEnv("/opt/bin/gascoigne")
+	if err != nil {
+		t.Fatal(err)
+	}
+	joined := strings.Join(env, "\n")
+	for _, want := range []string{"OPENCODE_CONFIG_DIR=", `"mcp-proxy"`, `"pg-mcp"`, `"instructions"`} {
+		if !strings.Contains(joined, want) {
+			t.Errorf("opencode env lacks %s:\n%s", want, joined)
+		}
+	}
+	dir := strings.TrimPrefix(env[0], "OPENCODE_CONFIG_DIR=")
+	if got := read(t, filepath.Join(dir, "plugins", "gascoigne.ts")); !strings.HasPrefix(got, opencodeHeader) {
+		t.Errorf("plugin: %q", got)
 	}
 }

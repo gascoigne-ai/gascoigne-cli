@@ -35,6 +35,8 @@ gascoigne wrap -print claude    # only print the config, to add it by hand
 | codex | `.codex/config.toml` | `~/.codex/config.toml` (`$CODEX_HOME`) |
 | cursor | `.cursor/hooks.json`, `.cursor/mcp.json` | `~/.cursor/hooks.json`, `~/.cursor/mcp.json` |
 | pi | `.pi/extensions/gascoigne.ts` | `~/.pi/agent/extensions/gascoigne.ts` |
+| gemini | `.gemini/settings.json` (hooks, MCP) | `~/.gemini/settings.json` |
+| opencode | `opencode.json`, `.opencode/plugins/gascoigne.ts`, `AGENTS.md` | `~/.config/opencode/opencode.json`, `plugins/gascoigne.ts`, `AGENTS.md` |
 
 Entries are merged into what is there; a changed file is saved as `<file>.gascoigne-bak`.
 Earlier gascoigne entries are replaced, so running `install` again after moving the binary
@@ -60,6 +62,8 @@ the pi extension. Other keys keep their order. The original file is saved as
 | Claude Code | `--mcp-config`, `--settings` | A `PreToolUse` hook on Bash rewrites the command to `gascoigne exec -- <cmd>`. It makes no permission decision, so your permission rules see the wrapped command. |
 | Codex | `-c mcp_servers…`, `-c hooks.PostToolUse…` | A `PostToolUse` hook optimizes the output after the run and replaces the result. Codex can only rewrite a command by approving it, so it is optimized afterwards instead. Trust the hook once with `/hooks`. |
 | pi | `--extension` (written to your cache dir) | The extension rewrites the bash command through `gascoigne hook pi`. pi has no MCP. |
+| gemini | `GEMINI_CLI_SYSTEM_SETTINGS_PATH` to a settings file in your cache dir (your real system settings are merged in) | A BeforeTool hook rewrites `run_shell_command` through `gascoigne hook gemini`; approval stays yours. |
+| opencode | `OPENCODE_CONFIG_DIR` (plugin) and `OPENCODE_CONFIG_CONTENT` (MCP servers) | The plugin's `tool.execute.before` rewrites the bash command. Not available when you set `OPENCODE_CONFIG_DIR` yourself: use `install`. |
 | Cursor | — (`wrap -print cursor` only) | A `preToolUse` hook returns `updated_input` with `permission: allow`; shell approval stays with `beforeShellExecution`. |
 
 ### Claude Code: built-in search tools
@@ -85,6 +89,8 @@ use `gascoigne raw <id>` / `retrieve` instead of re-running a shortened command.
 | codex | `-c developer_instructions` (skipped when you set your own) | marked block in `AGENTS.md` | in `~/.codex/AGENTS.md` |
 | cursor | — | rule `.cursor/rules/gascoigne.mdc` (`alwaysApply`) | none: Cursor keeps user rules in its settings |
 | pi | — | marked block in `AGENTS.md` | in `~/.pi/agent/AGENTS.md` |
+| gemini | SessionStart hook | same hook in `settings.json` | same |
+| opencode | `instructions` file (skipped when you list your own) | marked block in `AGENTS.md` | in `~/.config/opencode/AGENTS.md` |
 
 The `AGENTS.md` block sits between `<!-- gascoigne:start -->` and `<!-- gascoigne:end -->`;
 `install` replaces it, `unwrap` removes it (and deletes the file when nothing else is in it).
@@ -101,6 +107,8 @@ stay, and the original command stays in `args`, so `unwrap` restores it exactly.
 | claude | same-named copies in `--mcp-config`, which replace the configured ones for the run (plugins and claude.ai connectors keep loading). User, local and approved `.mcp.json` servers; disabled or unapproved ones are not started | `.mcp.json` and this project's local servers in `~/.claude.json`; `-g` the user's servers in `~/.claude.json` |
 | codex | `-c mcp_servers.<name>.command/args` overrides | `config.toml` tables rewritten |
 | cursor | — | `mcp.json` rewritten |
+| gemini | proxied copies in the run settings (system scope wins) | `settings.json` `mcpServers` rewritten |
+| opencode | proxied copies in `OPENCODE_CONFIG_CONTENT` | `opencode.json` `mcp` commands rewritten |
 
 Remote servers (`http`, `sse`, `ws`, `url`) are listed as *left direct*: their auth (OAuth,
 headers) belongs to the agent. Plugin servers and claude.ai connectors cannot be proxied.

@@ -12,7 +12,7 @@ Shared primitives go to `compress/` so engines and composite families can reuse 
 Keep optimizers deterministic and idempotent (running twice changes nothing more).
 
 ## Receivers
-- Agent integration: `gascoigne wrap`/`hook` cover claude, codex, pi and cursor. Next: agents
+- Agent integration: `gascoigne wrap`/`hook` cover claude, codex, gemini, opencode, pi and cursor. Next: agents
   whose hooks can rewrite shell input too (gemini `BeforeTool` `tool_input`, opencode plugins).
 - `httpproxy` (task 005): `net/http/httputil.ReverseProxy` in front of LLM APIs, optimizing
   `tool_result` blocks; never touch system prompts or the last user message by default.

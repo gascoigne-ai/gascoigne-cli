@@ -40,7 +40,7 @@ func init() {
 		{name: "wrap", args: "[-print] <agent> [agent args...]", short: "<agent> [args...]", group: groupAgents,
 			summary: "start an agent with gascoigne registered for this run",
 			about: "Starts the agent with gascoigne's hook and MCP server for this run only; no config file\n" +
-				"is touched. Agents: claude, codex, pi. -print shows the config that registers it for good\n" +
+				"is touched. Agents: claude, codex, gemini, opencode, pi. -print shows the config that registers it for good\n" +
 				"(also for cursor) instead.",
 			examples: []string{"gascoigne wrap claude", "gascoigne wrap codex --model o3", "gascoigne wrap -print cursor"},
 			run:      cmdWrap},
@@ -49,7 +49,7 @@ func init() {
 			about: "Writes gascoigne's hook and MCP server into the agents' config files: the project's\n" +
 				"(.claude/, .mcp.json, .codex/, .cursor/, .pi/), or with -g the user's. Earlier gascoigne\n" +
 				"entries are replaced and changed files backed up as <file>.gascoigne-bak.\n" +
-				"Agents: claude, codex, cursor, pi (default: those found on PATH).",
+				"Agents: claude, codex, cursor, gemini, opencode, pi (default: those found on PATH).",
 			examples: []string{"gascoigne install", "gascoigne install -g", "gascoigne install claude codex"},
 			run:      cmdInstall},
 		{name: "unwrap", args: "[agent...]", group: groupAgents,

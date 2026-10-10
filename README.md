@@ -73,7 +73,7 @@ Cursor and pi route known shell commands through `gascoigne exec`; Codex gets it
 output optimized after the run:
 
 ```sh
-gascoigne wrap claude                    # also: codex, pi
+gascoigne wrap claude                    # also: codex, gemini, opencode, pi
 gascoigne install                        # register for good in this project (-g: every project)
 gascoigne unwrap                         # deregister from every agent
 ```

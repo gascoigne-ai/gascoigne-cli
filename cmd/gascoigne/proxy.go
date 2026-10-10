@@ -72,7 +72,7 @@ func proxyServers(exe string, servers *object, skip func(name string) bool) prox
 
 // proxyEntry rewrites one server entry in place; a reason when it cannot.
 func proxyEntry(exe string, e *object) string {
-	if typ, _ := e.get("type").(string); typ != "" && typ != "stdio" || e.get("url") != nil {
+	if typ, _ := e.get("type").(string); typ != "" && typ != "stdio" || e.get("url") != nil || e.get("httpUrl") != nil {
 		return "remote: only stdio servers can be proxied"
 	}
 	cmd, _ := e.get("command").(string)

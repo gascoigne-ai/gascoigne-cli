@@ -157,6 +157,8 @@ fails the tool call (bad input → no answer → call unchanged).
 | claude | `--mcp-config` + `--settings` (denies Grep/Glob so searches run through Bash; Read stays, Edit needs it) | PreToolUse rewrites the command to `gascoigne exec -- <cmd>` (no permission decision: rules see the wrapped command) |
 | codex | `-c mcp_servers…` + `-c hooks.PostToolUse…` | PostToolUse runs the output through pipeline `hook` and replaces the result (`decision: block`); codex rewrites a command only by approving it. Trust the hook once with `/hooks` |
 | pi | `--extension` (written to the user cache dir) | `tool_call` rewrites the bash command; no MCP |
+| gemini | env `GEMINI_CLI_SYSTEM_SETTINGS_PATH` → run settings in the cache dir (real system settings merged in, user/project stdio servers proxied) | BeforeTool `hookSpecificOutput.tool_input` rewrites `run_shell_command` (no decision: approval stays); SessionStart adds the guide (`gemini.go`) |
+| opencode | env `OPENCODE_CONFIG_DIR` (plugin in the cache dir) + `OPENCODE_CONFIG_CONTENT` (`mcp`, proxied servers, `instructions` guide unless the user has some) | plugin `tool.execute.before` rewrites `output.args.command` via `gascoigne hook opencode` (`opencode.go`) |
 | cursor | — (config files only: `-print`) | preToolUse `updated_input`, `permission: allow` (shell approval stays with `beforeShellExecution`) |
 Rewritten commands carry `-agent <name>` and `-session <hook session_id>` when
 `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks; `wrap` sets the env, so its
