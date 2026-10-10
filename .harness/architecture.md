@@ -109,6 +109,22 @@ every payload through one chain of all optimizers; routes only override per comm
   results, adds `gascoigne_retrieve`. Non-text content passes untouched.
 - MCP pipelines have no exporters: stdout is the protocol channel.
 
+## Agents (`cmd/gascoigne/agents.go`, `hook.go`)
+`gascoigne wrap <agent> [args]` starts the agent with gascoigne registered for that run only
+(no config files touched) and `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` set; `wrap -print <agent>`
+prints the config that registers it for good. Hooks call `gascoigne hook <agent>`, which never
+fails the tool call (bad input → no answer → call unchanged).
+| Agent | Per run | How shell output is optimized |
+|---|---|---|
+| claude | `--mcp-config` + `--settings` | PreToolUse rewrites the command to `gascoigne exec -- <cmd>` (no permission decision: rules see the wrapped command) |
+| codex | `-c mcp_servers…` + `-c hooks.PostToolUse…` | PostToolUse runs the output through pipeline `hook` and replaces the result (`decision: block`); codex rewrites a command only by approving it. Trust the hook once with `/hooks` |
+| pi | `--extension` (written to the user cache dir) | `tool_call` rewrites the bash command; no MCP |
+| cursor | — (config files only: `-print`) | preToolUse `updated_input`, `permission: allow` (shell approval stays with `beforeShellExecution`) |
+Rewrites touch only the last command of a `&&` list when `detect.FromCmd` knows it; pipes,
+redirects (except `2>&1`), subshells, other lists, background runs and commands that run until
+stopped (`-f`/`--follow`, `--watch`, `dev`, `serve`, `start`, `up`) stay as they are, since
+exec shows output only when the command exits.
+
 ## Full-payload guarantee
 Lives in core (`service/pipeline.go`), not in optimizers:
 1. Before optimizers run, core snapshots the payload.

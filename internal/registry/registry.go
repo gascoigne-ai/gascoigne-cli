@@ -30,6 +30,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/web/htmloptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/web/httpoptimizer"
 	"github.com/lukaszb/gascoigne/receiver/execreceiver"
+	"github.com/lukaszb/gascoigne/receiver/hookreceiver"
 	"github.com/lukaszb/gascoigne/receiver/mcpproxyreceiver"
 	"github.com/lukaszb/gascoigne/receiver/mcpreceiver"
 	"github.com/lukaszb/gascoigne/receiver/stdinreceiver"
@@ -40,6 +41,7 @@ func Factories() []component.Factory {
 		// receivers
 		stdinreceiver.NewFactory(),
 		execreceiver.NewFactory(),
+		hookreceiver.NewFactory(),
 		mcpreceiver.NewFactory(),
 		mcpproxyreceiver.NewFactory(),
 		// filters

@@ -6,6 +6,7 @@ extensions:
 receivers:
   stdin: { kind: cmd_output }
   exec: { kind: cmd_output } # gascoigne exec -- <cmd>
+  hook: { kind: cmd_output } # gascoigne hook codex: output an agent already captured
   mcp: { fetch_timeout: 20s, fetch_max_bytes: 5242880 } # gascoigne mcp
   mcp_proxy: { retrieve: gascoigne_retrieve }           # gascoigne mcp-proxy -- <server cmd>
 
@@ -69,8 +70,11 @@ pipelines:
     receivers: [exec]
     filters: [bypass, detect, minsize, history]
     exporters: [stdout]
-  # MCP pipelines have no exporters: results go back to the agent, and stdout
-  # is the protocol channel.
+  # Hook and MCP pipelines have no exporters: results go back to the agent, and
+  # stdout is the protocol channel.
+  hook:
+    receivers: [hook]
+    filters: [bypass, detect, minsize, history]
   mcp:
     receivers: [mcp]
     filters: [bypass, detect, minsize, history]

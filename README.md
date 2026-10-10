@@ -64,6 +64,13 @@ gascoigne exec -raw -- git diff          # skip optimization for one run
 gascoigne gain                           # where the savings come from
 ```
 
+**Agents** — one command registers gascoigne (shell output + MCP server) for a run:
+
+```sh
+gascoigne wrap claude                    # also: codex, pi
+gascoigne wrap -print cursor             # config to register it for good
+```
+
 **MCP** — give any agent a cheap way to read the web and tool output:
 
 ```sh

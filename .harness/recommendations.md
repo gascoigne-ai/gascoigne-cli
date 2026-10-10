@@ -17,8 +17,8 @@ Shared primitives go to `compress/` so engines and composite families can reuse 
 Keep optimizers deterministic and idempotent (running twice changes nothing more).
 
 ## Receivers
-- Agent integration: a Claude Code PreToolUse hook rewriting Bash commands to
-  `gascoigne exec -- <cmd>` (task 007); MCP config `gascoigne mcp` for web data.
+- Agent integration: `gascoigne wrap`/`hook` cover claude, codex, pi and cursor. Next: agents
+  whose hooks can rewrite shell input too (gemini `BeforeTool` `tool_input`, opencode plugins).
 - `httpproxy` (task 005): `net/http/httputil.ReverseProxy` in front of LLM APIs, optimizing
   `tool_result` blocks; never touch system prompts or the last user message by default.
   Header `X-Gascoigne-Raw: 1` → bypass. `GET /raw/<id>` serves originals. Streaming passes through.

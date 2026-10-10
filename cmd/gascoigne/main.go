@@ -31,6 +31,8 @@ const usage = `usage: gascoigne <command> [flags]
 commands:
   run         run a pipeline (default cli: stdin → optimized stdout)
   exec -- <cmd> [args]  run cmd, print its optimized output, keep its exit code
+  wrap <agent> [args]   start claude, codex or pi with gascoigne registered (-print: config for good, also cursor)
+  hook <agent>          agent hook handler (installed by wrap)
   mcp         MCP server on stdio: fetch, compress, retrieve, stats
   mcp-proxy -- <server cmd>  MCP proxy optimizing another server's tool results
   raw <id>    print original payload; marks its source as badly optimized
@@ -46,6 +48,8 @@ run 'gascoigne <command> -h' for flags`
 var commands = map[string]func(ctx context.Context, args []string) error{
 	"run":        cmdRun,
 	"exec":       cmdExec,
+	"wrap":       cmdWrap,
+	"hook":       cmdHook,
 	"mcp":        cmdMCP,
 	"mcp-proxy":  cmdMCPProxy,
 	"raw":        cmdRaw,

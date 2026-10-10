@@ -1,4 +1,4 @@
-status: todo
+status: done
 
 # Claude Code hook: route Bash through gascoigne exec
 
@@ -17,3 +17,6 @@ Agents get optimized command output without changing how they call tools.
 - Table tests: rewrite / no-rewrite cases, quoting of single quotes, idempotency.
 - Manual: in a scratch repo, `go test ./...` via Claude Code shows optimized output with hint.
 - `make check` green.
+
+Done as `gascoigne wrap <agent>` / `wrap -print` / `hook <agent>` for claude, codex, pi and cursor;
+rewrites wrap the command directly (`gascoigne exec -- <cmd>`, no `sh -c`), see architecture.md "Agents".
