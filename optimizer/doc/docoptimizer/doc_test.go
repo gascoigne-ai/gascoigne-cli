@@ -1,6 +1,7 @@
 package docoptimizer
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -86,5 +87,23 @@ func TestWeakMatchesWaitTheirTurn(t *testing.T) {
 	got := compress.Join(sections(compress.Lines(in), "widget setting v1.2", 180))
 	if !strings.Contains(got, "## Alpha\nlorem") || !strings.Contains(got, "## Beta\nwidget") || strings.Contains(got, "one widget") {
 		t.Fatalf("want Beta by relevance, then Alpha by page order, not the weak Gamma:\n%s", got)
+	}
+}
+
+func TestHelpQuery(t *testing.T) {
+	var lines []string
+	lines = append(lines, "Usage: tool [options]")
+	for i := range 30 {
+		lines = append(lines, fmt.Sprintf("  --flag%d    does thing %d", i, i))
+	}
+	lines = append(lines, "  --proxy <url>   use this proxy", "      for every request", "  --timeout <s>   give up after s")
+	got := strings.Join(helpFor(lines, "proxy"), "\n")
+	for _, want := range []string{"Usage: tool [options]", "--proxy <url>", "for every request", "… 30 options omitted", "… 1 option omitted"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("missing %q in:\n%s", want, got)
+		}
+	}
+	if same := helpFor(lines, ""); len(same) != len(lines) {
+		t.Fatal("no query changed the help")
 	}
 }

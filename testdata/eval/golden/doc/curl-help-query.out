@@ -1,0 +1,53 @@
+… 2 options omitted
+   --anyauth                     Pick any authentication method
+… 2 options omitted
+   --basic                       HTTP Basic Authentication
+… 26 options omitted
+   --digest                      HTTP Digest Authentication
+… 88 options omitted
+   --negotiate                   Use HTTP Negotiate (SPNEGO) authentication
+… 10 options omitted
+   --noproxy <no-proxy-list>     List of hosts which do not use proxy
+   --ntlm                        HTTP NTLM authentication
+   --ntlm-wb                     HTTP NTLM authentication with winbind
+… 18 options omitted
+ -x, --proxy <[protocol://]host[:port]>  Use this proxy
+   --proxy-anyauth               Pick any proxy authentication method
+   --proxy-basic                 Use Basic authentication on the proxy
+   --proxy-ca-native             Load CA certs from the OS to verify proxy
+   --proxy-cacert <file>         CA certificates to verify proxy against
+   --proxy-capath <dir>          CA directory to verify proxy against
+   --proxy-cert <cert[:passwd]>  Set client certificate for proxy
+   --proxy-cert-type <type>      Client certificate type for HTTPS proxy
+… 1 option omitted
+   --proxy-crlfile <file>        Set a CRL list for proxy
+   --proxy-digest                Digest auth with the proxy
+   --proxy-header <header/@file>  Pass custom header(s) to proxy
+   --proxy-http2                 Use HTTP/2 with HTTPS proxy
+   --proxy-http3                 Use HTTP/3 with HTTPS proxy
+   --proxy-insecure              Skip HTTPS proxy cert verification
+   --proxy-key <key>             Private key for HTTPS proxy
+   --proxy-key-type <type>       Private key file type for proxy
+   --proxy-negotiate             HTTP Negotiate (SPNEGO) auth with the proxy
+   --proxy-ntlm                  NTLM authentication with the proxy
+   --proxy-pass <phrase>         Passphrase for private key for HTTPS proxy
+   --proxy-pinnedpubkey <hashes>  FILE/HASHES public key to verify proxy with
+   --proxy-service-name <name>   SPNEGO proxy service name
+   --proxy-ssl-allow-beast       Allow this security flaw for HTTPS proxy
+   --proxy-ssl-auto-client-cert  Auto client certificate for proxy
+   --proxy-tls13-ciphers <list>  TLS 1.3 proxy cipher suites
+   --proxy-tlsauthtype <type>    TLS authentication type for HTTPS proxy
+   --proxy-tlspassword <string>  TLS password for HTTPS proxy
+   --proxy-tlsuser <name>        TLS username for HTTPS proxy
+   --proxy-tlsv1                 TLSv1 for HTTPS proxy
+ -U, --proxy-user <user:password>  Proxy user and password
+… 1 option omitted
+ -p, --proxytunnel                 HTTP proxy tunnel (using CONNECT)
+… 20 options omitted
+   --sasl-authzid <identity>     Identity for SASL PLAIN authentication
+   --sasl-ir                     Initial response in SASL authentication
+… 13 options omitted
+   --socks5-hostname <host[:port]>  SOCKS5 proxy, pass hostname to proxy
+… 23 options omitted
+   --tlsauthtype <type>          TLS authentication type
+… 27 options omitted

@@ -214,7 +214,7 @@ nginx access log: 34,382 → 215 (99.4%). `kubectl logs` with JSON lines: 13,459
 | `doc/markdown` | `*.md`, `glow`, `gh repo view`, HTML after the `html` optimizer | badges, images, layout HTML, comments and TOCs dropped; code blocks capped; over `max_tokens`, whole sections are kept by relevance and page order |
 | `doc/rst` | `*.rst` | as markdown |
 | `doc/man` | `man` | page furniture and boilerplate sections dropped, dedented |
-| `doc/help` | `--help` output (sniffed) | dedented, boilerplate dropped |
+| `doc/help` | `--help` output (sniffed) | dedented, boilerplate dropped; with a `query` (`exec -attr query="proxy auth" -- curl --help all`) only matching options stay (curl: 4,423 → 709 tokens) |
 | `doc/text` | anything else | runs of repeated lines deduplicated |
 
 **Long pages.** Markdown over `doc.max_tokens` (5200) keeps the intro, then sections that match

@@ -16,10 +16,9 @@ Lift dialects that save little on real output, without losing what agents need.
 - `log/journal`/`log/syslog`: "Starting X…"/"Stopping X…" dropped once the same process reports
   X started, finished or stopped. 69.6→67.6%: same 300-line cap, 84 more distinct events kept.
 
+- `doc/help` with a `query`: only matching option entries stay (curl --help all 0 → 84%).
+
 ## Open
-- `doc/help` (curl --help all 2%): every line is one option + description; only alignment
-  padding is left, which a real tokenizer merges (see recommendations). Worth it only with a
-  `query` (keep matching options), e.g. via exec `-attr query=…`.
 - `doc/rst` (0% on a README without directives): needs a fixture with directives/badges.
 - `search/rg -n` (14%): remaining lines are distinct matches already grouped and capped; more
   savings would drop matches. Leave unless a relevance cap per file is wanted.

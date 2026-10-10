@@ -11,6 +11,7 @@ import (
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
@@ -35,7 +36,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		case "man":
 			out = o.man(compress.Lines(compress.StripANSI(overstrike.ReplaceAllString(b.Text, ""))))
 		case "help":
-			out = help(compress.Lines(compress.StripANSI(b.Text)))
+			out = helpFor(help(compress.Lines(compress.StripANSI(b.Text))), p.Attrs[payload.AttrQuery])
 		default:
 			continue
 		}
@@ -179,6 +180,76 @@ func help(lines []string) []string {
 		}
 	}
 	return dedent(out)
+}
+
+// optionLine starts an option entry: "  -a, --append   text", "  --basic".
+var optionLine = lazyre.New(`^\s{1,8}-{1,2}\w`)
+
+// minOptions is the fewest option entries worth filtering by a query.
+const minOptions = 20
+
+// helpFor keeps, with a query, only the option entries matching it (at
+// least a third of the best match), plus everything that is not an option
+// (usage, section headings, prose): every line of help text is distinct, so
+// without a query there is nothing to drop.
+func helpFor(lines []string, query string) []string {
+	terms := rows.Terms(query)
+	if len(terms) == 0 {
+		return lines
+	}
+	// Option entries: an option line and its indented continuation lines.
+	var starts, ends []int
+	for i := 0; i < len(lines); i++ {
+		if !optionLine.MatchString(lines[i]) {
+			continue
+		}
+		j := i + 1
+		for j < len(lines) && strings.HasPrefix(lines[j], " ") && !optionLine.MatchString(lines[j]) && strings.TrimSpace(lines[j]) != "" {
+			j++
+		}
+		starts, ends = append(starts, i), append(ends, j)
+		i = j - 1
+	}
+	if len(starts) < minOptions {
+		return lines
+	}
+	docs := make([][]string, len(starts))
+	for k := range starts {
+		docs[k] = rows.Terms(strings.Join(lines[starts[k]:ends[k]], " "))
+	}
+	scores := rows.BM25(docs, terms)
+	best := slices.Max(scores)
+	if best == 0 {
+		return lines
+	}
+	var out []string
+	dropped, k := 0, 0
+	for i := 0; i < len(lines); {
+		if k < len(starts) && i == starts[k] {
+			if scores[k] >= best/3 {
+				if dropped > 0 {
+					out = append(out, compress.Omitted(dropped, "options"))
+					dropped = 0
+				}
+				out = append(out, lines[starts[k]:ends[k]]...)
+			} else {
+				dropped++
+			}
+			i = ends[k]
+			k++
+			continue
+		}
+		if dropped > 0 {
+			out = append(out, compress.Omitted(dropped, "options"))
+			dropped = 0
+		}
+		out = append(out, lines[i])
+		i++
+	}
+	if dropped > 0 {
+		out = append(out, compress.Omitted(dropped, "options"))
+	}
+	return out
 }
 
 // dedent halves indentation of 4+ spaces: man pages indent body by 7 and

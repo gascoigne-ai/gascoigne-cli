@@ -283,6 +283,8 @@
     keep: ["--flag        (bool flags only)", "--dump-allocations-digest-at-alloc", "lines omitted"], min_saved: 75 }
 - { file: doc/man-ls.txt, attrs: { cmd: man ls }, expect_type: doc/man,
     keep: ["SYNOPSIS", "-a, --all", "--sort=WORD", "Exit status:"], min_saved: 10 }
+- { name: doc/curl-help-query, file: doc/curl-help.txt, attrs: { cmd: curl --help all, query: proxy authentication }, expect_type: doc/help,
+    keep: ["--proxy-anyauth", "--proxy-user <user:password>", "--negotiate", "options omitted"], min_saved: 60 }
 - { file: doc/curl-help.txt, attrs: { cmd: curl --help all }, expect_type: doc/help,
     keep: ["--retry <num>", "-X, --request <method>"], min_saved: 0 }
 - { file: doc/ls-help.txt, attrs: { cmd: ls --help }, expect_type: doc/help,
