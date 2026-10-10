@@ -74,7 +74,9 @@ func split(lines []string) []*part {
 	return secs
 }
 
-// byRelevance lists sections matching the query, best first.
+// byRelevance lists sections matching the query well (at least half the best
+// score), best first: a page full of weak matches would otherwise fill the
+// budget with them.
 func byRelevance(secs []*part, query string) []int {
 	terms := rows.Terms(query)
 	if len(terms) == 0 {
@@ -85,9 +87,10 @@ func byRelevance(secs []*part, query string) []int {
 		docs[i] = rows.Terms(strings.Join(s.lines, "\n"))
 	}
 	scores := rows.BM25(docs, terms)
+	best := slices.Max(scores)
 	var hits []int
 	for i := 1; i < len(secs); i++ {
-		if scores[i] > 0 {
+		if scores[i] > 0 && scores[i] >= best/2 {
 			hits = append(hits, i)
 		}
 	}

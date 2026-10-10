@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"slices"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -43,5 +44,19 @@ func TestSampleKeepsErrorsAndEnds(t *testing.T) {
 	}
 	if len(kept) > 7 {
 		t.Errorf("kept %d items, want about 6", len(kept))
+	}
+}
+
+func TestTerms(t *testing.T) {
+	tests := []struct{ in, want string }{
+		{"Fetch the README", "fetch the readme"},
+		{"go1.27.2 fixes", "go1 27 2 fixes go1.27.2 go1.27"},
+		{"v2.3, see 1.24.", "v2 3 see 1 24 v2.3 1.24"},
+		{"main.go net/http", "main go net http"},
+	}
+	for _, tt := range tests {
+		if got := strings.Join(Terms(tt.in), " "); got != tt.want {
+			t.Errorf("Terms(%q) = %q, want %q", tt.in, got, tt.want)
+		}
 	}
 }

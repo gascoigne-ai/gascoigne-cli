@@ -3,6 +3,7 @@ package rows
 import (
 	"encoding/json"
 	"math"
+	"regexp"
 	"slices"
 	"strings"
 	"unicode"
@@ -14,11 +15,28 @@ const (
 	bm25B  = 0.75
 )
 
+// dotted matches versions and other dotted words: go1.27.2, v2.3, 1.24.
+var dotted = regexp.MustCompile(`[\p{L}\p{N}]+(\.[\p{L}\p{N}]+)+`)
+
 // Terms lowercases and splits text into alphanumeric terms (query or document).
+// Versions are terms too, with their shorter prefixes: "go1.27.2" adds
+// "go1.27.2" and "go1.27", so a query for go1.27 finds its patch releases
+// instead of every line that mentions go1.
 func Terms(s string) []string {
-	return strings.FieldsFunc(strings.ToLower(s), func(r rune) bool {
+	s = strings.ToLower(s)
+	terms := strings.FieldsFunc(s, func(r rune) bool {
 		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
 	})
+	for _, v := range dotted.FindAllString(s, -1) {
+		if !strings.ContainsFunc(v, unicode.IsDigit) {
+			continue
+		}
+		parts := strings.Split(v, ".")
+		for n := len(parts); n >= 2; n-- {
+			terms = append(terms, strings.Join(parts[:n], "."))
+		}
+	}
+	return terms
 }
 
 // relevance scores items against query terms with BM25 and returns the top k

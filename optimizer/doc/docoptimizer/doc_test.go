@@ -79,3 +79,12 @@ func TestSections(t *testing.T) {
 		})
 	}
 }
+
+func TestWeakMatchesWaitTheirTurn(t *testing.T) {
+	filler := strings.Repeat("lorem ipsum dolor sit amet consectetur\n", 10)
+	in := "# Page\n## Alpha\n" + filler + "## Beta\nwidget v1.2 setting\n" + filler + "## Gamma\none widget\n" + filler
+	got := compress.Join(sections(compress.Lines(in), "widget setting v1.2", 260))
+	if !strings.Contains(got, "## Alpha\nlorem") || !strings.Contains(got, "## Beta\nwidget") || strings.Contains(got, "one widget") {
+		t.Fatalf("want Beta by relevance, then Alpha by page order, not the weak Gamma:\n%s", got)
+	}
+}
