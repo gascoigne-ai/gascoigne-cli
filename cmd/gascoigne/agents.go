@@ -153,11 +153,13 @@ func claudeSettings(exe string) map[string]any {
 
 func claudeArgs(exe string) ([]string, error) {
 	// Hooks cannot shrink built-in tool results: without Grep and Glob, Claude
-	// searches with rg and find through Bash, which the hook wraps. Read stays,
-	// Edit needs it. Per run only: unwrap could not tell this deny rule from the
-	// user's own.
+	// searches with rg and find through Bash, which the hook wraps; without
+	// WebFetch it reads pages with gascoigne's fetch, which keeps them whole
+	// instead of a small model's retelling. Read stays, Edit needs it;
+	// WebSearch stays, gascoigne has no search. Per run only: unwrap could not
+	// tell this deny rule from the user's own.
 	settings := claudeSettings(exe)
-	settings["permissions"] = map[string]any{"deny": []string{"Grep", "Glob"}}
+	settings["permissions"] = map[string]any{"deny": []string{"Grep", "Glob", "WebFetch"}}
 	// Same-named servers given with --mcp-config replace the configured ones
 	// for the run, so other servers' results get optimized too.
 	servers, r := claudeProxies(exe)
@@ -173,7 +175,8 @@ func claudeInstall(exe string) string {
 # MCP server (fetch, compress, retrieve, stats)
 claude mcp add --scope user gascoigne -- %s mcp
 # permission rules see the wrapped command: allow e.g. "Bash(gascoigne exec -- go test:*)"
-# optional: deny "Grep" and "Glob" so searches run through Bash (rg, find) and get optimized
+# optional: deny "Grep" and "Glob" so searches run through Bash (rg, find) and get optimized,
+# and "WebFetch" so pages are read with the gascoigne fetch tool
 `, indentJSON(claudeSettings(exe)), shellQuote(exe))
 }
 

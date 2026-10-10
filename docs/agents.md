@@ -70,7 +70,9 @@ the pi extension. Other keys keep their order. The original file is saved as
 
 Hooks cannot shrink what Claude Code's built-in tools return. `wrap claude` therefore denies
 **Grep** and **Glob** for that run, so Claude searches with `rg` and `find` through Bash, where
-the hook wraps them. **Read** stays: Edit refuses to change a file Read has not loaded. The
+the hook wraps them, and **WebFetch**, so pages are read with gascoigne's `fetch` tool: whole
+and compressed, where WebFetch hands back a small model's retelling of the page. **Read** stays:
+Edit refuses to change a file Read has not loaded. **WebSearch** stays: gascoigne has no search. The
 deny rule is not part of `wrap -print`, because `unwrap` could not tell it apart from a rule
 you added yourself; add it by hand if you want it for good.
 

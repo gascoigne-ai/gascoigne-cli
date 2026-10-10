@@ -155,7 +155,7 @@ Hooks call `gascoigne hook <agent>`, which never
 fails the tool call (bad input → no answer → call unchanged).
 | Agent | Per run | How shell output is optimized |
 |---|---|---|
-| claude | `--mcp-config` + `--settings` (denies Grep/Glob so searches run through Bash; Read stays, Edit needs it) | PreToolUse rewrites the command to `gascoigne exec -- <cmd>` (no permission decision: rules see the wrapped command) |
+| claude | `--mcp-config` + `--settings` (denies Grep/Glob so searches run through Bash, WebFetch so pages go through gascoigne fetch; Read stays, Edit needs it; WebSearch stays) | PreToolUse rewrites the command to `gascoigne exec -- <cmd>` (no permission decision: rules see the wrapped command) |
 | codex | `-c mcp_servers…` + `-c hooks.PostToolUse…` | PostToolUse runs the output through pipeline `hook` and replaces the result (`decision: block`); codex rewrites a command only by approving it. Trust the hook once with `/hooks` |
 | pi | `--extension` (written to the user cache dir) | `tool_call` rewrites the bash command; no MCP |
 | gemini | env `GEMINI_CLI_SYSTEM_SETTINGS_PATH` → run settings in the cache dir (real system settings merged in, user/project stdio servers proxied) | BeforeTool `hookSpecificOutput.tool_input` rewrites `run_shell_command` (no decision: approval stays); SessionStart adds the guide (`gemini.go`) |

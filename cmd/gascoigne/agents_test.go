@@ -27,8 +27,8 @@ func TestClaudeArgs(t *testing.T) {
 	if !strings.Contains(args[3], `"SessionStart":[{"hooks":[{"command":"/opt/gascoigne hook claude"`) {
 		t.Fatalf("settings should add the guide at session start: %s", args[3])
 	}
-	if !strings.Contains(args[3], `"permissions":{"deny":["Grep","Glob"]}`) {
-		t.Fatalf("settings should deny Grep and Glob: %s", args[3])
+	if !strings.Contains(args[3], `"permissions":{"deny":["Grep","Glob","WebFetch"]}`) {
+		t.Fatalf("settings should deny Grep, Glob and WebFetch: %s", args[3])
 	}
 	if strings.Contains(claudeInstall("/opt/gascoigne"), `"permissions"`) {
 		t.Fatal("install config must not deny tools: unwrap cannot tell the rule from the user's own")
