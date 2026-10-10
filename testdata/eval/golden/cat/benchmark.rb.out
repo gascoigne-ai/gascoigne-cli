@@ -1,0 +1,318 @@
+# frozen_string_literal: true
+# … comments L2-17
+
+# … comments L19-120
+
+module Benchmark
+
+  VERSION = "0.4.0"
+
+  BENCHMARK_VERSION = "2002-04-25" # :nodoc:
+
+  # … comments L128-168
+
+  def benchmark(caption = "", label_width = nil, format = nil, *labels) # :yield: report
+    sync = $stdout.sync
+    $stdout.sync = true
+    label_width ||= 0
+    label_width += 1
+    format ||= FORMAT
+    report = Report.new(label_width, format)
+    results = yield(report)
+
+    print " " * report.width + caption unless caption.empty?
+    report.list.each { |i|
+      print i.label.to_s.ljust(report.width)
+      print i.format(report.format, *format)
+    }
+
+    Array === results and results.grep(Tms).each {|t|
+      print((labels.shift || t.label || "").ljust(label_width), t.format(format))
+    }
+    report.list
+  ensure
+    $stdout.sync = sync unless sync.nil?
+  end
+
+
+  # … comments L194-213
+
+  def bm(label_width = 0, *labels, &blk) # :yield: report
+    benchmark(CAPTION, label_width, FORMAT, *labels, &blk)
+  end
+
+
+  # Sometimes benchmark results are skewed because code executed
+  # … comments L221-256
+  def bmbm(width = 0) # :yield: job
+    job = Job.new(width)
+    yield(job)
+    width = job.width + 1
+    sync = $stdout.sync
+    $stdout.sync = true
+
+    # rehearsal
+    puts 'Rehearsal '.ljust(width+CAPTION.length,'-')
+    ets = job.list.inject(Tms.new) { |sum,(label,item)|
+      print label.ljust(width)
+      res = Benchmark.measure(&item)
+      print res.format
+      sum + res
+    }.format("total: %tsec")
+    print " #{ets}\n\n".rjust(width+CAPTION.length+2,'-')
+
+    # take
+    print ' '*width + CAPTION
+    job.list.map { |label,item|
+      GC.start
+      print label.ljust(width)
+      Benchmark.measure(label, &item).tap { |res| print res }
+    }
+  ensure
+    $stdout.sync = sync unless sync.nil?
+  end
+
+  #
+  # Returns the time used to execute the given block as a
+  # … comments L287-301
+  def measure(label = "") # :yield:
+    t0, r0 = Process.times, Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    yield
+    t1, r1 = Process.times, Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    Benchmark::Tms.new(t1.utime  - t0.utime,
+                       t1.stime  - t0.stime,
+                       t1.cutime - t0.cutime,
+                       t1.cstime - t0.cstime,
+                       r1 - r0,
+                       label)
+  end
+
+  #
+  # Returns the elapsed real time used to execute the given block.
+  # … comments L316-320
+  def realtime # :yield:
+    r0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    yield
+    Process.clock_gettime(Process::CLOCK_MONOTONIC) - r0
+  end
+
+  module_function :benchmark, :measure, :realtime, :bm, :bmbm
+
+  #
+  # A Job is a sequence of labelled blocks to be processed by the
+  # … comments L331-332
+  class Job # :nodoc:
+    #
+    # Returns an initialized Job instance.
+    # … comments L336-340
+    def initialize(width)
+      @width = width
+      @list = []
+    end
+
+    #
+    # Registers the given label and block pair in the job list.
+    #
+    def item(label = "", &blk) # :yield:
+      raise ArgumentError, "no block" unless block_given?
+      label = label.to_s
+      w = label.length
+      @width = w if @width < w
+      @list << [label, blk]
+      self
+    end
+
+    alias report item
+
+    # An array of 2-element arrays, consisting of label and block pairs.
+    attr_reader :list
+
+    # Length of the widest label in the #list.
+    attr_reader :width
+  end
+
+  #
+  # This class is used by the Benchmark.benchmark and Benchmark.bm methods.
+  # It is of little direct interest to the user.
+  #
+  class Report # :nodoc:
+    #
+    # Returns an initialized Report instance.
+    # … comments L374-378
+    def initialize(width = 0, format = nil)
+      @width, @format, @list = width, format, []
+    end
+
+    #
+    # Prints the +label+ and measured time for the block,
+    # … comments L385-387
+    def item(label = "", *format, &blk) # :yield:
+      w = label.to_s.length
+      @width = w if @width < w
+      @list << res = Benchmark.measure(label, &blk)
+      res
+    end
+
+    alias report item
+
+    # An array of Benchmark::Tms objects representing each item.
+    attr_reader :width, :format, :list
+  end
+
+
+
+  #
+  # A data object, representing the times associated with a benchmark
+  # measurement.
+  #
+  class Tms
+
+    # Default caption, see also Benchmark::CAPTION
+    CAPTION = "      user     system      total        real\n"
+
+    # Default format string, see also Benchmark::FORMAT
+    FORMAT = "%10.6u %10.6y %10.6t %10.6r\n"
+
+    # User CPU time
+    attr_reader :utime
+
+    # System CPU time
+    attr_reader :stime
+
+    # User CPU time of children
+    attr_reader :cutime
+
+    # System CPU time of children
+    attr_reader :cstime
+
+    # Elapsed real time
+    attr_reader :real
+
+    # Total time, that is +utime+ + +stime+ + +cutime+ + +cstime+
+    attr_reader :total
+
+    # Label
+    attr_reader :label
+
+    #
+    # Returns an initialized Tms object which has
+    # … comments L438-441
+    def initialize(utime = 0.0, stime = 0.0, cutime = 0.0, cstime = 0.0, real = 0.0, label = nil)
+      @utime, @stime, @cutime, @cstime, @real, @label = utime, stime, cutime, cstime, real, label.to_s
+      @total = @utime + @stime + @cutime + @cstime
+    end
+
+    #
+    # Returns a new Tms object whose times are the sum of the times for this
+    # … comments L449-450
+    def add(&blk) # :yield:
+      self + Benchmark.measure(&blk)
+    end
+
+    #
+    # An in-place version of #add.
+    # … comments L457-460
+    def add!(&blk)
+      t = Benchmark.measure(&blk)
+      @utime  = utime + t.utime
+      @stime  = stime + t.stime
+      @cutime = cutime + t.cutime
+      @cstime = cstime + t.cstime
+      @real   = real + t.real
+      self
+    end
+
+    #
+    # Returns a new Tms object obtained by memberwise summation
+    # … comments L473-476
+    def +(other); memberwise(:+, other) end
+
+    #
+    # Returns a new Tms object obtained by memberwise subtraction
+    # … comments L481-483
+    def -(other); memberwise(:-, other) end
+
+    #
+    # Returns a new Tms object obtained by memberwise multiplication
+    # … comments L488-489
+    def *(x); memberwise(:*, x) end
+
+    #
+    # Returns a new Tms object obtained by memberwise division
+    # … comments L494-496
+    def /(x); memberwise(:/, x) end
+
+    #
+    # Returns the contents of this Tms object as
+    # … comments L501-515
+    def format(format = nil, *args)
+      str = (format || FORMAT).dup
+      str.gsub!(/(%[-+.\d]*)n/) { "#{$1}s" % label }
+      str.gsub!(/(%[-+.\d]*)u/) { "#{$1}f" % utime }
+      str.gsub!(/(%[-+.\d]*)y/) { "#{$1}f" % stime }
+      str.gsub!(/(%[-+.\d]*)U/) { "#{$1}f" % cutime }
+      str.gsub!(/(%[-+.\d]*)Y/) { "#{$1}f" % cstime }
+      str.gsub!(/(%[-+.\d]*)t/) { "#{$1}f" % total }
+      str.gsub!(/(%[-+.\d]*)r/) { "(#{$1}f)" % real }
+      format ? str % args : str
+    end
+
+    #
+    # Same as #format.
+    #
+    def to_s
+      format
+    end
+
+    #
+    # Returns a new 6-element array, consisting of the
+    # … comments L537-540
+    def to_a
+      [@label, @utime, @stime, @cutime, @cstime, @real]
+    end
+
+    #
+    # Returns a hash containing the same data as `to_a`.
+    #
+    def to_h
+      {
+        label:  @label,
+        utime:  @utime,
+        stime:  @stime,
+        cutime: @cutime,
+        cstime: @cstime,
+        real:   @real
+      }
+    end
+
+    protected
+
+    #
+    # Returns a new Tms object obtained by memberwise operation +op+
+    # … comments L563-568
+    def memberwise(op, x)
+      case x
+      when Benchmark::Tms
+        Benchmark::Tms.new(utime.__send__(op, x.utime),
+                           stime.__send__(op, x.stime),
+                           cutime.__send__(op, x.cutime),
+                           cstime.__send__(op, x.cstime),
+                           real.__send__(op, x.real)
+                           )
+      else
+        Benchmark::Tms.new(utime.__send__(op, x),
+                           stime.__send__(op, x),
+                           cutime.__send__(op, x),
+                           cstime.__send__(op, x),
+                           real.__send__(op, x)
+                           )
+      end
+    end
+  end
+
+  # The default caption string (heading above the output times).
+  CAPTION = Benchmark::Tms::CAPTION
+
+  # The default format string used to display times.  See also Benchmark::Tms#format.
+  FORMAT = Benchmark::Tms::FORMAT
+end

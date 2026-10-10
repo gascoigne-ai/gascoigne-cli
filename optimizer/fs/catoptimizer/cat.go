@@ -1,9 +1,12 @@
 // Package catoptimizer shrinks source files read by agents. In auto mode
-// small files pass untouched, medium ones lose license headers and blank
-// runs, and large ones become outlines: declarations and signatures kept,
-// function bodies elided (Go via go/ast, brace and indent heuristics for
-// other languages). Mode can be forced per run with attr cat_mode or env
-// GASCOIGNE_CAT_MODE.
+// small files pass untouched, medium ones are cleaned (comment runs dropped,
+// the first line of a doc comment or docstring kept) and large ones also
+// become outlines (function bodies elided: Go via go/ast, brace and indent
+// heuristics for other languages). Lines are only dropped whole, never
+// rewritten, and every gap is one marker naming the original lines
+// ("// … comments L12-30"), so what an agent sees can go into an edit as is
+// and the rest can be read back by line range. Mode can be forced per run
+// with attr cat_mode or env GASCOIGNE_CAT_MODE.
 package catoptimizer
 
 import (
@@ -11,7 +14,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
@@ -33,7 +36,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	}
 	hints := detect.HintsFrom(p.Attrs)
 	return p.Rewrite(func(b payload.Block) (string, error) {
-		text := o.rewrite(b.Text, detect.Lang(b.Text, hints), mode)
+		text := o.rewrite(b.Text, detect.Lang(b.Text, hints), hints, mode)
 		if text == b.Text {
 			p.Set(payload.AttrSkip, o.why(b.Text, mode))
 		}
@@ -53,7 +56,7 @@ func (o *Optimizer) why(text, mode string) string {
 	return "cat: already clean, nothing to outline"
 }
 
-func (o *Optimizer) rewrite(text, lang, mode string) string {
+func (o *Optimizer) rewrite(text, lang string, h detect.Hints, mode string) string {
 	if mode == Auto {
 		switch n := tokens.Estimate(text); {
 		case n < o.cfg.CleanMinTokens:
@@ -67,86 +70,96 @@ func (o *Optimizer) rewrite(text, lang, mode string) string {
 	if mode == Full {
 		return text
 	}
-	lines := clean(compress.Lines(text))
-	if mode == Clean {
-		return compress.Join(lines)
+	lines := compress.Lines(text)
+	var bodies []span
+	if mode == Outline {
+		bodies = o.outline(text, lines, lang)
 	}
-	var out []string
-	var elided int
+	gaps := bodies
+	syn, known := syntaxOf(lang, h)
+	if known {
+		gaps = merge(bodies, comments(lines, syn))
+	} else {
+		syn.line = comment(lang)
+	}
+	if len(gaps) == 0 {
+		return text
+	}
+	// tail shows the end of a file: its line numbers are not the file's.
+	numbered := !slices.Contains([]string{"tail", "sed", "awk"}, firstArg(h.Cmd))
+	out := render(lines, gaps, cmp.Or(syn.line, syn.block[0]), numbered)
+	if len(bodies) > 0 {
+		note := fmt.Sprintf("%s outline: %d bodies elided (%s=full for complete source)", cmp.Or(syn.line, syn.block[0]), len(bodies), AttrMode)
+		out = append([]string{note}, out...)
+	}
+	return compress.Join(out)
+}
+
+func (o *Optimizer) outline(text string, lines []string, lang string) []span {
 	switch lang {
 	case detect.LangGo:
-		out, elided = o.goOutline(compress.Join(lines))
+		return o.goOutline(text, lines)
 	case detect.LangPython:
-		out, elided = o.indentOutline(lines)
+		return o.indentOutline(lines)
 	case detect.LangCLike:
-		out, elided = o.braceOutline(lines)
-	default:
-		return compress.Join(lines)
+		return o.braceOutline(lines)
 	}
-	if elided == 0 {
-		return compress.Join(lines)
-	}
-	if lang != detect.LangPython {
-		out = collapseComments(out)
-	}
-	note := fmt.Sprintf("%s outline: %d bodies elided (%s=full for complete source)", comment(lang), elided, AttrMode)
-	return compress.Join(append([]string{note}, out...))
+	return nil
 }
 
 func comment(lang string) string {
-	if lang == detect.LangPython || lang == detect.LangShell {
+	if lang == detect.LangPython || lang == detect.LangShell || lang == detect.LangOther {
 		return "#"
 	}
 	return "//"
 }
 
-var license = regexp.MustCompile(`(?i)licen[cs]e|copyright|\(c\) \d{4}`)
-
-// clean drops a leading license comment, trailing spaces and blank runs.
-func clean(lines []string) []string {
-	end := 0
-	for end < len(lines) && isComment(lines[end]) {
-		end++
+func firstArg(cmd string) string {
+	if args := detect.Argv(cmd); len(args) > 0 {
+		return args[0]
 	}
-	if end > 0 && license.MatchString(strings.Join(lines[:end], "\n")) {
-		lines = lines[end:]
-		for len(lines) > 0 && strings.TrimSpace(lines[0]) == "" {
-			lines = lines[1:]
+	return ""
+}
+
+// merge adds comment spans outside elided bodies, in line order.
+func merge(bodies, comments []span) []span {
+	gaps := slices.Clone(bodies)
+	for _, c := range comments {
+		inside := slices.ContainsFunc(bodies, func(b span) bool { return c.from <= b.to && b.from <= c.to })
+		if !inside {
+			gaps = append(gaps, c)
 		}
 	}
-	return compress.SqueezeBlank(lines)
+	slices.SortFunc(gaps, func(a, b span) int { return a.from - b.from })
+	return gaps
 }
 
-func isComment(l string) bool {
-	t := strings.TrimSpace(l)
-	return strings.HasPrefix(t, "//") || strings.HasPrefix(t, "/*") || strings.HasPrefix(t, "*") ||
-		strings.HasPrefix(t, "#") && !strings.HasPrefix(t, "#!") && !strings.HasPrefix(t, "#include")
-}
-
-// collapseComments keeps the first line of each run of 3+ line comments:
-// in an outline the summary sentence is what matters.
-func collapseComments(lines []string) []string {
+// render keeps lines outside gaps byte-exact and puts one marker per gap,
+// naming the original lines so an agent can read exactly those back:
+// "// … comments L12-30", "… L50-89" for an elided body.
+func render(lines []string, gaps []span, token string, numbered bool) []string {
 	var out []string
-	for i := 0; i < len(lines); {
-		j := i
-		for j < len(lines) && strings.HasPrefix(strings.TrimSpace(lines[j]), "//") {
-			j++
+	next := 0
+	for _, g := range gaps {
+		out = append(out, lines[next:g.from]...)
+		indent := g.indent
+		if g.what == "" { // elided body: indent of its first line
+			indent = lines[g.from][:indentOf(lines[g.from])]
 		}
-		if j-i >= 3 {
-			indent := lines[i][:len(lines[i])-len(strings.TrimLeft(lines[i], " \t"))]
-			out = append(out, lines[i], fmt.Sprintf("%s// … %d comment lines", indent, j-i-1))
-			i = j
-			continue
+		where := fmt.Sprintf("%d lines", g.to-g.from+1)
+		if numbered {
+			where = lineRange(g.from+1, g.to+1)
 		}
-		if j == i {
-			j++
-		}
-		out = append(out, lines[i:j]...)
-		i = j
+		marker := strings.Join(slices.DeleteFunc([]string{indent + token, "…", g.what, where}, func(s string) bool { return s == "" }), " ")
+		out = append(out, marker)
+		next = g.to + 1
 	}
-	return out
+	return append(out, lines[next:]...)
 }
 
-func elision(indent string, n int) string {
-	return fmt.Sprintf("%s… %d lines", indent, n)
+func lineRange(from, to int) string {
+	if from == to {
+		return fmt.Sprintf("L%d", from)
+	}
+	return fmt.Sprintf("L%d-%d", from, to)
 }

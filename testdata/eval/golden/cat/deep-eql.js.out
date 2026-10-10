@@ -1,0 +1,141 @@
+// outline: 18 bodies elided (cat_mode=full for complete source)
+// … comments L1-6
+
+function type(obj) {
+  // … L9-23
+}
+
+function FakeMap() {
+  this._key = 'chai/deep-eql__' + Math.random() + Date.now();
+}
+
+FakeMap.prototype = {
+  // … L31-41
+};
+
+export var MemoizeMap = typeof WeakMap === 'function' ? WeakMap : FakeMap;
+/*!
+ * Check to see if the MemoizeMap has recorded a result of the two operands
+// … comments L47-52
+function memoizeCompare(leftHandOperand, rightHandOperand, memoizeMap) {
+  // … L54-65
+}
+
+/*!
+ * Set the result of the equality into the MemoizeMap
+// … comments L70-75
+function memoizeSet(leftHandOperand, rightHandOperand, memoizeMap, result) {
+  // … L77-88
+}
+
+/*!
+ * Primary Export
+ */
+
+export default deepEqual;
+
+/**
+ * Assert deeply nested sameValue equality between two objects of any type.
+// … comments L99-108
+function deepEqual(leftHandOperand, rightHandOperand, options) {
+  // … L110-121
+}
+
+/**
+ * Many comparisons can be canceled out early via simple equality or primitive checks.
+// … comments L126-129
+function simpleEqual(leftHandOperand, rightHandOperand) {
+  // … L131-151
+}
+
+/*!
+ * The main logic of the `deepEqual` function.
+// … comments L156-165
+function extensiveDeepEqual(leftHandOperand, rightHandOperand, options) {
+  // … L167-209
+}
+
+function extensiveDeepEqualByType(leftHandOperand, rightHandOperand, leftHandType, options) {
+  // … L213-267
+}
+
+// … comments L270-276
+
+function regexpEqual(leftHandOperand, rightHandOperand) {
+  return leftHandOperand.toString() === rightHandOperand.toString();
+}
+
+// … comments L282-289
+
+function entriesEqual(leftHandOperand, rightHandOperand, options) {
+  // … L292-312
+}
+
+// … comments L315-322
+
+function iterableEqual(leftHandOperand, rightHandOperand, options) {
+  // … L325-338
+}
+
+// … comments L341-348
+
+function generatorEqual(leftHandOperand, rightHandOperand, options) {
+  return iterableEqual(getGeneratorEntries(leftHandOperand), getGeneratorEntries(rightHandOperand), options);
+}
+
+/*!
+ * Determine if the given object has an @@iterator function.
+// … comments L356-359
+function hasIteratorFunction(target) {
+  // … L361-364
+}
+
+/*!
+ * Gets all iterator entries from the given Object. If the Object has no @@iterator function, returns an empty array.
+// … comments L369-373
+function getIteratorEntries(target) {
+  // … L375-382
+}
+
+/*!
+ * Gets all entries from a Generator. This will consume the generator - which could have side effects.
+// … comments L387-390
+function getGeneratorEntries(generator) {
+  // … L392-398
+}
+
+/*!
+ * Gets all own and inherited enumerable keys from a target.
+// … comments L403-406
+function getEnumerableKeys(target) {
+  // … L408-412
+}
+
+function getEnumerableSymbols(target) {
+  // … L416-424
+}
+
+/*!
+ * Determines if two objects have matching values, given a set of keys. Defers to deepEqual for the equality check of
+// … comments L429-436
+function keysEqual(leftHandOperand, rightHandOperand, keys, options) {
+  // … L438-447
+}
+
+/*!
+ * Recursively check the equality of two Objects. Once basic sameness has been established it will defer to `deepEqual`
+// … comments L452-458
+function objectEqual(leftHandOperand, rightHandOperand, options) {
+  // … L460-489
+}
+
+/*!
+ * Returns true if the argument is a primitive.
+// … comments L494-500
+function isPrimitive(value) {
+  return value === null || typeof value !== 'object';
+}
+
+function mapSymbols(arr) {
+  // … L506-512
+}

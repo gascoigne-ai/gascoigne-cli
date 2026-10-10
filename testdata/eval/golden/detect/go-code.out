@@ -1,4 +1,6 @@
 // outline: 108 bodies elided (cat_mode=full for complete source)
+// … comments L1-3
+
 // HTTP server. See RFC 7230 through 7235.
 
 package http
@@ -36,74 +38,74 @@ import (
 // Errors used by the HTTP server.
 var (
 	// ErrBodyNotAllowed is returned by ResponseWriter.Write calls
-	// … 2 comment lines
+	// … comments L42-43
 	ErrBodyNotAllowed = internal.ErrBodyNotAllowed
 
 	// ErrHijacked is returned by ResponseWriter.Write calls when
-	// … 4 comment lines
+	// … comments L47-50
 	ErrHijacked = errors.New("http: connection has been hijacked")
 
 	// ErrContentLength is returned by ResponseWriter.Write calls
-	// … 3 comment lines
+	// … comments L54-56
 	ErrContentLength = errors.New("http: wrote more than the declared Content-Length")
 
 	// Deprecated: ErrWriteAfterFlush is no longer returned by
-	// … 2 comment lines
+	// … comments L60-61
 	ErrWriteAfterFlush = errors.New("unused")
 )
 
 // A Handler responds to an HTTP request.
-// … 23 comment lines
+// … comments L66-88
 type Handler interface {
 	ServeHTTP(ResponseWriter, *Request)
 }
 
 // A ResponseWriter interface is used by an HTTP handler to
-// … 3 comment lines
+// … comments L94-96
 type ResponseWriter interface {
 	// Header returns the header map that will be sent by
-	// … 19 comment lines
+	// … comments L99-117
 	Header() Header
 
 	// Write writes the data to the connection as part of an HTTP reply.
-	// … 20 comment lines
+	// … comments L121-140
 	Write([]byte) (int, error)
 
 	// WriteHeader sends an HTTP response header with the provided
-	// … 17 comment lines
+	// … comments L144-160
 	WriteHeader(statusCode int)
 }
 
 // The Flusher interface is implemented by ResponseWriters that allow
-// … 10 comment lines
+// … comments L165-174
 type Flusher interface {
 	// Flush sends any buffered data to the client.
 	Flush()
 }
 
 // The Hijacker interface is implemented by ResponseWriters that allow
-// … 6 comment lines
+// … comments L181-186
 type Hijacker interface {
 	// Hijack lets the caller take over the connection.
-	// … 18 comment lines
+	// … comments L189-206
 	Hijack() (net.Conn, *bufio.ReadWriter, error)
 }
 
 // The CloseNotifier interface is implemented by ResponseWriters which
-// … 7 comment lines
+// … comments L211-217
 type CloseNotifier interface {
 	// CloseNotify returns a channel that receives at most a
-	// … 17 comment lines
+	// … comments L220-236
 	CloseNotify() <-chan bool
 }
 
 var (
 	// ServerContextKey is a context key. It can be used in HTTP
-	// … 3 comment lines
+	// … comments L242-244
 	ServerContextKey = &contextKey{"http-server"}
 
 	// LocalAddrContextKey is a context key. It can be used in
-	// … 3 comment lines
+	// … comments L248-250
 	LocalAddrContextKey = &contextKey{"local-addr"}
 )
 
@@ -117,11 +119,11 @@ type conn struct {
 	cancelCtx context.CancelFunc
 
 	// rwc is the underlying network connection.
-	// … 3 comment lines
+	// … comments L264-266
 	rwc net.Conn
 
 	// remoteAddr is rwc.RemoteAddr().String(). It is not populated synchronously
-	// … 3 comment lines
+	// … comments L270-272
 	remoteAddr string
 
 	// tlsState is the TLS connection state when using TLS.
@@ -129,11 +131,11 @@ type conn struct {
 	tlsState *tls.ConnectionState
 
 	// werr is set to the first write error to rwc.
-	// It is set via checkConnErrorWriter{w}, where bufw writes.
+	// … comments L280
 	werr error
 
 	// r is bufr's read source. It's a wrapper around rwc that provides
-	// … 2 comment lines
+	// … comments L284-285
 	r *connReader
 
 	// bufr reads from r.
@@ -154,7 +156,7 @@ type conn struct {
 	mu sync.Mutex
 
 	// hijackedv is whether this connection has been hijacked
-	// … 2 comment lines
+	// … comments L306-307
 	hijackedv bool
 }
 
@@ -165,23 +167,25 @@ func (c *conn) hijacked() bool {
 }
 
 // c.mu must be held.
-func (c *conn) hijackLocked() (rwc net.Conn, buf *bufio.ReadWriter, err error) { … 19 lines }
+func (c *conn) hijackLocked() (rwc net.Conn, buf *bufio.ReadWriter, err error) {
+	// … L319-337
+}
 
 // This should be >= 512 bytes for DetectContentType,
 // but otherwise it's somewhat arbitrary.
 const bufferBeforeChunkingSize = 2048
 
 // chunkWriter writes to a response's conn buffer, and is the writer
-// … 8 comment lines
+// … comments L345-352
 type chunkWriter struct {
 	res *response
 
 	// header is either nil or a deep clone of res.handlerHeader
-	// … 3 comment lines
+	// … comments L357-359
 	header Header
 
 	// wroteHeader tells whether the header's been written to "the
-	// … 3 comment lines
+	// … comments L363-365
 	wroteHeader bool
 
 	// set by the writeHeader method:
@@ -193,11 +197,17 @@ var (
 	colonSpace = []byte(": ")
 )
 
-func (cw *chunkWriter) Write(p []byte) (n int, err error) { … 22 lines }
+func (cw *chunkWriter) Write(p []byte) (n int, err error) {
+	// … L378-399
+}
 
-func (cw *chunkWriter) flush() error { … 4 lines }
+func (cw *chunkWriter) flush() error {
+	// … L403-406
+}
 
-func (cw *chunkWriter) close() { … 14 lines }
+func (cw *chunkWriter) close() {
+	// … L410-423
+}
 
 // A response represents the server side of an HTTP response.
 type response struct {
@@ -211,7 +221,7 @@ type response struct {
 	ecReader         *expectContinueReader
 
 	// canWriteContinue is an atomic boolean that says whether or
-	// … 6 comment lines
+	// … comments L438-443
 	writeContinueMu  sync.Mutex
 	canWriteContinue atomic.Bool
 
@@ -219,7 +229,7 @@ type response struct {
 	cw chunkWriter
 
 	// handlerHeader is the Header that Handlers get access to,
-	// … 3 comment lines
+	// … comments L451-453
 	handlerHeader Header
 	calledHeader  bool // handler accessed handlerHeader via Header
 
@@ -228,19 +238,19 @@ type response struct {
 	status        int   // status code passed to WriteHeader
 
 	// close connection after this reply.  set on request and
-	// … 3 comment lines
+	// … comments L462-464
 	closeAfterReply bool
 
 	// When fullDuplex is false (the default), we consume any remaining
-	// request body before starting to write a response.
+	// … comments L468
 	fullDuplex bool
 
 	// requestBodyLimitHit is set by requestTooLarge when
-	// … 6 comment lines
+	// … comments L472-477
 	requestBodyLimitHit bool
 
 	// trailers are the headers to be sent after the handler
-	// … 3 comment lines
+	// … comments L481-483
 	trailers []string
 
 	handlerDone atomic.Bool // set true when the handler exits
@@ -272,24 +282,32 @@ func (c *response) EnableFullDuplex() error {
 }
 
 // TrailerPrefix is a magic prefix for [ResponseWriter.Header] map keys
-// … 12 comment lines
+// … comments L515-526
 const TrailerPrefix = "Trailer:"
 
 // finalTrailers is called after the Handler exits and returns a non-nil
 // value if the Handler set any trailers.
-func (w *response) finalTrailers() Header { … 18 lines }
+func (w *response) finalTrailers() Header {
+	// … L532-549
+}
 
 // declareTrailer is called for each Trailer header when the
-// … 2 comment lines
-func (w *response) declareTrailer(k string) { … 6 lines }
+// … comments L553-554
+func (w *response) declareTrailer(k string) {
+	// … L556-561
+}
 
 // requestTooLarge is called by maxBytesReader when too much input has
 // been read from the client.
-func (w *response) requestTooLarge() { … 5 lines }
+func (w *response) requestTooLarge() {
+	// … L567-571
+}
 
 // disableWriteContinue stops Request.Body.Read from sending an automatic
-// … 7 comment lines
-func (w *response) disableWriteContinue(skipDrain bool) { … 15 lines }
+// … comments L575-581
+func (w *response) disableWriteContinue(skipDrain bool) {
+	// … L583-597
+}
 
 // writerOnly hides an io.Writer value's optional ReadFrom method
 // from io.Copy.
@@ -298,15 +316,19 @@ type writerOnly struct {
 }
 
 // ReadFrom is here to optimize copying from an [*os.File] regular file
-// … 2 comment lines
-func (w *response) ReadFrom(src io.Reader) (n int64, err error) { … 61 lines }
+// … comments L607-608
+func (w *response) ReadFrom(src io.Reader) (n int64, err error) {
+	// … L610-670
+}
 
 // debugServerConnections controls whether all server connections are wrapped
 // with a verbose logging wrapper.
 const debugServerConnections = false
 
 // Create new connection from rwc.
-func (s *Server) newConn(rwc net.Conn) *conn { … 8 lines }
+func (s *Server) newConn(rwc net.Conn) *conn {
+	// … L679-686
+}
 
 type readResult struct {
 	_   incomparable
@@ -316,7 +338,7 @@ type readResult struct {
 }
 
 // connReader is the io.Reader wrapper used by *conn. It combines a
-// … 6 comment lines
+// … comments L697-702
 type connReader struct {
 	rwc net.Conn // rwc is the underlying network connection.
 
@@ -330,7 +352,9 @@ type connReader struct {
 	remain  int64 // bytes remaining
 }
 
-func (cr *connReader) lock() { … 4 lines }
+func (cr *connReader) lock() {
+	// … L717-720
+}
 
 func (cr *connReader) unlock() { cr.mu.Unlock() }
 
@@ -340,21 +364,31 @@ func (cr *connReader) releaseConn() {
 	cr.conn = nil
 }
 
-func (cr *connReader) startBackgroundRead() { … 11 lines }
+func (cr *connReader) startBackgroundRead() {
+	// … L732-742
+}
 
-func (cr *connReader) backgroundRead() { … 37 lines }
+func (cr *connReader) backgroundRead() {
+	// … L746-782
+}
 
-func (cr *connReader) abortPendingRead() { … 11 lines }
+func (cr *connReader) abortPendingRead() {
+	// … L786-796
+}
 
 func (cr *connReader) setReadLimit(remain int64) { cr.remain = remain }
 func (cr *connReader) setInfiniteReadLimit()     { cr.remain = maxInt64 }
 func (cr *connReader) hitReadLimit() bool        { return cr.remain <= 0 }
 
 // handleReadErrorLocked is called whenever a Read from the client returns a
-// … 9 comment lines
-func (cr *connReader) handleReadErrorLocked(_ error) { … 7 lines }
+// … comments L804-812
+func (cr *connReader) handleReadErrorLocked(_ error) {
+	// … L814-820
+}
 
-func (cr *connReader) Read(p []byte) (n int, err error) { … 44 lines }
+func (cr *connReader) Read(p []byte) (n int, err error) {
+	// … L824-867
+}
 
 var (
 	bufioReaderPool   sync.Pool
@@ -370,40 +404,56 @@ func getCopyBuf() []byte {
 	return copyBufPool.Get().(*[copyBufPoolSize]byte)[:]
 }
 
-func putCopyBuf(b []byte) { … 4 lines }
+func putCopyBuf(b []byte) {
+	// … L885-888
+}
 
-func bufioWriterPool(size int) *sync.Pool { … 7 lines }
+func bufioWriterPool(size int) *sync.Pool {
+	// … L892-898
+}
 
-func newBufioReader(r io.Reader) *bufio.Reader { … 8 lines }
+func newBufioReader(r io.Reader) *bufio.Reader {
+	// … L902-909
+}
 
 func putBufioReader(br *bufio.Reader) {
 	br.Reset(nil)
 	bufioReaderPool.Put(br)
 }
 
-func newBufioWriterSize(w io.Writer, size int) *bufio.Writer { … 9 lines }
+func newBufioWriterSize(w io.Writer, size int) *bufio.Writer {
+	// … L918-926
+}
 
-func putBufioWriter(bw *bufio.Writer) { … 4 lines }
+func putBufioWriter(bw *bufio.Writer) {
+	// … L930-933
+}
 
 // DefaultMaxHeaderBytes is the maximum permitted size of the headers
-// … 2 comment lines
+// … comments L937-938
 const DefaultMaxHeaderBytes = 1 << 20 // 1 MB
 
 // DefaultMaxHeaderValueCount is the maximum permitted number of
-// … 2 comment lines
+// … comments L942-943
 const DefaultMaxHeaderValueCount = 500
 
-func (s *Server) maxHeaderBytes() int { … 4 lines }
+func (s *Server) maxHeaderBytes() int {
+	// … L947-950
+}
 
-func (s *Server) maxHeaderValueCount() int { … 4 lines }
+func (s *Server) maxHeaderValueCount() int {
+	// … L954-957
+}
 
 func (s *Server) initialReadLimitSize() int64 {
 	return int64(s.maxHeaderBytes()) + 4096 // bufio slop
 }
 
 // tlsHandshakeTimeout returns the time limit permitted for the TLS
-// … 4 comment lines
-func (s *Server) tlsHandshakeTimeout() time.Duration { … 14 lines }
+// … comments L965-968
+func (s *Server) tlsHandshakeTimeout() time.Duration {
+	// … L970-983
+}
 
 // wrapper around io.ReadCloser which on first read, sends an
 // HTTP/1.1 100 Continue header
@@ -413,39 +463,55 @@ type expectContinueReader struct {
 	closed     atomic.Bool
 }
 
-func (ecr *expectContinueReader) Read(p []byte) (n int, err error) { … 14 lines }
+func (ecr *expectContinueReader) Read(p []byte) (n int, err error) {
+	// … L995-1008
+}
 
-func (ecr *expectContinueReader) Close() error { … 7 lines }
+func (ecr *expectContinueReader) Close() error {
+	// … L1012-1018
+}
 
 // TimeFormat is the time format to use when generating times in HTTP
-// … 5 comment lines
+// … comments L1022-1026
 const TimeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
 
 var errTooLarge = errors.New("http: request too large")
 
 // Read next request from connection.
-func (c *conn) readRequest(ctx context.Context) (w *response, err error) { … 92 lines }
+func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
+	// … L1033-1124
+}
 
 // http1ServerSupportsRequest reports whether Go's HTTP/1.x server
 // supports the given request.
-func http1ServerSupportsRequest(req *Request) bool { … 12 lines }
+func http1ServerSupportsRequest(req *Request) bool {
+	// … L1130-1141
+}
 
-func (w *response) Header() Header { … 8 lines }
+func (w *response) Header() Header {
+	// … L1145-1152
+}
 
 // maxPostHandlerReadBytes is the max number of Request.Body bytes not
-// … 8 comment lines
+// … comments L1156-1163
 const maxPostHandlerReadBytes = 256 << 10
 
-func checkWriteHeaderCode(code int) { … 13 lines }
+func checkWriteHeaderCode(code int) {
+	// … L1167-1179
+}
 
 // relevantCaller searches the call stack for the first function outside of net/http.
-// The purpose of this function is to provide more helpful error messages.
-func relevantCaller() runtime.Frame { … 15 lines }
+// … comments L1183
+func relevantCaller() runtime.Frame {
+	// … L1185-1199
+}
 
-func (w *response) WriteHeader(code int) { … 51 lines }
+func (w *response) WriteHeader(code int) {
+	// … L1203-1253
+}
 
 // extraHeader is the set of headers sometimes added by chunkWriter.writeHeader.
-// … 2 comment lines
+// … comments L1257-1258
 type extraHeader struct {
 	contentType      string
 	connection       string
@@ -467,27 +533,37 @@ var (
 )
 
 // Write writes the headers described in h to w.
-// … 4 comment lines
-func (h extraHeader) Write(w *bufio.Writer) { … 18 lines }
+// … comments L1280-1283
+func (h extraHeader) Write(w *bufio.Writer) {
+	// … L1285-1302
+}
 
 // writeHeader finalizes the header sent to the client and writes it
-// … 7 comment lines
-func (cw *chunkWriter) writeHeader(p []byte) { … 272 lines }
+// … comments L1306-1312
+func (cw *chunkWriter) writeHeader(p []byte) {
+	// … L1314-1585
+}
 
 // foreachHeaderElement splits v according to the "#rule" construction
-// in RFC 7230 section 7 and calls fn for each non-empty element.
-func foreachHeaderElement(v string, fn func(string)) { … 13 lines }
+// … comments L1589
+func foreachHeaderElement(v string, fn func(string)) {
+	// … L1591-1603
+}
 
 // writeStatusLine writes an HTTP/1.x Status-Line (RFC 7230 Section 3.1.2)
-// … 3 comment lines
-func writeStatusLine(bw *bufio.Writer, is11 bool, code int, scratch []byte) { … 14 lines }
+// … comments L1607-1609
+func writeStatusLine(bw *bufio.Writer, is11 bool, code int, scratch []byte) {
+	// … L1611-1624
+}
 
 // bodyAllowed reports whether a Write is allowed for this response type.
-// It's illegal to call this before the header has been flushed.
-func (w *response) bodyAllowed() bool { … 4 lines }
+// … comments L1628
+func (w *response) bodyAllowed() bool {
+	// … L1630-1633
+}
 
 // The Life Of A Write is like this:
-// … 33 comment lines
+// … comments L1637-1669
 func (w *response) Write(data []byte) (n int, err error) {
 	return w.write(len(data), data, "")
 }
@@ -497,13 +573,19 @@ func (w *response) WriteString(data string) (n int, err error) {
 }
 
 // either dataB or dataS is non-zero.
-func (w *response) write(lenData int, dataB []byte, dataS string) (n int, err error) { … 32 lines }
+func (w *response) write(lenData int, dataB []byte, dataS string) (n int, err error) {
+	// … L1680-1711
+}
 
-func (w *response) finishRequest() { … 27 lines }
+func (w *response) finishRequest() {
+	// … L1715-1741
+}
 
 // shouldReuseConnection reports whether the underlying TCP connection can be reused.
-// It must only be called after the handler is done executing.
-func (w *response) shouldReuseConnection() bool { … 23 lines }
+// … comments L1745
+func (w *response) shouldReuseConnection() bool {
+	// … L1747-1769
+}
 
 func (w *response) closedRequestBodyEarly() bool {
 	return w.reqBody != nil && w.reqBody.didEarlyClose()
@@ -513,9 +595,13 @@ func (w *response) Flush() {
 	w.FlushError()
 }
 
-func (w *response) FlushError() error { … 9 lines }
+func (w *response) FlushError() error {
+	// … L1781-1789
+}
 
-func (c *conn) finalFlush() { … 14 lines }
+func (c *conn) finalFlush() {
+	// … L1793-1806
+}
 
 // Close the connection.
 func (c *conn) close() {
@@ -524,7 +610,7 @@ func (c *conn) close() {
 }
 
 // rstAvoidanceDelay is the amount of time we sleep after closing the
-// … 10 comment lines
+// … comments L1816-1825
 var rstAvoidanceDelay = 500 * time.Millisecond
 
 type closeWriter interface {
@@ -534,19 +620,25 @@ type closeWriter interface {
 var _ closeWriter = (*net.TCPConn)(nil)
 
 // closeWriteAndWait flushes any outstanding data and sends a FIN packet (if
-// … 5 comment lines
-func (c *conn) closeWriteAndWait() { … 26 lines }
+// … comments L1835-1839
+func (c *conn) closeWriteAndWait() {
+	// … L1841-1866
+}
 
 // validNextProto reports whether the proto is a valid ALPN protocol name.
-// … 2 comment lines
-func validNextProto(proto string) bool { … 5 lines }
+// … comments L1870-1871
+func validNextProto(proto string) bool {
+	// … L1873-1877
+}
 
 const (
 	runHooks  = true
 	skipHooks = false
 )
 
-func (c *conn) setState(nc net.Conn, state ConnState, runHook bool) { … 18 lines }
+func (c *conn) setState(nc net.Conn, state ConnState, runHook bool) {
+	// … L1886-1903
+}
 
 func (c *conn) getState() (state ConnState, unixSec int64) {
 	packedState := c.curState.Load()
@@ -554,11 +646,11 @@ func (c *conn) getState() (state ConnState, unixSec int64) {
 }
 
 // badRequestError is a literal string (used by in the server in HTML,
-// … 2 comment lines
+// … comments L1912-1913
 func badRequestError(e string) error { return statusError{StatusBadRequest, e} }
 
 // statusError is an error used to respond to a request with an HTTP status.
-// The text should be plain text without user info or other embedded errors.
+// … comments L1917
 type statusError struct {
 	code int
 	text string
@@ -567,18 +659,22 @@ type statusError struct {
 func (e statusError) Error() string { return StatusText(e.code) + ": " + e.text }
 
 // ErrAbortHandler is a sentinel panic value to abort a handler.
-// … 3 comment lines
+// … comments L1926-1928
 var ErrAbortHandler = internal.ErrAbortHandler
 
 // isCommonNetReadError reports whether err is a common error
-// … 3 comment lines
-func isCommonNetReadError(err error) bool { … 10 lines }
+// … comments L1932-1934
+func isCommonNetReadError(err error) bool {
+	// … L1936-1945
+}
 
 // Serve a new connection.
-func (c *conn) serve(ctx context.Context) { … 253 lines }
+func (c *conn) serve(ctx context.Context) {
+	// … L1950-2202
+}
 
 // unencryptedHTTP2Request is an HTTP handler that initializes
-// … 3 comment lines
+// … comments L2206-2208
 type unencryptedHTTP2Request struct {
 	ctx context.Context
 	c   net.Conn
@@ -587,7 +683,9 @@ type unencryptedHTTP2Request struct {
 
 func (h unencryptedHTTP2Request) BaseContext() context.Context { return h.ctx }
 
-func (h unencryptedHTTP2Request) ServeHTTP(rw ResponseWriter, req *Request) { … 7 lines }
+func (h unencryptedHTTP2Request) ServeHTTP(rw ResponseWriter, req *Request) {
+	// … L2218-2224
+}
 
 // unencryptedNetConnInTLSConn is used to pass an unencrypted net.Conn to
 // functions that only accept a *tls.Conn.
@@ -608,20 +706,30 @@ func unencryptedTLSConn(c net.Conn) *tls.Conn {
 // Not actually a TLS-negotiated protocol.
 const nextProtoUnencryptedHTTP2 = "unencrypted_http2"
 
-func (c *conn) maybeServeUnencryptedHTTP2(ctx context.Context) bool { … 31 lines }
+func (c *conn) maybeServeUnencryptedHTTP2(ctx context.Context) bool {
+	// … L2247-2277
+}
 
-func (w *response) sendExpectationFailed() { … 15 lines }
+func (w *response) sendExpectationFailed() {
+	// … L2281-2295
+}
 
 // Hijack implements the [Hijacker.Hijack] method. Our response is both a [ResponseWriter]
 // and a [Hijacker].
-func (w *response) Hijack() (rwc net.Conn, buf *bufio.ReadWriter, err error) { … 20 lines }
+func (w *response) Hijack() (rwc net.Conn, buf *bufio.ReadWriter, err error) {
+	// … L2301-2320
+}
 
-func (w *response) CloseNotify() <-chan bool { … 12 lines }
+func (w *response) CloseNotify() <-chan bool {
+	// … L2324-2335
+}
 
-func (w *response) closeNotify() { … 9 lines }
+func (w *response) closeNotify() {
+	// … L2339-2347
+}
 
 // The HandlerFunc type is an adapter to allow the use of
-// … 3 comment lines
+// … comments L2351-2353
 type HandlerFunc func(ResponseWriter, *Request)
 
 // ServeHTTP calls f(w, r).
@@ -632,23 +740,29 @@ func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
 // Helper handlers
 
 // Error replies to the request with the specified error message and HTTP code.
-// … 9 comment lines
-func Error(w ResponseWriter, error string, code int) { … 17 lines }
+// … comments L2364-2372
+func Error(w ResponseWriter, error string, code int) {
+	// … L2374-2390
+}
 
 // NotFound replies to the request with an HTTP 404 not found error.
 func NotFound(w ResponseWriter, r *Request) { Error(w, "404 page not found", StatusNotFound) }
 
 // NotFoundHandler returns a simple request handler
-// that replies to each request with a “404 page not found” reply.
+// … comments L2397
 func NotFoundHandler() Handler { return HandlerFunc(NotFound) }
 
 // StripPrefix returns a handler that serves HTTP requests by removing the
-// … 5 comment lines
-func StripPrefix(prefix string, h Handler) Handler { … 18 lines }
+// … comments L2401-2405
+func StripPrefix(prefix string, h Handler) Handler {
+	// … L2407-2424
+}
 
 // Redirect replies to the request with a redirect to url,
-// … 11 comment lines
-func Redirect(w ResponseWriter, r *Request, url string, code int) { … 52 lines }
+// … comments L2428-2438
+func Redirect(w ResponseWriter, r *Request, url string, code int) {
+	// … L2440-2491
+}
 
 var htmlReplacer = strings.NewReplacer(
 	"&", "&amp;",
@@ -675,13 +789,13 @@ func (rh *redirectHandler) ServeHTTP(w ResponseWriter, r *Request) {
 }
 
 // RedirectHandler returns a request handler that redirects
-// … 5 comment lines
+// … comments L2519-2523
 func RedirectHandler(url string, code int) Handler {
 	return &redirectHandler{url, code}
 }
 
 // ServeMux is an HTTP request multiplexer.
-// … 118 comment lines
+// … comments L2529-2646
 type ServeMux struct {
 	mu     sync.RWMutex
 	tree   routingNode
@@ -700,56 +814,81 @@ var DefaultServeMux = &defaultServeMux
 var defaultServeMux ServeMux
 
 // cleanPath returns the canonical path for p, eliminating . and .. elements.
-func cleanPath(p string) string { … 18 lines }
+func cleanPath(p string) string {
+	// … L2666-2683
+}
 
 // stripHostPort returns h without any trailing ":<port>".
-func stripHostPort(h string) string { … 9 lines }
+func stripHostPort(h string) string {
+	// … L2688-2696
+}
 
 // Handler returns the handler to use for the given request,
-// … 19 comment lines
-func (mux *ServeMux) Handler(r *Request) (h Handler, pattern string) { … 5 lines }
+// … comments L2700-2718
+func (mux *ServeMux) Handler(r *Request) (h Handler, pattern string) {
+	// … L2720-2724
+}
 
 // findHandler finds a handler for a request.
-// … 3 comment lines
-func (mux *ServeMux) findHandler(r *Request) (h Handler, patStr string, _ *pattern, matches []string) { … 53 lines }
+// … comments L2728-2730
+func (mux *ServeMux) findHandler(r *Request) (h Handler, patStr string, _ *pattern, matches []string) {
+	// … L2732-2784
+}
 
 // matchOrRedirect looks up a node in the tree that matches the host, method and path.
-// … 5 comment lines
-func (mux *ServeMux) matchOrRedirect(host, method, path string, u *url.URL) (_ *routingNode, matches []string, redirectTo *url.URL) { … 22 lines }
+// … comments L2788-2792
+func (mux *ServeMux) matchOrRedirect(host, method, path string, u *url.URL) (_ *routingNode, matches []string, redirectTo *url.URL) {
+	// … L2794-2815
+}
 
 // urlFromEscaped returns a url.URL constructed from an escaped path and a raw
-// … 8 comment lines
-func urlFromEscaped(escaped, rawQuery string) *url.URL { … 11 lines }
+// … comments L2819-2826
+func urlFromEscaped(escaped, rawQuery string) *url.URL {
+	// … L2828-2838
+}
 
 // exactMatch reports whether the node's pattern exactly matches the path.
-// … 25 comment lines
-func exactMatch(n *routingNode, path string) bool { … 22 lines }
+// … comments L2842-2866
+func exactMatch(n *routingNode, path string) bool {
+	// … L2868-2889
+}
 
 // matchingMethods return a sorted list of all methods that would match with the given host and path.
-func (mux *ServeMux) matchingMethods(host, path string) []string { … 11 lines }
+func (mux *ServeMux) matchingMethods(host, path string) []string {
+	// … L2894-2904
+}
 
 // ServeHTTP dispatches the request to the handler whose
-// pattern most closely matches the request URL.
-func (mux *ServeMux) ServeHTTP(w ResponseWriter, r *Request) { … 14 lines }
+// … comments L2908
+func (mux *ServeMux) ServeHTTP(w ResponseWriter, r *Request) {
+	// … L2910-2923
+}
 
-// The four functions below all call ServeMux.register so that callerLocation
-// always refers to user code.
+// … comments L2926-2927
 
 // Handle registers the handler for the given pattern.
-// … 4 comment lines
-func (mux *ServeMux) Handle(pattern string, handler Handler) { … 5 lines }
+// … comments L2930-2933
+func (mux *ServeMux) Handle(pattern string, handler Handler) {
+	// … L2935-2939
+}
 
 // HandleFunc registers the handler function for the given pattern.
-// … 4 comment lines
-func (mux *ServeMux) HandleFunc(pattern string, handler func(ResponseWriter, *Request)) { … 5 lines }
+// … comments L2943-2946
+func (mux *ServeMux) HandleFunc(pattern string, handler func(ResponseWriter, *Request)) {
+	// … L2948-2952
+}
 
 // Handle registers the handler for the given pattern in [DefaultServeMux].
-// The documentation for [ServeMux] explains how patterns are matched.
-func Handle(pattern string, handler Handler) { … 5 lines }
+// … comments L2956
+func Handle(pattern string, handler Handler) {
+	// … L2958-2962
+}
 
 // HandleFunc registers the handler function for the given pattern in [DefaultServeMux].
-// The documentation for [ServeMux] explains how patterns are matched.
-func HandleFunc(pattern string, handler func(ResponseWriter, *Request)) { … 5 lines }
+// … comments L2966
+func HandleFunc(pattern string, handler func(ResponseWriter, *Request)) {
+	// … L2968-2972
+}
 
 func (mux *ServeMux) register(pattern string, handler Handler) {
 	if err := mux.registerErr(pattern, handler); err != nil {
@@ -757,92 +896,94 @@ func (mux *ServeMux) register(pattern string, handler Handler) {
 	}
 }
 
-func (mux *ServeMux) registerErr(patstr string, handler Handler) error { … 40 lines }
+func (mux *ServeMux) registerErr(patstr string, handler Handler) error {
+	// … L2982-3021
+}
 
 // Serve accepts incoming HTTP connections on the listener l,
-// … 11 comment lines
+// … comments L3025-3035
 func Serve(l net.Listener, handler Handler) error {
 	srv := &Server{Handler: handler}
 	return srv.Serve(l)
 }
 
 // ServeTLS accepts incoming HTTPS connections on the listener l,
-// … 11 comment lines
+// … comments L3042-3052
 func ServeTLS(l net.Listener, handler Handler, certFile, keyFile string) error {
 	srv := &Server{Handler: handler}
 	return srv.ServeTLS(l, certFile, keyFile)
 }
 
 // A Server defines parameters for running an HTTP server.
-// The zero value for Server is a valid configuration.
+// … comments L3059
 type Server struct {
 	// Addr optionally specifies the TCP address for the server to listen on,
-	// … 3 comment lines
+	// … comments L3062-3064
 	Addr string
 
 	Handler Handler // handler to invoke, http.DefaultServeMux if nil
 
 	// DisableGeneralOptionsHandler, if true, passes "OPTIONS *" requests to the Handler,
-	// otherwise responds with 200 OK and Content-Length: 0.
+	// … comments L3070
 	DisableGeneralOptionsHandler bool
 
 	// TLSConfig optionally provides a TLS configuration for use
-	// … 6 comment lines
+	// … comments L3074-3079
 	TLSConfig *tls.Config
 
 	// ReadTimeout is the maximum duration for reading the entire
-	// … 7 comment lines
+	// … comments L3083-3089
 	ReadTimeout time.Duration
 
 	// ReadHeaderTimeout is the amount of time allowed to read
-	// … 5 comment lines
+	// … comments L3093-3097
 	ReadHeaderTimeout time.Duration
 
 	// WriteTimeout is the maximum duration before timing out
-	// … 4 comment lines
+	// … comments L3101-3104
 	WriteTimeout time.Duration
 
 	// IdleTimeout is the maximum amount of time to wait for the
-	// … 3 comment lines
+	// … comments L3108-3110
 	IdleTimeout time.Duration
 
 	// MaxHeaderBytes controls the maximum number of bytes the
-	// … 4 comment lines
+	// … comments L3114-3117
 	MaxHeaderBytes int
 
 	// MaxHeaderValueCount controls the maximum number of header
-	// … 8 comment lines
+	// … comments L3121-3128
 	MaxHeaderValueCount int
 
 	// TLSNextProto optionally specifies a function to take over
-	// … 11 comment lines
+	// … comments L3132-3142
 	TLSNextProto map[string]func(*Server, *tls.Conn, Handler)
 
 	// ConnState specifies an optional callback function that is
-	// … 2 comment lines
+	// … comments L3146-3147
 	ConnState func(net.Conn, ConnState)
 
 	// ErrorLog specifies an optional logger for errors accepting
-	// … 3 comment lines
+	// … comments L3151-3153
 	ErrorLog *log.Logger
 
 	// BaseContext optionally specifies a function that returns
-	// … 5 comment lines
+	// … comments L3157-3161
 	BaseContext func(net.Listener) context.Context
 
 	// ConnContext optionally specifies a function that modifies
-	// … 3 comment lines
+	// … comments L3165-3167
 	ConnContext func(ctx context.Context, c net.Conn) context.Context
 
 	// HTTP2 configures HTTP/2 connections.
 	HTTP2 *HTTP2Config
 
 	// Protocols is the set of protocols accepted by the server.
-	// … 8 comment lines
+	// … comments L3174-3181
 	Protocols *Protocols
 
 	// DisableClientPriority specifies whether client-specified priority, as
-	// … 8 comment lines
+	// … comments L3185-3192
 	DisableClientPriority bool
 
 	inShutdown atomic.Bool // true when server is in shutdown
@@ -864,19 +1005,23 @@ type Server struct {
 }
 
 // Close immediately closes all active net.Listeners and any
-// … 8 comment lines
-func (s *Server) Close() error { … 18 lines }
+// … comments L3214-3221
+func (s *Server) Close() error {
+	// … L3223-3240
+}
 
 // shutdownPollIntervalMax is the max polling interval when checking
-// … 6 comment lines
+// … comments L3244-3249
 const shutdownPollIntervalMax = 500 * time.Millisecond
 
 // Shutdown gracefully shuts down the server without interrupting any
-// … 19 comment lines
-func (s *Server) Shutdown(ctx context.Context) error { … 38 lines }
+// … comments L3253-3271
+func (s *Server) Shutdown(ctx context.Context) error {
+	// … L3273-3310
+}
 
 // RegisterOnShutdown registers a function to call on [Server.Shutdown].
-// … 4 comment lines
+// … comments L3314-3317
 func (s *Server) RegisterOnShutdown(f func()) {
 	s.mu.Lock()
 	s.onShutdown = append(s.onShutdown, f)
@@ -885,33 +1030,37 @@ func (s *Server) RegisterOnShutdown(f func()) {
 
 // closeIdleConns closes all idle connections and reports whether the
 // server is quiescent.
-func (s *Server) closeIdleConns() bool { … 21 lines }
+func (s *Server) closeIdleConns() bool {
+	// … L3327-3347
+}
 
-func (s *Server) closeListenersLocked() error { … 7 lines }
+func (s *Server) closeListenersLocked() error {
+	// … L3351-3357
+}
 
 // A ConnState represents the state of a client connection to a server.
-// It's used by the optional [Server.ConnState] hook.
+// … comments L3361
 type ConnState int
 
 const (
 	// StateNew represents a new connection that is expected to
-	// … 3 comment lines
+	// … comments L3366-3368
 	StateNew ConnState = iota
 
 	// StateActive represents a connection that has read 1 or more
-	// … 10 comment lines
+	// … comments L3372-3381
 	StateActive
 
 	// StateIdle represents a connection that has finished
-	// … 3 comment lines
+	// … comments L3385-3387
 	StateIdle
 
 	// StateHijacked represents a hijacked connection.
-	// This is a terminal state. It does not transition to StateClosed.
+	// … comments L3391
 	StateHijacked
 
 	// StateClosed represents a closed connection.
-	// … 2 comment lines
+	// … comments L3395-3396
 	StateClosed
 )
 
@@ -928,60 +1077,87 @@ func (c ConnState) String() string {
 }
 
 // serverHandler delegates to either the server's Handler or
-// DefaultServeMux and also handles "OPTIONS *" requests.
+// … comments L3413
 type serverHandler struct {
 	srv *Server
 }
 
 // ServeHTTP should be an internal detail,
-// … 8 comment lines
-func (sh serverHandler) ServeHTTP(rw ResponseWriter, req *Request) { … 9 lines }
+// … comments L3419-3425
+//go:linkname badServeHTTP net/http.serverHandler.ServeHTTP
+func (sh serverHandler) ServeHTTP(rw ResponseWriter, req *Request) {
+	// … L3428-3436
+}
 
 func badServeHTTP(serverHandler, ResponseWriter, *Request)
 
 // AllowQuerySemicolons returns a handler that serves requests by converting any
-// … 8 comment lines
-func AllowQuerySemicolons(h Handler) Handler { … 12 lines }
+// … comments L3442-3449
+func AllowQuerySemicolons(h Handler) Handler {
+	// … L3451-3462
+}
 
 // ListenAndServe listens on the TCP network address s.Addr and then
-// … 7 comment lines
-func (s *Server) ListenAndServe() error { … 12 lines }
+// … comments L3466-3472
+func (s *Server) ListenAndServe() error {
+	// … L3474-3485
+}
 
 var testHookServerServe func(*Server, net.Listener) // used if non-nil
 
 // shouldConfigureHTTP2ForServe reports whether Server.Serve should configure
-// automatic HTTP/2. (which sets up the s.TLSNextProto map)
-func (s *Server) shouldConfigureHTTP2ForServe() bool { … 20 lines }
+// … comments L3491
+func (s *Server) shouldConfigureHTTP2ForServe() bool {
+	// … L3493-3512
+}
 
 // ErrServerClosed is returned by the [Server.Serve], [ServeTLS], [ListenAndServe],
-// and [ListenAndServeTLS] methods after a call to [Server.Shutdown] or [Server.Close].
+// … comments L3516
 var ErrServerClosed = errors.New("http: Server closed")
 
 // Serve accepts incoming connections on the Listener l, creating a
-// … 9 comment lines
-func (s *Server) Serve(l net.Listener) error { … 76 lines }
+// … comments L3520-3528
+func (s *Server) Serve(l net.Listener) error {
+	// … L3530-3605
+}
 
-func (s *Server) setupTLSConfig(certFile, keyFile string, nextProtos []string) (*tls.Config, error) { … 13 lines }
+func (s *Server) setupTLSConfig(certFile, keyFile string, nextProtos []string) (*tls.Config, error) {
+	// … L3609-3621
+}
 
 // ServeTLS accepts incoming connections on the Listener l, creating a
-// … 13 comment lines
-func (s *Server) ServeTLS(l net.Listener, certFile, keyFile string) error { … 17 lines }
+// … comments L3625-3637
+func (s *Server) ServeTLS(l net.Listener, certFile, keyFile string) error {
+	// … L3639-3655
+}
 
-func (s *Server) protocols() Protocols { … 31 lines }
+func (s *Server) protocols() Protocols {
+	// … L3659-3689
+}
 
 // adjustNextProtos adds or removes "http/1.1" and "h2" entries from
-// a tls.Config.NextProtos list, according to the set of protocols in protos.
-func adjustNextProtos(nextProtos []string, protos Protocols) []string { … 29 lines }
+// … comments L3693
+func adjustNextProtos(nextProtos []string, protos Protocols) []string {
+	// … L3695-3723
+}
 
 // trackListener adds or removes a net.Listener to the set of tracked
-// … 9 comment lines
-func (s *Server) trackListener(ln *net.Listener, add bool) bool { … 16 lines }
+// … comments L3727-3735
+func (s *Server) trackListener(ln *net.Listener, add bool) bool {
+	// … L3737-3752
+}
 
-func (s *Server) trackConn(c *conn, add bool) { … 10 lines }
+func (s *Server) trackConn(c *conn, add bool) {
+	// … L3756-3765
+}
 
-func (s *Server) idleTimeout() time.Duration { … 4 lines }
+func (s *Server) idleTimeout() time.Duration {
+	// … L3769-3772
+}
 
-func (s *Server) readHeaderTimeout() time.Duration { … 4 lines }
+func (s *Server) readHeaderTimeout() time.Duration {
+	// … L3776-3779
+}
 
 func (s *Server) doKeepAlives() bool {
 	return !s.disableKeepAlives.Load() && !s.shuttingDown()
@@ -992,31 +1168,37 @@ func (s *Server) shuttingDown() bool {
 }
 
 // SetKeepAlivesEnabled controls whether HTTP keep-alives are enabled.
-// … 3 comment lines
-func (s *Server) SetKeepAlivesEnabled(v bool) { … 10 lines }
+// … comments L3791-3793
+func (s *Server) SetKeepAlivesEnabled(v bool) {
+	// … L3795-3804
+}
 
-func (s *Server) logf(format string, args ...any) { … 5 lines }
+func (s *Server) logf(format string, args ...any) {
+	// … L3808-3812
+}
 
 // logf prints to the ErrorLog of the *Server associated with request r
-// … 2 comment lines
-func logf(r *Request, format string, args ...any) { … 6 lines }
+// … comments L3816-3817
+func logf(r *Request, format string, args ...any) {
+	// … L3819-3824
+}
 
 // ListenAndServe listens on the TCP network address addr and then calls
-// … 6 comment lines
+// … comments L3828-3833
 func ListenAndServe(addr string, handler Handler) error {
 	server := &Server{Addr: addr, Handler: handler}
 	return server.ListenAndServe()
 }
 
 // ListenAndServeTLS acts identically to [ListenAndServe], except that it
-// … 4 comment lines
+// … comments L3840-3843
 func ListenAndServeTLS(addr, certFile, keyFile string, handler Handler) error {
 	server := &Server{Addr: addr, Handler: handler}
 	return server.ListenAndServeTLS(certFile, keyFile)
 }
 
 // http3ServerHandler implements an interface in an external library that
-// … 6 comment lines
+// … comments L3850-3855
 type http3ServerHandler struct {
 	handler     serverHandler
 	tlsConfig   *tls.Config
@@ -1026,7 +1208,7 @@ type http3ServerHandler struct {
 }
 
 // ServeHTTP ensures that http3ServerHandler implements the Handler interface,
-// and gives an HTTP/3 server implementation access to the net/http handler.
+// … comments L3865
 func (h *http3ServerHandler) ServeHTTP(w ResponseWriter, r *Request) {
 	h.handler.ServeHTTP(w, r)
 }
@@ -1050,30 +1232,32 @@ func (h *http3ServerHandler) BaseContext() context.Context {
 }
 
 // ListenErrHook should be called by an HTTP/3 server implementation to
-// … 2 comment lines
+// … comments L3889-3890
 func (h *http3ServerHandler) ListenErrHook(err error) {
 	h.errc <- err
 }
 
 // ShutdownContext gives an HTTP/3 server implementation the context that is
-// … 4 comment lines
+// … comments L3896-3899
 func (h *http3ServerHandler) ShutdownContext() context.Context {
 	return h.shutdownCtx
 }
 
 // ListenAndServeTLS listens on the TCP network address s.Addr and
-// … 14 comment lines
-func (s *Server) ListenAndServeTLS(certFile, keyFile string) error { … 43 lines }
+// … comments L3905-3918
+func (s *Server) ListenAndServeTLS(certFile, keyFile string) error {
+	// … L3920-3962
+}
 
 // setupHTTP2_ServeTLS conditionally configures HTTP/2 on
-// … 2 comment lines
+// … comments L3966-3967
 func (s *Server) setupHTTP2_ServeTLS() error {
 	s.nextProtoOnce.Do(s.onceSetNextProtoDefaults)
 	return s.nextProtoErr
 }
 
 // setupHTTP2_Serve is called from (*Server).Serve and conditionally
-// … 7 comment lines
+// … comments L3974-3980
 func (s *Server) setupHTTP2_Serve() error {
 	s.nextProtoOnce.Do(s.onceSetNextProtoDefaults_Serve)
 	return s.nextProtoErr
@@ -1088,12 +1272,16 @@ func (s *Server) onceSetNextProtoDefaults_Serve() {
 var http2server = godebug.New("http2server")
 
 // onceSetNextProtoDefaults configures HTTP/2, if the user hasn't
-// … 2 comment lines
-func (s *Server) onceSetNextProtoDefaults() { … 18 lines }
+// … comments L3995-3996
+func (s *Server) onceSetNextProtoDefaults() {
+	// … L3998-4015
+}
 
 // TimeoutHandler returns a [Handler] that runs h with the given time limit.
-// … 10 comment lines
-func TimeoutHandler(h Handler, dt time.Duration, msg string) Handler { … 5 lines }
+// … comments L4019-4028
+func TimeoutHandler(h Handler, dt time.Duration, msg string) Handler {
+	// … L4030-4034
+}
 
 // ErrHandlerTimeout is returned on [ResponseWriter] Write calls
 // in handlers which have timed out.
@@ -1109,9 +1297,13 @@ type timeoutHandler struct {
 	testContext context.Context
 }
 
-func (h *timeoutHandler) errorBody() string { … 4 lines }
+func (h *timeoutHandler) errorBody() string {
+	// … L4052-4055
+}
 
-func (h *timeoutHandler) ServeHTTP(w ResponseWriter, r *Request) { … 49 lines }
+func (h *timeoutHandler) ServeHTTP(w ResponseWriter, r *Request) {
+	// … L4059-4107
+}
 
 type timeoutWriter struct {
 	w    ResponseWriter
@@ -1128,13 +1320,19 @@ type timeoutWriter struct {
 var _ Pusher = (*timeoutWriter)(nil)
 
 // Push implements the [Pusher] interface.
-func (tw *timeoutWriter) Push(target string, opts *PushOptions) error { … 4 lines }
+func (tw *timeoutWriter) Push(target string, opts *PushOptions) error {
+	// … L4126-4129
+}
 
 func (tw *timeoutWriter) Header() Header { return tw.h }
 
-func (tw *timeoutWriter) Write(p []byte) (int, error) { … 9 lines }
+func (tw *timeoutWriter) Write(p []byte) (int, error) {
+	// … L4135-4143
+}
 
-func (tw *timeoutWriter) writeHeaderLocked(code int) { … 14 lines }
+func (tw *timeoutWriter) writeHeaderLocked(code int) {
+	// … L4147-4160
+}
 
 func (tw *timeoutWriter) WriteHeader(code int) {
 	tw.mu.Lock()
@@ -1160,10 +1358,12 @@ func (oc *onceCloseListener) close() { oc.closeErr = oc.Listener.Close() }
 // globalOptionsHandler responds to "OPTIONS *" requests.
 type globalOptionsHandler struct{}
 
-func (globalOptionsHandler) ServeHTTP(w ResponseWriter, r *Request) { … 10 lines }
+func (globalOptionsHandler) ServeHTTP(w ResponseWriter, r *Request) {
+	// … L4188-4197
+}
 
 // initALPNRequest is an HTTP handler that initializes certain
-// … 2 comment lines
+// … comments L4201-4202
 type initALPNRequest struct {
 	ctx context.Context
 	c   *tls.Conn
@@ -1171,10 +1371,12 @@ type initALPNRequest struct {
 }
 
 // BaseContext is an exported but unadvertised [http.Handler] method
-// … 3 comment lines
+// … comments L4210-4212
 func (h initALPNRequest) BaseContext() context.Context { return h.ctx }
 
-func (h initALPNRequest) ServeHTTP(rw ResponseWriter, req *Request) { … 11 lines }
+func (h initALPNRequest) ServeHTTP(rw ResponseWriter, req *Request) {
+	// … L4216-4226
+}
 
 // loggingConn is used for debugging.
 type loggingConn struct {
@@ -1187,27 +1389,43 @@ var (
 	uniqNameNext = make(map[string]int)
 )
 
-func newLoggingConn(baseName string, c net.Conn) net.Conn { … 7 lines }
+func newLoggingConn(baseName string, c net.Conn) net.Conn {
+	// … L4241-4247
+}
 
-func (c *loggingConn) Write(p []byte) (n int, err error) { … 4 lines }
+func (c *loggingConn) Write(p []byte) (n int, err error) {
+	// … L4251-4254
+}
 
-func (c *loggingConn) Read(p []byte) (n int, err error) { … 4 lines }
+func (c *loggingConn) Read(p []byte) (n int, err error) {
+	// … L4258-4261
+}
 
-func (c *loggingConn) Close() (err error) { … 4 lines }
+func (c *loggingConn) Close() (err error) {
+	// … L4265-4268
+}
 
 // checkConnErrorWriter writes to c.rwc and records any write errors to c.werr.
-// … 2 comment lines
+// … comments L4272-4273
 type checkConnErrorWriter struct {
 	c *conn
 }
 
-func (w checkConnErrorWriter) Write(p []byte) (n int, err error) { … 6 lines }
+func (w checkConnErrorWriter) Write(p []byte) (n int, err error) {
+	// … L4279-4284
+}
 
-func numLeadingCRorLF(v []byte) (n int) { … 8 lines }
+func numLeadingCRorLF(v []byte) (n int) {
+	// … L4288-4295
+}
 
 // tlsRecordHeaderLooksLikeHTTP reports whether a TLS record header
-// looks like it might've been a misdirected plaintext HTTP request.
-func tlsRecordHeaderLooksLikeHTTP(hdr [5]byte) bool { … 5 lines }
+// … comments L4299
+func tlsRecordHeaderLooksLikeHTTP(hdr [5]byte) bool {
+	// … L4301-4305
+}
 
 // MaxBytesHandler returns a [Handler] that runs h with its [ResponseWriter] and [Request.Body] wrapped by a MaxBytesReader.
-func MaxBytesHandler(h Handler, n int64) Handler { … 5 lines }
+func MaxBytesHandler(h Handler, n int64) Handler {
+	// … L4310-4314
+}

@@ -10,33 +10,26 @@ import (
 )
 
 // goOutline elides bodies of functions and methods using the Go parser.
-func (o *Optimizer) goOutline(src string) ([]string, int) {
+// Signature and closing brace lines stay as they are.
+func (o *Optimizer) goOutline(src string, lines []string) []span {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, "", src, parser.ParseComments|parser.SkipObjectResolution)
 	if err != nil {
-		return o.braceOutline(strings.Split(strings.TrimSuffix(src, "\n"), "\n"))
+		return o.braceOutline(lines)
 	}
-	type cut struct{ from, to, lines int }
-	var cuts []cut
+	var spans []span
 	for _, d := range f.Decls {
 		fn, ok := d.(*ast.FuncDecl)
 		if !ok || fn.Body == nil {
 			continue
 		}
-		open, close := fset.Position(fn.Body.Lbrace), fset.Position(fn.Body.Rbrace)
-		if n := close.Line - open.Line - 1; n >= o.cfg.MinBody {
-			cuts = append(cuts, cut{open.Offset, close.Offset + 1, n})
+		open, close := fset.Position(fn.Body.Lbrace).Line, fset.Position(fn.Body.Rbrace).Line
+		ownLines := strings.HasSuffix(strings.TrimSpace(lines[open-1]), "{") && strings.TrimSpace(lines[close-1]) == "}"
+		if ownLines && close-open-1 >= o.cfg.MinBody {
+			spans = append(spans, span{from: open, to: close - 2})
 		}
 	}
-	var b strings.Builder
-	last := 0
-	for _, c := range cuts {
-		b.WriteString(src[last:c.from])
-		b.WriteString("{ " + elision("", c.lines) + " }")
-		last = c.to
-	}
-	b.WriteString(src[last:])
-	return strings.Split(strings.TrimSuffix(b.String(), "\n"), "\n"), len(cuts)
+	return spans
 }
 
 var container = regexp.MustCompile(`\b(class|interface|enum|struct|namespace|module|impl|trait|object|record)\b`)
@@ -44,7 +37,7 @@ var container = regexp.MustCompile(`\b(class|interface|enum|struct|namespace|mod
 // braceOutline elides bodies of blocks nested only in containers (classes,
 // namespaces): functions and methods, top-level object literals. Strings and
 // comments are skipped roughly; good enough for an outline.
-func (o *Optimizer) braceOutline(lines []string) ([]string, int) {
+func (o *Optimizer) braceOutline(lines []string) []span {
 	type open struct {
 		line      int
 		container bool
@@ -80,7 +73,7 @@ func (o *Optimizer) braceOutline(lines []string) ([]string, int) {
 			}
 		}
 	}
-	return apply(lines, elide)
+	return spans(elide)
 }
 
 func skipString(l string, j int) int {
@@ -100,7 +93,7 @@ var pyBlock = regexp.MustCompile(`^(\s*)(async\s+def|def|class)\b`)
 
 // indentOutline elides bodies of Python functions nested only in classes,
 // keeping the first docstring line.
-func (o *Optimizer) indentOutline(lines []string) ([]string, int) {
+func (o *Optimizer) indentOutline(lines []string) []span {
 	elide := map[int]int{}
 	type scope struct {
 		indent int
@@ -143,7 +136,7 @@ func (o *Optimizer) indentOutline(lines []string) ([]string, int) {
 		stack = append(stack, scope{indent, class})
 		i = header
 	}
-	return apply(lines, elide)
+	return spans(elide)
 }
 
 func stripComment(l string) string {
@@ -157,17 +150,14 @@ func indentOf(l string) int {
 	return len(l) - len(strings.TrimLeft(l, " \t"))
 }
 
-// apply replaces each elided range with one marker line.
-func apply(lines []string, elide map[int]int) ([]string, int) {
-	var out []string
-	for i := 0; i < len(lines); i++ {
-		if end, ok := elide[i]; ok && end >= i {
-			indent := lines[i][:indentOf(lines[i])]
-			out = append(out, elision(indent, end-i+1))
-			i = end
-			continue
+// spans turns elided ranges (first → last line) into gaps, in line order.
+func spans(elide map[int]int) []span {
+	var out []span
+	for from, to := range elide {
+		if to >= from {
+			out = append(out, span{from: from, to: to})
 		}
-		out = append(out, lines[i])
 	}
-	return out, len(elide)
+	slices.SortFunc(out, func(a, b span) int { return a.from - b.from })
+	return out
 }

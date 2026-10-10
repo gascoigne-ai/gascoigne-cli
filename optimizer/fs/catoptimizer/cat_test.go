@@ -30,12 +30,16 @@ func (t *T) Get() int { return t.n }
 `
 
 func TestGoOutline(t *testing.T) {
-	got := opt(Outline).rewrite(goSrc, detect.LangGo, Outline)
+	got := opt(Outline).rewrite(goSrc, detect.LangGo, detect.Hints{}, Outline)
 	want := `// outline: 1 bodies elided (cat_mode=full for complete source)
+// … comments L1-2
+
 package x
 
 // Add sums.
-func Add(a, b int) int { … 3 lines }
+func Add(a, b int) int {
+	// … L8-10
+}
 
 type T struct{ n int }
 
@@ -60,8 +64,8 @@ function helper() {
   b();
 }
 `
-	got := opt(Outline).rewrite(src, detect.LangCLike, Outline)
-	for _, want := range []string{"export class Cart {", "  total(items) {", "    … 3 lines", "function helper() {", "  … 2 lines"} {
+	got := opt(Outline).rewrite(src, detect.LangCLike, detect.Hints{}, Outline)
+	for _, want := range []string{"export class Cart {", "  total(items) {", "    // … L4-6", "function helper() {", "  // … L10-11"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("missing %q in:\n%s", want, got)
 		}
@@ -86,8 +90,8 @@ def main():
     run()
     exit()
 `
-	got := opt(Outline).rewrite(src, detect.LangPython, Outline)
-	for _, want := range []string{"class Decoder:", "    def decode(self, s,", `        """Decode s."""`, "        … 3 lines", "def main():", "    … 2 lines"} {
+	got := opt(Outline).rewrite(src, detect.LangPython, detect.Hints{}, Outline)
+	for _, want := range []string{"class Decoder:", "    def decode(self, s,", `        """Decode s."""`, "        # … L7-9", "def main():", "    # … L12-13"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("missing %q in:\n%s", want, got)
 		}
@@ -97,10 +101,10 @@ def main():
 func TestAutoModes(t *testing.T) {
 	o := opt(Auto)
 	small := "package x\n"
-	if got := o.rewrite(small, detect.LangGo, Auto); got != small {
+	if got := o.rewrite(small, detect.LangGo, detect.Hints{}, Auto); got != small {
 		t.Errorf("small changed: %q", got)
 	}
-	if got := o.rewrite(goSrc, detect.LangGo, Auto); strings.Contains(got, "Copyright") || strings.Contains(got, "outline") {
+	if got := o.rewrite(goSrc, detect.LangGo, detect.Hints{}, Auto); strings.Contains(got, "Copyright") || strings.Contains(got, "outline") {
 		t.Errorf("medium should be cleaned only:\n%s", got)
 	}
 }

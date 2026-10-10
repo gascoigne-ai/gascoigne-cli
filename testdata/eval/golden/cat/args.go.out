@@ -1,3 +1,5 @@
+// … comments L1-13
+
 package cobra
 
 import (
@@ -8,9 +10,7 @@ import (
 type PositionalArgs func(cmd *Command, args []string) error
 
 // legacyArgs validation has the following behaviour:
-// - root commands with no subcommands can take arbitrary arguments
-// - root commands with subcommands will do subcommand validity checking
-// - subcommands will always accept arbitrary arguments
+// … comments L25-27
 func legacyArgs(cmd *Command, args []string) error {
 	// no subcommand, always take args
 	if !cmd.HasSubCommands() {
@@ -122,9 +122,7 @@ func MatchAll(pargs ...PositionalArgs) PositionalArgs {
 }
 
 // ExactValidArgs returns an error if there are not exactly N positional args OR
-// there are any positional args that are not in the `ValidArgs` field of `Command`
-//
-// Deprecated: use MatchAll(ExactArgs(n), OnlyValidArgs) instead
+// … comments L139-141
 func ExactValidArgs(n int) PositionalArgs {
 	return MatchAll(ExactArgs(n), OnlyValidArgs)
 }

@@ -73,7 +73,7 @@ lives in public libs so engines and composite families can reuse it:
 | `task` | sections; ok/cached collapse; failing ones via `compress/compose` | nx, turbo, make, just, gradle, compose, ci |
 | `vcs` | git engine; blame runs grouped, mirrored remote branches dropped, gh lists via `compress/table` | git-status, git-log, git-diff, git-remote, git-blame, git-branch, gh-list, gh-view |
 | `search` | grep engine: matches grouped by file | grep, rg, ag, git-grep |
-| `fs` | ls engine (listings, tree, paths by directory, du largest, df real disks); cat (outline) | ls, tree, find, du, df, code |
+| `fs` | ls engine (listings, tree, paths by directory, du largest, df real disks); cat: comments dropped, outlines (see Source files) | ls, tree, find, du, df, code |
 | `table` | `compress/table`: parse boxed/aligned/ruled/fixed-width, constants hoisted, cells cut, rows via `compress/rows` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, aligned, boxed |
 | `data` | json: `compress/jsonx` crusher; data: YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry | json, ndjson, yaml, csv, xml, toml |
 | `log` | log engine: templates with counts, errors with context; structured cloud events → lines; access logs → traffic summary | app, journal, syslog, docker, kubectl, access, cloudwatch, gcp, azure |
@@ -108,6 +108,24 @@ every payload through one chain of all optimizers; routes only override per comm
 - `gascoigne mcp-proxy -- <server cmd>`: mirrors a downstream server's tools, optimizes their text
   results, adds `gascoigne_retrieve`. Non-text content passes untouched.
 - MCP pipelines have no exporters: stdout is the protocol channel.
+
+## Source files (`optimizer/fs/catoptimizer`)
+Agents edit by exact text, so source is shrunk only by dropping whole lines; kept lines are
+byte-exact (indentation and trailing comments untouched: Python stays valid as far as shown).
+Each gap is one marker in the file's comment syntax naming the original lines
+(`// … comments L12-30`, `# … docstring L3-9`, `// … L50-89` for a body; `N lines` instead of
+numbers for `tail`/`sed`), so an agent edits within kept runs and reads a gap back by range
+(`sed -n 12,30p f`: small, passes untouched) or the whole file (`cat_mode=full`, `gascoigne raw`).
+- clean (auto, 800–4000 tokens): comment runs go; a run right above code keeps its first line
+  with words (doc summary), Python docstrings after `def`/`class` keep their summary line.
+  Runs cheaper than a marker and directives (`//go:`, `# type:`, `noqa`, shebang, coding,
+  eslint/ts pragmas) stay. Lines inside multi-line strings (backticks, triple quotes, heredocs)
+  are never taken for comments.
+- outline (auto, ≥ 4000 tokens): clean plus function bodies elided, signatures and closing
+  braces kept as they are.
+- Language-agnostic: comment syntax per extension (`//`+`/* */`, `#`, `--`, `;`, `%`), else by
+  family (`detect.Lang`); unknown languages are left alone. Agents' own file-read tools are
+  never touched: only `cat`/`head`/`tail` output and MCP `compress`.
 
 ## Agents (`cmd/gascoigne/agents.go`, `hook.go`)
 `gascoigne wrap <agent> [args]` starts the agent with gascoigne registered for that run only

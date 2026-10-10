@@ -395,17 +395,28 @@
   attrs: { cmd: cat args.go }
   expect_type: fs/code
   keep: ["func OnlyValidArgs(cmd *Command, args []string) error {", "return nil"]
-  min_saved: 10
+  min_saved: 15
 - file: cat/decoder.py.txt
   attrs: { cmd: cat json/decoder.py }
   expect_type: fs/code
   keep: ["class JSONDecoder", "def decode(self, s"]
+  min_saved: 20
 - name: cat/decoder-outline
   file: cat/decoder.py.txt
   attrs: { cmd: cat json/decoder.py, cat_mode: outline }
   expect_type: fs/code
-  keep: ["class JSONDecoder", "def decode(self, s", "def raw_decode(self, s, idx=0):", "lines"]
+  keep: ["class JSONDecoder", "def decode(self, s", "def raw_decode(self, s, idx=0):", "# … L"]
   min_saved: 40
+- file: cat/benchmark.rb.txt
+  attrs: { cmd: cat lib/benchmark.rb }
+  expect_type: fs/code
+  keep: ["# frozen_string_literal: true", "def benchmark(caption = \"\", label_width = nil, format = nil, *labels) # :yield: report", "# … comments L"]
+  min_saved: 50
+- file: cat/deep-eql.js.txt
+  attrs: { cmd: cat node_modules/deep-eql/index.js }
+  expect_type: fs/code
+  keep: ["function deepEqual(leftHandOperand, rightHandOperand, options) {", "// … comments L"]
+  min_saved: 70
 - name: detect/go-code
   file: cat/server.go.txt
   expect_type: fs/code
