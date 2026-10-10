@@ -3,6 +3,7 @@ package jsonoptimizer
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/lukaszb/gascoigne/compress/jsonx"
 	"strings"
 	"testing"
 
@@ -11,7 +12,7 @@ import (
 )
 
 func testConfig(edit func(*Config)) *Config {
-	c := defaultConfig()
+	c := jsonx.Default()
 	c.MaxString = 40
 	c.MinTokens = 0
 	if edit != nil {
@@ -29,7 +30,7 @@ func run(t *testing.T, cfg *Config, typ, in string, attrs ...string) string {
 	if err := (&Optimizer{cfg: cfg}).Optimize(t.Context(), p); err != nil {
 		t.Fatal(err)
 	}
-	return strings.TrimPrefix(p.Blocks[0].Text, "// "+legend+"\n")
+	return strings.TrimPrefix(p.Blocks[0].Text, "// "+jsonx.Legend+"\n")
 }
 
 func TestDropEmptyAndStrings(t *testing.T) {

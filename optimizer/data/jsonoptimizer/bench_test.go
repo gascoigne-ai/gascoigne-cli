@@ -3,6 +3,7 @@ package jsonoptimizer
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/lukaszb/gascoigne/compress/jsonx"
 	"os"
 	"testing"
 
@@ -37,7 +38,7 @@ func benchInputs(b *testing.B) map[string]string {
 }
 
 func BenchmarkOptimize(b *testing.B) {
-	o := &Optimizer{cfg: defaultConfig()}
+	o := &Optimizer{cfg: jsonx.Default()}
 	for name, text := range benchInputs(b) {
 		b.Run(name, func(b *testing.B) {
 			b.SetBytes(int64(len(text)))

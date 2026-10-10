@@ -1,4 +1,4 @@
-package jsonoptimizer
+package jsonx
 
 import "errors"
 
@@ -31,7 +31,8 @@ type Config struct {
 	RelevanceK int `yaml:"relevance_k"`
 }
 
-func defaultConfig() *Config {
+// Default is the recommended configuration.
+func Default() *Config {
 	return &Config{
 		DropEmpty: true, MaxString: 300, ShortenHashes: true, TabulateMin: 3,
 		LosslessMinSaving: 0.3, LosslessMaxTokens: 1500,

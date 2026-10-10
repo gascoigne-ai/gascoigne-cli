@@ -1,4 +1,4 @@
-package jsonoptimizer
+package jsonx
 
 import "encoding/json"
 
