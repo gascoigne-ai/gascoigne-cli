@@ -69,11 +69,8 @@ header::after {
   background: repeating-linear-gradient(90deg, transparent 0 46px, rgba(184, 149, 90, .04) 46px 47px);
 }
 .brand { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; }
-.moon {
-  flex: none; width: 52px; height: 52px; border-radius: 50%;
-  background: radial-gradient(circle at 38% 36%, #f1e6cf, #cdbb98 55%, #8d7a5a 100%);
-  box-shadow: 0 0 28px 6px rgba(241, 230, 207, .18), 0 0 70px 18px rgba(200, 40, 58, .14);
-}
+.moon { flex: none; width: 60px; height: 60px; filter: drop-shadow(0 0 14px rgba(241, 230, 207, .22)) drop-shadow(0 0 30px rgba(200, 40, 58, .22)); }
+.moon svg { display: block; width: 100%; height: 100%; }
 h1 {
   margin: 0; font: 700 26px/1.1 "Cinzel", "Trajan Pro", "Times New Roman", Georgia, serif;
   letter-spacing: .2em; text-transform: uppercase; color: #dcbc7c;
@@ -180,7 +177,40 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 <div class="wrap">
   <header>
     <div class="brand">
-      <div class="moon" aria-hidden="true"></div>
+      <div class="moon" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <radialGradient id="m-body" cx="38%" cy="34%" r="70%">
+              <stop offset="0" stop-color="#fbf3e2"/><stop offset=".5" stop-color="#e3d3b2"/><stop offset="1" stop-color="#a8916a"/>
+            </radialGradient>
+            <radialGradient id="m-limb" cx="50%" cy="50%" r="50%">
+              <stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#2a1a12" stop-opacity=".55"/>
+            </radialGradient>
+            <radialGradient id="m-blood" cx="92%" cy="88%" r="60%">
+              <stop offset="0" stop-color="#c8283a" stop-opacity=".6"/><stop offset="1" stop-color="#c8283a" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="m-crater" cx="40%" cy="40%" r="60%">
+              <stop offset="0" stop-color="#6e5c40" stop-opacity=".9"/><stop offset=".8" stop-color="#b8a27c" stop-opacity=".35"/><stop offset="1" stop-color="#fff6e4" stop-opacity=".5"/>
+            </radialGradient>
+            <clipPath id="m-clip"><circle cx="50" cy="50" r="46"/></clipPath>
+          </defs>
+          <circle cx="50" cy="50" r="46" fill="url(#m-body)"/>
+          <g clip-path="url(#m-clip)">
+            <path d="M18 38c6-10 20-14 30-8 8 5 4 14-6 16-9 2-14 8-21 4-5-3-6-7-3-12z" fill="#8a7352" opacity=".5"/>
+            <path d="M52 52c8-6 22-4 27 4 4 7-2 14-11 15-10 1-21-3-20-10 0-4 1-7 4-9z" fill="#8a7352" opacity=".45"/>
+            <path d="M30 70c5-4 13-3 15 2 2 5-3 9-9 9-6 0-10-6-6-11z" fill="#8a7352" opacity=".42"/>
+            <circle cx="64" cy="28" r="7" fill="url(#m-crater)"/>
+            <circle cx="36" cy="58" r="5" fill="url(#m-crater)"/>
+            <circle cx="72" cy="66" r="4.5" fill="url(#m-crater)"/>
+            <circle cx="24" cy="30" r="3" fill="url(#m-crater)"/>
+            <circle cx="52" cy="82" r="3.5" fill="url(#m-crater)"/>
+            <circle cx="47" cy="22" r="2" fill="url(#m-crater)"/>
+            <circle cx="82" cy="46" r="2.5" fill="url(#m-crater)"/>
+            <circle cx="50" cy="50" r="46" fill="url(#m-blood)"/>
+          </g>
+          <circle cx="50" cy="50" r="46" fill="url(#m-limb)"/>
+        </svg>
+      </div>
       <div>
         <h1>Gascoigne</h1>
         <div class="subtitle">Token savings for coding agents</div>
