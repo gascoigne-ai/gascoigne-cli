@@ -18,8 +18,10 @@ Lift dialects that save little on real output, without losing what agents need.
 
 - `doc/help` with a `query`: only matching option entries stay (curl --help all 0 → 84%).
 
+- `doc/rst`: real README with badges (vdf, 30.7%): badge-only substitution rows dropped with their
+  image definitions; link targets (`.. _name: url`) kept, they were dropped as comments.
+
 ## Open
-- `doc/rst` (0% on a README without directives): needs a fixture with directives/badges.
 - `search/rg -n` (14%): remaining lines are distinct matches already grouped and capped; more
   savings would drop matches. Leave unless a relevance cap per file is wanted.
 - `fs/code`: doc comments separated from their declaration by a blank line (Ruby rdoc) are

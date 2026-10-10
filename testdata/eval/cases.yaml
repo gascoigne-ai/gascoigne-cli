@@ -294,6 +294,8 @@
 - { name: detect/markdown, file: doc/go-sqlite3-README.md, expect_type: doc/markdown }
 - { name: detect/man, file: doc/man-ls.txt, expect_type: doc/man }
 - { name: detect/help, file: doc/ls-help.txt, expect_type: doc/help }
+- { file: doc/vdf-README.rst, attrs: { file: README.rst }, expect_type: doc/rst,
+    keep: ["pip install vdf", "VDFDict", ".. _hash randomization: https://docs.python.org"], min_saved: 25 }
 - { name: detect/rst, file: doc/ngtcp2-README.rst, expect_type: doc/rst }
 
 # --- web http

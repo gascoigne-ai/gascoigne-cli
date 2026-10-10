@@ -48,6 +48,20 @@ func TestRST(t *testing.T) {
 	}
 }
 
+func TestRSTBadgesAndTargets(t *testing.T) {
+	in := "| |pypi| |ci|\n\nIntro with |version| and `docs`_.\n\n.. |pypi| image:: https://img.shields.io/pypi/v/x.svg\n    :target: https://pypi.org/x\n" +
+		".. |ci| image:: https://ci/badge.svg\n.. |version| replace:: 1.2\n.. _docs: https://x.readthedocs.io\n"
+	got := compress.Join(compress.SqueezeBlank(testOptimizer().rst(compress.Lines(in))))
+	for _, want := range []string{"Intro with |version| and `docs`_.", ".. |version| replace:: 1.2", ".. _docs: https://x.readthedocs.io"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("lost %q in:\n%s", want, got)
+		}
+	}
+	if strings.Contains(got, "|pypi|") || strings.Contains(got, "shields") {
+		t.Errorf("badges kept:\n%s", got)
+	}
+}
+
 func TestSections(t *testing.T) {
 	filler := strings.Repeat("lorem ipsum dolor sit amet consectetur\n", 20)
 	in := "# Page\nintro\n## Alpha\n" + filler + "### Alpha detail\n" + filler +

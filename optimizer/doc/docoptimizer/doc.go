@@ -108,12 +108,16 @@ func (o *Optimizer) code(lines []string) []string {
 var (
 	rstDirective = lazyre.New(`^\.\. (\|[^|]+\| )?(image|figure|raw|contents|toctree|only|meta|highlight|index)::`)
 	rstComment   = lazyre.New(`^\.\.(\s|$)`)
+	rstTarget    = lazyre.New(`^\.\. _[^:]+: \S`) // link target: the URL a `name`_ reference points to
+	rstImageSub  = lazyre.New(`^\.\. \|([^|]+)\| (image|figure)::`)
+	rstSubRef    = lazyre.New(`\|([^|\s][^|]*)\|`)
 	rstCodeStart = lazyre.New(`(::\s*$|^\.\. (code-block|code|sourcecode)::)`)
 )
 
 // rst drops images, badges, tables of contents and comments with their
 // indented bodies, and keeps long literal blocks at their ends.
 func (o *Optimizer) rst(lines []string) []string {
+	lines = dropBadgeRows(lines)
 	var out, code []string
 	skip, inCode := false, false
 	for _, l := range lines {
@@ -128,7 +132,7 @@ func (o *Optimizer) rst(lines []string) []string {
 			out = append(out, o.code(code)...)
 			code, inCode = nil, false
 		}
-		skip = rstDirective.MatchString(l) || rstComment.MatchString(l) && !strings.Contains(l, "::")
+		skip = rstDirective.MatchString(l) || rstComment.MatchString(l) && !strings.Contains(l, "::") && !rstTarget.MatchString(l)
 		if skip {
 			continue
 		}
@@ -248,6 +252,30 @@ func helpFor(lines []string, query string) []string {
 	}
 	if dropped > 0 {
 		out = append(out, compress.Omitted(dropped, "options"))
+	}
+	return out
+}
+
+// dropBadgeRows removes lines made only of image substitutions
+// ("| |pypi| |license|"): their definitions, the badge images, go too.
+func dropBadgeRows(lines []string) []string {
+	images := map[string]bool{}
+	for _, l := range lines {
+		if m := rstImageSub.FindStringSubmatch(l); m != nil {
+			images[m[1]] = true
+		}
+	}
+	if len(images) == 0 {
+		return lines
+	}
+	var out []string
+	for _, l := range lines {
+		refs := rstSubRef.FindAllStringSubmatch(l, -1)
+		rest := strings.Trim(rstSubRef.ReplaceAllString(l, ""), "| \t")
+		if len(refs) > 0 && rest == "" && !slices.ContainsFunc(refs, func(m []string) bool { return !images[m[1]] }) {
+			continue
+		}
+		out = append(out, l)
 	}
 	return out
 }

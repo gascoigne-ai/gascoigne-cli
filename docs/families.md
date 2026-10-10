@@ -212,7 +212,7 @@ nginx access log: 34,382 → 215 (99.4%). `kubectl logs` with JSON lines: 13,459
 | Dialect | Detected by | What happens |
 |---|---|---|
 | `doc/markdown` | `*.md`, `glow`, `gh repo view`, HTML after the `html` optimizer | badges, images, layout HTML, comments and TOCs dropped; code blocks capped; over `max_tokens`, whole sections are kept by relevance and page order |
-| `doc/rst` | `*.rst` | as markdown |
+| `doc/rst` | `*.rst` | image, raw, toctree and similar directives and comments dropped; badge-only substitution rows go with their images; link targets (`.. _name: url`) kept; code blocks capped |
 | `doc/man` | `man` | page furniture and boilerplate sections dropped, dedented |
 | `doc/help` | `--help` output (sniffed) | dedented, boilerplate dropped; with a `query` (`exec -attr query="proxy auth" -- curl --help all`) only matching options stay (curl: 4,423 → 709 tokens) |
 | `doc/text` | anything else | runs of repeated lines deduplicated |
