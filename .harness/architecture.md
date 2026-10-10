@@ -138,7 +138,7 @@ Hooks call `gascoigne hook <agent>`, which never
 fails the tool call (bad input → no answer → call unchanged).
 | Agent | Per run | How shell output is optimized |
 |---|---|---|
-| claude | `--mcp-config` + `--settings` | PreToolUse rewrites the command to `gascoigne exec -- <cmd>` (no permission decision: rules see the wrapped command) |
+| claude | `--mcp-config` + `--settings` (denies Grep/Glob so searches run through Bash; Read stays, Edit needs it) | PreToolUse rewrites the command to `gascoigne exec -- <cmd>` (no permission decision: rules see the wrapped command) |
 | codex | `-c mcp_servers…` + `-c hooks.PostToolUse…` | PostToolUse runs the output through pipeline `hook` and replaces the result (`decision: block`); codex rewrites a command only by approving it. Trust the hook once with `/hooks` |
 | pi | `--extension` (written to the user cache dir) | `tool_call` rewrites the bash command; no MCP |
 | cursor | — (config files only: `-print`) | preToolUse `updated_input`, `permission: allow` (shell approval stays with `beforeShellExecution`) |

@@ -126,8 +126,14 @@ func claudeSettings(exe string) map[string]any {
 }
 
 func claudeArgs(exe string) ([]string, error) {
+	// Hooks cannot shrink built-in tool results: without Grep and Glob, Claude
+	// searches with rg and find through Bash, which the hook wraps. Read stays,
+	// Edit needs it. Per run only: unwrap could not tell this deny rule from the
+	// user's own.
+	settings := claudeSettings(exe)
+	settings["permissions"] = map[string]any{"deny": []string{"Grep", "Glob"}}
 	// --settings ends --mcp-config's list of files, so agent args stay agent args.
-	return []string{"--mcp-config", compactJSON(mcpServers(exe)), "--settings", compactJSON(claudeSettings(exe))}, nil
+	return []string{"--mcp-config", compactJSON(mcpServers(exe)), "--settings", compactJSON(settings)}, nil
 }
 
 func claudeInstall(exe string) string {
@@ -136,6 +142,7 @@ func claudeInstall(exe string) string {
 # MCP server (fetch, compress, retrieve, stats)
 claude mcp add --scope user gascoigne -- %s mcp
 # permission rules see the wrapped command: allow e.g. "Bash(gascoigne exec -- go test:*)"
+# optional: deny "Grep" and "Glob" so searches run through Bash (rg, find) and get optimized
 `, indentJSON(claudeSettings(exe)), shellQuote(exe))
 }
 

@@ -22,6 +22,12 @@ func TestClaudeArgs(t *testing.T) {
 	if !strings.Contains(args[3], `"command":"/opt/gascoigne hook claude"`) || !strings.Contains(args[3], `"matcher":"Bash"`) {
 		t.Fatalf("settings: %s", args[3])
 	}
+	if !strings.Contains(args[3], `"permissions":{"deny":["Grep","Glob"]}`) {
+		t.Fatalf("settings should deny Grep and Glob: %s", args[3])
+	}
+	if strings.Contains(claudeInstall("/opt/gascoigne"), `"permissions"`) {
+		t.Fatal("install config must not deny tools: unwrap cannot tell the rule from the user's own")
+	}
 }
 
 func TestCodexArgs(t *testing.T) {
