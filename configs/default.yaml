@@ -25,7 +25,7 @@ optimizers:
   test: {}
   build: { max_frame: 4 }
   git: { context_lines: 1, max_file_lines: 200 }
-  grep: { max_per_file: 20, max_files: 100, max_line_len: 160 }
+  grep: { max_per_file: 15, max_files: 100, max_line_len: 160 }
   ls: { sizes_up_to: 60, width: 120, max_per_dir: 12 }
   # json: lossless table first; else sample long arrays keeping errors, anomalies,
   # change points, query matches (-attr query=...) and both ends

@@ -54,8 +54,7 @@ servemux121.go
   100: mux.handle(pattern, HandlerFunc(handler))
   103: // Formerly ServeMux.Handler.
   104: func (mux *serveMux121) findHandler(r *Request) (h Handler, pattern string) {
-  112: return RedirectHandler(u.String(), StatusMovedPermanently), u.Path
-  126: return RedirectHandler(u.String(), StatusMovedPermanently), u.Path
+  112,126: return RedirectHandler(u.String(), StatusMovedPermanently), u.Path
   132: return RedirectHandler(u.String(), StatusMovedPermanently), pattern
   138: // handler is the main implementation of findHandler.
   140: func (mux *serveMux121) handler(host, path string) (h Handler, pattern string) {
@@ -134,19 +133,14 @@ httputil/reverseproxy.go
   183: ErrorHandler func(http.ResponseWriter, *http.Request, error)
   376: func (p *ReverseProxy) defaultErrorHandler(rw http.ResponseWriter, req *http.Request, err error) {
   381: func (p *ReverseProxy) getErrorHandler() func(http.ResponseWriter, *http.Request, error) {
-  382: if p.ErrorHandler != nil {
+  382,527: if p.ErrorHandler != nil {
   383: return p.ErrorHandler
   385: return p.defaultErrorHandler
   396: p.getErrorHandler()(rw, req, err)
   452: p.getErrorHandler()(rw, req, errors.New("ReverseProxy must have exactly one of Director or Rewrite set"))
   466: p.getErrorHandler()(rw, req, fmt.Errorf("client tried to switch to invalid protocol %q", reqUpType))
   523: // (Perhaps we should just send a 405 and never call ErrorHandler?
-  524: // More consistent to always call ErrorHandler or ModifyResponse,
-  527: if p.ErrorHandler != nil {
-  528: p.ErrorHandler(rw, outreq, err)
-  571: p.getErrorHandler()(rw, outreq, err)
-  609: // is abort the request. Issue 23643: ReverseProxy should use ErrAbortHandler
-  … 9 more matches omitted
+  … 13 more matches omitted
 internal/http2/server.go
   14: // Handlers running) and not be woken up again until the PING packet
   17: // TODO (maybe): add a mechanism for Handlers to going into
@@ -163,12 +157,7 @@ internal/http2/server.go
   446: unstartedHandlers           []unstartedHandler
   507: // the http.Handler's goroutine in the responseWriter. Because the
   510: // *responseWriter{,State} itself, as the Handler ending nils out the
-  525: flow             outflow // limits writing from Handler to client
-  743: // Note: this is for serverConn.serve panicking, not http.Handler code.
-  1000: // writeDataFromHandler writes DATA response frames from a handler on
-  1002: func (sc *serverConn) writeDataFromHandler(stream *stream, data []byte, endStream bool) error {
-  1006: err := sc.writeFrameFromHandler(FrameWriteRequest{
-  … 65 more matches omitted
+  … 70 more matches omitted
 transport.go
   2419: // closed. This number is chosen for consistency with maxPostHandlerReadBytes.
 internal/common.go
@@ -189,9 +178,4 @@ server.go
   272: // This is the value of a Handler's (*Request).RemoteAddr.
   306: // by a Handler with the Hijacker interface.
   450: // handlerHeader is the Header that Handlers get access to,
-  529: // finalTrailers is called after the Handler exits and returns a non-nil
-  530: // value if the Handler set any trailers.
-  701: // After a Handler has hijacked the conn and exited, connReader behaves like a
-  757: // added context support, people used a Handler's
-  908: // TestHandlerBodyClose's assumptions.
-  … 59 more matches omitted
+  … 64 more matches omitted

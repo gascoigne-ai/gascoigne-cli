@@ -12,9 +12,8 @@ transport_test.go
   2319: func (cc *contextCounter) Track(ctx context.Context) context.Context {
   4295: c.Transport.(*Transport).DialContext = func(ctx context.Context, netw, addr string) (net.Conn, error) {
   4339: c.Transport.(*Transport).DialTLSContext = func(ctx context.Context, netw, addr string) (net.Conn, error) {
-  5306: ctx := context.WithValue(context.Background(), nettrace.LookupIPAltResolverKey{}, func(ctx context.Context, network, host string) ([]net.IPAddr, error) {
+  5306,5913: ctx := context.WithValue(context.Background(), nettrace.LookupIPAltResolverKey{}, func(ctx context.Context, network, host string) ([]net.IPAddr, error) {
   5658: ctx := context.WithValue(context.Background(), nettrace.LookupIPAltResolverKey{}, func(ctx context.Context, _, host string) ([]net.IPAddr, error) {
-  5913: ctx := context.WithValue(context.Background(), nettrace.LookupIPAltResolverKey{}, func(ctx context.Context, network, host string) ([]net.IPAddr, error) {
   6021: c.Transport.(*Transport).GetProxyConnectHeader = func(ctx context.Context, proxyURL *url.URL, target string) (Header, error) {
   6675: tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
   6736: OnProxyConnectResponse: func(ctx context.Context, proxyURL *url.URL, connectReq *Request, connectRes *Response) error {
@@ -47,14 +46,12 @@ server.go
   1032: func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
   1949: func (c *conn) serve(ctx context.Context) {
   1980: HandshakeContext(ctx context.Context) error
-  2210: ctx context.Context
+  2210,4204: ctx context.Context
   2246: func (c *conn) maybeServeUnencryptedHTTP2(ctx context.Context) bool {
   3168: ConnContext func(ctx context.Context, c net.Conn) context.Context
   3272: func (s *Server) Shutdown(ctx context.Context) error {
-  4204: ctx context.Context
 serve_test.go
-  6858: ts.Config.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
-  6888: ts.Config.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
+  6858,6888: ts.Config.ConnContext = func(ctx context.Context, c net.Conn) context.Context {
 request.go
   338: ctx context.Context
   373: func (r *Request) WithContext(ctx context.Context) *Request {
@@ -62,8 +59,7 @@ request.go
   899: func NewRequestWithContext(ctx context.Context, method, url string, body io.Reader) (*Request, error) {
 internal/http2/transport_test.go
   197: tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
-  5272: ctxfn: func(ctx context.Context) context.Context {
-  5291: ctxfn: func(ctx context.Context) context.Context {
+  5272,5291: ctxfn: func(ctx context.Context) context.Context {
   5587: tt.tr1.DialContext = func(ctx context.Context, network, address string) (net.Conn, error) {
 internal/http2/transport.go
   546: func (t *Transport) dialClientConn(ctx context.Context, addr string, singleUse bool) (*ClientConn, error) {
@@ -86,8 +82,7 @@ httptrace/trace.go
 internal/http2/export_test.go
   109: func (t *Transport) DialClientConn(ctx context.Context, addr string, singleUse bool) (*ClientConn, error) {
 httptest/server.go
-  331: tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
-  404: tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+  331,404: tr.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
   439: tr.DialContext = func(ctx context.Context, network, address string) (net.Conn, error) {
   442: tr.DialTLSContext = func(ctx context.Context, network, address string) (net.Conn, error) {
 internal/http2/clientconn_test.go

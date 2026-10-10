@@ -1,6 +1,7 @@
 package grepoptimizer
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -25,7 +26,7 @@ func TestGroup(t *testing.T) {
 func TestCaps(t *testing.T) {
 	var b strings.Builder
 	for i := range 30 {
-		b.WriteString("a.go:" + string(rune('0'+i%10)) + "1:" + strings.Repeat("x", 300) + "\n")
+		fmt.Fprintf(&b, "a.go:%d:%s%d\n", i+1, strings.Repeat("x", 300), i)
 	}
 	b.WriteString("b.go:1:y\nc.go:1:z\n")
 	got := run(&Config{MaxPerFile: 5, MaxFiles: 2, MaxLineLen: 40}, b.String())
@@ -36,5 +37,31 @@ func TestCaps(t *testing.T) {
 	}
 	if strings.Contains(got, "c.go") {
 		t.Errorf("file cap ignored:\n%s", got)
+	}
+}
+
+func TestPlain(t *testing.T) {
+	cfg := &Config{MaxPerFile: 20, MaxFiles: 100, MaxLineLen: 160}
+	tests := []struct{ name, in, want string }{
+		{"rg without line numbers",
+			"a/x.go:\tif err != nil {\nb.go:return err\na/x.go:\t\tif err != nil {\n",
+			"a/x.go\n  2× if err != nil {\nb.go\n  return err\n"},
+		{"single file grep stays", "key.name: 1\nother.key: 2\n", "key.name: 1\nother.key: 2\n"},
+		{"prose stays", "note: see a.go\nnote: twice\n", "note: see a.go\nnote: twice\n"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := run(cfg, tt.in); got != tt.want {
+				t.Fatalf("got:\n%s\nwant:\n%s", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSameLinesMerged(t *testing.T) {
+	in := "a.go:3:\tif err != nil {\na.go:4:\t\treturn err\na.go:9:\tif err != nil {\na.go:10-\t\treturn err\n"
+	want := "a.go\n  3,9: if err != nil {\n  4: return err\n  10- return err\n"
+	if got := run(&Config{MaxPerFile: 20, MaxFiles: 100, MaxLineLen: 160}, in); got != want {
+		t.Fatalf("got:\n%s\nwant:\n%s", got, want)
 	}
 }

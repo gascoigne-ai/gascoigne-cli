@@ -1,11 +1,13 @@
 // Package grepoptimizer groups search results (grep, rg, git grep) by file:
-// each path once, matches capped per file, long lines truncated.
+// each path once, identical lines merged, distinct lines capped per file,
+// long lines truncated.
 package grepoptimizer
 
 import (
 	"context"
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
@@ -19,13 +21,27 @@ type Optimizer struct {
 	cfg *Config
 }
 
-// "path:12:text" (match) or "path-12-text" (context line).
-var match = regexp.MustCompile(`^([^\s:][^:]*?)([:-])(\d+)([:-])(.*)$`)
+var (
+	// "path:12:text" (match) or "path-12-text" (context line).
+	numbered = regexp.MustCompile(`^([^\s:][^:]*?)([:-])(\d+)([:-])(.*)$`)
+	// "path:text": rg and grep -r without -n, rg's default when not on a terminal.
+	plain = regexp.MustCompile(`^([^\s:]+):(.*)$`)
+	ext   = regexp.MustCompile(`\.[A-Za-z0-9]{1,6}$`)
+)
+
+// hit is one distinct line of a file; identical lines merge into it.
+type hit struct {
+	nums  []string
+	sep   string
+	text  string
+	count int
+}
 
 type file struct {
-	path  string
-	lines []string
-	total int
+	path   string
+	hits   []*hit
+	byText map[string]*hit
+	total  int // matches, without context lines
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
@@ -35,28 +51,28 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 }
 
 func (o *Optimizer) group(lines []string) []string {
+	parse := parseNumbered
+	if !slices.ContainsFunc(lines, numbered.MatchString) && plainBlock(lines) {
+		parse = parsePlain
+	}
 	var files []*file
+	byPath := map[string]*file{}
 	var other []string
-	var cur *file
 	for _, l := range lines {
-		m := match.FindStringSubmatch(l)
-		if m == nil {
+		path, num, sep, text, ok := parse(l)
+		if !ok {
 			if l != "--" {
 				other = append(other, l)
 			}
 			continue
 		}
-		path, num, sep, text := strings.TrimPrefix(m[1], "./"), m[3], m[4], m[5]
-		if cur == nil || cur.path != path {
-			cur = &file{path: path}
-			files = append(files, cur)
+		f := byPath[path]
+		if f == nil {
+			f = &file{path: path, byText: map[string]*hit{}}
+			byPath[path] = f
+			files = append(files, f)
 		}
-		if sep == ":" {
-			cur.total++
-		}
-		if len(cur.lines) < o.cfg.MaxPerFile {
-			cur.lines = append(cur.lines, fmt.Sprintf("  %s%s %s", num, sep, compress.TruncateLine(strings.TrimSpace(text), o.cfg.MaxLineLen)))
-		}
+		o.add(f, num, sep, text)
 	}
 	out := other
 	for i, f := range files {
@@ -65,20 +81,90 @@ func (o *Optimizer) group(lines []string) []string {
 			break
 		}
 		out = append(out, f.path)
-		out = append(out, f.lines...)
-		if hidden := f.total - countMatches(f.lines); hidden > 0 {
-			out = append(out, "  "+compress.Omitted(hidden, "more matches"))
-		}
+		out = append(out, f.render()...)
 	}
 	return out
 }
 
-func countMatches(lines []string) int {
-	n := 0
-	for _, l := range lines {
-		if num, _, ok := strings.Cut(strings.TrimSpace(l), " "); ok && strings.HasSuffix(num, ":") {
-			n++
+func (o *Optimizer) add(f *file, num, sep, text string) {
+	if sep == ":" {
+		f.total++
+	}
+	text = compress.TruncateLine(strings.TrimSpace(text), o.cfg.MaxLineLen)
+	if h := f.byText[sep+text]; h != nil {
+		h.count++
+		if num != "" {
+			h.nums = append(h.nums, num)
+		}
+		return
+	}
+	if len(f.hits) == o.cfg.MaxPerFile {
+		return
+	}
+	h := &hit{sep: sep, text: text, count: 1}
+	if num != "" {
+		h.nums = []string{num}
+	}
+	f.hits = append(f.hits, h)
+	f.byText[sep+text] = h
+}
+
+func (f *file) render() []string {
+	var out []string
+	shown := 0
+	for _, h := range f.hits {
+		switch {
+		case len(h.nums) > 0:
+			out = append(out, fmt.Sprintf("  %s%s %s", strings.Join(h.nums, ","), h.sep, h.text))
+		case h.count > 1:
+			out = append(out, fmt.Sprintf("  %d× %s", h.count, h.text))
+		default:
+			out = append(out, "  "+h.text)
+		}
+		if h.sep == ":" {
+			shown += h.count
 		}
 	}
-	return n
+	if hidden := f.total - shown; hidden > 0 {
+		out = append(out, "  "+compress.Omitted(hidden, "more matches"))
+	}
+	return out
 }
+
+func parseNumbered(l string) (path, num, sep, text string, ok bool) {
+	m := numbered.FindStringSubmatch(l)
+	if m == nil {
+		return "", "", "", "", false
+	}
+	return strings.TrimPrefix(m[1], "./"), m[3], m[4], m[5], true
+}
+
+func parsePlain(l string) (path, num, sep, text string, ok bool) {
+	m := plain.FindStringSubmatch(l)
+	if m == nil || !pathLike(m[1]) {
+		return "", "", "", "", false
+	}
+	return strings.TrimPrefix(m[1], "./"), "", ":", m[2], true
+}
+
+// plainBlock reports search output without line numbers: nearly every line
+// starts with a file path and some path repeats. Single-file grep output
+// ("key.name: 1") rarely repeats a prefix, so it stays as it is.
+func plainBlock(lines []string) bool {
+	seen := map[string]bool{}
+	parsed, candidates, repeats := 0, 0, false
+	for _, l := range lines {
+		if l == "" || l == "--" {
+			continue
+		}
+		candidates++
+		if path, _, _, _, ok := parsePlain(l); ok {
+			parsed++
+			repeats = repeats || seen[path]
+			seen[path] = true
+		}
+	}
+	return repeats && parsed*10 >= candidates*9
+}
+
+func pathLike(s string) bool { return strings.Contains(s, "/") || ext.MatchString(s) }

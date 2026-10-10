@@ -346,6 +346,11 @@
   attrs: { cmd: rg -n "ctx context.Context" }
   expect_type: search/rg
   min_saved: 5
+- file: grep/rg-plain.txt
+  attrs: { cmd: rg "err != nil" httputil cgi fcgi cookiejar }
+  expect_type: search/rg
+  keep: ["httputil/reverseproxy.go", "cookiejar/jar.go"]
+  min_saved: 40
 - file: grep/rg-errors.txt
   attrs: { cmd: rg -n -i error }
   expect_type: search/rg

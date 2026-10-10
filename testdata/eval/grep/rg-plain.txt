@@ -1,0 +1,190 @@
+cookiejar/punycode_test.go:		if got, err := encode("", tc.s); err != nil {
+fcgi/fcgi_test.go:			if err := rec.read(buf); err != nil {
+fcgi/fcgi_test.go:		if _, err := w.Write(test.content); err != nil {
+fcgi/fcgi_test.go:		if err := w.Close(); err != nil {
+fcgi/fcgi_test.go:	if err != nil {
+cookiejar/punycode.go:			if err != nil {
+cookiejar/jar.go:	if err != nil {
+cookiejar/jar.go:	if err != nil {
+cookiejar/jar.go:		if err != nil {
+cookiejar/jar.go:		if err != nil {
+cookiejar/jar.go:	if err != nil {
+cookiejar/jar.go:	if err != nil {
+fcgi/fcgi.go:	if err = binary.Read(r, binary.BigEndian, &rec.h); err != nil {
+fcgi/fcgi.go:	if _, err = io.ReadFull(r, rec.buf[:n]); err != nil {
+fcgi/fcgi.go:	if err := binary.Write(&c.buf, binary.BigEndian, c.h); err != nil {
+fcgi/fcgi.go:	if _, err := c.buf.Write(b); err != nil {
+fcgi/fcgi.go:	if _, err := c.buf.Write(pad[:c.h.PaddingLength]); err != nil {
+fcgi/fcgi.go:		if _, err := w.Write(b[:n]); err != nil {
+fcgi/fcgi.go:		if _, err := w.WriteString(k); err != nil {
+fcgi/fcgi.go:		if _, err := w.WriteString(v); err != nil {
+fcgi/fcgi.go:	if err := w.Writer.Flush(); err != nil {
+fcgi/fcgi.go:		if err := w.c.writeRecord(w.recType, w.reqId, p[:n]); err != nil {
+cgi/host_test.go:	if err != nil {
+cgi/host_test.go:		case err != nil:
+cgi/host_test.go:	if err != nil {
+cgi/host_test.go:	if err != nil {
+cgi/host_test.go:	if err != nil {
+cgi/host_test.go:	if err != nil {
+cgi/host_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:		if err != nil {
+httputil/reverseproxy_test.go:		if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:		if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:		if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:		if err != nil {
+httputil/reverseproxy_test.go:			if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:		if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:		if err != nil {
+httputil/reverseproxy_test.go:		if _, err := io.WriteString(conn, upgradeMsg); err != nil {
+httputil/reverseproxy_test.go:		if _, _, err := bufrw.ReadLine(); err != nil {
+httputil/reverseproxy_test.go:			if _, err := bufrw.WriteString(nthResponse(i)); err != nil {
+httputil/reverseproxy_test.go:		if _, err := bufrw.WriteString(terminalMsg); err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if _, err := io.WriteString(rwc, "Hello\n"); err != nil {
+httputil/reverseproxy_test.go:		case err != nil:
+httputil/reverseproxy_test.go:		if _, err := conn.Read(b); err != nil {
+httputil/reverseproxy_test.go:		if _, err := conn.Write([]byte(msg)); err != nil {
+httputil/reverseproxy_test.go:		if err := conn.CloseRead(); err != nil {
+httputil/reverseproxy_test.go:		if err := conn.CloseWrite(); err != nil {
+httputil/reverseproxy_test.go:				if err != nil {
+httputil/reverseproxy_test.go:				if _, err := io.WriteString(srv, upgradeMsg); err != nil {
+httputil/reverseproxy_test.go:			if err != nil {
+httputil/reverseproxy_test.go:			if err != nil {
+httputil/reverseproxy_test.go:			if err := req.Write(cli); err != nil {
+httputil/reverseproxy_test.go:			if err != nil {
+httputil/reverseproxy_test.go:		if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:		if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+httputil/reverseproxy_test.go:	if err != nil {
+cookiejar/jar_test.go:	if err != nil {
+cookiejar/jar_test.go:		if err != nil {
+cookiejar/jar_test.go:		if err != nil {
+cookiejar/jar_test.go:	if err != nil || u.Scheme == "" || u.Host == "" {
+cookiejar/example_test.go:		if cookie, err := r.Cookie("Flavor"); err != nil {
+cookiejar/example_test.go:	if err != nil {
+cookiejar/example_test.go:	if err != nil {
+cookiejar/example_test.go:	if _, err = client.Get(u.String()); err != nil {
+cookiejar/example_test.go:	if _, err = client.Get(u.String()); err != nil {
+fcgi/child.go:		if err := rec.read(c.conn.rwc); err != nil {
+fcgi/child.go:		if err := c.handleRecord(&rec); err != nil {
+fcgi/child.go:		if err := br.read(rec.content()); err != nil {
+fcgi/child.go:	if err != nil {
+fcgi/child.go:		if err != nil {
+fcgi/child.go:		if err != nil {
+cgi/host.go:	if h.Stderr != nil {
+cgi/host.go:	if err != nil {
+cgi/host.go:	if err != nil {
+cgi/host.go:		if err != nil {
+cgi/host.go:			if err != nil {
+cgi/host.go:	if err != nil {
+cgi/host.go:	if err != nil {
+httputil/reverseproxy.go:	if err := p.ModifyResponse(res); err != nil {
+httputil/reverseproxy.go:	if err != nil {
+httputil/reverseproxy.go:	if err != nil {
+httputil/reverseproxy.go:		if rerr != nil && rerr != io.EOF && rerr != context.Canceled {
+httputil/reverseproxy.go:			if werr != nil {
+httputil/reverseproxy.go:		if rerr != nil {
+httputil/reverseproxy.go:	if err := res.Write(brw); err != nil {
+httputil/reverseproxy.go:	if err := brw.Flush(); err != nil {
+httputil/reverseproxy.go:	if _, err := io.Copy(c.user, c.backend); err != nil {
+httputil/reverseproxy.go:	if _, err := io.Copy(c.backend, c.user); err != nil {
+httputil/example_test.go:		if err != nil {
+httputil/example_test.go:	if err != nil {
+httputil/example_test.go:	if err != nil {
+httputil/example_test.go:	if err != nil {
+httputil/example_test.go:	if err != nil {
+httputil/example_test.go:	if err != nil {
+httputil/example_test.go:	if err != nil {
+httputil/example_test.go:	if err != nil {
+httputil/example_test.go:	if err != nil {
+httputil/example_test.go:	if err != nil {
+httputil/example_test.go:	if err != nil {
+cgi/child.go:	if err != nil {
+cgi/child.go:		if err != nil {
+cgi/child.go:		if err != nil {
+cgi/child.go:		if err != nil {
+cgi/child.go:	if err != nil {
+cgi/child.go:	if err = rw.bufw.Flush(); err != nil {
+httputil/dump.go:	if _, err = buf.ReadFrom(b); err != nil {
+httputil/dump.go:	if err = b.Close(); err != nil {
+httputil/dump.go:		if err != nil {
+httputil/dump.go:	if err != nil {
+httputil/dump.go:		if err != nil {
+httputil/dump.go:	if err != nil {
+httputil/dump.go:	if err != nil {
+httputil/dump.go:		if err != nil {
+httputil/dump.go:	if err != nil {
+cgi/child_test.go:	if err != nil {
+cgi/child_test.go:	if err != nil {
+cgi/child_test.go:	if err != nil {
+cgi/child_test.go:	if err != nil {
+cgi/child_test.go:	if err != nil {
+cgi/child_test.go:	if err != nil {
+cgi/child_test.go:			if err != nil {
+cgi/cgi_main.go:	if err != nil {
+cgi/cgi_main.go:	if err != nil {
+httputil/persist.go:		if err != nil {
+httputil/persist.go:	if err != nil {
+httputil/persist.go:	if err != nil {
+httputil/persist.go:		if err != nil {
+httputil/persist.go:	if err != nil {
+httputil/persist.go:		if err != nil {
+httputil/persist.go:	if err != nil {
+httputil/persist.go:	if err != nil {
+httputil/dump_test.go:			if err != nil {
+httputil/dump_test.go:			if err != nil {
+httputil/dump_test.go:	if err != nil {
+httputil/dump_test.go:	if err != nil {
+httputil/dump_test.go:	if err != nil {
+httputil/dump_test.go:		if err != nil {
+httputil/dump_test.go:		if err != nil {

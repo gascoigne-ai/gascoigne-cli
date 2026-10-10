@@ -1,47 +1,24 @@
 active_help_test.go
-  45: t.Errorf("Unexpected error: %v", err)
-  54: t.Errorf("expected: %q, got: %q", expected, output)
-  71: t.Errorf("Unexpected error: %v", err)
-  80: t.Errorf("expected: %q, got: %q", expected, output)
-  106: t.Errorf("Unexpected error: %v", err)
-  117: t.Errorf("expected: %q, got: %q", expected, output)
-  130: t.Errorf("Unexpected error: %v", err)
-  141: t.Errorf("expected: %q, got: %q", expected, output)
-  154: t.Errorf("Unexpected error: %v", err)
-  165: t.Errorf("expected: %q, got: %q", expected, output)
-  191: t.Errorf("Unexpected error: %v", err)
-  201: t.Errorf("expected: %q, got: %q", expected, output)
-  215: t.Errorf("Unexpected error: %v", err)
-  227: t.Errorf("expected: %q, got: %q", expected, output)
-  250: t.Errorf("Unexpected error: %v", err)
-  262: t.Errorf("expected: %q, got: %q", expected, output)
-  286: t.Errorf("expected activeHelpConfig: %q, but got: %q", activeHelpCfg, receivedActiveHelpCfg)
-  293: t.Errorf("Unexpected error: %v", err)
-  308: t.Errorf("expected activeHelpConfig: %q, but got: %q", activeHelpCfg, receivedActiveHelpCfg)
-  315: t.Errorf("Unexpected error: %v", err)
-  … 6 more matches omitted
+  45,71,106,130,154,191,215,250,293,315,346,368,398: t.Errorf("Unexpected error: %v", err)
+  54,80,117,141,165,201,227,262,357,378: t.Errorf("expected: %q, got: %q", expected, output)
+  286,308,391: t.Errorf("expected activeHelpConfig: %q, but got: %q", activeHelpCfg, receivedActiveHelpCfg)
 args_test.go
   35: func expectSuccess(output string, err error, t *testing.T) {
   37: t.Errorf("Unexpected output: %v", output)
-  40: t.Fatalf("Unexpected error: %v", err)
+  40,473,560,576: t.Fatalf("Unexpected error: %v", err)
   44: func validOnlyWithInvalidArgs(err error, t *testing.T) {
-  46: t.Fatal("Expected an error")
-  48: got := err.Error()
-  51: t.Errorf("Expected: %q, got: %q", expected, got)
+  46,57,68,79,90,101,112,428,456: t.Fatal("Expected an error")
+  48,59,70,81,92,103,114,431,459: got := err.Error()
+  51,62,117: t.Errorf("Expected: %q, got: %q", expected, got)
   55: func noArgsWithArgs(err error, t *testing.T, arg string) {
-  57: t.Fatal("Expected an error")
-  59: got := err.Error()
-  62: t.Errorf("Expected: %q, got: %q", expected, got)
   66: func minimumNArgsWithLessArgs(err error, t *testing.T) {
-  68: t.Fatal("Expected an error")
-  70: got := err.Error()
   77: func maximumNArgsWithMoreArgs(err error, t *testing.T) {
-  79: t.Fatal("Expected an error")
-  81: got := err.Error()
   88: func exactArgsWithInvalidCount(err error, t *testing.T) {
-  90: t.Fatal("Expected an error")
-  92: got := err.Error()
-  … 21 more matches omitted
+  99: func rangeArgsWithInvalidCount(err error, t *testing.T) {
+  110: func noDuplicateArgsWithDuplicate(err error, t *testing.T, arg string) {
+  434,462: t.Errorf("expected %q, got %q", expected, got)
+  445: t.Errorf("Unexpected error: %v", err)
+  … 4 more matches omitted
 bash_completions.go
   79: local shellCompDirectiveError=%[3]d
   119: if [ $((directive & shellCompDirectiveError)) -ne 0 ]; then
@@ -93,12 +70,7 @@ command.go
   146: PersistentPostRunE func(cmd *Command, args []string) error
   153: // flagErrorBuf contains all error messages from pflag.
   154: flagErrorBuf *bytes.Buffer
-  172: usageFunc func(*Command) error
-  175: // flagErrorFunc is func defined by user and it's called when the parsing of
-  176: // flags returns an error.
-  177: flagErrorFunc func(*Command, error) error
-  194: // errPrefix is the error message prefix defined by user.
-  … 88 more matches omitted
+  … 93 more matches omitted
 command_test.go
   32: func executeCommand(root *Command, args ...string) (output string, err error) {
   37: func executeCommandWithContext(ctx context.Context, root *Command, args ...string) (output string, err error) {
@@ -107,20 +79,15 @@ command_test.go
   71: pflag.CommandLine = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
   76: t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", expected, got)
   82: t.Errorf("Expected to not contain: \n %v\nGot: %v", expected, got)
-  101: t.Errorf("Unexpected output: %v", output)
-  104: t.Errorf("Unexpected error: %v", err)
-  109: t.Errorf("rootCmdArgs expected: %q, got: %q", onetwo, got)
-  126: t.Errorf("Unexpected output: %v", output)
-  129: t.Errorf("Unexpected error: %v", err)
+  101,126,166,293,320,355,450,479,506,543,572,729,753,778,835,1560,1614,1675,1771,1894: t.Errorf("Unexpected output: %v", output)
+  104,129,169,296,323,358,385,409,419,427,453,482,509,546,575,627,636,732,756,781,838,911,917,923,947,960,978,1013,1031,1043,1056,1069,1082,1100,1110,1123,1173,1191,1202,1213,1225,1237,1249,1261,1306,1318,1563,1617,1639,1678,1774,1897,1968,1987,2007,2030,2045,2065,2085,2105,2125,2334,2354,2393,2715,2729,2743,2757,2771,2785,2950: t.Errorf("Unexpected error: %v", err)
+  109,524,558,843: t.Errorf("rootCmdArgs expected: %q, got: %q", onetwo, got)
   134: t.Errorf("child1CmdArgs expected: %q, got: %q", onetwo, got)
   142: t.Errorf("Calling command without subcommands should not have error: %v", err)
   152: expected := "Error: unknown command \"unknown\" for \"root\"\nRun 'root --help' for usage.\n"
   155: t.Errorf("Expected:\n %q\nGot:\n %q\n", expected, output)
-  166: t.Errorf("Unexpected output: %v", output)
-  169: t.Errorf("Unexpected error: %v", err)
   173: t.Errorf(`invalid command returned from ExecuteC: expected "child"', got: %q`, c.Name())
-  182: t.Errorf("Command %q must have context when called with ExecuteContext", cmd.Use)
-  … 256 more matches omitted
+  … 169 more matches omitted
 completions.go
   47: type flagCompError struct {
   52: func (e *flagCompError) Error() string {
@@ -137,34 +104,24 @@ completions.go
   293: fmt.Fprintf(finalCmd.ErrOrStderr(), "Completion ended with directive: %s\n", directive.string())
   316: func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCompDirective, error) {
   327: var err error
-  336: // call to Find() -> legacyArgs() will return an error if there are any arguments.
-  347: return c, []Completion{}, ShellCompDirectiveDefault, fmt.Errorf("unable to find a command for arguments: %v", trimmedArgs)
-  377: return finalCmd, []Completion{}, ShellCompDirectiveDefault, fmt.Errorf("Error while parsing flags from args %v: %s", finalArgs, err.Error())
-  385: // Error while attempting to parse flags
-  387: // If error type is flagCompError and we don't want flagCompletion we should ignore the error
-  … 14 more matches omitted
+  … 19 more matches omitted
 completions_test.go
-  91: t.Errorf("Unexpected error: %v", err)
-  104: t.Errorf("expected: %q, got: %q", expected, output)
-  110: t.Errorf("Unexpected error: %v", err)
-  119: t.Errorf("expected: %q, got: %q", expected, output)
-  126: t.Errorf("Unexpected error: %v", err)
-  134: t.Errorf("expected: %q, got: %q", expected, output)
-  140: t.Errorf("Unexpected error: %v", err)
-  153: t.Errorf("expected: %q, got: %q", expected, output)
-  185: t.Errorf("Unexpected error: %v", err)
-  193: t.Errorf("expected: %q, got: %q", expected, output)
-  199: t.Errorf("Unexpected error: %v", err)
-  209: t.Errorf("expected: %q, got: %q", expected, output)
-  218: t.Errorf("Unexpected error: %v", err)
-  231: t.Errorf("expected: %q, got: %q", expected, output)
-  240: t.Errorf("Unexpected error: %v", err)
-  253: t.Errorf("expected: %q, got: %q", expected, output)
-  260: t.Errorf("Unexpected error: %v", err)
-  268: t.Errorf("expected: %q, got: %q", expected, output)
-  274: t.Errorf("Unexpected error: %v", err)
-  284: t.Errorf("expected: %q, got: %q", expected, output)
-  … 269 more matches omitted
+  91,110,126,140,185,199,218,240,260,274,290,307,332,349,364,393,412,444,463,479,512,529,549,564,603,620,640,655,725,747,769,795,827,876,898,916,931,949,966,981,1000,1022,1064,1077,1091,1105,1119,1133,1147,1182,1195,1208,1222,1236,1250,1264,1306,1328,1344,1372,1401,1417,1432,1446,1461,1476,1501,1517,1532,1653,1670,1686,1703,1734,1750,1765,1779,1794,1809,1845,1862,1878,1897,1913,1929,1945,1961,1977,1993,2012,2030,2066,2099,2173,2216,2233,2249,2266,2294,2310,2335,2352,2368,2402,2420,2438,2480,2524,2536,2550,2564,2580,2596,2614,2629,2654,2681,2711,2727,2743,2758,2773,2810,2831,2865,2881,2992,3021,3040,3897,4063: t.Errorf("Unexpected error: %v", err)
+  104,119,134,153,193,209,231,253,268,284,301,318,343,358,372,406,422,457,473,489,523,543,558,579,614,634,649,670,741,763,789,821,840,892,910,925,944,961,975,994,1016,1034,1072,1086,1100,1114,1128,1142,1156,1190,1203,1217,1231,1245,1259,1272,1314,1338,1353,1380,1411,1426,1440,1456,1470,1484,1511,1526,1540,1664,1680,1697,1713,1744,1759,1773,1789,1803,1817,1856,1872,1888,1907,1923,1939,1955,1971,1987,2003,2021,2040,2075,2108,2182,2227,2243,2260,2276,2304,2319,2346,2362,2377,2414,2432,2447,2622,2641,2666,2689,2721,2737,2752,2767,2783,2824,2846,2875,2892,3003,3033,3052,3905: t.Errorf("expected: %q, got: %q", expected, output)
+  684: func (s *customMultiString) Set(v string) error {
+  1281: t.Error("Received nil context in completion func")
+  1283: t.Error("Received invalid context")
+  2163: var err error
+  2472: t.Errorf("Should not have a 'completion' command when there are no other sub-commands of root")
+  2504: t.Errorf("Should have a 'completion' command when there are other sub-commands of root")
+  2514: t.Errorf("Should not have a 'completion' command when the feature is disabled")
+  2553: t.Errorf("Missing --%s flag for %s shell", compCmdNoDescFlagName, shell)
+  2567,2583: t.Errorf("Unexpected --%s flag for %s shell", compCmdNoDescFlagName, shell)
+  2599: t.Error("Default 'completion' command should be hidden but it is not")
+  3149,3247,3341,3575,3639: t.Errorf("expected: %q, got: %q", tc.expectedOutput, output)
+  3151,3249,3343,3577,3641: t.Errorf("Unexpected error %q", err)
+  3721: t.Errorf("Unexpected result looking for flag completion function")
+  … 13 more matches omitted
 doc/cmd_test.go
   97: t.Errorf("Expected to contain: \n %v\nGot:\n %v\n", expected, got)
   103: t.Errorf("Expected to not contain: \n %v\nGot: %v", expected, got)
@@ -182,11 +139,10 @@ doc/man_docs_test.go
   174: t.Fatalf("GenManTree failed: %s", err.Error())
   186: func assertLineFound(scanner *bufio.Scanner, expectedLine string) error {
   195: return fmt.Errorf("scan failed: %s", err)
-  198: return fmt.Errorf("hit EOF before finding %v", expectedLine)
+  198,214: return fmt.Errorf("hit EOF before finding %v", expectedLine)
   201: func assertNextLineEquals(scanner *bufio.Scanner, expectedLine string) error {
   207: return fmt.Errorf("got %v, not %v", line, expectedLine)
   211: return fmt.Errorf("scan failed: %v", err)
-  214: return fmt.Errorf("hit EOF before finding %v", expectedLine)
 doc/md_docs.go
   32: func printOptions(buf *bytes.Buffer, cmd *cobra.Command, name string) error {
   52: func GenMarkdown(cmd *cobra.Command, w io.Writer) error {
@@ -221,8 +177,7 @@ fish_completions.go
   284: func (c *Command) GenFishCompletionFile(filename string, includeDesc bool) error {
 fish_completions_test.go
   19: "errors"
-  104: t.Fatal(err.Error())
-  123: t.Fatal(err.Error())
+  104,123: t.Fatal(err.Error())
   140: if !errors.Is(got, os.ErrPermission) {
   141: t.Errorf("got: %s, want: %s", got.Error(), os.ErrPermission.Error())
 flag_groups.go
@@ -257,11 +212,9 @@ powershell_completions.go
   342: func (c *Command) GenPowerShellCompletionFileWithDesc(filename string) error {
   348: func (c *Command) GenPowerShellCompletionWithDesc(w io.Writer) error {
 shell_completions.go
-  23: // and causes your command to report an error if invoked without the flag.
+  23,30,37: // and causes your command to report an error if invoked without the flag.
   24: func (c *Command) MarkFlagRequired(name string) error {
-  30: // and causes your command to report an error if invoked without the flag.
   31: func (c *Command) MarkPersistentFlagRequired(name string) error {
-  37: // and causes your command to report an error if invoked without the flag.
   38: func MarkFlagRequired(flags *pflag.FlagSet, name string) error {
   44: func (c *Command) MarkFlagFilename(name string, extensions ...string) error {
   54: func (c *Command) MarkFlagCustom(name string, f string) error {
@@ -303,12 +256,7 @@ site/content/user_guide.md
   450: - `NoDuplicateArgs` - report an error if any positional argument value is provided more than once.
   455: For instance, if you want to report an error if there are not exactly N positional args OR if there are any positional
   469: It is possible to set any custom validator that satisfies `func(cmd *cobra.Command, args []string) error`.
-  475: Args: func(cmd *cobra.Command, args []string) error {
-  484: return fmt.Errorf("invalid color specified: %s", args[0])
-  639: Error: unknown flag: --invalid
-  665: cmd.SetUsageFunc(f func(*Command) error)
-  682: ## Error Message Prefix
-  … 6 more matches omitted
+  … 11 more matches omitted
 zsh_completions.go
   25: func (c *Command) GenZshCompletionFile(filename string) error {
   31: func (c *Command) GenZshCompletion(w io.Writer) error {
@@ -344,9 +292,4 @@ args.go
   81: // ArbitraryArgs never returns an error.
   82: func ArbitraryArgs(cmd *Command, args []string) error {
   86: // MinimumNArgs returns an error if there is not at least N args.
-  88: return func(cmd *Command, args []string) error {
-  90: return fmt.Errorf("requires at least %d arg(s), only received %d", n, len(args))
-  96: // MaximumNArgs returns an error if there are more than N args.
-  98: return func(cmd *Command, args []string) error {
-  100: return fmt.Errorf("accepts at most %d arg(s), received %d", n, len(args))
-  … 8 more matches omitted
+  … 13 more matches omitted
