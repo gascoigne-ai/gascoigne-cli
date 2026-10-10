@@ -43,8 +43,11 @@ func (fakeLedger) Stats(_ context.Context, q component.StatsQuery) ([]component.
 		return []component.Stat{{Group: "go test", Runs: 1, Optimized: 1, RawTokens: 100, OutTokens: 10}, {Group: "ls", Runs: 2, RawTokens: 30, OutTokens: 30}}, nil
 	case component.ByOptimizer:
 		return []component.Stat{{Group: "go", Family: "go", Runs: 1, RawTokens: 100, OutTokens: 10}}, nil
-	case component.BySkip:
-		return []component.Stat{{Group: "minsize", Runs: 2, RawTokens: 30, OutTokens: 30}}, nil
+	case component.ByReason:
+		return []component.Stat{
+			{Group: "minsize", Command: "ls", Outcome: "bypassed", Reason: "15 tokens < min_tokens 200", Runs: 2, RawTokens: 30, OutTokens: 30},
+			{Group: "json", Command: "curl", Outcome: "error", Reason: "unexpected EOF", Runs: 1, Failed: 1, RawTokens: 2, OutTokens: 2},
+		}, nil
 	}
 	return nil, nil
 }
@@ -59,14 +62,14 @@ func TestOverview(t *testing.T) {
 		"session s1",
 		"3 runs · 1 optimized · 2 skipped · 0 failed · 130 → 40 tokens · saved 90 (69.2%)",
 		"by outcome", "bypassed", "by command", "go test", "by optimizer", "go         go",
-		"skipped", "minsize", "below min_tokens",
+		"skipped", "minsize", "15 tokens < min_tokens 200", "failed", "unexpected EOF",
 	} {
 		if !strings.Contains(table, want) {
 			t.Errorf("missing %q in:\n%s", want, table)
 		}
 	}
 	data, _ := json.Marshal(o)
-	for _, key := range []string{`"outcomes":`, `"commands":`, `"optimizers":`, `"skipped":`, `"family":"go"`} {
+	for _, key := range []string{`"outcomes":`, `"commands":`, `"optimizers":`, `"skipped":`, `"failed":`, `"unchanged":[]`, `"reason":"unexpected EOF"`, `"family":"go"`} {
 		if !strings.Contains(string(data), key) {
 			t.Errorf("json missing %s: %s", key, data)
 		}

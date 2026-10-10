@@ -33,8 +33,24 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	}
 	hints := detect.HintsFrom(p.Attrs)
 	return p.Rewrite(func(b payload.Block) (string, error) {
-		return o.rewrite(b.Text, detect.Lang(b.Text, hints), mode), nil
+		text := o.rewrite(b.Text, detect.Lang(b.Text, hints), mode)
+		if text == b.Text {
+			p.Set(payload.AttrSkip, o.why(b.Text, mode))
+		}
+		return text, nil
 	}, detect.Code)
+}
+
+// why explains a source file left untouched.
+func (o *Optimizer) why(text, mode string) string {
+	n := tokens.Estimate(text)
+	switch {
+	case mode == Full:
+		return "cat: " + AttrMode + "=full"
+	case mode == Auto && n < o.cfg.CleanMinTokens:
+		return fmt.Sprintf("cat: %d tokens < clean_min_tokens %d (small files stay whole)", n, o.cfg.CleanMinTokens)
+	}
+	return "cat: already clean, nothing to outline"
 }
 
 func (o *Optimizer) rewrite(text, lang, mode string) string {

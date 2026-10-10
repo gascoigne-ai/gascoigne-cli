@@ -15,7 +15,9 @@ type fakeLedger struct {
 	failures map[string]int
 }
 
-func (l fakeLedger) Failures(_ context.Context, key string) (int, error) { return l.failures[key], nil }
+func (l fakeLedger) Failures(_ context.Context, key string) (component.FailureInfo, error) {
+	return component.FailureInfo{Count: l.failures[key], Reason: component.ReasonError}, nil
+}
 
 type host map[component.ID]component.Component
 

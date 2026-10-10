@@ -30,7 +30,8 @@ type Event struct {
 	Duration   time.Duration
 	RawID      string
 	Outcome    Outcome
-	Filter     string // filter that bypassed optimization, when Outcome is Bypassed
+	Filter     string // component that stopped optimization: bypassing filter, failing optimizer, "ledger"
+	Reason     string // why it was not optimized: filter detail, optimizer error, unhandled types
 	Steps      []Step // optimizers that changed the payload, in order
 }
 
@@ -49,10 +50,20 @@ const (
 	ReasonManual       = "manual"
 )
 
+// FailureInfo summarizes a source's failure history.
+type FailureInfo struct {
+	Count  int
+	Reason string
+	Last   time.Time
+}
+
 // Stat aggregates events (or optimizer steps) of one group.
 type Stat struct {
 	Group     string
 	Family    string // optimizer family, for ByOptimizer
+	Command   string // for ByReason
+	Outcome   string // for ByReason
+	Reason    string // latest reason, for ByReason
 	Runs      int
 	Optimized int
 	Failed    int
@@ -69,8 +80,10 @@ const (
 	ByFamily    = "family"    // optimizer family, from steps
 	ByOptimizer = "optimizer" // single optimizer, from steps
 	ByCommand   = "command"
-	BySkip      = "skip"    // bypassed events by the filter that skipped them
 	ByOutcome   = "outcome" // optimized, unchanged, bypassed, error
+	// ByReason groups runs that were not optimized by outcome, filter (or
+	// optimizer for errors) and command, with the latest reason.
+	ByReason = "reason"
 )
 
 // StatsQuery selects what Stats aggregates.
@@ -88,7 +101,8 @@ type Ledger interface {
 	GetRaw(ctx context.Context, id string) (key string, p *payload.Payload, err error)
 	Record(ctx context.Context, ev Event) error
 	MarkFailure(ctx context.Context, key, reason string) error
-	Failures(ctx context.Context, key string) (int, error)
+	// Failures reports how often key optimized badly; zero Count when never.
+	Failures(ctx context.Context, key string) (FailureInfo, error)
 	// Stats aggregates recorded events, biggest savings first.
 	Stats(ctx context.Context, q StatsQuery) ([]Stat, error)
 }

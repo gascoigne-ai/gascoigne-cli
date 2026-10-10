@@ -17,7 +17,12 @@ type Filter struct {
 }
 
 func (f *Filter) Filter(_ context.Context, p *payload.Payload) (component.Decision, error) {
-	if truthy(p.Attrs[payload.AttrRaw]) || (f.cfg.Env != "" && truthy(os.Getenv(f.cfg.Env))) {
+	if v := p.Attrs[payload.AttrRaw]; truthy(v) {
+		p.Set(payload.AttrSkip, "raw requested: attr raw="+v+" (-raw, MCP raw)")
+		return component.Bypass, nil
+	}
+	if v := os.Getenv(f.cfg.Env); f.cfg.Env != "" && truthy(v) {
+		p.Set(payload.AttrSkip, "raw requested: env "+f.cfg.Env+"="+v)
 		return component.Bypass, nil
 	}
 	return component.Continue, nil

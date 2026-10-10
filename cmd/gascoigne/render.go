@@ -186,24 +186,43 @@ func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int) {
 	p.savingsTable(w, "commands · share of savings", "command", o.Commands, t.Saved, false)
 	p.savingsTable(w, "optimizers · share of savings", "optimizer", o.Optimizers, t.Saved, true)
 
-	if len(o.Skipped) > 0 {
-		p.section(w, "skipped")
-		var rows [][]cell
-		for _, r := range o.Skipped {
-			typ, _, _ := strings.Cut(r.Group, "/")
-			rows = append(rows, []cell{
-				{text: r.Group, style: yellow},
-				{text: fmt.Sprint(r.Runs), right: true},
-				{text: human(r.RawTokens), right: true},
-				{text: mcptool.SkipReason(typ), style: dim},
-			})
-		}
-		p.table(w, []string{"filter", "runs", "tokens", " reason"}, rows)
-	}
+	p.reasonTable(w, "skipped · not optimized on purpose", "filter", o.Skipped, yellow)
+	p.reasonTable(w, "failed · optimizer errors, original returned", "optimizer", o.Failed, red)
+	p.reasonTable(w, "unchanged · nothing to optimize", "", o.Unchanged, dim)
 	if failing > 0 {
 		fmt.Fprintf(w, "\n%s %d sources bypass optimization after going bad · %s\n",
 			p.paint(yellow, "⚠"), failing, p.paint(dim, "gascoigne gain -failures"))
 	}
+}
+
+// reasonTable lists runs that were not optimized with the facts behind it.
+func (p painter) reasonTable(w io.Writer, title, by string, rows []mcptool.StatsJSON, style string) {
+	if len(rows) == 0 {
+		return
+	}
+	p.section(w, title)
+	header := []string{"command", "runs", "tokens", " reason (latest)"}
+	if by != "" {
+		header = append([]string{by}, header...)
+	}
+	reasonStyle := dim
+	if style == red {
+		reasonStyle = red
+	}
+	var out [][]cell
+	for _, r := range rows {
+		row := []cell{
+			{text: cmp.Or(r.Command, "-")},
+			{text: fmt.Sprint(r.Runs), right: true},
+			{text: human(r.RawTokens), right: true},
+			{text: r.Reason, style: reasonStyle},
+		}
+		if by != "" {
+			row = append([]cell{{text: r.Group, style: style}}, row...)
+		}
+		out = append(out, row)
+	}
+	p.table(w, header, out)
 }
 
 func zeroDim(n int) string {

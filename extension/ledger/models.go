@@ -20,6 +20,7 @@ type event struct {
 	RawID      string `gorm:"not null"`
 	Outcome    string `gorm:"not null"`
 	Filter     string `gorm:"not null;default:''"`
+	Reason     string `gorm:"not null;default:''"`
 	Steps      []step `gorm:"foreignKey:EventID"`
 }
 

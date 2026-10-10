@@ -139,8 +139,8 @@ func TestOptimizerErrorFallsBackAndIsLearned(t *testing.T) {
 	if out := process(t, s, "boom", "orig"); out.Text() != "orig" {
 		t.Fatalf("out = %q, want original", out.Text())
 	}
-	if n, _ := s.Ledger().Failures(t.Context(), "cmd:boom"); n != 1 {
-		t.Fatalf("failures = %d, want 1", n)
+	if f, _ := s.Ledger().Failures(t.Context(), "cmd:boom"); f.Count != 1 {
+		t.Fatalf("failures = %+v, want 1", f)
 	}
 	// Second run is bypassed by history before reaching the optimizer.
 	if err := s.Ledger().MarkFailure(t.Context(), "cmd:up x", component.ReasonRawRequested); err != nil {
@@ -286,8 +286,32 @@ func TestCommandAndSkipFilterRecorded(t *testing.T) {
 	if err != nil || len(got) != 1 || got[0].Group != "up" || got[0].Runs != 2 {
 		t.Fatalf("by command: %+v, %v", got, err)
 	}
-	got, _ = s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.BySkip})
-	if len(got) != 1 || got[0].Group != "bypass" {
-		t.Fatalf("by skip: %+v", got)
+	got, _ = s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.ByReason})
+	if len(got) != 1 || got[0].Group != "bypass" || got[0].Reason != "raw requested: attr raw=true (-raw, MCP raw)" {
+		t.Fatalf("by reason: %+v", got)
+	}
+}
+
+func TestReasonsRecorded(t *testing.T) {
+	s, _ := newService(t, cfgYAML)
+	process(t, s, "boom", "orig")      // optimizer error
+	process(t, s, "ls", "plain words") // unchanged
+	process(t, s, "boom", "again")     // history bypass after the failure
+	got, err := s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.ByReason})
+	if err != nil {
+		t.Fatal(err)
+	}
+	reasons := map[string]string{}
+	for _, st := range got {
+		reasons[st.Outcome+"/"+st.Group] = st.Reason
+	}
+	for key, want := range map[string]string{
+		"error/boom":       "boom",
+		"unchanged/-":      "no optimizer changed it · types: ",
+		"bypassed/history": "cmd:boom failed 1× (max_failures 1), last: error at",
+	} {
+		if !strings.Contains(reasons[key], want) {
+			t.Errorf("%s: reason %q, want containing %q (all: %v)", key, reasons[key], want, reasons)
+		}
 	}
 }

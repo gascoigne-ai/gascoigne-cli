@@ -135,6 +135,16 @@ Reports — `gascoigne gain` (add `-session ID`, `-all`, `-json`):
 Terminal output (`cmd/gascoigne/render.go`): human token counts, savings/share bars, colors by
 saved % (green ≥60, yellow ≥30, red); `-color auto|always|never`, auto honors `NO_COLOR` and
 TTY detection. MCP `stats` stays plain text (no ANSI/bars: they cost the agent tokens).
+Every run that is not optimized records a factual reason (`events.reason`), shown per
+component and command in the overview's SKIPPED / FAILED / UNCHANGED sections and in JSON:
+- bypass: `raw requested: attr raw=true` or `env GASCOIGNE_RAW=1`
+- minsize: `45 tokens < min_tokens 200`
+- history: `<key> failed N× (max_failures M), last: <reason> at <time>; reset: gascoigne forget <key>`
+- optimizer error: first line of the error; ledger failure: `save original: …`
+- unchanged: optimizer note (e.g. `cat: 590 tokens < clean_min_tokens 800`) or
+  `no optimizer changed it`, plus the detected types (which content lacks an optimizer)
+Filters and no-op optimizers explain themselves via the `skip_reason` attr (`payload.AttrSkip`).
+`gain -by reason` lists these groups alone.
 Events record `command` (normalized via `detect.Command`, else MCP tool + URL host) and, when
 bypassed, the `filter` that skipped them.
 MCP `stats {by?, session?, format?: json}` defaults to the overview of the calling session (`session: all` for every session).

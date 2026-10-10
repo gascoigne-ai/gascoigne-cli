@@ -27,8 +27,8 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 		tx, group, table = l.events(ctx), "events.command", "events"
 	case component.ByOutcome:
 		tx, group, table = l.events(ctx), "events.outcome", "events"
-	case component.BySkip:
-		tx, group, table = l.events(ctx).Where("events.outcome = ?", string(component.Bypassed)), "events.filter", "events"
+	case component.ByReason:
+		return l.reasons(ctx, q.Session)
 	case component.ByFamily:
 		tx, group, table = l.steps(ctx), "steps.family", "steps"
 	case component.ByOptimizer:
@@ -95,4 +95,39 @@ func (l *Ledger) FailureList(ctx context.Context) ([]Failure, error) {
 		fs[i] = Failure{r.Key, r.Count, time.UnixMilli(r.LastTS), r.Reason}
 	}
 	return fs, nil
+}
+
+// reasons groups runs that were not optimized by outcome, stopping component
+// and command, each with its latest reason.
+func (l *Ledger) reasons(ctx context.Context, session string) ([]component.Stat, error) {
+	var rows []struct {
+		Outcome, Filter, Command, Reason string
+		Runs, RawTokens, OutTokens       int
+		FirstTS, LastTS                  int64
+	}
+	err := l.db.WithContext(ctx).Raw(`
+		SELECT e.outcome, e.filter, e.command, count(*) AS runs,
+			sum(e.raw_tokens) AS raw_tokens, sum(e.out_tokens) AS out_tokens,
+			min(e.ts) AS first_ts, max(e.ts) AS last_ts,
+			(SELECT r.reason FROM events r
+			 WHERE r.outcome = e.outcome AND r.filter = e.filter AND r.command = e.command
+			   AND (? = '' OR r.session = ?)
+			 ORDER BY r.ts DESC, r.id DESC LIMIT 1) AS reason
+		FROM events e
+		WHERE e.outcome <> ? AND (? = '' OR e.session = ?)
+		GROUP BY e.outcome, e.filter, e.command
+		ORDER BY sum(e.raw_tokens) DESC, e.outcome, e.filter, e.command`,
+		session, session, string(component.Optimized), session, session).Scan(&rows).Error
+	stats := make([]component.Stat, len(rows))
+	for i, r := range rows {
+		stats[i] = component.Stat{
+			Group: cmp.Or(r.Filter, "-"), Command: r.Command, Outcome: r.Outcome, Reason: r.Reason,
+			Runs: r.Runs, RawTokens: r.RawTokens, OutTokens: r.OutTokens,
+			First: time.UnixMilli(r.FirstTS), Last: time.UnixMilli(r.LastTS),
+		}
+		if r.Outcome == string(component.Failed) {
+			stats[i].Failed = r.Runs
+		}
+	}
+	return stats, err
 }

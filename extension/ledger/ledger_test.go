@@ -71,8 +71,8 @@ func TestFailures(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if n, _ := l.Failures(ctx, "cmd:ls"); n != 2 {
-		t.Fatalf("Failures = %d, want 2", n)
+	if f, _ := l.Failures(ctx, "cmd:ls"); f.Count != 2 || f.Reason != component.ReasonError || f.Last.IsZero() {
+		t.Fatalf("Failures = %+v, want 2× error", f)
 	}
 	fs, err := l.FailureList(ctx)
 	if err != nil || len(fs) != 1 || fs[0].Reason != component.ReasonError {
@@ -81,8 +81,8 @@ func TestFailures(t *testing.T) {
 	if err := l.Forget(ctx, "cmd:ls"); err != nil {
 		t.Fatal(err)
 	}
-	if n, _ := l.Failures(ctx, "cmd:ls"); n != 0 {
-		t.Fatalf("Failures after Forget = %d", n)
+	if f, _ := l.Failures(ctx, "cmd:ls"); f.Count != 0 {
+		t.Fatalf("Failures after Forget = %+v", f)
 	}
 }
 
@@ -94,8 +94,8 @@ func TestStats(t *testing.T) {
 			{Optimizer: "npm", Family: "js", RawTokens: 100, OutTokens: 50},
 			{Optimizer: "log", Family: "data", RawTokens: 50, OutTokens: 20},
 		}},
-		{Session: "s1", Command: "npm install", Route: "default", RawTokens: 50, OutTokens: 50, Outcome: component.Failed},
-		{Session: "s2", Command: "ls", RawTokens: 10, OutTokens: 10, Outcome: component.Bypassed, Filter: "minsize"},
+		{Session: "s1", Command: "npm install", Route: "default", RawTokens: 50, OutTokens: 50, Outcome: component.Failed, Filter: "npm", Reason: "npm: boom"},
+		{Session: "s2", Command: "ls", RawTokens: 10, OutTokens: 10, Outcome: component.Bypassed, Filter: "minsize", Reason: "10 tokens < min_tokens 200"},
 		{Session: "s2", Command: "bun test", Route: "default", RawTokens: 40, OutTokens: 10, Outcome: component.Optimized, Steps: []component.Step{
 			{Optimizer: "bun", Family: "js", RawTokens: 40, OutTokens: 10},
 		}},
@@ -128,8 +128,9 @@ func TestStats(t *testing.T) {
 			{Group: "bypassed", Runs: 1, RawTokens: 10, OutTokens: 10},
 			{Group: "error", Runs: 1, Failed: 1, RawTokens: 50, OutTokens: 50},
 		}},
-		{component.StatsQuery{By: component.BySkip}, []component.Stat{
-			{Group: "minsize", Runs: 1, RawTokens: 10, OutTokens: 10},
+		{component.StatsQuery{By: component.ByReason}, []component.Stat{
+			{Group: "npm", Command: "npm install", Outcome: "error", Reason: "npm: boom", Runs: 1, Failed: 1, RawTokens: 50, OutTokens: 50},
+			{Group: "minsize", Command: "ls", Outcome: "bypassed", Reason: "10 tokens < min_tokens 200", Runs: 1, RawTokens: 10, OutTokens: 10},
 		}},
 		{component.StatsQuery{By: component.ByFamily}, []component.Stat{
 			{Group: "js", Family: "js", Runs: 2, Optimized: 2, RawTokens: 140, OutTokens: 60},

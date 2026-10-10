@@ -113,6 +113,7 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 		Session:    ev.Session,
 		Command:    ev.Command,
 		Filter:     ev.Filter,
+		Reason:     ev.Reason,
 		Pipeline:   ev.Pipeline,
 		Key:        ev.Key,
 		Route:      ev.Route,
@@ -138,13 +139,13 @@ func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
 	}).Create(&f).Error
 }
 
-func (l *Ledger) Failures(ctx context.Context, key string) (int, error) {
+func (l *Ledger) Failures(ctx context.Context, key string) (component.FailureInfo, error) {
 	var f failure
 	err := l.db.WithContext(ctx).Take(&f, "key = ?", key).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return 0, nil
+		return component.FailureInfo{}, nil
 	}
-	return f.Count, err
+	return component.FailureInfo{Count: f.Count, Reason: f.Reason, Last: time.UnixMilli(f.LastTS)}, err
 }
 
 // Forget clears failure history for key, re-enabling optimization.

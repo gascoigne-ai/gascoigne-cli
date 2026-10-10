@@ -79,7 +79,7 @@ func AddRetrieve(s *mcp.Server, name string, l component.Ledger) {
 }
 
 type StatsInput struct {
-	By      string `json:"by,omitempty" jsonschema:"one grouping (command, optimizer, family, outcome, skip, session, route); default: overview"`
+	By      string `json:"by,omitempty" jsonschema:"one grouping (command, optimizer, family, outcome, reason, session, route); default: overview"`
 	Session string `json:"session,omitempty" jsonschema:"session id; default this session, 'all' for every session"`
 	Format  string `json:"format,omitempty" jsonschema:"table (default) or json"`
 }
@@ -158,6 +158,9 @@ type StatsReport struct {
 type StatsJSON struct {
 	Group     string     `json:"group"`
 	Family    string     `json:"family,omitempty"`
+	Command   string     `json:"command,omitempty"`
+	Outcome   string     `json:"outcome,omitempty"`
+	Reason    string     `json:"reason,omitempty"`
 	Runs      int        `json:"runs"` // steps for family/optimizer groupings
 	Optimized int        `json:"optimized"`
 	Failed    int        `json:"failed"`
@@ -188,7 +191,7 @@ func statJSON(s component.Stat) StatsJSON {
 	if s.RawTokens > 0 {
 		pct = math.Round(1000*float64(s.Saved())/float64(s.RawTokens)) / 10
 	}
-	return StatsJSON{Group: s.Group, Family: s.Family, Runs: s.Runs, Optimized: s.Optimized, Failed: s.Failed,
+	return StatsJSON{Group: s.Group, Family: s.Family, Command: s.Command, Outcome: s.Outcome, Reason: s.Reason, Runs: s.Runs, Optimized: s.Optimized, Failed: s.Failed,
 		RawTokens: s.RawTokens, OutTokens: s.OutTokens, Saved: s.Saved(), SavedPct: pct}
 }
 
@@ -253,7 +256,11 @@ type Overview struct {
 	Outcomes   []StatsJSON `json:"outcomes"`
 	Commands   []StatsJSON `json:"commands"`
 	Optimizers []StatsJSON `json:"optimizers"`
-	Skipped    []StatsJSON `json:"skipped"`
+	// Runs not optimized, per stopping component (filter or optimizer) and
+	// command, with the latest recorded reason.
+	Skipped   []StatsJSON `json:"skipped"`
+	Failed    []StatsJSON `json:"failed"`
+	Unchanged []StatsJSON `json:"unchanged"`
 }
 
 func BuildOverview(ctx context.Context, l component.Ledger, session string) (Overview, error) {
@@ -265,7 +272,6 @@ func BuildOverview(ctx context.Context, l component.Ledger, session string) (Ove
 		{component.ByOutcome, &o.Outcomes},
 		{component.ByCommand, &o.Commands},
 		{component.ByOptimizer, &o.Optimizers},
-		{component.BySkip, &o.Skipped},
 	} {
 		stats, err := l.Stats(ctx, component.StatsQuery{By: part.by, Session: session})
 		if err != nil {
@@ -275,6 +281,26 @@ func BuildOverview(ctx context.Context, l component.Ledger, session string) (Ove
 		*part.out = r.Groups
 		if part.by == component.ByCommand {
 			o.Total = r.Total
+		}
+	}
+	reasons, err := l.Stats(ctx, component.StatsQuery{By: component.ByReason, Session: session})
+	if err != nil {
+		return o, err
+	}
+	o.Skipped, o.Failed, o.Unchanged = []StatsJSON{}, []StatsJSON{}, []StatsJSON{}
+	for _, s := range reasons {
+		j := statJSON(s)
+		if j.Reason == "" {
+			typ, _, _ := strings.Cut(s.Group, "/")
+			j.Reason = SkipReason(typ) // recorded before reasons were
+		}
+		switch component.Outcome(s.Outcome) {
+		case component.Bypassed:
+			o.Skipped = append(o.Skipped, j)
+		case component.Failed:
+			o.Failed = append(o.Failed, j)
+		default:
+			o.Unchanged = append(o.Unchanged, j)
 		}
 	}
 	return o, nil
@@ -288,11 +314,11 @@ var outcomeNotes = map[string]string{
 	string(component.Failed):    "optimizer error, original returned",
 }
 
-// skipReasons explains bypassing filters by type.
+// skipReasons describe filter types, for runs recorded before reasons were.
 var skipReasons = map[string]string{
-	"minsize": "output below min_tokens, not worth optimizing",
-	"bypass":  "raw output requested (-raw, raw=true, GASCOIGNE_RAW)",
-	"history": "source optimized badly before (retrieved original)",
+	"minsize": "output below min_tokens",
+	"bypass":  "raw output requested",
+	"history": "source optimized badly before",
 }
 
 // SkipReason explains why a filter type bypasses optimization.
@@ -331,10 +357,12 @@ func (o Overview) Table() string {
 	section("by optimizer", "optimizer\tfamily\tsteps\traw tok\tout tok\tsaved\tsaved %", o.Optimizers, func(w *tabwriter.Writer, r StatsJSON) {
 		fmt.Fprintf(w, "%s\t%s\t%d\t%d\t%d\t%d\t%s\n", r.Group, cmp.Or(r.Family, "-"), r.Runs, r.RawTokens, r.OutTokens, r.Saved, Percent(r.Saved, r.RawTokens))
 	})
-	section("skipped", "filter\truns\ttokens\treason", o.Skipped, func(w *tabwriter.Writer, r StatsJSON) {
-		typ, _, _ := strings.Cut(r.Group, "/")
-		fmt.Fprintf(w, "%s\t%d\t%d\t%s\n", r.Group, r.Runs, r.RawTokens, SkipReason(typ))
-	})
+	reasons := func(w *tabwriter.Writer, r StatsJSON) {
+		fmt.Fprintf(w, "%s\t%s\t%d\t%d\t%s\n", r.Group, cmp.Or(r.Command, "-"), r.Runs, r.RawTokens, r.Reason)
+	}
+	section("skipped", "filter\tcommand\truns\ttokens\treason (latest)", o.Skipped, reasons)
+	section("failed", "optimizer\tcommand\truns\ttokens\terror (latest)", o.Failed, reasons)
+	section("unchanged", "-\tcommand\truns\ttokens\treason (latest)", o.Unchanged, reasons)
 	return b.String()
 }
 

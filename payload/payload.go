@@ -24,8 +24,9 @@ const (
 	AttrCmd       = "cmd"
 	AttrTool      = "tool"
 	AttrURL       = "url"
-	AttrQuery     = "query"   // what the agent looks for; guides lossy selection
-	AttrSession   = "session" // agent session, for per-session stats
+	AttrQuery     = "query"       // what the agent looks for; guides lossy selection
+	AttrSession   = "session"     // agent session, for per-session stats
+	AttrSkip      = "skip_reason" // why nothing was optimized, with facts: set by bypassing filters or no-op optimizers
 	AttrRaw       = "raw"
 	AttrRawID     = "raw_id"
 	AttrRoute     = "route"

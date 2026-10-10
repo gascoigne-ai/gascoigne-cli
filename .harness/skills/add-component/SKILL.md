@@ -32,6 +32,8 @@ to make a component work — if you think you must, stop and ask the user.
    - Optimizers: select blocks by content type with `p.Rewrite(fn, detect.X, ...)`; never
      touch other blocks. Deterministic; return an error instead of half-broken output (core
      falls back to the original and records the failure). Reuse `compress/` primitives.
+   - When a filter bypasses or an optimizer deliberately leaves its blocks alone, set
+     `payload.AttrSkip` to a factual reason (numbers, thresholds, flags) — `gain` shows it.
    - New content type: add constant, cmd mapping/sniffer and tests in `detect/` first.
 5. `<name>_test.go`: table-driven, real-shaped inputs.
 6. Register: one line in `internal/registry/registry.go` under the right kind comment.

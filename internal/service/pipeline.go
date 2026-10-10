@@ -1,9 +1,11 @@
 package service
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -75,6 +77,7 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 		if d == component.Bypass {
 			pl.svc.log.Debug("bypass", "filter", f.id, "key", ev.Key)
 			ev.Outcome, ev.Filter = component.Bypassed, f.id
+			ev.Reason = cmp.Or(p.Attrs[payload.AttrSkip], "bypassed by "+f.id)
 			return p, nil
 		}
 	}
@@ -87,7 +90,7 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 		if err := pl.svc.optimizers[id].Optimize(ctx, p); err != nil {
 			// Never fail the agent: fall back to the original and remember the source.
 			pl.svc.log.Warn("optimizer failed, using original", "optimizer", id, "err", err)
-			ev.Outcome, ev.Steps = component.Failed, nil
+			ev.Outcome, ev.Steps, ev.Filter, ev.Reason = component.Failed, nil, id, firstLine(err.Error())
 			pl.markFailure(ctx, ev.Key, component.ReasonError)
 			return orig, nil
 		}
@@ -96,7 +99,7 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 		}
 	}
 	if p.SameContent(orig) {
-		ev.Outcome = component.Unchanged
+		ev.Outcome, ev.Reason = component.Unchanged, unchangedReason(p, ev.Optimizers)
 		return p, nil
 	}
 
@@ -104,7 +107,7 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 	if err != nil {
 		// Without a saved original the optimized output would be lossy.
 		pl.svc.log.Warn("save raw failed, using original", "err", err)
-		ev.Outcome, ev.Steps = component.Failed, nil
+		ev.Outcome, ev.Steps, ev.Filter, ev.Reason = component.Failed, nil, "ledger", "save original: "+firstLine(err.Error())
 		return orig, nil
 	}
 	p.Set(payload.AttrRawID, id)
@@ -133,4 +136,25 @@ func command(p *payload.Payload) string {
 		return strings.TrimSpace(tool + " " + u.Host)
 	}
 	return tool
+}
+
+// unchangedReason tells which content no optimizer handled.
+func unchangedReason(p *payload.Payload, optimizers []string) string {
+	if len(optimizers) == 0 {
+		return "route has no optimizers"
+	}
+	var types []string
+	for _, b := range p.Blocks {
+		types = append(types, cmp.Or(b.Type, "undetected"))
+	}
+	reason := "no optimizer changed it · types: " + strings.Join(slices.Compact(types), ", ")
+	if note := p.Attrs[payload.AttrSkip]; note != "" {
+		reason = note + " · types: " + strings.Join(slices.Compact(types), ", ")
+	}
+	return reason
+}
+
+func firstLine(s string) string {
+	line, _, _ := strings.Cut(s, "\n")
+	return line
 }

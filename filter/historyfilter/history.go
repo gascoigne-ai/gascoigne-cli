@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/payload"
@@ -36,12 +37,14 @@ func (f *Filter) Filter(ctx context.Context, p *payload.Payload) (component.Deci
 	if key == "" {
 		return component.Continue, nil
 	}
-	n, err := f.ledger.Failures(ctx, key)
+	info, err := f.ledger.Failures(ctx, key)
 	if err != nil {
 		return component.Continue, fmt.Errorf("failures %s: %w", key, err)
 	}
-	if n >= f.cfg.MaxFailures {
-		f.log.Debug("known bad key", "key", key, "failures", n)
+	if info.Count >= f.cfg.MaxFailures {
+		f.log.Debug("known bad key", "key", key, "failures", info.Count)
+		p.Set(payload.AttrSkip, fmt.Sprintf("%s failed %d× (max_failures %d), last: %s at %s; reset: gascoigne forget %q",
+			key, info.Count, f.cfg.MaxFailures, info.Reason, info.Last.Format(time.DateTime), key))
 		return component.Bypass, nil
 	}
 	return component.Continue, nil

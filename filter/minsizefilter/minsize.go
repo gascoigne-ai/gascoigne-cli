@@ -3,6 +3,7 @@ package minsizefilter
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/payload"
@@ -14,7 +15,8 @@ type Filter struct {
 }
 
 func (f *Filter) Filter(_ context.Context, p *payload.Payload) (component.Decision, error) {
-	if p.Tokens() < f.cfg.MinTokens {
+	if n := p.Tokens(); n < f.cfg.MinTokens {
+		p.Set(payload.AttrSkip, fmt.Sprintf("%d tokens < min_tokens %d", n, f.cfg.MinTokens))
 		return component.Bypass, nil
 	}
 	return component.Continue, nil
