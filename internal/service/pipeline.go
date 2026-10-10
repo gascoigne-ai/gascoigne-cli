@@ -86,7 +86,7 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 	p.Set(payload.AttrRoute, ev.Route)
 	orig := p.Clone()
 	for _, id := range ev.Optimizers {
-		before := p.Tokens()
+		before, texts := p.Tokens(), blockTexts(p)
 		if err := pl.svc.optimizers[id].Optimize(ctx, p); err != nil {
 			// Never fail the agent: fall back to the original and remember the source.
 			pl.svc.log.Warn("optimizer failed, using original", "optimizer", id, "err", err)
@@ -95,7 +95,8 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 			return orig, nil
 		}
 		if after := p.Tokens(); after != before {
-			ev.Steps = append(ev.Steps, component.Step{Optimizer: id, Family: pl.svc.families[id], RawTokens: before, OutTokens: after})
+			ev.Steps = append(ev.Steps, component.Step{Optimizer: id, Family: pl.svc.families[id],
+				Dialect: changedTypes(p, texts), RawTokens: before, OutTokens: after})
 		}
 	}
 	if p.SameContent(orig) {
@@ -157,4 +158,24 @@ func unchangedReason(p *payload.Payload, optimizers []string) string {
 func firstLine(s string) string {
 	line, _, _ := strings.Cut(s, "\n")
 	return line
+}
+
+func blockTexts(p *payload.Payload) []string {
+	texts := make([]string, len(p.Blocks))
+	for i, b := range p.Blocks {
+		texts[i] = b.Text
+	}
+	return texts
+}
+
+// changedTypes lists the types of blocks whose text differs from before.
+func changedTypes(p *payload.Payload, before []string) string {
+	var types []string
+	for i, b := range p.Blocks {
+		if i >= len(before) || b.Text != before[i] {
+			types = append(types, cmp.Or(b.Type, "-"))
+		}
+	}
+	slices.Sort(types)
+	return strings.Join(slices.Compact(types), "+")
 }

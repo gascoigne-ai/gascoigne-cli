@@ -185,6 +185,7 @@ func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int) {
 	p.savingsTable(w, "models · share of savings", "model", mcptool.Named(o.Models), t.Saved, false)
 	p.savingsTable(w, "commands · share of savings", "command", o.Commands, t.Saved, false)
 	p.savingsTable(w, "optimizers · share of savings", "optimizer", o.Optimizers, t.Saved, true)
+	p.savingsTable(w, "dialects · share of savings", "dialect", o.Dialects, t.Saved, false)
 
 	p.reasonTable(w, "skipped · not optimized on purpose", "filter", o.Skipped, yellow)
 	p.reasonTable(w, "failed · optimizer errors, original returned", "optimizer", o.Failed, red)
@@ -289,7 +290,7 @@ func (p painter) savingsTable(w io.Writer, title, name string, rows []mcptool.St
 		header = append(header, " family")
 	}
 	runs := "runs"
-	if family || name == component.ByFamily {
+	if family || name == component.ByFamily || name == component.ByDialect {
 		runs = "steps" // optimizer groupings count steps, not runs
 	}
 	header = append(header, runs, "in", "out", "saved", "saved %", " share")

@@ -39,6 +39,8 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 		tx, group, table = l.steps(ctx), "steps.family", "steps"
 	case component.ByOptimizer:
 		tx, group, table = l.steps(ctx), "steps.optimizer", "steps"
+	case component.ByDialect:
+		tx, group, table = l.steps(ctx), "steps.dialect", "steps"
 	default:
 		return nil, fmt.Errorf("stats: unknown grouping %q", q.By)
 	}
@@ -96,7 +98,7 @@ func (l *Ledger) steps(ctx context.Context) *gorm.DB {
 
 // aggregates: events count outcomes; every step is an optimization.
 func (l *Ledger) aggregates(by string) string {
-	if by == component.ByFamily || by == component.ByOptimizer {
+	if by == component.ByFamily || by == component.ByOptimizer || by == component.ByDialect {
 		return `max(steps.family) AS family, count(*) AS runs, count(*) AS optimized, 0 AS failed,
 			sum(steps.raw_tokens) AS raw_tokens, sum(steps.out_tokens) AS out_tokens,
 			min(events.ts) AS first_ts, max(events.ts) AS last_ts`

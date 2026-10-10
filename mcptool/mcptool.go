@@ -232,7 +232,7 @@ func add(a, b component.Stat) component.Stat {
 // StatsTable renders stats with a total row.
 func StatsTable(by string, stats []component.Stat) string {
 	by = cmp.Or(by, component.ByRoute)
-	steps := by == component.ByFamily || by == component.ByOptimizer
+	steps := by == component.ByFamily || by == component.ByOptimizer || by == component.ByDialect
 	var b strings.Builder
 	w := tabwriter.NewWriter(&b, 0, 0, 2, ' ', 0)
 	switch {
@@ -282,6 +282,7 @@ type Overview struct {
 	Outcomes   []StatsJSON          `json:"outcomes"`
 	Commands   []StatsJSON          `json:"commands"`
 	Optimizers []StatsJSON          `json:"optimizers"`
+	Dialects   []StatsJSON          `json:"dialects"`
 	Agents     []StatsJSON          `json:"agents"`
 	Models     []StatsJSON          `json:"models"`
 	Days       []StatsJSON          `json:"days"` // last 7 days (or since filter.Since), oldest first
@@ -301,6 +302,7 @@ func BuildOverview(ctx context.Context, l component.Ledger, filter component.Sta
 		{component.ByOutcome, &o.Outcomes},
 		{component.ByCommand, &o.Commands},
 		{component.ByOptimizer, &o.Optimizers},
+		{component.ByDialect, &o.Dialects},
 		{component.ByAgent, &o.Agents},
 		{component.ByModel, &o.Models},
 		{component.ByDay, &o.Days},

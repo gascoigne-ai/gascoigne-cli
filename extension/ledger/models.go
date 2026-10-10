@@ -32,6 +32,7 @@ type step struct {
 	EventID   uint   `gorm:"not null;index"`
 	Optimizer string `gorm:"not null"`
 	Family    string `gorm:"not null;index"`
+	Dialect   string `gorm:"not null;default:'';index"`
 	RawTokens int    `gorm:"not null"`
 	OutTokens int    `gorm:"not null"`
 }

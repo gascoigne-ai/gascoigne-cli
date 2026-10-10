@@ -1,37 +1,15 @@
 // Package detect classifies text into content types so the right optimizer
-// handles it. Detection uses, in order: the command that produced the text,
-// a file name or MIME type, then content sniffing.
+// handles it. A type is "family/dialect": the family names what the output is
+// for (test, build, pkg, table, k8s, cloud…) and picks the engine; the dialect
+// names the tool or format and tunes it. Detection uses, in order: the command
+// that produced the text, a file name or MIME type, then content sniffing.
+// Dialects are declared as specs in this package, one file per family.
 package detect
 
 import (
 	"path"
 	"slices"
 	"strings"
-)
-
-// Content types. Optimizers select blocks by these.
-const (
-	JSON       = "json"
-	NDJSON     = "ndjson"
-	HTML       = "html"
-	Markdown   = "markdown"
-	Diff       = "diff"
-	GoTest     = "go-test"
-	GoTestJSON = "go-test-json"
-	GoBuild    = "go-build"
-	GitStatus  = "git-status"
-	GitLog     = "git-log"
-	GitRemote  = "git-remote" // push, pull, fetch, clone
-	JSTest     = "js-test"    // jest, vitest
-	TSC        = "tsc"
-	NPM        = "npm"
-	NX         = "nx"
-	Bun        = "bun"
-	Grep       = "grep"
-	LS         = "ls"
-	Code       = "code"
-	Log        = "log"
-	Text       = "text"
 )
 
 type Hints struct {
@@ -58,14 +36,34 @@ func Detect(text string, h Hints) string {
 	return Sniff(text)
 }
 
-// wrappers are skipped to find the real command.
-var wrappers = map[string]bool{"sudo": true, "time": true, "env": true, "command": true, "exec": true, "nice": true}
+// Family is the family part of a type: "test" for "test/jest".
+func Family(typ string) string {
+	family, _, _ := strings.Cut(typ, "/")
+	return family
+}
 
-// Argv splits cmd and drops env assignments and wrapper commands.
+// Dialect is the dialect part of a type: "jest" for "test/jest".
+func Dialect(typ string) string {
+	_, dialect, _ := strings.Cut(typ, "/")
+	return dialect
+}
+
+var (
+	// wrappers are skipped to find the real command.
+	wrappers = map[string]bool{"sudo": true, "time": true, "env": true, "command": true, "exec": true, "nice": true, "nohup": true}
+	// runners execute the package named next: "npx nx run-many" is nx.
+	runners = map[string]bool{"npx": true, "bunx": true, "pnpx": true, "uvx": true, "pipx": true}
+)
+
+// Argv splits cmd, drops env assignments and wrappers, unwraps package
+// runners and reduces the program to its base name.
 func Argv(cmd string) []string {
 	args := strings.Fields(cmd)
-	for len(args) > 0 && (strings.Contains(args[0], "=") || wrappers[path.Base(args[0])]) {
+	for len(args) > 0 && (strings.Contains(args[0], "=") || wrappers[path.Base(args[0])] || runners[path.Base(args[0])] && len(args) > 1) {
 		args = args[1:]
+		for len(args) > 1 && strings.HasPrefix(args[0], "-") { // npx --yes nx …
+			args = args[1:]
+		}
 	}
 	if len(args) > 0 {
 		args[0] = path.Base(args[0])
@@ -73,149 +71,75 @@ func Argv(cmd string) []string {
 	return args
 }
 
-// FromCmd maps a command line to a content type; "" when unknown.
-func FromCmd(cmd string) string {
-	args := Argv(cmd)
-	if len(args) == 0 {
-		return ""
-	}
-	sub := subcommand(args)
-	switch args[0] {
-	case "go":
-		switch sub {
-		case "test":
-			if hasFlag(args, "-json") {
-				return GoTestJSON
-			}
-			return GoTest
-		case "build", "vet", "install":
-			return GoBuild
-		}
-	case "git":
-		switch sub {
-		case "status":
-			return GitStatus
-		case "log":
-			return GitLog
-		case "diff", "show":
-			return Diff
-		case "push", "pull", "fetch", "clone":
-			return GitRemote
-		case "grep":
-			return Grep
-		}
-	case "npm", "pnpm", "yarn":
-		return NPM
-	case "bun", "bunx":
-		return Bun
-	case "nx":
-		return NX
-	case "npx":
-		if len(args) > 1 {
-			return FromCmd(strings.Join(args[1:], " "))
-		}
-	case "tsc":
-		return TSC
-	case "jest", "vitest":
-		return JSTest
-	case "grep", "egrep", "rg", "ag", "ack":
-		return Grep
-	case "ls", "eza", "exa":
-		return LS
-	case "cat", "head", "tail", "bat", "less":
-		if f := lastArg(args); f != "" {
-			return FromFile(f)
-		}
-	}
-	return ""
+// valueFlags take a separate value before positional arguments
+// (git -C dir status, kubectl -n ns get pods, aws --profile p s3 ls).
+var valueFlags = map[string]bool{
+	"-C": true, "-c": true, "--git-dir": true, "--work-tree": true, "--prefix": true,
+	"-n": true, "--namespace": true, "--context": true, "--kubeconfig": true,
+	"--profile": true, "--region": true, "--project": true, "--subscription": true,
+	"-o": true, "--output": true, "--format": true,
 }
 
-// valueFlags take a separate value argument before the subcommand (git -C dir status).
-var valueFlags = map[string]bool{"-C": true, "-c": true, "--git-dir": true, "--work-tree": true, "--prefix": true}
-
-func subcommand(args []string) string {
+// positional returns arguments after the program that are not flags or flag values.
+func positional(args []string) []string {
+	var out []string
 	for i := 1; i < len(args); i++ {
 		switch a := args[i]; {
 		case valueFlags[a]:
 			i++
 		case !strings.HasPrefix(a, "-"):
-			return a
+			out = append(out, a)
 		}
 	}
-	return ""
+	return out
 }
 
 func hasFlag(args []string, flag string) bool {
-	for _, a := range args {
-		if a == flag || strings.HasPrefix(a, flag+"=") {
-			return true
+	return slices.ContainsFunc(args, func(a string) bool { return a == flag || strings.HasPrefix(a, flag+"=") })
+}
+
+// flagValue returns the value of -o yaml, -o=yaml, -oyaml style flags.
+func flagValue(args []string, names ...string) string {
+	for i, a := range args {
+		for _, n := range names {
+			switch {
+			case a == n && i+1 < len(args):
+				return args[i+1]
+			case strings.HasPrefix(a, n+"="):
+				return a[len(n)+1:]
+			case len(n) == 2 && strings.HasPrefix(a, n) && len(a) > 2 && a[2] != '-':
+				return a[2:]
+			}
 		}
 	}
-	return false
-}
-
-func lastArg(args []string) string {
-	for _, a := range slices.Backward(args[1:]) {
-		if !strings.HasPrefix(a, "-") {
-			return a
-		}
-	}
 	return ""
 }
 
-var extTypes = map[string]string{
-	".json": JSON, ".jsonl": NDJSON, ".ndjson": NDJSON,
-	".html": HTML, ".htm": HTML,
-	".md": Markdown, ".log": Log,
-	".diff": Diff, ".patch": Diff,
+// tools whose subcommands are worth reporting ("go test", "git log", "kubectl get").
+var subcommandTools = map[string]int{
+	"go": 1, "git": 1, "npm": 1, "pnpm": 1, "yarn": 1, "bun": 1, "nx": 1, "turbo": 1,
+	"cargo": 1, "docker": 1, "podman": 1, "kubectl": 1, "helm": 1, "gh": 2, "make": 1, "pip": 1,
+	"uv": 1, "poetry": 1, "terraform": 1, "tofu": 1, "pulumi": 1, "dotnet": 1, "deno": 1,
+	"aws": 2, "gcloud": 3, "az": 2, "systemctl": 1, "journalctl": 0, "mvn": 1, "gradle": 1,
 }
 
-// FromFile maps a file name to a content type; "" when unknown.
-func FromFile(name string) string {
-	ext := strings.ToLower(path.Ext(name))
-	if t, ok := extTypes[ext]; ok {
-		return t
-	}
-	if _, ok := langByExt[ext]; ok {
-		return Code
-	}
-	return ""
-}
-
-// FromMIME maps a MIME type to a content type; "" when unknown.
-func FromMIME(mime string) string {
-	mime, _, _ = strings.Cut(strings.ToLower(mime), ";")
-	switch strings.TrimSpace(mime) {
-	case "application/json", "application/problem+json":
-		return JSON
-	case "application/x-ndjson", "application/jsonl":
-		return NDJSON
-	case "text/html", "application/xhtml+xml":
-		return HTML
-	case "text/markdown":
-		return Markdown
-	}
-	return ""
-}
-
-// tools whose first argument is a subcommand worth reporting ("go test", "git log").
-var subcommandTools = map[string]bool{
-	"go": true, "git": true, "npm": true, "pnpm": true, "yarn": true, "bun": true, "bunx": true, "nx": true,
-	"cargo": true, "docker": true, "kubectl": true, "gh": true, "make": true, "pip": true, "uv": true,
-}
-
-// Command names a command line for reports: the program, plus its subcommand
-// for multi-command tools ("go test", "npm install", "npx nx run-many" → "nx run-many").
+// Command names a command line for reports: the program plus its subcommands
+// for multi-command tools ("go test", "aws s3 ls", "npx nx run-many" → "nx run-many").
 func Command(cmd string) string {
 	args := Argv(cmd)
 	if len(args) == 0 {
 		return ""
 	}
-	if args[0] == "npx" && len(args) > 1 {
-		return Command(strings.Join(args[1:], " "))
+	pos := positional(args)
+	n := min(subcommandTools[args[0]], len(pos))
+	return strings.Join(append([]string{args[0]}, pos[:n]...), " ")
+}
+
+// lastArg is the last positional argument (the file of cat, head, tail).
+func lastArg(args []string) string {
+	pos := positional(args)
+	if len(pos) == 0 {
+		return ""
 	}
-	if sub := subcommand(args); subcommandTools[args[0]] && sub != "" {
-		return args[0] + " " + sub
-	}
-	return args[0]
+	return pos[len(pos)-1]
 }

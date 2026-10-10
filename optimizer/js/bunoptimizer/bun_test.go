@@ -9,7 +9,7 @@ import (
 )
 
 func run(in string) string {
-	p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.Bun}}}
+	p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.BunInstall}}}
 	Optimizer{}.Optimize(nil, p)
 	return p.Blocks[0].Text
 }

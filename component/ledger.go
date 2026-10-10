@@ -41,8 +41,9 @@ type Event struct {
 type Step struct {
 	Optimizer string
 	Family    string
-	RawTokens int // before the step
-	OutTokens int // after the step
+	Dialect   string // content type(s) of the blocks it changed, e.g. "cloud/aws"
+	RawTokens int    // before the step
+	OutTokens int    // after the step
 }
 
 // Failure reasons.
@@ -81,6 +82,7 @@ const (
 	BySession   = "session"
 	ByFamily    = "family"    // optimizer family, from steps
 	ByOptimizer = "optimizer" // single optimizer, from steps
+	ByDialect   = "dialect"   // content type the optimizers changed, from steps
 	ByCommand   = "command"
 	ByOutcome   = "outcome" // optimized, unchanged, bypassed, error
 	ByAgent     = "agent"

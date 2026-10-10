@@ -106,7 +106,7 @@ func (l *Ledger) GetRaw(ctx context.Context, id string) (string, *payload.Payloa
 func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 	steps := make([]step, len(ev.Steps))
 	for i, s := range ev.Steps {
-		steps[i] = step{Optimizer: s.Optimizer, Family: s.Family, RawTokens: s.RawTokens, OutTokens: s.OutTokens}
+		steps[i] = step{Optimizer: s.Optimizer, Family: s.Family, Dialect: s.Dialect, RawTokens: s.RawTokens, OutTokens: s.OutTokens}
 	}
 	return l.db.WithContext(ctx).Create(&event{
 		TS:         ev.TS.UnixMilli(),

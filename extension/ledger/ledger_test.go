@@ -92,13 +92,13 @@ func TestStats(t *testing.T) {
 	ctx := t.Context()
 	events := []component.Event{
 		{Session: "s1", Command: "npm install", Route: "default", RawTokens: 100, OutTokens: 20, Outcome: component.Optimized, Steps: []component.Step{
-			{Optimizer: "npm", Family: "js", RawTokens: 100, OutTokens: 50},
-			{Optimizer: "log", Family: "data", RawTokens: 50, OutTokens: 20},
+			{Optimizer: "npm", Family: "js", Dialect: "pkg/npm", RawTokens: 100, OutTokens: 50},
+			{Optimizer: "log", Family: "data", Dialect: "log/app", RawTokens: 50, OutTokens: 20},
 		}},
 		{Session: "s1", Command: "npm install", Route: "default", RawTokens: 50, OutTokens: 50, Outcome: component.Failed, Filter: "npm", Reason: "npm: boom"},
 		{Session: "s2", Command: "ls", RawTokens: 10, OutTokens: 10, Outcome: component.Bypassed, Filter: "minsize", Reason: "10 tokens < min_tokens 200"},
 		{Session: "s2", Command: "bun test", Route: "default", RawTokens: 40, OutTokens: 10, Outcome: component.Optimized, Steps: []component.Step{
-			{Optimizer: "bun", Family: "js", RawTokens: 40, OutTokens: 10},
+			{Optimizer: "bun", Family: "js", Dialect: "pkg/bun", RawTokens: 40, OutTokens: 10},
 		}},
 	}
 	for _, ev := range events {
@@ -136,6 +136,11 @@ func TestStats(t *testing.T) {
 		{component.StatsQuery{By: component.ByFamily}, []component.Stat{
 			{Group: "js", Family: "js", Runs: 2, Optimized: 2, RawTokens: 140, OutTokens: 60},
 			{Group: "data", Family: "data", Runs: 1, Optimized: 1, RawTokens: 50, OutTokens: 20},
+		}},
+		{component.StatsQuery{By: component.ByDialect}, []component.Stat{
+			{Group: "pkg/npm", Family: "js", Runs: 1, Optimized: 1, RawTokens: 100, OutTokens: 50},
+			{Group: "log/app", Family: "data", Runs: 1, Optimized: 1, RawTokens: 50, OutTokens: 20}, // ties sort by name
+			{Group: "pkg/bun", Family: "js", Runs: 1, Optimized: 1, RawTokens: 40, OutTokens: 10},
 		}},
 		{component.StatsQuery{By: component.ByOptimizer, Session: "s1"}, []component.Stat{
 			{Group: "npm", Family: "js", Runs: 1, Optimized: 1, RawTokens: 100, OutTokens: 50},

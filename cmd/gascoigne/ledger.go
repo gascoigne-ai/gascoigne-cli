@@ -108,7 +108,7 @@ func cmdGain(ctx context.Context, args []string) error {
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
-		fs.StringVar(&by, "by", "", "one grouping instead of the overview: day, week, month, agent, model, session, command, optimizer, family, outcome, reason, route")
+		fs.StringVar(&by, "by", "", "one grouping instead of the overview: day, week, month, agent, model, session, command, optimizer, family, dialect, outcome, reason, route")
 		fs.BoolVar(&all, "all", false, "ignore session/agent/model from $GASCOIGNE_* (flags still filter)")
 		fs.StringVar(&since, "since", "", "only the last period: 24h, 7d, 4w, 6mo")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
