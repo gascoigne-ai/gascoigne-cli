@@ -82,6 +82,30 @@ left alone, as are gascoigne's own MCP tools. **Read** is never replaced: Claude
 it shows, and dropped lines would shift those numbers. **WebSearch** is left too: its results
 (a median of 608 tokens in measured sessions) are rendered by Claude Code from a fixed structure.
 
+### LLM API proxy
+
+What hooks cannot reach (Claude's Read, a quarter of tool-result tokens in measured sessions,
+plus WebSearch, subagent results and plans) is shortened between the agent and its API by
+`gascoigne proxy`:
+
+| Agent | Per run (`wrap`) | For good |
+|---|---|---|
+| claude | `ANTHROPIC_BASE_URL=http://127.0.0.1:7879`, unless you set one (your gateway stays) | `install -proxy claude`; the SessionStart hook starts the proxy |
+| codex | with `OPENAI_API_KEY`: a `gascoigne` model provider (Responses API); a ChatGPT login stays direct | — |
+| opencode | `provider.anthropic/openai.options.baseURL` | — |
+
+- Only the base URL changes: a claude.ai login stays the credential, and every header goes
+  through as sent.
+- Read results keep their real line numbers: lines are dropped like `cat` output, never
+  renumbered, and each gap is a marker naming the lines to read back.
+- Each tool result is shortened once and sent byte-for-byte the same on every later request,
+  so the provider's prompt cache keeps hitting. Anything the proxy cannot parse is forwarded
+  unchanged; `X-Gascoigne-Raw: 1` on a request skips it.
+- `wrap` starts the proxy when it is not answering (its log: `proxy.log` next to the server's)
+  and leaves the agent on its API directly if it cannot. `GASCOIGNE_PROXY=off` turns it off,
+  `GASCOIGNE_PROXY_ADDR` moves it. With `install -proxy`, a stopped proxy stops the agent until
+  the next session starts it.
+
 ### Claude Code: built-in search and fetch tools
 
 `wrap claude` and `install claude` deny **Grep**, **Glob** and **WebFetch**: Claude then searches

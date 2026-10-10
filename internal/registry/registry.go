@@ -33,6 +33,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/web/httpoptimizer"
 	"github.com/lukaszb/gascoigne/receiver/execreceiver"
 	"github.com/lukaszb/gascoigne/receiver/hookreceiver"
+	"github.com/lukaszb/gascoigne/receiver/httpproxyreceiver"
 	"github.com/lukaszb/gascoigne/receiver/mcpproxyreceiver"
 	"github.com/lukaszb/gascoigne/receiver/mcpreceiver"
 	"github.com/lukaszb/gascoigne/receiver/stdinreceiver"
@@ -46,6 +47,7 @@ func Factories() []component.Factory {
 		hookreceiver.NewFactory(),
 		mcpreceiver.NewFactory(),
 		mcpproxyreceiver.NewFactory(),
+		httpproxyreceiver.NewFactory(),
 		// filters
 		bypassfilter.NewFactory(),
 		minsizefilter.NewFactory(),

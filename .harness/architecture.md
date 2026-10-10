@@ -10,7 +10,8 @@ component/  payload/  tokens/        public contracts: what component authors im
 detect/  compress/  mcptool/         public libraries: content detection, text primitives, MCP tools
 lazyre/                              package-level regexps compiled on first use (init stays ~1 ms)
 cost/                                tokenizer families (factor vs tokens.Estimate), prices, agent context model
-receiver/  filter/  exporter/        components, one package each, OTel-contrib style;
+receiver/  filter/  exporter/        components, one package each, OTel-contrib style (receivers:
+                                       stdin, exec, hook, mcp, mcp_proxy, httpproxy);
 extension/                             only import public packages → can become own modules
 optimizer/<family>/<name>optimizer   optimizers grouped by family (see below)
 internal/config  router  service     engine: YAML, routing, pipeline execution
@@ -118,6 +119,22 @@ every payload through one chain of all optimizers; routes only override per comm
   results, adds `gascoigne_retrieve`. Non-text content passes untouched.
 - MCP pipelines have no exporters: stdout is the protocol channel.
 
+## LLM API proxy (`receiver/httpproxyreceiver`, `cmd/gascoigne/llmproxy.go`)
+`gascoigne proxy` runs pipeline `proxy` (detached, own process, started by `wrap`/the SessionStart
+hook, log `proxy.log`); agents reach it by base URL. Anthropic `/v1/messages*` (by path or
+`anthropic-version`/`x-api-key` headers), OpenAI `/chat/completions` and `/responses`; other paths
+and every header pass through (`anthropic-beta` carries the OAuth capability, so a claude.ai login
+keeps working), responses stream through (`FlushInterval -1`). Per tool result, one payload with
+attrs from the matching call (command, `file_path` → `cat <path>`, tool, url; model from the
+body, agent from the User-Agent); `skip` tools, `is_error`, hinted output untouched. Read's
+`N\t` prefixes are split off, the text optimized like `cat`, and kept lines get their original
+numbers back (`renumber`). Prompt cache: results cached by content hash (LRU `cache_entries`), so
+every later request sends the same bytes; optimizers are deterministic, so a restart recomputes
+them. Any parse problem → body forwarded unchanged; `X-Gascoigne-Raw: 1` → untouched.
+Registration: wrap claude `ANTHROPIC_BASE_URL` (unless set: user gateway), codex with
+`OPENAI_API_KEY` a `model_providers.gascoigne` (`wire_api=responses`), opencode provider
+`baseURL`s; `install -proxy claude` writes the env for good, unwrap removes it.
+
 ## Source files (`optimizer/fs/catoptimizer`)
 Agents edit by exact text, so source is shrunk only by dropping whole lines; kept lines are
 byte-exact (indentation and trailing comments untouched: Python stays valid as far as shown).
@@ -186,7 +203,8 @@ cycle when `watch.End` sees its result line, background runs included.
 ## Full-payload guarantee
 Lives in core (`service/pipeline.go`), not in optimizers:
 1. Before optimizers run, core snapshots the payload.
-2. Output no smaller than the input (by `tokens.Estimate`) → original kept, outcome unchanged.
+2. Output saving fewer than `minSaving` (20) tokens, the cost of the retrieve hint, → original
+   kept, outcome unchanged.
    If output differs, original goes to the ledger first; `raw_id` set; stdout hint:
    `[gascoigne: optimized 4120→610 tokens · full: gascoigne raw <id>]`.
 3. Ledger save fails → original returned. Optimizer errors → original returned + failure recorded.

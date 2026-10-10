@@ -88,6 +88,9 @@ func opencodeEnv(exe string) ([]string, error) {
 	for _, name := range r.proxied {
 		obj(cfg.get("mcp")).set(name, servers.get(name))
 	}
+	if providers := proxyForOpencode(); providers != nil {
+		cfg.set("provider", toObject(providers))
+	}
 	if !hasInstructions { // a list given here would replace the user's for the run
 		guideFile := filepath.Join(dir, "gascoigne.md")
 		if err := os.WriteFile(guideFile, []byte(guide(true)), 0o644); err != nil {

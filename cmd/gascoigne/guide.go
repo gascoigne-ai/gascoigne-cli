@@ -31,6 +31,7 @@ func withGuide(h hookFunc) hookFunc {
 		if in.HookEventName != "SessionStart" {
 			return h(ctx, c, in, prefix)
 		}
+		ensureProxyFor()
 		return map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "SessionStart", "additionalContext": guide(true)}}, nil
 	}
 }

@@ -23,12 +23,15 @@ type agent struct {
 	env     func(exe string) ([]string, error)              // per-run config env (NAME=value); neither: the agent has no per-run config
 	install func(exe string) string                         // config to register gascoigne for good (wrap -print)
 	add     func(exe string, global bool) ([]string, error) // writes that config: user files, else project ones
-	remove  func() ([]string, error)                        // undoes install: what it removed
-	hook    hookFunc
+	// addProxy points the agent at the LLM API proxy for good (install -proxy).
+	addProxy func(global bool) ([]string, error)
+	remove   func() ([]string, error) // undoes install: what it removed
+	hook     hookFunc
 }
 
 var agents = map[string]agent{
-	"claude": {bin: "claude", launch: claudeArgs, install: claudeInstall, add: addClaude, remove: removeClaude,
+	"claude": {bin: "claude", launch: claudeArgs, env: func(string) ([]string, error) { return proxyForClaude(), nil },
+		install: claudeInstall, add: addClaude, addProxy: addClaudeProxy, remove: removeClaude,
 		hook: withResults(withGuide(rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil
@@ -193,6 +196,7 @@ func codexArgs(exe string) ([]string, error) {
 	if !codexHasInstructions() {
 		proxies = append(proxies, "-c", "developer_instructions="+tomlQuote(guide(false)))
 	}
+	proxies = append(proxies, proxyForCodex()...)
 	return append([]string{
 		"-c", fmt.Sprintf(`mcp_servers.gascoigne={command=%s,args=["mcp"]}`, strconv.Quote(exe)),
 		"-c", fmt.Sprintf(`hooks.PostToolUse=[{matcher=%s,hooks=[{type="command",command=%s}]}]`, strconv.Quote(codexMatcher), strconv.Quote(hookCommand(exe, "codex"))),

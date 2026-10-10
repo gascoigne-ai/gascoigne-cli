@@ -157,3 +157,32 @@ func TestInstallDeniesRoundTrip(t *testing.T) {
 		t.Errorf("unwrap should keep the user's rules (Glob was theirs) and drop gascoigne's:\n%s", got)
 	}
 }
+
+func TestInstallProxyRoundTrip(t *testing.T) {
+	sandbox(t)
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("GASCOIGNE_PROXY_ADDR", "")
+	write(t, ".claude/settings.json", `{"env": {"FOO": "1"}}`)
+	if _, err := addClaude("gascoigne", false); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := addClaudeProxy(false); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, ".claude/settings.json"); !strings.Contains(got, `"ANTHROPIC_BASE_URL": "http://127.0.0.1:7879"`) || !strings.Contains(got, `"FOO": "1"`) {
+		t.Fatalf("settings:\n%s", got)
+	}
+	if _, err := removeClaude(); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, ".claude/settings.json"); strings.Contains(got, "ANTHROPIC_BASE_URL") || !strings.Contains(got, `"FOO": "1"`) {
+		t.Fatalf("after unwrap:\n%s", got)
+	}
+}
+
+func TestProxyForClaudeKeepsUserGateway(t *testing.T) {
+	t.Setenv("ANTHROPIC_BASE_URL", "https://gateway.example.com")
+	if env := proxyForClaude(); env != nil {
+		t.Fatalf("replaced the user's gateway: %v", env)
+	}
+}

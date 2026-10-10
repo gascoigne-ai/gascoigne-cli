@@ -98,6 +98,7 @@ func removeClaudeSettings(root *object) []string {
 	if n := removeHooks(root, "PostToolUse", ourHook("claude")); n > 0 {
 		what = append(what, "PostToolUse hook")
 	}
+	what = append(what, removeClaudeProxy(root)...)
 	if env, ok := root.get("env").(*object); ok && env.get("GASCOIGNE_AGENT") == "claude" {
 		env.del("GASCOIGNE_AGENT")
 		pruneEmpty(root, "env")

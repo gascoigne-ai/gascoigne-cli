@@ -9,6 +9,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/receiver/httpproxyreceiver"
 )
 
 // cmdInstall registers gascoigne with agents for good: in the project's
@@ -17,6 +19,7 @@ import (
 func cmdInstall(_ context.Context, args []string) error {
 	fset := newFlags("install")
 	global := fset.Bool("g", false, "register for every project (user config) instead of this one")
+	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through gascoigne proxy (claude); a stopped proxy stops the agent, its SessionStart hook starts it")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
@@ -40,6 +43,12 @@ func cmdInstall(_ context.Context, args []string) error {
 		}
 		done, err := a.add(cmd, *global)
 		errs = append(errs, err)
+		if *proxy && a.addProxy != nil && err == nil {
+			d, err := a.addProxy(*global)
+			done, errs = append(done, d...), append(errs, err)
+		} else if *proxy {
+			done = append(done, "LLM proxy: not available for this agent; gascoigne wrap "+name+" uses it per run where it can")
+		}
 		for _, d := range done {
 			fmt.Printf("%s: %s\n", name, d)
 		}
@@ -372,4 +381,39 @@ func added(file, what, backup string, err error) string {
 		s += " (backup: " + filepath.Base(backup) + ")"
 	}
 	return s
+}
+
+// addClaudeProxy sets ANTHROPIC_BASE_URL to the proxy in Claude's settings.
+// Only the base URL: a claude.ai login stays the credential.
+func addClaudeProxy(global bool) ([]string, error) {
+	settings, err := scoped(global, ".claude/settings.json", ".claude/settings.json")
+	if err != nil {
+		return nil, err
+	}
+	d, err := addJSON(settings, removeClaudeProxy, map[string]any{"env": map[string]string{"ANTHROPIC_BASE_URL": proxyURL()}},
+		"ANTHROPIC_BASE_URL="+proxyURL()+" (LLM proxy; started by the SessionStart hook)", nil)
+	if err != nil {
+		return nil, err
+	}
+	if proxyOff() {
+		d += "; GASCOIGNE_PROXY=off: not started"
+	} else if err := ensureProxy(context.Background(), proxyAddr()); err != nil {
+		d += "; proxy not running yet: " + err.Error()
+	}
+	return []string{d}, nil
+}
+
+// removeClaudeProxy drops ANTHROPIC_BASE_URL when it points at the proxy.
+func removeClaudeProxy(root *object) []string {
+	env, ok := root.get("env").(*object)
+	if !ok {
+		return nil
+	}
+	u, _ := env.get("ANTHROPIC_BASE_URL").(string)
+	if u != proxyURL() && u != "http://"+httpproxyreceiver.DefaultListen {
+		return nil
+	}
+	env.del("ANTHROPIC_BASE_URL")
+	pruneEmpty(root, "env")
+	return []string{"ANTHROPIC_BASE_URL (LLM proxy)"}
 }

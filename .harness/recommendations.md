@@ -12,14 +12,9 @@ Shared primitives go to `compress/` so engines and composite families can reuse 
 Keep optimizers deterministic and idempotent (running twice changes nothing more).
 
 ## Receivers
+- LLM API proxy follow-ups (task 005, Later): real usage accounting from responses, Gemini API format.
 - Agent integration: `gascoigne wrap`/`hook` cover claude, codex, gemini, opencode, pi and cursor. Next: agents
   whose hooks can rewrite shell input too (gemini `BeforeTool` `tool_input`, opencode plugins).
-- `httpproxy` (task 005): `net/http/httputil.ReverseProxy` in front of LLM APIs, optimizing
-  `tool_result` blocks; never touch system prompts or the last user message by default.
-  Header `X-Gascoigne-Raw: 1` → bypass. `GET /raw/<id>` serves originals. Streaming passes through.
-
-## Exporters / extensions
-- `upstream` exporter: forwards rewritten request for `httpproxy`.
 
 ## Performance notes
 JSON optimizer: ~35–70 MB/s (`go test ./optimizer/data/jsonoptimizer -bench .`). Decoding into

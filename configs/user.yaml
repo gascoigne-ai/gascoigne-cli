@@ -30,6 +30,12 @@
 #     command: []                     ## downstream server; the CLI passes it after -- instead
 #     ledger: ledger
 #     retrieve: gascoigne_retrieve    ## added tool; must not clash with downstream tools
+#   httpproxy:                        ## gascoigne proxy: between agents and their LLM API
+#     listen: 127.0.0.1:7879          ## agents' base URL (ANTHROPIC_BASE_URL=http://127.0.0.1:7879)
+#     anthropic: https://api.anthropic.com
+#     openai: https://api.openai.com
+#     skip: [Edit, MultiEdit, Write, NotebookEdit, TodoWrite, ExitPlanMode, AskUserQuestion, apply_patch]  ## tools never touched
+#     cache_entries: 50000            ## tool results remembered by hash: later requests send the same bytes
 
 ## Continue or bypass optimization.
 # filters:
@@ -192,3 +198,4 @@
 #   hook: { receivers: [hook], filters: [bypass, detect, minsize, history] }
 #   mcp: { receivers: [mcp], filters: [bypass, detect, minsize, history] }
 #   mcp-proxy: { receivers: [mcp_proxy], filters: [bypass, detect, minsize, history] }
+#   proxy: { receivers: [httpproxy], filters: [bypass, detect, minsize, history] }

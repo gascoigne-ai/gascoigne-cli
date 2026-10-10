@@ -110,6 +110,15 @@ func init() {
 			about:    "Deletes stored originals and vacuums the ledger. Runs and savings stay.",
 			examples: []string{"gascoigne flush", "gascoigne flush -older 2h"},
 			run:      cmdFlush},
+		{name: "proxy", args: "[-addr host:port]", group: groupAgents,
+			summary: "LLM API proxy: shortens tool results (Read too) in agents' requests",
+			about: "Sits between an agent and its LLM API (ANTHROPIC_BASE_URL, OpenAI base URL) and shortens\n" +
+				"tool results before forwarding: what the agent's own tools return, Read included, with\n" +
+				"line numbers kept. Each result is transformed once and sent identically afterwards, so the\n" +
+				"prompt cache holds. wrap starts it and points claude (and codex with an API key, opencode)\n" +
+				"at it; install -proxy claude does so for good. GASCOIGNE_PROXY=off turns it off.",
+			examples: []string{"gascoigne proxy", "ANTHROPIC_BASE_URL=http://127.0.0.1:7879 claude"},
+			run:      cmdProxy},
 		{name: "tokens", args: "[-model list] [file]", group: groupSavings,
 			summary: "count text as each model family does, and price it",
 			about: "Counts a file (or stdin) with every tokenizer family gascoigne knows, then prices one\n" +
