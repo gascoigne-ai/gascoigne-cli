@@ -283,6 +283,16 @@
 - { name: detect/help, file: doc/ls-help.txt, expect_type: doc/help }
 - { name: detect/rst, file: doc/ngtcp2-README.rst, expect_type: doc/rst }
 
+# --- web http
+- { file: web/curl-i-github.json.txt, attrs: { cmd: "curl -si https://api.github.com/repos/golang/go/tags?per_page=30" }, expect_type: web/http,
+    keep: ["HTTP/2 200", "x-ratelimit-remaining:", "content-type: application/json", "weekly.2012-03-27", "rel=\"next\""], min_saved: 40 }
+- { file: web/curl-v-go-dev.txt, attrs: { cmd: curl -sv https://go.dev/doc/ }, expect_type: web/http,
+    keep: ["> GET /doc/ HTTP/2", "HTTP/2 200", "Established connection to go.dev", "Getting Started"], min_saved: 70 }
+- { file: web/curl-il-redirect-429.txt, attrs: { cmd: curl -iL https://api.example.com/orders }, expect_type: web/http,
+    keep: ["HTTP/1.1 301", "Location: https://api.example.com/v2/orders", "HTTP/2 429", "retry-after: 30", "Quota of 100 requests"] }
+- { name: detect/http, file: web/curl-i-github.json.txt, expect_type: web/http }
+- { name: detect/http-verbose, file: web/curl-v-go-dev.txt, expect_type: web/http }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }

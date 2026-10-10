@@ -18,7 +18,7 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, html, doc]
+  default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc]
 
 optimizers:
   test: {}
@@ -53,6 +53,7 @@ optimizers:
   cloud: { max_rows: 30, max_cell: 60, max_objects: 30 } # json: same keys as the json optimizer
   infra: { max_plan_lines: 300, diff_context: 3 }
   task: {}
+  http: { links: true } # drop_headers: transport headers removed; json: crusher keys for bodies
   html: { links: true }
   doc: { max_code_lines: 40 } # man_drop: man sections dropped as boilerplate
 

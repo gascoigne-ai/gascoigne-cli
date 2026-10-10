@@ -1,4 +1,4 @@
-package htmloptimizer
+package htmlx
 
 import (
 	"strconv"

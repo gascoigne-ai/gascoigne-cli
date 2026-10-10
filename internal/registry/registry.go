@@ -28,6 +28,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/test/testoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/vcs/gitoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/web/htmloptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/web/httpoptimizer"
 	"github.com/lukaszb/gascoigne/receiver/execreceiver"
 	"github.com/lukaszb/gascoigne/receiver/mcpproxyreceiver"
 	"github.com/lukaszb/gascoigne/receiver/mcpreceiver"
@@ -64,6 +65,7 @@ func Factories() []component.Factory {
 		cloudoptimizer.NewFactory(),
 		infraoptimizer.NewFactory(),
 		taskoptimizer.NewFactory(),
+		httpoptimizer.NewFactory(),
 		htmloptimizer.NewFactory(),
 		docoptimizer.NewFactory(),
 		// exporters
