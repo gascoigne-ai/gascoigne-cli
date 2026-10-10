@@ -28,12 +28,12 @@ type agent struct {
 
 var agents = map[string]agent{
 	"claude": {bin: "claude", launch: claudeArgs, install: claudeInstall, add: addClaude, remove: removeClaude,
-		hook: rewriteHook(func(updated map[string]any) any {
+		hook: withGuide(rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil
 			}
 			return map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "PreToolUse", "updatedInput": updated}}
-		})},
+		}))},
 	// Codex rewrites a command only together with approving it, so its
 	// output is optimized after the run instead and replaces the result.
 	"codex": {bin: "codex", launch: codexArgs, install: codexInstall, add: addCodex, remove: removeCodex,
@@ -128,10 +128,16 @@ func mcpServers(exe string) map[string]any {
 func claudeSettings(exe string) map[string]any {
 	return map[string]any{
 		"env": map[string]string{"GASCOIGNE_AGENT": "claude"},
-		"hooks": map[string]any{"PreToolUse": []any{map[string]any{
-			"matcher": "Bash",
-			"hooks":   []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
-		}}},
+		"hooks": map[string]any{
+			"PreToolUse": []any{map[string]any{
+				"matcher": "Bash",
+				"hooks":   []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
+			}},
+			// Adds the usage guide at start, and again after compaction or /clear.
+			"SessionStart": []any{map[string]any{
+				"hooks": []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
+			}},
+		},
 	}
 }
 
@@ -165,6 +171,9 @@ func codexArgs(exe string) ([]string, error) {
 	fmt.Fprintln(os.Stderr, "gascoigne: on first run, trust the gascoigne hook in codex with /hooks")
 	proxies, r := codexProxyArgs(exe, codexConfigured())
 	reportProxies(r)
+	if !codexHasInstructions() {
+		proxies = append(proxies, "-c", "developer_instructions="+tomlQuote(guide(false)))
+	}
 	return append([]string{
 		"-c", fmt.Sprintf(`mcp_servers.gascoigne={command=%s,args=["mcp"]}`, strconv.Quote(exe)),
 		"-c", fmt.Sprintf(`hooks.PostToolUse=[{matcher="^Bash$",hooks=[{type="command",command=%s}]}]`, strconv.Quote(hookCommand(exe, "codex"))),
@@ -191,6 +200,17 @@ func codexConfigured() []codexServer {
 		}
 	}
 	return out
+}
+
+// codexHasInstructions: the user set developer_instructions, which a -c
+// would replace for the run.
+func codexHasInstructions() bool {
+	data, err := os.ReadFile(filepath.Join(codexHome(), "config.toml"))
+	if err != nil {
+		return false
+	}
+	_, _, _, ok := tomlKey(tomlSections(string(data))[0].body, "developer_instructions")
+	return ok
 }
 
 func reportProxies(r proxyResult) {

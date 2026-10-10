@@ -3,11 +3,13 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
 
 func TestClaudeArgs(t *testing.T) {
+	sandbox(t)
 	args, err := claudeArgs("/opt/gascoigne")
 	if err != nil {
 		t.Fatal(err)
@@ -22,6 +24,9 @@ func TestClaudeArgs(t *testing.T) {
 	if !strings.Contains(args[3], `"command":"/opt/gascoigne hook claude"`) || !strings.Contains(args[3], `"matcher":"Bash"`) {
 		t.Fatalf("settings: %s", args[3])
 	}
+	if !strings.Contains(args[3], `"SessionStart":[{"hooks":[{"command":"/opt/gascoigne hook claude"`) {
+		t.Fatalf("settings should add the guide at session start: %s", args[3])
+	}
 	if !strings.Contains(args[3], `"permissions":{"deny":["Grep","Glob"]}`) {
 		t.Fatalf("settings should deny Grep and Glob: %s", args[3])
 	}
@@ -31,6 +36,7 @@ func TestClaudeArgs(t *testing.T) {
 }
 
 func TestCodexArgs(t *testing.T) {
+	home := sandbox(t)
 	args, err := codexArgs("/opt/my tools/gascoigne")
 	if err != nil {
 		t.Fatal(err)
@@ -38,9 +44,23 @@ func TestCodexArgs(t *testing.T) {
 	want := []string{
 		"-c", `mcp_servers.gascoigne={command="/opt/my tools/gascoigne",args=["mcp"]}`,
 		"-c", `hooks.PostToolUse=[{matcher="^Bash$",hooks=[{type="command",command="'/opt/my tools/gascoigne' hook codex"}]}]`,
+		"-c", "developer_instructions=" + tomlQuote(guide(false)),
 	}
 	if strings.Join(args, "\n") != strings.Join(want, "\n") {
 		t.Fatalf("got\n%s", strings.Join(args, "\n"))
+	}
+	// The user's own instructions are not replaced.
+	write(t, filepath.Join(home, ".codex/config.toml"), "developer_instructions = \"be brief\"\n")
+	args, _ = codexArgs("gascoigne")
+	if strings.Contains(strings.Join(args, " "), "developer_instructions") {
+		t.Fatalf("replaced the user's instructions: %q", args)
+	}
+}
+
+func TestClaudeSessionStartGuide(t *testing.T) {
+	reply, err := agents["claude"].hook(t.Context(), &common{}, hookInput{HookEventName: "SessionStart"}, "gascoigne exec")
+	if err != nil || !strings.Contains(compactJSON(reply), `"additionalContext":"gascoigne shrinks`) {
+		t.Fatalf("reply %s, err %v", compactJSON(reply), err)
 	}
 }
 

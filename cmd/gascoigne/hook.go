@@ -21,9 +21,10 @@ import (
 // hookInput is the event agent hooks send on stdin. Claude Code, Codex and
 // Cursor share these fields; the pi extension sends the same shape.
 type hookInput struct {
-	SessionID    string          `json:"session_id"`
-	ToolInput    map[string]any  `json:"tool_input"`
-	ToolResponse json.RawMessage `json:"tool_response"`
+	SessionID     string          `json:"session_id"`
+	HookEventName string          `json:"hook_event_name"`
+	ToolInput     map[string]any  `json:"tool_input"`
+	ToolResponse  json.RawMessage `json:"tool_response"`
 }
 
 // hookFunc answers one hook event; nil means "leave the tool call alone".

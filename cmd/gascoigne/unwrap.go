@@ -90,6 +90,9 @@ func removeClaudeSettings(root *object) []string {
 	if n := removeHooks(root, "PreToolUse", ourHook("claude")); n > 0 {
 		what = append(what, "PreToolUse hook")
 	}
+	if n := removeHooks(root, "SessionStart", ourHook("claude")); n > 0 {
+		what = append(what, "SessionStart hook")
+	}
 	if env, ok := root.get("env").(*object); ok && env.get("GASCOIGNE_AGENT") == "claude" {
 		env.del("GASCOIGNE_AGENT")
 		pruneEmpty(root, "env")
@@ -115,6 +118,13 @@ func removeCursor() ([]string, error) {
 	for _, f := range configFiles(".cursor/mcp.json", ".cursor/mcp.json") {
 		d, err := editJSON(f, mcpEdit)
 		done, errs = append(done, d...), append(errs, err)
+	}
+	if data, err := os.ReadFile(cursorRuleFile); err == nil && string(data) == cursorRule() || err == nil && strings.HasPrefix(string(data), cursorRuleHeader) {
+		if err := os.Remove(cursorRuleFile); err != nil {
+			errs = append(errs, err)
+		} else {
+			done = append(done, cursorRuleFile+": deleted rule")
+		}
 	}
 	return done, errors.Join(errs...)
 }
@@ -157,6 +167,10 @@ func removeCodex() ([]string, error) {
 		d, err := editFile(f, removeCodexTOML)
 		done, errs = append(done, d...), append(errs, err)
 	}
+	for _, f := range []string{filepath.Join(codexHome(), "AGENTS.md"), "AGENTS.md"} {
+		d, err := removeGuide(f)
+		done, errs = append(done, d...), append(errs, err)
+	}
 	return done, errors.Join(errs...)
 }
 
@@ -179,6 +193,10 @@ func removePi() ([]string, error) {
 			continue
 		}
 		done = append(done, display(f)+": deleted extension")
+	}
+	for _, f := range configFiles(".pi/agent/AGENTS.md", "AGENTS.md") {
+		d, err := removeGuide(f)
+		done, errs = append(done, d...), append(errs, err)
 	}
 	return done, errors.Join(errs...)
 }

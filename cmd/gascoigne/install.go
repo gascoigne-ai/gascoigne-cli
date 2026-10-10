@@ -136,7 +136,21 @@ func addCursor(exe string, global bool) ([]string, error) {
 	if err != nil {
 		return []string{d1}, err
 	}
-	return []string{d1, d2}, nil
+	done := []string{d1, d2}
+	if global {
+		// Cursor keeps user rules in its settings, not in a file.
+		return append(done, "usage guide: add it under Cursor Settings → Rules, or run gascoigne install cursor in a project"), nil
+	}
+	_, err = writeConfig(cursorRuleFile, func(text string) (string, error) {
+		if text != "" && !strings.HasPrefix(text, cursorRuleHeader) {
+			return "", errors.New("exists and was not written by gascoigne, left alone")
+		}
+		return cursorRule(), nil
+	})
+	if err != nil && !errors.Is(err, errUnchanged) {
+		return done, err
+	}
+	return append(done, added(cursorRuleFile, "usage guide rule", "", err)), nil
 }
 
 func addCodex(exe string, global bool) ([]string, error) {
@@ -159,7 +173,13 @@ func addCodex(exe string, global bool) ([]string, error) {
 	if err != nil && !errors.Is(err, errUnchanged) {
 		return nil, err
 	}
-	return []string{withProxies(added(file, "MCP server gascoigne, PostToolUse hook (trust it in codex with /hooks)", backup, err), r)}, nil
+	done := []string{withProxies(added(file, "MCP server gascoigne, PostToolUse hook (trust it in codex with /hooks)", backup, err), r)}
+	agentsMD := "AGENTS.md"
+	if global {
+		agentsMD = filepath.Join(codexHome(), "AGENTS.md")
+	}
+	d, err := addGuide(agentsMD, true)
+	return append(done, d), err
 }
 
 func addPi(exe string, global bool) ([]string, error) {
@@ -173,13 +193,18 @@ func addPi(exe string, global bool) ([]string, error) {
 		}
 		return piExtension(exe), nil
 	})
+	done := []string{display(file) + ": wrote extension"}
 	if errors.Is(err, errUnchanged) {
-		return []string{display(file) + ": already registered"}, nil
-	}
-	if err != nil {
+		done = []string{display(file) + ": already registered"}
+	} else if err != nil {
 		return nil, err
 	}
-	return []string{display(file) + ": wrote extension"}, nil
+	agentsMD, err := scoped(global, ".pi/agent/AGENTS.md", "AGENTS.md")
+	if err != nil {
+		return done, err
+	}
+	d, err := addGuide(agentsMD, true)
+	return append(done, d), err
 }
 
 // addJSON replaces gascoigne's entries in a JSON config file with add,

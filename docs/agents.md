@@ -73,6 +73,22 @@ you added yourself; add it by hand if you want it for good.
 WebFetch is left alone: it returns a short summary of a page, which is usually cheaper than
 the page itself. Use the MCP `fetch` tool when you need the page's own text.
 
+## Usage guide for the agent
+
+Agents are told how to get the most out of gascoigne: read and search with shell commands,
+keep shell calls plain (`&&`/`;` lists, only `| head`/`| tail`), read the web with `fetch`, and
+use `gascoigne raw <id>` / `retrieve` instead of re-running a shortened command.
+
+| Agent | `wrap` | `install` | `install -g` |
+|---|---|---|---|
+| claude | `SessionStart` hook (`additionalContext`; again after compaction and `/clear`) | same hook in `.claude/settings.json` | in `~/.claude/settings.json` |
+| codex | `-c developer_instructions` (skipped when you set your own) | marked block in `AGENTS.md` | in `~/.codex/AGENTS.md` |
+| cursor | — | rule `.cursor/rules/gascoigne.mdc` (`alwaysApply`) | none: Cursor keeps user rules in its settings |
+| pi | — | marked block in `AGENTS.md` | in `~/.pi/agent/AGENTS.md` |
+
+The `AGENTS.md` block sits between `<!-- gascoigne:start -->` and `<!-- gascoigne:end -->`;
+`install` replaces it, `unwrap` removes it (and deletes the file when nothing else is in it).
+
 ## Other MCP servers
 
 Every other stdio MCP server the agent has is started through `gascoigne mcp-proxy`, so its

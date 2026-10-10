@@ -136,6 +136,9 @@ gascoigne entries replaced, JSON merged, backup kept, `install.go`), `wrap -prin
 those entries from user and project configs (claude settings + `.mcp.json` + `claude mcp remove`,
 cursor hooks/mcp JSON, codex `config.toml` tables, pi extension), keeps other keys in order and
 saves the original as `<file>.gascoigne-bak`; unparsable files are reported, not rewritten.
+Agents get a usage guide (`guide.go`): claude a SessionStart hook (`additionalContext`), codex
+`-c developer_instructions` per run or an `AGENTS.md` marked block, cursor a project rule, pi an
+`AGENTS.md` block; unwrap removes them.
 Other stdio MCP servers start through `gascoigne mcp-proxy -- <cmd>` (`proxy.go`): wrap passes
 same-named copies (claude `--mcp-config` beats configured scopes for the run, approved/enabled
 ones only; codex `-c` overrides), install rewrites `.mcp.json`/`~/.claude.json`/codex tables/
