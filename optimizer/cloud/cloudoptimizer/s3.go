@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"maps"
 	"path"
-	"regexp"
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	s3Object = regexp.MustCompile(`^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)\s+(\d+)\s+(.+)$`)
-	s3Prefix = regexp.MustCompile(`^\s*PRE (.+)$`)
+	s3Object = lazyre.New(`^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)\s+(\d+)\s+(.+)$`)
+	s3Prefix = lazyre.New(`^\s*PRE (.+)$`)
 )
 
 type object struct {

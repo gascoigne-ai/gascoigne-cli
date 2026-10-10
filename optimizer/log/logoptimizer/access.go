@@ -4,17 +4,17 @@ import (
 	"cmp"
 	"fmt"
 	"maps"
-	"regexp"
 	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	accessRe = regexp.MustCompile(`^(\S+) \S+ \S+ \[([^\]]+)\] "([A-Z]+) (\S+)[^"]*" (\d{3}) (\d+|-)`)
+	accessRe = lazyre.New(`^(\S+) \S+ \S+ \[([^\]]+)\] "([A-Z]+) (\S+)[^"]*" (\d{3}) (\d+|-)`)
 	// Path segments that are ids: numbers, uuids, hashes, long tokens.
-	idSegment = regexp.MustCompile(`^(\d+|[0-9a-f]{8}-[0-9a-f-]{27}|[0-9a-fA-F]{12,}|[\w-]{24,})$`)
+	idSegment = lazyre.New(`^(\d+|[0-9a-f]{8}-[0-9a-f-]{27}|[0-9a-fA-F]{12,}|[\w-]{24,})$`)
 )
 
 type hits struct {

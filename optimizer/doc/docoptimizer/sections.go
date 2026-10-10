@@ -2,16 +2,16 @@ package docoptimizer
 
 import (
 	"cmp"
-	"regexp"
 	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/compress/rows"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/tokens"
 )
 
-var heading = regexp.MustCompile(`^(#{1,6}) `)
+var heading = lazyre.New(`^(#{1,6}) `)
 
 // part is a heading and the lines up to the next one; the first section
 // of a page is what comes before any heading and has level 0.

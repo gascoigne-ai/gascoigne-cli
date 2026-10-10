@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 type node struct {
@@ -79,7 +79,7 @@ func qname(n xml.Name) string {
 	return n.Local
 }
 
-var failed = regexp.MustCompile(`^(\w+:)?(failure|error|fault|Fault)$|(status|result|outcome)="(fail|failed|error|Failed|Error)"`)
+var failed = lazyre.New(`^(\w+:)?(failure|error|fault|Fault)$|(status|result|outcome)="(fail|failed|error|Failed|Error)"`)
 
 func (n *node) failed() bool {
 	if failed.MatchString(n.name) {

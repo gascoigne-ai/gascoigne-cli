@@ -1,8 +1,9 @@
 package detect
 
 import (
-	"regexp"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // Columnar CLI output.
@@ -61,6 +62,6 @@ func alignedTable(_ string, lines []string) bool {
 	return n >= 2 && ok*10 >= n*8
 }
 
-var gap = regexp.MustCompile(`\s{2,}`)
+var gap = lazyre.New(`\s{2,}`)
 
 func splitGap(l string) []string { return gap.Split(strings.TrimSpace(l), -1) }

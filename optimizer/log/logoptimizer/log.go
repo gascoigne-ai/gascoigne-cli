@@ -8,12 +8,12 @@ package logoptimizer
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -50,9 +50,9 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 }
 
 var (
-	levelRe = regexp.MustCompile(`\b(TRACE|DEBUG|INFO|NOTICE|WARN|WARNING|ERROR|ERR|FATAL|CRIT|CRITICAL|PANIC)\b|\blevel=(\w+)`)
+	levelRe = lazyre.New(`\b(TRACE|DEBUG|INFO|NOTICE|WARN|WARNING|ERROR|ERR|FATAL|CRIT|CRITICAL|PANIC)\b|\blevel=(\w+)`)
 	// Continuation lines belong to the entry above: stack frames, wrapped text.
-	continuation = regexp.MustCompile(`^(\s+|at |Caused by|Traceback|\.\.\. \d+ more)`)
+	continuation = lazyre.New(`^(\s+|at |Caused by|Traceback|\.\.\. \d+ more)`)
 )
 
 func severity(l string) compress.Severity {

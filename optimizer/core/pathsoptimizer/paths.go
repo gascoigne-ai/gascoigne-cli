@@ -11,12 +11,12 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	"regexp"
 	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 	"github.com/lukaszb/gascoigne/tokens"
 )
@@ -29,7 +29,7 @@ type Optimizer struct {
 }
 
 // pathRe finds paths of at least three parts, starting after a delimiter.
-var pathRe = regexp.MustCompile(`(?:^|[\s"'(=\[<,])((?:[A-Za-z]:)?[\w.~@+-]*(?:/[\w.@+-]+){2,})`)
+var pathRe = lazyre.New(`(?:^|[\s"'(=\[<,])((?:[A-Za-z]:)?[\w.~@+-]*(?:/[\w.@+-]+){2,})`)
 
 type span struct {
 	block, start, end int // the path in p.Blocks[block].Text

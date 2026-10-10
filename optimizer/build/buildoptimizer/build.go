@@ -6,13 +6,13 @@ package buildoptimizer
 
 import (
 	"context"
-	"regexp"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/compress/compose"
 	"github.com/lukaszb/gascoigne/compress/diag"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -41,8 +41,8 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 }
 
 var (
-	dockerStep = regexp.MustCompile(`^#(\d+) \[[^\]]*\d+/\d+\] RUN (.+)$`)
-	dockerOut  = regexp.MustCompile(`^#(\d+) \d+\.\d+ ?(.*)$`)
+	dockerStep = lazyre.New(`^#(\d+) \[[^\]]*\d+/\d+\] RUN (.+)$`)
+	dockerOut  = lazyre.New(`^#(\d+) \d+\.\d+ ?(.*)$`)
 )
 
 // dockerSteps compresses each RUN step's output as the tool it runs (npm ci

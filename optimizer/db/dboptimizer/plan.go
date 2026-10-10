@@ -2,17 +2,17 @@ package dboptimizer
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	planNode   = regexp.MustCompile(`^(\s*)(->\s+)?([A-Z][\w .-]+?)(?: on (\S+)(?: (\S+))?)?\s+\(cost=[\d.]+\.\.([\d.]+) rows=(\d+) width=\d+\)(?: \(actual time=[\d.]+\.\.([\d.]+) rows=(\d+) loops=(\d+)\))?`)
-	planDetail = regexp.MustCompile(`^\s+(Filter|Index Cond|Hash Cond|Join Filter|Recheck Cond|Sort Key|Rows Removed by Filter|Group Key|Merge Cond|Output|Sort Method|Heap Fetches):`)
-	planNoise  = regexp.MustCompile(`^\s+(Buffers:|Worker \d+:|Planning:|I/O Timings:|Memory Usage:|Batches:)`)
+	planNode   = lazyre.New(`^(\s*)(->\s+)?([A-Z][\w .-]+?)(?: on (\S+)(?: (\S+))?)?\s+\(cost=[\d.]+\.\.([\d.]+) rows=(\d+) width=\d+\)(?: \(actual time=[\d.]+\.\.([\d.]+) rows=(\d+) loops=(\d+)\))?`)
+	planDetail = lazyre.New(`^\s+(Filter|Index Cond|Hash Cond|Join Filter|Recheck Cond|Sort Key|Rows Removed by Filter|Group Key|Merge Cond|Output|Sort Method|Heap Fetches):`)
+	planNoise  = lazyre.New(`^\s+(Buffers:|Worker \d+:|Planning:|I/O Timings:|Memory Usage:|Batches:)`)
 )
 
 type node struct {

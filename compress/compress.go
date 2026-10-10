@@ -4,11 +4,12 @@ package compress
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
-var ansi = regexp.MustCompile(`\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)|\r`)
+var ansi = lazyre.New(`\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)|\r`)
 
 func StripANSI(s string) string { return ansi.ReplaceAllString(s, "") }
 
@@ -40,7 +41,7 @@ func Omitted(n int, what string) string {
 	return fmt.Sprintf("… %d %s omitted", n, what)
 }
 
-var volatile = regexp.MustCompile(
+var volatile = lazyre.New(
 	`\d{4}-\d\d-\d\d[T ]\d\d:\d\d:\d\d(\.\d+)?(Z|[+-]\d\d:?\d\d)?` + // timestamps
 		`|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b` + // uuids
 		`|\b0x[0-9a-fA-F]+\b|\b[0-9a-f]{12,}\b` + // hex ids, hashes
@@ -174,8 +175,8 @@ const (
 )
 
 var (
-	errorRe = regexp.MustCompile(`(?i)\berr!|\b(errors?|fail(ed|ure|ing)?|fatal|panic|exception|traceback|segfault|denied|refused|timed? ?out|cannot|can't|unable|undefined|not found)\b`)
-	warnRe  = regexp.MustCompile(`(?i)\b(warn(ing)?|deprecated)\b`)
+	errorRe = lazyre.New(`(?i)\berr!|\b(errors?|fail(ed|ure|ing)?|fatal|panic|exception|traceback|segfault|denied|refused|timed? ?out|cannot|can't|unable|undefined|not found)\b`)
+	warnRe  = lazyre.New(`(?i)\b(warn(ing)?|deprecated)\b`)
 )
 
 // SeverityOf classifies a line by error/warning vocabulary.

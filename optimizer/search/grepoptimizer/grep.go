@@ -6,13 +6,13 @@ package grepoptimizer
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -23,10 +23,10 @@ type Optimizer struct {
 
 var (
 	// "path:12:text" (match) or "path-12-text" (context line).
-	numbered = regexp.MustCompile(`^([^\s:][^:]*?)([:-])(\d+)([:-])(.*)$`)
+	numbered = lazyre.New(`^([^\s:][^:]*?)([:-])(\d+)([:-])(.*)$`)
 	// "path:text": rg and grep -r without -n, rg's default when not on a terminal.
-	plain = regexp.MustCompile(`^([^\s:]+):(.*)$`)
-	ext   = regexp.MustCompile(`\.[A-Za-z0-9]{1,6}$`)
+	plain = lazyre.New(`^([^\s:]+):(.*)$`)
+	ext   = lazyre.New(`\.[A-Za-z0-9]{1,6}$`)
 )
 
 // hit is one distinct line of a file; identical lines merge into it.

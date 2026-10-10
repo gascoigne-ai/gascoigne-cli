@@ -1,14 +1,13 @@
 package taskoptimizer
 
 import (
-	"regexp"
-
 	"github.com/lukaszb/gascoigne/compress/compose"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	makeNoise = regexp.MustCompile(`^(g?make|just)(\[\d+\])?: (Entering|Leaving) directory|^(g?make)(\[\d+\])?: Nothing to be done for`)
-	makeOwn   = regexp.MustCompile(`^(g?make|just)(\[\d+\])?: |^(g?make|just) `)
+	makeNoise = lazyre.New(`^(g?make|just)(\[\d+\])?: (Entering|Leaving) directory|^(g?make)(\[\d+\])?: Nothing to be done for`)
+	makeOwn   = lazyre.New(`^(g?make|just)(\[\d+\])?: |^(g?make|just) `)
 )
 
 // makeLike: make and just run tools inline. Directory chatter goes, their

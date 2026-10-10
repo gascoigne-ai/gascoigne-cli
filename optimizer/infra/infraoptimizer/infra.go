@@ -7,12 +7,12 @@ package infraoptimizer
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -49,16 +49,16 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 
 var (
 	// Refresh, progress, init and boilerplate lines of terraform and tofu.
-	tfNoise = regexp.MustCompile(`^(\S+: (Refreshing state\.\.\.|Reading\.\.\.|Read complete after|Still \w+\.\.\.|Creating\.\.\.|Modifying\.\.\.|Destroying\.\.\.|Creation complete after|Modifications complete after|Destruction complete after)` +
+	tfNoise = lazyre.New(`^(\S+: (Refreshing state\.\.\.|Reading\.\.\.|Read complete after|Still \w+\.\.\.|Creating\.\.\.|Modifying\.\.\.|Destroying\.\.\.|Creation complete after|Modifications complete after|Destruction complete after)` +
 		`|(Acquiring|Releasing) state lock|Initializing (the backend|provider plugins|modules)|- (Reusing|Finding|Installing|Installed|Using previously-installed) ` +
 		`|(Terraform|OpenTofu) used the selected providers|(plan\. )?Resource actions are indicated with|guarantee to take exactly these actions|─{10,}$|(Terraform|OpenTofu) will perform the following actions` +
 		`|Note: You didn't use the -out option|\s+\+ create$|\s+~ update in-place$|\s+- destroy$|-/\+ destroy and then create replacement$|\+/- create replacement and then destroy$|\s+<= read \(data resources\)$)`)
-	tfDone     = regexp.MustCompile(`^\S+: (Creation|Modifications|Destruction) complete after`)
-	tfHidden   = regexp.MustCompile(`^\s*# \(\d+ unchanged (attributes|blocks|elements) hidden\)$`)
-	tfKnown    = regexp.MustCompile(`^(\s*)[+~] "?([\w.-]+)"?\s+= \(known after apply\)$`)
-	tfHeader   = regexp.MustCompile(`^  # (\S+) (will|must) be (\w+)`)
-	tfBoxEdge  = regexp.MustCompile(`^[╷╵]\s*$`)
-	tfOutroEnd = regexp.MustCompile(`^(Plan|Changes to Outputs|Apply complete!|Destroy complete!|No changes\.|Error:|Warning:)`)
+	tfDone     = lazyre.New(`^\S+: (Creation|Modifications|Destruction) complete after`)
+	tfHidden   = lazyre.New(`^\s*# \(\d+ unchanged (attributes|blocks|elements) hidden\)$`)
+	tfKnown    = lazyre.New(`^(\s*)[+~] "?([\w.-]+)"?\s+= \(known after apply\)$`)
+	tfHeader   = lazyre.New(`^  # (\S+) (will|must) be (\w+)`)
+	tfBoxEdge  = lazyre.New(`^[╷╵]\s*$`)
+	tfOutroEnd = lazyre.New(`^(Plan|Changes to Outputs|Apply complete!|Destroy complete!|No changes\.|Error:|Warning:)`)
 )
 
 // terraform folds noise, strips diagnostic boxes and compacts the plan body.

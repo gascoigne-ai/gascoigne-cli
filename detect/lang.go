@@ -2,8 +2,9 @@ package detect
 
 import (
 	"path"
-	"regexp"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // Languages, grouped by how their blocks are delimited.
@@ -32,12 +33,12 @@ var langByExt = map[string]string{
 
 var langSniffers = []struct {
 	lang string
-	re   *regexp.Regexp
+	re   *lazyre.Regexp
 }{
-	{LangGo, regexp.MustCompile(`(?m)^package \w+\s*$`)},
-	{LangPython, regexp.MustCompile(`(?m)^(def \w+\(.*\):|class \w+(\(.*\))?:|from [\w.]+ import |import \w+\s*$)`)},
-	{LangShell, regexp.MustCompile(`^#!.*\b(ba|z)?sh\b`)},
-	{LangCLike, regexp.MustCompile(`(?m)^(import .* from |export (default |const |function |class |interface )|#include [<"]|(public |private )?(static )?(class|interface|enum) \w+.*\{|fn \w+\(|use [\w:]+;|function \w+\()`)},
+	{LangGo, lazyre.New(`(?m)^package \w+\s*$`)},
+	{LangPython, lazyre.New(`(?m)^(def \w+\(.*\):|class \w+(\(.*\))?:|from [\w.]+ import |import \w+\s*$)`)},
+	{LangShell, lazyre.New(`^#!.*\b(ba|z)?sh\b`)},
+	{LangCLike, lazyre.New(`(?m)^(import .* from |export (default |const |function |class |interface )|#include [<"]|(public |private )?(static )?(class|interface|enum) \w+.*\{|fn \w+\(|use [\w:]+;|function \w+\()`)},
 }
 
 // SourceExt is the lower-case extension of the file named by the file hint

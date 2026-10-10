@@ -1,6 +1,6 @@
 package detect
 
-import "regexp"
+import "github.com/lukaszb/gascoigne/lazyre"
 
 // Cloud CLIs.
 const (
@@ -27,4 +27,4 @@ func init() {
 	)
 }
 
-var azureID = regexp.MustCompile(`"/subscriptions/[0-9a-f-]{36}/resourceGroups/`)
+var azureID = lazyre.New(`"/subscriptions/[0-9a-f-]{36}/resourceGroups/`)

@@ -4,9 +4,10 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // goOutline elides bodies of functions and methods using the Go parser.
@@ -32,7 +33,7 @@ func (o *Optimizer) goOutline(src string, lines []string) []span {
 	return spans
 }
 
-var container = regexp.MustCompile(`\b(class|interface|enum|struct|namespace|module|impl|trait|object|record)\b`)
+var container = lazyre.New(`\b(class|interface|enum|struct|namespace|module|impl|trait|object|record)\b`)
 
 // braceOutline elides bodies of blocks nested only in containers (classes,
 // namespaces): functions and methods, top-level object literals. Strings and
@@ -89,7 +90,7 @@ func skipString(l string, j int) int {
 	return len(l) // unterminated on this line (template literal): ignore rest
 }
 
-var pyBlock = regexp.MustCompile(`^(\s*)(async\s+def|def|class)\b`)
+var pyBlock = lazyre.New(`^(\s*)(async\s+def|def|class)\b`)
 
 // indentOutline elides bodies of Python functions nested only in classes,
 // keeping the first docstring line.

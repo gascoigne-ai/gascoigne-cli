@@ -6,7 +6,6 @@ package dboptimizer
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
@@ -14,6 +13,7 @@ import (
 	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/compress/table"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -49,7 +49,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 }
 
 // footer ends a result set: "(3 rows)", "3 rows in set (0.00 sec)", "Empty set".
-var footer = regexp.MustCompile(`^\(\d+ rows?\)$|^\d+ rows? in set|^Empty set|^Query OK`)
+var footer = lazyre.New(`^\(\d+ rows?\)$|^\d+ rows? in set|^Empty set|^Query OK`)
 
 // results renders each result set of the output as a compact table.
 func results(lines []string, o table.Options) []string {

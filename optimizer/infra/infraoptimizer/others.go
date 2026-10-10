@@ -2,19 +2,19 @@ package infraoptimizer
 
 import (
 	"fmt"
-	"regexp"
 	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	pulumiSpinner = regexp.MustCompile(`^@ \w+\.*$`)
+	pulumiSpinner = lazyre.New(`^@ \w+\.*$`)
 	// In-progress steps are repeated once they finish.
-	pulumiPending = regexp.MustCompile(`^ [+~-]{1,2}\s.*\s(creating|updating|deleting|replacing|refreshing|reading) \(\d+s\)`)
+	pulumiPending = lazyre.New(`^ [+~-]{1,2}\s.*\s(creating|updating|deleting|replacing|refreshing|reading) \(\d+s\)`)
 	// Resource rows without an operation: unchanged.
-	pulumiSame = regexp.MustCompile(`^\s{3,}([│├└─ ]+)?[\w-]+:[\w/-]*:[\w/-]+\s+\S+(\s+running)?\s*$`)
+	pulumiSame = lazyre.New(`^\s{3,}([│├└─ ]+)?[\w-]+:[\w/-]*:[\w/-]+\s+\S+(\s+running)?\s*$`)
 )
 
 // pulumi drops spinners, in-progress steps and unchanged resources.
@@ -37,9 +37,9 @@ func pulumi(lines []string) []string {
 }
 
 var (
-	ansibleHeader = regexp.MustCompile(`^(TASK|RUNNING HANDLER) \[(.*)\] \**$`)
-	ansiblePlay   = regexp.MustCompile(`^(PLAY( RECAP)?)( \[.*\])? \**$`)
-	ansibleResult = regexp.MustCompile(`^(ok|changed|skipping|fatal|failed|unreachable|included): \[([^\]]+)\]`)
+	ansibleHeader = lazyre.New(`^(TASK|RUNNING HANDLER) \[(.*)\] \**$`)
+	ansiblePlay   = lazyre.New(`^(PLAY( RECAP)?)( \[.*\])? \**$`)
+	ansibleResult = lazyre.New(`^(ok|changed|skipping|fatal|failed|unreachable|included): \[([^\]]+)\]`)
 )
 
 // ansible keeps plays, failures and the recap; tasks that only reported ok
@@ -109,9 +109,9 @@ func ansible(lines []string) []string {
 }
 
 var (
-	cdkNoise = regexp.MustCompile(`^(✨\s+(Synthesis time|Total time|Deployment time|Number of stacks with differences)|\S+: (deploying|creating CloudFormation changeset|building|publishing|assets? (built|published))|\[\d+%\] (start|success|check|upload|build|cached))`)
+	cdkNoise = lazyre.New(`^(✨\s+(Synthesis time|Total time|Deployment time|Number of stacks with differences)|\S+: (deploying|creating CloudFormation changeset|building|publishing|assets? (built|published))|\[\d+%\] (start|success|check|upload|build|cached))`)
 	// cdk deploy progress rows; failures are kept.
-	cdkProgress = regexp.MustCompile(`^\S+ \|\s*\d+/\d+ \|.*\| \w+_(IN_PROGRESS|COMPLETE)\s`)
+	cdkProgress = lazyre.New(`^\S+ \|\s*\d+/\d+ \|.*\| \w+_(IN_PROGRESS|COMPLETE)\s`)
 )
 
 // cdk drops synthesis, asset and progress chatter.

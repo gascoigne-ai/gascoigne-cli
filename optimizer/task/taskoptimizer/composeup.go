@@ -2,15 +2,15 @@ package taskoptimizer
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	composeLine  = regexp.MustCompile(`^(\S+?)\s+\| (.*)$`)
-	composeState = regexp.MustCompile(`^\s*[✔✘⠿]\s+(Network|Container|Volume|Image)\s+(\S+)\s+(\w+)`)
+	composeLine  = lazyre.New(`^(\S+?)\s+\| (.*)$`)
+	composeState = lazyre.New(`^\s*[✔✘⠿]\s+(Network|Container|Volume|Image)\s+(\S+)\s+(\w+)`)
 )
 
 // composeUp: docker compose up interleaves "service | line" logs; each

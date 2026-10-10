@@ -1,15 +1,16 @@
 package taskoptimizer
 
 import (
-	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	turboLine   = regexp.MustCompile(`^([\w@./-]+:[\w:-]+): ?(.*)$`)
-	turboFailed = regexp.MustCompile(`^\s*Failed:\s+(.+)$`)
-	turboHead   = regexp.MustCompile(`^• `)
+	turboLine   = lazyre.New(`^([\w@./-]+:[\w:-]+): ?(.*)$`)
+	turboFailed = lazyre.New(`^\s*Failed:\s+(.+)$`)
+	turboHead   = lazyre.New(`^• `)
 )
 
 // turbo: "pkg:task: line" prefixed output per task, "• ..." header and a

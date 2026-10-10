@@ -2,20 +2,20 @@ package dataoptimizer
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	arrayTable = regexp.MustCompile(`^\[\[([\w.-]+)\]\]\s*$`)
-	subTable   = regexp.MustCompile(`^\[\[?([\w.-]+)\]\]?\s*$`)
-	keyValue   = regexp.MustCompile(`^([\w.-]+|"[^"]+")\s*=\s*(.*)$`)
-	quoted     = regexp.MustCompile(`"([^"]*)"`)
-	nameField  = regexp.MustCompile(`name\s*=\s*"([^"]+)"`)
+	arrayTable = lazyre.New(`^\[\[([\w.-]+)\]\]\s*$`)
+	subTable   = lazyre.New(`^\[\[?([\w.-]+)\]\]?\s*$`)
+	keyValue   = lazyre.New(`^([\w.-]+|"[^"]+")\s*=\s*(.*)$`)
+	quoted     = lazyre.New(`"([^"]*)"`)
+	nameField  = lazyre.New(`name\s*=\s*"([^"]+)"`)
 	// Keys of lockfile entries that only machines read.
-	lockNoise = regexp.MustCompile(`^(checksum|hash|hashes|files|wheels|sdist|source|content-hash|resolution-markers|upload-time|size|url)$`)
+	lockNoise = lazyre.New(`^(checksum|hash|hashes|files|wheels|sdist|source|content-hash|resolution-markers|upload-time|size|url)$`)
 )
 
 type entry struct {

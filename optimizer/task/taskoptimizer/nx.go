@@ -1,17 +1,18 @@
 package taskoptimizer
 
 import (
-	"regexp"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	nxTask      = regexp.MustCompile(`^\s*> nx run (\S+)`)
-	nxCached    = regexp.MustCompile(`^\s*✔\s+nx run (\S+)\s+\[(existing outputs match the cache|local cache|remote cache)`)
-	nxFailed    = regexp.MustCompile(`^\s*- nx run (\S+)`)
-	nxSeparator = regexp.MustCompile(`^\s*—{10,}`)
-	nxRunning   = regexp.MustCompile(`^\s*NX\s+Running target`)
-	nxProject   = regexp.MustCompile(`^- \S+$`)
+	nxTask      = lazyre.New(`^\s*> nx run (\S+)`)
+	nxCached    = lazyre.New(`^\s*✔\s+nx run (\S+)\s+\[(existing outputs match the cache|local cache|remote cache)`)
+	nxFailed    = lazyre.New(`^\s*- nx run (\S+)`)
+	nxSeparator = lazyre.New(`^\s*—{10,}`)
+	nxRunning   = lazyre.New(`^\s*NX\s+Running target`)
+	nxProject   = lazyre.New(`^- \S+$`)
 )
 
 // nx: "> nx run p:t" sections, cache lines, project list and a summary

@@ -6,7 +6,6 @@ package httpoptimizer
 
 import (
 	"context"
-	"regexp"
 	"slices"
 	"strings"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/lukaszb/gascoigne/compress/jsonx"
 	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -33,10 +33,10 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 }
 
 var (
-	status = regexp.MustCompile(`^HTTP/[\d.]+ \d{3}`)
-	header = regexp.MustCompile(`^([\w-]+):\s*(.*)$`)
+	status = lazyre.New(`^HTTP/[\d.]+ \d{3}`)
+	header = lazyre.New(`^([\w-]+):\s*(.*)$`)
 	// curl -v lines worth keeping: where it connected and what failed.
-	verboseKeep = regexp.MustCompile(`^\* (Connected to|Established connection to|Could not resolve|Failed|Recv failure|SSL certificate problem|Connection refused|Operation timed out|Closing connection|Issue another request|.*error)`)
+	verboseKeep = lazyre.New(`^\* (Connected to|Established connection to|Could not resolve|Failed|Recv failure|SSL certificate problem|Connection refused|Operation timed out|Closing connection|Issue another request|.*error)`)
 )
 
 // split separates headers (of every response, redirects included) from the

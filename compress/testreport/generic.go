@@ -1,20 +1,20 @@
 package testreport
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // rules describe a runner's output for the generic engine.
 type rules struct {
-	pass   *regexp.Regexp // a passing test or progress of passes: dropped and counted
-	noise  *regexp.Regexp // headers, banners, envelope lines: dropped
-	frames *regexp.Regexp // stack frames inside dependencies: dropped, counted
+	pass   *lazyre.Regexp // a passing test or progress of passes: dropped and counted
+	noise  *lazyre.Regexp // headers, banners, envelope lines: dropped
+	frames *lazyre.Regexp // stack frames inside dependencies: dropped, counted
 }
 
-func re(s string) *regexp.Regexp { return regexp.MustCompile(s) }
+func re(s string) *lazyre.Regexp { return lazyre.New(s) }
 
 var (
 	envelope = `^npm (notice|warn|info) |^> \S+@\S+ |^> \S+$|^\$ \S+|^yarn run v|^Done in [\d.]+s\.$|^error Command failed|^info Visit https://yarnpkg`

@@ -8,7 +8,6 @@ package k8soptimizer
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"go.yaml.in/yaml/v3"
@@ -19,6 +18,7 @@ import (
 	"github.com/lukaszb/gascoigne/compress/table"
 	"github.com/lukaszb/gascoigne/compress/yamlx"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -75,7 +75,7 @@ func (o *Optimizer) manifests(text string) (string, error) {
 	return yamlx.Encode(docs)
 }
 
-var unhealthy = regexp.MustCompile(`CrashLoopBackOff|ImagePullBackOff|ErrImagePull|OOMKilled|Error|Failed|Pending|Evicted|Unknown|ready: false|NotReady|Unhealthy`)
+var unhealthy = lazyre.New(`CrashLoopBackOff|ImagePullBackOff|ErrImagePull|OOMKilled|Error|Failed|Pending|Evicted|Unknown|ready: false|NotReady|Unhealthy`)
 
 // sampleList keeps MaxItems of a kind: List: unhealthy ones first, then ends.
 func (o *Optimizer) sampleList(doc *yaml.Node) {
@@ -122,9 +122,9 @@ func (o *Optimizer) sampleList(doc *yaml.Node) {
 }
 
 var (
-	describeNoise = regexp.MustCompile(`^\s*(Container ID|Image ID|Controlled By|Priority|Service Account|QoS Class|Node-Selectors|SeccompProfile|IPs|IP Family Policy|IP Families|Session Affinity|Internal Traffic Policy|Topology Spread Constraints|Priority Class Name|Runtime Class Name|Annotations):|:\s+<none>\s*$|^\s*(TokenExpirationSeconds|ConfigMapName|ConfigMapOptional|DownwardAPI|Optional):|^\s+node\.kubernetes\.io/(not-ready|unreachable):NoExecute op=Exists for 300s`)
-	apiAccess     = regexp.MustCompile(`^(\s*)kube-api-access-\S+:$`)
-	eventRow      = regexp.MustCompile(`^\s+(Normal|Warning)\s+(\S+)\s+`)
+	describeNoise = lazyre.New(`^\s*(Container ID|Image ID|Controlled By|Priority|Service Account|QoS Class|Node-Selectors|SeccompProfile|IPs|IP Family Policy|IP Families|Session Affinity|Internal Traffic Policy|Topology Spread Constraints|Priority Class Name|Runtime Class Name|Annotations):|:\s+<none>\s*$|^\s*(TokenExpirationSeconds|ConfigMapName|ConfigMapOptional|DownwardAPI|Optional):|^\s+node\.kubernetes\.io/(not-ready|unreachable):NoExecute op=Exists for 300s`)
+	apiAccess     = lazyre.New(`^(\s*)kube-api-access-\S+:$`)
+	eventRow      = lazyre.New(`^\s+(Normal|Warning)\s+(\S+)\s+`)
 )
 
 // describe drops empty, opaque and default fields; Normal events with the
@@ -198,7 +198,7 @@ func events(lines []string, o table.Options) []string {
 	return table.Render(t, o)
 }
 
-var notesStart = regexp.MustCompile(`^NOTES:\s*$`)
+var notesStart = lazyre.New(`^NOTES:\s*$`)
 
 // helm caps NOTES (chart instructions); tables (list, history) are compacted.
 func (o *Optimizer) helm(lines []string, topts table.Options) []string {

@@ -2,9 +2,10 @@ package gitoptimizer
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // log rewrites default git log format to one line per commit:
@@ -62,9 +63,9 @@ type commit struct {
 
 var (
 	// statCol is a --stat line: a padded path, then what changed.
-	statCol = regexp.MustCompile(`^\s*(.+?)\s+\|\s+(.+)$`)
+	statCol = lazyre.New(`^\s*(.+?)\s+\|\s+(.+)$`)
 	// statBar is the change count and a bar of + and - scaled to the terminal.
-	statBar = regexp.MustCompile(`^(\d+) ([+-]+)$`)
+	statBar = lazyre.New(`^(\d+) ([+-]+)$`)
 )
 
 // statLine trims a file list line. A --stat bar is scaled, so only which

@@ -4,12 +4,12 @@ package gitoptimizer
 
 import (
 	"context"
-	"regexp"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -44,7 +44,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	}, detect.GitStatus, detect.GitLog, detect.Diff, detect.GitRemote, detect.GitBlame, detect.GitBranch, detect.GHList, detect.GHView)
 }
 
-var progress = regexp.MustCompile(`^(remote: )?(Enumerating|Counting|Compressing|Writing|Receiving|Resolving|Delta compression|Total \d+|Unpacking|Updating files|Checking out files)\b|^remote:\s*$`)
+var progress = lazyre.New(`^(remote: )?(Enumerating|Counting|Compressing|Writing|Receiving|Resolving|Delta compression|Total \d+|Unpacking|Updating files|Checking out files)\b|^remote:\s*$`)
 
 // remote drops transfer progress of push, pull, fetch and clone.
 func remote(lines []string) []string {

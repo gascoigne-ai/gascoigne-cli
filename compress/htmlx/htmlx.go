@@ -3,11 +3,12 @@
 package htmlx
 
 import (
-	"regexp"
 	"strings"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var skip = map[atom.Atom]bool{
@@ -46,8 +47,8 @@ func Markdown(page string, links bool) (string, error) {
 }
 
 var (
-	blankRuns = regexp.MustCompile(`\n[ \t]*\n(\s*\n)+`)
-	spaces    = regexp.MustCompile(`\s+`)
+	blankRuns = lazyre.New(`\n[ \t]*\n(\s*\n)+`)
+	spaces    = lazyre.New(`\s+`)
 )
 
 func find(n *html.Node, a atom.Atom) *html.Node {

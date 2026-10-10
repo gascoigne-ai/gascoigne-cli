@@ -1,8 +1,8 @@
 package diag
 
-import "regexp"
+import "github.com/lukaszb/gascoigne/lazyre"
 
-func re(s string) *regexp.Regexp { return regexp.MustCompile(s) }
+func re(s string) *lazyre.Regexp { return lazyre.New(s) }
 
 var mavenNoise = `^\[INFO\] (Download|Scanning|---|\s*$|-+$|BUILD SUCCESS|Total time|Finished at|Using auto detected|Recompiling|Compiling \d+|skip non existing|\s+from pom|Building \S+ \S+$)|^Downloading from |^Downloaded from |^Progress \(`
 

@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"maps"
 	"path"
-	"regexp"
 	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/compress/table"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // fold summarizes names past max: "… 40 more: .go ×38, .md ×2".
@@ -71,7 +71,7 @@ func (o *Optimizer) paths(lines []string) []string {
 	return out
 }
 
-var treeEntry = regexp.MustCompile(`^((?:│   |│\x{a0}\x{a0} |    )*)(├──|└──) (.*)$`)
+var treeEntry = lazyre.New(`^((?:│   |│\x{a0}\x{a0} |    )*)(├──|└──) (.*)$`)
 
 // tree indents by two spaces instead of box drawing and lists at most
 // MaxPerDir files per directory.
@@ -126,7 +126,7 @@ func lineAt(lines []string, i int) string {
 	return ""
 }
 
-var duLine = regexp.MustCompile(`^(\d+(?:[.,]\d+)?)([KMGTP]?)\t(.+)$`)
+var duLine = lazyre.New(`^(\d+(?:[.,]\d+)?)([KMGTP]?)\t(.+)$`)
 
 // du keeps the largest entries and the total (the last line).
 func (o *Optimizer) du(lines []string) []string {
@@ -154,7 +154,7 @@ func (o *Optimizer) du(lines []string) []string {
 	return append(out, compress.Omitted(len(rest)-o.cfg.MaxPerDir*2, "smaller entries"), total.line)
 }
 
-var pseudoFS = regexp.MustCompile(`^(tmpfs|devtmpfs|udev|dev|overlay|shm|efivarfs|squashfs|/dev/loop\d+|none|run|cgroup2?|proc|sysfs|portal)$`)
+var pseudoFS = lazyre.New(`^(tmpfs|devtmpfs|udev|dev|overlay|shm|efivarfs|squashfs|/dev/loop\d+|none|run|cgroup2?|proc|sysfs|portal)$`)
 
 // df drops pseudo filesystems and compacts the table.
 func (o *Optimizer) df(lines []string) []string {

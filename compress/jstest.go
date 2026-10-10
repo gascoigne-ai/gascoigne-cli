@@ -1,17 +1,18 @@
 package compress
 
 import (
-	"regexp"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
 	// Passing test/file lines of jest, vitest and bun test.
-	jsPass = regexp.MustCompile(`^\s*(PASS\s+\S|✓|✔|√|\(pass\))|^\s*\S+\.(test|spec)\.\w+\s+\(\d+ tests?\)`)
+	jsPass = lazyre.New(`^\s*(PASS\s+\S|✓|✔|√|\(pass\))|^\s*\S+\.(test|spec)\.\w+\s+\(\d+ tests?\)`)
 	// Stack frames inside dependencies say nothing about the failure.
-	jsDepFrame = regexp.MustCompile(`^\s*at .*(node_modules|node:internal|\(internal/)`)
+	jsDepFrame = lazyre.New(`^\s*at .*(node_modules|node:internal|\(internal/)`)
 	// Per-file headers of bun test ("src/a.test.ts:") are noise once passes are gone.
-	bunFileHeader = regexp.MustCompile(`^\S+\.(test|spec)\.\w+:$`)
+	bunFileHeader = lazyre.New(`^\S+\.(test|spec)\.\w+:$`)
 )
 
 // JSTest compresses jest/vitest/bun test output: drops passing tests and

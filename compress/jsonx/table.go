@@ -2,13 +2,13 @@ package jsonx
 
 import (
 	"reflect"
-	"regexp"
 	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 const keyCol = "_key"
@@ -226,7 +226,7 @@ func isSep(c byte) bool {
 }
 
 // hashLike matches checksums and ids: "sha512-…", "h1:…=", long hex/base64.
-var hashLike = regexp.MustCompile(`^([A-Za-z0-9]{1,10}[:-])?[A-Za-z0-9+/=_-]{40,}$`)
+var hashLike = lazyre.New(`^([A-Za-z0-9]{1,10}[:-])?[A-Za-z0-9+/=_-]{40,}$`)
 
 func (c *crusher) str(s string) any {
 	if c.cfg.ShortenHashes && len(s) >= 40 && !strings.ContainsAny(s, " .") && hashLike.MatchString(s) && digits(s) >= 4 {

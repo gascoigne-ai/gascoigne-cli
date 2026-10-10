@@ -1,10 +1,10 @@
 package catoptimizer
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // syntax is what minifying needs to know about a language: its comments and
@@ -53,7 +53,7 @@ func syntaxOf(lang string, h detect.Hints) (syntax, bool) {
 
 // directive matches comments that tools read: build tags, linters, type
 // checkers, encodings, shebangs. They stay even when other comments go.
-var directive = regexp.MustCompile(`^(#!|//go:|//\s*\+build|//\s*(nolint|NOLINT|eslint|prettier|biome|istanbul|c8|@ts-|#region|#endregion|swiftlint|clang-format)|///\s*<reference|#\s*(type:|noqa|pragma|pylint|mypy|pyright|fmt:|-\*-|frozen_string_literal|encoding|rubocop|shellcheck)|--\s*(luacheck|selene))`)
+var directive = lazyre.New(`^(#!|//go:|//\s*\+build|//\s*(nolint|NOLINT|eslint|prettier|biome|istanbul|c8|@ts-|#region|#endregion|swiftlint|clang-format)|///\s*<reference|#\s*(type:|noqa|pragma|pylint|mypy|pyright|fmt:|-\*-|frozen_string_literal|encoding|rubocop|shellcheck)|--\s*(luacheck|selene))`)
 
 // span is a range of original lines [from, to] replaced by one marker.
 type span struct {
@@ -173,7 +173,7 @@ func blockEnd(lines []string, i int, close string) int {
 	return -1
 }
 
-var docOpen = regexp.MustCompile(`^[rRuUbB]{0,2}("""|''')`)
+var docOpen = lazyre.New(`^[rRuUbB]{0,2}("""|''')`)
 
 func isDocstring(t string) bool { return docOpen.MatchString(t) }
 
@@ -216,7 +216,7 @@ func code(l string, syn syntax) string {
 	return strings.TrimSpace(l)
 }
 
-var heredoc = regexp.MustCompile(`<<[-~]?\s*['"]?(\w+)['"]?`)
+var heredoc = lazyre.New(`<<[-~]?\s*['"]?(\w+)['"]?`)
 
 // opens returns the delimiter of a multi-line string left open by line l:
 // an odd count of a string delimiter, or a heredoc whose terminator follows.

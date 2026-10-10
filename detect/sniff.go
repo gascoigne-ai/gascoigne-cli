@@ -3,8 +3,9 @@ package detect
 import (
 	"encoding/json"
 	"io"
-	"regexp"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 const (
@@ -12,7 +13,7 @@ const (
 	sampleBytes = 64 << 10
 )
 
-var ansi = regexp.MustCompile(`\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)`)
+var ansi = lazyre.New(`\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)`)
 
 // sample is the head of text as ANSI-stripped lines.
 func sample(text string) []string {
@@ -37,7 +38,7 @@ func Sniff(text string) string {
 
 // anyLine matches when some sampled line matches pattern.
 func anyLine(pattern string) Sniffer {
-	re := regexp.MustCompile(pattern)
+	re := lazyre.New(pattern)
 	return func(_ string, lines []string) bool {
 		for _, l := range lines {
 			if re.MatchString(l) {
@@ -50,7 +51,7 @@ func anyLine(pattern string) Sniffer {
 
 // ratio matches when at least share of non-blank lines match pattern.
 func ratio(pattern string, share float64) Sniffer {
-	re := regexp.MustCompile(pattern)
+	re := lazyre.New(pattern)
 	return func(_ string, lines []string) bool {
 		n, hit := 0, 0
 		for _, l := range lines {
@@ -80,7 +81,7 @@ func all(sniffers ...Sniffer) Sniffer {
 
 // firstLine matches the first non-blank line.
 func firstLine(pattern string) Sniffer {
-	re := regexp.MustCompile(pattern)
+	re := lazyre.New(pattern)
 	return func(_ string, lines []string) bool {
 		for _, l := range lines {
 			if strings.TrimSpace(l) != "" {

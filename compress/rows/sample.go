@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"math"
 	"reflect"
-	"regexp"
 	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // Signal scores; errors are not scored, they are always kept.
@@ -187,8 +187,8 @@ var (
 	errorKeys  = map[string]bool{"error": true, "errors": true, "err": true, "exception": true, "failure": true, "fault": true}
 	statusKeys = map[string]bool{"status": true, "state": true, "level": true, "severity": true, "result": true, "outcome": true, "conclusion": true, "health": true, "sub": true, "active": true, "phase": true}
 	codeKeys   = map[string]bool{"status": true, "status_code": true, "statuscode": true, "code": true, "http_status": true}
-	badStatus  = regexp.MustCompile(`(?i)error|fail|fatal|crit|panic|declin|denied|reject|timeout|abort|crash|backoff|oomkill|evicted|unhealthy|not ?ready|exited \([1-9]|\bdead\b|degraded|errimage|terminating|unknown`)
-	readyRe    = regexp.MustCompile(`^(\d+)/(\d+)$`)
+	badStatus  = lazyre.New(`(?i)error|fail|fatal|crit|panic|declin|denied|reject|timeout|abort|crash|backoff|oomkill|evicted|unhealthy|not ?ready|exited \([1-9]|\bdead\b|degraded|errimage|terminating|unknown`)
+	readyRe    = lazyre.New(`^(\d+)/(\d+)$`)
 )
 
 // errorItems finds error-like items: an error field, a bad status word or an

@@ -5,25 +5,25 @@ package pkgnoise
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // Rules describe a manager.
 type Rules struct {
-	Noise *regexp.Regexp // dropped
+	Noise *lazyre.Regexp // dropped
 	// Fold groups lines into "kind (N): items"; group 1 is the item.
 	Fold []Fold
 }
 
 type Fold struct {
 	Kind string
-	Re   *regexp.Regexp
+	Re   *lazyre.Regexp
 }
 
-func re(s string) *regexp.Regexp { return regexp.MustCompile(s) }
+func re(s string) *lazyre.Regexp { return lazyre.New(s) }
 
 var rules = map[string]Rules{
 	"npm": {

@@ -6,13 +6,13 @@ package table
 
 import (
 	"encoding/json"
-	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
 
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/compress/rows"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // Table is a parsed table with the lines around it.
@@ -24,9 +24,10 @@ type Table struct {
 }
 
 var (
-	borderRe = regexp.MustCompile(`^\s*[+┌├└╞╘╔╠╚|│┃]?[-─━═+┬┼┴╤╪╧┐┤┘╡╛╗╣╝: ]*[-─━═]{3,}[-─━═+┬┼┴╤╪╧┐┤┘╡╛╗╣╝|│: ]*$`)
-	cellSep  = regexp.MustCompile(`\s*[|│┃]\s*`)
-	gapRe    = regexp.MustCompile(`\s{2,}`)
+	borderRe = lazyre.New(`^\s*[+┌├└╞╘╔╠╚|│┃]?[-─━═+┬┼┴╤╪╧┐┤┘╡╛╗╣╝: ]*[-─━═]{3,}[-─━═+┬┼┴╤╪╧┐┤┘╡╛╗╣╝|│: ]*$`)
+	cellSep  = lazyre.New(`\s*[|│┃]\s*`)
+	gapRe    = lazyre.New(`\s{2,}`)
+	spaceRe  = lazyre.New(`\s+`)
 )
 
 // Parse finds the table in lines; ok is false when there is none.
@@ -290,7 +291,7 @@ func columnStarts(header string) []int {
 	var starts []int
 	sep := gapRe
 	if len(gapRe.Split(strings.TrimSpace(header), -1)) <= 2 {
-		sep = regexp.MustCompile(`\s+`)
+		sep = spaceRe
 	}
 	pos := 0
 	for _, part := range sep.Split(strings.TrimRight(header, " "), -1) {
@@ -326,7 +327,7 @@ func slice(l string, starts []int) []string {
 	return out
 }
 
-var ruleRe = regexp.MustCompile(`^\s*-{2,}(\s+-{2,})+\s*$`)
+var ruleRe = lazyre.New(`^\s*-{2,}(\s+-{2,})+\s*$`)
 
 // parseRuled handles a header underlined by dash groups (sqlite -column,
 // SQL*Plus, many reports): the groups give exact column positions.

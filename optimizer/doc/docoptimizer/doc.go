@@ -6,13 +6,13 @@ package docoptimizer
 
 import (
 	"context"
-	"regexp"
 	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -45,14 +45,14 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 }
 
 var (
-	htmlComment = regexp.MustCompile(`(?s)<!--.*?-->`)
-	fence       = regexp.MustCompile("^\\s*(```|~~~)")
+	htmlComment = lazyre.New(`(?s)<!--.*?-->`)
+	fence       = lazyre.New("^\\s*(```|~~~)")
 	// Badges: linked images, shields and CI status pictures.
-	badge = regexp.MustCompile(`\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*(shields\.io|badge|/workflows/|codecov|travis-ci|goreportcard|pkg\.go\.dev/badge)[^)]*\)`)
-	image = regexp.MustCompile(`!\[([^\]]*)\]\([^)]*\)`)
+	badge = lazyre.New(`\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*(shields\.io|badge|/workflows/|codecov|travis-ci|goreportcard|pkg\.go\.dev/badge)[^)]*\)`)
+	image = lazyre.New(`!\[([^\]]*)\]\([^)]*\)`)
 	// Lines of layout HTML only: <p align="center">, <img …>, </div>, <br/>.
-	layoutHTML = regexp.MustCompile(`^\s*(</?(p|div|span|center|picture|source|br|hr|a|img|h\d|sup|sub|details|summary)\b[^>]*>\s*)+$`)
-	tocItem    = regexp.MustCompile(`^\s*([-*+]|\d+\.) \[[^\]]+\]\(#[^)]*\)\s*$`)
+	layoutHTML = lazyre.New(`^\s*(</?(p|div|span|center|picture|source|br|hr|a|img|h\d|sup|sub|details|summary)\b[^>]*>\s*)+$`)
+	tocItem    = lazyre.New(`^\s*([-*+]|\d+\.) \[[^\]]+\]\(#[^)]*\)\s*$`)
 )
 
 // markdown drops badges, images, layout HTML and tables of contents, keeps
@@ -105,9 +105,9 @@ func (o *Optimizer) code(lines []string) []string {
 }
 
 var (
-	rstDirective = regexp.MustCompile(`^\.\. (\|[^|]+\| )?(image|figure|raw|contents|toctree|only|meta|highlight|index)::`)
-	rstComment   = regexp.MustCompile(`^\.\.(\s|$)`)
-	rstCodeStart = regexp.MustCompile(`(::\s*$|^\.\. (code-block|code|sourcecode)::)`)
+	rstDirective = lazyre.New(`^\.\. (\|[^|]+\| )?(image|figure|raw|contents|toctree|only|meta|highlight|index)::`)
+	rstComment   = lazyre.New(`^\.\.(\s|$)`)
+	rstCodeStart = lazyre.New(`(::\s*$|^\.\. (code-block|code|sourcecode)::)`)
 )
 
 // rst drops images, badges, tables of contents and comments with their
@@ -138,11 +138,11 @@ func (o *Optimizer) rst(lines []string) []string {
 }
 
 var (
-	overstrike = regexp.MustCompile(`.\x08`) // bold/underline in raw man output
-	manHeader  = regexp.MustCompile(`^\S+\(\d\w*\)\s.*\S+\(\d\w*\)$`)
-	section    = regexp.MustCompile(`^[A-Z][A-Z0-9 ]+$`)
-	justified  = regexp.MustCompile(`(\S)  +`) // spaces groff adds to justify lines
-	footer     = regexp.MustCompile(`^\S.*\s{3,}\d{4}-\d\d-\d\d\s{3,}\S+\(\d\w*\)$|^\S.*\s{3,}\S.*\s{3,}\S+\(\d\w*\)$`)
+	overstrike = lazyre.New(`.\x08`) // bold/underline in raw man output
+	manHeader  = lazyre.New(`^\S+\(\d\w*\)\s.*\S+\(\d\w*\)$`)
+	section    = lazyre.New(`^[A-Z][A-Z0-9 ]+$`)
+	justified  = lazyre.New(`(\S)  +`) // spaces groff adds to justify lines
+	footer     = lazyre.New(`^\S.*\s{3,}\d{4}-\d\d-\d\d\s{3,}\S+\(\d\w*\)$|^\S.*\s{3,}\S.*\s{3,}\S+\(\d\w*\)$`)
 )
 
 // man drops page headers and footers and boilerplate sections, undoes
@@ -168,7 +168,7 @@ func (o *Optimizer) man(lines []string) []string {
 	return dedent(out)
 }
 
-var helpBoilerplate = regexp.MustCompile(`^(Report (any translation )?bugs to|.*Full documentation <|or available locally via: info|.*online help: <|General help using GNU software|GNU \w+ home page: <)`)
+var helpBoilerplate = lazyre.New(`^(Report (any translation )?bugs to|.*Full documentation <|or available locally via: info|.*online help: <|General help using GNU software|GNU \w+ home page: <)`)
 
 // help drops GNU boilerplate and dedents.
 func help(lines []string) []string {

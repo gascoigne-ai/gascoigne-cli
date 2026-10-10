@@ -2,15 +2,15 @@ package gitoptimizer
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/compress/table"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
-var blameLine = regexp.MustCompile(`^\^?([0-9a-f]{7,40}) (?:\S+ )?\((.+?) (\d{4}-\d\d-\d\d) \d\d:\d\d:\d\d [+-]\d{4} +(\d+)\) ?(.*)$`)
+var blameLine = lazyre.New(`^\^?([0-9a-f]{7,40}) (?:\S+ )?\((.+?) (\d{4}-\d\d-\d\d) \d\d:\d\d:\d\d [+-]\d{4} +(\d+)\) ?(.*)$`)
 
 // blame prints one header per run of lines from the same commit instead of
 // repeating hash, author and time on every line.
@@ -91,8 +91,8 @@ func (o *Optimizer) ghList(lines []string, query []string) []string {
 }
 
 var (
-	emptyField  = regexp.MustCompile(`^[a-z-]+:\t*$`)
-	htmlComment = regexp.MustCompile(`(?s)<!--.*?-->`)
+	emptyField  = lazyre.New(`^[a-z-]+:\t*$`)
+	htmlComment = lazyre.New(`(?s)<!--.*?-->`)
 )
 
 // ghView drops empty metadata fields and template comments.

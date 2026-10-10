@@ -3,17 +3,17 @@ package dboptimizer
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/compress/table"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	redisItem = regexp.MustCompile(`^\s*\d+\) "?(.*?)"?$`)
-	digits    = regexp.MustCompile(`\d+|[0-9a-f]{8,}`)
+	redisItem = lazyre.New(`^\s*\d+\) "?(.*?)"?$`)
+	digits    = lazyre.New(`\d+|[0-9a-f]{8,}`)
 )
 
 // redis folds numbered reply lists (KEYS, SCAN, SMEMBERS) by pattern:
@@ -59,10 +59,10 @@ func redis(lines []string) []string {
 }
 
 var (
-	mongoWrap = regexp.MustCompile(`(ObjectId|ISODate|NumberLong|NumberInt|NumberDecimal|UUID|Timestamp|BinData)\(\s*(?:'([^']*)'|"([^"]*)"|([^)]*))\s*\)`)
-	mongoKey  = regexp.MustCompile(`([{,]\s*)([A-Za-z_$][\w$]*)\s*:`)
-	mongoStr  = regexp.MustCompile(`'((?:[^'\\]|\\.)*)'`)
-	trailing  = regexp.MustCompile(`,(\s*[}\]])`)
+	mongoWrap = lazyre.New(`(ObjectId|ISODate|NumberLong|NumberInt|NumberDecimal|UUID|Timestamp|BinData)\(\s*(?:'([^']*)'|"([^"]*)"|([^)]*))\s*\)`)
+	mongoKey  = lazyre.New(`([{,]\s*)([A-Za-z_$][\w$]*)\s*:`)
+	mongoStr  = lazyre.New(`'((?:[^'\\]|\\.)*)'`)
+	trailing  = lazyre.New(`,(\s*[}\]])`)
 )
 
 // mongo turns mongosh output (JS-like documents) into JSON and samples the
@@ -92,7 +92,7 @@ func mongo(text string, o table.Options) []string {
 	return out
 }
 
-var migrateNoise = regexp.MustCompile(`^INFO  \[alembic\.runtime\.migration\] (Context impl|Will assume)|^Environment variables loaded|^Prisma schema loaded|^Datasource "|^\s*$|^Loaded Prisma config`)
+var migrateNoise = lazyre.New(`^INFO  \[alembic\.runtime\.migration\] (Context impl|Will assume)|^Environment variables loaded|^Prisma schema loaded|^Datasource "|^\s*$|^Loaded Prisma config`)
 
 // migrations drop tool chatter; applied steps, pending ones and errors stay.
 func migrations(lines []string) []string {

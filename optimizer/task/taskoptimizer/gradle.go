@@ -2,13 +2,14 @@ package taskoptimizer
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
-	gradleTask  = regexp.MustCompile(`^> Task (:\S+)(?: (UP-TO-DATE|NO-SOURCE|FROM-CACHE|SKIPPED|FAILED))?$`)
-	gradleNoise = regexp.MustCompile(`^(Downloading https?://|Download https?://|Starting a Gradle Daemon|<[-=]+> \d+% |Deprecated Gradle features were used|You can use '--warning-mode all'|For more on this, please refer to|\* Get more help at|> Run with --(stacktrace|info|debug|scan)|> Get more help|Configuration cache entry)`)
+	gradleTask  = lazyre.New(`^> Task (:\S+)(?: (UP-TO-DATE|NO-SOURCE|FROM-CACHE|SKIPPED|FAILED))?$`)
+	gradleNoise = lazyre.New(`^(Downloading https?://|Download https?://|Starting a Gradle Daemon|<[-=]+> \d+% |Deprecated Gradle features were used|You can use '--warning-mode all'|For more on this, please refer to|\* Get more help at|> Run with --(stacktrace|info|debug|scan)|> Get more help|Configuration cache entry)`)
 )
 
 // gradle: "> Task :x" sections; quiet up-to-date/cached tasks are counted.

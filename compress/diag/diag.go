@@ -9,12 +9,12 @@ import (
 	"cmp"
 	"fmt"
 	"maps"
-	"regexp"
 	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // Diagnostic is one finding.
@@ -30,27 +30,27 @@ type Diagnostic struct {
 
 var (
 	// file(l,c): error TS2322: msg [project]   (tsc, msbuild/dotnet)
-	parenRe = regexp.MustCompile(`^\s*(\S+?)\((\d+),(\d+)\): (error|warning|info) (\w+): (.+?)(?: \[[^\]]+\])?$`)
+	parenRe = lazyre.New(`^\s*(\S+?)\((\d+),(\d+)\): (error|warning|info) (\w+): (.+?)(?: \[[^\]]+\])?$`)
 	// file:l:c: [severity:] msg   (go, gcc/clang, golangci, ruff, mypy, javac, eslint unix)
-	colonRe = regexp.MustCompile(`^(?:\./)?([^\s:()][^:()]*?\.[A-Za-z0-9]+):(\d+)(?::(\d+))?:\s*(?:(fatal error|error|warning|note|info|hint)\s*:?\s*)?(?:(\[?[A-Z]+\d+\]?)\s+)?(.+)$`)
+	colonRe = lazyre.New(`^(?:\./)?([^\s:()][^:()]*?\.[A-Za-z0-9]+):(\d+)(?::(\d+))?:\s*(?:(fatal error|error|warning|note|info|hint)\s*:?\s*)?(?:(\[?[A-Z]+\d+\]?)\s+)?(.+)$`)
 	// rust/cargo: "error[E0308]: msg" then "  --> src/main.rs:4:5"
-	rustHeadRe = regexp.MustCompile(`^(error|warning)(?:\[(E\d+)\])?: (.+)$`)
+	rustHeadRe = lazyre.New(`^(error|warning)(?:\[(E\d+)\])?: (.+)$`)
 	// ruff full format: "F401 [*] msg" then " --> file:l:c"
-	ruffHeadRe = regexp.MustCompile(`^([A-Z]+\d+) (?:\[\*\] )?(.+)$`)
-	rustLocRe  = regexp.MustCompile(`^\s*--> (\S+?):(\d+):(\d+)$`)
+	ruffHeadRe = lazyre.New(`^([A-Z]+\d+) (?:\[\*\] )?(.+)$`)
+	rustLocRe  = lazyre.New(`^\s*--> (\S+?):(\d+):(\d+)$`)
 	// eslint stylish: path line, then "  12:5  error  msg  rule"
-	eslintRowRe = regexp.MustCompile(`^\s+(\d+):(\d+)\s+(error|warning)\s+(.+?)\s{2,}(\S+)$`)
-	eslintFile  = regexp.MustCompile(`^(/|\./|[A-Za-z]:\\)?\S+\.[jt]sx?$|^\S+\.(vue|svelte|mjs|cjs)$`)
+	eslintRowRe = lazyre.New(`^\s+(\d+):(\d+)\s+(error|warning)\s+(.+?)\s{2,}(\S+)$`)
+	eslintFile  = lazyre.New(`^(/|\./|[A-Za-z]:\\)?\S+\.[jt]sx?$|^\S+\.(vue|svelte|mjs|cjs)$`)
 	// [ERROR] /path/File.java:[14,20] msg   (maven compiler plugin)
-	mavenRe = regexp.MustCompile(`^\[(ERROR|WARNING)\] (\S+\.(?:java|kt|scala)):\[(\d+),(\d+)\] (.+)$`)
+	mavenRe = lazyre.New(`^\[(ERROR|WARNING)\] (\S+\.(?:java|kt|scala)):\[(\d+),(\d+)\] (.+)$`)
 	// code frame lines: indented, gutters, carets.
-	frameRe = regexp.MustCompile(`^(\s{2,}|\s*\d+\s*\||\s*\|)|^\s*\^|^\s*~+\s*$`)
+	frameRe = lazyre.New(`^(\s{2,}|\s*\d+\s*\||\s*\|)|^\s*\^|^\s*~+\s*$`)
 )
 
 // Rules tune the engine for a dialect.
 type Rules struct {
-	Strip    *regexp.Regexp // prefix removed from every line first (docker "#8 1.234 ")
-	Noise    *regexp.Regexp // dropped lines
+	Strip    *lazyre.Regexp // prefix removed from every line first (docker "#8 1.234 ")
+	Noise    *lazyre.Regexp // dropped lines
 	MaxFrame int            // code frame lines kept per diagnostic
 }
 
@@ -242,7 +242,7 @@ func plural(s string, n int) string {
 }
 
 // annotated frame lines point at the problem: carets, labels, help and notes.
-var annotated = regexp.MustCompile(`\^|~~|-{3,}|\bhelp:|\bnote:|= note|= help`)
+var annotated = lazyre.New(`\^|~~|-{3,}|\bhelp:|\bnote:|= note|= help`)
 
 // capFrame keeps at most max lines, preferring annotated lines and the
 // source line right above each.

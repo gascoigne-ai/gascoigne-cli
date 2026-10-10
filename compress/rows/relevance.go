@@ -3,10 +3,11 @@ package rows
 import (
 	"encoding/json"
 	"math"
-	"regexp"
 	"slices"
 	"strings"
 	"unicode"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 // BM25 parameters, the usual defaults.
@@ -16,7 +17,7 @@ const (
 )
 
 // dotted matches versions and other dotted words: go1.27.2, v2.3, 1.24.
-var dotted = regexp.MustCompile(`[\p{L}\p{N}]+(\.[\p{L}\p{N}]+)+`)
+var dotted = lazyre.New(`[\p{L}\p{N}]+(\.[\p{L}\p{N}]+)+`)
 
 // Terms lowercases and splits text into alphanumeric terms (query or document).
 // Versions are terms too, with their shorter prefixes: "go1.27.2" adds

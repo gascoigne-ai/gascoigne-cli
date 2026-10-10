@@ -8,13 +8,13 @@ package lsoptimizer
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -23,7 +23,7 @@ type Optimizer struct {
 	cfg *Config
 }
 
-var entry = regexp.MustCompile(`^([-dlcbps])([rwxsStT-]{9})[.+@]?\s+\d+\s+\S+\s+\S+\s+(\S+(?:,\s*\d+)?)\s+(?:\w{3}\s+\d{1,2}\s+(?:\d{1,2}:\d\d|\d{4})|\d{4}-\d\d-\d\d\s+\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:\s+[+-]\d{4})?)\s+(.+)$`)
+var entry = lazyre.New(`^([-dlcbps])([rwxsStT-]{9})[.+@]?\s+\d+\s+\S+\s+\S+\s+(\S+(?:,\s*\d+)?)\s+(?:\w{3}\s+\d{1,2}\s+(?:\d{1,2}:\d\d|\d{4})|\d{4}-\d\d-\d\d\s+\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:\s+[+-]\d{4})?)\s+(.+)$`)
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	return p.Rewrite(func(b payload.Block) (string, error) {

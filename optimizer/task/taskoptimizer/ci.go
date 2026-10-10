@@ -2,14 +2,15 @@ package taskoptimizer
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
 
 var (
 	// gh run view --log: "job<TAB>step<TAB>2024-10-10T10:00:00.1234567Z text"
-	ciLine  = regexp.MustCompile(`^([^\t]+)\t([^\t]+)\t(?:\d{4}-\d\d-\d\dT[\d:.]+Z )?(.*)$`)
-	ciError = regexp.MustCompile(`##\[error\]|Process completed with exit code [1-9]|^Error: `)
+	ciLine  = lazyre.New(`^([^\t]+)\t([^\t]+)\t(?:\d{4}-\d\d-\d\dT[\d:.]+Z )?(.*)$`)
+	ciError = lazyre.New(`##\[error\]|Process completed with exit code [1-9]|^Error: `)
 )
 
 // ciLog: steps of CI jobs; passing steps become one line with their size,
