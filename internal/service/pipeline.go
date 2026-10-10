@@ -16,6 +16,11 @@ import (
 	"github.com/lukaszb/gascoigne/payload"
 )
 
+// minSaving is the fewest tokens an optimization must save to be used: the
+// "[gascoigne: optimized A→B tokens · full: gascoigne raw <id>]" hint costs
+// about this much, so saving less would cost the agent tokens.
+const minSaving = 20
+
 // Pipeline runs filter → router → optimizers → exporters for one payload.
 type Pipeline struct {
 	name      string
@@ -106,11 +111,11 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 		ev.Outcome, ev.Reason = component.Unchanged, unchangedReason(p, ev.Optimizers)
 		return p, nil
 	}
-	if in, out := orig.Tokens(), p.Tokens(); out >= in {
-		// Rewritten but no cheaper (aligned columns turned into separators):
-		// the original reads better for the same tokens.
+	if in, out := orig.Tokens(), p.Tokens(); in-out < minSaving {
+		// Rewritten but not worth it: the retrieve hint every consumer adds
+		// costs about minSaving tokens, and the original reads better.
 		ev.Outcome, ev.Steps = component.Unchanged, nil
-		ev.Reason = fmt.Sprintf("optimized output not smaller (%d → %d tokens), original kept", in, out)
+		ev.Reason = fmt.Sprintf("saved %d tokens (%d → %d) < %d, the cost of the retrieve hint: original kept", in-out, in, out, minSaving)
 		return orig, nil
 	}
 

@@ -17,6 +17,10 @@ import (
 
 type empty struct{}
 
+// words is text the upper fake shrinks by more than the pipeline's minimum
+// saving (it drops the spaces).
+var words = strings.Repeat("alpha beta ", 30)
+
 type upper struct{ component.Nop }
 
 func (upper) Optimize(_ context.Context, p *payload.Payload) error {
@@ -113,8 +117,8 @@ func process(t *testing.T, s *Service, cmd, text string, attrs ...string) *paylo
 
 func TestOptimizedIsReversible(t *testing.T) {
 	s, exp := newService(t, cfgYAML)
-	out := process(t, s, "up x", "hello hello hello\n")
-	if out.Text() != "HELLOHELLOHELLO\n" || len(exp.got) != 1 {
+	out := process(t, s, "up x", words+"\n")
+	if out.Text() != strings.ToUpper(strings.ReplaceAll(words, " ", ""))+"\n" || len(exp.got) != 1 {
 		t.Fatalf("out = %q, exported %d", out.Text(), len(exp.got))
 	}
 	id := out.Attrs[payload.AttrRawID]
@@ -122,7 +126,7 @@ func TestOptimizedIsReversible(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if key != "cmd:up x" || raw.Text() != "hello hello hello\n" {
+	if key != "cmd:up x" || raw.Text() != words+"\n" {
 		t.Fatalf("raw = %q %q", key, raw.Text())
 	}
 }
@@ -267,7 +271,7 @@ pipelines: { p: { receivers: [r], filters: [r], exporters: [r] } }
 
 func TestStepsAndSessionRecorded(t *testing.T) {
 	s, _ := newService(t, cfgYAML)
-	process(t, s, "up x", "a b c d e f g h", payload.AttrSession, "s1")
+	process(t, s, "up x", words, payload.AttrSession, "s1")
 	process(t, s, "ls", "unchanged", payload.AttrSession, "s1")
 	got, err := s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.ByOptimizer, Session: "s1"})
 	if err != nil {
@@ -288,7 +292,7 @@ func TestStepsAndSessionRecorded(t *testing.T) {
 
 func TestCommandAndSkipFilterRecorded(t *testing.T) {
 	s, _ := newService(t, cfgYAML)
-	process(t, s, "up -v x", "a b c d e f g h")
+	process(t, s, "up -v x", words)
 	process(t, s, "up x", "raw please", payload.AttrRaw, "true")
 	got, err := s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.ByCommand})
 	if err != nil || len(got) != 1 || got[0].Group != "up" || got[0].Runs != 2 {
