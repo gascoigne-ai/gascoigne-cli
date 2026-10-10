@@ -124,7 +124,8 @@ Each gap is one marker in the file's comment syntax naming the original lines
 (`// … comments L12-30`, `# … docstring L3-9`, `// … L50-89` for a body; `N lines` instead of
 numbers for `tail`/`sed`), so an agent edits within kept runs and reads a gap back by range
 (`sed -n 12,30p f`: small, passes untouched) or the whole file (`cat_mode=full`, `gascoigne raw`).
-- clean (auto, 800–4000 tokens): comment runs go; a run right above code keeps its first line
+- clean (auto, 800–4000 tokens): comment runs go; a run right above code (or one blank line above
+  code at its indent, unless before any code) keeps its first line
   with words (doc summary), Python docstrings after `def`/`class` keep their summary line.
   Runs cheaper than a marker and directives (`//go:`, `# type:`, `noqa`, shebang, coding,
   eslint/ts pragmas) stay. Lines inside multi-line strings (backticks, triple quotes, heredocs)

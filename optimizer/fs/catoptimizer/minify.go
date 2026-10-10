@@ -90,7 +90,7 @@ func comments(lines []string, syn syntax) []span {
 			continue
 		case isComment(t, syn) && commentEnd(lines, i, syn) >= i:
 			end := commentEnd(lines, i, syn)
-			doc := end+1 < len(lines) && strings.TrimSpace(lines[end+1]) != ""
+			doc := documents(lines, i, end, syn, lastCode < 0)
 			if !doc {
 				spans = appendRun(spans, lines, i, i, end, "comments")
 			} else if first := firstText(lines, i, end); first < end {
@@ -103,6 +103,28 @@ func comments(lines []string, syn syntax) []span {
 		open = opens(code(l, syn), syn)
 	}
 	return spans
+}
+
+// documents reports whether the comment run lines[start:end+1] sits above
+// code: right above it, or one blank line above code at the same indent
+// (Ruby rdoc and some Python styles separate the two). A run before any
+// code and a blank line is a file header (license), not documentation.
+func documents(lines []string, start, end int, syn syntax, top bool) bool {
+	next := end + 1
+	if next < len(lines) && strings.TrimSpace(lines[next]) == "" {
+		if top {
+			return false
+		}
+		next++
+		if next >= len(lines) || indentOf(lines[next]) != indentOf(lines[start]) {
+			return false
+		}
+	}
+	if next >= len(lines) {
+		return false
+	}
+	t := strings.TrimSpace(lines[next])
+	return t != "" && !isComment(t, syn)
 }
 
 // appendRun adds lines [from, to] of the run starting at line start, unless

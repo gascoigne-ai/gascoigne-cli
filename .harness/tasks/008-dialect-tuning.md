@@ -24,9 +24,10 @@ Lift dialects that save little on real output, without losing what agents need.
 - `search`: with a `query`, each file keeps the `max_per_file` lines matching it best (BM25),
   in file order, instead of the first ones.
 
+- `fs/code`: a comment run one blank line above code at its indent counts as documentation and
+  keeps its summary line (Ruby rdoc 56.2%, was more; file headers before any code still go).
+
 ## Open
-- `fs/code`: doc comments separated from their declaration by a blank line (Ruby rdoc) are
-  dropped whole; keep their first line. Lowers savings slightly by design (readability fix).
 - Real fixtures to replace synthetic ones once tools are at hand: terraform/tofu, pulumi, cdk,
   helm diff, kubectl, aws/gcloud/az, mysql, gh (authenticated).
 

@@ -59,25 +59,33 @@ function extensiveDeepEqualByType(leftHandOperand, rightHandOperand, leftHandTyp
   // … L213-267
 }
 
-// … comments L270-276
+/*!
+ * Compare two Regular Expressions for equality.
+// … comments L272-276
 
 function regexpEqual(leftHandOperand, rightHandOperand) {
   return leftHandOperand.toString() === rightHandOperand.toString();
 }
 
-// … comments L282-289
+/*!
+ * Compare two Sets/Maps for equality. Faster than other equality functions.
+// … comments L284-289
 
 function entriesEqual(leftHandOperand, rightHandOperand, options) {
   // … L292-312
 }
 
-// … comments L315-322
+/*!
+ * Simple equality for flat iterable objects such as Arrays, TypedArrays or Node.js buffers.
+// … comments L317-322
 
 function iterableEqual(leftHandOperand, rightHandOperand, options) {
   // … L325-338
 }
 
-// … comments L341-348
+/*!
+ * Simple equality for generator objects such as those returned by generator functions.
+// … comments L343-348
 
 function generatorEqual(leftHandOperand, rightHandOperand, options) {
   return iterableEqual(getGeneratorEntries(leftHandOperand), getGeneratorEntries(rightHandOperand), options);

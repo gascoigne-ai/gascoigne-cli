@@ -68,6 +68,25 @@ x = 1
 			drop: []string{"long explanation"},
 		},
 		{
+			name: "ruby: rdoc a blank line above its method keeps its summary",
+			src: `require "json"
+
+class Cart
+  # Total price of every item, in cents, after discounts are applied
+  # and before tax. Discounts come from the active promotion, if any,
+  # and never take the total below zero.
+
+  def total
+    items.sum(&:price)
+  end
+end
+`,
+			lang: detect.LangOther,
+			h:    detect.Hints{File: "cart.rb"},
+			keep: []string{"  # Total price of every item", "  # … comments L5-6"},
+			drop: []string{"never take the total"},
+		},
+		{
 			name: "python: string argument is not a docstring",
 			src: `run(
     """

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 # … comments L2-17
 
-# … comments L19-120
+# The Benchmark module provides methods to measure and report the time
+# … comments L20-120
 
 module Benchmark
 
@@ -9,7 +10,8 @@ module Benchmark
 
   BENCHMARK_VERSION = "2002-04-25" # :nodoc:
 
-  # … comments L128-168
+  # Invokes the block with a Benchmark::Report object, which
+  # … comments L129-168
 
   def benchmark(caption = "", label_width = nil, format = nil, *labels) # :yield: report
     sync = $stdout.sync
@@ -35,7 +37,8 @@ module Benchmark
   end
 
 
-  # … comments L194-213
+  # A simple interface to the #benchmark method, #bm generates sequential
+  # … comments L195-213
 
   def bm(label_width = 0, *labels, &blk) # :yield: report
     benchmark(CAPTION, label_width, FORMAT, *labels, &blk)
