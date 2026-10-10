@@ -1,3 +1,3 @@
-package bunoptimizer
+package pkgoptimizer
 
 type Config struct{}

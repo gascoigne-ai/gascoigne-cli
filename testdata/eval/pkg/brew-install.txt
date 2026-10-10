@@ -1,0 +1,59 @@
+==> Auto-updating Homebrew...
+==> Downloading https://ghcr.io/v2/homebrew/core/postgresql/16/manifests/16.4
+######################################################################### 100.0%
+==> Fetching dependencies for postgresql@16: icu4c@75, krb5, libpq, lz4, openssl@3, readline, zstd
+==> Fetching icu4c@75
+==> Downloading https://ghcr.io/v2/homebrew/core/icu4c@75/blobs/sha256:25f841219b475cb61ec98244fc7561aa
+######################################################################### 100.0%
+==> Fetching krb5
+==> Downloading https://ghcr.io/v2/homebrew/core/krb5/blobs/sha256:734fe4d10f97d8260c7fe292030a3904
+######################################################################### 100.0%
+==> Fetching libpq
+==> Downloading https://ghcr.io/v2/homebrew/core/libpq/blobs/sha256:4b533d78638d8d11c95d3d6a3566ee58
+######################################################################### 100.0%
+==> Fetching lz4
+==> Downloading https://ghcr.io/v2/homebrew/core/lz4/blobs/sha256:cc76b117f7682c1e03c988cd9c8e744c
+######################################################################### 100.0%
+==> Fetching openssl@3
+==> Downloading https://ghcr.io/v2/homebrew/core/openssl@3/blobs/sha256:7b1d59222401474348f670b05ac28cfa
+######################################################################### 100.0%
+==> Fetching readline
+==> Downloading https://ghcr.io/v2/homebrew/core/readline/blobs/sha256:f636aa932326111a471918ad8fdac907
+######################################################################### 100.0%
+==> Fetching zstd
+==> Downloading https://ghcr.io/v2/homebrew/core/zstd/blobs/sha256:4bc7556d8e53609fbf5c166f162aa5e7
+######################################################################### 100.0%
+==> Fetching postgresql@16
+==> Downloading https://ghcr.io/v2/homebrew/core/postgresql@16/blobs/sha256:6b805ad010caf5361e30b9e1b22c47ff
+######################################################################### 100.0%
+==> Installing postgresql@16 dependency: icu4c@75
+==> Pouring icu4c@75--1.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/icu4c@75/1.0: 472 files, 19MB
+==> Installing postgresql@16 dependency: krb5
+==> Pouring krb5--1.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/krb5/1.0: 730 files, 72MB
+==> Installing postgresql@16 dependency: libpq
+==> Pouring libpq--1.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/libpq/1.0: 792 files, 50MB
+==> Installing postgresql@16 dependency: lz4
+==> Pouring lz4--1.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/lz4/1.0: 612 files, 22MB
+==> Installing postgresql@16 dependency: openssl@3
+==> Pouring openssl@3--1.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/openssl@3/1.0: 689 files, 36MB
+==> Installing postgresql@16 dependency: readline
+==> Pouring readline--1.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/readline/1.0: 800 files, 77MB
+==> Installing postgresql@16 dependency: zstd
+==> Pouring zstd--1.0.arm64_sonoma.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/zstd/1.0: 633 files, 64MB
+==> Installing postgresql@16
+==> Pouring postgresql@16--16.4.arm64_sonoma.bottle.tar.gz
+==> Caveats
+This formula has created a default database cluster with:
+  initdb --locale=C -E UTF-8 /opt/homebrew/var/postgresql@16
+
+To start postgresql@16 now and restart at login:
+  brew services start postgresql@16
+==> Summary
+🍺  /opt/homebrew/Cellar/postgresql@16/16.4: 3,812 files, 69.3MB

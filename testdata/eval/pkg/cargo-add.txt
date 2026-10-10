@@ -1,0 +1,38 @@
+    Updating crates.io index
+      Adding tokio v1.40.0 to dependencies
+             Features:
+             + bytes
+             + fs
+             + io-util
+             + macros
+             + net
+             + rt-multi-thread
+             + sync
+             + time
+             - full
+             - parking_lot
+             - process
+             - signal
+             - test-util
+             - tracing
+    Updating crates.io index
+     Locking 31 packages to latest compatible versions
+      Adding mio v1.0.2
+      Adding bytes v1.7.2
+      Adding pin-project-lite v0.2.14
+   Downloaded tokio-macros v2.4.0
+   Downloaded socket2 v0.5.7
+   Downloaded libc v0.2.159
+   Downloaded proc-macro2 v1.0.86
+   Downloaded quote v1.0.37
+   Downloaded syn v2.0.79
+   Downloaded unicode-ident v1.0.13
+   Downloaded backtrace v0.3.74
+   Downloaded addr2line v0.24.1
+   Downloaded gimli v0.31.0
+   Downloaded object v0.36.4
+   Downloaded memchr v2.7.4
+   Downloaded rustc-demangle v0.1.24
+   Downloaded miniz_oxide v0.8.0
+   Downloaded adler2 v2.0.0
+   Downloaded cfg-if v1.0.0

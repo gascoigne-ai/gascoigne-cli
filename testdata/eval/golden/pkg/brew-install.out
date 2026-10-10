@@ -1,0 +1,24 @@
+==> Auto-updating Homebrew...
+==> Installing postgresql@16 dependency: icu4c@75
+🍺  /opt/homebrew/Cellar/icu4c@75/1.0: 472 files, 19MB
+==> Installing postgresql@16 dependency: krb5
+🍺  /opt/homebrew/Cellar/krb5/1.0: 730 files, 72MB
+==> Installing postgresql@16 dependency: libpq
+🍺  /opt/homebrew/Cellar/libpq/1.0: 792 files, 50MB
+==> Installing postgresql@16 dependency: lz4
+🍺  /opt/homebrew/Cellar/lz4/1.0: 612 files, 22MB
+==> Installing postgresql@16 dependency: openssl@3
+🍺  /opt/homebrew/Cellar/openssl@3/1.0: 689 files, 36MB
+==> Installing postgresql@16 dependency: readline
+🍺  /opt/homebrew/Cellar/readline/1.0: 800 files, 77MB
+==> Installing postgresql@16 dependency: zstd
+🍺  /opt/homebrew/Cellar/zstd/1.0: 633 files, 64MB
+==> Installing postgresql@16
+==> Caveats
+This formula has created a default database cluster with:
+  initdb --locale=C -E UTF-8 /opt/homebrew/var/postgresql@16
+
+To start postgresql@16 now and restart at login:
+  brew services start postgresql@16
+==> Summary
+🍺  /opt/homebrew/Cellar/postgresql@16/16.4: 3,812 files, 69.3MB

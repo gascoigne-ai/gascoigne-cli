@@ -1,0 +1,11 @@
+The following additional packages will be installed:
+  libpq5 libsensors-config libsensors5 postgresql-16 postgresql-client-16 postgresql-client-common postgresql-common ssl-cert sysstat
+Suggested packages:
+  lm-sensors postgresql-doc-16 isag
+The following NEW packages will be installed:
+  libpq5 libsensors-config libsensors5 postgresql postgresql-16 postgresql-client-16 postgresql-client-common postgresql-common ssl-cert sysstat
+0 upgraded, 10 newly installed, 0 to remove and 3 not upgraded.
+Creating config file /etc/postgresql-common/createcluster.conf with new version
+Building PostgreSQL dictionaries from installed myspell/hunspell packages...
+Creating new PostgreSQL cluster 16/main ...
+/usr/lib/postgresql/16/bin/initdb -D /var/lib/postgresql/16/main --auth-local peer --auth-host scram-sha-256 --no-instructions

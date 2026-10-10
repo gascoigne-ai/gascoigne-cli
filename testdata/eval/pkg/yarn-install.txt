@@ -1,0 +1,20 @@
+yarn install v1.22.22
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+warning "@testing-library/jest-dom@6.4.2" has unmet peer dependency "typescript@>=4.2.0".
+warning "eslint-plugin-react@7.34.1" has unmet peer dependency "typescript@>=4.2.0".
+warning "ts-node@10.9.2" has unmet peer dependency "typescript@>=4.2.0".
+warning "react-scripts@5.0.1" has unmet peer dependency "typescript@>=4.2.0".
+warning "@babel/plugin-proposal-private-property-in-object@7.21.11" has unmet peer dependency "typescript@>=4.2.0".
+warning inflight@1.0.6: This package is deprecated and no longer supported
+warning glob@7.2.3: This package is deprecated and no longer supported
+warning rimraf@3.0.2: This package is deprecated and no longer supported
+warning abab@2.0.6: This package is deprecated and no longer supported
+warning w3c-hr-time@1.0.2: This package is deprecated and no longer supported
+warning sourcemap-codec@1.4.8: This package is deprecated and no longer supported
+warning stable@0.1.8: This package is deprecated and no longer supported
+warning q@1.5.1: This package is deprecated and no longer supported
+[4/4] Building fresh packages...
+success Saved lockfile.
+Done in 41.27s.

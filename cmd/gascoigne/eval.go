@@ -144,6 +144,10 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 	if err != nil {
 		return nil, err
 	}
+	again, err := pl.Optimize(ctx, in)
+	if err != nil {
+		return nil, err
+	}
 	r := &caseResult{
 		types: blockTypes(out),
 		route: cmp.Or(out.Attrs[payload.AttrRoute], "-"),
@@ -152,6 +156,9 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		out:   out.Tokens(),
 	}
 	fail := func(format string, args ...any) { r.problems = append(r.problems, fmt.Sprintf(format, args...)) }
+	if again.Text() != r.text {
+		fail("nondeterministic: two runs differ")
+	}
 
 	if id := out.Attrs[payload.AttrRawID]; id != "" {
 		if _, orig, err := svc.Ledger().GetRaw(ctx, id); err != nil || !sameText(orig, in) {

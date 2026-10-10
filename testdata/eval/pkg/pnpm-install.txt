@@ -1,0 +1,59 @@
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 12, reused 11, downloaded 1, added 10
+Progress: resolved 24, reused 22, downloaded 2, added 20
+Progress: resolved 36, reused 33, downloaded 3, added 30
+Progress: resolved 48, reused 44, downloaded 4, added 40
+Progress: resolved 60, reused 55, downloaded 5, added 50
+Progress: resolved 72, reused 66, downloaded 6, added 60
+Progress: resolved 84, reused 77, downloaded 7, added 70
+Progress: resolved 96, reused 88, downloaded 8, added 80
+Progress: resolved 108, reused 99, downloaded 9, added 90
+Progress: resolved 120, reused 110, downloaded 10, added 100
+Progress: resolved 132, reused 121, downloaded 11, added 110
+Progress: resolved 144, reused 132, downloaded 12, added 120
+Progress: resolved 156, reused 143, downloaded 13, added 130
+Progress: resolved 168, reused 154, downloaded 14, added 140
+Progress: resolved 180, reused 165, downloaded 15, added 150
+Progress: resolved 192, reused 176, downloaded 16, added 160
+Progress: resolved 204, reused 187, downloaded 17, added 170
+Progress: resolved 216, reused 198, downloaded 18, added 180
+Progress: resolved 228, reused 209, downloaded 19, added 190
+Progress: resolved 240, reused 220, downloaded 20, added 200
+Progress: resolved 252, reused 231, downloaded 21, added 210
+Progress: resolved 264, reused 242, downloaded 22, added 220
+Progress: resolved 276, reused 253, downloaded 23, added 230
+Progress: resolved 288, reused 264, downloaded 24, added 240
+Progress: resolved 300, reused 275, downloaded 25, added 250
+Progress: resolved 312, reused 286, downloaded 26, added 260
+Progress: resolved 324, reused 297, downloaded 27, added 270
+Progress: resolved 336, reused 308, downloaded 28, added 280
+Progress: resolved 348, reused 319, downloaded 29, added 290
+Progress: resolved 360, reused 330, downloaded 30, added 300
+Progress: resolved 372, reused 341, downloaded 31, added 310
+Progress: resolved 384, reused 352, downloaded 32, added 320
+Progress: resolved 396, reused 363, downloaded 33, added 330
+Progress: resolved 408, reused 374, downloaded 34, added 340
+Progress: resolved 420, reused 385, downloaded 35, added 350
+Progress: resolved 432, reused 396, downloaded 36, added 360
+Progress: resolved 444, reused 407, downloaded 37, added 370
+Progress: resolved 456, reused 418, downloaded 38, added 380
+Progress: resolved 468, reused 429, downloaded 39, added 390
+Progress: resolved 466, reused 431, downloaded 35, added 466, done
+ WARN  deprecated inflight@1.0.6: This module is not supported, and leaks memory.
+ WARN  deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+ WARN  deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+ WARN  5 deprecated subdependencies found: abab@2.0.6, domexception@4.0.0, glob@7.2.3, inflight@1.0.6, rimraf@3.0.2
+Packages: +466
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+dependencies:
++ express 4.21.2
++ zod 3.25.76
+
+devDependencies:
++ typescript 5.9.3
++ vitest 3.2.7
+
+. prepare$ husky
+. prepare: Done
+Done in 8.4s

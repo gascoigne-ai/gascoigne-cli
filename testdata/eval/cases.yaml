@@ -141,6 +141,26 @@
 - { name: detect/eslint, file: build/eslint.txt, expect_type: build/eslint }
 - { name: detect/maven-compile, file: build/maven-compile.txt, expect_type: build/maven }
 
+# --- pkg family
+- { file: pkg/pip-install.txt, attrs: { cmd: pip install flask requests pandas }, expect_type: pkg/pip, keep: ["Successfully installed", "pandas-2.2.3"], min_saved: 85 }
+- { file: pkg/uv-pip-install.txt, attrs: { cmd: uv pip install fastapi httpx sqlalchemy }, expect_type: pkg/uv, keep: ["Installed 15 packages", "+ fastapi=="], min_saved: 60 }
+- { file: pkg/go-get.txt, attrs: { cmd: go get github.com/gin-gonic/gin@v1.10.0 }, expect_type: pkg/go-mod, keep: ["github.com/gin-gonic/gin v1.10.0", "go: added (", "golang.org/x/net"], min_saved: 50 }
+- { file: pkg/pnpm-install.txt, attrs: { cmd: pnpm install }, expect_type: pkg/pnpm, keep: ["WARN deprecated (3): inflight@1.0.6, glob@7.2.3, rimraf@3.0.2", "+ express 4.21.2", "Packages: +466"], min_saved: 80 }
+- { file: pkg/yarn-install.txt, attrs: { cmd: yarn install }, expect_type: pkg/yarn, keep: ["warning deprecated (8)", "unmet peer dependency (5)"], min_saved: 65 }
+- { file: pkg/poetry-install.txt, attrs: { cmd: poetry install }, expect_type: pkg/poetry, keep: ["installed (24)", "updated (2): ruff (0.6.9 -> 0.7.2)", "Installing the current project"], min_saved: 35 }
+- { file: pkg/cargo-add.txt, attrs: { cmd: cargo add tokio --features full }, expect_type: pkg/cargo, keep: ["Adding tokio v1.40.0 to dependencies", "features enabled (8): bytes", "features available (6): full"], min_saved: 60 }
+- { file: pkg/apt-install.txt, attrs: { cmd: sudo apt-get install -y postgresql }, expect_type: pkg/os, keep: ["The following NEW packages will be installed:", "0 upgraded, 10 newly installed", "Creating new PostgreSQL cluster 16/main"], min_saved: 75 }
+- { file: pkg/brew-install.txt, attrs: { cmd: brew install postgresql@16 }, expect_type: pkg/os, keep: ["==> Caveats", "brew services start postgresql@16", "3,812 files, 69.3MB"], min_saved: 60 }
+- { file: pkg/pacman-install.txt, attrs: { cmd: sudo pacman -S postgresql pgbouncer }, expect_type: pkg/os, keep: ["Packages (6)", "Total Installed Size:   73.42 MiB", "python: for PL/Python 3 support"], min_saved: 65 }
+- { name: detect/pip, file: pkg/pip-install.txt, expect_type: pkg/pip }
+- { name: detect/uv, file: pkg/uv-pip-install.txt, expect_type: pkg/uv }
+- { name: detect/go-get, file: pkg/go-get.txt, expect_type: pkg/go-mod }
+- { name: detect/pnpm, file: pkg/pnpm-install.txt, expect_type: pkg/pnpm }
+- { name: detect/yarn, file: pkg/yarn-install.txt, expect_type: pkg/yarn }
+- { name: detect/poetry, file: pkg/poetry-install.txt, expect_type: pkg/poetry }
+- { name: detect/apt, file: pkg/apt-install.txt, expect_type: pkg/os }
+- { name: detect/brew, file: pkg/brew-install.txt, expect_type: pkg/os }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }

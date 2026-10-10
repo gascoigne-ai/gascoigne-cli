@@ -1,0 +1,50 @@
+Using Python 3.13.7 environment at: .venv
+Resolved 15 packages in 412ms
+Downloading fastapi (1028KiB)
+Downloading starlette (1335KiB)
+Downloading pydantic (844KiB)
+Downloading pydantic-core (627KiB)
+Downloading httpx (363KiB)
+Downloading httpcore (461KiB)
+Downloading anyio (1854KiB)
+Downloading sniffio (1465KiB)
+Downloading idna (93KiB)
+Downloading certifi (772KiB)
+Downloading h11 (1109KiB)
+Downloading sqlalchemy (1029KiB)
+   Building greenlet==1.9.1
+Downloading typing-extensions (764KiB)
+Downloading annotated-types (1215KiB)
+ Downloading fastapi
+ Downloading starlette
+ Downloading pydantic
+ Downloading pydantic-core
+ Downloading httpx
+ Downloading httpcore
+ Downloading anyio
+ Downloading sniffio
+ Downloading idna
+ Downloading certifi
+ Downloading h11
+ Downloading sqlalchemy
+ Downloading greenlet
+ Downloading typing-extensions
+ Downloading annotated-types
+   Built greenlet==3.1.1
+Prepared 15 packages in 2.31s
+Installed 15 packages in 28ms
+ + fastapi==4.2.6
+ + starlette==1.28.6
+ + pydantic==1.10.3
+ + pydantic-core==0.7.2
+ + httpx==4.37.1
+ + httpcore==3.6.4
+ + anyio==1.14.6
+ + sniffio==0.17.3
+ + idna==3.17.5
+ + certifi==0.12.0
+ + h11==3.3.6
+ + sqlalchemy==3.8.0
+ + greenlet==1.27.1
+ + typing-extensions==4.0.1
+ + annotated-types==4.12.3

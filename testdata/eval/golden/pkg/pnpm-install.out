@@ -1,0 +1,15 @@
+Lockfile is up to date, resolution step is skipped
+WARN deprecated (3): inflight@1.0.6, glob@7.2.3, rimraf@3.0.2
+WARN deprecated subdependencies (1): abab@2.0.6, domexception@4.0.0, glob@7.2.3, inflight@1.0.6, rimraf@3.0.2
+Packages: +466
+
+dependencies:
++ express 4.21.2
++ zod 3.25.76
+
+devDependencies:
++ typescript 5.9.3
++ vitest 3.2.7
+
+. prepare$ husky
+. prepare: Done

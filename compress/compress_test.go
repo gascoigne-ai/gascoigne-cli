@@ -33,7 +33,8 @@ func TestDedupeRuns(t *testing.T) {
 		"done",
 		"x",
 	}
-	want := []string{"2026-01-01T10:00:00Z retry 1 of 5 (×3)", "done (×2)", "x"}
+	in = append(in, "", "")
+	want := []string{"2026-01-01T10:00:00Z retry 1 of 5 (×3)", "done (×2)", "x", ""}
 	if got := DedupeRuns(in); !slices.Equal(got, want) {
 		t.Fatalf("got %q", got)
 	}

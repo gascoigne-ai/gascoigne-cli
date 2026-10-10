@@ -1,0 +1,82 @@
+Installing dependencies from lock file
+
+Package operations: 24 installs, 2 updates, 0 removals
+
+  - Downloading certifi (2.0.1)  27%
+  - Downloading certifi (2.0.1)  100%
+  - Installing certifi (2.0.1)
+  - Downloading charset-normalizer (4.29.0)  74%
+  - Downloading charset-normalizer (4.29.0)  100%
+  - Installing charset-normalizer (4.29.0)
+  - Downloading idna (0.18.7)  78%
+  - Downloading idna (0.18.7)  100%
+  - Installing idna (0.18.7)
+  - Downloading urllib3 (1.13.1)  60%
+  - Downloading urllib3 (1.13.1)  100%
+  - Installing urllib3 (1.13.1)
+  - Downloading requests (1.20.1)  99%
+  - Downloading requests (1.20.1)  100%
+  - Installing requests (1.20.1)
+  - Downloading click (4.4.2)  87%
+  - Downloading click (4.4.2)  100%
+  - Installing click (4.4.2)
+  - Downloading itsdangerous (0.1.4)  81%
+  - Downloading itsdangerous (0.1.4)  100%
+  - Installing itsdangerous (0.1.4)
+  - Downloading jinja2 (4.27.2)  44%
+  - Downloading jinja2 (4.27.2)  100%
+  - Installing jinja2 (4.27.2)
+  - Downloading markupsafe (4.1.1)  61%
+  - Downloading markupsafe (4.1.1)  100%
+  - Installing markupsafe (4.1.1)
+  - Downloading werkzeug (1.5.9)  74%
+  - Downloading werkzeug (1.5.9)  100%
+  - Installing werkzeug (1.5.9)
+  - Downloading blinker (0.23.5)  96%
+  - Downloading blinker (0.23.5)  100%
+  - Installing blinker (0.23.5)
+  - Downloading flask (4.18.9)  98%
+  - Downloading flask (4.18.9)  100%
+  - Installing flask (4.18.9)
+  - Downloading numpy (0.27.5)  24%
+  - Downloading numpy (0.27.5)  100%
+  - Installing numpy (0.27.5)
+  - Downloading python-dateutil (4.11.7)  36%
+  - Downloading python-dateutil (4.11.7)  100%
+  - Installing python-dateutil (4.11.7)
+  - Downloading pytz (3.6.9)  12%
+  - Downloading pytz (3.6.9)  100%
+  - Installing pytz (3.6.9)
+  - Downloading six (3.25.9)  52%
+  - Downloading six (3.25.9)  100%
+  - Installing six (3.25.9)
+  - Downloading tzdata (0.13.1)  37%
+  - Downloading tzdata (0.13.1)  100%
+  - Installing tzdata (0.13.1)
+  - Downloading pandas (1.14.4)  51%
+  - Downloading pandas (1.14.4)  100%
+  - Installing pandas (1.14.4)
+  - Downloading iniconfig (0.9.4)  23%
+  - Downloading iniconfig (0.9.4)  100%
+  - Installing iniconfig (0.9.4)
+  - Downloading packaging (4.25.0)  13%
+  - Downloading packaging (4.25.0)  100%
+  - Installing packaging (4.25.0)
+  - Downloading pluggy (3.24.8)  64%
+  - Downloading pluggy (3.24.8)  100%
+  - Installing pluggy (3.24.8)
+  - Downloading pytest (3.11.3)  82%
+  - Downloading pytest (3.11.3)  100%
+  - Installing pytest (3.11.3)
+  - Downloading coverage (0.13.3)  22%
+  - Downloading coverage (0.13.3)  100%
+  - Installing coverage (0.13.3)
+  - Downloading pytest-cov (3.16.5)  81%
+  - Downloading pytest-cov (3.16.5)  100%
+  - Installing pytest-cov (3.16.5)
+  - Updating ruff (0.6.9 -> 0.7.2)
+  - Updating mypy (1.11.2 -> 1.13.0)
+
+Writing lock file
+
+Installing the current project: shop (0.1.0)

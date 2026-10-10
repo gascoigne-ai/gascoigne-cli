@@ -1,4 +1,4 @@
-package bunoptimizer
+package pkgoptimizer
 
 import (
 	"context"
@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	typ    = "bun"
-	family = "js"
+	typ    = "pkg"
+	family = "pkg"
 )
 
 func NewFactory() component.Factory {

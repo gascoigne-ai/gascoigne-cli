@@ -62,7 +62,7 @@ func DedupeRuns(lines []string) []string {
 		for j < len(lines) && Normalize(lines[j]) == norm {
 			j++
 		}
-		if n := j - i; n > 1 {
+		if n := j - i; n > 1 && strings.TrimSpace(lines[i]) != "" { // blank runs: see SqueezeBlank
 			out = append(out, fmt.Sprintf("%s (×%d)", lines[i], n))
 		} else {
 			out = append(out, lines[i])
