@@ -56,6 +56,10 @@ payload can mix types and each part meets its family engine. Dialects are declar
 flag values), file globs, MIME types and a sniffer with a priority (composite runners first,
 generic formats last). `Argv` unwraps wrappers and runners (`sudo`, `npx`, `uv run`,
 `bundle exec`, `python -m`). Evidence order: command → file/MIME → sniffing → `doc/text`.
+A generic type from command, file or MIME is refined by a spec listing it in `Refines` whose
+sniffer matches (`cat deploy.yaml` with manifests → `k8s/manifest`, a saved aws response →
+`cloud/aws`). `detect/matrix_test.go` requires a command example for every dialect with
+command patterns and a content example (an eval fixture) for every dialect with a sniffer.
 `detect.Family`/`detect.Dialect` split a type; `detect.Command` names commands for stats.
 
 ## Families
@@ -67,17 +71,24 @@ lives in public libs so engines and composite families can reuse it:
 | `build` | `compress/diag`: diagnostics grouped by file, identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed) |
 | `pkg` | `compress/pkgnoise`: progress/downloads dropped, warnings folded by kind | npm, pnpm, yarn, bun, pip, uv, poetry, go-mod, cargo, os |
 | `task` | sections; ok/cached collapse; failing ones via `compress/compose` | nx, turbo, make, just, gradle, compose, ci |
-| `vcs` | git engine | git-status, git-log, git-diff, git-remote |
-| `search` | grep engine | grep (grep, rg, ag, git grep) |
-| `fs` | ls, cat (outline) | ls, code |
-| `data` | json crusher (`compress/rows`), log engine | json, ndjson |
-| `log` | log engine | app |
-| `doc`, `web` | text dedupe, html→markdown | text, markdown, html |
+| `vcs` | git engine; blame runs grouped, mirrored remote branches dropped, gh lists via `compress/table` | git-status, git-log, git-diff, git-remote, git-blame, git-branch, gh-list, gh-view |
+| `search` | grep engine: matches grouped by file | grep, rg, ag, git-grep |
+| `fs` | ls engine (listings, tree, paths by directory, du largest, df real disks); cat (outline) | ls, tree, find, du, df, code |
+| `table` | `compress/table`: parse boxed/aligned/ruled/fixed-width, constants hoisted, cells cut, rows via `compress/rows` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, aligned, boxed |
+| `data` | json: `compress/jsonx` crusher; data: YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry | json, ndjson, yaml, csv, xml, toml |
+| `log` | log engine: templates with counts, errors with context; structured cloud events → lines; access logs → traffic summary | app, journal, syslog, docker, kubectl, access, cloudwatch, gcp, azure |
+| `doc` | markdown/rst: badges, comments, layout HTML, TOCs dropped, code fences capped; man/help: furniture and boilerplate dropped, dedented | markdown, rst, man, help (+ text: dedupe) |
+| `web` | html: `compress/htmlx` → markdown; http: transport headers and TLS chatter dropped, body by type | html, http |
+| `db` | results via `compress/table`, EXPLAIN pruned to costly nodes, redis keys folded, mongo docs as JSON rows | psql, mysql, sqlite, explain, redis, mongosh, migrate |
+| `k8s` | `compress/yamlx` prune rules (managedFields, last-applied, defaults); lists keep unhealthy items; describe/events/helm | get, manifest, describe, events, helm |
+| `infra` | plans: refresh/progress folded, known-after-apply listed, count/for_each siblings "(like above)"; ansible: quiet tasks counted, failures and recap kept | terraform, pulumi, ansible, cdk, helm-diff |
+| `cloud` | JSON: pagination/metadata/etags pruned, envelopes unwrapped, items flattened so jsonx hoists leaves; YAML via yamlx; tables; s3 listings summarized | aws, aws-s3, gcp, azure |
+
 `compress/compose` sniffs a section and calls the test/build/pkg engine: used by `task` and docker
 builds. `compress/rows` samples records (errors, anomalies, change points, query, ends).
 Families are what `gain -by family` reports; `gain -by dialect` splits them.
 
-JSON arrays (`optimizer/jsonoptimizer`): small arrays (< `min_items`, < `min_tokens`, ≤ `max_items`)
+JSON arrays (`compress/jsonx`, used by `optimizer/data/jsonoptimizer`, cloud, data and web): small arrays (< `min_items`, < `min_tokens`, ≤ `max_items`)
 are never sampled. Otherwise lossless first — similar objects become a table (`_cols/_rows`,
 constant columns in `_same`, shared prefixes/suffixes in `_affix`), kept when it saves
 ≥ `lossless_min_saving` and fits `lossless_max_tokens`. Else scored sampling to ~`max_items`:
