@@ -73,6 +73,24 @@ you added yourself; add it by hand if you want it for good.
 WebFetch is left alone: it returns a short summary of a page, which is usually cheaper than
 the page itself. Use the MCP `fetch` tool when you need the page's own text.
 
+## Other MCP servers
+
+Every other stdio MCP server the agent has is started through `gascoigne mcp-proxy`, so its
+tool results are optimized too. `{"command": "npx", "args": ["-y", "srv"]}` becomes
+`{"command": "gascoigne", "args": ["mcp-proxy", "--", "npx", "-y", "srv"]}`; env and other keys
+stay, and the original command stays in `args`, so `unwrap` restores it exactly.
+
+| Agent | `wrap` (this run) | `install` |
+|---|---|---|
+| claude | same-named copies in `--mcp-config`, which replace the configured ones for the run (plugins and claude.ai connectors keep loading). User, local and approved `.mcp.json` servers; disabled or unapproved ones are not started | `.mcp.json` and this project's local servers in `~/.claude.json`; `-g` the user's servers in `~/.claude.json` |
+| codex | `-c mcp_servers.<name>.command/args` overrides | `config.toml` tables rewritten |
+| cursor | — | `mcp.json` rewritten |
+
+Remote servers (`http`, `sse`, `ws`, `url`) are listed as *left direct*: their auth (OAuth,
+headers) belongs to the agent. Plugin servers and claude.ai connectors cannot be proxied.
+Claude Code keeps `~/.claude.json` in memory and writes it back, so run `install` for claude
+with no Claude session open.
+
 ## Which commands get rewritten
 
 The hook rewrites every command it can rewrite safely:

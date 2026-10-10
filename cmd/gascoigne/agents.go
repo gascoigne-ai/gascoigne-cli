@@ -142,8 +142,13 @@ func claudeArgs(exe string) ([]string, error) {
 	// user's own.
 	settings := claudeSettings(exe)
 	settings["permissions"] = map[string]any{"deny": []string{"Grep", "Glob"}}
+	// Same-named servers given with --mcp-config replace the configured ones
+	// for the run, so other servers' results get optimized too.
+	servers, r := claudeProxies(exe)
+	reportProxies(r)
+	servers["gascoigne"] = mcpServers(exe)["mcpServers"].(map[string]any)["gascoigne"]
 	// --settings ends --mcp-config's list of files, so agent args stay agent args.
-	return []string{"--mcp-config", compactJSON(mcpServers(exe)), "--settings", compactJSON(settings)}, nil
+	return []string{"--mcp-config", compactJSON(map[string]any{"mcpServers": servers}), "--settings", compactJSON(settings)}, nil
 }
 
 func claudeInstall(exe string) string {
@@ -158,10 +163,40 @@ claude mcp add --scope user gascoigne -- %s mcp
 
 func codexArgs(exe string) ([]string, error) {
 	fmt.Fprintln(os.Stderr, "gascoigne: on first run, trust the gascoigne hook in codex with /hooks")
-	return []string{
+	proxies, r := codexProxyArgs(exe, codexConfigured())
+	reportProxies(r)
+	return append([]string{
 		"-c", fmt.Sprintf(`mcp_servers.gascoigne={command=%s,args=["mcp"]}`, strconv.Quote(exe)),
 		"-c", fmt.Sprintf(`hooks.PostToolUse=[{matcher="^Bash$",hooks=[{type="command",command=%s}]}]`, strconv.Quote(hookCommand(exe, "codex"))),
-	}, nil
+	}, proxies...), nil
+}
+
+// codexConfigured are the MCP servers of the user's and the project's codex
+// config; a project table replaces the user's of the same name.
+func codexConfigured() []codexServer {
+	user := ".codex/config.toml"
+	files := configFiles(user, ".codex/config.toml")
+	if home := os.Getenv("CODEX_HOME"); home != "" {
+		files[0] = filepath.Join(home, "config.toml")
+	}
+	var out []codexServer
+	for _, f := range files {
+		data, err := os.ReadFile(f)
+		if err != nil {
+			continue
+		}
+		for _, s := range codexServers(string(data)) {
+			out = slices.DeleteFunc(out, func(o codexServer) bool { return o.name == s.name })
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
+func reportProxies(r proxyResult) {
+	if s := r.String(); s != "" {
+		fmt.Fprintln(os.Stderr, "gascoigne:", s)
+	}
 }
 
 func codexInstall(exe string) string {

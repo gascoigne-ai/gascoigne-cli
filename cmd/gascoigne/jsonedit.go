@@ -141,7 +141,7 @@ func writeValue(b *bytes.Buffer, v any) error {
 func path(v any, keys ...string) any {
 	for _, k := range keys {
 		o, ok := v.(*object)
-		if !ok {
+		if !ok || o == nil {
 			return nil
 		}
 		v = o.get(k)

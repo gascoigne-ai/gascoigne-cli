@@ -70,6 +70,8 @@ func removeClaude() ([]string, error) {
 	}
 	d, err := editJSON(".mcp.json", mcpEdit)
 	done, errs = append(done, d...), append(errs, err)
+	d, err = editJSON(claudeJSON(), unproxyClaudeState)
+	done, errs = append(done, d...), append(errs, err)
 	// User and local MCP servers live in ~/.claude.json, which Claude Code
 	// itself keeps writing: let its CLI remove them.
 	if _, err := exec.LookPath("claude"); err == nil {
@@ -118,10 +120,29 @@ func removeCursor() ([]string, error) {
 }
 
 func mcpEdit(root *object) []string {
-	if removeMCP(root) {
-		return []string{"MCP server gascoigne"}
+	var what []string
+	if names := unproxyServers(obj(root.get("mcpServers"))); len(names) > 0 {
+		what = append(what, "proxy from MCP servers "+strings.Join(names, ", "))
 	}
-	return nil
+	if removeMCP(root) {
+		what = append(what, "MCP server gascoigne")
+	}
+	return what
+}
+
+// unproxyClaudeState restores proxied servers in ~/.claude.json: the user's
+// and every project's local ones.
+func unproxyClaudeState(root *object) []string {
+	names := unproxyServers(obj(root.get("mcpServers")))
+	if projects := obj(root.get("projects")); projects != nil {
+		for _, p := range projects.keys {
+			names = append(names, unproxyServers(obj(path(projects, p, "mcpServers")))...)
+		}
+	}
+	if len(names) == 0 {
+		return nil
+	}
+	return []string{"proxy from MCP servers " + strings.Join(names, ", ")}
 }
 
 func removeCodex() ([]string, error) {
@@ -227,10 +248,21 @@ func display(file string) string {
 	return file
 }
 
-// removeCodexTOML drops [mcp_servers.gascoigne] tables and the PostToolUse
-// hooks running gascoigne hook codex, as wrap -print codex writes them. A
-// hook group goes whole only when all its handlers are ours.
+// removeCodexTOML undoes install in a codex config: proxied servers get
+// their own command back, gascoigne's tables go.
 func removeCodexTOML(text string) (string, []string) {
+	text, proxied := unproxyCodexTOML(text)
+	text, what := removeCodexEntries(text)
+	if len(proxied) > 0 {
+		what = append(what, "proxy from MCP servers "+strings.Join(proxied, ", "))
+	}
+	return text, what
+}
+
+// removeCodexEntries drops [mcp_servers.gascoigne] tables and the
+// PostToolUse hooks running gascoigne hook codex, as wrap -print codex writes
+// them. A hook group goes whole only when all its handlers are ours.
+func removeCodexEntries(text string) (string, []string) {
 	sections := tomlSections(text)
 	var what []string
 	drop := make([]bool, len(sections))
