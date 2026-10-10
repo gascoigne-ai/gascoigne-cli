@@ -311,6 +311,11 @@
   expect_type: vcs/git-log
   keep: ["adbc881", "fix: resolve macOS test link failure"]
   min_saved: 65
+- file: git/show-lockfile.txt
+  attrs: { cmd: git show 296f93b }
+  expect_type: vcs/git-diff
+  keep: ["diff go.sum (lockfile)", "gorm.io/gorm", "TestReopenAndPrune", "l.db, err = gorm.Open(gormlite.Open(dsn)"]
+  min_saved: 25
 - file: git/log-stat.txt
   attrs: { cmd: git log -6 --stat }
   expect_type: vcs/git-log

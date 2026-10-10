@@ -1,6 +1,9 @@
 package gitoptimizer
 
 import (
+	"fmt"
+	"path"
+	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/compress"
@@ -60,6 +63,18 @@ func (o *Optimizer) file(lines []string) []string {
 		}
 	}
 	out := head
+	if kind := machineMade(name, lines[i:]); kind != "" {
+		added, removed := 0, 0
+		for _, l := range lines[i:] {
+			switch {
+			case strings.HasPrefix(l, "+"):
+				added++
+			case strings.HasPrefix(l, "-"):
+				removed++
+			}
+		}
+		return append(out, fmt.Sprintf("diff %s%s (%s) +%d -%d lines folded", name, note, kind, added, removed))
+	}
 	if name != "" {
 		out = append(out, "diff "+name+note)
 	}
@@ -70,9 +85,11 @@ func (o *Optimizer) file(lines []string) []string {
 	return append(out, body...)
 }
 
-// hunks keeps hunk headers, changes and ContextLines of context around them.
+// hunks keeps hunk headers, changes and ContextLines of context around them;
+// small in-line edits read as word diffs.
 func (o *Optimizer) hunks(lines []string) []string {
-	isChange := func(l string) bool { return strings.HasPrefix(l, "+") || strings.HasPrefix(l, "-") }
+	lines = wordDiff(lines)
+	isChange := func(l string) bool { return hasPrefix(l, "+", "-", "~") }
 	keep := make([]bool, len(lines))
 	for i, l := range lines {
 		if strings.HasPrefix(l, "@@") || strings.HasPrefix(l, `\`) {
@@ -100,6 +117,36 @@ func (o *Optimizer) hunks(lines []string) []string {
 		out = append(out, strings.TrimRight(l, " \t"))
 	}
 	return out
+}
+
+// lockfiles are written by package managers; their diffs repeat what the
+// manifest (go.mod, package.json, Cargo.toml) already shows.
+var lockfiles = map[string]bool{
+	"go.sum": true, "go.work.sum": true, "package-lock.json": true, "npm-shrinkwrap.json": true,
+	"yarn.lock": true, "pnpm-lock.yaml": true, "bun.lock": true, "Cargo.lock": true, "poetry.lock": true,
+	"uv.lock": true, "pdm.lock": true, "Pipfile.lock": true, "Gemfile.lock": true, "composer.lock": true,
+	"mix.lock": true, "pubspec.lock": true, "flake.lock": true, "packages.lock.json": true, "gradle.lockfile": true,
+}
+
+// generatedSuffixes name files written by tools (protobuf, minifiers, source maps).
+var generatedSuffixes = []string{".pb.go", ".pb.gw.go", "_pb2.py", "_pb2_grpc.py", ".min.js", ".min.css", ".js.map", ".css.map"}
+
+// machineMade reports whether a file's diff is a lockfile or generated code,
+// which an agent should not read line by line: "lockfile", "generated" or "".
+func machineMade(name string, body []string) string {
+	base := path.Base(name)
+	switch {
+	case lockfiles[base]:
+		return "lockfile"
+	case slices.ContainsFunc(generatedSuffixes, func(s string) bool { return strings.HasSuffix(base, s) }):
+		return "generated"
+	}
+	for _, l := range body[:min(len(body), 20)] {
+		if strings.Contains(l, "Code generated") && strings.Contains(l, "DO NOT EDIT") {
+			return "generated"
+		}
+	}
+	return ""
 }
 
 func hasPrefix(s string, prefixes ...string) bool {

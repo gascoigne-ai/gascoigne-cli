@@ -1,0 +1,488 @@
+commit 296f93bc7d81525367003502ce4093de30aba108
+Author: Ada Lovelace <ada@example.com>
+Date:   Sat Oct 10 00:45:25 2026 +0200
+
+    refactor(ledger): use gorm with pure-Go sqlite dialect
+    
+    Ledger tables become gorm models created by AutoMigrate, replacing the
+    embedded SQL migrations. Driver is ncruces/go-sqlite3/gormlite (wasm,
+    no cgo) instead of modernc.org/sqlite; gorm.io/driver/sqlite would
+    require cgo. Ledger API unchanged.
+    
+    Also drop the go get deny rule from project settings.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/extension/ledger/ledger.go b/extension/ledger/ledger.go
+index d1ce4cd..a194c15 100644
+--- a/extension/ledger/ledger.go
++++ b/extension/ledger/ledger.go
+@@ -5,32 +5,30 @@ package ledger
+ import (
+ 	"context"
+ 	"crypto/sha256"
+-	"database/sql"
+-	"embed"
+ 	"encoding/hex"
+ 	"encoding/json"
+ 	"errors"
+ 	"fmt"
+-	"io/fs"
++	"net/url"
+ 	"os"
+ 	"path/filepath"
+ 	"strings"
+ 	"time"
+ 
+-	_ "modernc.org/sqlite"
++	"github.com/ncruces/go-sqlite3/gormlite"
++	"gorm.io/gorm"
++	"gorm.io/gorm/clause"
++	"gorm.io/gorm/logger"
+ 
+ 	"github.com/lukaszb/gascoigne/component"
+ 	"github.com/lukaszb/gascoigne/payload"
+ )
+ 
+-//go:embed migrations/*.sql
+-var migrations embed.FS
+-
+ var ErrNotFound = errors.New("not found")
+ 
+ type Ledger struct {
+ 	cfg *Config
+-	db  *sql.DB
++	db  *gorm.DB
+ }
+ 
+ var _ component.Ledger = (*Ledger)(nil)
+@@ -47,11 +45,12 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
+ 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+ 		return err
+ 	}
+-	l.db, err = sql.Open("sqlite", path+"?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)")
++	dsn := "file:" + url.PathEscape(path) + "?_pragma=journal_mode(wal)&_pragma=busy_timeout(5000)"
++	l.db, err = gorm.Open(gormlite.Open(dsn), &gorm.Config{Logger: logger.Discard})
+ 	if err != nil {
+ 		return err
+ 	}
+-	if err := l.migrate(ctx); err != nil {
++	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &raw{}, &failure{}); err != nil {
+ 		return fmt.Errorf("ledger migrate: %w", err)
+ 	}
+ 	return l.prune(ctx)
+@@ -61,40 +60,11 @@ func (l *Ledger) Shutdown(context.Context) error {
+ 	if l.db == nil {
+ 		return nil
+ 	}
+-	return l.db.Close()
+-}
+-
+-func (l *Ledger) migrate(ctx context.Context) error {
+-	var version int
+-	if err := l.db.QueryRowContext(ctx, "PRAGMA user_version").Scan(&version); err != nil {
+-		return err
+-	}
+-	files, err := fs.Glob(migrations, "migrations/*.sql")
++	db, err := l.db.DB()
+ 	if err != nil {
+ 		return err
+ 	}
+-	for i, name := range files[min(version, len(files)):] {
+-		data, err := migrations.ReadFile(name)
+-		if err != nil {
+-			return err
+-		}
+-		tx, err := l.db.BeginTx(ctx, nil)
+-		if err != nil {
+-			return err
+-		}
+-		_, err = tx.ExecContext(ctx, string(data))
+-		if err == nil {
+-			_, err = tx.ExecContext(ctx, fmt.Sprintf("PRAGMA user_version = %d", version+i+1))
+-		}
+-		if err != nil {
+-			tx.Rollback()
+-			return fmt.Errorf("%s: %w", name, err)
+-		}
+-		if err := tx.Commit(); err != nil {
+-			return err
+-		}
+-	}
+-	return nil
++	return db.Close()
+ }
+ 
+ func (l *Ledger) prune(ctx context.Context) error {
+@@ -102,8 +72,7 @@ func (l *Ledger) prune(ctx context.Context) error {
+ 		return nil
+ 	}
+ 	cutoff := time.Now().Add(-l.cfg.RawTTL).UnixMilli()
+-	_, err := l.db.ExecContext(ctx, "DELETE FROM raw WHERE created < ?", cutoff)
+-	return err
++	return l.db.WithContext(ctx).Where("created < ?", cutoff).Delete(&raw{}).Error
+ }
+ 
+ // SaveRaw stores p and returns a content-derived id; saving again refreshes its TTL.
+@@ -113,56 +82,64 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (s
+ 		return "", err
+ 	}
+ 	sum := sha256.Sum256(blob)
+-	id := hex.EncodeToString(sum[:8])
+-	_, err = l.db.ExecContext(ctx, `INSERT INTO raw(id, created, key, payload) VALUES (?, ?, ?, ?)
+-		ON CONFLICT(id) DO UPDATE SET created = excluded.created`,
+-		id, time.Now().UnixMilli(), key, blob)
+-	return id, err
++	r := raw{ID: hex.EncodeToString(sum[:8]), Created: time.Now().UnixMilli(), Key: key, Payload: blob}
++	err = l.db.WithContext(ctx).Clauses(clause.OnConflict{
++		Columns:   []clause.Column{{Name: "id"}},
++		DoUpdates: clause.AssignmentColumns([]string{"created"}),
++	}).Create(&r).Error
++	return r.ID, err
+ }
+ 
+ func (l *Ledger) GetRaw(ctx context.Context, id string) (string, *payload.Payload, error) {
+-	var (
+-		key  string
+-		blob []byte
+-	)
+-	err := l.db.QueryRowContext(ctx, "SELECT key, payload FROM raw WHERE id = ?", id).Scan(&key, &blob)
+-	if errors.Is(err, sql.ErrNoRows) {
++	var r raw
++	err := l.db.WithContext(ctx).Take(&r, "id = ?", id).Error
++	if errors.Is(err, gorm.ErrRecordNotFound) {
+ 		return "", nil, fmt.Errorf("raw %s: %w", id, ErrNotFound)
+ 	}
+ 	if err != nil {
+ 		return "", nil, err
+ 	}
+ 	var p payload.Payload
+-	return key, &p, json.Unmarshal(blob, &p)
++	return r.Key, &p, json.Unmarshal(r.Payload, &p)
+ }
+ 
+ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
+-	_, err := l.db.ExecContext(ctx, `INSERT INTO events
+-		(ts, pipeline, key, route, optimizers, raw_tokens, out_tokens, duration_ms, raw_id, outcome)
+-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+-		ev.TS.UnixMilli(), ev.Pipeline, ev.Key, ev.Route, strings.Join(ev.Optimizers, ","),
+-		ev.RawTokens, ev.OutTokens, ev.Duration.Milliseconds(), ev.RawID, string(ev.Outcome))
+-	return err
++	return l.db.WithContext(ctx).Create(&event{
++		TS:         ev.TS.UnixMilli(),
++		Pipeline:   ev.Pipeline,
++		Key:        ev.Key,
++		Route:      ev.Route,
++		Optimizers: strings.Join(ev.Optimizers, ","),
++		RawTokens:  ev.RawTokens,
++		OutTokens:  ev.OutTokens,
++		DurationMS: ev.Duration.Milliseconds(),
++		RawID:      ev.RawID,
++		Outcome:    string(ev.Outcome),
++	}).Error
+ }
+ 
+ func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
+-	_, err := l.db.ExecContext(ctx, `INSERT INTO failures(key, count, last_ts, reason) VALUES (?, 1, ?, ?)
+-		ON CONFLICT(key) DO UPDATE SET count = count + 1, last_ts = excluded.last_ts, reason = excluded.reason`,
+-		key, time.Now().UnixMilli(), reason)
+-	return err
++	f := failure{Key: key, Count: 1, LastTS: time.Now().UnixMilli(), Reason: reason}
++	return l.db.WithContext(ctx).Clauses(clause.OnConflict{
++		Columns: []clause.Column{{Name: "key"}},
++		DoUpdates: clause.Assignments(map[string]any{
++			"count":   gorm.Expr("count + 1"),
++			"last_ts": f.LastTS,
++			"reason":  reason,
++		}),
++	}).Create(&f).Error
+ }
+ 
+ func (l *Ledger) Failures(ctx context.Context, key string) (int, error) {
+-	var n int
+-	err := l.db.QueryRowContext(ctx, "SELECT count FROM failures WHERE key = ?", key).Scan(&n)
+-	if errors.Is(err, sql.ErrNoRows) {
++	var f failure
++	err := l.db.WithContext(ctx).Take(&f, "key = ?", key).Error
++	if errors.Is(err, gorm.ErrRecordNotFound) {
+ 		return 0, nil
+ 	}
+-	return n, err
++	return f.Count, err
+ }
+ 
+ // Forget clears failure history for key, re-enabling optimization.
+ func (l *Ledger) Forget(ctx context.Context, key string) error {
+-	_, err := l.db.ExecContext(ctx, "DELETE FROM failures WHERE key = ?", key)
+-	return err
++	return l.db.WithContext(ctx).Delete(&failure{Key: key}).Error
+ }
+diff --git a/extension/ledger/ledger_test.go b/extension/ledger/ledger_test.go
+index 3b31c7f..6eb4c32 100644
+--- a/extension/ledger/ledger_test.go
++++ b/extension/ledger/ledger_test.go
+@@ -46,7 +46,7 @@ func TestRawRoundTrip(t *testing.T) {
+ 	}
+ }
+ 
+-func TestMigrateIdempotentAndPrune(t *testing.T) {
++func TestReopenAndPrune(t *testing.T) {
+ 	path := filepath.Join(t.TempDir(), "l.db")
+ 	l := start(t, &Config{Path: path})
+ 	id, err := l.SaveRaw(t.Context(), "", payload.New(payload.Message, "x"))
+diff --git a/extension/ledger/migrations/001_init.sql b/extension/ledger/migrations/001_init.sql
+deleted file mode 100644
+index 5a0718c..0000000
+--- a/extension/ledger/migrations/001_init.sql
++++ /dev/null
+@@ -1,29 +0,0 @@
+-CREATE TABLE events (
+-	id          INTEGER PRIMARY KEY,
+-	ts          INTEGER NOT NULL, -- unix ms
+-	pipeline    TEXT    NOT NULL,
+-	key         TEXT    NOT NULL,
+-	route       TEXT    NOT NULL,
+-	optimizers  TEXT    NOT NULL, -- comma separated ids
+-	raw_tokens  INTEGER NOT NULL,
+-	out_tokens  INTEGER NOT NULL,
+-	duration_ms INTEGER NOT NULL,
+-	raw_id      TEXT    NOT NULL,
+-	outcome     TEXT    NOT NULL
+-);
+-CREATE INDEX events_key ON events(key);
+-
+-CREATE TABLE raw (
+-	id      TEXT PRIMARY KEY,
+-	created INTEGER NOT NULL, -- unix ms
+-	key     TEXT    NOT NULL,
+-	payload BLOB    NOT NULL  -- JSON encoded payload
+-);
+-CREATE INDEX raw_created ON raw(created);
+-
+-CREATE TABLE failures (
+-	key     TEXT PRIMARY KEY,
+-	count   INTEGER NOT NULL,
+-	last_ts INTEGER NOT NULL, -- unix ms
+-	reason  TEXT    NOT NULL
+-);
+diff --git a/extension/ledger/models.go b/extension/ledger/models.go
+new file mode 100644
+index 0000000..daf6d01
+--- /dev/null
++++ b/extension/ledger/models.go
+@@ -0,0 +1,38 @@
++package ledger
++
++// Tables are created and extended by gorm AutoMigrate on Start. AutoMigrate only
++// adds tables, columns and indexes: renames or drops need an explicit migration.
++// Timestamps are unix milliseconds.
++
++// event is one payload's trip through a pipeline.
++type event struct {
++	ID         uint   `gorm:"primaryKey"`
++	TS         int64  `gorm:"not null"`
++	Pipeline   string `gorm:"not null"`
++	Key        string `gorm:"not null;index"`
++	Route      string `gorm:"not null"`
++	Optimizers string `gorm:"not null"` // comma separated ids
++	RawTokens  int    `gorm:"not null"`
++	OutTokens  int    `gorm:"not null"`
++	DurationMS int64  `gorm:"not null"`
++	RawID      string `gorm:"not null"`
++	Outcome    string `gorm:"not null"`
++}
++
++// raw is an original payload kept retrievable until TTL prune.
++type raw struct {
++	ID      string `gorm:"primaryKey"`
++	Created int64  `gorm:"not null;index"`
++	Key     string `gorm:"not null"`
++	Payload []byte `gorm:"not null"` // JSON encoded payload.Payload
++}
++
++func (raw) TableName() string { return "raw" }
++
++// failure counts how often a source key optimized badly.
++type failure struct {
++	Key    string `gorm:"primaryKey"`
++	Count  int    `gorm:"not null"`
++	LastTS int64  `gorm:"not null"`
++	Reason string `gorm:"not null"`
++}
+diff --git a/extension/ledger/report.go b/extension/ledger/report.go
+index f7cd5ad..6c24aed 100644
+--- a/extension/ledger/report.go
++++ b/extension/ledger/report.go
+@@ -18,24 +18,18 @@ func (s Stat) Saved() int { return s.RawTokens - s.OutTokens }
+ 
+ // Gain aggregates events per route, biggest savings first.
+ func (l *Ledger) Gain(ctx context.Context) ([]Stat, error) {
+-	rows, err := l.db.QueryContext(ctx, `SELECT
+-			CASE route WHEN '' THEN '-' ELSE route END,
+-			count(*), sum(outcome = 'optimized'), sum(outcome = 'error'),
+-			sum(raw_tokens), sum(out_tokens)
+-		FROM events GROUP BY 1 ORDER BY sum(raw_tokens) - sum(out_tokens) DESC, 1`)
+-	if err != nil {
+-		return nil, err
+-	}
+-	defer rows.Close()
+ 	var stats []Stat
+-	for rows.Next() {
+-		var s Stat
+-		if err := rows.Scan(&s.Route, &s.Runs, &s.Optimized, &s.Failed, &s.RawTokens, &s.OutTokens); err != nil {
+-			return nil, err
+-		}
+-		stats = append(stats, s)
+-	}
+-	return stats, rows.Err()
++	err := l.db.WithContext(ctx).Model(&event{}).
++		Select(`CASE route WHEN '' THEN '-' ELSE route END AS route,
++			count(*) AS runs,
++			sum(outcome = 'optimized') AS optimized,
++			sum(outcome = 'error') AS failed,
++			sum(raw_tokens) AS raw_tokens,
++			sum(out_tokens) AS out_tokens`).
++		Group("events.route").
++		Order("sum(raw_tokens) - sum(out_tokens) DESC, route").
++		Scan(&stats).Error
++	return stats, err
+ }
+ 
+ type Failure struct {
+@@ -46,22 +40,13 @@ type Failure struct {
+ }
+ 
+ func (l *Ledger) FailureList(ctx context.Context) ([]Failure, error) {
+-	rows, err := l.db.QueryContext(ctx, "SELECT key, count, last_ts, reason FROM failures ORDER BY last_ts DESC")
+-	if err != nil {
++	var rows []failure
++	if err := l.db.WithContext(ctx).Order("last_ts DESC").Find(&rows).Error; err != nil {
+ 		return nil, err
+ 	}
+-	defer rows.Close()
+-	var fs []Failure
+-	for rows.Next() {
+-		var (
+-			f  Failure
+-			ts int64
+-		)
+-		if err := rows.Scan(&f.Key, &f.Count, &ts, &f.Reason); err != nil {
+-			return nil, err
+-		}
+-		f.Last = time.UnixMilli(ts)
+-		fs = append(fs, f)
++	fs := make([]Failure, len(rows))
++	for i, r := range rows {
++		fs[i] = Failure{r.Key, r.Count, time.UnixMilli(r.LastTS), r.Reason}
+ 	}
+-	return fs, rows.Err()
++	return fs, nil
+ }
+diff --git a/go.mod b/go.mod
+index 6afd01d..47d417b 100644
+--- a/go.mod
++++ b/go.mod
+@@ -5,18 +5,17 @@ go 1.27
+ toolchain go1.27.2
+ 
+ require (
++	github.com/ncruces/go-sqlite3/gormlite v0.34.0
+ 	go.yaml.in/yaml/v3 v3.0.5
+-	modernc.org/sqlite v1.60.1
++	gorm.io/gorm v1.31.2
+ )
+ 
+ require (
+-	github.com/dustin/go-humanize v1.0.1 // indirect
+-	github.com/google/uuid v1.6.0 // indirect
+-	github.com/mattn/go-isatty v0.0.24 // indirect
+-	github.com/ncruces/go-strftime v1.0.0 // indirect
+-	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
++	github.com/jinzhu/inflection v1.0.0 // indirect
++	github.com/jinzhu/now v1.1.5 // indirect
++	github.com/ncruces/go-sqlite3 v0.35.6 // indirect
++	github.com/ncruces/go-sqlite3-wasm/v6 v6.3.35304 // indirect
++	github.com/ncruces/julianday v1.0.0 // indirect
+ 	golang.org/x/sys v0.48.0 // indirect
+-	modernc.org/libc v1.77.1 // indirect
+-	modernc.org/mathutil v1.7.1 // indirect
+-	modernc.org/memory v1.12.1 // indirect
++	golang.org/x/text v0.42.0 // indirect
+ )
+diff --git a/go.sum b/go.sum
+index ad2cb52..125b437 100644
+--- a/go.sum
++++ b/go.sum
+@@ -1,52 +1,24 @@
+-github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
+-github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
+-github.com/google/pprof v0.0.0-20260802141513-ef3492d7dac3 h1:LMLX+LgTNWpfvCBdFebv6EsYotImrt/Ppc5cXIriCSo=
+-github.com/google/pprof v0.0.0-20260802141513-ef3492d7dac3/go.mod h1:jl5iWTm0/hd5PjEYEOuwAJ57L/CibdZfrqZ5XA5GrCk=
+-github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+-github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+-github.com/hashicorp/golang-lru/v2 v2.0.7 h1:a+bsQ5rvGLjzHuww6tVxozPZFVghXaHOwFs4luLUK2k=
+-github.com/hashicorp/golang-lru/v2 v2.0.7/go.mod h1:QeFd9opnmA6QUJc5vARoKUSoFhyfM2/ZepoAG6RGpeM=
+-github.com/mattn/go-isatty v0.0.24 h1:tGZZoVgT/KiqK1c8ocVLeDS8BSWMRd47J3Lbz7vsReI=
+-github.com/mattn/go-isatty v0.0.24/go.mod h1:nMCL3Zebbrt45jsMDgnfIwz6ydEQApk5oEI3HqDio6A=
+-github.com/ncruces/go-strftime v1.0.0 h1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=
+-github.com/ncruces/go-strftime v1.0.0/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
+-github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=
+-github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
++github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
++github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
++github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=
++github.com/jinzhu/now v1.1.5/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
++github.com/mattn/go-sqlite3 v1.14.22 h1:2gZY6PC6kBnID23Tichd1K+Z0oS6nE/XwU+Vz/5o4kU=
++github.com/mattn/go-sqlite3 v1.14.22/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
++github.com/ncruces/go-sqlite3 v0.35.6 h1:0JGlMne89YzKNP2CJBuiH21EEzSQNuB7pfvCbKBn0Jg=
++github.com/ncruces/go-sqlite3 v0.35.6/go.mod h1:6MfWBOFbHJVSJxmTCIUKCJdLl4TKkgO895RHerlDVo8=
++github.com/ncruces/go-sqlite3-wasm/v6 v6.3.35304 h1:dBSZlcEFdtBMvNRg34y50mConBPO/petSddSwGQVlSI=
++github.com/ncruces/go-sqlite3-wasm/v6 v6.3.35304/go.mod h1:YvoJzbJpX6phd3BGdtiXu2NuD5RX6G8zsUdzt47GgOY=
++github.com/ncruces/go-sqlite3/gormlite v0.34.0 h1:QLlOy/i7OabsFUQ+d5KyXmq2hw9sMh/CRW435+eQMRY=
++github.com/ncruces/go-sqlite3/gormlite v0.34.0/go.mod h1:CMv+6YhqLmPBXYACiQtrWA0q/JLIMTKB4E65SUfLgF0=
++github.com/ncruces/julianday v1.0.0 h1:fH0OKwa7NWvniGQtxdJRxAgkBMolni2BjDHaWTxqt7M=
++github.com/ncruces/julianday v1.0.0/go.mod h1:Dusn2KvZrrovOMJuOt0TNXL6tB7U2E8kvza5fFc9G7g=
+ go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
+ go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
+-golang.org/x/mod v0.41.0 h1:qJmnOUb4YB+FsEuM3HcWucdZASCPGhsX6uljO6pog0c=
+-golang.org/x/mod v0.41.0/go.mod h1:Ek9pY8RKWXwsWvd3rQiHYtMqkjSUV+s1Rj7j4H5Ur6o=
+-golang.org/x/sync v0.23.0 h1:KameEIfc1IkluZyXWLn39Wd4tURc6GbCiISGiZm2bQk=
+-golang.org/x/sync v0.23.0/go.mod h1:sUUOizhqBxiL6pEWpqNLUiaJn1ShEbZ6BBqskPbjZm0=
+ golang.org/x/sys v0.48.0 h1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=
+ golang.org/x/sys v0.48.0/go.mod h1:hNLxWAXmnKAxqDtdwIYC4bM9oQPEecfsnNMuSxOs3og=
+-golang.org/x/tools v0.50.0 h1:c2ifzfcuY7L90lZ2aKd8S4K2NpASF08SZx9ZuJkHmSU=
+-golang.org/x/tools v0.50.0/go.mod h1:7ulVMw3831Mwi5EZD6RomGyffr4VFjuNYXf2BbCEAV0=
+-modernc.org/cc/v4 v4.29.7 h1:q+NXGJ0bK3b4TXFYQQVr9pYETGnmwFWkrUzJnMya/Tg=
+-modernc.org/cc/v4 v4.29.7/go.mod h1:OnovgIhbbMXMu1aISnJ0wvVD1KnW+cAUJkIrAWh+kVI=
+-modernc.org/ccgo/v4 v4.36.1 h1:ZNIUZAryN0UgnJwtyxrdEzcFc3yD4Cu4AzjfPXsLsIE=
+-modernc.org/ccgo/v4 v4.36.1/go.mod h1:rrtGc2QkS239nYb/mQNuBMyjq3/y3ZXWbBjPoV3wqzA=
+-modernc.org/fileutil v1.4.0 h1:j6ZzNTftVS054gi281TyLjHPp6CPHr2KCxEXjEbD6SM=
+-modernc.org/fileutil v1.4.0/go.mod h1:EqdKFDxiByqxLk8ozOxObDSfcVOv/54xDs/DUHdvCUU=
+-modernc.org/gc/v2 v2.6.5 h1:nyqdV8q46KvTpZlsw66kWqwXRHdjIlJOhG6kxiV/9xI=
+-modernc.org/gc/v2 v2.6.5/go.mod h1:YgIahr1ypgfe7chRuJi2gD7DBQiKSLMPgBQe9oIiito=
+-modernc.org/gc/v3 v3.1.5 h1:21ldfPfRYE31Tb7B3mwAK8gy1AxP4+dKjrOQPfqakoc=
+-modernc.org/gc/v3 v3.1.5/go.mod h1:HFK/6AGESC7Ex+EZJhJ2Gni6cTaYpSMmU/cT9RmlfYY=
+-modernc.org/goabi0 v0.2.0 h1:HvEowk7LxcPd0eq6mVOAEMai46V+i7Jrj13t4AzuNks=
+-modernc.org/goabi0 v0.2.0/go.mod h1:CEFRnnJhKvWT1c1JTI3Avm+tgOWbkOu5oPA8eH8LnMI=
+-modernc.org/libc v1.77.1 h1:Ct8j47QtiZ1Enj2DtFXQtUqrPCAjdCmPjtCuvrYQ0Hs=
+-modernc.org/libc v1.77.1/go.mod h1:87/pZ4L6nD1zqW4nItuS12YO7hN1igAah34xjnQo/W0=
+-modernc.org/mathutil v1.7.1 h1:GCZVGXdaN8gTqB1Mf/usp1Y/hSqgI2vAGGP4jZMCxOU=
+-modernc.org/mathutil v1.7.1/go.mod h1:4p5IwJITfppl0G4sUEDtCr4DthTaT47/N3aT6MhfgJg=
+-modernc.org/memory v1.12.1 h1:nFMiWrpStgZczNl6XI9GnIk/rWhYIyHGUaR04pGbp9g=
+-modernc.org/memory v1.12.1/go.mod h1:/JP4VbVC+K5sU2wZi9bHoq2MAkCnrt2r98UGeSK7Mjw=
+-modernc.org/opt v0.2.0 h1:tGyef5ApycA7FSEOMraay9SaTk5zmbx7Tu+cJs4QKZg=
+-modernc.org/opt v0.2.0/go.mod h1:03fq9lsNfvkYSfxrfUhZCWPk1lm4cq4N+Bh//bEtgns=
+-modernc.org/sortutil v1.2.1 h1:+xyoGf15mM3NMlPDnFqrteY07klSFxLElE2PVuWIJ7w=
+-modernc.org/sortutil v1.2.1/go.mod h1:7ZI3a3REbai7gzCLcotuw9AC4VZVpYMjDzETGsSMqJE=
+-modernc.org/sqlite v1.60.1 h1:/blz53O951KWFOso4QQvEs/Fq6cDBKLtMVrYNSeJVKw=
+-modernc.org/sqlite v1.60.1/go.mod h1:1dIoEagfDE72QytD5scH1lxARtaUgKgHC/NuApA27r0=
+-modernc.org/strutil v1.2.1 h1:UneZBkQA+DX2Rp35KcM69cSsNES9ly8mQWD71HKlOA0=
+-modernc.org/strutil v1.2.1/go.mod h1:EHkiggD70koQxjVdSBM3JKM7k6L0FbGE5eymy9i3B9A=
+-modernc.org/token v1.1.0 h1:Xl7Ap9dKaEs5kLoOQeQmPWevfnk/DM5qcLcYlA8ys6Y=
+-modernc.org/token v1.1.0/go.mod h1:UGzOrNV1mAFSEB63lOFHIpNRUVMvYTc6yu1SMY/XTDM=
++golang.org/x/text v0.42.0 h1:JbOZXgfeCPU9gacVtYliJqOhD+zhrEqK4LfdpmlUZqI=
++golang.org/x/text v0.42.0/go.mod h1:ojzP1Z+2QtioaF8DTtO8K5q7JWVVYwZKenzujK0Zd0E=
++gorm.io/driver/sqlite v1.6.0 h1:WHRRrIiulaPiPFmDcod6prc4l2VGVWHz80KspNsxSfQ=
++gorm.io/driver/sqlite v1.6.0/go.mod h1:AO9V1qIQddBESngQUKWL9yoH93HIeA1X6V633rBwyT8=
++gorm.io/gorm v1.31.2 h1:3o8FXNo9v9S858gil+3LlZA1LkCOzgb4g5BL64FgaCo=
++gorm.io/gorm v1.31.2/go.mod h1:XyQVbO2k6YkOis7C2437jSit3SsDK72s7n7rsSHd+Gs=

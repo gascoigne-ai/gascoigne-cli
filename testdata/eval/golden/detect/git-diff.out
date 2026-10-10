@@ -73,33 +73,27 @@ diff bash_completionsV2.go
 diff command.go
 @@ -557,7 +557,7 @@ func (c *Command) FlagErrorFunc() (f func(*Command, error) error) {
 
--var minUsagePadding = 25
-+const minUsagePadding = 25
+~[-var-]{+const+} minUsagePadding = 25
 
 @@ -567,7 +567,7 @@ func (c *Command) UsagePadding() int {
 
--var minCommandPathPadding = 11
-+const minCommandPathPadding = 11
+~[-var-]{+const+} minCommandPathPadding = 11
 
 @@ -577,7 +577,7 @@ func (c *Command) CommandPathPadding() int {
 
--var minNamePadding = 11
-+const minNamePadding = 11
+~[-var-]{+const+} minNamePadding = 11
 
 @@ -1939,7 +1939,7 @@ type tmplFunc struct {
 
--var defaultUsageTemplate = `Usage:{{if .Runnable}}
-+const defaultUsageTemplate = `Usage:{{if .Runnable}}
+~[-var-]{+const+} defaultUsageTemplate = `Usage:{{if .Runnable}}
    {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
 @@ -2039,7 +2039,7 @@ func defaultUsageFunc(w io.Writer, in interface{}) error {
 
--var defaultHelpTemplate = `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
-+const defaultHelpTemplate = `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
+~[-var-]{+const+} defaultHelpTemplate = `{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
 
 @@ -2061,7 +2061,7 @@ func defaultHelpFunc(w io.Writer, in interface{}) error {
 
--var defaultVersionTemplate = `{{with .DisplayName}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}
-+const defaultVersionTemplate = `{{with .DisplayName}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}
+~[-var-]{+const+} defaultVersionTemplate = `{{with .DisplayName}}{{printf "%s " .}}{{end}}{{printf "version %s" .Version}}
  `
 diff completions.go
 @@ -317,7 +317,10 @@ func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCo
@@ -181,8 +175,7 @@ diff doc/yaml_docs.go
 diff fish_completions.go
 @@ -46,14 +46,14 @@ function __%[1]s_perform_completion
      set -l args (commandline -opc)
--    # Extract the last arg and escape it in case it is a space
-+    # Extract the last arg and escape it in case it is a space or wildcard
+~    # Extract the last arg and escape it in case it is a [-space-]{+space or wildcard+}
      set -l lastArg (string escape -- (commandline -ct))
  …
      # Disable ActiveHelp which is not supported for fish shell
