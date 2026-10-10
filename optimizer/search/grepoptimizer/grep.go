@@ -4,6 +4,7 @@
 package grepoptimizer
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"slices"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
@@ -46,11 +48,12 @@ type file struct {
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	return p.Rewrite(func(b payload.Block) (string, error) {
-		return compress.Join(o.group(compress.Lines(compress.StripANSI(b.Text)))), nil
+		return compress.Join(o.group(compress.Lines(compress.StripANSI(b.Text)), p.Attrs[payload.AttrQuery])), nil
 	}, detect.Grep, detect.RG, detect.AG, detect.GitGrep)
 }
 
-func (o *Optimizer) group(lines []string) []string {
+func (o *Optimizer) group(lines []string, query string) []string {
+	terms := rows.Terms(query)
 	parse := parseNumbered
 	if !slices.ContainsFunc(lines, numbered.MatchString) && plainBlock(lines) {
 		parse = parsePlain
@@ -72,7 +75,12 @@ func (o *Optimizer) group(lines []string) []string {
 			byPath[path] = f
 			files = append(files, f)
 		}
-		o.add(f, num, sep, text)
+		o.add(f, num, sep, text, len(terms) > 0)
+	}
+	if len(terms) > 0 {
+		for _, f := range files {
+			f.hits = o.relevant(f.hits, terms)
+		}
 	}
 	out := other
 	for i, f := range files {
@@ -86,7 +94,9 @@ func (o *Optimizer) group(lines []string) []string {
 	return out
 }
 
-func (o *Optimizer) add(f *file, num, sep, text string) {
+// add records one line; uncapped, every distinct line is kept so a query
+// can pick among them.
+func (o *Optimizer) add(f *file, num, sep, text string, uncapped bool) {
 	if sep == ":" {
 		f.total++
 	}
@@ -98,7 +108,7 @@ func (o *Optimizer) add(f *file, num, sep, text string) {
 		}
 		return
 	}
-	if len(f.hits) == o.cfg.MaxPerFile {
+	if len(f.hits) == o.cfg.MaxPerFile && !uncapped {
 		return
 	}
 	h := &hit{sep: sep, text: text, count: 1}
@@ -107,6 +117,31 @@ func (o *Optimizer) add(f *file, num, sep, text string) {
 	}
 	f.hits = append(f.hits, h)
 	f.byText[sep+text] = h
+}
+
+// relevant keeps the max_per_file lines that match the query best (BM25,
+// earlier first on ties), in file order.
+func (o *Optimizer) relevant(hits []*hit, terms []string) []*hit {
+	if len(hits) <= o.cfg.MaxPerFile {
+		return hits
+	}
+	docs := make([][]string, len(hits))
+	for i, h := range hits {
+		docs[i] = rows.Terms(h.text)
+	}
+	scores := rows.BM25(docs, terms)
+	order := make([]int, len(hits))
+	for i := range order {
+		order[i] = i
+	}
+	slices.SortStableFunc(order, func(a, b int) int { return cmp.Compare(scores[b], scores[a]) })
+	keep := order[:o.cfg.MaxPerFile]
+	slices.Sort(keep)
+	out := make([]*hit, len(keep))
+	for i, k := range keep {
+		out[i] = hits[k]
+	}
+	return out
 }
 
 func (f *file) render() []string {

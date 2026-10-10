@@ -123,7 +123,8 @@ composed: their content goes to the test, build or pkg engine.
 
 Matches grouped by file, each path printed once. Identical lines in a file merge:
 `3,9: if err != nil {` with line numbers, `6× if err != nil {` without. Distinct lines per file
-capped at `max_per_file`, long lines cut. Output without line numbers (`rg` when not on a
+capped at `max_per_file`, long lines cut; with a `query` (MCP `compress`, `exec -attr query=…`)
+the lines kept are those matching it best, in file order. Output without line numbers (`rg` when not on a
 terminal, `grep -r` without `-n`) is recognized when nearly every line starts with a path.
 
 | Dialect | Commands |
@@ -133,7 +134,7 @@ terminal, `grep -r` without `-n`) is recognized when nearly every line starts wi
 | `search/ag` | `ag`, `pt` |
 | `search/git-grep` | `git grep` |
 
-`rg` without line numbers: 2,279 → 718 (68.5%). `rg -n -i error`: 18,741 → 5,298 (71.7%).
+`rg` without line numbers: 3,613 → 1,210 (66.5%). `rg -n -i error`: 25,987 → 6,974 (73.2%).
 
 ## fs
 

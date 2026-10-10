@@ -383,6 +383,12 @@
   expect_type: search/rg
   keep: ["active_help_test.go"]
   min_saved: 60
+- name: grep/rg-errors-query
+  file: grep/rg-errors.txt
+  attrs: { cmd: rg -n -i error, query: silence errors }
+  expect_type: search/rg
+  keep: ["235: // SilenceErrors is an option to quiet errors down stream.", "238: // SilenceUsage is an option to silence usage"]
+  min_saved: 60
 - name: detect/grep
   file: grep/grep-rn.txt
   expect_type: search/grep

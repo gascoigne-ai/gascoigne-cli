@@ -73,7 +73,7 @@ lives in public libs so engines and composite families can reuse it:
 | `pkg` | `compress/pkgnoise`: progress/downloads dropped, warnings folded by kind | npm, pnpm, yarn, bun, pip, uv, poetry, go-mod, cargo, os |
 | `task` | sections; ok/cached collapse; failing ones via `compress/compose` | nx, turbo, make, just, gradle, compose, ci |
 | `vcs` | git engine; diffs: in-line edits as word diffs (`~[-old-]{+new+}`, only when every pair of a k:k block qualifies), lockfiles/generated files folded to counts; removed blocks re-added verbatim elsewhere → `-… N lines moved to file:L` (`moves.go`); log keeps `--stat`/name lists; blame runs grouped, mirrored remote branches dropped, gh lists via `compress/table` | git-status, git-log, git-diff, git-remote, git-blame, git-branch, gh-list, gh-view |
-| `search` | grep engine: matches grouped by file (with or without line numbers), identical lines in a file merged (`3,9: text`, `2× text`) | grep, rg, ag, git-grep |
+| `search` | grep engine: matches grouped by file (with or without line numbers), identical lines in a file merged (`3,9: text`, `2× text`); with a `query` the per-file cap keeps the best BM25 matches | grep, rg, ag, git-grep |
 | `fs` | ls engine (listings, tree, paths by directory, du largest, df real disks); cat: comments dropped, outlines (see Source files) | ls, tree, find, du, df, code |
 | `table` | `compress/table`: parse boxed/aligned/ruled/fixed-width, constants hoisted, cells cut, rows via `compress/rows` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, aligned, boxed |
 | `data` | json: `compress/jsonx` crusher; data: YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry | json, ndjson, yaml, csv, xml, toml |

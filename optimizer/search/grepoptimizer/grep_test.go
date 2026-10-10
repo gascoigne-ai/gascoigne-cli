@@ -65,3 +65,20 @@ func TestSameLinesMerged(t *testing.T) {
 		t.Fatalf("got:\n%s\nwant:\n%s", got, want)
 	}
 }
+
+func TestQueryPicksLinesWithinCap(t *testing.T) {
+	var b strings.Builder
+	for i := range 20 {
+		fmt.Fprintf(&b, "srv.go:%d:\tlog.Printf(\"request %d\")\n", i+1, i)
+	}
+	b.WriteString("srv.go:40:\tif err := db.Ping(ctx); err != nil { // retry the connection\n")
+	p := &payload.Payload{Blocks: []payload.Block{{Text: b.String(), Type: detect.RG}}, Attrs: map[string]string{payload.AttrQuery: "db connection retry"}}
+	(&Optimizer{cfg: &Config{MaxPerFile: 5, MaxFiles: 100, MaxLineLen: 160}}).Optimize(nil, p)
+	got := p.Blocks[0].Text
+	if !strings.Contains(got, "40: if err := db.Ping") || !strings.Contains(got, "… 16 more matches omitted") {
+		t.Fatalf("got:\n%s", got)
+	}
+	if strings.Index(got, "1: log.Printf") > strings.Index(got, "40:") {
+		t.Fatalf("not in file order:\n%s", got)
+	}
+}

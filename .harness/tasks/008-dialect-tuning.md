@@ -21,9 +21,10 @@ Lift dialects that save little on real output, without losing what agents need.
 - `doc/rst`: real README with badges (vdf, 30.7%): badge-only substitution rows dropped with their
   image definitions; link targets (`.. _name: url`) kept, they were dropped as comments.
 
+- `search`: with a `query`, each file keeps the `max_per_file` lines matching it best (BM25),
+  in file order, instead of the first ones.
+
 ## Open
-- `search/rg -n` (14%): remaining lines are distinct matches already grouped and capped; more
-  savings would drop matches. Leave unless a relevance cap per file is wanted.
 - `fs/code`: doc comments separated from their declaration by a blank line (Ruby rdoc) are
   dropped whole; keep their first line. Lowers savings slightly by design (readability fix).
 - Real fixtures to replace synthetic ones once tools are at hand: terraform/tofu, pulumi, cdk,
