@@ -15,8 +15,30 @@ const keyCol = "_key"
 
 // table turns an array with at least TabulateMin similar objects into
 // {"_cols": [...], "_rows": [[...], ...]}. Non-object items (omission
-// markers) stay in place as rows.
+// markers) stay in place as rows. Items with nested objects are also tried
+// flattened to dotted columns; the smaller table wins.
 func (c *crusher) table(items []any) (map[string]any, bool) {
+	t, ok := c.plainTable(items)
+	if !nested(items) {
+		return t, ok
+	}
+	flat := make([]any, len(items))
+	for i, it := range items {
+		if obj, isObj := it.(map[string]any); isObj {
+			m := map[string]any{}
+			Flatten(m, "", obj)
+			it = m
+		}
+		flat[i] = it
+	}
+	if ft, fok := c.plainTable(flat); fok && (!ok || size(ft) < size(t)) {
+		return ft, true
+	}
+	return t, ok
+}
+
+// plainTable tabulates items as they are.
+func (c *crusher) plainTable(items []any) (map[string]any, bool) {
 	var objs []map[string]any
 	for _, it := range items {
 		if obj, ok := it.(map[string]any); ok {

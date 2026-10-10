@@ -1,5 +1,7 @@
 package cloudoptimizer
 
+import "github.com/lukaszb/gascoigne/compress/jsonx"
+
 // Cloud list responses are arrays of wide, nested, mostly identical objects.
 // Flattening them to dotted keys ("Placement.AvailabilityZone") lets the
 // table step hoist every leaf equal across items instead of whole subtrees.
@@ -24,7 +26,7 @@ func reshape(v any) any {
 			x = reshape(x)
 			if m, ok := x.(map[string]any); ok {
 				flat := map[string]any{}
-				flatten(flat, "", m)
+				jsonx.Flatten(flat, "", m)
 				x = flat
 			}
 			v[i] = x
@@ -66,23 +68,4 @@ func tagMap(v any) any {
 		tags[key] = m["Value"]
 	}
 	return tags
-}
-
-// flatten copies m into dst with nested objects (and single-object lists)
-// joined into dotted keys.
-func flatten(dst map[string]any, prefix string, m map[string]any) {
-	for k, x := range m {
-		key := prefix + k
-		if l, ok := x.([]any); ok && len(l) == 1 {
-			if one, ok := l[0].(map[string]any); ok {
-				flatten(dst, key+"[0].", one)
-				continue
-			}
-		}
-		if sub, ok := x.(map[string]any); ok && len(sub) > 0 {
-			flatten(dst, key+".", sub)
-			continue
-		}
-		dst[key] = x
-	}
 }

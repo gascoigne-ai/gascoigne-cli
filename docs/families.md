@@ -172,7 +172,9 @@ query matches and both ends stay.
 
 The crusher, in order: drop empty values, shorten hashes, cut long strings; turn arrays of
 similar objects into `_cols`/`_rows` tables (constant columns in `_same`, shared prefixes and
-suffixes in `_affix`) when that saves enough; otherwise sample long arrays to about
+suffixes in `_affix`; nested objects become dotted columns like `owner.login` when that makes
+the table smaller, so a value equal in every item is listed once) when that saves enough;
+otherwise sample long arrays to about
 `max_items`, keeping errors (error fields, bad statuses, 4xx/5xx, rare keys or values), then
 anomalies, change points and query matches, then both ends, then an even sample. Identical
 items collapse. Gaps read `… N items omitted`.

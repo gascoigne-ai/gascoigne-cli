@@ -90,7 +90,8 @@ Families are what `gain -by family` reports; `gain -by dialect` splits them.
 
 JSON arrays (`compress/jsonx`, used by `optimizer/data/jsonoptimizer`, cloud, data and web): small arrays (< `min_items`, < `min_tokens`, ≤ `max_items`)
 are never sampled. Otherwise lossless first — similar objects become a table (`_cols/_rows`,
-constant columns in `_same`, shared prefixes/suffixes in `_affix`), kept when it saves
+constant columns in `_same`, shared prefixes/suffixes in `_affix`; items with nested objects are
+also tried flattened to dotted columns via `jsonx.Flatten`, the smaller table wins), kept when it saves
 ≥ `lossless_min_saving` and fits `lossless_max_tokens`. Else scored sampling to ~`max_items`:
 errors always (error fields, bad statuses, 4xx/5xx, keys or enum values few items have),
 then by score anomalies (> `anomaly_std` σ), change points (numeric jumps, enum flips) and
