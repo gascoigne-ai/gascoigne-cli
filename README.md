@@ -69,6 +69,7 @@ gascoigne gain                           # where the savings come from
 ```sh
 gascoigne wrap claude                    # also: codex, pi
 gascoigne wrap -print cursor             # config to register it for good
+gascoigne unwrap                         # deregister from every agent
 ```
 
 **MCP** — give any agent a cheap way to read the web and tool output:

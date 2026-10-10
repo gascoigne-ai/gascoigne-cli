@@ -130,7 +130,11 @@ numbers for `tail`/`sed`), so an agent edits within kept runs and reads a gap ba
 ## Agents (`cmd/gascoigne/agents.go`, `hook.go`)
 `gascoigne wrap <agent> [args]` starts the agent with gascoigne registered for that run only
 (no config files touched) and `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` set; `wrap -print <agent>`
-prints the config that registers it for good. Hooks call `gascoigne hook <agent>`, which never
+prints the config that registers it for good; `unwrap [agent...]` (default all) removes exactly
+those entries from user and project configs (claude settings + `.mcp.json` + `claude mcp remove`,
+cursor hooks/mcp JSON, codex `config.toml` tables, pi extension), keeps other keys in order and
+saves the original as `<file>.gascoigne-bak`; unparsable files are reported, not rewritten.
+Hooks call `gascoigne hook <agent>`, which never
 fails the tool call (bad input → no answer → call unchanged).
 | Agent | Per run | How shell output is optimized |
 |---|---|---|

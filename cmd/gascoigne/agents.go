@@ -22,11 +22,12 @@ type agent struct {
 	bin     string                             // program wrap starts
 	launch  func(exe string) ([]string, error) // per-run config args; nil: the agent has none
 	install func(exe string) string            // config to register gascoigne for good
+	remove  func() ([]string, error)           // undoes install: what it removed
 	hook    hookFunc
 }
 
 var agents = map[string]agent{
-	"claude": {bin: "claude", launch: claudeArgs, install: claudeInstall,
+	"claude": {bin: "claude", launch: claudeArgs, install: claudeInstall, remove: removeClaude,
 		hook: rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil
@@ -35,17 +36,17 @@ var agents = map[string]agent{
 		})},
 	// Codex rewrites a command only together with approving it, so its
 	// output is optimized after the run instead and replaces the result.
-	"codex": {bin: "codex", launch: codexArgs, install: codexInstall,
+	"codex": {bin: "codex", launch: codexArgs, install: codexInstall, remove: removeCodex,
 		hook: optimizeHook(func(text string) any { return map[string]any{"decision": "block", "reason": text} })},
 	// Cursor reads hooks and MCP servers from its config files only.
-	"cursor": {install: cursorInstall,
+	"cursor": {install: cursorInstall, remove: removeCursor,
 		hook: rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return map[string]any{"permission": "allow"}
 			}
 			return map[string]any{"permission": "allow", "updated_input": updated}
 		})},
-	"pi": {bin: "pi", launch: piArgs, install: piInstall,
+	"pi": {bin: "pi", launch: piArgs, install: piInstall, remove: removePi,
 		hook: rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil
@@ -171,7 +172,7 @@ func cursorInstall(exe string) string {
 
 // piExtension rewrites bash tool calls through gascoigne hook pi; pi has no MCP.
 func piExtension(exe string) string {
-	return fmt.Sprintf(`// gascoigne: routes bash tool calls through "gascoigne exec" (gascoigne wrap pi).
+	return fmt.Sprintf(piHeader+` through "gascoigne exec" (gascoigne wrap pi).
 import { execFileSync } from "node:child_process";
 
 process.env.GASCOIGNE_AGENT ??= "pi";
