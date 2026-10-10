@@ -1,0 +1,24 @@
+package dataoptimizer
+
+import (
+	"errors"
+
+	"github.com/lukaszb/gascoigne/compress/jsonx"
+)
+
+type Config struct {
+	// JSON tunes the crusher YAML goes through.
+	JSON jsonx.Config `yaml:"json"`
+	// MaxRows and MaxCell tune CSV/TSV tables.
+	MaxRows int `yaml:"max_rows"`
+	MaxCell int `yaml:"max_cell"`
+	// MaxItems caps repeated XML siblings and TOML array tables.
+	MaxItems int `yaml:"max_items"`
+}
+
+func (c *Config) Validate() error {
+	if c.MaxRows < 5 || c.MaxCell < 10 || c.MaxItems < 3 {
+		return errors.New("need max_rows >= 5, max_cell >= 10, max_items >= 3")
+	}
+	return c.JSON.Validate()
+}

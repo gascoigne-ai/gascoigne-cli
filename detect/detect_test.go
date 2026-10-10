@@ -149,3 +149,18 @@ func TestLang(t *testing.T) {
 		}
 	}
 }
+
+func TestRefine(t *testing.T) {
+	manifest := "apiVersion: v1\nkind: Pod\nmetadata:\n  name: x\n"
+	for _, c := range []struct{ text, cmd, file, want string }{
+		{manifest, "cat pod.yaml", "", K8sManifest},
+		{manifest, "", "pod.yml", K8sManifest},
+		{"name: x\nitems: [1, 2]\n", "", "values.yaml", YAML},
+		{`{"Reservations": [], "OwnerId": "1"}`, "", "out.json", AWS},
+		{`{"a": 1}`, "", "out.json", JSON},
+	} {
+		if got := Detect(c.text, Hints{Cmd: c.cmd, File: c.file}); got != c.want {
+			t.Errorf("%q %q: got %s, want %s", c.cmd, c.file, got, c.want)
+		}
+	}
+}

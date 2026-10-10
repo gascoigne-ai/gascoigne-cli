@@ -24,16 +24,22 @@ func HintsFrom(attrs map[string]string) Hints {
 }
 
 func Detect(text string, h Hints) string {
-	if t := FromCmd(h.Cmd); t != "" {
-		return t
-	}
-	if t := FromFile(h.File); t != "" {
-		return t
-	}
-	if t := FromMIME(h.MIME); t != "" {
-		return t
+	for _, t := range []string{FromCmd(h.Cmd), FromFile(h.File), FromMIME(h.MIME)} {
+		if t != "" {
+			return refine(t, text)
+		}
 	}
 	return Sniff(text)
+}
+
+// refine swaps a generic type for a spec refining it whose sniffer matches.
+func refine(t, text string) string {
+	for _, s := range specs {
+		if slices.Contains(s.Refines, t) && s.Sniff(text, sample(text)) {
+			return s.Type
+		}
+	}
+	return t
 }
 
 // Family is the family part of a type: "test" for "test/jest".

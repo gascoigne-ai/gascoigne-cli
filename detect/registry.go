@@ -24,6 +24,10 @@ type Spec struct {
 	// Priority orders sniffing, lower first: specific formats before generic
 	// ones (logs, tables, text).
 	Priority int
+	// Refines lists generic types (from a file name, MIME type or command)
+	// this spec replaces when its sniffer matches: a .yaml file holding
+	// Kubernetes manifests is k8s/manifest, not data/yaml.
+	Refines []string
 }
 
 // Sniffer recognizes content from the full text and sampled, ANSI-stripped lines.

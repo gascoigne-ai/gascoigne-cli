@@ -470,6 +470,15 @@
   expect_type: log/kubectl
   keep: ["card_declined: insufficient funds", "status=402", "lines omitted"]
   min_saved: 90
+- { file: data/catalog.yaml, attrs: { file: catalog.yaml }, expect_type: data/yaml, keep: ["SKU-1013", "SKU-1057", "\"_table\""], min_saved: 50 }
+- { file: data/compose.yaml, attrs: { file: compose.yaml }, expect_type: data/yaml, keep: ["postgres:16"] }
+- { file: data/orders-export.csv, attrs: { file: orders-export.csv }, expect_type: data/csv,
+    keep: ["refunded", "chargeback", "48210.00", "currency=EUR"], min_saved: 80 }
+- { file: data/junit-report.xml, attrs: { file: report.xml }, expect_type: data/xml,
+    keep: ["10% discount missing", "KeyError: 'sku-999'", "tax service not mocked", "testcase> elements omitted", "failures=\"2\""], min_saved: 60 }
+- { file: data/Cargo.lock, attrs: { cmd: cat Cargo.lock }, expect_type: data/toml, keep: ["[[package]] ×", "core_arch", "deps: "], min_saved: 30 }
+- { name: detect/csv, file: data/orders-export.csv, expect_type: data/csv }
+- { name: detect/xml, file: data/junit-report.xml, expect_type: data/xml }
 - name: detect/json
   file: json/github-repos.json
   expect_type: data/json

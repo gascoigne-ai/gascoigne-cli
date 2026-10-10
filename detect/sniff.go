@@ -14,15 +14,19 @@ const (
 
 var ansi = regexp.MustCompile(`\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)`)
 
+// sample is the head of text as ANSI-stripped lines.
+func sample(text string) []string {
+	lines := strings.Split(ansi.ReplaceAllString(text[:min(len(text), sampleBytes)], ""), "\n")
+	return lines[:min(len(lines), sampleLines)]
+}
+
 // Sniff detects the type from text alone, trying specs by priority.
 func Sniff(text string) string {
 	if strings.TrimSpace(text) == "" {
 		return Text
 	}
 	// Full text is passed on (JSON validity needs all of it); lines are sampled.
-	sample := ansi.ReplaceAllString(text[:min(len(text), sampleBytes)], "")
-	lines := strings.Split(sample, "\n")
-	lines = lines[:min(len(lines), sampleLines)]
+	lines := sample(text)
 	for _, s := range specs {
 		if s.Sniff != nil && s.Sniff(text, lines) {
 			return s.Type

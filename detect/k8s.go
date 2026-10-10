@@ -15,7 +15,7 @@ func init() {
 	register(
 		Spec{Type: K8sGet, Cmds: []string{"kubectl get", "kubectl top", "oc get", "k get"}, Priority: 46,
 			Sniff: firstLine(`^(NAMESPACE\s+)?NAME\s+(READY\s+STATUS|STATUS\s+ROLES|TYPE\s+CLUSTER-IP|READY\s+UP-TO-DATE|DATA\s+AGE|COMPLETIONS)`)},
-		Spec{Type: K8sManifest, Cmds: []string{"helm template", "kustomize build", "kubectl kustomize"}, Priority: 19,
+		Spec{Type: K8sManifest, Cmds: []string{"helm template", "kustomize build", "kubectl kustomize"}, Priority: 19, Refines: []string{YAML, JSON},
 			CmdFunc: func(args []string) bool {
 				return slices.Contains([]string{"kubectl", "oc", "k"}, args[0]) && slices.Contains([]string{"yaml", "json"}, flagValue(args, "-o", "--output"))
 			},

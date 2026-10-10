@@ -1,0 +1,801 @@
+products:
+  - sku: SKU-1000
+    name: Product 0
+    category: shirts
+    currency: EUR
+    price: 89.57
+    stock: 177
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1001
+    name: Product 1
+    category: bags
+    currency: EUR
+    price: 47.91
+    stock: 122
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1002
+    name: Product 2
+    category: shoes
+    currency: EUR
+    price: 78.57
+    stock: 81
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1003
+    name: Product 3
+    category: shirts
+    currency: EUR
+    price: 23.88
+    stock: 148
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1004
+    name: Product 4
+    category: bags
+    currency: EUR
+    price: 39.65
+    stock: 20
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1005
+    name: Product 5
+    category: shirts
+    currency: EUR
+    price: 76.78
+    stock: 157
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1006
+    name: Product 6
+    category: shoes
+    currency: EUR
+    price: 17.42
+    stock: 86
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1007
+    name: Product 7
+    category: shirts
+    currency: EUR
+    price: 49.26
+    stock: 191
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1008
+    name: Product 8
+    category: shirts
+    currency: EUR
+    price: 47.23
+    stock: 101
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1009
+    name: Product 9
+    category: shoes
+    currency: EUR
+    price: 87.9
+    stock: 149
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1010
+    name: Product 10
+    category: shirts
+    currency: EUR
+    price: 48.72
+    stock: 100
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1011
+    name: Product 11
+    category: bags
+    currency: EUR
+    price: 14.18
+    stock: 13
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1012
+    name: Product 12
+    category: shirts
+    currency: EUR
+    price: 30.04
+    stock: 134
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1013
+    name: Product 13
+    category: bags
+    currency: EUR
+    price: 65.61
+    stock: 0
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1014
+    name: Product 14
+    category: shoes
+    currency: EUR
+    price: 14.64
+    stock: 23
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1015
+    name: Product 15
+    category: shoes
+    currency: EUR
+    price: 82.23
+    stock: 6
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1016
+    name: Product 16
+    category: shoes
+    currency: EUR
+    price: 36.11
+    stock: 132
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1017
+    name: Product 17
+    category: shoes
+    currency: EUR
+    price: 73.19
+    stock: 141
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1018
+    name: Product 18
+    category: bags
+    currency: EUR
+    price: 46.22
+    stock: 141
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1019
+    name: Product 19
+    category: shirts
+    currency: EUR
+    price: 85.76
+    stock: 116
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1020
+    name: Product 20
+    category: shoes
+    currency: EUR
+    price: 71.08
+    stock: 77
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1021
+    name: Product 21
+    category: shoes
+    currency: EUR
+    price: 21.72
+    stock: 103
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1022
+    name: Product 22
+    category: shirts
+    currency: EUR
+    price: 23.36
+    stock: 72
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1023
+    name: Product 23
+    category: shoes
+    currency: EUR
+    price: 17.94
+    stock: 157
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1024
+    name: Product 24
+    category: shirts
+    currency: EUR
+    price: 43.75
+    stock: 113
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1025
+    name: Product 25
+    category: shoes
+    currency: EUR
+    price: 32.11
+    stock: 71
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1026
+    name: Product 26
+    category: shirts
+    currency: EUR
+    price: 71.08
+    stock: 65
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1027
+    name: Product 27
+    category: shoes
+    currency: EUR
+    price: 79.32
+    stock: 132
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1028
+    name: Product 28
+    category: bags
+    currency: EUR
+    price: 41.85
+    stock: 188
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1029
+    name: Product 29
+    category: shoes
+    currency: EUR
+    price: 86.46
+    stock: 32
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1030
+    name: Product 30
+    category: shirts
+    currency: EUR
+    price: 41.99
+    stock: 97
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1031
+    name: Product 31
+    category: shirts
+    currency: EUR
+    price: 84.24
+    stock: 101
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1032
+    name: Product 32
+    category: shoes
+    currency: EUR
+    price: 70.66
+    stock: 102
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1033
+    name: Product 33
+    category: bags
+    currency: EUR
+    price: 77.35
+    stock: 121
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1034
+    name: Product 34
+    category: bags
+    currency: EUR
+    price: 40.4
+    stock: 154
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1035
+    name: Product 35
+    category: shirts
+    currency: EUR
+    price: 50.7
+    stock: 67
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1036
+    name: Product 36
+    category: shirts
+    currency: EUR
+    price: 68.91
+    stock: 53
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1037
+    name: Product 37
+    category: bags
+    currency: EUR
+    price: 72.66
+    stock: 180
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1038
+    name: Product 38
+    category: shoes
+    currency: EUR
+    price: 84.56
+    stock: 182
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1039
+    name: Product 39
+    category: shirts
+    currency: EUR
+    price: 86.66
+    stock: 116
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1040
+    name: Product 40
+    category: bags
+    currency: EUR
+    price: 29.76
+    stock: 52
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1041
+    name: Product 41
+    category: shirts
+    currency: EUR
+    price: 64.5
+    stock: 16
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1042
+    name: Product 42
+    category: bags
+    currency: EUR
+    price: 43.18
+    stock: 84
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1043
+    name: Product 43
+    category: shoes
+    currency: EUR
+    price: 55.3
+    stock: 172
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1044
+    name: Product 44
+    category: bags
+    currency: EUR
+    price: 70.26
+    stock: 114
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1045
+    name: Product 45
+    category: bags
+    currency: EUR
+    price: 82.29
+    stock: 197
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1046
+    name: Product 46
+    category: shirts
+    currency: EUR
+    price: 48.65
+    stock: 10
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1047
+    name: Product 47
+    category: shoes
+    currency: EUR
+    price: 82.74
+    stock: 189
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1048
+    name: Product 48
+    category: shirts
+    currency: EUR
+    price: 27.74
+    stock: 179
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1049
+    name: Product 49
+    category: bags
+    currency: EUR
+    price: 66.22
+    stock: 7
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1050
+    name: Product 50
+    category: shoes
+    currency: EUR
+    price: 29.38
+    stock: 90
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1051
+    name: Product 51
+    category: shirts
+    currency: EUR
+    price: 75.71
+    stock: 175
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1052
+    name: Product 52
+    category: bags
+    currency: EUR
+    price: 27.35
+    stock: 11
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1053
+    name: Product 53
+    category: shoes
+    currency: EUR
+    price: 65.47
+    stock: 188
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1054
+    name: Product 54
+    category: shoes
+    currency: EUR
+    price: 53.04
+    stock: 35
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1055
+    name: Product 55
+    category: shirts
+    currency: EUR
+    price: 32.5
+    stock: 138
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1056
+    name: Product 56
+    category: shoes
+    currency: EUR
+    price: 10.2
+    stock: 127
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1057
+    name: Product 57
+    category: shirts
+    currency: EUR
+    price: 10.25
+    stock: 0
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1058
+    name: Product 58
+    category: shirts
+    currency: EUR
+    price: 21.52
+    stock: 71
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1059
+    name: Product 59
+    category: shirts
+    currency: EUR
+    price: 58.24
+    stock: 28
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1060
+    name: Product 60
+    category: shoes
+    currency: EUR
+    price: 74.09
+    stock: 100
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1061
+    name: Product 61
+    category: shoes
+    currency: EUR
+    price: 46.7
+    stock: 184
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1062
+    name: Product 62
+    category: shirts
+    currency: EUR
+    price: 10.12
+    stock: 71
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1063
+    name: Product 63
+    category: shirts
+    currency: EUR
+    price: 24.98
+    stock: 72
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1064
+    name: Product 64
+    category: shoes
+    currency: EUR
+    price: 78.32
+    stock: 53
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1065
+    name: Product 65
+    category: shoes
+    currency: EUR
+    price: 13.8
+    stock: 148
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1066
+    name: Product 66
+    category: shoes
+    currency: EUR
+    price: 63.36
+    stock: 88
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1067
+    name: Product 67
+    category: shoes
+    currency: EUR
+    price: 51.87
+    stock: 103
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1068
+    name: Product 68
+    category: shoes
+    currency: EUR
+    price: 83.91
+    stock: 95
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1069
+    name: Product 69
+    category: shoes
+    currency: EUR
+    price: 51.16
+    stock: 193
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1070
+    name: Product 70
+    category: shirts
+    currency: EUR
+    price: 51.13
+    stock: 6
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1071
+    name: Product 71
+    category: shirts
+    currency: EUR
+    price: 31.14
+    stock: 93
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1072
+    name: Product 72
+    category: bags
+    currency: EUR
+    price: 65.46
+    stock: 101
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1073
+    name: Product 73
+    category: shirts
+    currency: EUR
+    price: 40.5
+    stock: 124
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1074
+    name: Product 74
+    category: bags
+    currency: EUR
+    price: 18.15
+    stock: 75
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1075
+    name: Product 75
+    category: shirts
+    currency: EUR
+    price: 18.37
+    stock: 112
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1076
+    name: Product 76
+    category: shirts
+    currency: EUR
+    price: 52.0
+    stock: 58
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1077
+    name: Product 77
+    category: shirts
+    currency: EUR
+    price: 40.66
+    stock: 23
+    active: true
+    tags:
+      - summer
+      - sale
+  - sku: SKU-1078
+    name: Product 78
+    category: shirts
+    currency: EUR
+    price: 42.77
+    stock: 155
+    active: true
+    tags:
+      - summer
+      - new
+  - sku: SKU-1079
+    name: Product 79
+    category: shoes
+    currency: EUR
+    price: 77.81
+    stock: 191
+    active: true
+    tags:
+      - summer
+      - sale
