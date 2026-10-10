@@ -88,7 +88,7 @@ go through `gascoigne exec`, and the MCP server adds `fetch`, `compress`, `retri
 | What | Where |
 |---|---|
 | ledger (originals, events, failures) | `$XDG_DATA_HOME/gascoigne/ledger.db` (usually `~/.local/share/gascoigne/ledger.db`) |
-| your config (optional) | `$XDG_CONFIG_HOME/gascoigne/config.yaml` or `$GASCOIGNE_CONFIG` or `-config` |
+| your config | `$XDG_CONFIG_HOME/gascoigne/config.yaml`, written on first run with every setting commented out (or `$GASCOIGNE_CONFIG`, `-config`) |
 | built-in config | `configs/default.yaml`, embedded in the binary |
 
 Originals are kept for 24 hours by default (`extensions.ledger.raw_ttl`). Events and savings

@@ -1,19 +1,45 @@
 # Configuration
 
-gascoigne runs without a config file: the built-in one (`configs/default.yaml`, embedded in
-the binary) serves every command. Change it per run with flags, per agent with environment
-variables, or for good with your own file.
+The built-in config (`configs/default.yaml`, embedded in the binary) holds every default.
+Your config file is laid over it, so it only needs what you change. Change settings per run
+with flags, per agent with environment variables, or for good in your file.
+
+## Your config file
+
+On first run gascoigne writes `$XDG_CONFIG_HOME/gascoigne/config.yaml` (usually
+`~/.config/gascoigne/config.yaml`) and says so once on stderr. It lists **every setting of
+every component, commented out**, with a short note on each, so the defaults apply until you
+change something:
+
+```yaml
+## One engine per family. Limits keep what an agent acts on first and mark every gap.
+# optimizers:
+#   grep:
+#     max_per_file: 15                            ## distinct match lines per file
+```
+
+To change a setting, uncomment it together with its parent keys:
+
+```yaml
+optimizers:
+  grep:
+    max_per_file: 40
+```
+
+An existing file is never overwritten. Delete it to get a fresh template.
 
 ## Where config comes from
 
-First match wins:
+The built-in defaults, with the first file found laid over them:
 
 1. `-config path`
 2. `$GASCOIGNE_CONFIG`
-3. `$XDG_CONFIG_HOME/gascoigne/config.yaml`
-4. the built-in config
+3. `$XDG_CONFIG_HOME/gascoigne/config.yaml` (created on first run when neither of the above is set)
 
-Decoding is strict: an unknown field is an error, so typos fail loudly.
+Layering rules: maps merge key by key; a value or a list you set replaces the default one
+(to add a header to `http.drop_headers`, list them all); a key left empty, such as a parent
+uncommented without children, keeps the default. Decoding is strict: an unknown field is an
+error, so typos fail loudly.
 
 ```sh
 gascoigne config                                  # print the effective config
@@ -109,8 +135,7 @@ router:
 `match` also takes `kind` (`cmd_output`, `tool_result`, `message`, `json`). The chosen route
 is recorded per event, so `gain -by route` shows what each one did.
 
-Fields left out of a component's options keep their defaults, but a config file replaces the
-built-in one as a whole: pipelines, router and the component list come from your file only.
+Routes you add replace the `routes` list as a whole, like any list.
 
 ## Component options
 
@@ -217,8 +242,10 @@ sampled; gaps read `… N items omitted`.
 
 ## Example: a personal config
 
+Only what differs from the defaults; everything else comes from the built-in config:
+
 ```yaml
-# ~/.config/gascoigne/config.yaml — start from `gascoigne config` and change what you need
+# ~/.config/gascoigne/config.yaml
 extensions:
   ledger: { raw_ttl: 168h }          # keep originals for a week
 filters:
@@ -227,8 +254,6 @@ filters:
 optimizers:
   log: { context: 4, drop_debug: false, max_lines: 500 }
   doc: { max_code_lines: 80, max_tokens: 6000 }
-# … the rest of the built-in config
 ```
 
-A config file replaces the built-in one, so start from `gascoigne config > config.yaml` and
-edit it; for small changes `-set` or `GASCOIGNE_SET` is simpler.
+`gascoigne config` prints the result.

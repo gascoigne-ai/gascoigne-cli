@@ -1,0 +1,182 @@
+## gascoigne config
+##
+## Every setting is listed here, commented out: the built-in defaults apply. To change one,
+## uncomment it together with its parent keys. This file is laid over the defaults: maps merge
+## key by key, a value or a list you set replaces the default one.
+##
+##   gascoigne config        print the effective config
+##   docs/configuration.md   what each option does
+##
+## Per run, without editing this file: -set path=yaml, -only a,b, -disable a,b (or
+## GASCOIGNE_SET, GASCOIGNE_ONLY, GASCOIGNE_DISABLE in an agent's environment).
+
+## Shared services.
+# extensions:
+#   ledger:
+#     path: ""        ## sqlite file; "" = $XDG_DATA_HOME/gascoigne/ledger.db ($GASCOIGNE_LEDGER wins)
+#     raw_ttl: 24h    ## how long originals stay retrievable; 0 keeps them forever
+
+## Where input comes from.
+# receivers:
+#   stdin: { kind: cmd_output }       ## gascoigne run
+#   exec: { kind: cmd_output }        ## gascoigne exec -- <cmd>
+#   hook: { kind: cmd_output }        ## gascoigne hook codex: output an agent already captured
+#   mcp:                              ## gascoigne mcp
+#     ledger: ledger                  ## extension serving retrieve and stats
+#     retrieve: retrieve              ## name of the tool returning originals
+#     fetch_timeout: 20s              ## time limit for one fetch
+#     fetch_max_bytes: 5242880        ## response bytes read by fetch
+#   mcp_proxy:                        ## gascoigne mcp-proxy -- <server cmd>
+#     command: []                     ## downstream server; the CLI passes it after -- instead
+#     ledger: ledger
+#     retrieve: gascoigne_retrieve    ## added tool; must not clash with downstream tools
+
+## Continue or bypass optimization.
+# filters:
+#   bypass: { env: GASCOIGNE_RAW }    ## variable that, when truthy, bypasses everything
+#   detect: {}                        ## tags each block with its family/dialect type
+#   minsize: { min_tokens: 200 }      ## smaller payloads are not worth it
+#   history:                          ## skip sources that optimized badly before
+#     ledger: ledger
+#     max_failures: 1                 ## reset one with: gascoigne forget <key>
+
+## One engine per family. Limits keep what an agent acts on first and mark every gap.
+# optimizers:
+#   test: {}
+#   build: { max_frame: 4 }                       ## code frame lines per diagnostic
+#   git:
+#     context_lines: 1                            ## unchanged lines around diff changes
+#     max_file_lines: 200                         ## diff lines per file
+#   grep:
+#     max_per_file: 15                            ## distinct match lines per file
+#     max_files: 100
+#     max_line_len: 160
+#   ls:
+#     sizes_up_to: 60                             ## show sizes in listings this small
+#     width: 120
+#     max_per_dir: 12                             ## files per directory in trees and paths
+#   json:                                         ## the JSON crusher
+#     drop_empty: true                            ## remove null, "", [], {}
+#     max_string: 300                             ## longer strings cut in the middle
+#     shorten_hashes: true                        ## long hashes and base64 keep a prefix
+#     tabulate_min: 3                             ## fewest similar objects worth a table
+#     lossless_min_saving: 0.3                    ## lossless table used when it saves this share
+#     lossless_max_tokens: 1500                   ## and stays under this size
+#     min_items: 5                                ## smaller arrays are never sampled
+#     min_tokens: 200
+#     max_items: 15                               ## sample target
+#     head_share: 0.3
+#     tail_share: 0.15
+#     anomaly_std: 2                              ## values beyond this many sigma stay
+#     relevance_k: 3                              ## best query matches kept
+#   data:                                         ## yaml, csv, xml, toml
+#     max_rows: 30                                ## csv/tsv tables
+#     max_cell: 60
+#     max_items: 20                               ## repeated xml siblings, toml array tables
+#     json:                                       ## crusher used for yaml: same keys as json above
+#       drop_empty: true
+#       max_string: 300
+#       shorten_hashes: true
+#       tabulate_min: 3
+#       lossless_min_saving: 0.3
+#       lossless_max_tokens: 1500
+#       min_items: 5
+#       min_tokens: 200
+#       max_items: 15
+#       head_share: 0.3
+#       tail_share: 0.15
+#       anomaly_std: 2
+#       relevance_k: 3
+#   log:
+#     context: 2                                  ## lines around warnings and errors
+#     drop_debug: true                            ## remove DEBUG and TRACE
+#     max_lines: 300
+#   cat:                                          ## source files from cat/head/tail
+#     mode: auto                                  ## auto, full, clean, outline (per run: GASCOIGNE_CAT_MODE)
+#     clean_min_tokens: 800                       ## smaller files untouched
+#     outline_min_tokens: 4000                    ## bigger files outlined
+#     min_body: 4                                 ## shorter bodies kept in outlines
+#   pkg: {}
+#   table:
+#     max_rows: 30                                ## unhealthy rows, anomalies, matches and ends stay
+#     max_cell: 60
+#   db:
+#     max_rows: 30
+#     max_cell: 80
+#     plan_min_share: 0.02                        ## cheaper EXPLAIN nodes collapse
+#   k8s:
+#     max_items: 15                               ## resource lists; unhealthy items stay
+#     max_rows: 30
+#     max_cell: 60
+#     notes_lines: 8                              ## helm release NOTES
+#   cloud:
+#     max_rows: 30
+#     max_cell: 60
+#     max_objects: 30                             ## s3 listings listed in full up to this size
+#     json:                                       ## crusher for API responses: same keys as json above
+#       drop_empty: true
+#       max_string: 300
+#       shorten_hashes: true
+#       tabulate_min: 3
+#       lossless_min_saving: 0.3
+#       lossless_max_tokens: 1500
+#       min_items: 5
+#       min_tokens: 200
+#       max_items: 15
+#       head_share: 0.3
+#       tail_share: 0.15
+#       anomaly_std: 2
+#       relevance_k: 3
+#   infra:
+#     max_plan_lines: 300                         ## past it, creates/updates keep their header only
+#     diff_context: 3                             ## helm diff context lines
+#   task: {}
+#   http:
+#     links: true                                 ## keep hrefs when HTML bodies become markdown
+#     drop_headers: [date, server, connection, keep-alive, vary, via, alt-svc, nel, report-to,
+#       strict-transport-security, x-content-type-options, x-frame-options, x-xss-protection,
+#       referrer-policy, permissions-policy, content-security-policy, cf-ray, cf-cache-status,
+#       x-cache, x-cache-hits, x-served-by, x-timer, age, expires, pragma, accept-ranges,
+#       x-amz-cf-id, x-amz-cf-pop, x-amz-id-2, server-timing, x-github-request-id,
+#       x-fastly-request-id, cross-origin-opener-policy, cross-origin-resource-policy,
+#       cross-origin-embedder-policy, origin-agent-cluster, x-powered-by,
+#       x-envoy-upstream-service-time, transfer-encoding, content-length, etag, last-modified,
+#       access-control-allow-origin, access-control-expose-headers,
+#       access-control-allow-credentials, x-github-media-type, x-github-api-version-selected,
+#       x-github-edge-region, x-cloud-trace-context, x-ratelimit-resource]
+#     json:                                       ## crusher for JSON bodies: same keys as json above
+#       drop_empty: true
+#       max_string: 300
+#       shorten_hashes: true
+#       tabulate_min: 3
+#       lossless_min_saving: 0.3
+#       lossless_max_tokens: 1500
+#       min_items: 5
+#       min_tokens: 200
+#       max_items: 15
+#       head_share: 0.3
+#       tail_share: 0.15
+#       anomaly_std: 2
+#       relevance_k: 3
+#   html: { links: true }                         ## false keeps link text only
+#   doc:
+#     max_code_lines: 40                          ## longer code blocks keep head and tail
+#     max_tokens: 4000                            ## longer markdown keeps whole sections, query first
+#     man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON]
+
+## Where results go.
+# exporters:
+#   stdout: { hint: true }            ## add "[gascoigne: optimized A→B tokens · full: gascoigne raw <id>]"
+
+## Which optimizers run. Each picks the blocks whose type it knows, so one chain serves all.
+# router:
+#   routes: []                        ## e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
+#   default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc]
+
+## Pipelines: which receivers, filters and exporters each command uses.
+# pipelines:
+#   cli: { receivers: [stdin], filters: [bypass, detect, minsize, history], exporters: [stdout] }
+#   exec: { receivers: [exec], filters: [bypass, detect, minsize, history], exporters: [stdout] }
+#   hook: { receivers: [hook], filters: [bypass, detect, minsize, history] }
+#   mcp: { receivers: [mcp], filters: [bypass, detect, minsize, history] }
+#   mcp-proxy: { receivers: [mcp_proxy], filters: [bypass, detect, minsize, history] }

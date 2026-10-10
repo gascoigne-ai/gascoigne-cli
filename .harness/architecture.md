@@ -218,8 +218,13 @@ Failure signals → `MarkFailure(key, reason)`:
 `history` filter bypasses a key once `count >= max_failures`; `gascoigne forget <key>` resets.
 
 ## Config
-`configs/default.yaml` (embedded in binary). Lookup: `-config` > `$GASCOIGNE_CONFIG` >
-`$XDG_CONFIG_HOME/gascoigne/config.yaml` > embedded. Strict decoding: unknown fields fail.
+`configs/default.yaml` (embedded in binary) holds every default; the first config file found
+(`-config` > `$GASCOIGNE_CONFIG` > `$XDG_CONFIG_HOME/gascoigne/config.yaml`) is laid over it
+(`cmd/gascoigne/userconfig.go` `overlay`: maps merge, values and lists replace, empty keys keep
+the default). With neither flag nor env, first run writes `configs/user.yaml` there: every
+setting of every component commented out (`##` docs, `#` settings). Tests keep it honest: the
+template uncommented equals the defaults, and every `Config` field of every used component
+appears in it (a new field fails until documented). Strict decoding: unknown fields fail.
 Pipelines may override `router` (proxy and CLI route differently).
 
 Per-run overrides (`internal/config/override.go`), so each agent can tune optimization without

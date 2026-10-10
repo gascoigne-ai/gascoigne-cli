@@ -10,13 +10,11 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strings"
 	"syscall"
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/lukaszb/gascoigne/configs"
 	"github.com/lukaszb/gascoigne/extension/ledger"
 	"github.com/lukaszb/gascoigne/internal/config"
 	"github.com/lukaszb/gascoigne/internal/registry"
@@ -197,23 +195,6 @@ func (c *common) load() (*config.Config, error) {
 		return nil, err
 	}
 	return config.ParseWith(data, c.overrides())
-}
-
-func configData(path string) ([]byte, error) {
-	if path == "" {
-		path = os.Getenv("GASCOIGNE_CONFIG")
-	}
-	if path == "" {
-		if dir, err := os.UserConfigDir(); err == nil {
-			if p := filepath.Join(dir, "gascoigne", "config.yaml"); fileExists(p) {
-				path = p
-			}
-		}
-	}
-	if path == "" {
-		return configs.Default, nil
-	}
-	return os.ReadFile(path)
 }
 
 func fileExists(p string) bool {

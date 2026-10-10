@@ -43,7 +43,8 @@ to make a component work — if you think you must, stop and ask the user.
 5. `<name>_test.go`: table-driven, real-shaped inputs.
 6. Register: one line in `internal/registry/registry.go` under the right kind comment.
 7. Optimizers: add to `optimizers:` and the router `default:` chain in `configs/default.yaml`.
-   Filters: add to the pipelines' filter lists.
+   Filters: add to the pipelines' filter lists. Every config field also goes, commented out with
+   a `##` note, into the user template `configs/user.yaml` (`TestUserTemplate*` enforce it).
 8. Optimizers: fixtures in `testdata/eval/<tool>/` + cases (`expect_type`, `keep`, `min_saved`)
    — see skill `eval`.
 9. Run skill `verify`, then `eval`.
