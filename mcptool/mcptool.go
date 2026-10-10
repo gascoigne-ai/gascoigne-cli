@@ -16,6 +16,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/cost"
 	"github.com/lukaszb/gascoigne/payload"
 )
 
@@ -286,6 +287,7 @@ type Overview struct {
 	Agents     []StatsJSON          `json:"agents"`
 	Models     []StatsJSON          `json:"models"`
 	Days       []StatsJSON          `json:"days"` // last 7 days (or since filter.Since), oldest first
+	Cost       Costs                `json:"cost"`
 	// Runs not optimized, per stopping component (filter or optimizer) and
 	// command, with the latest recorded reason.
 	Skipped   []StatsJSON `json:"skipped"`
@@ -326,6 +328,11 @@ func BuildOverview(ctx context.Context, l component.Ledger, filter component.Sta
 			o.Total = r.Total
 		}
 	}
+	costs, err := BuildCosts(ctx, l, filter, cost.AgentContext)
+	if err != nil {
+		return o, err
+	}
+	o.Cost = costs
 	rq := filter
 	rq.By = component.ByReason
 	reasons, err := l.Stats(ctx, rq)
@@ -380,6 +387,9 @@ func (o Overview) Table() string {
 	t := o.Total
 	fmt.Fprintf(&b, "%d runs · %d optimized · %d skipped · %d failed · %d → %d tokens · saved %d (%s)\n",
 		t.Runs, t.Optimized, sumRuns(o.Skipped), t.Failed, t.RawTokens, t.OutTokens, t.Saved, Percent(t.Saved, t.RawTokens))
+	if c := o.Cost; len(c.Savings) > 0 {
+		fmt.Fprintf(&b, "worth $%.2f at first read, $%.2f while in context (%.0f rereads)\n", c.FirstRead, c.InContext, c.Rereads)
+	}
 
 	section := func(title, header string, rows []StatsJSON, row func(*tabwriter.Writer, StatsJSON)) {
 		if len(rows) == 0 {

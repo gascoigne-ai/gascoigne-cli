@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/cost"
 	"github.com/lukaszb/gascoigne/extension/ledger"
 	"github.com/lukaszb/gascoigne/mcptool"
 )
@@ -105,6 +106,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		asJSON   bool
 		color    string
 		since    string
+		rereads  float64
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
@@ -113,6 +115,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		fs.StringVar(&since, "since", "", "only the last `period`: 24h, 7d, 4w, 6mo")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
 		fs.StringVar(&color, "color", "auto", "`mode`: auto (terminal, no NO_COLOR), always or never")
+		fs.Float64Var(&rereads, "rereads", cost.AgentContext.Rereads, "later requests that read each tool result again, for the cost estimate (`n`; measured median 110)")
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		defer w.Flush()
@@ -139,7 +142,7 @@ func cmdGain(ctx context.Context, args []string) error {
 			return err
 		}
 		if by == "" {
-			return overview(ctx, l, q, asJSON, p)
+			return overview(ctx, l, q, asJSON, p, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss})
 		}
 		stats, err := l.Stats(ctx, q)
 		if err != nil {
@@ -189,10 +192,15 @@ func writeJSON(v any) error {
 	return enc.Encode(v)
 }
 
-func overview(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, asJSON bool, p painter) error {
+func overview(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, asJSON bool, p painter, c cost.Context) error {
 	o, err := mcptool.BuildOverview(ctx, l, q)
 	if err != nil {
 		return err
+	}
+	if c != cost.AgentContext {
+		if o.Cost, err = mcptool.BuildCosts(ctx, l, q, c); err != nil {
+			return err
+		}
 	}
 	failing, err := l.FailureList(ctx)
 	if err != nil {

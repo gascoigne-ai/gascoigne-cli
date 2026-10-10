@@ -183,6 +183,7 @@ func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int) {
 	p.trendTable(w, "last 7 days", "day", o.Days)
 	p.savingsTable(w, "agents · share of savings", "agent", mcptool.Named(o.Agents), t.Saved, false)
 	p.savingsTable(w, "models · share of savings", "model", mcptool.Named(o.Models), t.Saved, false)
+	p.costTable(w, o.Cost)
 	p.savingsTable(w, "commands · share of savings", "command", o.Commands, t.Saved, false)
 	p.savingsTable(w, "optimizers · share of savings", "optimizer", o.Optimizers, t.Saved, true)
 	p.savingsTable(w, "dialects · share of savings", "dialect", o.Dialects, t.Saved, false)
@@ -327,4 +328,48 @@ func (p painter) renderStats(w io.Writer, q component.StatsQuery, stats []compon
 		return
 	}
 	p.savingsTable(w, r.By, r.By, append(r.Groups, r.Total), r.Total.Saved, r.By == component.ByOptimizer)
+}
+
+// costTable prices the savings per model: once at first read, and with the
+// rereads of every later request while tool results stay in context.
+func (p painter) costTable(w io.Writer, c mcptool.Costs) {
+	if len(c.Savings) == 0 && len(c.Unpriced) == 0 {
+		return
+	}
+	p.section(w, "cost · what the saved tokens are worth")
+	var rows [][]cell
+	assumed := false
+	for _, s := range c.Savings {
+		name := s.Model
+		if s.Assumed {
+			name += "*"
+			assumed = true
+		}
+		rows = append(rows, []cell{
+			{text: name},
+			{text: s.Tokenizer, style: dim},
+			{text: human(s.ModelTokens), right: true},
+			{text: dollars(s.FirstRead), right: true},
+			{text: dollars(s.InContext), right: true, style: green},
+		})
+	}
+	if len(c.Savings) > 1 {
+		rows = append(rows, []cell{{text: "total", style: bold}, {}, {}, {text: dollars(c.FirstRead), right: true, style: bold},
+			{text: dollars(c.InContext), right: true, style: bold + ";" + green}})
+	}
+	p.table(w, []string{"model", "tokenizer", "saved tok", "first read", "in context"}, rows)
+	fmt.Fprintln(w, p.paint(dim, fmt.Sprintf(" in context: each tool result is read again by ~%.0f later requests (cache reads) until compaction · -rereads N", c.Rereads)))
+	if assumed {
+		fmt.Fprintln(w, p.paint(dim, " * no model recorded: the agent's default, set GASCOIGNE_MODEL or -model to record it"))
+	}
+	if len(c.Unpriced) > 0 {
+		fmt.Fprintln(w, p.paint(yellow, " not priced: "+strings.Join(c.Unpriced, ", ")))
+	}
+}
+
+func dollars(v float64) string {
+	if v < 10 {
+		return fmt.Sprintf("$%.2f", v)
+	}
+	return fmt.Sprintf("$%.0f", v)
 }

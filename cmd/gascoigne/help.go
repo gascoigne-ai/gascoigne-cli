@@ -110,14 +110,21 @@ func init() {
 			about:    "Deletes stored originals and vacuums the ledger. Runs and savings stay.",
 			examples: []string{"gascoigne flush", "gascoigne flush -older 2h"},
 			run:      cmdFlush},
+		{name: "tokens", args: "[-model list] [file]", group: groupSavings,
+			summary: "count text as each model family does, and price it",
+			about: "Counts a file (or stdin) with every tokenizer family gascoigne knows, then prices one\n" +
+				"read of it and its cost while it stays in an agent's context, per model.",
+			examples: []string{"gascoigne tokens README.md", "go test ./... 2>&1 | gascoigne tokens -model claude-opus-5-5,gpt-5.5"},
+			run:      cmdTokens},
 
 		{name: "dashboard", args: "[flags]", group: groupServer,
 			summary: "start the server if needed, print the dashboard address",
 			run:     cmdDashboard},
 		{name: "server", args: "[run|start|stop|status] [flags]", short: "[start|stop|status]", group: groupServer,
 			summary: "the background server behind the dashboard, one per user",
-			about: "Commands that optimize start it when it is not answering. Optimization never goes\n" +
-				"through it. GASCOIGNE_SERVER=off keeps it from starting.",
+			about: "Commands that optimize start it when it is not answering; exec, run and the codex hook\n" +
+				"then optimize through it. It restarts itself when its binary changes.\n" +
+				"GASCOIGNE_SERVER=off keeps every command off it.",
 			examples: []string{"gascoigne server status", "gascoigne server stop"},
 			run:      cmdServer},
 

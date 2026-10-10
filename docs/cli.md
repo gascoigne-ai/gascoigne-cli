@@ -18,6 +18,7 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `gain [flags]` | Savings report: overview, or one grouping with `-by`. |
 | `dashboard` | Start the background server if it is not running and print the dashboard address. |
 | `server run\|start\|stop\|status` | The background server hosting the dashboard: one per user, started automatically. |
+| `tokens [-model list] [file]` | Count text with each tokenizer family and price one read and its cost in an agent's context (see [cost](cost.md)). |
 | `flush [-older 7d]` | Delete stored originals (the cache behind `raw <id>`) and vacuum the ledger. |
 | `reset [flags]` | Clear savings stats; `-all` also clears stored originals and failure history. |
 | `wrap <agent> [agent args]` | Start `claude`, `codex` or `pi` with gascoigne registered for that run. |

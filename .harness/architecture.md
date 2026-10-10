@@ -9,6 +9,7 @@ components built by factories, `type/name` ids, pipelines wired by YAML, explici
 component/  payload/  tokens/        public contracts: what component authors import
 detect/  compress/  mcptool/         public libraries: content detection, text primitives, MCP tools
 lazyre/                              package-level regexps compiled on first use (init stays ~1 ms)
+cost/                                tokenizer families (factor vs tokens.Estimate), prices, agent context model
 receiver/  filter/  exporter/        components, one package each, OTel-contrib style;
 extension/                             only import public packages → can become own modules
 optimizer/<family>/<name>optimizer   optimizers grouped by family (see below)
@@ -212,6 +213,11 @@ Reports — `gascoigne gain` (add `-session ID`, `-all`, `-json`):
 Terminal output (`cmd/gascoigne/render.go`): human token counts, savings/share bars, colors by
 saved % (green ≥60, yellow ≥30, red); `-color auto|always|never`, auto honors `NO_COLOR` and
 TTY detection. MCP `stats` stays plain text (no ANSI/bars: they cost the agent tokens).
+Cost (`cost/`, `mcptool.BuildCosts`, docs/cost.md): saved tokens × tokenizer factor (claude 1.58
+measured from transcripts, legacy 1.25, gemini 0.79, o200k 1) × (first read: cache write or input
++ `rereads` (measured median 110 later requests in context) × cache read, 0.8% misses at write
+price), per agent and model; runs without a model use `cost.AgentModels` (marked assumed). Hooks
+record the model from the tail of `transcript_path` (`transcriptModel`, `-model` in the rewrite).
 Every run that is not optimized records a factual reason (`events.reason`), shown per
 component and command in the overview's SKIPPED / FAILED / UNCHANGED sections and in JSON:
 - bypass: `raw requested: attr raw=true` or `env GASCOIGNE_RAW=1`

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"maps"
 	"os"
 	"os/exec"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/exporter/stdoutexporter"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 	"github.com/lukaszb/gascoigne/receiver/hookreceiver"
 )
@@ -21,10 +23,11 @@ import (
 // hookInput is the event agent hooks send on stdin. Claude Code, Codex and
 // Cursor share these fields; the pi extension sends the same shape.
 type hookInput struct {
-	SessionID     string          `json:"session_id"`
-	HookEventName string          `json:"hook_event_name"`
-	ToolInput     map[string]any  `json:"tool_input"`
-	ToolResponse  json.RawMessage `json:"tool_response"`
+	SessionID      string          `json:"session_id"`
+	HookEventName  string          `json:"hook_event_name"`
+	TranscriptPath string          `json:"transcript_path"`
+	ToolInput      map[string]any  `json:"tool_input"`
+	ToolResponse   json.RawMessage `json:"tool_response"`
 }
 
 // hookFunc answers one hook event; nil means "leave the tool call alone".
@@ -57,7 +60,12 @@ func cmdHook(ctx context.Context, args []string) error {
 	if c.sessionID() == "" {
 		c.session = in.SessionID
 	}
-	reply, err := a.hook(ctx, &c, in, execPrefix(self(), name, in.SessionID))
+	model := ""
+	if c.model == "" && os.Getenv("GASCOIGNE_MODEL") == "" {
+		model = transcriptModel(in.TranscriptPath)
+		c.model = model
+	}
+	reply, err := a.hook(ctx, &c, in, execPrefix(self(), name, in.SessionID, model))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
 		return nil
@@ -354,7 +362,7 @@ func streams(cmd string) bool {
 // good (wrap -print) do not set GASCOIGNE_AGENT and GASCOIGNE_SESSION for
 // their shells the way wrap does, so the hook passes what it knows as flags
 // and the run is still tagged with its agent and session.
-func execPrefix(gascoigne, agent, session string) string {
+func execPrefix(gascoigne, agent, session, model string) string {
 	out := gascoigne + " exec"
 	if os.Getenv("GASCOIGNE_AGENT") == "" {
 		out += " -agent " + shellQuote(agent)
@@ -362,7 +370,40 @@ func execPrefix(gascoigne, agent, session string) string {
 	if os.Getenv("GASCOIGNE_SESSION") == "" && session != "" {
 		out += " -session " + shellQuote(session)
 	}
+	if model != "" {
+		out += " -model " + shellQuote(model)
+	}
 	return out
+}
+
+// transcriptTail is how much of a transcript is read for its model.
+const transcriptTail = 256 << 10
+
+var modelField = lazyre.New(`"model"\s*:\s*"([a-z][a-z0-9.\-]+[a-z0-9])"`)
+
+// transcriptModel is the model of the latest request an agent logged in
+// its transcript (Claude Code and Gemini CLI give hooks its path), so runs
+// are priced with the model that reads them. Only the file's tail is read.
+func transcriptModel(path string) string {
+	f, err := os.Open(path)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+	st, err := f.Stat()
+	if err != nil {
+		return ""
+	}
+	off := max(0, st.Size()-transcriptTail)
+	buf := make([]byte, st.Size()-off)
+	if _, err := f.ReadAt(buf, off); err != nil && !errors.Is(err, io.EOF) {
+		return ""
+	}
+	ms := modelField.Regexp().FindAllSubmatch(buf, -1)
+	if len(ms) == 0 {
+		return ""
+	}
+	return string(ms[len(ms)-1][1])
 }
 
 // self is how agent shells reach this binary: its name when PATH finds it, else its path.

@@ -173,18 +173,19 @@ func TestCodexOptimizesOutput(t *testing.T) {
 
 func TestExecPrefix(t *testing.T) {
 	tests := []struct {
-		name, envAgent, envSession, hookSession, want string
+		name, envAgent, envSession, hookSession, model, want string
 	}{
-		{"wrapped: env says it all", "claude", "claude-20261010", "uuid-1", "gascoigne exec"},
-		{"installed for good: hook names the agent", "", "", "uuid-1", "gascoigne exec -agent cursor -session uuid-1"},
-		{"no session from the hook", "", "", "", "gascoigne exec -agent cursor"},
-		{"odd session id quoted", "", "", "a b", "gascoigne exec -agent cursor -session 'a b'"},
+		{"wrapped: env says it all", "claude", "claude-20261010", "uuid-1", "", "gascoigne exec"},
+		{"installed for good: hook names the agent", "", "", "uuid-1", "", "gascoigne exec -agent cursor -session uuid-1"},
+		{"no session from the hook", "", "", "", "", "gascoigne exec -agent cursor"},
+		{"odd session id quoted", "", "", "a b", "", "gascoigne exec -agent cursor -session 'a b'"},
+		{"model from the transcript", "claude", "s", "", "claude-opus-5-5", "gascoigne exec -model claude-opus-5-5"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("GASCOIGNE_AGENT", tt.envAgent)
 			t.Setenv("GASCOIGNE_SESSION", tt.envSession)
-			if got := execPrefix("gascoigne", "cursor", tt.hookSession); got != tt.want {
+			if got := execPrefix("gascoigne", "cursor", tt.hookSession, tt.model); got != tt.want {
 				t.Fatalf("got %q, want %q", got, tt.want)
 			}
 		})
@@ -199,5 +200,23 @@ func TestRewriteBackgroundWatch(t *testing.T) {
 	}
 	if got := compactJSON(reply); !strings.Contains(got, `"command":"gascoigne exec -watch -- npx tsc -w"`) {
 		t.Fatalf("got %s", got)
+	}
+}
+
+func TestTranscriptModel(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "t.jsonl")
+	lines := `{"type":"user","message":{"content":"say \"model\":\"gpt-5\" please"}}
+{"type":"assistant","message":{"model":"claude-sonnet-5-5","id":"m1"}}
+{"type":"assistant","message":{"model":"claude-opus-5-5","id":"m2"}}
+{"type":"user","message":{"content":"x"}}
+`
+	if err := os.WriteFile(file, []byte(lines), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if got := transcriptModel(file); got != "claude-opus-5-5" {
+		t.Fatalf("got %q", got)
+	}
+	if got := transcriptModel(filepath.Join(t.TempDir(), "missing")); got != "" {
+		t.Fatalf("missing file: %q", got)
 	}
 }
