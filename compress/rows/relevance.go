@@ -3,6 +3,7 @@ package rows
 import (
 	"encoding/json"
 	"math"
+	"slices"
 	"strings"
 	"unicode"
 )
@@ -27,38 +28,11 @@ func relevance(items []any, uniq []int, query []string, k int) map[int]float64 {
 		return nil
 	}
 	docs := make([][]string, len(uniq))
-	df := map[string]int{}
-	total := 0
 	for d, i := range uniq {
 		docs[d] = Terms(flatten(items[i]))
-		total += len(docs[d])
-		seen := map[string]bool{}
-		for _, t := range docs[d] {
-			if !seen[t] {
-				seen[t] = true
-				df[t]++
-			}
-		}
 	}
-	avg := float64(total) / float64(len(docs))
-	n := float64(len(docs))
-	scores := make([]float64, len(docs))
-	best := 0.0
-	for d, doc := range docs {
-		tf := map[string]int{}
-		for _, t := range doc {
-			tf[t]++
-		}
-		for _, q := range query {
-			f := float64(tf[q])
-			if f == 0 {
-				continue
-			}
-			idf := math.Log(1 + (n-float64(df[q])+0.5)/(float64(df[q])+0.5))
-			scores[d] += idf * f * (bm25K1 + 1) / (f + bm25K1*(1-bm25B+bm25B*float64(len(doc))/avg))
-		}
-		best = max(best, scores[d])
-	}
+	scores := BM25(docs, query)
+	best := slices.Max(scores)
 	out := map[int]float64{}
 	for range k {
 		top := -1
@@ -74,6 +48,43 @@ func relevance(items []any, uniq []int, query []string, k int) map[int]float64 {
 		scores[top] = 0
 	}
 	return out
+}
+
+// BM25 scores each document (its terms) against the query terms; 0 is no match.
+func BM25(docs [][]string, query []string) []float64 {
+	scores := make([]float64, len(docs))
+	if len(docs) == 0 || len(query) == 0 {
+		return scores
+	}
+	df := map[string]int{}
+	total := 0
+	for _, doc := range docs {
+		total += len(doc)
+		seen := map[string]bool{}
+		for _, t := range doc {
+			if !seen[t] {
+				seen[t] = true
+				df[t]++
+			}
+		}
+	}
+	avg := max(float64(total)/float64(len(docs)), 1)
+	n := float64(len(docs))
+	for d, doc := range docs {
+		tf := map[string]int{}
+		for _, t := range doc {
+			tf[t]++
+		}
+		for _, q := range query {
+			f := float64(tf[q])
+			if f == 0 {
+				continue
+			}
+			idf := math.Log(1 + (n-float64(df[q])+0.5)/(float64(df[q])+0.5))
+			scores[d] += idf * f * (bm25K1 + 1) / (f + bm25K1*(1-bm25B+bm25B*float64(len(doc))/avg))
+		}
+	}
+	return scores
 }
 
 // flatten joins an item's keys and scalar values into one text.

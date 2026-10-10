@@ -8,7 +8,7 @@ import (
 )
 
 func testOptimizer() *Optimizer {
-	return &Optimizer{cfg: &Config{MaxCodeLines: 6, ManDrop: []string{"SEE ALSO"}}}
+	return &Optimizer{cfg: &Config{MaxCodeLines: 6, MaxTokens: 4000, ManDrop: []string{"SEE ALSO"}}}
 }
 
 func TestMarkdown(t *testing.T) {
@@ -24,7 +24,7 @@ note -->
 
 ## Install
 ` + "```sh\n1\n2\n3\n4\n5\n6\n7\n8\n9\n```\n"
-	got := compress.Join(testOptimizer().markdown(compress.Lines(htmlComment.ReplaceAllString(in, ""))))
+	got := compress.Join(testOptimizer().markdown(compress.Lines(htmlComment.ReplaceAllString(in, "")), ""))
 	want := "# Tool\n\n[image: diagram]\n\n## Install\n```sh\n1\n2\n3\n4\n… 3 lines omitted\n8\n9\n```\n… 2 table of contents entries omitted\n"
 	if got := compress.Join(compress.SqueezeBlank(compress.Lines(got))); got != want {
 		t.Fatalf("got:\n%s", got)
@@ -44,5 +44,38 @@ func TestRST(t *testing.T) {
 	got := compress.Join(compress.SqueezeBlank(testOptimizer().rst(compress.Lines(in))))
 	if strings.Contains(got, "badge") || strings.Contains(got, "comment") || !strings.Contains(got, "Title\n=====\n") || !strings.Contains(got, "Text.") {
 		t.Fatalf("got:\n%s", got)
+	}
+}
+
+func TestSections(t *testing.T) {
+	filler := strings.Repeat("lorem ipsum dolor sit amet consectetur\n", 20)
+	in := "# Page\nintro\n## Alpha\n" + filler + "### Alpha detail\n" + filler +
+		"## Beta\nthe widget setting lives here\n" + filler + "## Gamma\n```\n## not a heading\n```\n" + filler
+	lines := compress.Lines(in)
+	tests := []struct {
+		name, query string
+		budget      int
+		keep, drop  []string
+	}{
+		{"under budget", "", 10000, []string{"## not a heading", "widget"}, []string{"omitted"}},
+		{"page order", "", 300, []string{"intro", "## Alpha\nlorem", "## Beta\n… 21 lines omitted", "## Gamma\n… 23 lines omitted"},
+			[]string{"widget", "### Alpha detail"}},
+		{"query first", "widget settings", 300, []string{"intro", "## Alpha\n… 41 lines omitted", "## Beta\nthe widget setting"},
+			[]string{"### Alpha detail"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := compress.Join(sections(lines, tt.query, tt.budget))
+			for _, k := range tt.keep {
+				if !strings.Contains(got, k) {
+					t.Errorf("missing %q in:\n%s", k, got)
+				}
+			}
+			for _, d := range tt.drop {
+				if strings.Contains(got, d) {
+					t.Errorf("unexpected %q in:\n%s", d, got)
+				}
+			}
+		})
 	}
 }

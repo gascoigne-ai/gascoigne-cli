@@ -68,7 +68,7 @@ func (r *Receiver) server() *mcp.Server {
 
 type FetchInput struct {
 	URL   string `json:"url" jsonschema:"http or https URL"`
-	Query string `json:"query,omitempty" jsonschema:"what you are looking for; matching items survive compression"`
+	Query string `json:"query,omitempty" jsonschema:"what you are looking for; matching items and page sections survive compression"`
 	Raw   bool   `json:"raw,omitempty" jsonschema:"return the body unoptimized"`
 }
 
@@ -116,7 +116,7 @@ type CompressInput struct {
 	Text  string `json:"text"`
 	Cmd   string `json:"cmd,omitempty" jsonschema:"command that produced the text, e.g. go test ./..."`
 	File  string `json:"file,omitempty" jsonschema:"file the text came from"`
-	Query string `json:"query,omitempty" jsonschema:"what you are looking for; matching items survive compression"`
+	Query string `json:"query,omitempty" jsonschema:"what you are looking for; matching items and page sections survive compression"`
 	Raw   bool   `json:"raw,omitempty" jsonschema:"return text unchanged"`
 }
 

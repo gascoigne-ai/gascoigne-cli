@@ -269,7 +269,9 @@
 
 # --- doc family
 - { file: doc/go-sqlite3-README.md, attrs: { cmd: cat README.md }, expect_type: doc/markdown,
-    keep: ["# Installation", "go get github.com/mattn/go-sqlite3", "_loc=auto", "table of contents entries omitted"], min_saved: 10 }
+    keep: ["# Installation", "go get github.com/mattn/go-sqlite3", "# Features", "table of contents entries omitted"], min_saved: 10 }
+- { name: doc/go-sqlite3-README-query, file: doc/go-sqlite3-README.md, attrs: { cmd: cat README.md, query: loc time zone },
+    expect_type: doc/markdown, keep: ["_loc=auto", "# Installation", "table of contents entries omitted"], min_saved: 10 }
 - { file: doc/man-ls.txt, attrs: { cmd: man ls }, expect_type: doc/man,
     keep: ["SYNOPSIS", "-a, --all", "--sort=WORD", "Exit status:"], min_saved: 10 }
 - { file: doc/curl-help.txt, attrs: { cmd: curl --help all }, expect_type: doc/help,

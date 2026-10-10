@@ -1,6 +1,6 @@
 // Package docoptimizer is the doc family engine: markdown and reStructuredText
 // lose badges, comments, layout HTML and tables of contents and keep long code
-// blocks at their ends; man pages and --help output lose page furniture,
+// blocks at their ends, long markdown keeps the sections that match the query; man pages and --help output lose page furniture,
 // boilerplate sections and deep indentation.
 package docoptimizer
 
@@ -29,7 +29,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		var out []string
 		switch detect.Dialect(b.Type) {
 		case "markdown":
-			out = o.markdown(compress.Lines(htmlComment.ReplaceAllString(b.Text, "")))
+			out = o.markdown(compress.Lines(htmlComment.ReplaceAllString(b.Text, "")), p.Attrs[payload.AttrQuery])
 		case "rst":
 			out = o.rst(compress.Lines(b.Text))
 		case "man":
@@ -55,9 +55,9 @@ var (
 	tocItem    = regexp.MustCompile(`^\s*([-*+]|\d+\.) \[[^\]]+\]\(#[^)]*\)\s*$`)
 )
 
-// markdown drops badges, images, layout HTML and tables of contents, and
-// keeps long code blocks at their ends.
-func (o *Optimizer) markdown(lines []string) []string {
+// markdown drops badges, images, layout HTML and tables of contents, keeps
+// long code blocks at their ends and fits long pages into max_tokens.
+func (o *Optimizer) markdown(lines []string, query string) []string {
 	var out, code []string
 	inCode, toc := false, 0
 	for _, l := range lines {
@@ -91,6 +91,7 @@ func (o *Optimizer) markdown(lines []string) []string {
 		out = append(out, l)
 	}
 	out = append(out, o.code(code)...) // unclosed fence
+	out = sections(out, query, o.cfg.MaxTokens)
 	if toc > 0 {
 		out = append(out, compress.Omitted(toc, "table of contents entries"))
 	}

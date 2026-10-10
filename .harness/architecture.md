@@ -77,7 +77,7 @@ lives in public libs so engines and composite families can reuse it:
 | `table` | `compress/table`: parse boxed/aligned/ruled/fixed-width, constants hoisted, cells cut, rows via `compress/rows` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, aligned, boxed |
 | `data` | json: `compress/jsonx` crusher; data: YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry | json, ndjson, yaml, csv, xml, toml |
 | `log` | log engine: templates with counts, errors with context; structured cloud events → lines; access logs → traffic summary | app, journal, syslog, docker, kubectl, access, cloudwatch, gcp, azure |
-| `doc` | markdown/rst: badges, comments, layout HTML, TOCs dropped, code fences capped; man/help: furniture and boilerplate dropped, dedented | markdown, rst, man, help (+ text: dedupe) |
+| `doc` | markdown/rst: badges, comments, layout HTML, TOCs dropped, code fences capped; markdown over `max_tokens` keeps whole sections (intro, BM25 matches of `query`, then page order), dropped ones leave top-level headings + `… N lines omitted`; man/help: furniture and boilerplate dropped, dedented | markdown, rst, man, help (+ text: dedupe) |
 | `web` | html: `compress/htmlx` → markdown; http: transport headers and TLS chatter dropped, body by type | html, http |
 | `db` | results via `compress/table`, EXPLAIN pruned to costly nodes, redis keys folded, mongo docs as JSON rows | psql, mysql, sqlite, explain, redis, mongosh, migrate |
 | `k8s` | `compress/yamlx` prune rules (managedFields, last-applied, defaults); lists keep unhealthy items; describe/events/helm | get, manifest, describe, events, helm |

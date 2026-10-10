@@ -56,7 +56,7 @@ optimizers:
   task: {}
   http: { links: true } # drop_headers: transport headers removed; json: crusher keys for bodies
   html: { links: true }
-  doc: { max_code_lines: 40 } # man_drop: man sections dropped as boilerplate
+  doc: { max_code_lines: 40, max_tokens: 4000 } # man_drop: man sections dropped as boilerplate
 
 exporters:
   stdout: { hint: true }
