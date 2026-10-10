@@ -344,11 +344,11 @@
   min_saved: 45
 - file: grep/rg.txt
   attrs: { cmd: rg -n "ctx context.Context" }
-  expect_type: search/grep
+  expect_type: search/rg
   min_saved: 5
 - file: grep/rg-errors.txt
   attrs: { cmd: rg -n -i error }
-  expect_type: search/grep
+  expect_type: search/rg
   keep: ["active_help_test.go"]
   min_saved: 60
 - name: detect/grep

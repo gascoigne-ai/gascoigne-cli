@@ -31,7 +31,7 @@ type file struct {
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	return p.Rewrite(func(b payload.Block) (string, error) {
 		return compress.Join(o.group(compress.Lines(compress.StripANSI(b.Text)))), nil
-	}, detect.Grep)
+	}, detect.Grep, detect.RG, detect.AG, detect.GitGrep)
 }
 
 func (o *Optimizer) group(lines []string) []string {
