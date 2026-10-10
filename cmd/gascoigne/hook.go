@@ -27,8 +27,9 @@ type hookInput struct {
 }
 
 // hookFunc answers one hook event; nil means "leave the tool call alone".
-// gascoigne is how the agent's shell reaches this binary.
-type hookFunc func(ctx context.Context, c *common, in hookInput, gascoigne string) (any, error)
+// prefix is how the agent's shell runs a command through this binary
+// ("gascoigne exec", see execPrefix).
+type hookFunc func(ctx context.Context, c *common, in hookInput, prefix string) (any, error)
 
 // cmdHook handles an agent hook event. It never fails the agent's tool call:
 // on any problem it prints nothing and the call goes on unchanged.
@@ -55,7 +56,7 @@ func cmdHook(ctx context.Context, args []string) error {
 	if c.sessionID() == "" {
 		c.session = in.SessionID
 	}
-	reply, err := a.hook(ctx, &c, in, self())
+	reply, err := a.hook(ctx, &c, in, execPrefix(self(), name, in.SessionID))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
 		return nil
@@ -71,10 +72,10 @@ func cmdHook(ctx context.Context, args []string) error {
 // rewriteHook routes shell tool calls through gascoigne exec before they run;
 // reply shapes the agent's answer (updated is nil when nothing changed).
 func rewriteHook(reply func(updated map[string]any) any) hookFunc {
-	return func(_ context.Context, _ *common, in hookInput, gascoigne string) (any, error) {
+	return func(_ context.Context, _ *common, in hookInput, prefix string) (any, error) {
 		cmd, _ := in.ToolInput["command"].(string)
 		background, _ := in.ToolInput["run_in_background"].(bool)
-		wrapped, ok := wrapCommand(cmd, gascoigne)
+		wrapped, ok := wrapCommand(cmd, prefix)
 		if !ok || background {
 			return reply(nil), nil
 		}
@@ -151,7 +152,7 @@ func hinted(p *payload.Payload) string {
 // by && or ;, and only head/tail may follow a pipe: other filters would see
 // optimized text instead of what they search. Redirects, subshells and other
 // lists are left alone.
-func wrapCommand(line, gascoigne string) (string, bool) {
+func wrapCommand(line, prefix string) (string, bool) {
 	line = strings.TrimSpace(line)
 	if ownCommand(line) {
 		return line, false
@@ -169,11 +170,11 @@ func wrapCommand(line, gascoigne string) (string, bool) {
 	if detect.FromCmd(cmd) == "" || streams(cmd) {
 		return line, false
 	}
-	run := " exec -- "
+	run := prefix + " -- "
 	if slices.Contains(strings.Fields(pipe), "head") {
-		run = " exec -attr " + stdoutexporter.AttrHint + "=" + stdoutexporter.HintTop + " -- " // head would cut a hint at the end
+		run = prefix + " -attr " + stdoutexporter.AttrHint + "=" + stdoutexporter.HintTop + " -- " // head would cut a hint at the end
 	}
-	out := head + env + gascoigne + run + cmd
+	out := head + env + run + cmd
 	if merged {
 		out += " 2>&1"
 	}
@@ -267,6 +268,21 @@ func streams(cmd string) bool {
 		}
 	}
 	return false
+}
+
+// execPrefix is the rewritten command up to "--". Agents registered for
+// good (wrap -print) do not set GASCOIGNE_AGENT and GASCOIGNE_SESSION for
+// their shells the way wrap does, so the hook passes what it knows as flags
+// and the run is still tagged with its agent and session.
+func execPrefix(gascoigne, agent, session string) string {
+	out := gascoigne + " exec"
+	if os.Getenv("GASCOIGNE_AGENT") == "" {
+		out += " -agent " + shellQuote(agent)
+	}
+	if os.Getenv("GASCOIGNE_SESSION") == "" && session != "" {
+		out += " -session " + shellQuote(session)
+	}
+	return out
 }
 
 // self is how agent shells reach this binary: its name when PATH finds it, else its path.

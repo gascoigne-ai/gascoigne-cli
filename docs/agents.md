@@ -62,6 +62,10 @@ the page itself. Use the MCP `fetch` tool when you need the page's own text.
 
 The hook only rewrites a command when it can do so safely and gascoigne knows the tool:
 
+- **Attribution.** Under `wrap`, `GASCOIGNE_AGENT` and `GASCOIGNE_SESSION` tag every run. Hooks
+  installed for good (`wrap -print`) have no such environment, so the rewritten command carries
+  them: `gascoigne exec -agent cursor -session <hook session> -- …`. Runs from a terminal or a
+  script have no agent; the dashboard shows them as *no agent*.
 - **Known tool.** The last command must be detected by `detect.FromCmd` (see
   [Families](families.md)). `echo hi` stays as it is.
 - **Lists.** In `a && b` and `a; b` only the last command is wrapped:

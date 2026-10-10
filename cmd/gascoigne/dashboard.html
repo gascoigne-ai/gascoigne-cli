@@ -108,6 +108,7 @@ td.mono { font-family: var(--mono); font-size: 13px; word-break: break-word; }
 @keyframes blood { from { background: rgba(200, 40, 58, .45); } to { background: transparent; } }
 .when { color: var(--dim); white-space: nowrap; font-size: 13px; }
 .dialect { color: var(--ash); font-size: 13px; }
+.none { color: var(--dim); font-style: italic; }
 
 /* Bars: a vial of blood, filled by saved % */
 .bar { position: relative; height: 8px; min-width: 70px; background: #0d0a0a; border: 1px solid var(--edge); }
@@ -400,12 +401,19 @@ async function refreshLists() {
   asel.value = akeep;
 }
 
+// Runs without an agent came from a terminal or script, or from before
+// agents were tagged.
+function agentLabel(e) {
+  if (e.agent) return e.agent;
+  return el("span", { class: "none", title: "Not run by an agent: a terminal or script, or recorded before runs were tagged with their agent" }, "no agent");
+}
+
 function feedRow(e, fresh) {
   const saved = e.raw_tokens - e.out_tokens;
   const dialects = [...new Set(e.steps.map((s) => s.dialect).filter(Boolean))].join(", ");
   const tr = el("tr", { class: fresh ? "fresh" : "", onclick: () => showDetail(e.id) },
     el("td", { class: "when", title: new Date(e.ts).toLocaleString(), "data-ts": e.ts }, ago(e.ts)),
-    el("td", { class: "hide-sm" }, e.agent || "—"),
+    el("td", { class: "hide-sm" }, agentLabel(e)),
     el("td", { class: "mono" }, e.command || e.key || "—"),
     el("td", { class: "hide-sm dialect" }, dialects || (e.filter ? "via " + e.filter : "")),
     el("td", { class: "num" }, e.outcome === "optimized" ? `${human(e.raw_tokens)} → ${human(e.out_tokens)}` : human(e.raw_tokens)),
@@ -464,7 +472,7 @@ async function showDetail(id) {
     ["Outcome", el("span", { class: "badge " + e.outcome }, e.outcome)],
     ["When", new Date(e.ts).toLocaleString()],
     ["Tokens", `${e.raw_tokens} → ${e.out_tokens} (saved ${saved}, ${fmtPct(pct(saved, e.raw_tokens))})`],
-    ["Agent · model", [e.agent || "—", e.model].filter(Boolean).join(" · ")],
+    ["Agent · model", e.agent ? [e.agent, e.model].filter(Boolean).join(" · ") : agentLabel(e)],
     ["Session", e.session || "—"],
     ["Source key", el("code", {}, e.key || "—")],
     ["Pipeline · route", `${e.pipeline} · ${e.route || "—"}`],

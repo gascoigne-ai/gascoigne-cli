@@ -142,6 +142,9 @@ fails the tool call (bad input → no answer → call unchanged).
 | codex | `-c mcp_servers…` + `-c hooks.PostToolUse…` | PostToolUse runs the output through pipeline `hook` and replaces the result (`decision: block`); codex rewrites a command only by approving it. Trust the hook once with `/hooks` |
 | pi | `--extension` (written to the user cache dir) | `tool_call` rewrites the bash command; no MCP |
 | cursor | — (config files only: `-print`) | preToolUse `updated_input`, `permission: allow` (shell approval stays with `beforeShellExecution`) |
+Rewritten commands carry `-agent <name>` and `-session <hook session_id>` when
+`GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks; `wrap` sets the env, so its
+commands stay short): `execPrefix` in `hook.go`.
 Rewrites touch only the last command of a `&&`/`;` list when `detect.FromCmd` knows it, and
 may keep trailing `| head`/`| tail` stages (they then cut optimized text; other filters would
 search it, so other pipes stay). Before `head`, exec gets `-attr hint=top`: the stdout exporter

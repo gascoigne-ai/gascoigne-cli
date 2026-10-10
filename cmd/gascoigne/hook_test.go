@@ -46,7 +46,7 @@ func TestWrapCommand(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, ok := wrapCommand(tt.in, "gascoigne")
+			got, ok := wrapCommand(tt.in, "gascoigne exec")
 			if want := tt.want != ""; ok != want {
 				t.Fatalf("ok = %v, got %q", ok, got)
 			}
@@ -68,7 +68,7 @@ func TestRewriteReplies(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.agent, func(t *testing.T) {
-			reply, err := agents[tt.agent].hook(t.Context(), &common{}, in, "gascoigne")
+			reply, err := agents[tt.agent].hook(t.Context(), &common{}, in, "gascoigne exec")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -90,11 +90,11 @@ func TestRewriteLeavesAlone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			reply, _ := agents["claude"].hook(t.Context(), &common{}, hookInput{ToolInput: tt.input}, "gascoigne")
+			reply, _ := agents["claude"].hook(t.Context(), &common{}, hookInput{ToolInput: tt.input}, "gascoigne exec")
 			if reply != nil {
 				t.Fatalf("claude got %v", reply)
 			}
-			reply, _ = agents["cursor"].hook(t.Context(), &common{}, hookInput{ToolInput: tt.input}, "gascoigne")
+			reply, _ = agents["cursor"].hook(t.Context(), &common{}, hookInput{ToolInput: tt.input}, "gascoigne exec")
 			if got := compactJSON(reply); got != `{"permission":"allow"}` {
 				t.Fatalf("cursor got %s", got)
 			}
@@ -148,5 +148,25 @@ func TestCodexOptimizesOutput(t *testing.T) {
 	in.ToolInput["command"] = "gascoigne exec -- go test -v ./..."
 	if reply, _ := agents["codex"].hook(t.Context(), c, in, "gascoigne"); reply != nil {
 		t.Fatalf("wrapped command optimized twice: %v", reply)
+	}
+}
+
+func TestExecPrefix(t *testing.T) {
+	tests := []struct {
+		name, envAgent, envSession, hookSession, want string
+	}{
+		{"wrapped: env says it all", "claude", "claude-20261010", "uuid-1", "gascoigne exec"},
+		{"installed for good: hook names the agent", "", "", "uuid-1", "gascoigne exec -agent cursor -session uuid-1"},
+		{"no session from the hook", "", "", "", "gascoigne exec -agent cursor"},
+		{"odd session id quoted", "", "", "a b", "gascoigne exec -agent cursor -session 'a b'"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("GASCOIGNE_AGENT", tt.envAgent)
+			t.Setenv("GASCOIGNE_SESSION", tt.envSession)
+			if got := execPrefix("gascoigne", "cursor", tt.hookSession); got != tt.want {
+				t.Fatalf("got %q, want %q", got, tt.want)
+			}
+		})
 	}
 }
