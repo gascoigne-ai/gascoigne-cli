@@ -102,12 +102,14 @@ func cmdGain(ctx context.Context, args []string) error {
 		by       string
 		all      bool
 		asJSON   bool
+		color    string
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
 		fs.StringVar(&by, "by", "", "one grouping instead of the overview: command, optimizer, family, outcome, skip, session or route")
 		fs.BoolVar(&all, "all", false, "every session, even when -session or $GASCOIGNE_SESSION is set")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
+		fs.StringVar(&color, "color", "auto", "colors: auto (terminal, no NO_COLOR), always or never")
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		defer w.Flush()
@@ -121,8 +123,12 @@ func cmdGain(ctx context.Context, args []string) error {
 		if all {
 			q.Session = ""
 		}
+		p, err := newPainter(color)
+		if err != nil {
+			return err
+		}
 		if by == "" {
-			return overview(ctx, l, q.Session, asJSON)
+			return overview(ctx, l, q.Session, asJSON, p)
 		}
 		stats, err := l.Stats(ctx, q)
 		if err != nil {
@@ -131,11 +137,8 @@ func cmdGain(ctx context.Context, args []string) error {
 		if asJSON {
 			return writeJSON(mcptool.Report(q, stats))
 		}
-		if q.Session != "" {
-			fmt.Printf("session %s\n", q.Session)
-		}
-		_, err = io.WriteString(os.Stdout, mcptool.StatsTable(q.By, stats))
-		return err
+		p.renderStats(os.Stdout, q, stats)
+		return nil
 	})
 }
 
@@ -175,7 +178,7 @@ func writeJSON(v any) error {
 	return enc.Encode(v)
 }
 
-func overview(ctx context.Context, l *ledger.Ledger, session string, asJSON bool) error {
+func overview(ctx context.Context, l *ledger.Ledger, session string, asJSON bool, p painter) error {
 	o, err := mcptool.BuildOverview(ctx, l, session)
 	if err != nil {
 		return err
@@ -190,9 +193,6 @@ func overview(ctx context.Context, l *ledger.Ledger, session string, asJSON bool
 			FailingSources int `json:"failing_sources"`
 		}{o, len(failing)})
 	}
-	_, err = io.WriteString(os.Stdout, o.Table())
-	if err == nil && len(failing) > 0 {
-		_, err = fmt.Printf("\n%d sources marked as badly optimized; they bypass optimization (gain -failures)\n", len(failing))
-	}
-	return err
+	p.renderOverview(os.Stdout, o, len(failing))
+	return nil
 }

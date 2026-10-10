@@ -132,6 +132,9 @@ Reports — `gascoigne gain` (add `-session ID`, `-all`, `-json`):
 | `gain` | overview: totals line, by outcome (optimized/unchanged/bypassed/error with tokens and share of input), by command (`go test`, `git log`, `fetch go.dev`), by optimizer (with family), skipped (filter + reason), count of failing sources |
 | `gain -by command\|optimizer\|family\|outcome\|skip\|session\|route` | one grouping |
 | `gain -failures` | sources that bypass optimization after going bad |
+Terminal output (`cmd/gascoigne/render.go`): human token counts, savings/share bars, colors by
+saved % (green ≥60, yellow ≥30, red); `-color auto|always|never`, auto honors `NO_COLOR` and
+TTY detection. MCP `stats` stays plain text (no ANSI/bars: they cost the agent tokens).
 Events record `command` (normalized via `detect.Command`, else MCP tool + URL host) and, when
 bypassed, the `filter` that skipped them.
 MCP `stats {by?, session?, format?: json}` defaults to the overview of the calling session (`session: all` for every session).

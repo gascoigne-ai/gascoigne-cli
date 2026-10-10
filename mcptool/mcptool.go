@@ -295,7 +295,12 @@ var skipReasons = map[string]string{
 	"history": "source optimized badly before (retrieved original)",
 }
 
-// Table renders the overview for humans.
+// SkipReason explains why a filter type bypasses optimization.
+func SkipReason(filterType string) string {
+	return cmp.Or(skipReasons[filterType], "-")
+}
+
+// Table renders the overview as plain text.
 func (o Overview) Table() string {
 	var b strings.Builder
 	if o.Session != "" {
@@ -328,7 +333,7 @@ func (o Overview) Table() string {
 	})
 	section("skipped", "filter\truns\ttokens\treason", o.Skipped, func(w *tabwriter.Writer, r StatsJSON) {
 		typ, _, _ := strings.Cut(r.Group, "/")
-		fmt.Fprintf(w, "%s\t%d\t%d\t%s\n", r.Group, r.Runs, r.RawTokens, cmp.Or(skipReasons[typ], "-"))
+		fmt.Fprintf(w, "%s\t%d\t%d\t%s\n", r.Group, r.Runs, r.RawTokens, SkipReason(typ))
 	})
 	return b.String()
 }
