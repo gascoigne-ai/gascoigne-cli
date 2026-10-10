@@ -18,6 +18,7 @@ Run `gascoigne <command> -h` for the flags of one command.
 | `server run\|start\|stop\|status` | The background server hosting the dashboard: one per user, started automatically. |
 | `reset [flags]` | Clear savings stats; `-all` also clears stored originals and failure history. |
 | `wrap <agent> [agent args]` | Start `claude`, `codex` or `pi` with gascoigne registered for that run. |
+| `install [-g] [agent...]` | Register gascoigne for good in this project's agent configs, or with `-g` in the user's (default: agents found on `PATH`). |
 | `wrap -print <agent>` | Print the config that registers gascoigne for good (also `cursor`). |
 | `unwrap [agent...]` | Remove gascoigne from agents' config files (default: every agent). |
 | `hook <agent>` | Agent hook handler. Installed by `wrap`; reads the hook event on stdin. |

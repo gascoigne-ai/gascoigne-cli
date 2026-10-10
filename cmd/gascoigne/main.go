@@ -31,6 +31,7 @@ commands:
   run         run a pipeline (default cli: stdin → optimized stdout)
   exec -- <cmd> [args]  run cmd, print its optimized output, keep its exit code
   wrap <agent> [args]   start claude, codex or pi with gascoigne registered (-print: config for good, also cursor)
+  install [-g] [agent...]  register gascoigne with agents for good: this project, -g every project
   unwrap [agent...]     deregister gascoigne from agents' config files (default: all)
   hook <agent>          agent hook handler (installed by wrap)
   mcp         MCP server on stdio: fetch, compress, retrieve, stats
@@ -53,6 +54,7 @@ var commands = map[string]func(ctx context.Context, args []string) error{
 	"exec":       cmdExec,
 	"wrap":       cmdWrap,
 	"unwrap":     cmdUnwrap,
+	"install":    cmdInstall,
 	"hook":       cmdHook,
 	"mcp":        cmdMCP,
 	"mcp-proxy":  cmdMCPProxy,

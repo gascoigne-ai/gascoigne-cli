@@ -20,13 +20,28 @@ touched. It first makes sure the background server runs and prints the dashboard
 (`<agent>-<date>-<time>`), so every event of the run is tagged and `gascoigne gain` inside the
 agent shows that session.
 
-## For good: `wrap -print` and `unwrap`
+## For good: `install` and `unwrap`
 
 ```sh
-gascoigne wrap -print claude    # also codex, pi, cursor
+gascoigne install               # this project: agents found on PATH
+gascoigne install claude codex  # this project: named agents
+gascoigne install -g            # every project: the user's config files
+gascoigne wrap -print claude    # only print the config, to add it by hand
 ```
 
-prints the config to add to the agent's own files. To remove it again:
+| Agent | `install` (project) | `install -g` (user) |
+|---|---|---|
+| claude | `.claude/settings.json` hook + env, `.mcp.json` | `~/.claude/settings.json`, `claude mcp add --scope user` (else `~/.claude.json`) |
+| codex | `.codex/config.toml` | `~/.codex/config.toml` (`$CODEX_HOME`) |
+| cursor | `.cursor/hooks.json`, `.cursor/mcp.json` | `~/.cursor/hooks.json`, `~/.cursor/mcp.json` |
+| pi | `.pi/extensions/gascoigne.ts` | `~/.pi/agent/extensions/gascoigne.ts` |
+
+Entries are merged into what is there; a changed file is saved as `<file>.gascoigne-bak`.
+Earlier gascoigne entries are replaced, so running `install` again after moving the binary
+refreshes them, and an up-to-date file is left untouched. Configs call plain `gascoigne` when
+`PATH` finds this binary (project files can then be committed), else its full path. Claude asks
+to approve a project `.mcp.json` server on first use; Codex asks to trust the hook (`/hooks`).
+To remove it again:
 
 ```sh
 gascoigne unwrap                # every agent

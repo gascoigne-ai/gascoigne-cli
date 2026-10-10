@@ -19,15 +19,16 @@ import (
 // agent wires gascoigne into one coding agent: shell output through
 // gascoigne exec (or optimized after the fact), the MCP server for web data.
 type agent struct {
-	bin     string                             // program wrap starts
-	launch  func(exe string) ([]string, error) // per-run config args; nil: the agent has none
-	install func(exe string) string            // config to register gascoigne for good
-	remove  func() ([]string, error)           // undoes install: what it removed
+	bin     string                                          // program wrap starts
+	launch  func(exe string) ([]string, error)              // per-run config args; nil: the agent has none
+	install func(exe string) string                         // config to register gascoigne for good (wrap -print)
+	add     func(exe string, global bool) ([]string, error) // writes that config: user files, else project ones
+	remove  func() ([]string, error)                        // undoes install: what it removed
 	hook    hookFunc
 }
 
 var agents = map[string]agent{
-	"claude": {bin: "claude", launch: claudeArgs, install: claudeInstall, remove: removeClaude,
+	"claude": {bin: "claude", launch: claudeArgs, install: claudeInstall, add: addClaude, remove: removeClaude,
 		hook: rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil
@@ -36,17 +37,17 @@ var agents = map[string]agent{
 		})},
 	// Codex rewrites a command only together with approving it, so its
 	// output is optimized after the run instead and replaces the result.
-	"codex": {bin: "codex", launch: codexArgs, install: codexInstall, remove: removeCodex,
+	"codex": {bin: "codex", launch: codexArgs, install: codexInstall, add: addCodex, remove: removeCodex,
 		hook: optimizeHook(func(text string) any { return map[string]any{"decision": "block", "reason": text} })},
 	// Cursor reads hooks and MCP servers from its config files only.
-	"cursor": {install: cursorInstall, remove: removeCursor,
+	"cursor": {install: cursorInstall, add: addCursor, remove: removeCursor,
 		hook: rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return map[string]any{"permission": "allow"}
 			}
 			return map[string]any{"permission": "allow", "updated_input": updated}
 		})},
-	"pi": {bin: "pi", launch: piArgs, install: piInstall, remove: removePi,
+	"pi": {bin: "pi", launch: piArgs, install: piInstall, add: addPi, remove: removePi,
 		hook: rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil
@@ -163,8 +164,11 @@ func codexArgs(exe string) ([]string, error) {
 }
 
 func codexInstall(exe string) string {
-	return fmt.Sprintf(`# add to ~/.codex/config.toml, then trust the hook in codex with /hooks
-[mcp_servers.gascoigne]
+	return "# add to ~/.codex/config.toml, then trust the hook in codex with /hooks\n" + codexTOML(exe)
+}
+
+func codexTOML(exe string) string {
+	return fmt.Sprintf(`[mcp_servers.gascoigne]
 command = %s
 args = ["mcp"]
 

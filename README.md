@@ -74,7 +74,7 @@ output optimized after the run:
 
 ```sh
 gascoigne wrap claude                    # also: codex, pi
-gascoigne wrap -print cursor             # config to register it for good
+gascoigne install                        # register for good in this project (-g: every project)
 gascoigne unwrap                         # deregister from every agent
 ```
 

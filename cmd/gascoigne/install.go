@@ -1,0 +1,282 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"flag"
+	"fmt"
+	"io/fs"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+)
+
+// cmdInstall registers gascoigne with agents for good: in the project's
+// config files, or with -g in the user's. Earlier gascoigne entries are
+// replaced, so running it again refreshes them; unwrap removes them.
+func cmdInstall(_ context.Context, args []string) error {
+	fset := flag.NewFlagSet("install", flag.ContinueOnError)
+	global := fset.Bool("g", false, "register for every project (user config) instead of this one")
+	fset.Usage = func() {
+		fmt.Fprintf(fset.Output(), "usage: gascoigne install [-g] [agent...]  (default: agents found on PATH)\nagents: %s\n", agentNames())
+		fset.PrintDefaults()
+	}
+	if err := fset.Parse(args); err != nil {
+		return err
+	}
+	names := fset.Args()
+	if len(names) == 0 {
+		names = foundAgents()
+	}
+	if len(names) == 0 {
+		return fmt.Errorf("install: no agent found on PATH; name one of: %s", agentNames())
+	}
+	exe, err := os.Executable()
+	if err != nil {
+		return err
+	}
+	cmd := installedName(exe)
+	var errs []error
+	for _, name := range names {
+		a, ok := agents[name]
+		if !ok {
+			fset.Usage()
+			return flag.ErrHelp
+		}
+		done, err := a.add(cmd, *global)
+		errs = append(errs, err)
+		for _, d := range done {
+			fmt.Printf("%s: %s\n", name, d)
+		}
+	}
+	return errors.Join(errs...)
+}
+
+// foundAgents are the agents whose program PATH finds.
+func foundAgents() []string {
+	var names []string
+	for _, name := range strings.Split(agentNames(), ", ") {
+		bins := []string{agents[name].bin}
+		if name == "cursor" {
+			bins = []string{"cursor", "cursor-agent"}
+		}
+		for _, b := range bins {
+			if _, err := exec.LookPath(b); err == nil {
+				names = append(names, name)
+				break
+			}
+		}
+	}
+	return names
+}
+
+// installedName is how configs call gascoigne: its name when PATH finds
+// this binary (configs stay valid if it moves, and project files can be
+// shared), else its path.
+func installedName(exe string) string {
+	if p, err := exec.LookPath("gascoigne"); err == nil && sameFile(p, exe) {
+		return "gascoigne"
+	}
+	return exe
+}
+
+// scoped picks the user (home-relative) or project (cwd-relative) path.
+func scoped(global bool, user, project string) (string, error) {
+	if !global {
+		return project, nil
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, user), nil
+}
+
+func addClaude(exe string, global bool) ([]string, error) {
+	settings, err := scoped(global, ".claude/settings.json", ".claude/settings.json")
+	if err != nil {
+		return nil, err
+	}
+	var done []string
+	d, err := addJSON(settings, removeClaudeSettings, claudeSettings(exe), "PreToolUse hook, GASCOIGNE_AGENT env")
+	if err != nil {
+		return nil, err
+	}
+	done = append(done, d)
+	if !global {
+		d, err := addJSON(".mcp.json", mcpEdit, mcpServers(exe), "MCP server gascoigne (approve it in claude on first use)")
+		return append(done, d), err
+	}
+	// User MCP servers live in ~/.claude.json, which Claude Code rewrites
+	// while it runs: let its CLI do the edit when there is one.
+	if _, err := exec.LookPath("claude"); err != nil {
+		d, err := addJSON(filepath.Join(filepath.Dir(filepath.Dir(settings)), ".claude.json"), mcpEdit, mcpServers(exe), "MCP server gascoigne")
+		return append(done, d), err
+	}
+	_ = exec.Command("claude", "mcp", "remove", "--scope", "user", "gascoigne").Run() // absent is fine
+	if out, err := exec.Command("claude", "mcp", "add", "--scope", "user", "gascoigne", "--", exe, "mcp").CombinedOutput(); err != nil {
+		return done, fmt.Errorf("claude mcp add: %v: %s", err, strings.TrimSpace(string(out)))
+	}
+	return append(done, "claude mcp: added MCP server gascoigne (user scope)"), nil
+}
+
+func addCursor(exe string, global bool) ([]string, error) {
+	hooksFile, err := scoped(global, ".cursor/hooks.json", ".cursor/hooks.json")
+	if err != nil {
+		return nil, err
+	}
+	hooks := map[string]any{"version": 1, "hooks": map[string]any{"preToolUse": []any{
+		map[string]any{"command": hookCommand(exe, "cursor"), "matcher": "Shell"},
+	}}}
+	d1, err := addJSON(hooksFile, removeCursorHooks, hooks, "preToolUse hook")
+	if err != nil {
+		return nil, err
+	}
+	d2, err := addJSON(filepath.Join(filepath.Dir(hooksFile), "mcp.json"), mcpEdit, mcpServers(exe), "MCP server gascoigne")
+	if err != nil {
+		return []string{d1}, err
+	}
+	return []string{d1, d2}, nil
+}
+
+func addCodex(exe string, global bool) ([]string, error) {
+	file, err := scoped(global, ".codex/config.toml", ".codex/config.toml")
+	if err != nil {
+		return nil, err
+	}
+	if home := os.Getenv("CODEX_HOME"); global && home != "" {
+		file = filepath.Join(home, "config.toml")
+	}
+	backup, err := writeConfig(file, func(text string) (string, error) {
+		text, _ = removeCodexTOML(text)
+		if text = strings.TrimRight(text, "\n"); text != "" {
+			text += "\n\n"
+		}
+		return text + codexTOML(exe), nil
+	})
+	if err != nil && !errors.Is(err, errUnchanged) {
+		return nil, err
+	}
+	return []string{added(file, "MCP server gascoigne, PostToolUse hook (trust it in codex with /hooks)", backup, err)}, nil
+}
+
+func addPi(exe string, global bool) ([]string, error) {
+	file, err := scoped(global, ".pi/agent/extensions/gascoigne.ts", ".pi/extensions/gascoigne.ts")
+	if err != nil {
+		return nil, err
+	}
+	_, err = writeConfig(file, func(text string) (string, error) {
+		if text != "" && !strings.HasPrefix(text, piHeader) {
+			return "", errors.New("exists and was not written by gascoigne, left alone")
+		}
+		return piExtension(exe), nil
+	})
+	if errors.Is(err, errUnchanged) {
+		return []string{display(file) + ": already registered"}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return []string{display(file) + ": wrote extension"}, nil
+}
+
+// addJSON replaces gascoigne's entries in a JSON config file with add,
+// merged into what is there: objects merge, lists append.
+func addJSON(file string, remove func(*object) []string, add map[string]any, what string) (string, error) {
+	backup, err := writeConfig(file, func(text string) (string, error) {
+		// A new file starts as add itself, so removing and re-adding gives
+		// the same key order as on any later run.
+		root := toObject(add)
+		if strings.TrimSpace(text) != "" {
+			v, err := parseJSON([]byte(text))
+			o, ok := v.(*object)
+			if err != nil || !ok {
+				return "", fmt.Errorf("not a JSON object, edit it by hand: %v", err)
+			}
+			root = o
+		}
+		remove(root)
+		mergeJSON(root, toObject(add))
+		out, err := formatJSON(root)
+		return string(out), err
+	})
+	if err != nil && !errors.Is(err, errUnchanged) {
+		return "", err
+	}
+	return added(file, what, backup, err), nil
+}
+
+func toObject(m map[string]any) *object {
+	v, _ := parseJSON([]byte(compactJSON(m))) // our own maps always parse
+	return v.(*object)
+}
+
+func mergeJSON(dst, src *object) {
+	for _, k := range src.keys {
+		sv := src.get(k)
+		switch dv := dst.get(k).(type) {
+		case *object:
+			if so, ok := sv.(*object); ok {
+				mergeJSON(dv, so)
+				continue
+			}
+		case []any:
+			if sl, ok := sv.([]any); ok {
+				dst.set(k, append(dv, sl...))
+				continue
+			}
+		}
+		dst.set(k, sv)
+	}
+}
+
+// errUnchanged: the config already holds what install would write.
+var errUnchanged = errors.New("unchanged")
+
+// writeConfig rewrites file (created when missing) with edit. A file that
+// changes is kept next to it; the backup name is returned then.
+func writeConfig(file string, edit func(text string) (string, error)) (string, error) {
+	data, err := os.ReadFile(file)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return "", err
+	}
+	exists := err == nil
+	out, err := edit(string(data))
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", display(file), err)
+	}
+	if exists && out == string(data) {
+		return "", errUnchanged
+	}
+	perm := os.FileMode(0o644)
+	backup := ""
+	if exists {
+		if info, err := os.Stat(file); err == nil {
+			perm = info.Mode().Perm()
+		}
+		backup = file + ".gascoigne-bak"
+		if err := os.WriteFile(backup, data, perm); err != nil {
+			return "", fmt.Errorf("back up %s: %w", file, err)
+		}
+	}
+	if err := os.MkdirAll(filepath.Dir(file), 0o755); err != nil {
+		return "", err
+	}
+	if err := os.WriteFile(file, []byte(out), perm); err != nil {
+		return "", fmt.Errorf("write %s: %w", file, err)
+	}
+	return backup, nil
+}
+
+// added reports a writeConfig result; err is nil or errUnchanged.
+func added(file, what, backup string, err error) string {
+	if err != nil {
+		return display(file) + ": already registered"
+	}
+	s := display(file) + ": added " + what
+	if backup != "" {
+		s += " (backup: " + filepath.Base(backup) + ")"
+	}
+	return s
+}

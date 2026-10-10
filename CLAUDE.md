@@ -11,7 +11,7 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 - `make eval` — token savings on `testdata/eval` fixtures
 - `make build` → `bin/gascoigne`; `bin/gascoigne components`
 - `bin/gascoigne exec -- <cmd>`, `bin/gascoigne mcp`, `bin/gascoigne mcp-proxy -- <server>`
-- agents: `bin/gascoigne wrap claude|codex|pi [args]` (per run), `wrap -print <agent>` (config for good, also cursor), `unwrap [agent...]` removes it; hooks call `gascoigne hook <agent>`
+- agents: `bin/gascoigne wrap claude|codex|pi [args]` (per run), `install [-g] [agent...]` (for good: project, `-g` user configs; also cursor), `wrap -print <agent>` prints it, `unwrap [agent...]` removes it; hooks call `gascoigne hook <agent>`
 - live view: background server auto-started by exec/hook/mcp/wrap → http://127.0.0.1:7878; `server status|stop|start|run`, `dashboard` prints the URL, `GASCOIGNE_SERVER=off`
 - `bin/gascoigne reset [-session|-agent|-since]` clears savings stats; `-all` also originals and failures
 - savings: `bin/gascoigne gain [-session ID] [-json]` overview; `gain -by day|week|month|agent|model|session|command|optimizer|family|dialect|outcome|reason`, filters `-agent -model -session -since 7d`

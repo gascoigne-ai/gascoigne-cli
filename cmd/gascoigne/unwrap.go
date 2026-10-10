@@ -70,18 +70,7 @@ func removeClaude() ([]string, error) {
 	var done []string
 	var errs []error
 	for _, f := range configFiles(".claude/settings.json", ".claude/settings.json", ".claude/settings.local.json") {
-		d, err := editJSON(f, func(root *object) []string {
-			var what []string
-			if n := removeHooks(root, "PreToolUse", ourHook("claude")); n > 0 {
-				what = append(what, "PreToolUse hook")
-			}
-			if env, ok := root.get("env").(*object); ok && env.get("GASCOIGNE_AGENT") == "claude" {
-				env.del("GASCOIGNE_AGENT")
-				pruneEmpty(root, "env")
-				what = append(what, "GASCOIGNE_AGENT env")
-			}
-			return what
-		})
+		d, err := editJSON(f, removeClaudeSettings)
 		done, errs = append(done, d...), append(errs, err)
 	}
 	d, err := editJSON(".mcp.json", mcpEdit)
@@ -98,16 +87,32 @@ func removeClaude() ([]string, error) {
 	return done, errors.Join(errs...)
 }
 
+// removeClaudeSettings drops the hook and env gascoigne adds to Claude settings.
+func removeClaudeSettings(root *object) []string {
+	var what []string
+	if n := removeHooks(root, "PreToolUse", ourHook("claude")); n > 0 {
+		what = append(what, "PreToolUse hook")
+	}
+	if env, ok := root.get("env").(*object); ok && env.get("GASCOIGNE_AGENT") == "claude" {
+		env.del("GASCOIGNE_AGENT")
+		pruneEmpty(root, "env")
+		what = append(what, "GASCOIGNE_AGENT env")
+	}
+	return what
+}
+
+func removeCursorHooks(root *object) []string {
+	if removeHooks(root, "preToolUse", ourHook("cursor")) > 0 {
+		return []string{"preToolUse hook"}
+	}
+	return nil
+}
+
 func removeCursor() ([]string, error) {
 	var done []string
 	var errs []error
 	for _, f := range configFiles(".cursor/hooks.json", ".cursor/hooks.json") {
-		d, err := editJSON(f, func(root *object) []string {
-			if removeHooks(root, "preToolUse", ourHook("cursor")) > 0 {
-				return []string{"preToolUse hook"}
-			}
-			return nil
-		})
+		d, err := editJSON(f, removeCursorHooks)
 		done, errs = append(done, d...), append(errs, err)
 	}
 	for _, f := range configFiles(".cursor/mcp.json", ".cursor/mcp.json") {
