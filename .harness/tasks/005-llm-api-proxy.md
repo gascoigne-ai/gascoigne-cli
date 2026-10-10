@@ -33,11 +33,12 @@ request, and could later account real usage from responses.
   from the body. Header `X-Gascoigne-Raw: 1` → forwarded as is.
 - No upstream exporter: forwarding is the receiver's job (it holds the request and the
   response stream).
-- `gascoigne proxy` runs it; `wrap` starts it detached when not answering.
+- Served by the background server under `/v1/` (one process, one port); it waits for proxied
+  requests to finish before restarting on a new build.
 - Registration: `wrap claude` sets `ANTHROPIC_BASE_URL` (unless the user already points it at a
   gateway); `wrap codex` with an API key adds a model provider; `wrap opencode` sets provider
   base URLs. `install -proxy claude` writes it for good (opt-in: a stopped proxy would stop the
-  agent; the SessionStart hook starts it).
+  agent; the SessionStart hook starts the server).
 
 ## Later
 - Real usage accounting from responses (`usage`) into the ledger and cost.

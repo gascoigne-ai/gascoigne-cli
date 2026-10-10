@@ -9,8 +9,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/lukaszb/gascoigne/receiver/httpproxyreceiver"
 )
 
 // cmdInstall registers gascoigne with agents for good: in the project's
@@ -19,7 +17,7 @@ import (
 func cmdInstall(_ context.Context, args []string) error {
 	fset := newFlags("install")
 	global := fset.Bool("g", false, "register for every project (user config) instead of this one")
-	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through gascoigne proxy (claude); a stopped proxy stops the agent, its SessionStart hook starts it")
+	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through the background server's LLM proxy (claude); a stopped server stops the agent until its SessionStart hook starts it")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
@@ -391,14 +389,14 @@ func addClaudeProxy(global bool) ([]string, error) {
 		return nil, err
 	}
 	d, err := addJSON(settings, removeClaudeProxy, map[string]any{"env": map[string]string{"ANTHROPIC_BASE_URL": proxyURL()}},
-		"ANTHROPIC_BASE_URL="+proxyURL()+" (LLM proxy; started by the SessionStart hook)", nil)
+		"ANTHROPIC_BASE_URL="+proxyURL()+" (LLM proxy in the background server; the SessionStart hook starts it)", nil)
 	if err != nil {
 		return nil, err
 	}
-	if proxyOff() {
-		d += "; GASCOIGNE_PROXY=off: not started"
-	} else if err := ensureProxy(context.Background(), proxyAddr()); err != nil {
-		d += "; proxy not running yet: " + err.Error()
+	if proxyOff() || serverOff() {
+		d += "; GASCOIGNE_PROXY or GASCOIGNE_SERVER is off: the server was not started"
+	} else if err := serverUp(); err != nil {
+		d += "; server not running yet: " + err.Error()
 	}
 	return []string{d}, nil
 }
@@ -410,7 +408,7 @@ func removeClaudeProxy(root *object) []string {
 		return nil
 	}
 	u, _ := env.get("ANTHROPIC_BASE_URL").(string)
-	if u != proxyURL() && u != "http://"+httpproxyreceiver.DefaultListen {
+	if u != proxyURL() {
 		return nil
 	}
 	env.del("ANTHROPIC_BASE_URL")

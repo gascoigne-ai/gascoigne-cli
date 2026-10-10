@@ -6,8 +6,6 @@ import (
 )
 
 type Config struct {
-	// Listen is the loopback address agents point their base URL at.
-	Listen string `yaml:"listen"`
 	// Anthropic and OpenAI are the upstream APIs requests are forwarded to.
 	Anthropic string `yaml:"anthropic"`
 	OpenAI    string `yaml:"openai"`
@@ -25,8 +23,8 @@ func (c *Config) Validate() error {
 			return errors.New("anthropic and openai must be absolute URLs")
 		}
 	}
-	if c.Listen == "" || c.CacheEntries < 100 {
-		return errors.New("listen must be set and cache_entries >= 100")
+	if c.CacheEntries < 100 {
+		return errors.New("cache_entries must be >= 100")
 	}
 	return nil
 }

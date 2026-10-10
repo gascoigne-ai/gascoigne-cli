@@ -27,7 +27,6 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `unwrap [agent...]` | Remove gascoigne from agents' config files (default: every agent). |
 | `hook <agent>` | Agent hook handler. Installed by `wrap`; reads the hook event on stdin. |
 | `mcp` | MCP server on stdio: `fetch`, `compress`, `retrieve`, `stats`. |
-| `proxy [-addr host:port]` | LLM API proxy (default `127.0.0.1:7879`): shortens tool results in agents' requests, Claude's Read included, with line numbers kept. `wrap` starts it; see [agents](agents.md#llm-api-proxy). |
 | `mcp-proxy -- <server cmd>` | MCP proxy: mirrors another server's tools and optimizes their text results. |
 | `fail <key\|raw_id>` | Mark a source as badly optimized by hand. `-reason` sets the note. |
 | `forget <key>` | Clear a source's failure history so it is optimized again. |

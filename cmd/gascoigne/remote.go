@@ -220,22 +220,9 @@ func (w *warm) service(req optimizeRequest) (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Receivers and exporters belong to the CLI run: the server only optimizes.
-	for name, pc := range cfg.Pipelines {
-		pc.Receivers, pc.Exporters = nil, nil
-		cfg.Pipelines[name] = pc
-	}
-	cfg.Receivers, cfg.Exporters = nil, nil
-	svc, err := service.New(w.ctx, cfg, registry.Factories(), service.Options{})
+	svc, err := optimizerService(w.ctx, cfg, w.ledger)
 	if err != nil {
 		return nil, err
-	}
-	if err := svc.Start(w.ctx); err != nil {
-		return nil, err
-	}
-	if l, ok := svc.Ledger().(*ledger.Ledger); !ok || l.Path() != w.ledger {
-		svc.Shutdown(w.ctx)
-		return nil, errors.New("config opens another ledger")
 	}
 	if len(w.svcs) >= maxWarm {
 		w.shutdown()
@@ -256,4 +243,27 @@ func (w *warm) Close() {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	w.shutdown()
+}
+
+// optimizerService starts cfg's filters, optimizers and ledger without
+// receivers or exporters: the server only optimizes what others hand it.
+// The config must use the server's ledger.
+func optimizerService(ctx context.Context, cfg *config.Config, ledgerPath string) (*service.Service, error) {
+	for name, pc := range cfg.Pipelines {
+		pc.Receivers, pc.Exporters = nil, nil
+		cfg.Pipelines[name] = pc
+	}
+	cfg.Receivers, cfg.Exporters = nil, nil
+	svc, err := service.New(ctx, cfg, registry.Factories(), service.Options{})
+	if err != nil {
+		return nil, err
+	}
+	if err := svc.Start(ctx); err != nil {
+		return nil, err
+	}
+	if l, ok := svc.Ledger().(*ledger.Ledger); !ok || l.Path() != ledgerPath {
+		svc.Shutdown(ctx)
+		return nil, errors.New("config opens another ledger")
+	}
+	return svc, nil
 }

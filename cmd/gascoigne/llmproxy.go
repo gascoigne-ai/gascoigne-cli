@@ -1,135 +1,93 @@
 package main
 
 import (
-	"cmp"
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
+	"log/slog"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"sync"
 	"time"
 
+	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/internal/config"
+	"github.com/lukaszb/gascoigne/payload"
 	"github.com/lukaszb/gascoigne/receiver/httpproxyreceiver"
 )
 
-// The LLM API proxy runs as its own detached process (gascoigne proxy), so
-// agent API traffic does not depend on the dashboard server, which restarts
-// itself on new builds. Agents reach it through their base URL.
-
-func proxyAddr() string {
-	return cmp.Or(os.Getenv("GASCOIGNE_PROXY_ADDR"), httpproxyreceiver.DefaultListen)
-}
-
-func proxyURL() string { return "http://" + proxyAddr() }
+// The LLM API proxy is served by the background server under /v1/, so
+// agents' base URL is the server's address: one process, one port.
 
 // proxyOff reports GASCOIGNE_PROXY=off: agents are never pointed at it.
 func proxyOff() bool { return os.Getenv("GASCOIGNE_PROXY") == "off" }
 
-// cmdProxy runs the proxy in the foreground.
-func cmdProxy(ctx context.Context, args []string) error {
-	var c common
-	fs := newFlags("proxy")
-	c.register(fs)
-	addr := fs.String("addr", proxyAddr(), "listen `address`, loopback (default $GASCOIGNE_PROXY_ADDR or "+httpproxyreceiver.DefaultListen+")")
-	if err := fs.Parse(args); err != nil {
-		return err
-	}
-	c.sets = append(c.sets, "receivers.httpproxy.listen="+*addr)
-	c.server, c.pipeline = true, "proxy"
-	svc, err := c.start(ctx)
+func proxyURL() string { return "http://" + serverAddr() }
+
+// llmProxy builds the proxy from the user's config: its receiver settings
+// and pipeline "proxy", run like the warm pipelines (one payload at a time,
+// under mu). close shuts the pipeline down.
+func llmProxy(ctx context.Context, mu *sync.Mutex, ledgerPath string, log *slog.Logger) (*httpproxyreceiver.Receiver, func(), error) {
+	data, err := configData("")
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
-	fmt.Fprintf(os.Stderr, "gascoigne proxy: http://%s (ANTHROPIC_BASE_URL=http://%s)\n", *addr, *addr)
-	return errors.Join(svc.Run(ctx, "proxy"), svc.Shutdown(context.WithoutCancel(ctx)))
+	cfg, err := config.ParseWith(data, config.Overrides{})
+	if err != nil {
+		return nil, nil, err
+	}
+	rc, _ := httpproxyreceiver.NewFactory().DefaultConfig().(*httpproxyreceiver.Config)
+	if err := config.DecodeNode(cfg.Receivers["httpproxy"], rc); err != nil {
+		return nil, nil, fmt.Errorf("receivers.httpproxy: %w", err)
+	}
+	if err := rc.Validate(); err != nil {
+		return nil, nil, fmt.Errorf("receivers.httpproxy: %w", err)
+	}
+	svc, err := optimizerService(ctx, cfg, ledgerPath)
+	if err != nil {
+		return nil, nil, err
+	}
+	pl, ok := svc.Pipeline("proxy")
+	if !ok {
+		svc.Shutdown(ctx)
+		return nil, nil, fmt.Errorf("no pipeline proxy in the config")
+	}
+	closer := func() { svc.Shutdown(context.WithoutCancel(ctx)) }
+	return httpproxyreceiver.New(rc, locked{mu, pl}, log), closer, nil
 }
 
-var proxyClient = &http.Client{Timeout: 300 * time.Millisecond}
-
-func proxyHealth(addr string) (httpproxyreceiver.Health, error) {
-	var h httpproxyreceiver.Health
-	resp, err := proxyClient.Get("http://" + addr + httpproxyreceiver.HealthPath)
-	if err != nil {
-		return h, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return h, fmt.Errorf("proxy health: %s", resp.Status)
-	}
-	return h, json.NewDecoder(resp.Body).Decode(&h)
+// locked runs a pipeline one payload at a time: components need not be
+// safe for concurrent use.
+type locked struct {
+	mu *sync.Mutex
+	pl component.Pipeline
 }
 
-// ensureProxy starts the proxy unless one answers. A proxy from an older
-// binary is replaced (requests in flight may fail once and be retried by
-// the agent); a newer one stays.
-func ensureProxy(ctx context.Context, addr string) error {
-	h, err := proxyHealth(addr)
-	if err == nil {
-		exe, _ := os.Executable()
-		st, statErr := os.Stat(exe)
-		if statErr != nil || h.Exe == exe && h.ExeSize == st.Size() && h.ExeTime == st.ModTime().UnixNano() ||
-			st.ModTime().UnixNano() <= h.ExeTime {
-			return nil
-		}
-		if err := terminate(h.PID); err != nil {
-			return nil // cannot replace it here: keep using it
-		}
-		for deadline := time.Now().Add(3 * time.Second); time.Now().Before(deadline); time.Sleep(30 * time.Millisecond) {
-			if _, err := proxyHealth(addr); err != nil {
-				break
-			}
-		}
+func (l locked) Process(ctx context.Context, p *payload.Payload) (*payload.Payload, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.pl.Process(ctx, p)
+}
+
+// waitIdle blocks until no proxied request is in flight (or ctx ends, or
+// ten minutes pass), so a restart never cuts an agent's stream.
+func waitIdle(ctx context.Context, p *httpproxyreceiver.Receiver) {
+	if p == nil {
+		return
 	}
-	if err := spawnProxy(addr); err != nil {
-		return err
-	}
-	for deadline := time.Now().Add(5 * time.Second); time.Now().Before(deadline); {
-		if _, err := proxyHealth(addr); err == nil {
-			return nil
-		}
+	for deadline := time.Now().Add(10 * time.Minute); p.Active() > 0 && time.Now().Before(deadline); {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(50 * time.Millisecond):
+			return
+		case <-time.After(100 * time.Millisecond):
 		}
 	}
-	return fmt.Errorf("proxy did not start on %s; see %s", addr, proxyLog())
 }
-
-func spawnProxy(addr string) error {
-	exe, err := os.Executable()
-	if err != nil {
-		return err
-	}
-	if err := os.MkdirAll(filepath.Dir(proxyLog()), 0o755); err != nil {
-		return err
-	}
-	log, err := os.OpenFile(proxyLog(), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
-	if err != nil {
-		return err
-	}
-	defer log.Close()
-	cmd := exec.Command(exe, "proxy", "-addr", addr)
-	cmd.Env = serverEnv(os.Environ())
-	cmd.Stdout, cmd.Stderr = log, log
-	detach(cmd)
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-	return cmd.Process.Release()
-}
-
-func proxyLog() string { return filepath.Join(filepath.Dir(serverLog()), "proxy.log") }
 
 var proxyOnce = sync.OnceValue(func() string {
-	if proxyOff() {
+	if proxyOff() || serverOff() {
 		return ""
 	}
-	if err := ensureProxy(context.Background(), proxyAddr()); err != nil {
+	if err := serverUp(); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne: LLM proxy not used:", err)
 		return ""
 	}
@@ -137,9 +95,26 @@ var proxyOnce = sync.OnceValue(func() string {
 })
 
 // runProxy is the proxy's base URL for an agent started now, starting the
-// proxy if needed; "" when it is off or could not start (the agent then
-// talks to its API directly, as before).
+// background server if needed; "" when it is off or could not start (the
+// agent then talks to its API directly, as before).
 func runProxy() string { return proxyOnce() }
+
+// serverUp makes sure the background server answers, as gascoigne
+// server start does.
+func serverUp() error {
+	if _, err := health(serverAddr()); err == nil {
+		return nil
+	}
+	exe, err := os.Executable()
+	if err != nil {
+		return err
+	}
+	out, err := exec.Command(exe, "server", "start").CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("server start: %v: %s", err, out)
+	}
+	return nil
+}
 
 // proxyForClaude is ANTHROPIC_BASE_URL for a wrapped run, unless the user
 // already points Claude Code at a gateway of their own.
@@ -183,12 +158,12 @@ func proxyForOpencode() map[string]any {
 	return map[string]any{"anthropic": base, "openai": base}
 }
 
-// ensureProxyFor starts the proxy when this process's agent was pointed at
-// it for good (install -proxy): Claude runs its SessionStart hook with the
-// settings' env.
+// ensureProxyFor starts the server when this process's agent was pointed
+// at it for good (install -proxy): Claude runs its SessionStart hook with
+// the settings' env.
 func ensureProxyFor() {
-	if os.Getenv("ANTHROPIC_BASE_URL") == proxyURL() {
-		if err := ensureProxy(context.Background(), proxyAddr()); err != nil {
+	if os.Getenv("ANTHROPIC_BASE_URL") == proxyURL() && !serverOff() {
+		if err := serverUp(); err != nil {
 			fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
 		}
 	}

@@ -86,11 +86,12 @@ it shows, and dropped lines would shift those numbers. **WebSearch** is left too
 
 What hooks cannot reach (Claude's Read, a quarter of tool-result tokens in measured sessions,
 plus WebSearch, subagent results and plans) is shortened between the agent and its API by
-`gascoigne proxy`:
+the LLM proxy the background server serves under `/v1/` (same process and port as the
+dashboard):
 
 | Agent | Per run (`wrap`) | For good |
 |---|---|---|
-| claude | `ANTHROPIC_BASE_URL=http://127.0.0.1:7879`, unless you set one (your gateway stays) | `install -proxy claude`; the SessionStart hook starts the proxy |
+| claude | `ANTHROPIC_BASE_URL=http://127.0.0.1:7878`, unless you set one (your gateway stays) | `install -proxy claude`; the SessionStart hook starts the server |
 | codex | with `OPENAI_API_KEY`: a `gascoigne` model provider (Responses API); a ChatGPT login stays direct | — |
 | opencode | `provider.anthropic/openai.options.baseURL` | — |
 
@@ -101,10 +102,11 @@ plus WebSearch, subagent results and plans) is shortened between the agent and i
 - Each tool result is shortened once and sent byte-for-byte the same on every later request,
   so the provider's prompt cache keeps hitting. Anything the proxy cannot parse is forwarded
   unchanged; `X-Gascoigne-Raw: 1` on a request skips it.
-- `wrap` starts the proxy when it is not answering (its log: `proxy.log` next to the server's)
-  and leaves the agent on its API directly if it cannot. `GASCOIGNE_PROXY=off` turns it off,
-  `GASCOIGNE_PROXY_ADDR` moves it. With `install -proxy`, a stopped proxy stops the agent until
-  the next session starts it.
+- `wrap` starts the server when it is not answering and leaves the agent on its API directly
+  if it cannot. `GASCOIGNE_PROXY=off` (or `GASCOIGNE_SERVER=off`) turns it off. When the
+  server replaces itself with a new build, it first waits until no proxied request is in
+  flight. With `install -proxy`, a stopped server stops the agent until the next session
+  starts it.
 
 ### Claude Code: built-in search and fetch tools
 

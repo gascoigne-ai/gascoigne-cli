@@ -15,67 +15,48 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"io"
 	"log/slog"
-	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"strings"
-	"time"
+	"sync/atomic"
 
 	"github.com/lukaszb/gascoigne/component"
 )
-
-// HealthPath answers the proxy's own health check (never forwarded).
-const HealthPath = "/gascoigne/health"
 
 // RawHeader set to 1 forwards a request untouched.
 const RawHeader = "X-Gascoigne-Raw"
 
 type Receiver struct {
 	component.Nop
-	cfg   *Config
-	next  component.Pipeline
-	log   *slog.Logger
-	cache *cache
+	cfg    *Config
+	next   component.Pipeline
+	log    *slog.Logger
+	cache  *cache
+	active atomic.Int64
 }
 
-func newReceiver(cfg *Config, next component.Pipeline, log *slog.Logger) *Receiver {
+// New builds the receiver; next optimizes each tool result.
+func New(cfg *Config, next component.Pipeline, log *slog.Logger) *Receiver {
 	if log == nil {
 		log = slog.New(slog.DiscardHandler)
 	}
 	return &Receiver{cfg: cfg, next: next, log: log, cache: newCache(cfg.CacheEntries)}
 }
 
-// Run serves until ctx ends.
-func (r *Receiver) Run(ctx context.Context) error {
-	ln, err := net.Listen("tcp", r.cfg.Listen)
-	if err != nil {
-		return err
-	}
-	srv := &http.Server{Handler: r, ReadHeaderTimeout: 10 * time.Second}
-	go func() {
-		<-ctx.Done()
-		shut, cancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
-		defer cancel()
-		srv.Shutdown(shut) // lets streaming responses finish
-	}()
-	r.log.Info("llm proxy listening", "addr", ln.Addr().String())
-	if err := srv.Serve(ln); !errors.Is(err, http.ErrServerClosed) {
-		return err
-	}
-	return nil
-}
+// Run does nothing: the receiver is an http.Handler, mounted by its host
+// (gascoigne's background server serves it under /v1/).
+func (r *Receiver) Run(context.Context) error { return nil }
+
+// Active is the number of requests being forwarded; a host restarting
+// itself waits for zero so no agent stream is cut.
+func (r *Receiver) Active() int64 { return r.active.Load() }
 
 func (r *Receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	if req.URL.Path == HealthPath {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(health(r.cfg.Listen))
-		return
-	}
+	r.active.Add(1)
+	defer r.active.Add(-1)
 	api, upstream := r.route(req)
 	raw := req.Header.Get(RawHeader) == "1"
 	req.Header.Del(RawHeader)
@@ -173,25 +154,4 @@ func agentOf(ua string) string {
 		}
 	}
 	return ""
-}
-
-// Health is what HealthPath reports: the process and the binary it runs,
-// so a launcher can tell an outdated proxy from a current one.
-type Health struct {
-	PID     int    `json:"pid"`
-	Listen  string `json:"listen"`
-	Exe     string `json:"exe"`
-	ExeSize int64  `json:"exe_size"`
-	ExeTime int64  `json:"exe_mtime"` // unix nanoseconds
-}
-
-func health(listen string) Health {
-	h := Health{PID: os.Getpid(), Listen: listen}
-	if exe, err := os.Executable(); err == nil {
-		h.Exe = exe
-		if st, err := os.Stat(exe); err == nil {
-			h.ExeSize, h.ExeTime = st.Size(), st.ModTime().UnixNano()
-		}
-	}
-	return h
 }

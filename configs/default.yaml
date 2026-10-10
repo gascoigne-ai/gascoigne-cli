@@ -9,9 +9,8 @@ receivers:
   hook: { kind: cmd_output } # gascoigne hook codex: output an agent already captured
   mcp: { fetch_timeout: 20s, fetch_max_bytes: 5242880 } # gascoigne mcp
   mcp_proxy: { retrieve: gascoigne_retrieve }           # gascoigne mcp-proxy -- <server cmd>
-  # gascoigne proxy: between agents and their LLM API, shortens tool results in requests
+  # LLM API proxy, served by the background server under /v1/ (base URL http://127.0.0.1:7878)
   httpproxy:
-    listen: 127.0.0.1:7879
     anthropic: https://api.anthropic.com
     openai: https://api.openai.com
     skip: [Edit, MultiEdit, Write, NotebookEdit, TodoWrite, ExitPlanMode, AskUserQuestion, apply_patch]

@@ -10,6 +10,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -115,16 +116,24 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string) error {
 	defer stop()
 	b, modified := binary()
 	info := serverInfo{PID: os.Getpid(), Build: b, Modified: modified, Ledger: l.Path(), Addr: ln.Addr().String(), Started: time.Now()}
-	var rebuilt atomic.Bool
-	go watchBinary(ctx, b, 2*time.Second, func() string { b, _ := binary(); return b }, func() {
-		rebuilt.Store(true)
-		stop()
-	})
 	w := newWarm(ctx, info.Build, info.Ledger)
 	defer w.Close()
 	mux := http.NewServeMux()
 	mux.Handle("/", dashboard(l, time.Second, info, stop))
 	mux.Handle("POST /api/optimize", localOnly(w))
+	proxy, closeProxy, err := llmProxy(ctx, &w.mu, info.Ledger, slog.New(slog.NewTextHandler(os.Stderr, nil)))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "gascoigne server: LLM proxy off:", err)
+	} else {
+		defer closeProxy()
+		mux.Handle("/v1/", localOnly(proxy))
+	}
+	var rebuilt atomic.Bool
+	go watchBinary(ctx, b, 2*time.Second, func() string { b, _ := binary(); return b }, func() {
+		rebuilt.Store(true)
+		waitIdle(ctx, proxy) // agents' streams finish first
+		stop()
+	})
 	srv := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
 	go func() {
 		<-ctx.Done()

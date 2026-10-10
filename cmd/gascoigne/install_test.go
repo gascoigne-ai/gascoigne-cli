@@ -1,9 +1,13 @@
 package main
 
 import (
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -161,7 +165,7 @@ func TestInstallDeniesRoundTrip(t *testing.T) {
 func TestInstallProxyRoundTrip(t *testing.T) {
 	sandbox(t)
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
-	t.Setenv("GASCOIGNE_PROXY_ADDR", "")
+	t.Setenv("GASCOIGNE_SERVER_ADDR", "")
 	write(t, ".claude/settings.json", `{"env": {"FOO": "1"}}`)
 	if _, err := addClaude("gascoigne", false); err != nil {
 		t.Fatal(err)
@@ -169,7 +173,7 @@ func TestInstallProxyRoundTrip(t *testing.T) {
 	if _, err := addClaudeProxy(false); err != nil {
 		t.Fatal(err)
 	}
-	if got := read(t, ".claude/settings.json"); !strings.Contains(got, `"ANTHROPIC_BASE_URL": "http://127.0.0.1:7879"`) || !strings.Contains(got, `"FOO": "1"`) {
+	if got := read(t, ".claude/settings.json"); !strings.Contains(got, `"ANTHROPIC_BASE_URL": "http://127.0.0.1:7878"`) || !strings.Contains(got, `"FOO": "1"`) {
 		t.Fatalf("settings:\n%s", got)
 	}
 	if _, err := removeClaude(); err != nil {
@@ -184,5 +188,32 @@ func TestProxyForClaudeKeepsUserGateway(t *testing.T) {
 	t.Setenv("ANTHROPIC_BASE_URL", "https://gateway.example.com")
 	if env := proxyForClaude(); env != nil {
 		t.Fatalf("replaced the user's gateway: %v", env)
+	}
+}
+
+func TestServerHostsLLMProxy(t *testing.T) {
+	sandbox(t)
+	var got string
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		got = r.URL.Path + " " + string(b)
+	}))
+	defer upstream.Close()
+	ledgerFile := filepath.Join(t.TempDir(), "l.db")
+	cfg := filepath.Join(t.TempDir(), "c.yaml")
+	write(t, cfg, "extensions: { ledger: { path: "+ledgerFile+" } }\nreceivers: { httpproxy: { anthropic: "+upstream.URL+" } }\n")
+	t.Setenv("GASCOIGNE_CONFIG", cfg)
+	var mu sync.Mutex
+	proxy, closeProxy, err := llmProxy(t.Context(), &mu, ledgerFile, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closeProxy()
+	req := httptest.NewRequest("POST", "/v1/messages", strings.NewReader(`{"model":"m","messages":[]}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("anthropic-version", "2023-06-01")
+	proxy.ServeHTTP(httptest.NewRecorder(), req)
+	if got != `/v1/messages {"model":"m","messages":[]}` {
+		t.Fatalf("upstream got %q", got)
 	}
 }

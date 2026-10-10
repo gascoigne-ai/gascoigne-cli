@@ -120,8 +120,10 @@ every payload through one chain of all optimizers; routes only override per comm
 - MCP pipelines have no exporters: stdout is the protocol channel.
 
 ## LLM API proxy (`receiver/httpproxyreceiver`, `cmd/gascoigne/llmproxy.go`)
-`gascoigne proxy` runs pipeline `proxy` (detached, own process, started by `wrap`/the SessionStart
-hook, log `proxy.log`); agents reach it by base URL. Anthropic `/v1/messages*` (by path or
+Served by the background server under `/v1/` (one process, one port: base URL
+`http://127.0.0.1:7878`); the receiver is an `http.Handler` (`Run` is a no-op), built from the
+user's config (`receivers.httpproxy`, pipeline `proxy` via `optimizerService`, payloads one at a
+time under the warm services' lock). Anthropic `/v1/messages*` (by path or
 `anthropic-version`/`x-api-key` headers), OpenAI `/chat/completions` and `/responses`; other paths
 and every header pass through (`anthropic-beta` carries the OAuth capability, so a claude.ai login
 keeps working), responses stream through (`FlushInterval -1`). Per tool result, one payload with
@@ -130,10 +132,12 @@ body, agent from the User-Agent); `skip` tools, `is_error`, hinted output untouc
 `N\t` prefixes are split off, the text optimized like `cat`, and kept lines get their original
 numbers back (`renumber`). Prompt cache: results cached by content hash (LRU `cache_entries`), so
 every later request sends the same bytes; optimizers are deterministic, so a restart recomputes
-them. Any parse problem → body forwarded unchanged; `X-Gascoigne-Raw: 1` → untouched.
-Registration: wrap claude `ANTHROPIC_BASE_URL` (unless set: user gateway), codex with
+them. Any parse problem → body forwarded unchanged; `X-Gascoigne-Raw: 1` → untouched. On a new
+build the server waits until no proxied request is in flight (`waitIdle`, ≤ 10 min) before
+restarting.
+Registration (server started first, `serverUp`): wrap claude `ANTHROPIC_BASE_URL` (unless set: user gateway), codex with
 `OPENAI_API_KEY` a `model_providers.gascoigne` (`wire_api=responses`), opencode provider
-`baseURL`s; `install -proxy claude` writes the env for good, unwrap removes it.
+`baseURL`s; `install -proxy claude` writes the env for good (SessionStart starts the server), unwrap removes it.
 
 ## Source files (`optimizer/fs/catoptimizer`)
 Agents edit by exact text, so source is shrunk only by dropping whole lines; kept lines are
