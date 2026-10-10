@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/payload"
 )
@@ -27,7 +28,7 @@ type Optimizer struct {
 const legend = `"_table": rows align with _cols; _same: equal in all rows; _affix: value = prefix + cell + suffix`
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	c := &crusher{cfg: o.cfg, query: terms(p.Attrs[payload.AttrQuery])}
+	c := &crusher{cfg: o.cfg, query: rows.Terms(p.Attrs[payload.AttrQuery])}
 	return p.Rewrite(func(b payload.Block) (string, error) {
 		values, err := decode(b.Text)
 		if err != nil {
@@ -117,7 +118,10 @@ func (c *crusher) array(items []any) any {
 	if small {
 		return items
 	}
-	kept := c.sample(items)
+	kept := rows.Sample(items, rows.Options{
+		MaxItems: c.cfg.MaxItems, HeadShare: c.cfg.HeadShare, TailShare: c.cfg.TailShare,
+		AnomalyStd: c.cfg.AnomalyStd, RelevanceK: c.cfg.RelevanceK, Query: c.query,
+	})
 	if t, ok := c.table(kept); ok && size(t) < size(kept) {
 		return t
 	}

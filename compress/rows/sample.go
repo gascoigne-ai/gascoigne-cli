@@ -1,4 +1,7 @@
-package jsonoptimizer
+// Package rows samples long lists of records (decoded JSON objects, table
+// rows) down to the ones worth reading: errors, anomalies, change points,
+// query matches and both ends. Gaps become "… N items omitted" markers.
+package rows
 
 import (
 	"cmp"
@@ -19,11 +22,23 @@ const (
 	scoreRelevance = 5
 )
 
-// sample keeps about MaxItems items of a long array, in original order with
+// Options tune Sample.
+type Options struct {
+	MaxItems   int      // target items kept; errors may exceed it
+	HeadShare  float64  // share of MaxItems taken from the start
+	TailShare  float64  // and from the end
+	AnomalyStd float64  // numeric outliers beyond this many standard deviations
+	RelevanceK int      // best query matches kept
+	Query      []string // query terms (see Terms)
+}
+
+// Sample keeps about MaxItems items of a long list, in original order with
 // omission markers. Errors always stay (even over budget); then anomalies,
 // change points and query matches by score; then head and tail shares; then
 // an even sample of the rest. Identical items collapse into one.
-func (c *crusher) sample(items []any) []any {
+// Items are decoded JSON values; objects (map[string]any with json.Number
+// numbers) feed the signals.
+func Sample(items []any, o Options) []any {
 	uniq, firstOf, dups := dedupe(items)
 	objs := objects(items, uniq)
 
@@ -32,19 +47,19 @@ func (c *crusher) sample(items []any) []any {
 		keep[i] = true
 	}
 	score := map[int]float64{}
-	for i, z := range anomalies(objs, c.cfg.AnomalyStd) {
+	for i, z := range anomalies(objs, o.AnomalyStd) {
 		score[i] = max(score[i], z)
 	}
-	for _, i := range changePoints(objs, c.cfg.MaxItems) {
+	for _, i := range changePoints(objs, o.MaxItems) {
 		score[i] += scoreChange
 	}
-	for i, s := range relevance(items, uniq, c.query, c.cfg.RelevanceK) {
+	for i, s := range relevance(items, uniq, o.Query, o.RelevanceK) {
 		score[i] += scoreRelevance + s
 	}
 
-	budget := c.cfg.MaxItems
-	head := int(math.Ceil(c.cfg.HeadShare * float64(budget)))
-	tail := int(math.Ceil(c.cfg.TailShare * float64(budget)))
+	budget := o.MaxItems
+	head := int(math.Ceil(o.HeadShare * float64(budget)))
+	tail := int(math.Ceil(o.TailShare * float64(budget)))
 	slots := budget - len(keep) - head - tail // errors count against the budget but never drop
 	for _, i := range sortedByScore(score) {
 		if slots <= 0 {
@@ -373,4 +388,18 @@ func stats[T any](xs []T, f func(T) float64) (mean, std float64) {
 		std += d * d
 	}
 	return mean, math.Sqrt(std / float64(len(xs)))
+}
+
+func empty(v any) bool {
+	switch v := v.(type) {
+	case nil:
+		return true
+	case string:
+		return v == ""
+	case []any:
+		return len(v) == 0
+	case map[string]any:
+		return len(v) == 0
+	}
+	return false
 }

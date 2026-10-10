@@ -1,4 +1,4 @@
-package jsonoptimizer
+package rows
 
 import (
 	"encoding/json"
@@ -13,8 +13,8 @@ const (
 	bm25B  = 0.75
 )
 
-// terms lowercases and splits text into alphanumeric terms.
-func terms(s string) []string {
+// Terms lowercases and splits text into alphanumeric terms (query or document).
+func Terms(s string) []string {
 	return strings.FieldsFunc(strings.ToLower(s), func(r rune) bool {
 		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
 	})
@@ -30,7 +30,7 @@ func relevance(items []any, uniq []int, query []string, k int) map[int]float64 {
 	df := map[string]int{}
 	total := 0
 	for d, i := range uniq {
-		docs[d] = terms(flatten(items[i]))
+		docs[d] = Terms(flatten(items[i]))
 		total += len(docs[d])
 		seen := map[string]bool{}
 		for _, t := range docs[d] {

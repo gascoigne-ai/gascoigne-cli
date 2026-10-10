@@ -164,16 +164,3 @@ func TestInvalidJSONErrors(t *testing.T) {
 		t.Fatal("want error; core falls back to the original")
 	}
 }
-
-func TestRelevance(t *testing.T) {
-	docs := []any{
-		map[string]any{"title": "install guide"},
-		map[string]any{"title": "checkout flow fails on retry"},
-		map[string]any{"title": "checkout"},
-		map[string]any{"title": "unrelated"},
-	}
-	got := relevance(docs, []int{0, 1, 2, 3}, terms("Checkout retry"), 1)
-	if len(got) != 1 || got[1] != 1 {
-		t.Fatalf("got %v, want item 1 as best match", got)
-	}
-}
