@@ -53,22 +53,46 @@ html, body { background: var(--bg); }
 body { margin: 0; color: var(--text); font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
 .wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px 40px; }
 
-/* Header */
-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 0 16px; border-bottom: 1px solid var(--border); }
-.brand { display: flex; align-items: center; gap: 10px; }
-.logo { width: 28px; height: 28px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 15px; }
-h1 { margin: 0; font-size: 18px; font-weight: 650; letter-spacing: -.01em; }
-.subtitle { color: var(--muted); font-size: 13px; }
-.head-right { display: flex; align-items: center; gap: 12px; }
-.live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
-.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
-.live.on i { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
-.theme { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
-.theme button { border: 0; border-radius: 0; background: transparent; padding: 5px 10px; color: var(--muted); }
-.theme button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+/* Header: a Bloodborne-style banner, dark in both themes; the rest stays plain. */
+header {
+  position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 16px; margin-top: 16px; padding: 22px 24px; border-radius: 12px;
+  border: 1px solid #3b2b24; color: #e2d4b7;
+  background:
+    radial-gradient(ellipse 60% 120% at 12% 0%, rgba(200, 40, 58, .35), transparent 60%),
+    radial-gradient(ellipse 80% 140% at 100% 120%, rgba(0, 0, 0, .85), transparent 60%),
+    linear-gradient(180deg, #1a1012, #0a0708);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .6), 0 8px 24px rgba(0, 0, 0, .25);
+}
+header::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, transparent 0 46px, rgba(184, 149, 90, .04) 46px 47px);
+}
+.brand { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; }
+.moon {
+  flex: none; width: 52px; height: 52px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, #f1e6cf, #cdbb98 55%, #8d7a5a 100%);
+  box-shadow: 0 0 28px 6px rgba(241, 230, 207, .18), 0 0 70px 18px rgba(200, 40, 58, .14);
+}
+h1 {
+  margin: 0; font: 700 26px/1.1 "Cinzel", "Trajan Pro", "Times New Roman", Georgia, serif;
+  letter-spacing: .2em; text-transform: uppercase; color: #dcbc7c;
+  text-shadow: 0 2px 0 #000, 0 0 18px rgba(200, 40, 58, .4);
+}
+.subtitle { margin-top: 4px; color: #b9a98d; font: italic 14px Georgia, "Times New Roman", serif; }
+.ornament { color: #c8283a; letter-spacing: .5em; font-size: 11px; margin-top: 4px; }
+.head-right { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #b9a98d; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: #6b5d4c; }
+.live.on i { background: #c8283a; box-shadow: 0 0 10px #c8283a; animation: pulse 2.2s infinite; }
+@keyframes pulse { 50% { opacity: .4; } }
+.theme { display: inline-flex; border: 1px solid #5a4232; border-radius: 8px; overflow: hidden; background: rgba(10, 7, 8, .6); }
+.theme button { border: 0; border-radius: 0; background: transparent; padding: 5px 10px; color: #b9a98d; }
+.theme button:hover { color: #dcbc7c; }
+.theme button[aria-pressed="true"] { background: rgba(142, 18, 32, .55); color: #f1e6cf; font-weight: 600; }
 
 /* Toolbar */
-.toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 16px 0 4px; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 18px 0 4px; }
 .toolbar label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
 .toolbar .spacer { flex: 1; }
 .actions { display: flex; gap: 8px; }
@@ -156,10 +180,11 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 <div class="wrap">
   <header>
     <div class="brand">
-      <div class="logo" aria-hidden="true">g</div>
+      <div class="moon" aria-hidden="true"></div>
       <div>
-        <h1>gascoigne</h1>
+        <h1>Gascoigne</h1>
         <div class="subtitle">Token savings for coding agents</div>
+        <div class="ornament" aria-hidden="true">✠ ❦ ✠</div>
       </div>
     </div>
     <div class="head-right">
