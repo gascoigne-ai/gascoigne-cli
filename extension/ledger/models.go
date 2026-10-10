@@ -7,8 +7,10 @@ package ledger
 // event is one payload's trip through a pipeline.
 type event struct {
 	ID         uint   `gorm:"primaryKey"`
-	TS         int64  `gorm:"not null"`
+	TS         int64  `gorm:"not null;index"`
 	Session    string `gorm:"not null;default:'';index"`
+	Agent      string `gorm:"not null;default:'';index"`
+	Model      string `gorm:"not null;default:'';index"`
 	Command    string `gorm:"not null;default:''"`
 	Pipeline   string `gorm:"not null"`
 	Key        string `gorm:"not null;index"`

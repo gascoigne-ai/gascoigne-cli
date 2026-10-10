@@ -140,10 +140,7 @@ const barWidth = 20
 // renderOverview prints the gain overview for terminals.
 func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int) {
 	t := o.Total
-	title := "gascoigne savings"
-	if o.Session != "" {
-		title += " · session " + o.Session
-	}
+	title := "gascoigne savings" + filterLabel(o.Filter)
 	fmt.Fprintln(w, p.paint(bold, title))
 	fmt.Fprintln(w, p.paint(dim, strings.Repeat("─", 64)))
 	saved := pct(t.Saved, t.RawTokens)
@@ -183,6 +180,9 @@ func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int) {
 		}
 		p.table(w, []string{"outcome", "runs", "in", "out", "saved", " share"}, rows)
 	}
+	p.trendTable(w, "last 7 days", "day", o.Days)
+	p.savingsTable(w, "agents · share of savings", "agent", mcptool.Named(o.Agents), t.Saved, false)
+	p.savingsTable(w, "models · share of savings", "model", mcptool.Named(o.Models), t.Saved, false)
 	p.savingsTable(w, "commands · share of savings", "command", o.Commands, t.Saved, false)
 	p.savingsTable(w, "optimizers · share of savings", "optimizer", o.Optimizers, t.Saved, true)
 
@@ -223,6 +223,52 @@ func (p painter) reasonTable(w io.Writer, title, by string, rows []mcptool.Stats
 		out = append(out, row)
 	}
 	p.table(w, header, out)
+}
+
+// trendTable shows periods oldest first with saved tokens as bars scaled to
+// the best period.
+func (p painter) trendTable(w io.Writer, title, name string, rows []mcptool.StatsJSON) {
+	if len(rows) == 0 {
+		return
+	}
+	p.section(w, title)
+	best := 0
+	for _, r := range rows {
+		if r.Group != "total" {
+			best = max(best, r.Saved)
+		}
+	}
+	var out [][]cell
+	for _, r := range rows {
+		saved := pct(r.Saved, r.RawTokens)
+		out = append(out, []cell{
+			{text: r.Group},
+			{text: fmt.Sprint(r.Runs), right: true},
+			{text: human(r.RawTokens), right: true},
+			{text: human(r.OutTokens), right: true},
+			{text: human(r.Saved), right: true, style: zeroDim(r.Saved)},
+			{text: fmt.Sprintf("%.1f%%", saved), right: true, style: savedStyle(saved)},
+			{text: bar(float64(r.Saved)/float64(max(best, 1)), barWidth), style: cyan},
+		})
+	}
+	p.table(w, []string{name, "runs", "in", "out", "saved", "saved %", " saved"}, out)
+}
+
+// filterLabel describes active filters for titles.
+func filterLabel(q component.StatsQuery) string {
+	var parts []string
+	for _, f := range []struct{ name, v string }{{"session", q.Session}, {"agent", q.Agent}, {"model", q.Model}} {
+		if f.v != "" {
+			parts = append(parts, f.name+" "+f.v)
+		}
+	}
+	if !q.Since.IsZero() {
+		parts = append(parts, "since "+q.Since.Format("2006-01-02 15:04"))
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return " · " + strings.Join(parts, " · ")
 }
 
 func zeroDim(n int) string {
@@ -273,10 +319,11 @@ func (p painter) savingsTable(w io.Writer, title, name string, rows []mcptool.St
 // renderStats prints one grouping for terminals.
 func (p painter) renderStats(w io.Writer, q component.StatsQuery, stats []component.Stat) {
 	r := mcptool.Report(q, stats)
-	title := "gascoigne savings by " + r.By
-	if q.Session != "" {
-		title += " · session " + q.Session
-	}
+	title := "gascoigne savings by " + r.By + filterLabel(q)
 	fmt.Fprintln(w, p.paint(bold, title))
+	if q.Chronological() {
+		p.trendTable(w, r.By, r.By, append(r.Groups, r.Total))
+		return
+	}
 	p.savingsTable(w, r.By, r.By, append(r.Groups, r.Total), r.Total.Saved, r.By == component.ByOptimizer)
 }

@@ -107,7 +107,7 @@ func TestCompressRetrieveStats(t *testing.T) {
 	if text, _ := call(t, cs, "compress", map[string]any{"text": "abc", "cmd": "go test"}); !strings.HasPrefix(text, "ABC\n[optimized") {
 		t.Fatalf("compress = %q", text)
 	}
-	if pl.got.Attrs[payload.AttrCmd] != "go test" {
+	if pl.got.Attrs[payload.AttrCmd] != "go test" || pl.got.Attrs[payload.AttrAgent] != "test" {
 		t.Fatalf("attrs %v", pl.got.Attrs)
 	}
 	if text, _ := call(t, cs, "retrieve", map[string]any{"id": "id1"}); text != "original" || len(l.failed) != 1 {

@@ -3,6 +3,7 @@ package ledger
 import (
 	"context"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"slices"
 	"testing"
@@ -167,5 +168,51 @@ func TestEnvPathOverrides(t *testing.T) {
 	got, err := (&Config{Path: "/nope.db"}).path()
 	if err != nil || got != want {
 		t.Fatalf("path = %q, %v", got, err)
+	}
+}
+
+func TestStatsDimensionsAndFilters(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	now := time.Now()
+	day := 24 * time.Hour
+	for _, ev := range []component.Event{
+		{TS: now, Agent: "claude-code", Model: "opus", RawTokens: 100, OutTokens: 10, Outcome: component.Optimized},
+		{TS: now.Add(-2 * day), Agent: "claude-code", Model: "opus", RawTokens: 50, OutTokens: 25, Outcome: component.Optimized},
+		{TS: now.Add(-40 * day), Agent: "codex", Model: "gpt", RawTokens: 80, OutTokens: 20, Outcome: component.Optimized},
+	} {
+		if err := l.Record(ctx, ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	groups := func(q component.StatsQuery) []string {
+		t.Helper()
+		stats, err := l.Stats(ctx, q)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out []string
+		for _, s := range stats {
+			out = append(out, fmt.Sprintf("%s:%d", s.Group, s.Saved()))
+		}
+		return out
+	}
+	dayKey := func(t time.Time) string { return t.Format(time.DateOnly) }
+	tests := []struct {
+		name string
+		q    component.StatsQuery
+		want []string
+	}{
+		{"agent", component.StatsQuery{By: component.ByAgent}, []string{"claude-code:115", "codex:60"}},
+		{"model filtered", component.StatsQuery{By: component.ByModel, Agent: "codex"}, []string{"gpt:60"}},
+		{"since", component.StatsQuery{By: component.ByAgent, Since: now.Add(-7 * day)}, []string{"claude-code:115"}},
+		{"day is chronological", component.StatsQuery{By: component.ByDay}, []string{
+			dayKey(now.Add(-40*day)) + ":60", dayKey(now.Add(-2*day)) + ":25", dayKey(now) + ":90"}},
+		{"month", component.StatsQuery{By: component.ByMonth, Since: now.Add(-time.Hour)}, []string{now.Format("2006-01") + ":90"}},
+	}
+	for _, tt := range tests {
+		if got := groups(tt.q); !slices.Equal(got, tt.want) {
+			t.Errorf("%s: got %v, want %v", tt.name, got, tt.want)
+		}
 	}
 }

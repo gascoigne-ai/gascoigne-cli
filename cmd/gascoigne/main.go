@@ -90,6 +90,8 @@ type common struct {
 	only    string
 	disable string
 	session string
+	agent   string
+	model   string
 }
 
 func (c *common) register(fs *flag.FlagSet) {
@@ -101,6 +103,17 @@ func (c *common) register(fs *flag.FlagSet) {
 	fs.StringVar(&c.only, "only", "", "comma list: run only these optimizers (default $GASCOIGNE_ONLY)")
 	fs.StringVar(&c.disable, "disable", "", "comma list: skip these optimizers (default $GASCOIGNE_DISABLE)")
 	fs.StringVar(&c.session, "session", "", "agent session id for stats (default $GASCOIGNE_SESSION)")
+	fs.StringVar(&c.agent, "agent", "", "agent name for stats, e.g. claude-code (default $GASCOIGNE_AGENT; MCP: client name)")
+	fs.StringVar(&c.model, "model", "", "LLM model the output is for (default $GASCOIGNE_MODEL)")
+}
+
+// identity is session, agent and model from flags, else env.
+func (c *common) identity() mcptool.Identity {
+	return mcptool.Identity{
+		Session: c.sessionID(),
+		Agent:   cmp.Or(c.agent, os.Getenv("GASCOIGNE_AGENT")),
+		Model:   cmp.Or(c.model, os.Getenv("GASCOIGNE_MODEL")),
+	}
 }
 
 func (c *common) sessionID() string { return cmp.Or(c.session, os.Getenv("GASCOIGNE_SESSION")) }
@@ -140,8 +153,11 @@ func (c *common) start(ctx context.Context) (*service.Service, error) {
 		level = slog.LevelDebug
 	}
 	log := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level}))
-	if id := c.sessionID(); id != "" {
-		c.attrs[payload.AttrSession] = id
+	id := c.identity()
+	for k, v := range map[string]string{payload.AttrSession: id.Session, payload.AttrAgent: id.Agent, payload.AttrModel: id.Model} {
+		if v != "" {
+			c.attrs[k] = v
+		}
 	}
 	svc, err := service.New(ctx, cfg, registry.Factories(), service.Options{Logger: log, Attrs: c.attrs})
 	if err != nil {
@@ -268,7 +284,7 @@ func serve(ctx context.Context, pipeline string, args []string, with func(contex
 	if err != nil {
 		return err
 	}
-	run := mcptool.WithSession(with(ctx, fs.Args()), c.sessionID())
+	run := mcptool.WithIdentity(with(ctx, fs.Args()), c.identity())
 	return errors.Join(svc.Run(run, *name), svc.Shutdown(context.WithoutCancel(ctx)))
 }
 

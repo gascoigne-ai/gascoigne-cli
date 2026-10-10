@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
 )
 
@@ -64,5 +65,19 @@ func TestNewPainter(t *testing.T) {
 	}
 	if _, err := newPainter("rainbow"); err == nil {
 		t.Error("bad mode accepted")
+	}
+}
+
+func TestParseSince(t *testing.T) {
+	day := 24 * time.Hour
+	for in, want := range map[string]time.Duration{"7d": 7 * day, "4w": 28 * day, "6mo": 180 * day, "24h": 24 * time.Hour, "90m": 90 * time.Minute} {
+		if got, err := parseSince(in); err != nil || got != want {
+			t.Errorf("parseSince(%q) = %v, %v; want %v", in, got, err, want)
+		}
+	}
+	for _, bad := range []string{"x", "0d", "-3d", "d"} {
+		if _, err := parseSince(bad); err == nil {
+			t.Errorf("parseSince(%q) accepted", bad)
+		}
 	}
 }

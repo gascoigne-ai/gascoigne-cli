@@ -49,7 +49,7 @@ func (pl *Pipeline) Optimize(ctx context.Context, in *payload.Payload) (*payload
 			p.Set(k, v)
 		}
 	}
-	ev := component.Event{TS: start, Session: p.Attrs[payload.AttrSession], Command: command(p), Pipeline: pl.name, Key: p.Key(), RawTokens: p.Tokens()}
+	ev := component.Event{TS: start, Session: p.Attrs[payload.AttrSession], Agent: p.Attrs[payload.AttrAgent], Model: p.Attrs[payload.AttrModel], Command: command(p), Pipeline: pl.name, Key: p.Key(), RawTokens: p.Tokens()}
 	p, err := pl.run(ctx, p, &ev)
 	if err != nil {
 		return nil, err

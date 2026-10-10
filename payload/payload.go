@@ -26,6 +26,8 @@ const (
 	AttrURL       = "url"
 	AttrQuery     = "query"       // what the agent looks for; guides lossy selection
 	AttrSession   = "session"     // agent session, for per-session stats
+	AttrAgent     = "agent"       // agent name, for per-agent stats
+	AttrModel     = "model"       // LLM model, for per-model stats
 	AttrSkip      = "skip_reason" // why nothing was optimized, with facts: set by bypassing filters or no-op optimizers
 	AttrRaw       = "raw"
 	AttrRawID     = "raw_id"

@@ -124,13 +124,19 @@ Pure-Go driver (`gormlite`), WAL mode, busy timeout 5s.
 Tables also include `steps` (per event, each optimizer that changed tokens: optimizer, family,
 tokens before/after) and `events.session`.
 
+Identity: `-session ID`, `-agent NAME`, `-model NAME` on any command (env `GASCOIGNE_SESSION`,
+`GASCOIGNE_AGENT`, `GASCOIGNE_MODEL`) tag events. MCP: agent defaults to the client's name
+(clientInfo), model only when given. Time: `gain -since 7d|4w|6mo|24h`.
+
 Sessions: `-session ID` on any command (or `$GASCOIGNE_SESSION`) tags events; MCP servers use
 explicit `-session`, else the MCP transport session id, else one id per server run.
 Reports — `gascoigne gain` (add `-session ID`, `-all`, `-json`):
 | Command | Shows |
 |---|---|
-| `gain` | overview: totals line, by outcome (optimized/unchanged/bypassed/error with tokens and share of input), by command (`go test`, `git log`, `fetch go.dev`), by optimizer (with family), skipped (filter + reason), count of failing sources |
-| `gain -by command\|optimizer\|family\|outcome\|skip\|session\|route` | one grouping |
+| `gain` | overview: totals line, last 7 days trend (quiet days shown), by agent, by model (once recorded), by outcome (optimized/unchanged/bypassed/error with tokens and share of input), by command (`go test`, `git log`, `fetch go.dev`), by optimizer (with family), skipped / failed / unchanged with reasons, count of failing sources |
+| `gain -by day\|week\|month` | trend, oldest first, bars scaled to the best period |
+| `gain -by agent\|model\|session\|command\|optimizer\|family\|outcome\|reason\|route` | one grouping |
+| filters, any view | `-session`, `-agent`, `-model`, `-since 7d\|4w\|6mo\|24h` (combine freely) |
 | `gain -failures` | sources that bypass optimization after going bad |
 Terminal output (`cmd/gascoigne/render.go`): human token counts, savings/share bars, colors by
 saved % (green ≥60, yellow ≥30, red); `-color auto|always|never`, auto honors `NO_COLOR` and

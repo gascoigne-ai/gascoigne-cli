@@ -110,7 +110,7 @@ func (r *Receiver) forward(cs *mcp.ClientSession, name string) mcp.ToolHandler {
 			}
 			p := payload.New(payload.ToolResult, tc.Text)
 			p.Set(payload.AttrTool, name)
-			p.Set(payload.AttrSession, r.sessions.Of(req))
+			r.sessions.Tag(p, req)
 			out, err := r.next.Process(ctx, p)
 			if err != nil {
 				r.log.Warn("optimize tool result, passing original", "tool", name, "err", err)

@@ -53,7 +53,7 @@ func (fakeLedger) Stats(_ context.Context, q component.StatsQuery) ([]component.
 }
 
 func TestOverview(t *testing.T) {
-	o, err := BuildOverview(t.Context(), fakeLedger{}, "s1")
+	o, err := BuildOverview(t.Context(), fakeLedger{}, component.StatsQuery{Session: "s1"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,5 +73,13 @@ func TestOverview(t *testing.T) {
 		if !strings.Contains(string(data), key) {
 			t.Errorf("json missing %s: %s", key, data)
 		}
+	}
+}
+
+func TestFillDays(t *testing.T) {
+	from := time.Date(2026, 10, 1, 0, 0, 0, 0, time.Local)
+	got := fillDays([]StatsJSON{{Group: "2026-10-02", Runs: 3}}, from, from.AddDate(0, 0, 2))
+	if len(got) != 3 || got[0].Group != "2026-10-01" || got[1].Runs != 3 || got[2].Group != "2026-10-03" {
+		t.Fatalf("got %+v", got)
 	}
 }

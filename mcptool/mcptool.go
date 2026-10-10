@@ -99,7 +99,7 @@ func AddStats(s *mcp.Server, l component.Ledger, sessions *Sessions) {
 			q.Session = ""
 		}
 		if q.By == "" {
-			o, err := BuildOverview(ctx, l, q.Session)
+			o, err := BuildOverview(ctx, l, q)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -121,30 +121,55 @@ func AddStats(s *mcp.Server, l component.Ledger, sessions *Sessions) {
 	})
 }
 
-type sessionKey struct{}
+type identityKey struct{}
 
-// WithSession sets an explicit session id (e.g. from the CLI) for MCP servers run with ctx.
-func WithSession(ctx context.Context, id string) context.Context {
-	return context.WithValue(ctx, sessionKey{}, id)
+// Identity is who tool calls run for; empty fields are resolved per call.
+type Identity struct{ Session, Agent, Model string }
+
+// WithIdentity sets explicit identity (e.g. from CLI flags) for MCP servers run with ctx.
+func WithIdentity(ctx context.Context, id Identity) context.Context {
+	return context.WithValue(ctx, identityKey{}, id)
 }
 
-// Sessions resolves the session of tool calls: explicit id from the context,
-// else the MCP transport's session id, else one id generated per server run.
-type Sessions struct{ explicit, generated string }
+// Sessions resolves the identity of tool calls: explicit values from the
+// context first; else the MCP transport's session id (or one generated per
+// server run) and the client's name as agent.
+type Sessions struct {
+	explicit  Identity
+	generated string
+}
 
 func NewSessions(ctx context.Context) *Sessions {
-	explicit, _ := ctx.Value(sessionKey{}).(string)
+	explicit, _ := ctx.Value(identityKey{}).(Identity)
 	return &Sessions{explicit: explicit, generated: fmt.Sprintf("mcp-%s-%04x", time.Now().Format("20060102-150405"), rand.N(1<<16))}
 }
 
 func (s *Sessions) Of(req *mcp.CallToolRequest) string {
-	if s.explicit != "" {
-		return s.explicit
+	if s.explicit.Session != "" {
+		return s.explicit.Session
 	}
 	if req != nil && req.Session != nil && req.Session.ID() != "" {
 		return req.Session.ID()
 	}
 	return s.generated
+}
+
+// Agent is the explicit agent, else the MCP client's name.
+func (s *Sessions) Agent(req *mcp.CallToolRequest) string {
+	if s.explicit.Agent != "" || req == nil {
+		return s.explicit.Agent
+	}
+	if info := req.ClientInfo(); info != nil {
+		return info.Name
+	}
+	return ""
+}
+
+// Tag sets session, agent and model attrs on p for a tool call.
+func (s *Sessions) Tag(p *payload.Payload, req *mcp.CallToolRequest) {
+	p.Set(payload.AttrSession, s.Of(req))
+	p.Set(payload.AttrAgent, s.Agent(req))
+	p.Set(payload.AttrModel, s.explicit.Model)
 }
 
 // StatsReport is the JSON form of a stats query.
@@ -251,11 +276,15 @@ func Percent(part, whole int) string {
 // Overview answers "where do savings come from": totals, per command, per
 // optimizer and why runs were skipped.
 type Overview struct {
-	Session    string      `json:"session,omitempty"`
-	Total      StatsJSON   `json:"total"`
-	Outcomes   []StatsJSON `json:"outcomes"`
-	Commands   []StatsJSON `json:"commands"`
-	Optimizers []StatsJSON `json:"optimizers"`
+	Session    string               `json:"session,omitempty"`
+	Filter     component.StatsQuery `json:"-"`
+	Total      StatsJSON            `json:"total"`
+	Outcomes   []StatsJSON          `json:"outcomes"`
+	Commands   []StatsJSON          `json:"commands"`
+	Optimizers []StatsJSON          `json:"optimizers"`
+	Agents     []StatsJSON          `json:"agents"`
+	Models     []StatsJSON          `json:"models"`
+	Days       []StatsJSON          `json:"days"` // last 7 days (or since filter.Since), oldest first
 	// Runs not optimized, per stopping component (filter or optimizer) and
 	// command, with the latest recorded reason.
 	Skipped   []StatsJSON `json:"skipped"`
@@ -263,8 +292,8 @@ type Overview struct {
 	Unchanged []StatsJSON `json:"unchanged"`
 }
 
-func BuildOverview(ctx context.Context, l component.Ledger, session string) (Overview, error) {
-	o := Overview{Session: session}
+func BuildOverview(ctx context.Context, l component.Ledger, filter component.StatsQuery) (Overview, error) {
+	o := Overview{Session: filter.Session, Filter: filter}
 	for _, part := range []struct {
 		by  string
 		out *[]StatsJSON
@@ -272,18 +301,32 @@ func BuildOverview(ctx context.Context, l component.Ledger, session string) (Ove
 		{component.ByOutcome, &o.Outcomes},
 		{component.ByCommand, &o.Commands},
 		{component.ByOptimizer, &o.Optimizers},
+		{component.ByAgent, &o.Agents},
+		{component.ByModel, &o.Models},
+		{component.ByDay, &o.Days},
 	} {
-		stats, err := l.Stats(ctx, component.StatsQuery{By: part.by, Session: session})
+		q := filter
+		q.By = part.by
+		if part.by == component.ByDay && q.Since.IsZero() {
+			y, m, d := time.Now().AddDate(0, 0, -6).Date()
+			q.Since = time.Date(y, m, d, 0, 0, 0, 0, time.Local) // local midnight, 7 days incl. today
+		}
+		stats, err := l.Stats(ctx, q)
 		if err != nil {
 			return o, err
 		}
 		r := Report(component.StatsQuery{By: part.by}, stats)
 		*part.out = r.Groups
+		if part.by == component.ByDay {
+			o.Days = fillDays(r.Groups, q.Since, time.Now())
+		}
 		if part.by == component.ByCommand {
 			o.Total = r.Total
 		}
 	}
-	reasons, err := l.Stats(ctx, component.StatsQuery{By: component.ByReason, Session: session})
+	rq := filter
+	rq.By = component.ByReason
+	reasons, err := l.Stats(ctx, rq)
 	if err != nil {
 		return o, err
 	}
@@ -354,6 +397,12 @@ func (o Overview) Table() string {
 	section("by command", "command\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", o.Commands, func(w *tabwriter.Writer, r StatsJSON) {
 		fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", r.Group, r.Runs, r.Optimized, r.RawTokens, r.OutTokens, r.Saved, Percent(r.Saved, r.RawTokens))
 	})
+	section("by agent", "agent\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", Named(o.Agents), func(w *tabwriter.Writer, r StatsJSON) {
+		fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", r.Group, r.Runs, r.Optimized, r.RawTokens, r.OutTokens, r.Saved, Percent(r.Saved, r.RawTokens))
+	})
+	section("by model", "model\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", Named(o.Models), func(w *tabwriter.Writer, r StatsJSON) {
+		fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", r.Group, r.Runs, r.Optimized, r.RawTokens, r.OutTokens, r.Saved, Percent(r.Saved, r.RawTokens))
+	})
 	section("by optimizer", "optimizer\tfamily\tsteps\traw tok\tout tok\tsaved\tsaved %", o.Optimizers, func(w *tabwriter.Writer, r StatsJSON) {
 		fmt.Fprintf(w, "%s\t%s\t%d\t%d\t%d\t%d\t%s\n", r.Group, cmp.Or(r.Family, "-"), r.Runs, r.RawTokens, r.OutTokens, r.Saved, Percent(r.Saved, r.RawTokens))
 	})
@@ -372,4 +421,30 @@ func sumRuns(rows []StatsJSON) int {
 		n += r.Runs
 	}
 	return n
+}
+
+// Named returns rows unless the only group is "-" (dimension never set).
+func Named(rows []StatsJSON) []StatsJSON {
+	if len(rows) == 1 && rows[0].Group == "-" {
+		return nil
+	}
+	return rows
+}
+
+// fillDays adds empty days between from and to, so trends show quiet days.
+func fillDays(days []StatsJSON, from, to time.Time) []StatsJSON {
+	have := map[string]StatsJSON{}
+	for _, d := range days {
+		have[d.Group] = d
+	}
+	out := []StatsJSON{}
+	for day := from; !day.After(to); day = day.AddDate(0, 0, 1) {
+		key := day.Format(time.DateOnly)
+		if d, ok := have[key]; ok {
+			out = append(out, d)
+		} else {
+			out = append(out, StatsJSON{Group: key})
+		}
+	}
+	return out
 }

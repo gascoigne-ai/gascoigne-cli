@@ -100,7 +100,7 @@ func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in Fetc
 	p.Set(payload.AttrTool, "fetch")
 	p.Set("mime", resp.Header.Get("Content-Type"))
 	p.Set(payload.AttrQuery, in.Query)
-	p.Set(payload.AttrSession, r.sessions.Of(call))
+	r.sessions.Tag(p, call)
 	text, err := r.process(ctx, p, in.Raw)
 	if err != nil {
 		return nil, nil, err
@@ -128,7 +128,7 @@ func (r *Receiver) compress(ctx context.Context, req *mcp.CallToolRequest, in Co
 	p.Set(payload.AttrCmd, in.Cmd)
 	p.Set(payload.AttrFile, in.File)
 	p.Set(payload.AttrQuery, in.Query)
-	p.Set(payload.AttrSession, r.sessions.Of(req))
+	r.sessions.Tag(p, req)
 	text, err := r.process(ctx, p, in.Raw)
 	if err != nil {
 		return nil, nil, err

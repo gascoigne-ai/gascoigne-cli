@@ -23,12 +23,18 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 		tx, group, table = l.events(ctx), "events.route", "events"
 	case component.BySession:
 		tx, group, table = l.events(ctx), "events.session", "events"
+	case component.ByAgent:
+		tx, group, table = l.events(ctx), "events.agent", "events"
+	case component.ByModel:
+		tx, group, table = l.events(ctx), "events.model", "events"
 	case component.ByCommand:
 		tx, group, table = l.events(ctx), "events.command", "events"
 	case component.ByOutcome:
 		tx, group, table = l.events(ctx), "events.outcome", "events"
+	case component.ByDay, component.ByWeek, component.ByMonth:
+		tx, group, table = l.events(ctx), period(q.By), "events"
 	case component.ByReason:
-		return l.reasons(ctx, q.Session)
+		return l.reasons(ctx, q)
 	case component.ByFamily:
 		tx, group, table = l.steps(ctx), "steps.family", "steps"
 	case component.ByOptimizer:
@@ -36,8 +42,10 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 	default:
 		return nil, fmt.Errorf("stats: unknown grouping %q", q.By)
 	}
-	if q.Session != "" {
-		tx = tx.Where("events.session = ?", q.Session)
+	tx = filter(tx, "events", q)
+	order := fmt.Sprintf("sum(%[1]s.raw_tokens) - sum(%[1]s.out_tokens) DESC, 1", table)
+	if q.Chronological() {
+		order = "1"
 	}
 	var rows []struct {
 		Group                   string
@@ -48,7 +56,7 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 	}
 	err := tx.Select("CASE " + group + " WHEN '' THEN '-' ELSE " + group + " END AS \"group\", " + l.aggregates(q.By)).
 		Group(group).
-		Order(fmt.Sprintf("sum(%[1]s.raw_tokens) - sum(%[1]s.out_tokens) DESC, 1", table)).
+		Order(order).
 		Scan(&rows).Error
 	stats := make([]component.Stat, len(rows))
 	for i, r := range rows {
@@ -56,6 +64,26 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 			RawTokens: r.RawTokens, OutTokens: r.OutTokens, First: time.UnixMilli(r.FirstTS), Last: time.UnixMilli(r.LastTS)}
 	}
 	return stats, err
+}
+
+// period buckets events.ts (unix ms) in local time.
+func period(by string) string {
+	format := map[string]string{component.ByDay: "%Y-%m-%d", component.ByWeek: "%Y-W%W", component.ByMonth: "%Y-%m"}[by]
+	return fmt.Sprintf("strftime('%s', events.ts / 1000, 'unixepoch', 'localtime')", format)
+}
+
+// filter applies the query's session, agent, model and time filters to an
+// events table (or alias).
+func filter(tx *gorm.DB, events string, q component.StatsQuery) *gorm.DB {
+	for col, v := range map[string]string{"session": q.Session, "agent": q.Agent, "model": q.Model} {
+		if v != "" {
+			tx = tx.Where(events+"."+col+" = ?", v)
+		}
+	}
+	if !q.Since.IsZero() {
+		tx = tx.Where(events+".ts >= ?", q.Since.UnixMilli())
+	}
+	return tx
 }
 
 func (l *Ledger) events(ctx context.Context) *gorm.DB {
@@ -99,29 +127,33 @@ func (l *Ledger) FailureList(ctx context.Context) ([]Failure, error) {
 
 // reasons groups runs that were not optimized by outcome, stopping component
 // and command, each with its latest reason.
-func (l *Ledger) reasons(ctx context.Context, session string) ([]component.Stat, error) {
+func (l *Ledger) reasons(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
 	var rows []struct {
-		Outcome, Filter, Command, Reason string
-		Runs, RawTokens, OutTokens       int
-		FirstTS, LastTS                  int64
+		Outcome, Filter, Command   string
+		Runs, RawTokens, OutTokens int
+		FirstTS, LastTS            int64
+		LastID                     uint
 	}
-	err := l.db.WithContext(ctx).Raw(`
-		SELECT e.outcome, e.filter, e.command, count(*) AS runs,
+	tx := filter(l.db.WithContext(ctx).Table("events e"), "e", q).
+		Where("e.outcome <> ?", string(component.Optimized))
+	err := tx.Select(`e.outcome, e.filter, e.command, count(*) AS runs,
 			sum(e.raw_tokens) AS raw_tokens, sum(e.out_tokens) AS out_tokens,
-			min(e.ts) AS first_ts, max(e.ts) AS last_ts,
-			(SELECT r.reason FROM events r
-			 WHERE r.outcome = e.outcome AND r.filter = e.filter AND r.command = e.command
-			   AND (? = '' OR r.session = ?)
-			 ORDER BY r.ts DESC, r.id DESC LIMIT 1) AS reason
-		FROM events e
-		WHERE e.outcome <> ? AND (? = '' OR e.session = ?)
-		GROUP BY e.outcome, e.filter, e.command
-		ORDER BY sum(e.raw_tokens) DESC, e.outcome, e.filter, e.command`,
-		session, session, string(component.Optimized), session, session).Scan(&rows).Error
+			min(e.ts) AS first_ts, max(e.ts) AS last_ts, max(e.id) AS last_id`).
+		Group("e.outcome, e.filter, e.command").
+		Order("sum(e.raw_tokens) DESC, e.outcome, e.filter, e.command").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
 	stats := make([]component.Stat, len(rows))
 	for i, r := range rows {
+		// The latest event of the group carries the reason to show.
+		var last event
+		if err := l.db.WithContext(ctx).Select("reason").Take(&last, r.LastID).Error; err != nil {
+			return nil, err
+		}
 		stats[i] = component.Stat{
-			Group: cmp.Or(r.Filter, "-"), Command: r.Command, Outcome: r.Outcome, Reason: r.Reason,
+			Group: cmp.Or(r.Filter, "-"), Command: r.Command, Outcome: r.Outcome, Reason: last.Reason,
 			Runs: r.Runs, RawTokens: r.RawTokens, OutTokens: r.OutTokens,
 			First: time.UnixMilli(r.FirstTS), Last: time.UnixMilli(r.LastTS),
 		}
@@ -129,5 +161,5 @@ func (l *Ledger) reasons(ctx context.Context, session string) ([]component.Stat,
 			stats[i].Failed = r.Runs
 		}
 	}
-	return stats, err
+	return stats, nil
 }

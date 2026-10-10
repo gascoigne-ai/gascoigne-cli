@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -103,11 +104,13 @@ func cmdGain(ctx context.Context, args []string) error {
 		all      bool
 		asJSON   bool
 		color    string
+		since    string
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
-		fs.StringVar(&by, "by", "", "one grouping instead of the overview: command, optimizer, family, outcome, reason, session or route")
-		fs.BoolVar(&all, "all", false, "every session, even when -session or $GASCOIGNE_SESSION is set")
+		fs.StringVar(&by, "by", "", "one grouping instead of the overview: day, week, month, agent, model, session, command, optimizer, family, outcome, reason, route")
+		fs.BoolVar(&all, "all", false, "ignore session/agent/model from $GASCOIGNE_* (flags still filter)")
+		fs.StringVar(&since, "since", "", "only the last period: 24h, 7d, 4w, 6mo")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
 		fs.StringVar(&color, "color", "auto", "colors: auto (terminal, no NO_COLOR), always or never")
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
@@ -119,16 +122,24 @@ func cmdGain(ctx context.Context, args []string) error {
 			}
 			return printFailures(ctx, w, l)
 		}
-		q := component.StatsQuery{By: by, Session: c.sessionID()}
+		id := c.identity()
 		if all {
-			q.Session = ""
+			id = mcptool.Identity{Session: c.session, Agent: c.agent, Model: c.model}
+		}
+		q := component.StatsQuery{By: by, Session: id.Session, Agent: id.Agent, Model: id.Model}
+		if since != "" {
+			d, err := parseSince(since)
+			if err != nil {
+				return err
+			}
+			q.Since = time.Now().Add(-d)
 		}
 		p, err := newPainter(color)
 		if err != nil {
 			return err
 		}
 		if by == "" {
-			return overview(ctx, l, q.Session, asJSON, p)
+			return overview(ctx, l, q, asJSON, p)
 		}
 		stats, err := l.Stats(ctx, q)
 		if err != nil {
@@ -178,8 +189,8 @@ func writeJSON(v any) error {
 	return enc.Encode(v)
 }
 
-func overview(ctx context.Context, l *ledger.Ledger, session string, asJSON bool, p painter) error {
-	o, err := mcptool.BuildOverview(ctx, l, session)
+func overview(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, asJSON bool, p painter) error {
+	o, err := mcptool.BuildOverview(ctx, l, q)
 	if err != nil {
 		return err
 	}
@@ -195,4 +206,22 @@ func overview(ctx context.Context, l *ledger.Ledger, session string, asJSON bool
 	}
 	p.renderOverview(os.Stdout, o, len(failing))
 	return nil
+}
+
+// parseSince reads "7d", "4w", "6mo" (30-day months) or a Go duration ("24h", "90m").
+func parseSince(s string) (time.Duration, error) {
+	day := 24 * time.Hour
+	for _, u := range []struct {
+		suffix string
+		d      time.Duration
+	}{{"mo", 30 * day}, {"d", day}, {"w", 7 * day}} {
+		if n, err := strconv.Atoi(strings.TrimSuffix(s, u.suffix)); strings.HasSuffix(s, u.suffix) && err == nil && n > 0 {
+			return time.Duration(n) * u.d, nil
+		}
+	}
+	d, err := time.ParseDuration(s)
+	if err != nil || d <= 0 {
+		return 0, fmt.Errorf("-since: want 7d, 4w, 6mo or a duration like 24h, got %q", s)
+	}
+	return d, nil
 }

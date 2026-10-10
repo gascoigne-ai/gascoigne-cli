@@ -20,6 +20,8 @@ const (
 type Event struct {
 	TS         time.Time
 	Session    string // agent session, from the session attr
+	Agent      string // agent name (claude-code, codex, …), from the agent attr
+	Model      string // LLM model the output is for, from the model attr
 	Command    string // what produced the payload, for reports ("go test", "fetch go.dev")
 	Pipeline   string
 	Key        string
@@ -81,6 +83,11 @@ const (
 	ByOptimizer = "optimizer" // single optimizer, from steps
 	ByCommand   = "command"
 	ByOutcome   = "outcome" // optimized, unchanged, bypassed, error
+	ByAgent     = "agent"
+	ByModel     = "model"
+	ByDay       = "day"   // local time, YYYY-MM-DD
+	ByWeek      = "week"  // ISO-like YYYY-Www (weeks start Monday)
+	ByMonth     = "month" // YYYY-MM
 	// ByReason groups runs that were not optimized by outcome, filter (or
 	// optimizer for errors) and command, with the latest reason.
 	ByReason = "reason"
@@ -89,7 +96,15 @@ const (
 // StatsQuery selects what Stats aggregates.
 type StatsQuery struct {
 	By      string // ByRoute when empty
-	Session string // all sessions when empty
+	Session string // filters; empty = all
+	Agent   string
+	Model   string
+	Since   time.Time // zero = all time
+}
+
+// Chronological reports time groupings, which sort by time, not savings.
+func (q StatsQuery) Chronological() bool {
+	return q.By == ByDay || q.By == ByWeek || q.By == ByMonth
 }
 
 func (s Stat) Saved() int { return s.RawTokens - s.OutTokens }
