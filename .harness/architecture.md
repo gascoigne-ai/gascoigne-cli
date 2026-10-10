@@ -145,7 +145,8 @@ fails the tool call (bad input → no answer → call unchanged).
 Rewritten commands carry `-agent <name>` and `-session <hook session_id>` when
 `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks; `wrap` sets the env, so its
 commands stay short): `execPrefix` in `hook.go`.
-Rewrites touch only the last command of a `&&`/`;` list when `detect.FromCmd` knows it, and
+Rewrites wrap every command of a `&&`/`;` list that `detect.FromCmd` knows (lines with loops,
+conditionals or `{ }` groups stay as they are), and
 may keep trailing `| head`/`| tail` stages (they then cut optimized text; other filters would
 search it, so other pipes stay). Before `head`, exec gets `-attr hint=top`: the stdout exporter
 prints the hint first so the cut keeps it. Redirects (except `2>&1`), subshells, `||`, background runs,

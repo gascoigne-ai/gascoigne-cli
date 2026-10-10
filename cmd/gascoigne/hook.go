@@ -144,14 +144,14 @@ func hinted(p *payload.Payload) string {
 		text, p.Attrs[payload.AttrRawTokens], p.Attrs[payload.AttrOutTokens], p.Attrs[payload.AttrRawID])
 }
 
-// wrapCommand routes the last command of a shell line through gascoigne exec
-// when gascoigne knows the tool: "cd api && go test ./..." becomes
+// wrapCommand routes each command of a shell line that gascoigne knows
+// through gascoigne exec: "cd api && go test ./..." becomes
 // "cd api && gascoigne exec -- go test ./...", and "go test ./... | tail -5"
 // becomes "gascoigne exec -- go test ./... | tail -5" (before head, exec
-// prints its hint first). Commands may be joined
-// by && or ;, and only head/tail may follow a pipe: other filters would see
-// optimized text instead of what they search. Redirects, subshells and other
-// lists are left alone.
+// prints its hint first). Commands may be joined by && or ;, and only
+// head/tail may follow a pipe: other filters would see optimized text instead
+// of what they search. Redirects, subshells, other lists, loops and
+// conditionals are left alone.
 func wrapCommand(line, prefix string) (string, bool) {
 	line = strings.TrimSpace(line)
 	if ownCommand(line) {
@@ -162,30 +162,54 @@ func wrapCommand(line, prefix string) (string, bool) {
 	if strings.ContainsAny(strings.NewReplacer("&&", "", ";", "").Replace(body), "|&<>`\n") || strings.Contains(body, "$(") {
 		return line, false
 	}
-	head, last := "", body
-	if i := lastSeparator(body); i >= 0 {
-		head, last = body[:i+1]+" ", strings.TrimSpace(body[i+1:])
+	parts, seps := segments(body)
+	for _, p := range parts {
+		if f := strings.Fields(p); len(f) > 0 && shellKeywords[f[0]] {
+			return line, false // loops, conditionals, groups: wrapping a piece could change what runs
+		}
 	}
-	env, cmd := splitEnv(last)
-	if detect.FromCmd(cmd) == "" || streams(cmd) {
+	var out strings.Builder
+	wrapped := false
+	for i, p := range parts {
+		if i > 0 {
+			out.WriteString(map[string]string{";": "; ", "&&": " && "}[seps[i-1]])
+		}
+		env, cmd := splitEnv(p)
+		if detect.FromCmd(cmd) == "" || streams(cmd) {
+			out.WriteString(p)
+			continue
+		}
+		wrapped = true
+		run := prefix + " -- "
+		if i == len(parts)-1 && slices.Contains(strings.Fields(pipe), "head") {
+			run = prefix + " -attr " + stdoutexporter.AttrHint + "=" + stdoutexporter.HintTop + " -- " // head would cut a hint at the end
+		}
+		out.WriteString(env + run + cmd)
+	}
+	if !wrapped {
 		return line, false
 	}
-	run := prefix + " -- "
-	if slices.Contains(strings.Fields(pipe), "head") {
-		run = prefix + " -attr " + stdoutexporter.AttrHint + "=" + stdoutexporter.HintTop + " -- " // head would cut a hint at the end
-	}
-	out := head + env + run + cmd
 	if merged {
-		out += " 2>&1"
+		out.WriteString(" 2>&1")
 	}
-	return out + pipe, true
+	return out.String() + pipe, true
 }
 
-// lastSeparator is the index of the last byte of the last && or ; outside
-// quotes, or -1.
-func lastSeparator(s string) int {
-	last := -1
+// shellKeywords start compound commands, whose parts are not separate commands.
+var shellKeywords = map[string]bool{
+	"if": true, "then": true, "else": true, "elif": true, "fi": true, "for": true, "while": true, "until": true,
+	"do": true, "done": true, "case": true, "esac": true, "select": true, "function": true, "{": true, "}": true,
+}
+
+// segments splits a command list at && and ; outside quotes: the trimmed
+// commands, and the separator after each but the last.
+func segments(s string) (parts, seps []string) {
 	var quote byte
+	start := 0
+	cut := func(end int, sep string) {
+		parts = append(parts, strings.TrimSpace(s[start:end]))
+		seps = append(seps, sep)
+	}
 	for i := 0; i < len(s); i++ {
 		switch c := s[i]; {
 		case quote != 0:
@@ -195,13 +219,16 @@ func lastSeparator(s string) int {
 		case c == '"' || c == '\'':
 			quote = c
 		case c == ';':
-			last = i
+			cut(i, ";")
+			start = i + 1
 		case c == '&' && i+1 < len(s) && s[i+1] == '&':
+			cut(i, "&&")
 			i++
-			last = i
+			start = i + 1
 		}
 	}
-	return last
+	parts = append(parts, strings.TrimSpace(s[start:]))
+	return parts, seps
 }
 
 // splitPipe cuts trailing "| head …" and "| tail …" stages off a line; pipe is

@@ -68,8 +68,10 @@ The hook only rewrites a command when it can do so safely and gascoigne knows th
   script have no agent; the dashboard shows them as *no agent*.
 - **Known tool.** The last command must be detected by `detect.FromCmd` (see
   [Families](families.md)). `echo hi` stays as it is.
-- **Lists.** In `a && b` and `a; b` only the last command is wrapped:
-  `cd api && go test ./...` → `cd api && gascoigne exec -- go test ./...`.
+- **Lists.** In `a && b` and `a; b` every known command is wrapped, each with its own hint:
+  `cd api && go test ./...` → `cd api && gascoigne exec -- go test ./...`;
+  `git status; git log -5` → `gascoigne exec -- git status; gascoigne exec -- git log -5`.
+  Lines with loops, conditionals or `{ }` groups are left whole.
 - **Environment.** Leading assignments stay outside: `CGO_ENABLED=0 gascoigne exec -- go build`.
 - **`2>&1`** is kept; exec merges stderr anyway.
 - **`| head` / `| tail`.** Trailing head/tail stages are kept and cut the optimized text. Before
