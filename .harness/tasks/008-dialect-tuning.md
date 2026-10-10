@@ -13,10 +13,10 @@ Lift dialects that save little on real output, without losing what agents need.
 - `jsonx` tables: items with nested objects also tried flattened to dotted columns, smaller wins;
   cloud uses the shared `jsonx.Flatten` (github API 63→74%, github-repos 83.5→86%).
 
+- `log/journal`/`log/syslog`: "Starting X…"/"Stopping X…" dropped once the same process reports
+  X started, finished or stopped. 69.6→67.6%: same 300-line cap, 84 more distinct events kept.
+
 ## Open
-- `log/journal`: drop "Starting X…" once "Started/Finished X." follows (patch exists). Measured
-  70.0→68.5%: not bigger output, but the `max_lines` cap then keeps more distinct events (omitted
-  304→220). Needs a decision: accept as an information gain, or move the cap to a token budget.
 - `doc/help` (curl --help all 2%): every line is one option + description; only alignment
   padding is left, which a real tokenizer merges (see recommendations). Worth it only with a
   `query` (keep matching options), e.g. via exec `-attr query=…`.

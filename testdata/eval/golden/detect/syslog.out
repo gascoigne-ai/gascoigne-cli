@@ -1,15 +1,6 @@
-Oct 09 20:11:10 host systemd[1]: Stopping Save/Restore Sound Card State...
-Oct 09 20:11:10 host systemd[1]: Stopping Bluetooth service...
-Oct 09 20:11:10 host systemd[1]: Stopping GnuPG cryptographic agent and passphrase cache for /etc/pacman.d/gnupg...
-Oct 09 20:11:10 host systemd[1]: Starting Generate shutdown-ramfs...
 Oct 09 20:11:10 host systemd[1]: Starting Reset Monitor DDC Settings Before Restart...
-Oct 09 20:11:10 host systemd[1]: Stopping Authorization Manager...
-Oct 09 20:11:10 host systemd[1]: Stopping Power Profiles daemon...
-Oct 09 20:11:10 host systemd[1]: Stopping Simple Desktop Display Manager...
 Oct 09 20:11:10 host systemd[1]: systemd-udev-load-credentials.service: Deactivated successfully.
 Oct 09 20:11:10 host systemd[1]: Stopped Load udev Rules from Credentials.
-Oct 09 20:11:10 host systemd[1]: Stopping Disk Manager...
-Oct 09 20:11:10 host systemd[1]: Stopping Daemon for power management...
 Oct 09 20:11:10 host systemd[1]: power-profiles-daemon.service: Deactivated successfully.
 Oct 09 20:11:10 host systemd[1]: Stopped Power Profiles daemon.
 Oct 09 20:11:10 host systemd[1]: run-user-1000-doc.mount: Deactivated successfully.
@@ -32,11 +23,6 @@ Oct 09 20:11:10 host systemd[1]: alsa-restore.service: Deactivated successfully.
 Oct 09 20:11:10 host systemd[1]: Stopped Save/Restore Sound Card State.
 Oct 09 20:11:10 host systemd[1]: Stopped target Multi-User System.
 Oct 09 20:11:10 host systemd[1]: Stopped target Login Prompts.
-Oct 09 20:11:10 host systemd[1]: Stopping Avahi mDNS/DNS-SD Stack...
-Oct 09 20:11:10 host systemd[1]: Stopping CUPS Scheduler...
-Oct 09 20:11:10 host systemd[1]: Stopping [limine-snapper-sync.service] automatically synchronizes boot entries with the Snapper snapshot list....
-Oct 09 20:11:10 host systemd[1]: Stopping Nix Daemon...
-Oct 09 20:11:10 host systemd[1]: Starting Show Plymouth Power Off Screen...
 Oct 09 20:11:10 host systemd[1]: plymouth-quit-wait.service: Deactivated successfully.
 Oct 09 20:11:10 host systemd[1]: Stopped Hold until boot process finishes up.
 Oct 09 20:11:10 host systemd[1]: plymouth-quit.service: Deactivated successfully.
@@ -69,12 +55,47 @@ Oct 09 20:11:10 host systemd[1]: Requested transaction contradicts existing jobs
 Oct 09 20:11:10 host systemd[1]: sys-devices-pci0000:00-0000:00:08.1-0000:0b:00.4-usb5-5\x2d2-5\x2d2.2-5\x2d2.2:1.3-sound-card0-controlC0.device: Failed to enqueue SYSTEMD_WANTS job, ignoring: Transaction for sound.target/start is destructive (shutdown.target has 'start' job queued, but 'stop' is included in transaction).
 Oct 09 20:11:10 host systemd[1]: mkinitcpio-generate-shutdown-ramfs.service: Deactivated successfully.
 Oct 09 20:11:10 host systemd[1]: Finished Generate shutdown-ramfs.
-Oct 09 20:11:10 host systemd[1]: Starting Tell Plymouth To Jump To initramfs...
 Oct 09 20:11:10 host systemd[1]: Finished Tell Plymouth To Jump To initramfs.
 Oct 09 20:11:10 host systemd[1]: session-1.scope: Deactivated successfully.
 Oct 09 20:11:10 host systemd[1]: Stopped Session 1 of User dev.
-… 304 lines omitted
-Oct 10 00:05:44 host systemd[1]: Starting TPM PCR Barrier (User)...
+Oct 09 20:11:11 host systemd[1]: user@1000.service: Deactivated successfully.
+Oct 09 20:11:11 host systemd[1]: Stopped User Manager for UID 1000.
+Oct 09 20:11:11 host systemd[1]: user@1000.service: Consumed 3h 24min 974ms CPU time over 10h 7min 32.489s wall clock time, 23.1G memory peak.
+Oct 09 20:11:11 host systemd[1]: systemd-oomd.service: Deactivated successfully.
+Oct 09 20:11:11 host systemd[1]: Stopped Userspace Out-Of-Memory (OOM) Killer.
+Oct 09 20:11:11 host systemd[1]: systemd-oomd.service: Consumed 10.677s CPU time over 10h 7min 34.955s wall clock time, 4.3M memory peak.
+Oct 09 20:11:11 host systemd[1]: systemd-user-sessions.service: Deactivated successfully.
+Oct 09 20:11:11 host systemd[1]: Stopped Permit User Sessions.
+Oct 09 20:11:11 host systemd[1]: Stopped target Network.
+Oct 09 20:11:11 host systemd[1]: systemd-userdb-load-credentials.service: Deactivated successfully.
+Oct 09 20:11:11 host systemd[1]: Stopped Load JSON user/group Records from Credentials.
+Oct 09 20:11:11 host systemd[1]: run-user-1000.mount: Deactivated successfully.
+Oct 09 20:11:11 host systemd[1]: Unmounted /run/user/1000.
+Oct 09 20:11:11 host systemd[1]: user-runtime-dir@1000.service: Deactivated successfully.
+Oct 09 20:11:11 host systemd[1]: Stopped User Runtime Directory /run/user/1000.
+… 220 lines omitted
+Oct 10 00:05:44 host systemd[1]: Listening on Avahi mDNS/DNS-SD Stack Activation Socket.
+Oct 10 00:05:44 host systemd[1]: Listening on CUPS Scheduler.
+Oct 10 00:05:44 host systemd[1]: Listening on D-Bus System Message Bus Socket.
+Oct 10 00:05:44 host systemd[1]: Listening on GnuPG network certificate management daemon for /etc/pacman.d/gnupg.
+Oct 10 00:05:44 host systemd[1]: Starting Docker Socket for the API...
+Oct 10 00:05:44 host systemd[1]: Listening on GnuPG cryptographic agent and passphrase cache (access for web browsers) for /etc/pacman.d/gnupg.
+Oct 10 00:05:44 host systemd[1]: Listening on GnuPG cryptographic agent and passphrase cache (restricted) for /etc/pacman.d/gnupg.
+Oct 10 00:05:44 host systemd[1]: Listening on GnuPG cryptographic agent (ssh-agent emulation) for /etc/pacman.d/gnupg.
+Oct 10 00:05:44 host systemd[1]: Listening on GnuPG cryptographic agent and passphrase cache for /etc/pacman.d/gnupg.
+Oct 10 00:05:44 host systemd[1]: Listening on GnuPG public key management service for /etc/pacman.d/gnupg.
+Oct 10 00:05:44 host systemd[1]: Listening on Authorization Manager Agent Helper.
+Oct 10 00:05:44 host systemd[1]: Listening on OpenSSH Server Socket (systemd-ssh-generator, AF_UNIX Local).
+Oct 10 00:05:44 host systemd[1]: Listening on User Login Management Varlink Socket.
+Oct 10 00:05:44 host systemd[1]: Listening on Virtual Machine and Container Registration Service Socket.
+Oct 10 00:05:44 host systemd[1]: Listening on Docker Socket for the API.
+Oct 10 00:05:44 host systemd[1]: Reached target Socket Units.
+Oct 10 00:05:44 host systemd[1]: Started D-Bus System Message Bus.
+Oct 10 00:05:44 host systemd[1]: Finished TPM PCR Barrier (Initialization).
+Oct 10 00:05:44 host systemd[1]: Reached target Basic System.
+Oct 10 00:05:44 host systemd[1]: Manage Sound Card State (restore and store) skipped, unmet condition check ConditionPathExists=/etc/alsa/state-daemon.conf
+Oct 10 00:05:44 host systemd[1]: Started [limine-snapper-sync.service] automatically synchronizes boot entries with the Snapper snapshot list..
+Oct 10 00:05:44 host systemd[1]: Started Nix Daemon.
 Oct 10 00:05:44 host systemd[1]: Started Verify integrity of password and group files.
 Oct 10 00:05:44 host systemd[1]: linux-modules-cleanup.service: Deactivated successfully.
 Oct 10 00:05:44 host systemd[1]: Finished Clean up modules from old kernels.
@@ -85,67 +106,46 @@ Oct 10 00:05:44 host systemd[1]: Reached target Bluetooth Support.
 Oct 10 00:05:44 host systemd[1]: Finished TPM PCR Barrier (User).
 Oct 10 00:05:44 host systemd[1]: Started Avahi mDNS/DNS-SD Stack.
 Oct 10 00:05:44 host systemd[1]: Started User Login Management.
-Oct 10 00:05:44 host systemd[1]: Starting Hostname Service...
 Oct 10 00:05:44 host systemd[1]: shadow.service: Deactivated successfully.
 Oct 10 00:05:44 host systemd[1]: Started Hostname Service.
-Oct 10 00:05:44 host systemd[1]: Starting Network Manager Script Dispatcher Service...
 Oct 10 00:05:44 host systemd[1]: Started Network Manager.
 Oct 10 00:05:44 host systemd[1]: Reached target Network.
-Oct 10 00:05:44 host systemd[1]: Starting CUPS Scheduler...
-Oct 10 00:05:44 host systemd[1]: Starting Permit User Sessions...
 Oct 10 00:05:44 host systemd[1]: Finished Permit User Sessions.
-Oct 10 00:05:44 host systemd[1]: Starting Hold until boot process finishes up...
-Oct 10 00:05:44 host systemd[1]: Starting Terminate Plymouth Boot Screen...
 Oct 10 00:05:44 host systemd[1]: Started Network Manager Script Dispatcher Service.
 … 2 lines omitted
 Oct 10 00:05:44 host systemd[1]: Finished Hold until boot process finishes up.
 Oct 10 00:05:44 host systemd[1]: Finished Terminate Plymouth Boot Screen.
 Oct 10 00:05:44 host systemd[1]: Reached target Multi-User System.
-Oct 10 00:05:44 host systemd[1]: Starting Power Profiles daemon...
 Oct 10 00:05:44 host systemd[1]: Started Simple Desktop Display Manager.
 Oct 10 00:05:44 host systemd[1]: Created slice Slice /system/systemd-pcrlogin.
 Oct 10 00:05:44 host systemd[1]: Created slice User Slice of UID 1000.
-Oct 10 00:05:44 host systemd[1]: Starting TPM NvPCR Measurement of User Record for UID 1000...
 Oct 10 00:05:44 host systemd[1]: Finished TPM NvPCR Measurement of User Record for UID 1000.
-Oct 10 00:05:44 host systemd[1]: Starting User Runtime Directory /run/user/1000...
 Oct 10 00:05:44 host systemd[1]: Finished User Runtime Directory /run/user/1000.
-Oct 10 00:05:44 host systemd[1]: Starting User Manager for UID 1000...
-Oct 10 00:05:44 host systemd[1]: Starting Authorization Manager...
 Oct 10 00:05:45 host systemd[1]: Started User Manager for UID 1000.
 Oct 10 00:05:45 host systemd[1]: Started Session 1 of User dev.
-Oct 10 00:05:45 host systemd[1]: Starting WPA supplicant...
 Oct 10 00:05:45 host systemd[1]: Started Authorization Manager.
 Oct 10 00:05:45 host systemd[1]: Started Power Profiles daemon.
 Oct 10 00:05:45 host systemd[1]: Reached target Graphical Interface.
 Oct 10 00:05:45 host systemd[1]: Started WPA supplicant.
 Oct 10 00:05:45 host systemd[1]: Startup finished in 11.779s (firmware) + 8.013s (loader) + 13.561s (kernel) + 4.509s (userspace) = 37.863s.
-Oct 10 00:05:46 host systemd[1]: Starting Daemon for power management...
 Oct 10 00:05:46 host systemd[1]: Started Daemon for power management.
-Oct 10 00:05:46 host systemd[1]: Starting Disk Manager...
 Oct 10 00:05:47 host systemd[1]: Started Disk Manager.
 Oct 10 00:05:49 host systemd[1]: systemd-rfkill.service: Deactivated successfully.
-Oct 10 00:05:54 host systemd[1]: Starting Time & Date Service...
 Oct 10 00:05:54 host systemd[1]: Started Time & Date Service.
 Oct 10 00:05:54 host systemd[1]: NetworkManager-dispatcher.service: Deactivated successfully.
 Oct 10 00:06:14 host systemd[1]: systemd-hostnamed.service: Deactivated successfully.
 Oct 10 00:06:24 host systemd[1]: systemd-timedated.service: Deactivated successfully.
-Oct 10 00:14:58 host systemd[1]: Starting Daily man-db regeneration...
 Oct 10 00:14:59 host systemd[1]: man-db.service: Deactivated successfully.
 Oct 10 00:14:59 host systemd[1]: Finished Daily man-db regeneration.
 Oct 10 00:14:59 host systemd[1]: man-db.service: Consumed 831ms CPU time over 1.101s wall clock time, 98M memory peak.
-Oct 10 00:15:29 host systemd[1]: Starting Daily Cleanup of Snapper Snapshots... (×7)
 Oct 10 00:15:29 host systemd[1]: Started Daily Cleanup of Snapper Snapshots. (×7)
-Oct 10 00:15:29 host systemd[1]: Starting DBus interface for snapper... (×7)
 Oct 10 00:15:29 host systemd[1]: Started DBus interface for snapper. (×7)
 Oct 10 00:15:29 host systemd[1]: snapper-cleanup.service: Deactivated successfully. (×7)
 Oct 10 00:16:29 host systemd[1]: snapperd.service: Deactivated successfully. (×7)
-Oct 10 00:20:36 host systemd[1]: Starting Cleanup of Temporary Directories...
 Oct 10 00:20:36 host systemd[1]: systemd-tmpfiles-clean.service: Deactivated successfully.
 Oct 10 00:20:36 host systemd[1]: Finished Cleanup of Temporary Directories.
-Oct 10 00:26:46 host systemd[1]: Starting Accounts Service...
 Oct 10 00:26:46 host systemd[1]: Started Accounts Service.
-Oct 10 00:31:36 host systemd[1]: Starting Update the plocate database...
 Oct 10 00:31:44 host systemd[1]: plocate-updatedb.service: Deactivated successfully.
 Oct 10 00:31:44 host systemd[1]: Finished Update the plocate database.
 Oct 10 00:31:44 host systemd[1]: plocate-updatedb.service: Consumed 3.779s CPU time over 7.904s wall clock time, 832.8M memory peak.
-… 36 lines omitted
+… 24 lines omitted

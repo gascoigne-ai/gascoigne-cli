@@ -43,6 +43,9 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 					lines = ev
 				}
 			}
+			if b.Type == detect.Journal || b.Type == detect.Syslog {
+				lines = unitPairs(lines)
+			}
 			if s, ok := split(lines); ok {
 				lines = render(o.template(s.lines, s.src), s.names)
 				break

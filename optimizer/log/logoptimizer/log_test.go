@@ -103,3 +103,26 @@ func TestAccessSummary(t *testing.T) {
 		}
 	}
 }
+
+func TestUnitPairs(t *testing.T) {
+	in := []string{
+		"Oct 10 00:05:44 host systemd[1]: Starting CUPS Scheduler...",
+		"Oct 10 00:05:44 host systemd[1]: Starting Permit User Sessions...",
+		"Oct 10 00:05:44 host systemd[1]: Finished Permit User Sessions.",
+		"Oct 10 00:05:45 host systemd[1]: Starting WPA supplicant...",
+		"Oct 10 00:05:45 host systemd[1]: Started WPA supplicant.",
+		"Oct 10 00:05:46 host systemd[1234]: Started WPA supplicant.",
+		"Oct 10 00:06:00 host systemd[1]: Stopping Disk Manager...",
+		"Oct 10 00:06:01 host systemd[1]: Stopped Disk Manager.",
+	}
+	want := []string{
+		"Oct 10 00:05:44 host systemd[1]: Starting CUPS Scheduler...", // never started: stays
+		"Oct 10 00:05:44 host systemd[1]: Finished Permit User Sessions.",
+		"Oct 10 00:05:45 host systemd[1]: Started WPA supplicant.",
+		"Oct 10 00:05:46 host systemd[1234]: Started WPA supplicant.", // another process: no pair
+		"Oct 10 00:06:01 host systemd[1]: Stopped Disk Manager.",
+	}
+	if got := unitPairs(in); strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("got:\n%s", strings.Join(got, "\n"))
+	}
+}
