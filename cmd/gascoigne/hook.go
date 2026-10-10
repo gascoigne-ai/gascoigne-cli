@@ -9,9 +9,11 @@ import (
 	"maps"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 
 	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/exporter/stdoutexporter"
 	"github.com/lukaszb/gascoigne/payload"
 	"github.com/lukaszb/gascoigne/receiver/hookreceiver"
 )
@@ -143,7 +145,8 @@ func hinted(p *payload.Payload) string {
 // wrapCommand routes the last command of a shell line through gascoigne exec
 // when gascoigne knows the tool: "cd api && go test ./..." becomes
 // "cd api && gascoigne exec -- go test ./...", and "go test ./... | tail -5"
-// becomes "gascoigne exec -- go test ./... | tail -5". Commands may be joined
+// becomes "gascoigne exec -- go test ./... | tail -5" (before head, exec
+// prints its hint first). Commands may be joined
 // by && or ;, and only head/tail may follow a pipe: other filters would see
 // optimized text instead of what they search. Redirects, subshells and other
 // lists are left alone.
@@ -165,7 +168,11 @@ func wrapCommand(line, gascoigne string) (string, bool) {
 	if detect.FromCmd(cmd) == "" || streams(cmd) {
 		return line, false
 	}
-	out := head + env + gascoigne + " exec -- " + cmd
+	run := " exec -- "
+	if slices.Contains(strings.Fields(pipe), "head") {
+		run = " exec -attr " + stdoutexporter.AttrHint + "=" + stdoutexporter.HintTop + " -- " // head would cut a hint at the end
+	}
+	out := head + env + gascoigne + run + cmd
 	if merged {
 		out += " 2>&1"
 	}

@@ -12,6 +12,8 @@ func TestExport(t *testing.T) {
 	optimized.Set(payload.AttrRawID, "abc")
 	optimized.Set(payload.AttrRawTokens, "100")
 	optimized.Set(payload.AttrOutTokens, "2")
+	top := optimized.Clone()
+	top.Set(AttrHint, HintTop)
 
 	tests := []struct {
 		name string
@@ -22,6 +24,7 @@ func TestExport(t *testing.T) {
 		{"verbatim", true, payload.New(payload.CmdOutput, "raw"), "raw"},
 		{"hint", true, optimized, "short\n[gascoigne: optimized 100→2 tokens · full: gascoigne raw abc]\n"},
 		{"hint off", false, optimized, "short"},
+		{"hint on top", true, top, "[gascoigne: optimized 100→2 tokens · full: gascoigne raw abc]\nshort"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

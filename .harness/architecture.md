@@ -144,7 +144,8 @@ fails the tool call (bad input → no answer → call unchanged).
 | cursor | — (config files only: `-print`) | preToolUse `updated_input`, `permission: allow` (shell approval stays with `beforeShellExecution`) |
 Rewrites touch only the last command of a `&&`/`;` list when `detect.FromCmd` knows it, and
 may keep trailing `| head`/`| tail` stages (they then cut optimized text; other filters would
-search it, so other pipes stay). Redirects (except `2>&1`), subshells, `||`, background runs,
+search it, so other pipes stay). Before `head`, exec gets `-attr hint=top`: the stdout exporter
+prints the hint first so the cut keeps it. Redirects (except `2>&1`), subshells, `||`, background runs,
 commands running gascoigne itself and commands that run until stopped (`-f`/`--follow`,
 `--watch`, `dev`, `serve`, `start`, `up`) stay as they are, since exec shows output only when
 the command exits.
