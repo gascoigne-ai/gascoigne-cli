@@ -55,6 +55,7 @@ Flags win over environment. `GASCOIGNE_SET` is applied before `-set` flags.
 |---|---|
 | `-raw` | Skip optimization; output verbatim (same as `GASCOIGNE_RAW=1`). |
 | `-pipeline name` | Run another pipeline from the config (`exec` uses `exec`, `run` uses `cli`). |
+| `-watch` | `exec` only: the command rebuilds until stopped (`tsc -w`); print each cycle, optimized, when it ends. |
 
 ## `gain`
 

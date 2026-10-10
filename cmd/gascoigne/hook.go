@@ -77,7 +77,7 @@ func rewriteHook(reply func(updated map[string]any) any) hookFunc {
 		cmd, _ := in.ToolInput["command"].(string)
 		background, _ := in.ToolInput["run_in_background"].(bool)
 		wrapped, ok := wrapCommand(cmd, prefix)
-		if !ok || background {
+		if !ok || background && !strings.Contains(wrapped, " -watch -- ") {
 			return reply(nil), nil
 		}
 		updated := maps.Clone(in.ToolInput)
@@ -182,6 +182,9 @@ func wrapCommand(line, prefix string) (string, bool) {
 		}
 		wrapped = true
 		run := prefix + " -- "
+		if watched(cmd) {
+			run = prefix + " -watch -- "
+		}
 		if i == len(parts)-1 && slices.Contains(strings.Fields(pipe), "head") {
 			run = prefix + " -attr " + stdoutexporter.AttrHint + "=" + stdoutexporter.HintTop + " -- " // head would cut a hint at the end
 		}
@@ -293,7 +296,19 @@ func passthrough(cmd string) bool {
 	if quiet[name] || len(args) == 1 && repl[name] {
 		return true
 	}
-	return streams(cmd)
+	return streams(cmd) && !watched(cmd)
+}
+
+// watched reports build tools in watch mode, whose output exec -watch
+// prints a rebuild at a time.
+func watched(cmd string) bool {
+	args := detect.Argv(cmd)
+	if len(args) < 2 || detect.Family(detect.FromCmd(cmd)) != detect.FamilyBuild {
+		return false
+	}
+	return slices.ContainsFunc(args[1:], func(a string) bool {
+		return a == "-w" || a == "--watch" || a == "watch" || a == "serve"
+	})
 }
 
 var quiet = map[string]bool{
@@ -319,6 +334,9 @@ func streams(cmd string) bool {
 	args := detect.Argv(cmd)
 	if len(args) == 0 {
 		return false
+	}
+	if args[0] == "vite" && (len(args) == 1 || strings.HasPrefix(args[1], "-")) {
+		return true // the dev server
 	}
 	follow := args[0] == "tail" || args[0] == "journalctl" || strings.Contains(cmd, "logs")
 	for _, a := range args[1:] {

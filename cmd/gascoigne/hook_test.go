@@ -36,6 +36,11 @@ func TestWrapCommand(t *testing.T) {
 		{"every command", "ls docs; cat a.md && git log -5", "gascoigne exec -- ls docs; gascoigne exec -- cat a.md && gascoigne exec -- git log -5"},
 		{"hint first only before head", "git status && git log | head -5", "gascoigne exec -- git status && gascoigne exec -attr hint=top -- git log | head -5"},
 		{"streaming segment skipped", "npm run dev; go test ./...", "npm run dev; gascoigne exec -- go test ./..."},
+		{"tsc watch", "npx tsc -w -p .", "gascoigne exec -watch -- npx tsc -w -p ."},
+		{"webpack dev server", "webpack serve --mode development", "gascoigne exec -watch -- webpack serve --mode development"},
+		{"vite build watch", "vite build --watch", "gascoigne exec -watch -- vite build --watch"},
+		{"vite dev server", "npx vite --port 5173", ""},
+		{"watch flag of another family", "jest --watch", ""},
 		{"quiet segments kept", "echo start; go test ./...; echo end", "echo start; gascoigne exec -- go test ./...; echo end"},
 		{"conditional", "if [ -f go.mod ]; then go test ./...; fi", ""},
 		{"while loop", "while true; do go test ./...; done", ""},
@@ -181,5 +186,16 @@ func TestExecPrefix(t *testing.T) {
 				t.Fatalf("got %q, want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestRewriteBackgroundWatch(t *testing.T) {
+	in := hookInput{ToolInput: map[string]any{"command": "npx tsc -w", "run_in_background": true}}
+	reply, err := agents["claude"].hook(t.Context(), &common{}, in, "gascoigne exec")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := compactJSON(reply); !strings.Contains(got, `"command":"gascoigne exec -watch -- npx tsc -w"`) {
+		t.Fatalf("got %s", got)
 	}
 }

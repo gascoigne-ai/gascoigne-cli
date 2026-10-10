@@ -53,3 +53,30 @@ func TestRunWithoutInvocationIsNoop(t *testing.T) {
 		t.Fatalf("err %v, got %v", err, next.got)
 	}
 }
+
+type collect struct{ got []string }
+
+func (c *collect) Process(_ context.Context, p *payload.Payload) (*payload.Payload, error) {
+	c.got = append(c.got, p.Text())
+	return p, nil
+}
+
+func TestWatchProcessesEachCycle(t *testing.T) {
+	script := `echo "[7:00:01 AM] Starting compilation in watch mode..."
+echo "a.ts(1,1): error TS2304: Cannot find name 'x'." >&2
+echo "[7:00:02 AM] Found 1 error. Watching for file changes."
+echo "[7:00:05 AM] File change detected. Starting incremental compilation..."
+echo "[7:00:06 AM] Found 0 errors. Watching for file changes."
+echo "Terminating"
+exit 130`
+	next := &collect{}
+	r := &Receiver{cfg: &Config{Kind: payload.CmdOutput}, next: next}
+	inv := &Invocation{Args: []string{"sh", "-c", script}, Stdin: strings.NewReader(""), Watch: true}
+	if err := r.Run(With(t.Context(), inv)); err != nil {
+		t.Fatal(err)
+	}
+	if len(next.got) != 3 || !strings.HasSuffix(next.got[0], "Found 1 error. Watching for file changes.\n") ||
+		!strings.Contains(next.got[0], "TS2304") || next.got[2] != "Terminating\n" || inv.ExitCode != 130 {
+		t.Fatalf("cycles %q, exit %d", next.got, inv.ExitCode)
+	}
+}

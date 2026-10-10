@@ -11,6 +11,7 @@ import (
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/compress/compose"
 	"github.com/lukaszb/gascoigne/compress/diag"
+	"github.com/lukaszb/gascoigne/compress/watch"
 	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
@@ -31,7 +32,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if r.MaxFrame == 0 {
 			r.MaxFrame = o.cfg.MaxFrame
 		}
-		lines := compress.Lines(compress.StripANSI(b.Text))
+		lines := watch.Last(compress.Lines(compress.StripANSI(b.Text)))
 		if dialect == "docker" {
 			lines = dockerSteps(lines)
 		}

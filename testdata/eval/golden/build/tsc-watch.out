@@ -1,0 +1,11 @@
+… 4 earlier watch cycles omitted (31 lines), results:
+  [7:00:03 AM] Found 4 errors. Watching for file changes.
+  [7:02:16 AM] Found 3 errors. Watching for file changes.
+  [7:04:42 AM] Found 1 error. Watching for file changes.
+  [7:06:04 AM] Found 0 errors. Watching for file changes.
+[7:09:33 AM] File change detected. Starting incremental compilation...
+src/checkout/Summary.tsx
+  5:24 error TS2307 Cannot find module '../cart/totals' or its corresponding type declarations.
+  40:12 error TS2554 Expected 2 arguments, but got 1.
+[7:09:35 AM] Found 2 errors. Watching for file changes.
+2 errors in 1 file

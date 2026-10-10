@@ -1,0 +1,39 @@
+[7:00:01 AM] Starting compilation in watch mode...
+
+src/cart/Cart.tsx(14,7): error TS2322: Type 'string' is not assignable to type 'number'.
+
+src/cart/Cart.tsx(31,19): error TS2339: Property 'qty' does not exist on type 'Item'.
+
+src/api/client.ts(8,3): error TS2304: Cannot find name 'fetchJSON'.
+
+src/api/client.ts(22,10): error TS7006: Parameter 'res' implicitly has an 'any' type.
+
+[7:00:03 AM] Found 4 errors. Watching for file changes.
+
+[7:02:14 AM] File change detected. Starting incremental compilation...
+
+src/cart/Cart.tsx(31,19): error TS2339: Property 'qty' does not exist on type 'Item'.
+
+src/api/client.ts(8,3): error TS2304: Cannot find name 'fetchJSON'.
+
+src/api/client.ts(22,10): error TS7006: Parameter 'res' implicitly has an 'any' type.
+
+[7:02:16 AM] Found 3 errors. Watching for file changes.
+
+[7:04:40 AM] File change detected. Starting incremental compilation...
+
+src/api/client.ts(22,10): error TS7006: Parameter 'res' implicitly has an 'any' type.
+
+[7:04:42 AM] Found 1 error. Watching for file changes.
+
+[7:06:02 AM] File change detected. Starting incremental compilation...
+
+[7:06:04 AM] Found 0 errors. Watching for file changes.
+
+[7:09:33 AM] File change detected. Starting incremental compilation...
+
+src/checkout/Summary.tsx(5,24): error TS2307: Cannot find module '../cart/totals' or its corresponding type declarations.
+
+src/checkout/Summary.tsx(40,12): error TS2554: Expected 2 arguments, but got 1.
+
+[7:09:35 AM] Found 2 errors. Watching for file changes.

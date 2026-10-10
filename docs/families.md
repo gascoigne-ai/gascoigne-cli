@@ -58,6 +58,9 @@ ok 3 packages in example.com/shop: api, cart, util
 Diagnostics grouped by file; identical ones across 3+ files folded into one; code frames
 capped at `max_frame` lines with their annotations kept; per-dialect noise and prefixes
 removed. Docker builds compose: each `RUN` step's output goes to the matching engine.
+Watch-mode output (`tsc -w`, webpack, vite/rollup/esbuild builds, cargo watch) keeps only the
+last rebuild; earlier ones become `… 4 earlier watch cycles omitted (31 lines), results:` and
+their result lines (`Found 3 errors…`). With `exec -watch` each rebuild is printed on its own.
 
 | Dialect | Commands |
 |---|---|

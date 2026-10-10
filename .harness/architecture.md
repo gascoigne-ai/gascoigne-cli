@@ -69,7 +69,7 @@ lives in public libs so engines and composite families can reuse it:
 | Family | Engine (lib) | Dialects |
 |---|---|---|
 | `test` | `compress/testreport`: go parsed; others via rules (passes counted, noise and dependency frames dropped, failures/summaries kept) | go, go-json, jest, vitest, bun, mocha, deno, pytest, cargo, rspec, maven, dotnet |
-| `build` | `compress/diag`: diagnostics grouped by file, identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed) |
+| `build` | watch output (`compress/watch`) keeps the last cycle + earlier result lines; `compress/diag`: diagnostics grouped by file, identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed) |
 | `pkg` | `compress/pkgnoise`: progress/downloads dropped, warnings folded by kind | npm, pnpm, yarn, bun, pip, uv, poetry, go-mod, cargo, os |
 | `task` | sections; ok/cached collapse; failing ones via `compress/compose` | nx, turbo, make, just, gradle, compose, ci |
 | `vcs` | git engine; diffs: in-line edits as word diffs (`~[-old-]{+new+}`, only when every pair of a k:k block qualifies), lockfiles/generated files folded to counts; removed blocks re-added verbatim elsewhere → `-… N lines moved to file:L` (`moves.go`); log keeps `--stat`/name lists; blame runs grouped, mirrored remote branches dropped, gh lists via `compress/table` | git-status, git-log, git-diff, git-remote, git-blame, git-branch, gh-list, gh-view |
@@ -168,8 +168,9 @@ may keep trailing `| head`/`| tail` stages (they then cut optimized text; other 
 search it, so other pipes stay). Before `head`, exec gets `-attr hint=top`: the stdout exporter
 prints the hint first so the cut keeps it. Redirects (except `2>&1`), subshells, `||`, background runs,
 commands running gascoigne itself and commands that run until stopped (`-f`/`--follow`,
-`--watch`, `dev`, `serve`, `start`, `up`) stay as they are, since exec shows output only when
-the command exits.
+`--watch`, `dev`, `serve`, `start`, `up`, plain `vite`) stay as they are, since exec shows output only when
+the command exits — except build tools in watch mode (`watched`): `exec -watch` processes each
+cycle when `watch.End` sees its result line, background runs included.
 
 ## Full-payload guarantee
 Lives in core (`service/pipeline.go`), not in optimizers:

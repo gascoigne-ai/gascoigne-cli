@@ -104,6 +104,8 @@
 - { name: detect/dotnet-test, file: test/dotnet-test-fail.txt, expect_type: test/dotnet }
 
 # --- build family
+- { file: build/tsc-watch.txt, attrs: { cmd: npx tsc --watch }, expect_type: build/tsc,
+    keep: ["4 earlier watch cycles omitted", "Found 0 errors", "Summary.tsx", "40:12 error TS2554", "Found 2 errors"], min_saved: 55 }
 - { file: build/tsc-many.txt, attrs: { cmd: npx tsc --noEmit -p . }, expect_type: build/tsc,
     keep: ["src/a.ts", "error TS2322", "Property 'mail' does not exist", "src/i.ts"], min_saved: 60 }
 - { file: build/gcc-errors.txt, attrs: { cmd: gcc -Wall -Wextra -c a.c b.c c.c }, expect_type: build/gcc,

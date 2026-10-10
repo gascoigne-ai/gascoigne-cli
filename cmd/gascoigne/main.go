@@ -225,6 +225,7 @@ func cmdExec(ctx context.Context, args []string) error {
 	c.register(fs)
 	raw := fs.Bool("raw", false, "bypass optimization, output verbatim")
 	pipeline := fs.String("pipeline", "exec", "`pipeline` to run")
+	watch := fs.Bool("watch", false, "the command rebuilds until stopped (tsc -w, webpack --watch): print each cycle as it ends")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -239,7 +240,7 @@ func cmdExec(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	inv := &execreceiver.Invocation{Args: fs.Args()}
+	inv := &execreceiver.Invocation{Args: fs.Args(), Watch: *watch}
 	runErr := svc.Run(execreceiver.With(ctx, inv), *pipeline)
 	if err := errors.Join(runErr, svc.Shutdown(context.WithoutCancel(ctx))); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne:", err)

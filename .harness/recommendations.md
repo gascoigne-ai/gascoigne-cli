@@ -3,9 +3,7 @@
 Direction for upcoming work. Rules are in `rules.md`; this is advice.
 
 ## Optimizer ideas (not built yet)
-| Idea | Technique |
-|---|---|
-| `tsc --watch`, `vite`/`webpack` dev servers | watch loops: keep the last cycle's errors, drop earlier cycles |
+None queued; dialect tuning is in task 008.
 
 New tools of an existing family are dialects, not optimizers (skill `add-component`).
 Dialects that save little are tracked in task 008.

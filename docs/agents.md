@@ -131,7 +131,11 @@ The hook rewrites every command it can rewrite safely:
 - **Left alone:** other pipes (`| grep` would search optimized text), redirects, `$(…)`,
   backticks, `||`, background runs (`&`, `run_in_background`), multi-line scripts, commands
   that run gascoigne itself or set `GASCOIGNE_RAW`, and commands that run until stopped:
-  `-f`/`--follow` on logs, `--watch`, `watch`, `dev`, `serve`, `start`, `up`.
+  `-f`/`--follow` on logs, `--watch`, `watch`, `dev`, `serve`, `start`, `up`, plain `vite`.
+- **Build tools in watch mode** (`tsc -w`, `webpack --watch`, `webpack serve`, `vite build
+  --watch`, rollup, esbuild) run as `gascoigne exec -watch -- …`, also in the background: each
+  rebuild is printed, optimized, as soon as its result line (`Found 2 errors. Watching for file
+  changes.`, `webpack … compiled …`) appears.
 
 ## Reading results as an agent
 
