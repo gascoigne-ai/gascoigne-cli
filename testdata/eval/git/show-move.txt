@@ -1,0 +1,372 @@
+commit 22d591d281e2fb34cdee33169416adb590105e7f
+Author: Dev <dev@example.com>
+Date:   Sat Oct 10 02:24:26 2026 +0200
+
+    refactor(compress): extract row sampling into compress/rows
+    
+    Errors, anomalies, change points, BM25 relevance, head/tail shares and
+    dedupe now live in a public library so every family engine dealing
+    with records (tables, db results, k8s and cloud resources, logs) can
+    share them. The JSON optimizer calls rows.Sample; behavior unchanged.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/compress/rows/hash.go b/compress/rows/hash.go
+new file mode 100644
+index 0000000..d519f81
+--- /dev/null
++++ b/compress/rows/hash.go
+@@ -0,0 +1,57 @@
++package rows
++
++import (
++	"encoding/json"
++	"hash/maphash"
++	"slices"
++)
++
++var seed = maphash.MakeSeed()
++
++// hash fingerprints a decoded JSON value; equal values hash equally.
++func hash(v any) uint64 {
++	var h maphash.Hash
++	h.SetSeed(seed)
++	writeHash(&h, v)
++	return h.Sum64()
++}
++
++func writeHash(h *maphash.Hash, v any) {
++	switch v := v.(type) {
++	case nil:
++		h.WriteByte('n')
++	case bool:
++		if v {
++			h.WriteByte('t')
++		} else {
++			h.WriteByte('f')
++		}
++	case string:
++		h.WriteByte('s')
++		h.WriteString(v)
++		h.WriteByte(0)
++	case json.Number:
++		h.WriteByte('#')
++		h.WriteString(string(v))
++		h.WriteByte(0)
++	case []any:
++		h.WriteByte('[')
++		for _, x := range v {
++			writeHash(h, x)
++		}
++		h.WriteByte(']')
++	case map[string]any:
++		h.WriteByte('{')
++		keys := make([]string, 0, len(v))
++		for k := range v {
++			keys = append(keys, k)
++		}
++		slices.Sort(keys)
++		for _, k := range keys {
++			h.WriteString(k)
++			h.WriteByte(0)
++			writeHash(h, v[k])
++		}
++		h.WriteByte('}')
++	}
++}
+diff --git a/optimizer/data/jsonoptimizer/relevance.go b/compress/rows/relevance.go
+similarity index 92%
+rename from optimizer/data/jsonoptimizer/relevance.go
+rename to compress/rows/relevance.go
+index abeef24..572df65 100644
+--- a/optimizer/data/jsonoptimizer/relevance.go
++++ b/compress/rows/relevance.go
+@@ -1,4 +1,4 @@
+-package jsonoptimizer
++package rows
+ 
+ import (
+ 	"encoding/json"
+@@ -13,8 +13,8 @@ const (
+ 	bm25B  = 0.75
+ )
+ 
+-// terms lowercases and splits text into alphanumeric terms.
+-func terms(s string) []string {
++// Terms lowercases and splits text into alphanumeric terms (query or document).
++func Terms(s string) []string {
+ 	return strings.FieldsFunc(strings.ToLower(s), func(r rune) bool {
+ 		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
+ 	})
+@@ -30,7 +30,7 @@ func relevance(items []any, uniq []int, query []string, k int) map[int]float64 {
+ 	df := map[string]int{}
+ 	total := 0
+ 	for d, i := range uniq {
+-		docs[d] = terms(flatten(items[i]))
++		docs[d] = Terms(flatten(items[i]))
+ 		total += len(docs[d])
+ 		seen := map[string]bool{}
+ 		for _, t := range docs[d] {
+diff --git a/compress/rows/rows_test.go b/compress/rows/rows_test.go
+new file mode 100644
+index 0000000..957197c
+--- /dev/null
++++ b/compress/rows/rows_test.go
+@@ -0,0 +1,47 @@
++package rows
++
++import (
++	"encoding/json"
++	"slices"
++	"strconv"
++	"testing"
++)
++
++func TestRelevance(t *testing.T) {
++	docs := []any{
++		map[string]any{"title": "install guide"},
++		map[string]any{"title": "checkout flow fails on retry"},
++		map[string]any{"title": "checkout"},
++		map[string]any{"title": "unrelated"},
++	}
++	got := relevance(docs, []int{0, 1, 2, 3}, Terms("Checkout retry"), 1)
++	if len(got) != 1 || got[1] != 1 {
++		t.Fatalf("got %v, want item 1 as best match", got)
++	}
++}
++
++func TestSampleKeepsErrorsAndEnds(t *testing.T) {
++	var items []any
++	for i := range 100 {
++		status := "ok"
++		if i == 42 {
++			status = "failed"
++		}
++		items = append(items, map[string]any{"i": json.Number(strconv.Itoa(i)), "status": status})
++	}
++	got := Sample(items, Options{MaxItems: 6, HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2})
++	var kept []string
++	for _, it := range got {
++		if m, ok := it.(map[string]any); ok {
++			kept = append(kept, string(m["i"].(json.Number)))
++		}
++	}
++	for _, want := range []string{"0", "42", "99"} {
++		if !slices.Contains(kept, want) {
++			t.Errorf("item %s dropped; kept %v", want, kept)
++		}
++	}
++	if len(kept) > 7 {
++		t.Errorf("kept %d items, want about 6", len(kept))
++	}
++}
+diff --git a/optimizer/data/jsonoptimizer/sample.go b/compress/rows/sample.go
+similarity index 86%
+rename from optimizer/data/jsonoptimizer/sample.go
+rename to compress/rows/sample.go
+index 71c6198..7d02745 100644
+--- a/optimizer/data/jsonoptimizer/sample.go
++++ b/compress/rows/sample.go
+@@ -1,4 +1,7 @@
+-package jsonoptimizer
++// Package rows samples long lists of records (decoded JSON objects, table
++// rows) down to the ones worth reading: errors, anomalies, change points,
++// query matches and both ends. Gaps become "… N items omitted" markers.
++package rows
+ 
+ import (
+ 	"cmp"
+@@ -19,11 +22,23 @@ const (
+ 	scoreRelevance = 5
+ )
+ 
+-// sample keeps about MaxItems items of a long array, in original order with
++// Options tune Sample.
++type Options struct {
++	MaxItems   int      // target items kept; errors may exceed it
++	HeadShare  float64  // share of MaxItems taken from the start
++	TailShare  float64  // and from the end
++	AnomalyStd float64  // numeric outliers beyond this many standard deviations
++	RelevanceK int      // best query matches kept
++	Query      []string // query terms (see Terms)
++}
++
++// Sample keeps about MaxItems items of a long list, in original order with
+ // omission markers. Errors always stay (even over budget); then anomalies,
+ // change points and query matches by score; then head and tail shares; then
+ // an even sample of the rest. Identical items collapse into one.
+-func (c *crusher) sample(items []any) []any {
++// Items are decoded JSON values; objects (map[string]any with json.Number
++// numbers) feed the signals.
++func Sample(items []any, o Options) []any {
+ 	uniq, firstOf, dups := dedupe(items)
+ 	objs := objects(items, uniq)
+ 
+@@ -32,19 +47,19 @@ func (c *crusher) sample(items []any) []any {
+ 		keep[i] = true
+ 	}
+ 	score := map[int]float64{}
+-	for i, z := range anomalies(objs, c.cfg.AnomalyStd) {
++	for i, z := range anomalies(objs, o.AnomalyStd) {
+ 		score[i] = max(score[i], z)
+ 	}
+-	for _, i := range changePoints(objs, c.cfg.MaxItems) {
++	for _, i := range changePoints(objs, o.MaxItems) {
+ 		score[i] += scoreChange
+ 	}
+-	for i, s := range relevance(items, uniq, c.query, c.cfg.RelevanceK) {
++	for i, s := range relevance(items, uniq, o.Query, o.RelevanceK) {
+ 		score[i] += scoreRelevance + s
+ 	}
+ 
+-	budget := c.cfg.MaxItems
+-	head := int(math.Ceil(c.cfg.HeadShare * float64(budget)))
+-	tail := int(math.Ceil(c.cfg.TailShare * float64(budget)))
++	budget := o.MaxItems
++	head := int(math.Ceil(o.HeadShare * float64(budget)))
++	tail := int(math.Ceil(o.TailShare * float64(budget)))
+ 	slots := budget - len(keep) - head - tail // errors count against the budget but never drop
+ 	for _, i := range sortedByScore(score) {
+ 		if slots <= 0 {
+@@ -374,3 +389,17 @@ func stats[T any](xs []T, f func(T) float64) (mean, std float64) {
+ 	}
+ 	return mean, math.Sqrt(std / float64(len(xs)))
+ }
++
++func empty(v any) bool {
++	switch v := v.(type) {
++	case nil:
++		return true
++	case string:
++		return v == ""
++	case []any:
++		return len(v) == 0
++	case map[string]any:
++		return len(v) == 0
++	}
++	return false
++}
+diff --git a/optimizer/data/jsonoptimizer/json.go b/optimizer/data/jsonoptimizer/json.go
+index fc18c3b..9b05946 100644
+--- a/optimizer/data/jsonoptimizer/json.go
++++ b/optimizer/data/jsonoptimizer/json.go
+@@ -14,6 +14,7 @@ import (
+ 	"strings"
+ 
+ 	"github.com/lukaszb/gascoigne/component"
++	"github.com/lukaszb/gascoigne/compress/rows"
+ 	"github.com/lukaszb/gascoigne/detect"
+ 	"github.com/lukaszb/gascoigne/payload"
+ )
+@@ -27,7 +28,7 @@ type Optimizer struct {
+ const legend = `"_table": rows align with _cols; _same: equal in all rows; _affix: value = prefix + cell + suffix`
+ 
+ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
+-	c := &crusher{cfg: o.cfg, query: terms(p.Attrs[payload.AttrQuery])}
++	c := &crusher{cfg: o.cfg, query: rows.Terms(p.Attrs[payload.AttrQuery])}
+ 	return p.Rewrite(func(b payload.Block) (string, error) {
+ 		values, err := decode(b.Text)
+ 		if err != nil {
+@@ -117,7 +118,10 @@ func (c *crusher) array(items []any) any {
+ 	if small {
+ 		return items
+ 	}
+-	kept := c.sample(items)
++	kept := rows.Sample(items, rows.Options{
++		MaxItems: c.cfg.MaxItems, HeadShare: c.cfg.HeadShare, TailShare: c.cfg.TailShare,
++		AnomalyStd: c.cfg.AnomalyStd, RelevanceK: c.cfg.RelevanceK, Query: c.query,
++	})
+ 	if t, ok := c.table(kept); ok && size(t) < size(kept) {
+ 		return t
+ 	}
+diff --git a/optimizer/data/jsonoptimizer/json_test.go b/optimizer/data/jsonoptimizer/json_test.go
+index ee5c333..86fbbda 100644
+--- a/optimizer/data/jsonoptimizer/json_test.go
++++ b/optimizer/data/jsonoptimizer/json_test.go
+@@ -164,16 +164,3 @@ func TestInvalidJSONErrors(t *testing.T) {
+ 		t.Fatal("want error; core falls back to the original")
+ 	}
+ }
+-
+-func TestRelevance(t *testing.T) {
+-	docs := []any{
+-		map[string]any{"title": "install guide"},
+-		map[string]any{"title": "checkout flow fails on retry"},
+-		map[string]any{"title": "checkout"},
+-		map[string]any{"title": "unrelated"},
+-	}
+-	got := relevance(docs, []int{0, 1, 2, 3}, terms("Checkout retry"), 1)
+-	if len(got) != 1 || got[1] != 1 {
+-		t.Fatalf("got %v, want item 1 as best match", got)
+-	}
+-}
+diff --git a/optimizer/data/jsonoptimizer/measure.go b/optimizer/data/jsonoptimizer/measure.go
+index 05b3032..c74ed2a 100644
+--- a/optimizer/data/jsonoptimizer/measure.go
++++ b/optimizer/data/jsonoptimizer/measure.go
+@@ -1,10 +1,6 @@
+ package jsonoptimizer
+ 
+-import (
+-	"encoding/json"
+-	"hash/maphash"
+-	"slices"
+-)
++import "encoding/json"
+ 
+ // size estimates the compact JSON length of v without encoding it; escapes
+ // are ignored. Good enough to compare forms and count tokens.
+@@ -42,53 +38,3 @@ func size(v any) int {
+ 	}
+ 	return 8
+ }
+-
+-var seed = maphash.MakeSeed()
+-
+-// hash fingerprints a decoded JSON value; equal values hash equally.
+-func hash(v any) uint64 {
+-	var h maphash.Hash
+-	h.SetSeed(seed)
+-	writeHash(&h, v)
+-	return h.Sum64()
+-}
+-
+-func writeHash(h *maphash.Hash, v any) {
+-	switch v := v.(type) {
+-	case nil:
+-		h.WriteByte('n')
+-	case bool:
+-		if v {
+-			h.WriteByte('t')
+-		} else {
+-			h.WriteByte('f')
+-		}
+-	case string:
+-		h.WriteByte('s')
+-		h.WriteString(v)
+-		h.WriteByte(0)
+-	case json.Number:
+-		h.WriteByte('#')
+-		h.WriteString(string(v))
+-		h.WriteByte(0)
+-	case []any:
+-		h.WriteByte('[')
+-		for _, x := range v {
+-			writeHash(h, x)
+-		}
+-		h.WriteByte(']')
+-	case map[string]any:
+-		h.WriteByte('{')
+-		keys := make([]string, 0, len(v))
+-		for k := range v {
+-			keys = append(keys, k)
+-		}
+-		slices.Sort(keys)
+-		for _, k := range keys {
+-			h.WriteString(k)
+-			h.WriteByte(0)
+-			writeHash(h, v[k])
+-		}
+-		h.WriteByte('}')
+-	}
+-}

@@ -333,6 +333,8 @@
   expect_type: vcs/git-diff
   keep: ["args.go", "func OnlyValidArgs", "+func NoDuplicateArgs"]
   min_saved: 20
+- { file: git/show-move.txt, attrs: { cmd: git show 22d591d }, expect_type: vcs/git-diff,
+    keep: ["-… 50 lines moved to compress/rows/hash.go:8", "+func writeHash(h *maphash.Hash, v any) {"], min_saved: 30 }
 - file: git/show.txt
   attrs: { cmd: git show HEAD~17 }
   expect_type: vcs/git-diff

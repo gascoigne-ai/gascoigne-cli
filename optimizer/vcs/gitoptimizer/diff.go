@@ -20,6 +20,7 @@ func (o *Optimizer) diff(lines []string) []string {
 		}
 		return append(o.log(lines[:end]), o.diff(lines[end:])...)
 	}
+	lines = o.moves(lines)
 	var out, file []string
 	flush := func() {
 		out = append(out, o.file(file)...)

@@ -7,7 +7,7 @@ Lift dialects that save little on real output, without losing what agents need.
 
 ## Done
 - `vcs/git-diff`: in-line edits as word diffs, lockfile/generated hunks folded (git/diff 28→31.5%,
-  real go.sum commit 42%). Moved-block detection still open (no real fixture with moves yet).
+  real go.sum commit 42%). Moved blocks: removed runs re-added verbatim become one `moved to` line (real fixture from this repo: 2054→1832).
 - `vcs/git-log`: `--stat`/`--name-only`/`--name-status` lists were dropped (bug); kept, stat bars
   reduced to their signs.
 - `jsonx` tables: items with nested objects also tried flattened to dotted columns, smaller wins;

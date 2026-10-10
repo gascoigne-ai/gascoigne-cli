@@ -6,7 +6,6 @@ Direction for upcoming work. Rules are in `rules.md`; this is advice.
 | Idea | Technique |
 |---|---|
 | `tsc --watch`, `vite`/`webpack` dev servers | watch loops: keep the last cycle's errors, drop earlier cycles |
-| `diff` moved blocks | detect code moved within or across files, show it once as a move (task 008; pure renames are already one line) |
 
 New tools of an existing family are dialects, not optimizers (skill `add-component`).
 Dialects that save little are tracked in task 008.

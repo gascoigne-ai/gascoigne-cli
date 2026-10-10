@@ -47,6 +47,7 @@
 #   git:
 #     context_lines: 1                            ## unchanged lines around diff changes
 #     max_file_lines: 200                         ## diff lines per file
+#     min_move_lines: 4                           ## removed blocks back verbatim elsewhere → one "moved to" line; 0 off
 #   grep:
 #     max_per_file: 15                            ## distinct match lines per file
 #     max_files: 100
