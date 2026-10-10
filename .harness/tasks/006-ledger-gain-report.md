@@ -1,4 +1,4 @@
-status: todo
+status: done
 
 # richer gain report
 

@@ -11,10 +11,10 @@ to make a component work — if you think you must, stop and ask the user.
 ## Steps
 1. Package `<kind>/<name><kind>/` at repo root (optimizers: `optimizer/<family>/<name>optimizer/`
    and `component.WithFamily(family)` in the factory — see families in architecture.md) — never under `internal/`; import only
-   `component`, `payload`, `tokens` and stdlib/approved deps (`make imports` enforces) (e.g. `optimizer/jsoncompactoptimizer/`).
+   `component`, `payload`, `tokens` and stdlib/approved deps (`make imports` enforces) (e.g. `optimizer/data/jsonoptimizer/`).
 2. `factory.go`:
    ```go
-   const typ = "jsoncompact"
+   const typ = "json"
 
    func NewFactory() component.Factory {
    	return component.NewFactory(component.KindOptimizer, typ,

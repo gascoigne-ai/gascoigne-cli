@@ -5,14 +5,16 @@ Direction for upcoming work. Rules are in `rules.md`; this is advice.
 ## Optimizer ideas (not built yet)
 | Idea | Technique |
 |---|---|
-| `cargo`, `pytest`, `mvn/gradle` | same shape as `go`: failures + summary, passing collapsed |
-| `docker`/`kubectl logs` | `log` already applies; add pod/container prefix normalization |
-| `tsc --watch`, webpack/vite | keep errors, drop module/asset listings |
-| `diff` moves/renames | detect moved blocks, summarize pure renames |
+| `tsc --watch`, `vite`/`webpack` dev servers | watch loops: keep the last cycle's errors, drop earlier cycles |
+| container log prefixes | normalize pod/container prefixes (`kubectl logs --prefix`, compose) before templating |
+| `diff` moves/renames | detect moved blocks, summarize pure renames (task 008) |
 | `truncate` | head + tail with marker, last resort at the end of the default chain |
 
-Prefer small optimizers selecting one content type; shared primitives go to `compress/`.
-Keep each one deterministic and idempotent (running twice changes nothing more).
+New tools of an existing family are dialects, not optimizers (skill `add-component`).
+Dialects that save little are tracked in task 008.
+
+Shared primitives go to `compress/` so engines and composite families can reuse them.
+Keep optimizers deterministic and idempotent (running twice changes nothing more).
 
 ## Receivers
 - Agent integration: a Claude Code PreToolUse hook rewriting Bash commands to
