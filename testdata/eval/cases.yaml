@@ -27,6 +27,11 @@
   expect_type: test/go
   keep: ["--- FAIL: TestReserve", "stock_test.go:7", "Total([1], 5) = -4, want 0", "FAIL\texample.com/shop/inventory"]
   min_saved: 85
+- file: go/test-panic-trace.txt
+  attrs: { cmd: go test ./... }
+  expect_type: test/go
+  keep: ["[paths: §1=/home/user/src/shop/internal/orders", "§1/orders.go:14", "assignment to entry in nil map", "FAIL\t§2/orders"]
+  min_saved: 80
 - file: go/test-json.ndjson
   attrs: { cmd: go test -json ./... }
   expect_type: test/go-json
@@ -124,7 +129,7 @@
 - { file: build/golangci.txt, attrs: { cmd: golangci-lint run }, expect_type: build/golangci,
     keep: ["internal/service/pipeline.go", "(errcheck)"], min_saved: 40 }
 - { file: build/eslint.txt, attrs: { cmd: npx eslint src }, expect_type: build/eslint,
-    keep: ["src/components/Cart.tsx", "react-hooks/exhaustive-deps", "36 problems"], min_saved: 30 }
+    keep: ["[paths: §1=/home/user/src/web/src]", "§1/components/Cart.tsx", "react-hooks/exhaustive-deps", "36 problems"], min_saved: 45 }
 - { file: build/maven-compile.txt, attrs: { cmd: mvn package }, expect_type: build/maven,
     keep: ["Cart.java", "incompatible types: java.lang.String cannot be converted to int", "BUILD FAILURE"], min_saved: 80 }
 - { name: detect/tsc, file: build/tsc-many.txt, expect_type: build/tsc }

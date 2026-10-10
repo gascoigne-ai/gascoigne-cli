@@ -163,6 +163,11 @@
 #     max_code_lines: 40                          ## longer code blocks keep head and tail
 #     max_tokens: 4000                            ## longer markdown keeps whole sections, query first
 #     man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON]
+#   paths:                                        ## repeated long path prefixes → §1/file.go, legend on top
+#     families: [test, build, search, log, task]  ## never fs: source is edited by exact text
+#     min_prefix: 20                              ## shortest prefix worth an id, bytes
+#     min_saving: 30                              ## fewest tokens saved, legend included
+#     max_aliases: 9                              ## ids in the legend
 
 ## Where results go.
 # exporters:
@@ -171,7 +176,7 @@
 ## Which optimizers run. Each picks the blocks whose type it knows, so one chain serves all.
 # router:
 #   routes: []                        ## e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
-#   default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc]
+#   default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc, paths]
 
 ## Pipelines: which receivers, filters and exporters each command uses.
 # pipelines:

@@ -84,6 +84,9 @@ lives in public libs so engines and composite families can reuse it:
 | `infra` | plans: refresh/progress folded, known-after-apply listed, count/for_each siblings "(like above)"; ansible: quiet tasks counted, failures and recap kept | terraform, pulumi, ansible, cdk, helm-diff |
 | `cloud` | JSON: pagination/metadata/etags pruned, envelopes unwrapped, items flattened so jsonx hoists leaves; YAML via yamlx; tables; s3 listings summarized | aws, aws-s3, gcp, azure |
 
+`paths` (`optimizer/core/pathsoptimizer`, last in the default chain): long path prefixes repeated
+in test/build/search/log/task blocks → `§1/file.go`, legend `[paths: §1=…]` on top of the first
+such block; greedy by bytes saved, kept only when ≥ `min_saving` tokens; idempotent; never fs/data.
 `compress/compose` sniffs a section and calls the test/build/pkg engine: used by `task` and docker
 builds. `compress/rows` samples records (errors, anomalies, change points, query, ends).
 Families are what `gain -by family` reports; `gain -by dialect` splits them.

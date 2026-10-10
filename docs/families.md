@@ -279,3 +279,20 @@ engine; S3 listings summarized.
 
 `compress/compose` sniffs a section and hands it to the test, build or pkg engine. The task
 family and docker builds use it, so `make test` inside a CI log is treated as test output.
+
+## Path legend (`paths`, every family above that lists files)
+
+Last in the chain, the `paths` optimizer replaces long path prefixes that repeat across test,
+build, search, log and task output with short ids, defined once on a legend line:
+
+```
+[paths: §1=/home/user/src/web/src]
+§1/App.tsx
+  82:12 error @typescript-eslint/no-unused-vars 'React' is defined but never used
+§1/components/Cart.tsx
+```
+
+File names stay visible and the legend gives every full path back. Prefixes are picked greedily
+by bytes saved (at least `min_prefix` bytes, repeated, legend entries counted) and applied only
+when the payload shrinks by `min_saving` tokens. eslint output: 646→513 tokens; a Go panic trace
+after frame folding: 162→123. Source files (`fs`) and data are never touched.

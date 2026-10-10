@@ -1,0 +1,44 @@
+--- FAIL: TestEncode (0.00s)
+panic: assignment to entry in nil map [recovered, repanicked]
+
+goroutine 9 [running]:
+testing.tRunner.func1.2({0x8f1198, 0x93e630})
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/testing/testing.go:2123 +0x232
+testing.tRunner.func1()
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/testing/testing.go:2126 +0x329
+panic({0x8f1198?, 0x93e630?})
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/runtime/panic.go:859 +0x125
+example.com/shop/internal/orders.marshaler.MarshalJSON(...)
+	/home/user/src/shop/internal/orders/orders.go:14
+encoding/json/v2.makeMethodArshaler.func3(0xcf324b58140, {{0x8f3538?, 0x96b060?, 0x8f3538?}, 0x60?}, 0xcf324b58208)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/encoding/json/v2/arshal_methods.go:234 +0xd7
+encoding/json/v2.marshalValueAny(0xcf324b58140, {0x8f3538, 0x96b060}, 0xcf324b58208)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/encoding/json/v2/arshal_any.go:57 +0x354
+encoding/json/v2.makeInterfaceArshaler.func1(0xcf324b58140, {{0x8efdb0?, 0xcf324a9e480?, 0xcf324b17b88?}, 0xc0?}, 0xcf324b58208)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/encoding/json/v2/arshal_default.go:1853 +0x6f3
+encoding/json/v2.makeMapArshaler.func2(0xcf324b58140, {{0x8d4ef8?, 0xcf324a640d8?, 0x8d4ef8?}, 0x20?}, 0xcf324b58208)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/encoding/json/v2/arshal_default.go:880 +0xff2
+encoding/json/v2.marshalEncode(0xcf324b58140, {0x8d4ef8?, 0xcf324b2ed20?}, 0xcf324b58208)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/encoding/json/v2/arshal.go:248 +0x1ef
+encoding/json/v2.Marshal({0x8d4ef8, 0xcf324b2ed20}, {0xcf324af15c8?, 0x1?, 0xcf324b2ecf0?})
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/encoding/json/v2/arshal.go:168 +0xc5
+encoding/json.Marshal(...)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/encoding/json/v2_encode.go:186
+example.com/shop/internal/orders.Encode.func1(0x54670d?, 0x817f30?)
+	/home/user/src/shop/internal/orders/orders.go:18 +0x96
+sort.insertionSort_func({0x923808?, 0xcf324b2ecf0?}, 0x0, 0x2)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/sort/zsortfunc.go:12 +0xa6
+sort.pdqsort_func({0x923808?, 0xcf324b2ecf0?}, 0x18?, 0x8edb88?, 0x61?)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/sort/zsortfunc.go:73 +0x319
+sort.Slice({0x8c9508?, 0xcf324a722a0?}, 0x923808)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/sort/slice.go:29 +0xc5
+example.com/shop/internal/orders.Encode(...)
+	/home/user/src/shop/internal/orders/orders.go:17
+example.com/shop/internal/orders.TestEncode(0xcf324b50488?)
+	/home/user/src/shop/internal/orders/orders_test.go:6 +0x5b
+testing.tRunner(0xcf324b50488, 0x923740)
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/testing/testing.go:2193 +0xea
+created by testing.(*T).Run in goroutine 1
+	/home/user/.go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.0.linux-amd64/src/testing/testing.go:2258 +0x4d4
+FAIL	example.com/shop/internal/orders	0.003s
+FAIL

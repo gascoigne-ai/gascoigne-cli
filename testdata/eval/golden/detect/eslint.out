@@ -1,23 +1,24 @@
-/home/user/src/web/src/App.tsx
+[paths: §1=/home/user/src/web/src]
+§1/App.tsx
   82:12 error @typescript-eslint/no-unused-vars 'React' is defined but never used
   1:23 error react-hooks/exhaustive-deps React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array
-/home/user/src/web/src/components/Cart.tsx
+§1/components/Cart.tsx
   145:31 error no-console Unexpected console statement
   156:6 error @typescript-eslint/no-explicit-any Unexpected any. Specify a different type
   169:40 error @typescript-eslint/no-unused-vars 'React' is defined but never used
-/home/user/src/web/src/hooks/useOrders.ts
+§1/hooks/useOrders.ts
   4:31 error no-console Unexpected console statement (×2, first shown)
   126:18 error @typescript-eslint/no-explicit-any Unexpected any. Specify a different type
   76:32 error react-hooks/exhaustive-deps React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array
 same in several files:
   warning react-hooks/exhaustive-deps React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array
-    at /home/user/src/web/src/App.tsx:105, /home/user/src/web/src/App.tsx:10, /home/user/src/web/src/App.tsx:25, /home/user/src/web/src/App.tsx:149, /home/user/src/web/src/components/Cart.tsx:120, /home/user/src/web/src/components/Cart.tsx:123, /home/user/src/web/src/components/Cart.tsx:128, /home/user/src/web/src/components/Cart.tsx:37, /home/user/src/web/src/hooks/useOrders.ts:63, /home/user/src/web/src/hooks/useOrders.ts:137, /home/user/src/web/src/hooks/useOrders.ts:188
+    at §1/App.tsx:105, §1/App.tsx:10, §1/App.tsx:25, §1/App.tsx:149, §1/components/Cart.tsx:120, §1/components/Cart.tsx:123, §1/components/Cart.tsx:128, §1/components/Cart.tsx:37, §1/hooks/useOrders.ts:63, §1/hooks/useOrders.ts:137, §1/hooks/useOrders.ts:188
   warning @typescript-eslint/no-unused-vars 'React' is defined but never used
-    at /home/user/src/web/src/App.tsx:152, /home/user/src/web/src/components/Cart.tsx:98, /home/user/src/web/src/components/Cart.tsx:82, /home/user/src/web/src/hooks/useOrders.ts:5
+    at §1/App.tsx:152, §1/components/Cart.tsx:98, §1/components/Cart.tsx:82, §1/hooks/useOrders.ts:5
   warning @typescript-eslint/no-explicit-any Unexpected any. Specify a different type
-    at /home/user/src/web/src/App.tsx:162, /home/user/src/web/src/App.tsx:43, /home/user/src/web/src/App.tsx:141, /home/user/src/web/src/App.tsx:108, /home/user/src/web/src/components/Cart.tsx:84, /home/user/src/web/src/components/Cart.tsx:153, /home/user/src/web/src/hooks/useOrders.ts:76, /home/user/src/web/src/hooks/useOrders.ts:10
+    at §1/App.tsx:162, §1/App.tsx:43, §1/App.tsx:141, §1/App.tsx:108, §1/components/Cart.tsx:84, §1/components/Cart.tsx:153, §1/hooks/useOrders.ts:76, §1/hooks/useOrders.ts:10
   warning no-console Unexpected console statement
-    at /home/user/src/web/src/App.tsx:90, /home/user/src/web/src/components/Cart.tsx:111, /home/user/src/web/src/hooks/useOrders.ts:133, /home/user/src/web/src/hooks/useOrders.ts:176
+    at §1/App.tsx:90, §1/components/Cart.tsx:111, §1/hooks/useOrders.ts:133, §1/hooks/useOrders.ts:176
 ✖ 36 problems (12 errors, 24 warnings)
   4 errors and 0 warnings potentially fixable with the `--fix` option.
 9 errors, 27 warnings in 3 files

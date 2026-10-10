@@ -1,0 +1,15 @@
+[paths: §1=/home/user/src/shop/internal/orders §2=example.com/shop/internal]
+--- FAIL: TestEncode (0.00s)
+panic: assignment to entry in nil map [recovered, repanicked]
+
+goroutine 9 [running]:
+§2/orders.marshaler.MarshalJSON(...)
+	§1/orders.go:14
+§2/orders.Encode.func1(0x54670d?, 0x817f30?)
+	§1/orders.go:18 +0x96
+§2/orders.Encode(...)
+	§1/orders.go:17
+§2/orders.TestEncode(0xcf324b50488?)
+	§1/orders_test.go:6 +0x5b
+… 15 standard library frames omitted
+FAIL	§2/orders	0.003s
