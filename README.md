@@ -63,6 +63,7 @@ kubectl get pods -o yaml | gascoigne run # optimize anything on stdin
 gascoigne raw <id>                       # the untouched original, byte-exact
 gascoigne exec -raw -- git diff          # skip optimization for one run
 gascoigne gain                           # where the savings come from
+gascoigne dashboard                      # live runs and savings at http://127.0.0.1:7878
 ```
 
 **Agents** — one command registers gascoigne (shell output + MCP server) for a run. Claude,
@@ -121,6 +122,14 @@ input ─▶ receiver ─▶ filters ─▶ router ─▶ optimizers ─▶ expo
 
 Pipeline modeled on the OpenTelemetry Collector: typed components built by factories, wired
 by YAML (`configs/default.yaml`). Details in [`.harness/architecture.md`](.harness/architecture.md).
+
+## Documentation
+
+Guides and reference live in [`docs/`](docs/README.md): [getting started](docs/getting-started.md),
+[agents](docs/agents.md), [MCP](docs/mcp.md), [CLI](docs/cli.md),
+[configuration](docs/configuration.md), [families](docs/families.md),
+[source files](docs/source-files.md), [ledger, gain and dashboard](docs/ledger.md),
+[architecture](docs/architecture.md), [extending](docs/extending.md).
 
 ## Develop
 
