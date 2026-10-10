@@ -1,0 +1,606 @@
+{
+    "StackEvents": [
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/2b3ea1c4-911d-9960-6d6b-e16ce8f55a6f",
+            "EventId": "ApiRole-76e73954",
+            "StackName": "shop-api",
+            "LogicalResourceId": "AssetsBucket",
+            "PhysicalResourceId": "shop-api-a1e64f6d7e0b",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2026-10-10T07:59:55.887000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/c98114b4-874e-bf61-5488-f79122195ff1",
+            "EventId": "ApiRole-09908609",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-f6a7bb45a35f",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:58:16.186000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/5ccaf1ad-961e-1d31-8009-eb72361200a9",
+            "EventId": "OrdersFunction-cfe4ce88",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-7e7528210ca4",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:57:40.425000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/ed73d9c8-2282-d083-70f3-d875d3ed8861",
+            "EventId": "Api-f5e05985",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-39f49b9f8bfb",
+            "ResourceType": "AWS::ApiGateway::RestApi",
+            "Timestamp": "2026-10-10T07:56:11.904000+00:00",
+            "ResourceStatus": "UPDATE_ROLLBACK_IN_PROGRESS",
+            "ResourceStatusReason": "The following resource(s) failed to update: [OrdersFunction]."
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/3d092760-cf58-8d8c-e717-317bd2f6c6b3",
+            "EventId": "AssetsBucket-a4453157",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-94e469b3e9f6",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:55:40.380000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/97532a36-4ad0-8833-2c95-731557cdc53f",
+            "EventId": "OrdersTable-a8137de7",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-c7bef6d12609",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:54:27.165000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/f72de40e-b862-d6ba-7976-e81143843319",
+            "EventId": "Api-633f4f38",
+            "StackName": "shop-api",
+            "LogicalResourceId": "JobsQueue",
+            "PhysicalResourceId": "shop-api-859b025346fa",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:53:36.791000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/0247d202-3628-a63a-be90-7bdd0ea5804e",
+            "EventId": "ApiRole-1f395dba",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-a248cf239486",
+            "ResourceType": "AWS::SQS::Queue",
+            "Timestamp": "2026-10-10T07:52:33.364000+00:00",
+            "ResourceStatus": "UPDATE_FAILED",
+            "ResourceStatusReason": "Resource handler returned message: \"Invalid request provided: The runtime parameter of nodejs16.x is no longer supported for creating or updating AWS Lambda functions.\" (RequestToken: 560331f7, HandlerErrorCode: InvalidRequest)"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/82c4d533-5d68-b3f4-4d45-3a49b1cd84d0",
+            "EventId": "OrdersFunction-3f544aaa",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-12037f277e19",
+            "ResourceType": "AWS::ApiGateway::RestApi",
+            "Timestamp": "2026-10-10T07:51:12.503000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/a619003b-f1ce-ba3f-58d1-d5b3dcbac152",
+            "EventId": "AssetsBucket-d0663195",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-f661c0c3bf1c",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:50:51.370000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/45ea74ae-eb51-81a0-4926-ee9d91b18749",
+            "EventId": "AssetsBucket-d06daf96",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-41dc014acab0",
+            "ResourceType": "AWS::SQS::Queue",
+            "Timestamp": "2026-10-10T07:49:33.112000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/b3aa694d-950c-bbbe-391d-d23c8d8e1f22",
+            "EventId": "OrdersTable-ac933c99",
+            "StackName": "shop-api",
+            "LogicalResourceId": "Api",
+            "PhysicalResourceId": "shop-api-ec1c0969f7cf",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:48:15.729000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/c4cae3f7-9830-5e0a-08b5-4c9d3307c36a",
+            "EventId": "AssetsBucket-cc37c2df",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-bbfd8fd6ca93",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:47:42.108000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/5ecc3e6a-6c07-1873-436c-f699c4deb920",
+            "EventId": "JobsQueue-e2222d71",
+            "StackName": "shop-api",
+            "LogicalResourceId": "JobsQueue",
+            "PhysicalResourceId": "shop-api-b91cfa34c152",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:46:27.750000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/ef790e29-8d41-8116-884b-8a8d61fdc926",
+            "EventId": "AssetsBucket-37ae5bbb",
+            "StackName": "shop-api",
+            "LogicalResourceId": "AssetsBucket",
+            "PhysicalResourceId": "shop-api-4cb027b8dab5",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2026-10-10T07:45:46.806000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/eb141956-2ab0-74f6-dd48-a6079d4745ce",
+            "EventId": "ApiRole-1cba0dff",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-0d5417996f49",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:44:22.913000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/3ba5d3d1-5ed3-8571-e84f-7e0c490ffc2b",
+            "EventId": "OrdersFunction-113d64c0",
+            "StackName": "shop-api",
+            "LogicalResourceId": "Api",
+            "PhysicalResourceId": "shop-api-89e1fcf1e6ac",
+            "ResourceType": "AWS::ApiGateway::RestApi",
+            "Timestamp": "2026-10-10T07:43:47.831000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/b3976dc1-aed2-2a62-19fe-c16ba60d88fd",
+            "EventId": "ApiRole-7deffac7",
+            "StackName": "shop-api",
+            "LogicalResourceId": "Api",
+            "PhysicalResourceId": "shop-api-87f5b1b73331",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2026-10-10T07:42:43.518000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/74c65c9f-327a-9ce2-ed41-0792cd82238c",
+            "EventId": "OrdersFunction-067940de",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-9cf3533ab858",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:41:21.798000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/e16a5702-c9a9-9310-9877-62fb32ee604d",
+            "EventId": "JobsQueue-beaec52b",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-448bd4c69457",
+            "ResourceType": "AWS::SQS::Queue",
+            "Timestamp": "2026-10-10T07:40:23.307000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/420f331e-f55f-22e3-5cb6-f75b88a28920",
+            "EventId": "JobsQueue-2508d9f6",
+            "StackName": "shop-api",
+            "LogicalResourceId": "AssetsBucket",
+            "PhysicalResourceId": "shop-api-e4be4e5dfcce",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2026-10-10T07:39:15.742000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/7be990ca-e695-4cc8-a117-681b8ce42007",
+            "EventId": "Api-efd8f9bb",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-33b89622481f",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:38:54.354000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/3dd9cd41-4c67-45bf-f435-fb43631c034c",
+            "EventId": "ApiRole-2a9cb82e",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-66c59a811209",
+            "ResourceType": "AWS::SQS::Queue",
+            "Timestamp": "2026-10-10T07:37:44.447000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/39019939-4455-c63f-0476-574331f3cf7b",
+            "EventId": "AssetsBucket-c7af0c14",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-e233ad5a2f3f",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:36:39.480000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/66468ff5-8702-6798-4639-e4aaa0a0acec",
+            "EventId": "OrdersTable-37e8c105",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-43e29e37b5b2",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:35:46.516000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/581a238b-3c8d-29bd-5381-cb758d04a75d",
+            "EventId": "Api-f1794531",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-2c523f1e6a82",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:34:53.320000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/dc0ec792-1892-1f7a-decf-6c1b8414c1d9",
+            "EventId": "ApiRole-b7439c36",
+            "StackName": "shop-api",
+            "LogicalResourceId": "JobsQueue",
+            "PhysicalResourceId": "shop-api-0fb0f25647f6",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:33:18.623000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/24e13246-5895-4025-05be-37e5f0363c47",
+            "EventId": "ApiRole-df156ded",
+            "StackName": "shop-api",
+            "LogicalResourceId": "Api",
+            "PhysicalResourceId": "shop-api-b4db94024649",
+            "ResourceType": "AWS::SQS::Queue",
+            "Timestamp": "2026-10-10T07:32:15.891000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/bbbf97c9-417b-52ef-142f-d64b6baaeab0",
+            "EventId": "ApiRole-5f142771",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-527e36939aff",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:31:55.587000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/6e7259fd-08da-0e35-2b35-6be0d0205131",
+            "EventId": "JobsQueue-0da7240a",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-10f19326501b",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:30:43.916000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/69dd63ff-b33c-2b58-9436-9a33e6d86100",
+            "EventId": "ApiRole-5ad75214",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-0881f3bb3b6d",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2026-10-10T07:29:37.603000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/828d5efd-a5f9-2c93-0621-e90deebfdfd5",
+            "EventId": "JobsQueue-53178944",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-9cc7222b338c",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2026-10-10T07:28:20.746000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/80ef2155-c2bc-0fd9-6def-c8d778cd2501",
+            "EventId": "AssetsBucket-3f7d45b9",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-12d554012bf3",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:27:11.122000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/a0124a74-01d3-e89a-e324-248b961a676a",
+            "EventId": "AssetsBucket-171a40d5",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-3483a5f1e61d",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:26:44.855000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/07daed8f-f75d-0f0e-f316-99da7ade5d91",
+            "EventId": "OrdersTable-2caf948d",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-c57eda9e7c40",
+            "ResourceType": "AWS::ApiGateway::RestApi",
+            "Timestamp": "2026-10-10T07:25:58.168000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/8361845a-0e26-ba67-af85-ce75560967b8",
+            "EventId": "OrdersTable-d3687ad6",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-477e33397278",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:24:41.869000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/a245d812-cf0e-8f55-a98c-30cca716d4a5",
+            "EventId": "AssetsBucket-b5da1585",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-73623f355b28",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:23:18.535000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/74dab43f-fe7e-7edd-67d0-adce19ad68a5",
+            "EventId": "JobsQueue-c76879b0",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-65e8a2c50c46",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:22:55.769000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/9d53bc2e-ae1a-c50e-457f-1eee4ab631cd",
+            "EventId": "JobsQueue-0ec559e0",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-2871b225c9df",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:21:11.979000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/68fd94f4-28ac-caeb-2ec8-2371dab7c82d",
+            "EventId": "OrdersTable-5f578542",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-0e5cc6d4cf65",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:20:34.741000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/be971c7b-ea62-42e8-080a-a307f8fc8a3b",
+            "EventId": "ApiRole-932f061a",
+            "StackName": "shop-api",
+            "LogicalResourceId": "Api",
+            "PhysicalResourceId": "shop-api-8b934d179e2c",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:19:43.825000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/b69bdf1a-3f1c-8222-1464-0975cebcde2d",
+            "EventId": "AssetsBucket-93c2c71e",
+            "StackName": "shop-api",
+            "LogicalResourceId": "AssetsBucket",
+            "PhysicalResourceId": "shop-api-47c7d6ff1b88",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:18:51.609000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/6c3214c8-69c6-2e07-0edc-cdac3eae83cd",
+            "EventId": "Api-dfc4ab16",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-43917ab9a1bd",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2026-10-10T07:17:15.394000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/8e1f614b-8b9e-6015-2d4f-e36bf36cd8be",
+            "EventId": "JobsQueue-4e7cf23b",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-e8421ce063b5",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:16:39.981000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/355baa63-b9cb-17bf-8657-6fbc866c9190",
+            "EventId": "ApiRole-50b29e81",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersFunction",
+            "PhysicalResourceId": "shop-api-5a395cc2adc0",
+            "ResourceType": "AWS::ApiGateway::RestApi",
+            "Timestamp": "2026-10-10T07:15:51.655000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/c669a553-b3e5-0094-cefa-4eebdc37da46",
+            "EventId": "Api-6266b86e",
+            "StackName": "shop-api",
+            "LogicalResourceId": "AssetsBucket",
+            "PhysicalResourceId": "shop-api-4c6bcf4ac760",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2026-10-10T07:14:20.357000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/bef68d91-eb9d-8181-38d5-61333a28bc91",
+            "EventId": "AssetsBucket-515d953b",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-517325c1f35f",
+            "ResourceType": "AWS::IAM::Role",
+            "Timestamp": "2026-10-10T07:13:15.446000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/2a522bf0-a986-26b7-5704-4af986299e28",
+            "EventId": "Api-9948de93",
+            "StackName": "shop-api",
+            "LogicalResourceId": "JobsQueue",
+            "PhysicalResourceId": "shop-api-337aee704ea9",
+            "ResourceType": "AWS::SQS::Queue",
+            "Timestamp": "2026-10-10T07:12:23.491000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/9dea7964-c400-ad86-1914-d78ffb8b2ea7",
+            "EventId": "Api-00321ae8",
+            "StackName": "shop-api",
+            "LogicalResourceId": "Api",
+            "PhysicalResourceId": "shop-api-e572760d43bb",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:11:27.833000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/66dfafab-eb85-7f2a-2576-60dac5d035c1",
+            "EventId": "ApiRole-79f73be2",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-0d74ebaeeef7",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:10:25.317000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/a509cbaf-c513-a689-896b-ca0e91fd4bd6",
+            "EventId": "OrdersFunction-16b20753",
+            "StackName": "shop-api",
+            "LogicalResourceId": "Api",
+            "PhysicalResourceId": "shop-api-e8ad6f58abfa",
+            "ResourceType": "AWS::ApiGateway::RestApi",
+            "Timestamp": "2026-10-10T07:09:27.645000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/f0e57cbe-32b7-c465-4619-d9e565b315e3",
+            "EventId": "OrdersTable-6eb94028",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-df318a19eb47",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:08:49.624000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/d3a3e6df-93ab-6b86-26cb-efb7a3bef63d",
+            "EventId": "ApiRole-328154bc",
+            "StackName": "shop-api",
+            "LogicalResourceId": "OrdersTable",
+            "PhysicalResourceId": "shop-api-75b9aedcf01c",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:07:13.586000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/afd55c97-5978-ab8f-2c4c-4e61d9f1b616",
+            "EventId": "JobsQueue-e4e9807d",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-912ce0ab02fa",
+            "ResourceType": "AWS::DynamoDB::Table",
+            "Timestamp": "2026-10-10T07:06:23.570000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/ea156949-ab60-0947-2bf6-63cc933a367a",
+            "EventId": "Api-c49481db",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-d966f4b0e17a",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:05:24.617000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/50e3aad4-7ef2-dac4-6f7c-e0beede57450",
+            "EventId": "OrdersTable-03e4752c",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-af61d1dd30b2",
+            "ResourceType": "AWS::ApiGateway::RestApi",
+            "Timestamp": "2026-10-10T07:04:58.411000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/c6465297-057b-6a28-d40d-492e204b76aa",
+            "EventId": "OrdersTable-a53f96fd",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-c833db5be83b",
+            "ResourceType": "AWS::Lambda::Function",
+            "Timestamp": "2026-10-10T07:03:15.927000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/cce0aff5-9935-45d6-930e-77b1a9c39263",
+            "EventId": "ApiRole-d65c7bf0",
+            "StackName": "shop-api",
+            "LogicalResourceId": "JobsQueue",
+            "PhysicalResourceId": "shop-api-b36ec703da3e",
+            "ResourceType": "AWS::SQS::Queue",
+            "Timestamp": "2026-10-10T07:02:52.306000+00:00",
+            "ResourceStatus": "UPDATE_IN_PROGRESS"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/829db5d0-6ae4-6fd3-e4c0-a19f060e3083",
+            "EventId": "ApiRole-19b5cbe9",
+            "StackName": "shop-api",
+            "LogicalResourceId": "ApiRole",
+            "PhysicalResourceId": "shop-api-040c19dcbe6c",
+            "ResourceType": "AWS::S3::Bucket",
+            "Timestamp": "2026-10-10T07:01:54.238000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        },
+        {
+            "StackId": "arn:aws:cloudformation:eu-west-1:123456789012:stack/shop-api/765dba7b-131e-3f59-73fc-4a125ddeea1e",
+            "EventId": "AssetsBucket-79849782",
+            "StackName": "shop-api",
+            "LogicalResourceId": "Api",
+            "PhysicalResourceId": "shop-api-1d957bccb4fc",
+            "ResourceType": "AWS::SQS::Queue",
+            "Timestamp": "2026-10-10T07:00:14.264000+00:00",
+            "ResourceStatus": "UPDATE_COMPLETE"
+        }
+    ]
+}

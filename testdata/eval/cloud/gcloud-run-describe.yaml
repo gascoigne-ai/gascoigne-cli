@@ -1,0 +1,79 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 497.0.0
+    run.googleapis.com/ingress: all
+    run.googleapis.com/ingress-status: all
+    run.googleapis.com/operation-id: 36a9f411-c5d3-c8fe-3844-71e351316ae5
+    serving.knative.dev/creator: deployer@shop-prod.iam.gserviceaccount.com
+    serving.knative.dev/lastModifier: deployer@shop-prod.iam.gserviceaccount.com
+  creationTimestamp: '2026-08-01T10:00:00.000000Z'
+  generation: 42
+  labels:
+    cloud.googleapis.com/location: europe-west1
+  name: shop-api
+  namespace: '123456789012'
+  resourceVersion: 884ce0842f0b
+  selfLink: /apis/serving.knative.dev/v1/namespaces/123456789012/services/shop-api
+  uid: aeb18248-e819-227b-8cd8-368527695173
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '20'
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 497.0.0
+        run.googleapis.com/startup-cpu-boost: 'true'
+      labels:
+        client.knative.dev/nonce: 68ea054a72
+        run.googleapis.com/startupProbeType: Default
+    spec:
+      containerConcurrency: 80
+      containers:
+      - env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: shop-db-url
+        image: europe-west1-docker.pkg.dev/shop-prod/shop/api@sha256:df51f95b85ba8f633f1480f19329b3c727d1071f1df2b51f915caeae4b3238d8
+        ports:
+        - containerPort: 8080
+          name: http1
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+        startupProbe:
+          failureThreshold: 1
+          periodSeconds: 240
+          tcpSocket:
+            port: 8080
+          timeoutSeconds: 240
+      serviceAccountName: shop-api@shop-prod.iam.gserviceaccount.com
+      timeoutSeconds: 300
+  traffic:
+  - latestRevision: true
+    percent: 100
+status:
+  address:
+    url: https://shop-api-1e832add5b-ew.a.run.app
+  conditions:
+  - lastTransitionTime: '2026-10-10T07:58:12.123456Z'
+    message: Revision 'shop-api-00042-xyz' is not ready and cannot serve traffic. The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable.
+    reason: HealthCheckContainerError
+    status: 'False'
+    type: Ready
+  - lastTransitionTime: '2026-10-10T07:58:12.123456Z'
+    status: 'True'
+    type: ConfigurationsReady
+  latestCreatedRevisionName: shop-api-00042-xyz
+  latestReadyRevisionName: shop-api-00041-abc
+  observedGeneration: 42
+  traffic:
+  - latestRevision: true
+    percent: 100
+    revisionName: shop-api-00041-abc
+  url: https://shop-api-8e217aa406-ew.a.run.app

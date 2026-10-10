@@ -1,0 +1,35 @@
+same in all rows: MACHINE_TYPE=e2-standard-4
+NAME | ZONE | INTERNAL_IP | EXTERNAL_IP | STATUS
+shop-node-00 | europe-west1-b | 10.132.0.2 | 34.215.109.126 | RUNNING
+shop-node-01 | europe-west1-b | 10.132.0.3 |  | RUNNING
+shop-node-02 | europe-west1-c | 10.132.0.4 |  | RUNNING
+shop-node-03 | europe-west1-b | 10.132.0.5 |  | RUNNING
+shop-node-04 | europe-west1-c | 10.132.0.6 | 34.135.162.173 | RUNNING
+shop-node-05 | europe-west1-b | 10.132.0.7 |  | RUNNING
+shop-node-06 | europe-west1-b | 10.132.0.8 |  | RUNNING
+shop-node-07 | europe-west1-c | 10.132.0.9 |  | RUNNING
+shop-node-08 | europe-west1-c | 10.132.0.10 | 34.147.247.215 | RUNNING
+shop-node-09 | europe-west1-b | 10.132.0.11 |  | RUNNING
+shop-node-10 | europe-west1-b | 10.132.0.12 |  | RUNNING
+shop-node-11 | europe-west1-b | 10.132.0.13 |  | RUNNING
+shop-node-12 | europe-west1-b | 10.132.0.14 | 34.125.225.34 | RUNNING
+shop-node-13 | europe-west1-c | 10.132.0.15 |  | RUNNING
+shop-node-14 | europe-west1-c | 10.132.0.16 |  | RUNNING
+shop-node-15 | europe-west1-c | 10.132.0.17 |  | RUNNING
+shop-node-16 | europe-west1-c | 10.132.0.18 | 34.102.91.142 | RUNNING
+shop-node-17 | europe-west1-c | 10.132.0.19 |  | RUNNING
+shop-node-18 | europe-west1-b | 10.132.0.20 |  | RUNNING
+shop-node-19 | europe-west1-c | 10.132.0.21 |  | RUNNING
+shop-node-20 | europe-west1-b | 10.132.0.22 | 34.131.178.142 | RUNNING
+shop-node-21 | europe-west1-b | 10.132.0.23 |  | TERMINATED
+shop-node-22 | europe-west1-c | 10.132.0.24 |  | RUNNING
+… 1 item omitted
+shop-node-24 | europe-west1-b | 10.132.0.26 | 34.27.20.162 | RUNNING
+… 3 items omitted
+shop-node-28 | europe-west1-b | 10.132.0.30 | 34.215.161.96 | RUNNING
+… 2 items omitted
+shop-node-31 | europe-west1-b | 10.132.0.33 |  | RUNNING
+shop-node-32 | europe-west1-c | 10.132.0.34 | 34.163.182.96 | RUNNING
+shop-node-33 | europe-west1-b | 10.132.0.35 |  | RUNNING
+shop-node-34 | europe-west1-b | 10.132.0.36 |  | RUNNING
+shop-node-35 | europe-west1-c | 10.132.0.37 |  | RUNNING

@@ -1,0 +1,3489 @@
+{
+    "Reservations": [
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-5f5e2fc574dad2986",
+                    "InstanceId": "i-c6a06e9ab85a0bcc1",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-06T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1c",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-0-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.0.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-a8a4996efb447c0ce",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-e1c339464473d212b"
+                            }
+                        }
+                    ],
+                    "ClientToken": "d0b0090d625909923fb81d2706e55426",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA6B68B48EBF13C171"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-8dc159e6a409c38f2",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-a51436d1fcd68615c"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "d8:af:f1:b9:66:23",
+                            "NetworkInterfaceId": "eni-08d1a6bffff9a3914",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-0-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.0.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-0-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.0.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-cd00724a123cf493f",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-232521553e014be00"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-0-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-fcd425ec38f138999",
+                    "InstanceId": "i-8b4a02517e1ff83ab",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-11T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1c",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-0-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.0.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-be1e8a4aa1f9db8dd",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-411b5aecda386a3a0"
+                            }
+                        }
+                    ],
+                    "ClientToken": "f09529af81dda9da14f5079168e06b0c",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA795E846BDBD5F6D2"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-9ff0f3b81a3e2889c",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-caebf999324405d96"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "68:d0:81:eb:56:04",
+                            "NetworkInterfaceId": "eni-95f4807bc6ecace3c",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-0-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.0.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-0-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.0.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-ce599e3580d3a2dc6",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-05ac9cd0ebd27b4f2"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-0-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-57a2c3b72f5a2224a"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-367cc1752de27660b",
+                    "InstanceId": "i-0c63d6f69947feaa3",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-18T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1a",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-1-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.1.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-83fa244adf517a775",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-05c15cfd1f515f751"
+                            }
+                        }
+                    ],
+                    "ClientToken": "468629e8c95613ef1071e6da44673e23",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPABF5DA6CC3157E672"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-8d422051f9a98f4d0",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-e8db0eb42887b5f5f"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "21:40:a8:4e:ea:59",
+                            "NetworkInterfaceId": "eni-52bb4c81151a20dc3",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-1-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.1.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-1-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.1.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-9e8b6e53d1817d023",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-4c84b75db940e6e2b"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-1-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-5fd9399c0c0d64421",
+                    "InstanceId": "i-0027fd9eb55c9dfdb",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-15T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1c",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-1-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.1.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-a794baead45c2c169",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-3ba9eba350dd00e8f"
+                            }
+                        }
+                    ],
+                    "ClientToken": "bf89b6551335276b42114abf4f4e45b4",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPAB71E77B2FC9E4DC6"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-07c22ca48e8f8746d",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-8906e6a679efd9ce2"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "af:23:67:7c:bb:f3",
+                            "NetworkInterfaceId": "eni-9fa843e7cf5b67503",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-1-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.1.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-1-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.1.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-2643e2ec8d1032239",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-4fed259c33215ff4f"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-1-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-a269aed1df5fd749b"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-fd78ee74f0cdbbb62",
+                    "InstanceId": "i-3e849dddd1c43af35",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-26T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1b",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-2-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.2.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-050eff308cf8f95c3",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-6ed0ba7552954cac8"
+                            }
+                        }
+                    ],
+                    "ClientToken": "4fd46da3c55e0334b0fb0baf17c13b14",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA402373EED6C500F4"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-6ff41dda5a84ebb83",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-81334518f7af1f5a6"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "15:8b:a2:fa:3d:39",
+                            "NetworkInterfaceId": "eni-4f539e15e8843a942",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-2-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.2.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-2-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.2.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-c29d52d7a9373452a",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-b0c996e734b94bd74"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-2-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-7d30f0290648c8fa9",
+                    "InstanceId": "i-97c9fd32ce3405e87",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-18T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1b",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-2-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.2.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-7a0768bb88402cc0d",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-7f7a6975613d07a70"
+                            }
+                        }
+                    ],
+                    "ClientToken": "7ba217043aa3c05e37f83844c0718532",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPAD1D2A80D51787CB1"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-5f8421fc13055291b",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-f0743c7f899210c63"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "be:93:91:84:6c:0d",
+                            "NetworkInterfaceId": "eni-5d51012f6e4b841e6",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-2-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.2.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-2-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.2.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-2941e17cef6e0d40d",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-8f6ef218fee048fc0"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-2-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-59cebf55d3b2951af"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-3c1396b97f8f8b021",
+                    "InstanceId": "i-f2c12da355e323b71",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-14T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1b",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-3-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.3.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-1976d21c172f56945",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-81b02d1f584c55904"
+                            }
+                        }
+                    ],
+                    "ClientToken": "93614239f1347133312cc39d02b09ec5",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPAB435DEEEE60C4271"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-2c3d67ad68db03a46",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-776b0de6f730a9469"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "db:81:23:89:8c:79",
+                            "NetworkInterfaceId": "eni-40318fcff73eb0ab4",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-3-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.3.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-3-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.3.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-f2f1d8f88436ff95f",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-ed389b97c02188571"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-3-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-0361469ba54291223",
+                    "InstanceId": "i-c565c353c77a5c205",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-04T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1c",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-3-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.3.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-0b304fd51aac9bf6e",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-71ce1575f070e7228"
+                            }
+                        }
+                    ],
+                    "ClientToken": "9cbce8994d296c8ce7f524d3b5d20693",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPAFE3B3A80343CE95D"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-c19439735c7aec41c",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-dd1eb95bbe89a1ce1"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "fc:06:74:89:d2:c2",
+                            "NetworkInterfaceId": "eni-d38d87192ec8c2d23",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-3-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.3.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-3-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.3.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-d07a99078a638acdc",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-1cb401a2e66650bc5"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-3-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-0f4bf00796d98835c"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-8f971e7e7302600ff",
+                    "InstanceId": "i-08a072ef6bd03a1c0",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-09T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1b",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-4-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.4.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-8f0aa617158e98fca",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-fd1d05eef94ce9493"
+                            }
+                        }
+                    ],
+                    "ClientToken": "e9b6181667d0cba56aa940eaf9ae7b95",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA8697D30201E89B18"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-5fea02891c00a6ca8",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-bc1f3e4ba14b6ee5e"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "d4:cb:08:a0:bb:dd",
+                            "NetworkInterfaceId": "eni-5534c031148ea8e24",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-4-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.4.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-4-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.4.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-255913a7f1e1206c1",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-3d64949a189d34a42"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-4-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-1714a47a94886f6f2",
+                    "InstanceId": "i-d7e9577c5ec77271b",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-08T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1a",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-4-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.4.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-46ba4ea41ae51ffaf",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-733474ab9af53ce08"
+                            }
+                        }
+                    ],
+                    "ClientToken": "813de83936b06a8920d1a0325d963022",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPAF995F738FC071C94"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-292709db3c98878b9",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-14b3774fac8df79d1"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "6f:70:87:e5:63:c7",
+                            "NetworkInterfaceId": "eni-c9abb6ced85f88b24",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-4-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.4.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-4-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.4.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-a27765140e6683f70",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-2248526a88f291ee0"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-4-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-e88e81a3096225b52"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-4e189e1b6df880909",
+                    "InstanceId": "i-c7e40bf21512d7142",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-03T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1c",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-5-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.5.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-e2b2b62523c751048",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-c26a32eb0b62cd3a6"
+                            }
+                        }
+                    ],
+                    "ClientToken": "525a61b38c19cbeb6d513ea73c522402",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPAC210C9B68A5FBFC5"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-8c016e37771752953",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-420e5bfb4cc9f7e76"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "f0:3e:7e:40:80:30",
+                            "NetworkInterfaceId": "eni-a01cb9d375f596e42",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-5-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.5.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-5-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.5.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-755c2941d1f573eba",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-16e382ffc13acfa04"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-5-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-12b9af9813e69be28",
+                    "InstanceId": "i-683e6bf3de3c220fb",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-03T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1b",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-5-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.5.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 80,
+                        "Name": "stopped"
+                    },
+                    "StateTransitionReason": "User initiated (2026-10-09 22:11:04 GMT)",
+                    "SubnetId": "subnet-ce82d752556fb309d",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-25243d759766a50e9"
+                            }
+                        }
+                    ],
+                    "ClientToken": "441b59c9be55cce0264561cef6c5c0fc",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA6227AC464EED2E5B"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-e53560663dd09b785",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-a83952a5d9325b34f"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "24:6f:1a:f2:d1:c1",
+                            "NetworkInterfaceId": "eni-afbdd5433e351664f",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-5-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.5.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-5-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.5.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-ec61bf229a024f94c",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-341e83e87cb2d3611"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-5-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-836964a51377a9ffc"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-66fa87c0eba069375",
+                    "InstanceId": "i-d5e8d8ac2de1c2c78",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-03T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1b",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-6-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.6.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-ef8a715786788f222",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-e34108f19a58611da"
+                            }
+                        }
+                    ],
+                    "ClientToken": "de75987f0901e271030cd30750dbb424",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA95018EBD91A2E1A4"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-a5a1e5fef0f61b095",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-67df5cb28a6670a2b"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "6c:9c:42:b0:4d:73",
+                            "NetworkInterfaceId": "eni-fc5ab94fde49d484f",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-6-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.6.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-6-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.6.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-6c081b823298fa878",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-330792ccd3685b7fb"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-6-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-fb50ad62ee0371490",
+                    "InstanceId": "i-b5cde1411da9795b4",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-08T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1c",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-6-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.6.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-161366b43d78fb442",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-3a8b14d69749ffc75"
+                            }
+                        }
+                    ],
+                    "ClientToken": "c835249b8028402db8b91f4b5ae38952",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPAF080B8B620030824"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-b7bf3921d958b509f",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-ad0600492711429d4"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "16:21:3c:e0:6f:c4",
+                            "NetworkInterfaceId": "eni-a3a4d20ff64cd30a8",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-6-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.6.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-6-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.6.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-760e1927666df283b",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-dda15e5c755a22787"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-6-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-3cb61ad12b157b297"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-d36d0b609ee0e81d8",
+                    "InstanceId": "i-6f37df49e53a2073d",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-16T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1a",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-7-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.7.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-6191fba737923e8ba",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-afa4c74b8df880924"
+                            }
+                        }
+                    ],
+                    "ClientToken": "fe2f8978f5a279c419769f207b421c72",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA7F2842A92F183EF5"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-743bd2fb107c1d0a2",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-232e3f7bd21016dc8"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "41:25:09:db:1f:4a",
+                            "NetworkInterfaceId": "eni-10dd5843770ec60dc",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-7-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.7.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-7-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.7.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-d4bdf14aae627fbb7",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-4a5799e429cccdc8c"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-7-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-4847206c560e03bc1",
+                    "InstanceId": "i-a4fb6412688056a32",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-25T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1c",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-7-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.7.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-8b58f485e07f73038",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-988e4e05d48f162ec"
+                            }
+                        }
+                    ],
+                    "ClientToken": "0e3a28a9b43f9397125a59eeeb12fab9",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA4B67FDCB4651965F"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-e59fc0c809db781ed",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-3f3903dcd7b522bef"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "c4:80:1b:0b:5f:5f",
+                            "NetworkInterfaceId": "eni-5724ac0ea7a8c1383",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-7-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.7.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-7-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.7.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-fc23791fecd87efe7",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-f5decbd7a7e341bbf"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-7-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-90200d5b9383fba14"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-c84c1e163592b6957",
+                    "InstanceId": "i-1cbb494c7ced2de53",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-28T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1b",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-8-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.8.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-89c7ed5d11d7c5801",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-014413462f5746200"
+                            }
+                        }
+                    ],
+                    "ClientToken": "1c08520bf04626b264486122b6b482df",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPABE348731AD300D1C"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-a24c26d9b760282a8",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-c8c30d7703268cd51"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "71:0c:ad:e2:d7:44",
+                            "NetworkInterfaceId": "eni-9fefe723e04a90ecb",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-8-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.8.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-8-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.8.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-1c5fdfeb81b303e40",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-379de2da123f591ff"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-8-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-94d846c574cef7ff6",
+                    "InstanceId": "i-aca2f8e8c4f17514c",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-18T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1a",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-8-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.8.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-616a94c7b6ffc83b6",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-7a2632a1300cbed80"
+                            }
+                        }
+                    ],
+                    "ClientToken": "896ddf8c538c44a3e04077731a95ba53",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA52C8ADD4C0D57E3B"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-e758fde2fbc64801e",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-d0ea42538c404f2bf"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "7c:17:88:a5:77:4c",
+                            "NetworkInterfaceId": "eni-1edd9a5409b823d64",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-8-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.8.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-8-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.8.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-9ddf504a8b9941d56",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-2aa8506f5d4bcb974"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-8-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-1f5007d4cc313538c"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-2da4ff5c509fcb1e7",
+                    "InstanceId": "i-a527d2053ad605433",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-28T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1b",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-9-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.9.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-c6b5f98a1bf9e6383",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-d1ba1bbcb15d834da"
+                            }
+                        }
+                    ],
+                    "ClientToken": "0e6e617dccfd7161618f1152c3ed17ee",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA83BE0A607D422837"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-c69ec72bc68fb754a",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-4acc1094fc353e92b"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "93:3d:90:80:bc:67",
+                            "NetworkInterfaceId": "eni-c211e93de9a308552",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-9-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.9.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-9-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.9.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-d38d5211fbc47c4a8",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-3d4c2288854d76bc7"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-9-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-eca584cfc50941cb8",
+                    "InstanceId": "i-75140173aa86252ad",
+                    "InstanceType": "t3.medium",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-20T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1a",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-9-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.9.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-c347a1feed5b69c58",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-377c4ac1087d5e5a0"
+                            }
+                        }
+                    ],
+                    "ClientToken": "d002ff535d821b156f8c9363709a1801",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA9E1CC30C6FDCC3AE"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-f32ef1d7d0d6d6a40",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-03fd1f7211f32cb4e"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "42:0d:e3:42:de:b6",
+                            "NetworkInterfaceId": "eni-6d4579d9e5c9af6d6",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-9-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.9.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-9-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.9.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-0b4ca671162e6fa09",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-88f43fbad88c67dfc"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-9-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-0c4093bcdf2c9aba6"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-5c1a781dcff84c31c",
+                    "InstanceId": "i-8a0fea6b1061084e8",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-26T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1c",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-10-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.10.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-f2c36842ee2925aa5",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-95bbe56c9c94a9111"
+                            }
+                        }
+                    ],
+                    "ClientToken": "99524c0a5128d4aba900d94e9bc3f4e6",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPAD3624A963D1B29BC"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-7924be21344096f1a",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-1724dc766ec523f0e"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "20:06:e5:23:74:81",
+                            "NetworkInterfaceId": "eni-7b7f4bdcc272e56b7",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-10-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.10.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-10-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.10.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-096279c9beae7c091",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-201ff520de3af9f96"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-10-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-1661f07dab30a0bb3",
+                    "InstanceId": "i-a602005b061ee61bc",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-07T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1a",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-10-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.10.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-0b6745d2a24055ecb",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-ff07b65de9b45e87c"
+                            }
+                        }
+                    ],
+                    "ClientToken": "79ded7ac2666180e53beebfe77c585bb",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPAF64C000B3894B512"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-5b32737ec6c18fffd",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-bb5f6589342e8da7b"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "e5:72:78:16:2c:1a",
+                            "NetworkInterfaceId": "eni-37f8a59723f736130",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-10-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.10.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-10-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.10.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-41a28b08a4fb6650c",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-9b92ac07b8478e524"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-10-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-752bd367241fa971e"
+        },
+        {
+            "Groups": [],
+            "Instances": [
+                {
+                    "AmiLaunchIndex": 0,
+                    "ImageId": "ami-c73fa93bb0209cc52",
+                    "InstanceId": "i-682292b5242cbe9c0",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-24T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1a",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-11-10.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.11.10",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-383b75cccf441b911",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-01abe08e43693969b"
+                            }
+                        }
+                    ],
+                    "ClientToken": "0a4fbc0eb6fbc5581d1cafb35b8c04e8",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA5AB70B3F3027B3BA"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-353919cbfc416a855",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-28194d4a335b6cc83"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "29:d8:ed:93:fa:9b",
+                            "NetworkInterfaceId": "eni-70273cb179e5e2cdd",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-11-10.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.11.10",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-11-10.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.11.10"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-0da2e9157ec5886fe",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-dc393842cb6562800"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-11-0"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                },
+                {
+                    "AmiLaunchIndex": 1,
+                    "ImageId": "ami-855ceab556a3aef27",
+                    "InstanceId": "i-675b4d724a75a522e",
+                    "InstanceType": "m6i.large",
+                    "KeyName": "shop-prod",
+                    "LaunchTime": "2026-09-19T10:00:00+00:00",
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "Placement": {
+                        "AvailabilityZone": "eu-west-1a",
+                        "GroupName": "",
+                        "Tenancy": "default"
+                    },
+                    "PrivateDnsName": "ip-10-0-11-11.eu-west-1.compute.internal",
+                    "PrivateIpAddress": "10.0.11.11",
+                    "ProductCodes": [],
+                    "PublicDnsName": "",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "StateTransitionReason": "",
+                    "SubnetId": "subnet-116d2dbfa06c79bab",
+                    "VpcId": "vpc-0a1b2c3d4e5f60718",
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/xvda",
+                            "Ebs": {
+                                "AttachTime": "2026-09-01T10:00:01+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-42af95c429fe0476e"
+                            }
+                        }
+                    ],
+                    "ClientToken": "61fe3650cf14b93e947d7822c3f5e5b5",
+                    "EbsOptimized": true,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::123456789012:instance-profile/shop-node",
+                        "Id": "AIPA08BE3879A74E6B70"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Attachment": {
+                                "AttachTime": "2026-09-01T10:00:00+00:00",
+                                "AttachmentId": "eni-attach-4d2e16a4a27d4b463",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupName": "shop-nodes",
+                                    "GroupId": "sg-5cecb9cbc2fd4cfa0"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "d5:be:29:e9:bb:db",
+                            "NetworkInterfaceId": "eni-fedfd8acd5720fd44",
+                            "OwnerId": "123456789012",
+                            "PrivateDnsName": "ip-10-0-11-11.eu-west-1.compute.internal",
+                            "PrivateIpAddress": "10.0.11.11",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-0-11-11.eu-west-1.compute.internal",
+                                    "PrivateIpAddress": "10.0.11.11"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-37d20985451cfbc40",
+                            "VpcId": "vpc-0a1b2c3d4e5f60718",
+                            "InterfaceType": "interface"
+                        }
+                    ],
+                    "RootDeviceName": "/dev/xvda",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupName": "shop-nodes",
+                            "GroupId": "sg-f756ebb20904ec827"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Name",
+                            "Value": "shop-node-11-1"
+                        },
+                        {
+                            "Key": "env",
+                            "Value": "prod"
+                        },
+                        {
+                            "Key": "aws:autoscaling:groupName",
+                            "Value": "shop-nodes"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-09-01T10:00:00+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default"
+                    },
+                    "CurrentInstanceBootMode": "legacy-bios"
+                }
+            ],
+            "OwnerId": "123456789012",
+            "RequesterId": "940372691376",
+            "ReservationId": "r-a4b099690d3ee98f5"
+        }
+    ],
+    "ResponseMetadata": {
+        "RequestId": "bc7fc4f9-a002-fd1d-b4c2-37466a283e22",
+        "HTTPStatusCode": 200,
+        "RetryAttempts": 0
+    }
+}

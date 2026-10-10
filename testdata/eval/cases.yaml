@@ -227,6 +227,26 @@
 - { name: detect/k8s-events, file: k8s/events.txt, expect_type: k8s/events }
 - { name: detect/helm, file: k8s/helm-status.txt, expect_type: k8s/helm }
 
+# --- cloud family
+- { file: cloud/aws-ec2-describe.json, attrs: { cmd: aws ec2 describe-instances }, expect_type: cloud/aws,
+    keep: ["stopped", "User initiated", "\"shop-node-\"", "\"5-1\"", "t3.medium"], min_saved: 70 }
+- { file: cloud/aws-cfn-events.json, attrs: { cmd: aws cloudformation describe-stack-events --stack-name shop-api }, expect_type: cloud/aws,
+    keep: ["UPDATE_FAILED", "nodejs16.x is no longer supported", "UPDATE_ROLLBACK_IN_PROGRESS", "OrdersFunction"], min_saved: 50 }
+- { file: cloud/aws-s3-ls.txt, attrs: { cmd: aws s3 ls s3://shop-assets --recursive }, expect_type: cloud/aws-s3,
+    keep: ["exports/", "logs/", "images/", "1400 objects"], min_saved: 90 }
+- { file: cloud/gcloud-instances-list.txt, attrs: { cmd: gcloud compute instances list }, expect_type: cloud/gcp,
+    keep: ["TERMINATED", "shop-node-21", "e2-standard-4"], min_saved: 20 }
+- { file: cloud/gcloud-run-describe.yaml, attrs: { cmd: gcloud run services describe shop-api --format yaml }, expect_type: cloud/gcp,
+    keep: ["HealthCheckContainerError", "failed to start and listen", "shop-api-00041-abc", "DATABASE_URL"], min_saved: 20 }
+- { file: cloud/az-vm-list.json, attrs: { cmd: az vm list }, expect_type: cloud/azure,
+    keep: ["Failed", "\"shop-vm-\"", "B2s"], min_saved: 70 }
+- { file: cloud/az-resource-table.txt, attrs: { cmd: az resource list -o table }, expect_type: cloud/azure,
+    keep: ["Microsoft.Web/sites", "westeurope"], min_saved: 30 }
+- { name: detect/aws-json, file: cloud/aws-ec2-describe.json, expect_type: cloud/aws }
+- { name: detect/aws-s3, file: cloud/aws-s3-ls.txt, expect_type: cloud/aws-s3 }
+- { name: detect/gcp-yaml, file: cloud/gcloud-run-describe.yaml, expect_type: cloud/gcp }
+- { name: detect/azure-json, file: cloud/az-vm-list.json, expect_type: cloud/azure }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }

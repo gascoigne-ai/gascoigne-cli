@@ -1,0 +1,16 @@
+1400 objects, 57.3 GB total
+  images/*.webp ×960 39.5 GB
+  logs/*.json.gz ×240 9.8 GB
+  exports/*.parquet ×200 8 GB
+newest:
+  2026-09-30 23:49:30 images/products/8396746658.webp 34.2 MB
+  2026-09-30 23:15:33 images/products/3666d15a73.webp 65.1 MB
+  2026-09-30 23:02:32 logs/2026/09/30/app-66ca2f.json.gz 58.8 MB
+  2026-09-30 22:15:15 logs/2026/09/30/app-73374f.json.gz 45.7 MB
+  2026-09-30 22:11:08 images/products/a2438b641f.webp 36 MB
+largest:
+  85.8 MB images/products/3b167f09ef.webp
+  85.8 MB logs/2026/09/12/app-e26740.json.gz
+  85.6 MB images/products/370a1221ea.webp
+  85.6 MB images/products/b4fc16583a.webp
+  85.6 MB images/products/68abd4009e.webp

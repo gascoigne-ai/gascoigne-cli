@@ -10,6 +10,7 @@ import (
 	"github.com/lukaszb/gascoigne/filter/historyfilter"
 	"github.com/lukaszb/gascoigne/filter/minsizefilter"
 	"github.com/lukaszb/gascoigne/optimizer/build/buildoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/cloud/cloudoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/jsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/logoptimizer"
@@ -56,6 +57,7 @@ func Factories() []component.Factory {
 		tableoptimizer.NewFactory(),
 		dboptimizer.NewFactory(),
 		k8soptimizer.NewFactory(),
+		cloudoptimizer.NewFactory(),
 		taskoptimizer.NewFactory(),
 		htmloptimizer.NewFactory(),
 		// exporters
