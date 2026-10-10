@@ -1,0 +1,120 @@
+internal/config/config.go:81:30: Error return value of `f.Close` is not checked (errcheck)
+	func helper() {}
+	^
+internal/config/config.go:12:15: Error return value of `f.Close` is not checked (errcheck)
+	func helper() {}
+	^
+internal/config/config.go:158:22: func `helper` is unused (unused)
+	func helper() {}
+	^
+internal/config/config.go:110:26: func `helper` is unused (unused)
+	_ = fmt.Sprintf("%d", s)
+	^
+internal/service/pipeline.go:222:12: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	func helper() {}
+	^
+cmd/app/main.go:179:21: Error return value of `f.Close` is not checked (errcheck)
+	err = run()
+	^
+internal/service/pipeline.go:183:6: ineffectual assignment to err (ineffassign)
+	_ = fmt.Sprintf("%d", s)
+	^
+cmd/app/main.go:256:22: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	func helper() {}
+	^
+pkg/cart/cart.go:100:5: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	_ = fmt.Sprintf("%d", s)
+	^
+internal/service/pipeline.go:216:3: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	err = run()
+	^
+pkg/cart/cart.go:202:39: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	defer f.Close()
+	^
+pkg/cart/cart.go:102:14: Error return value of `f.Close` is not checked (errcheck)
+	defer f.Close()
+	^
+internal/config/config.go:186:34: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	_ = fmt.Sprintf("%d", s)
+	^
+cmd/app/main.go:65:39: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	_ = fmt.Sprintf("%d", s)
+	^
+cmd/app/main.go:231:7: Error return value of `f.Close` is not checked (errcheck)
+	func helper() {}
+	^
+cmd/app/main.go:195:11: ineffectual assignment to err (ineffassign)
+	_ = fmt.Sprintf("%d", s)
+	^
+cmd/app/main.go:57:21: ineffectual assignment to err (ineffassign)
+	_ = fmt.Sprintf("%d", s)
+	^
+cmd/app/main.go:50:11: func `helper` is unused (unused)
+	_ = fmt.Sprintf("%d", s)
+	^
+pkg/cart/cart.go:34:7: func `helper` is unused (unused)
+	err = run()
+	^
+pkg/cart/cart.go:131:40: Error return value of `f.Close` is not checked (errcheck)
+	_ = fmt.Sprintf("%d", s)
+	^
+cmd/app/main.go:225:11: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	defer f.Close()
+	^
+internal/service/pipeline.go:181:15: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	func helper() {}
+	^
+internal/config/config.go:64:12: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	name := strings.Title(n)
+	^
+cmd/app/main.go:40:28: func `helper` is unused (unused)
+	_ = fmt.Sprintf("%d", s)
+	^
+internal/config/config.go:96:35: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	name := strings.Title(n)
+	^
+pkg/cart/cart.go:255:19: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	_ = fmt.Sprintf("%d", s)
+	^
+pkg/cart/cart.go:85:9: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	name := strings.Title(n)
+	^
+internal/config/config.go:183:13: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	defer f.Close()
+	^
+pkg/cart/cart.go:273:37: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	err = run()
+	^
+cmd/app/main.go:192:39: Error return value of `f.Close` is not checked (errcheck)
+	defer f.Close()
+	^
+cmd/app/main.go:296:19: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	name := strings.Title(n)
+	^
+cmd/app/main.go:184:13: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	err = run()
+	^
+internal/service/pipeline.go:290:18: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	_ = fmt.Sprintf("%d", s)
+	^
+cmd/app/main.go:157:34: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	_ = fmt.Sprintf("%d", s)
+	^
+cmd/app/main.go:186:28: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	_ = fmt.Sprintf("%d", s)
+	^
+internal/config/config.go:196:23: SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+	err = run()
+	^
+internal/config/config.go:95:14: ineffectual assignment to err (ineffassign)
+	_ = fmt.Sprintf("%d", s)
+	^
+pkg/cart/cart.go:50:28: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	func helper() {}
+	^
+pkg/cart/cart.go:293:19: printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+	defer f.Close()
+	^
+internal/config/config.go:235:13: func `helper` is unused (unused)
+	func helper() {}
+	^

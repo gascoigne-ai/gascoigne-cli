@@ -1,0 +1,38 @@
+a.c: In function ‘total’:
+same in several files:
+  error initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+    at a.c:11, b.c:11, c.c:11
+    11 |     char *name = 42;
+    |                  ^~
+  error too few arguments to function ‘total’; expected 3, have 2
+    at a.c:12, b.c:12, c.c:12
+    12 |     printf("%d %s\n", total(it, 2), name);
+    |                       ^~~~~
+  error implicit declaration of function ‘undefined_fn’ [-Wimplicit-function-declaration]
+    at a.c:13, b.c:13, c.c:13
+    13 |     undefined_fn(it);
+    |     ^~~~~~~~~~~~
+  error returning ‘char *’ from a function with return type ‘int’ makes integer from pointer without a cast [-Wint-conversion]
+    at a.c:14, b.c:14, c.c:14
+    14 |     return "ok";
+    |            ^~~~
+  note declared here
+    at a.c:4, b.c:4, c.c:4
+    4 | int total(struct item *items, int n, int discount) {
+    |     ^~~~~
+  error ‘struct item’ has no member named ‘qtty’; did you mean ‘qty’?
+    at a.c:6, b.c:6, c.c:6
+    6 |     for (int i = 0; i < n; i++) s += items[i].price * items[i].qtty;
+    |                                                                ^~~~
+    |                                                                qty
+  error expected ‘;’ before ‘}’ token
+    at a.c:7, b.c:7, c.c:7
+    7 |     return s - discount
+    |                        ^
+    … 3 frame lines omitted
+a.c: In function ‘main_a’:
+b.c: In function ‘total’:
+b.c: In function ‘main_b’:
+c.c: In function ‘total’:
+c.c: In function ‘main_c’:
+18 errors, 3 notes in 3 files

@@ -1,0 +1,48 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.example:shop >-------------------------
+[INFO] Building shop 1.0.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib0/1.0/lib0-1.0.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib0/1.0/lib0-1.0.pom (2 kB at 300 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib1/1.1/lib1-1.1.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib1/1.1/lib1-1.1.pom (3 kB at 301 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib2/1.2/lib2-1.2.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib2/1.2/lib2-1.2.pom (4 kB at 302 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib3/1.3/lib3-1.3.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib3/1.3/lib3-1.3.pom (5 kB at 303 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib4/1.4/lib4-1.4.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib4/1.4/lib4-1.4.pom (6 kB at 304 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib5/1.5/lib5-1.5.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib5/1.5/lib5-1.5.pom (7 kB at 305 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib6/1.6/lib6-1.6.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib6/1.6/lib6-1.6.pom (8 kB at 306 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib7/1.7/lib7-1.7.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib7/1.7/lib7-1.7.pom (9 kB at 307 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib8/1.8/lib8-1.8.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib8/1.8/lib8-1.8.pom (10 kB at 308 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib9/1.9/lib9-1.9.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib9/1.9/lib9-1.9.pom (11 kB at 309 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib10/1.10/lib10-1.10.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib10/1.10/lib10-1.10.pom (12 kB at 310 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/example/lib11/1.11/lib11-1.11.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/example/lib11/1.11/lib11-1.11.pom (13 kB at 311 kB/s)
+[INFO] --- compiler:3.13.0:compile (default-compile) @ shop ---
+[INFO] Compiling 7 source files with javac [debug target 21] to target/classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /home/user/src/shop/src/main/java/com/example/shop/Cart.java:[14,20] incompatible types: java.lang.String cannot be converted to int
+[ERROR] /home/user/src/shop/src/main/java/com/example/shop/Cart.java:[22,13] cannot find symbol
+  symbol:   method formatPrice(int)
+  location: class com.example.shop.Cart
+[INFO] 2 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.134 s
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.13.0:compile (default-compile) on project shop: Compilation failure: Compilation failure: 
+[ERROR] /home/user/src/shop/src/main/java/com/example/shop/Cart.java:[14,20] incompatible types: java.lang.String cannot be converted to int
+[ERROR] /home/user/src/shop/src/main/java/com/example/shop/Cart.java:[22,13] cannot find symbol

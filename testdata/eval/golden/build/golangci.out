@@ -1,0 +1,92 @@
+same in several files:
+  error func `helper` is unused (unused)
+    at internal/config/config.go:158, internal/config/config.go:110, internal/config/config.go:235, cmd/app/main.go:50, cmd/app/main.go:40, pkg/cart/cart.go:34
+  error SA1019: strings.Title has been deprecated since Go 1.18 (staticcheck)
+    at internal/config/config.go:186, internal/config/config.go:64, internal/config/config.go:96, internal/config/config.go:183, internal/config/config.go:196, internal/service/pipeline.go:181, internal/service/pipeline.go:290, cmd/app/main.go:65, cmd/app/main.go:225, cmd/app/main.go:157, pkg/cart/cart.go:100, pkg/cart/cart.go:85
+  error Error return value of `f.Close` is not checked (errcheck)
+    at internal/config/config.go:81, internal/config/config.go:12, cmd/app/main.go:179, cmd/app/main.go:231, cmd/app/main.go:192, pkg/cart/cart.go:102, pkg/cart/cart.go:131
+  error ineffectual assignment to err (ineffassign)
+    at internal/config/config.go:95, internal/service/pipeline.go:183, cmd/app/main.go:195, cmd/app/main.go:57
+  error printf: fmt.Sprintf format %d has arg s of wrong type string (govet)
+    at internal/service/pipeline.go:222, internal/service/pipeline.go:216, cmd/app/main.go:256, cmd/app/main.go:296, cmd/app/main.go:184, cmd/app/main.go:186, pkg/cart/cart.go:202, pkg/cart/cart.go:255, pkg/cart/cart.go:273, pkg/cart/cart.go:50, pkg/cart/cart.go:293
+	func helper() {}
+	^
+	func helper() {}
+	^
+	func helper() {}
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	func helper() {}
+	^
+	err = run()
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	func helper() {}
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	err = run()
+	^
+	defer f.Close()
+	^
+	defer f.Close()
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	func helper() {}
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	err = run()
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	defer f.Close()
+	^
+	func helper() {}
+	^
+	name := strings.Title(n)
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	name := strings.Title(n)
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	name := strings.Title(n)
+	^
+	defer f.Close()
+	^
+	err = run()
+	^
+	defer f.Close()
+	^
+	name := strings.Title(n)
+	^
+	err = run()
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	err = run()
+	^
+	_ = fmt.Sprintf("%d", s)
+	^
+	func helper() {}
+	^
+	defer f.Close()
+	^
+	func helper() {}
+	^
+40 errors in 4 files

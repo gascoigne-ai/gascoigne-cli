@@ -1,0 +1,37 @@
+Cart.java
+  10 error method total in class Cart cannot be applied to given types;
+    System.out.println(total(List.of(1, 2)));
+    ^
+    … 3 frame lines omitted
+Order.java
+  10 error method total in class Order cannot be applied to given types;
+    System.out.println(total(List.of(1, 2)));
+    ^
+    … 3 frame lines omitted
+Price.java
+  10 error method total in class Price cannot be applied to given types;
+    System.out.println(total(List.of(1, 2)));
+    ^
+    … 3 frame lines omitted
+Shop.java
+  10 error method total in class Shop cannot be applied to given types;
+    System.out.println(total(List.of(1, 2)));
+    ^
+    … 3 frame lines omitted
+same in several files:
+  error cannot find symbol
+    at Cart.java:11, Order.java:11, Price.java:11, Shop.java:11
+    undefinedCall();
+    ^
+    symbol:   method undefinedCall()
+    location: class Cart
+  error incompatible types: String cannot be converted to int
+    at Cart.java:12, Order.java:12, Price.java:12, Shop.java:12
+    int unused = "x";
+    ^
+  error incompatible types: int cannot be converted to String
+    at Cart.java:9, Order.java:9, Price.java:9, Shop.java:9
+    String n = 42;
+    ^
+16 errors
+16 errors in 4 files

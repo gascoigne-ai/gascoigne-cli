@@ -18,11 +18,11 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [test, go, git, grep, ls, json, log, cat, npm, bun, nx, html]
+  default: [test, build, git, grep, ls, json, log, cat, npm, bun, nx, html]
 
 optimizers:
   test: {}
-  go: {}
+  build: { max_frame: 4 }
   git: { context_lines: 1, max_file_lines: 200 }
   grep: { max_per_file: 20, max_files: 100, max_line_len: 160 }
   ls: { sizes_up_to: 60, width: 120 }

@@ -24,8 +24,8 @@ func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if b.Type == detect.NPM {
 			lines = install(lines)
 		}
-		return compress.Join(TSC(lines)), nil
-	}, detect.NPM, detect.TSC)
+		return compress.Join(lines), nil
+	}, detect.NPM)
 }
 
 var (
@@ -58,30 +58,4 @@ func install(lines []string) []string {
 		out[at] = fmt.Sprintf("npm warn deprecated (%d): %s", len(deps), strings.Join(deps, ", "))
 	}
 	return compress.SqueezeBlank(out)
-}
-
-var tscError = regexp.MustCompile(`^(\S+\.tsx?)\((\d+,\d+)\): (error|warning) (TS\d+: .*)$`)
-
-// TSC groups "file.ts(l,c): error TSxxxx: msg" lines by file.
-func TSC(lines []string) []string {
-	var out []string
-	file := ""
-	for _, l := range lines {
-		m := tscError.FindStringSubmatch(l)
-		if m == nil {
-			if file != "" && strings.HasPrefix(l, "  ") {
-				out = append(out, "  "+l) // continuation of the previous error
-				continue
-			}
-			file = ""
-			out = append(out, l)
-			continue
-		}
-		if m[1] != file {
-			file = m[1]
-			out = append(out, file+":")
-		}
-		out = append(out, fmt.Sprintf("  (%s) %s", m[2], m[4]))
-	}
-	return out
 }

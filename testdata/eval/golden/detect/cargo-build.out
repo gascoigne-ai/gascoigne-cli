@@ -1,0 +1,37 @@
+src/cart.rs
+  12:5 error E0308 mismatched types
+    10 | pub fn total(items: &[Item], discount: i64) -> u64 {
+    |                                                ---- expected `u64` because of return type
+    12 |     s - discount
+    |     ^^^^^^^^^^^^ expected `u64`, found `i64`
+    … 3 frame lines omitted
+src/main.rs
+  8:20 error E0425 cannot find function `format_price` in this scope
+    |
+    8  |     println!("{}", format_price(total));
+    |                    ^^^^^^^^^^^^ not found in this scope
+    |
+  4:9 warning unused variable: `cfg`
+    4 |     let cfg = load_config();
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_cfg`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+    … 1 frame lines omitted
+src/server.rs
+  14:9 warning unused variable: `cfg`
+    |
+    14 |     let cfg = load_config();
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_cfg`
+help: you can convert an `i64` to a `u64` and panic if the converted value doesn't fit
+   |
+12 |     (s - discount).try_into().unwrap()
+   |     +            +++++++++++++++++++++
+help: consider importing this function
+   |
+1  + use crate::util::format_price;
+   |
+Some errors have detailed explanations: E0308, E0425.
+For more information about an error, try `rustc --explain E0308`.
+warning : `shop` (bin "shop") generated 2 warnings
+error : could not compile `shop` (bin "shop") due to 2 previous errors; 2 warnings emitted
+2 errors, 2 warnings in 3 files

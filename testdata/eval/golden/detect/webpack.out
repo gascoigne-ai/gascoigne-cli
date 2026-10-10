@@ -1,0 +1,5 @@
+WARNING in ./src/lib/date.ts 4:0-28
+Module not found: Error: Can't resolve 'moment/locale' in '/home/user/src/web/src/lib'
+WARNING in asset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+  vendors.1a2b3c.js (812 KiB)
+webpack 5.94.0 compiled with 2 warnings in 18342 ms

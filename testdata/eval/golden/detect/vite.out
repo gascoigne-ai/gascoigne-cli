@@ -1,0 +1,7 @@
+✗ Build failed in 19ms
+error during build:
+src/main.js (1:9): "formatPrice" is not exported by "src/util.js", imported by "src/main.js".
+file: /home/user/src/vapp/src/main.js:1:9
+1: import { formatPrice } from './util.js';
+            ^
+2: document.getElementById('app').textContent = formatPrice(20);

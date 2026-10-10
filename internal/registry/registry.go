@@ -9,12 +9,12 @@ import (
 	"github.com/lukaszb/gascoigne/filter/detectfilter"
 	"github.com/lukaszb/gascoigne/filter/historyfilter"
 	"github.com/lukaszb/gascoigne/filter/minsizefilter"
+	"github.com/lukaszb/gascoigne/optimizer/build/buildoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/jsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/logoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/catoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/lsoptimizer"
-	"github.com/lukaszb/gascoigne/optimizer/go/gooptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/js/bunoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/js/npmoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/js/nxoptimizer"
@@ -42,8 +42,8 @@ func Factories() []component.Factory {
 		historyfilter.NewFactory(),
 		// optimizers
 		passthroughoptimizer.NewFactory(),
-		gooptimizer.NewFactory(),
 		testoptimizer.NewFactory(),
+		buildoptimizer.NewFactory(),
 		gitoptimizer.NewFactory(),
 		grepoptimizer.NewFactory(),
 		lsoptimizer.NewFactory(),

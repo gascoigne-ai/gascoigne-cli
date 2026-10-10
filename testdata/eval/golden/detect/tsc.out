@@ -1,0 +1,20 @@
+npm notice run webapp@1.0.0 npx
+npm notice run 'tsc' --noEmit -p .
+src/order.ts
+  6:3 error TS2322 Type 'Item | undefined' is not assignable to type 'Item'.
+    Type 'undefined' is not assignable to type 'Item'.
+  9:15 error TS2339 Property 'name' does not exist on type 'Item'.
+  9:41 error TS2339 Property 'priceTag' does not exist on type 'Item'.
+  12:22 error TS7006 Parameter 'addr' implicitly has an 'any' type.
+same in several files:
+  error TS7006 Parameter 'u' implicitly has an 'any' type.
+    at src/a.ts:10, src/b.ts:10, src/c.ts:10, src/d.ts:10, src/e.ts:10, src/f.ts:10, src/g.ts:10, src/h.ts:10, src/i.ts:10
+  error TS2322 Type 'number' is not assignable to type 'string'.
+    at src/a.ts:3, src/b.ts:3, src/c.ts:3, src/d.ts:3, src/e.ts:3, src/f.ts:3, src/g.ts:3, src/h.ts:3, src/i.ts:3
+  error TS2322 Type 'string' is not assignable to type 'number'.
+    at src/a.ts:3, src/a.ts:7, src/b.ts:3, src/b.ts:7, src/c.ts:3, src/c.ts:7, src/d.ts:3, src/d.ts:7, src/e.ts:3, src/e.ts:7, src/f.ts:3, src/f.ts:7, src/g.ts:3, src/g.ts:7, src/h.ts:3, src/h.ts:7, src/i.ts:3, src/i.ts:7, src/order.ts:3, src/order.ts:11
+  error TS2551 Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+    at src/a.ts:4, src/b.ts:4, src/c.ts:4, src/d.ts:4, src/e.ts:4, src/f.ts:4, src/g.ts:4, src/h.ts:4, src/i.ts:4
+  error TS2322 Type 'string' is not assignable to type 'boolean'.
+    at src/a.ts:9, src/b.ts:9, src/c.ts:9, src/d.ts:9, src/e.ts:9, src/f.ts:9, src/g.ts:9, src/h.ts:9, src/i.ts:9
+60 errors in 10 files

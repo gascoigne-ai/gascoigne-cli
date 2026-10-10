@@ -1,0 +1,69 @@
+a.c:6:64: error: no member named 'qtty' in 'struct item'
+    6 |     for (int i = 0; i < n; i++) s += items[i].price * items[i].qtty;
+      |                                                       ~~~~~~~~ ^
+a.c:7:24: error: expected ';' after return statement
+    7 |     return s - discount
+      |                        ^
+      |                        ;
+a.c:11:11: error: incompatible integer to pointer conversion initializing 'char *' with an expression of type 'int' [-Wint-conversion]
+   11 |     char *name = 42;
+      |           ^      ~~
+a.c:12:34: error: too few arguments to function call, expected 3, have 2
+   12 |     printf("%d %s\n", total(it, 2), name);
+      |                       ~~~~~      ^
+a.c:4:5: note: 'total' declared here
+    4 | int total(struct item *items, int n, int discount) {
+      |     ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+a.c:13:5: error: call to undeclared function 'undefined_fn'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   13 |     undefined_fn(it);
+      |     ^
+a.c:14:12: error: incompatible pointer to integer conversion returning 'char[3]' from a function with result type 'int' [-Wint-conversion]
+   14 |     return "ok";
+      |            ^~~~
+6 errors generated.
+b.c:6:64: error: no member named 'qtty' in 'struct item'
+    6 |     for (int i = 0; i < n; i++) s += items[i].price * items[i].qtty;
+      |                                                       ~~~~~~~~ ^
+b.c:7:24: error: expected ';' after return statement
+    7 |     return s - discount
+      |                        ^
+      |                        ;
+b.c:11:11: error: incompatible integer to pointer conversion initializing 'char *' with an expression of type 'int' [-Wint-conversion]
+   11 |     char *name = 42;
+      |           ^      ~~
+b.c:12:34: error: too few arguments to function call, expected 3, have 2
+   12 |     printf("%d %s\n", total(it, 2), name);
+      |                       ~~~~~      ^
+b.c:4:5: note: 'total' declared here
+    4 | int total(struct item *items, int n, int discount) {
+      |     ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+b.c:13:5: error: call to undeclared function 'undefined_fn'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   13 |     undefined_fn(it);
+      |     ^
+b.c:14:12: error: incompatible pointer to integer conversion returning 'char[3]' from a function with result type 'int' [-Wint-conversion]
+   14 |     return "ok";
+      |            ^~~~
+6 errors generated.
+c.c:6:64: error: no member named 'qtty' in 'struct item'
+    6 |     for (int i = 0; i < n; i++) s += items[i].price * items[i].qtty;
+      |                                                       ~~~~~~~~ ^
+c.c:7:24: error: expected ';' after return statement
+    7 |     return s - discount
+      |                        ^
+      |                        ;
+c.c:11:11: error: incompatible integer to pointer conversion initializing 'char *' with an expression of type 'int' [-Wint-conversion]
+   11 |     char *name = 42;
+      |           ^      ~~
+c.c:12:34: error: too few arguments to function call, expected 3, have 2
+   12 |     printf("%d %s\n", total(it, 2), name);
+      |                       ~~~~~      ^
+c.c:4:5: note: 'total' declared here
+    4 | int total(struct item *items, int n, int discount) {
+      |     ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+c.c:13:5: error: call to undeclared function 'undefined_fn'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   13 |     undefined_fn(it);
+      |     ^
+c.c:14:12: error: incompatible pointer to integer conversion returning 'char[3]' from a function with result type 'int' [-Wint-conversion]
+   14 |     return "ok";
+      |            ^~~~
+6 errors generated.

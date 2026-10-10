@@ -98,6 +98,49 @@
 - { name: detect/maven-test, file: test/maven-test-fail.txt, expect_type: test/maven }
 - { name: detect/dotnet-test, file: test/dotnet-test-fail.txt, expect_type: test/dotnet }
 
+# --- build family
+- { file: build/tsc-many.txt, attrs: { cmd: npx tsc --noEmit -p . }, expect_type: build/tsc,
+    keep: ["src/a.ts", "error TS2322", "Property 'mail' does not exist", "src/i.ts"], min_saved: 60 }
+- { file: build/gcc-errors.txt, attrs: { cmd: gcc -Wall -Wextra -c a.c b.c c.c }, expect_type: build/gcc,
+    keep: ["a.c", "‘struct item’ has no member named ‘qtty’", "expected ‘;’ before ‘}’ token", "c.c"], min_saved: 50 }
+- { file: build/clang-errors.txt, attrs: { cmd: clang -Wall -c a.c b.c c.c }, expect_type: build/clang,
+    keep: ["no member named 'qtty'", "c.c"], min_saved: 50 }
+- { file: build/javac-errors.txt, attrs: { cmd: javac *.java }, expect_type: build/javac,
+    keep: ["Shop.java", "incompatible types: int cannot be converted to String", "cannot find symbol"], min_saved: 45 }
+- { file: build/ruff.txt, attrs: { cmd: ruff check . }, expect_type: build/ruff,
+    keep: ["shop_typed.py", "F841", "mod_d.py"], min_saved: 40 }
+- { file: build/mypy.txt, attrs: { cmd: mypy . }, expect_type: build/mypy,
+    keep: ["shop_typed.py", "Unsupported operand types", "Found"], min_saved: 55 }
+- { file: build/vite-fail.txt, attrs: { cmd: npx vite build }, expect_type: build/bundler,
+    keep: ["\"formatPrice\" is not exported by \"src/util.js\"", "main.js:1:9", "Build failed"], min_saved: 70 }
+- { file: build/webpack-warnings.txt, attrs: { cmd: npx webpack }, expect_type: build/bundler,
+    keep: ["Can't resolve 'moment/locale'", "vendors.1a2b3c.js (812 KiB)", "compiled with 2 warnings"], min_saved: 90 }
+- { file: build/cargo-build.txt, attrs: { cmd: cargo build }, expect_type: build/rustc,
+    keep: ["src/cart.rs", "E0308", "expected `u64`, found `i64`", "E0425", "could not compile `shop`"], min_saved: 30 }
+- { file: build/dotnet-build.txt, attrs: { cmd: dotnet build }, expect_type: build/dotnet,
+    keep: ["Cart.cs", "CS0029", "OrderService.cs", "Build FAILED."], min_saved: 55 }
+- { file: build/docker-build-fail.txt, attrs: { cmd: docker build -t shop . }, expect_type: build/docker,
+    keep: ["error TS2322", "src/orders.ts", "failed to solve", "RUN npm run build"], min_saved: 20 }
+- { file: build/golangci.txt, attrs: { cmd: golangci-lint run }, expect_type: build/golangci,
+    keep: ["internal/service/pipeline.go", "(errcheck)"], min_saved: 40 }
+- { file: build/eslint.txt, attrs: { cmd: npx eslint src }, expect_type: build/eslint,
+    keep: ["src/components/Cart.tsx", "react-hooks/exhaustive-deps", "36 problems"], min_saved: 30 }
+- { file: build/maven-compile.txt, attrs: { cmd: mvn package }, expect_type: build/maven,
+    keep: ["Cart.java", "incompatible types: java.lang.String cannot be converted to int", "BUILD FAILURE"], min_saved: 80 }
+- { name: detect/tsc, file: build/tsc-many.txt, expect_type: build/tsc }
+- { name: detect/gcc, file: build/gcc-errors.txt, expect_type: build/gcc }
+- { name: detect/javac, file: build/javac-errors.txt, expect_type: build/javac }
+- { name: detect/ruff, file: build/ruff.txt, expect_type: build/ruff }
+- { name: detect/mypy, file: build/mypy.txt, expect_type: build/mypy }
+- { name: detect/vite, file: build/vite-fail.txt, expect_type: build/bundler }
+- { name: detect/webpack, file: build/webpack-warnings.txt, expect_type: build/bundler }
+- { name: detect/cargo-build, file: build/cargo-build.txt, expect_type: build/rustc }
+- { name: detect/dotnet-build, file: build/dotnet-build.txt, expect_type: build/dotnet }
+- { name: detect/docker-build, file: build/docker-build-fail.txt, expect_type: build/docker }
+- { name: detect/golangci, file: build/golangci.txt, expect_type: build/golangci }
+- { name: detect/eslint, file: build/eslint.txt, expect_type: build/eslint }
+- { name: detect/maven-compile, file: build/maven-compile.txt, expect_type: build/maven }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }

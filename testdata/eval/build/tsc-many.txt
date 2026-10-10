@@ -1,0 +1,63 @@
+npm notice run webapp@1.0.0 npx
+npm notice run 'tsc' --noEmit -p .
+src/a.ts(3,21): error TS2322: Type 'string' is not assignable to type 'number'.
+src/a.ts(3,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/a.ts(4,12): error TS2551: Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+src/a.ts(7,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/a.ts(9,14): error TS2322: Type 'string' is not assignable to type 'boolean'.
+src/a.ts(10,24): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/b.ts(3,21): error TS2322: Type 'string' is not assignable to type 'number'.
+src/b.ts(3,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/b.ts(4,12): error TS2551: Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+src/b.ts(7,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/b.ts(9,14): error TS2322: Type 'string' is not assignable to type 'boolean'.
+src/b.ts(10,24): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/c.ts(3,21): error TS2322: Type 'string' is not assignable to type 'number'.
+src/c.ts(3,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/c.ts(4,12): error TS2551: Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+src/c.ts(7,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/c.ts(9,14): error TS2322: Type 'string' is not assignable to type 'boolean'.
+src/c.ts(10,24): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/d.ts(3,21): error TS2322: Type 'string' is not assignable to type 'number'.
+src/d.ts(3,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/d.ts(4,12): error TS2551: Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+src/d.ts(7,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/d.ts(9,14): error TS2322: Type 'string' is not assignable to type 'boolean'.
+src/d.ts(10,24): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/e.ts(3,21): error TS2322: Type 'string' is not assignable to type 'number'.
+src/e.ts(3,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/e.ts(4,12): error TS2551: Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+src/e.ts(7,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/e.ts(9,14): error TS2322: Type 'string' is not assignable to type 'boolean'.
+src/e.ts(10,24): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/f.ts(3,21): error TS2322: Type 'string' is not assignable to type 'number'.
+src/f.ts(3,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/f.ts(4,12): error TS2551: Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+src/f.ts(7,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/f.ts(9,14): error TS2322: Type 'string' is not assignable to type 'boolean'.
+src/f.ts(10,24): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/g.ts(3,21): error TS2322: Type 'string' is not assignable to type 'number'.
+src/g.ts(3,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/g.ts(4,12): error TS2551: Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+src/g.ts(7,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/g.ts(9,14): error TS2322: Type 'string' is not assignable to type 'boolean'.
+src/g.ts(10,24): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/h.ts(3,21): error TS2322: Type 'string' is not assignable to type 'number'.
+src/h.ts(3,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/h.ts(4,12): error TS2551: Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+src/h.ts(7,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/h.ts(9,14): error TS2322: Type 'string' is not assignable to type 'boolean'.
+src/h.ts(10,24): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/i.ts(3,21): error TS2322: Type 'string' is not assignable to type 'number'.
+src/i.ts(3,29): error TS2322: Type 'number' is not assignable to type 'string'.
+src/i.ts(4,12): error TS2551: Property 'mail' does not exist on type 'User'. Did you mean 'email'?
+src/i.ts(7,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/i.ts(9,14): error TS2322: Type 'string' is not assignable to type 'boolean'.
+src/i.ts(10,24): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/order.ts(3,3): error TS2322: Type 'string' is not assignable to type 'number'.
+src/order.ts(6,3): error TS2322: Type 'Item | undefined' is not assignable to type 'Item'.
+  Type 'undefined' is not assignable to type 'Item'.
+src/order.ts(9,15): error TS2339: Property 'name' does not exist on type 'Item'.
+src/order.ts(9,41): error TS2339: Property 'priceTag' does not exist on type 'Item'.
+src/order.ts(11,7): error TS2322: Type 'string' is not assignable to type 'number'.
+src/order.ts(12,22): error TS7006: Parameter 'addr' implicitly has an 'any' type.

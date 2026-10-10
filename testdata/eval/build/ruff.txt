@@ -1,0 +1,825 @@
+E401 [*] Multiple imports on one line
+ --> mod_a.py:1:1
+  |
+1 | import os, sys, json
+  | ^^^^^^^^^^^^^^^^^^^^
+2 | from typing import List
+  |
+help: Split imports
+  |
+  - import os, sys, json
+1 + import os
+2 + import sys
+3 + import json
+4 | from typing import List
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> mod_a.py:1:1
+  |
+1 | / import os, sys, json
+2 | | from typing import List
+  | |_______________________^
+3 |
+4 |   def total(items: List[int], discount: int = 0) -> int:
+  |
+help: Organize imports
+  |
+  - import os, sys, json
+1 + import json
+2 + import os
+3 + import sys
+4 | from typing import List
+5 |
+6 +
+7 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+F401 [*] `os` imported but unused
+ --> mod_a.py:1:8
+  |
+1 | import os, sys, json
+  |        ^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+F401 [*] `sys` imported but unused
+ --> mod_a.py:1:12
+  |
+1 | import os, sys, json
+  |            ^^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> mod_a.py:2:1
+  |
+1 | import os, sys, json
+2 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+ --> mod_a.py:4:18
+  |
+2 | from typing import List
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |                  ^^^^
+5 |     unused = 1
+6 |     return sum(items) - str(discount)
+  |
+help: Replace with `list`
+  |
+3 |
+  - def total(items: List[int], discount: int = 0) -> int:
+4 + def total(items: list[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |
+
+F841 Local variable `unused` is assigned to but never used
+ --> mod_a.py:5:5
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |     ^^^^^^
+6 |     return sum(items) - str(discount)
+  |
+help: Remove assignment to unused variable `unused`
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  -     unused = 1
+5 |     return sum(items) - str(discount)
+  |
+note: This is an unsafe fix and may change runtime behavior
+
+E401 [*] Multiple imports on one line
+ --> mod_b.py:1:1
+  |
+1 | import os, sys, json
+  | ^^^^^^^^^^^^^^^^^^^^
+2 | from typing import List
+  |
+help: Split imports
+  |
+  - import os, sys, json
+1 + import os
+2 + import sys
+3 + import json
+4 | from typing import List
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> mod_b.py:1:1
+  |
+1 | / import os, sys, json
+2 | | from typing import List
+  | |_______________________^
+3 |
+4 |   def total(items: List[int], discount: int = 0) -> int:
+  |
+help: Organize imports
+  |
+  - import os, sys, json
+1 + import json
+2 + import os
+3 + import sys
+4 | from typing import List
+5 |
+6 +
+7 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+F401 [*] `os` imported but unused
+ --> mod_b.py:1:8
+  |
+1 | import os, sys, json
+  |        ^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+F401 [*] `sys` imported but unused
+ --> mod_b.py:1:12
+  |
+1 | import os, sys, json
+  |            ^^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> mod_b.py:2:1
+  |
+1 | import os, sys, json
+2 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+ --> mod_b.py:4:18
+  |
+2 | from typing import List
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |                  ^^^^
+5 |     unused = 1
+6 |     return sum(items) - str(discount)
+  |
+help: Replace with `list`
+  |
+3 |
+  - def total(items: List[int], discount: int = 0) -> int:
+4 + def total(items: list[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |
+
+F841 Local variable `unused` is assigned to but never used
+ --> mod_b.py:5:5
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |     ^^^^^^
+6 |     return sum(items) - str(discount)
+  |
+help: Remove assignment to unused variable `unused`
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  -     unused = 1
+5 |     return sum(items) - str(discount)
+  |
+note: This is an unsafe fix and may change runtime behavior
+
+E401 [*] Multiple imports on one line
+ --> mod_c.py:1:1
+  |
+1 | import os, sys, json
+  | ^^^^^^^^^^^^^^^^^^^^
+2 | from typing import List
+  |
+help: Split imports
+  |
+  - import os, sys, json
+1 + import os
+2 + import sys
+3 + import json
+4 | from typing import List
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> mod_c.py:1:1
+  |
+1 | / import os, sys, json
+2 | | from typing import List
+  | |_______________________^
+3 |
+4 |   def total(items: List[int], discount: int = 0) -> int:
+  |
+help: Organize imports
+  |
+  - import os, sys, json
+1 + import json
+2 + import os
+3 + import sys
+4 | from typing import List
+5 |
+6 +
+7 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+F401 [*] `os` imported but unused
+ --> mod_c.py:1:8
+  |
+1 | import os, sys, json
+  |        ^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+F401 [*] `sys` imported but unused
+ --> mod_c.py:1:12
+  |
+1 | import os, sys, json
+  |            ^^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> mod_c.py:2:1
+  |
+1 | import os, sys, json
+2 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+ --> mod_c.py:4:18
+  |
+2 | from typing import List
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |                  ^^^^
+5 |     unused = 1
+6 |     return sum(items) - str(discount)
+  |
+help: Replace with `list`
+  |
+3 |
+  - def total(items: List[int], discount: int = 0) -> int:
+4 + def total(items: list[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |
+
+F841 Local variable `unused` is assigned to but never used
+ --> mod_c.py:5:5
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |     ^^^^^^
+6 |     return sum(items) - str(discount)
+  |
+help: Remove assignment to unused variable `unused`
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  -     unused = 1
+5 |     return sum(items) - str(discount)
+  |
+note: This is an unsafe fix and may change runtime behavior
+
+E401 [*] Multiple imports on one line
+ --> mod_d.py:1:1
+  |
+1 | import os, sys, json
+  | ^^^^^^^^^^^^^^^^^^^^
+2 | from typing import List
+  |
+help: Split imports
+  |
+  - import os, sys, json
+1 + import os
+2 + import sys
+3 + import json
+4 | from typing import List
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> mod_d.py:1:1
+  |
+1 | / import os, sys, json
+2 | | from typing import List
+  | |_______________________^
+3 |
+4 |   def total(items: List[int], discount: int = 0) -> int:
+  |
+help: Organize imports
+  |
+  - import os, sys, json
+1 + import json
+2 + import os
+3 + import sys
+4 | from typing import List
+5 |
+6 +
+7 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+F401 [*] `os` imported but unused
+ --> mod_d.py:1:8
+  |
+1 | import os, sys, json
+  |        ^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+F401 [*] `sys` imported but unused
+ --> mod_d.py:1:12
+  |
+1 | import os, sys, json
+  |            ^^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> mod_d.py:2:1
+  |
+1 | import os, sys, json
+2 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+ --> mod_d.py:4:18
+  |
+2 | from typing import List
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |                  ^^^^
+5 |     unused = 1
+6 |     return sum(items) - str(discount)
+  |
+help: Replace with `list`
+  |
+3 |
+  - def total(items: List[int], discount: int = 0) -> int:
+4 + def total(items: list[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |
+
+F841 Local variable `unused` is assigned to but never used
+ --> mod_d.py:5:5
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |     ^^^^^^
+6 |     return sum(items) - str(discount)
+  |
+help: Remove assignment to unused variable `unused`
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  -     unused = 1
+5 |     return sum(items) - str(discount)
+  |
+note: This is an unsafe fix and may change runtime behavior
+
+E401 [*] Multiple imports on one line
+ --> shop_typed.py:1:1
+  |
+1 | import os, sys, json
+  | ^^^^^^^^^^^^^^^^^^^^
+2 | from typing import List
+  |
+help: Split imports
+  |
+  - import os, sys, json
+1 + import os
+2 + import sys
+3 + import json
+4 | from typing import List
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> shop_typed.py:1:1
+  |
+1 | / import os, sys, json
+2 | | from typing import List
+  | |_______________________^
+3 |
+4 |   def total(items: List[int], discount: int = 0) -> int:
+  |
+help: Organize imports
+  |
+  - import os, sys, json
+1 + import json
+2 + import os
+3 + import sys
+4 | from typing import List
+5 |
+6 +
+7 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+F401 [*] `os` imported but unused
+ --> shop_typed.py:1:8
+  |
+1 | import os, sys, json
+  |        ^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+F401 [*] `sys` imported but unused
+ --> shop_typed.py:1:12
+  |
+1 | import os, sys, json
+  |            ^^^
+2 | from typing import List
+  |
+help: Remove unused import
+  |
+  - import os, sys, json
+1 + import json
+2 | from typing import List
+  |
+
+UP035 `typing.List` is deprecated, use `list` instead
+ --> shop_typed.py:2:1
+  |
+1 | import os, sys, json
+2 | from typing import List
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |
+
+UP006 [*] Use `list` instead of `List` for type annotation
+ --> shop_typed.py:4:18
+  |
+2 | from typing import List
+3 |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  |                  ^^^^
+5 |     unused = 1
+6 |     return sum(items) - str(discount)
+  |
+help: Replace with `list`
+  |
+3 |
+  - def total(items: List[int], discount: int = 0) -> int:
+4 + def total(items: list[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |
+
+F841 Local variable `unused` is assigned to but never used
+ --> shop_typed.py:5:5
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+5 |     unused = 1
+  |     ^^^^^^
+6 |     return sum(items) - str(discount)
+  |
+help: Remove assignment to unused variable `unused`
+  |
+4 | def total(items: List[int], discount: int = 0) -> int:
+  -     unused = 1
+5 |     return sum(items) - str(discount)
+  |
+note: This is an unsafe fix and may change runtime behavior
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_api.py:1:1
+  |
+1 | import requests
+  | ^^^^^^^^^^^^^^^
+2 |
+3 | def test_fetch(monkeypatch):
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def test_fetch(monkeypatch):
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_shop.py:1:1
+  |
+1 | / import pytest
+2 | | from shop import total, apply_coupon
+  | |____________________________________^
+3 |
+4 |   @pytest.mark.parametrize("items,discount,want", [([], 0, 0), ([(5, 2)], 0, 10), ([(5, 2)], 3, 7), ([(1, 1)], 5, 0)])
+  |
+help: Organize imports
+  |
+1 | import pytest
+  - from shop import total, apply_coupon
+2 |
+3 + from shop import apply_coupon, total
+4 +
+5 +
+6 | @pytest.mark.parametrize("items,discount,want", [([], 0, 0), ([(5, 2)], 0, 10), ([(5, 2)], 3, 7), ([(1, 1)], 5, 0)])
+  |
+
+E501 Line too long (116 > 88)
+ --> tests/test_shop.py:4:89
+  |
+2 | from shop import total, apply_coupon
+3 |
+4 | @pytest.mark.parametrize("items,discount,want", [([], 0, 0), ([(5, 2)], 0, 10), ([(5, 2)], 3, 7), ([(1, 1)], 5, 0)])
+  |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 | def test_total(items, discount, want):
+6 |     assert total(items, discount) == want
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_util1.py:1:1
+  |
+1 | import pytest
+  | ^^^^^^^^^^^^^
+2 |
+3 | def test_case_1_1():
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def test_case_1_1():
+  |
+
+F401 [*] `pytest` imported but unused
+ --> tests/test_util1.py:1:8
+  |
+1 | import pytest
+  |        ^^^^^^
+2 |
+3 | def test_case_1_1():
+  |
+help: Remove unused import: `pytest`
+  |
+  - import pytest
+1 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_util2.py:1:1
+  |
+1 | import pytest
+  | ^^^^^^^^^^^^^
+2 |
+3 | def test_case_2_1():
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def test_case_2_1():
+  |
+
+F401 [*] `pytest` imported but unused
+ --> tests/test_util2.py:1:8
+  |
+1 | import pytest
+  |        ^^^^^^
+2 |
+3 | def test_case_2_1():
+  |
+help: Remove unused import: `pytest`
+  |
+  - import pytest
+1 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_util3.py:1:1
+  |
+1 | import pytest
+  | ^^^^^^^^^^^^^
+2 |
+3 | def test_case_3_1():
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def test_case_3_1():
+  |
+
+F401 [*] `pytest` imported but unused
+ --> tests/test_util3.py:1:8
+  |
+1 | import pytest
+  |        ^^^^^^
+2 |
+3 | def test_case_3_1():
+  |
+help: Remove unused import: `pytest`
+  |
+  - import pytest
+1 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_util4.py:1:1
+  |
+1 | import pytest
+  | ^^^^^^^^^^^^^
+2 |
+3 | def test_case_4_1():
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def test_case_4_1():
+  |
+
+F401 [*] `pytest` imported but unused
+ --> tests/test_util4.py:1:8
+  |
+1 | import pytest
+  |        ^^^^^^
+2 |
+3 | def test_case_4_1():
+  |
+help: Remove unused import: `pytest`
+  |
+  - import pytest
+1 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_util5.py:1:1
+  |
+1 | import pytest
+  | ^^^^^^^^^^^^^
+2 |
+3 | def test_case_5_1():
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def test_case_5_1():
+  |
+
+F401 [*] `pytest` imported but unused
+ --> tests/test_util5.py:1:8
+  |
+1 | import pytest
+  |        ^^^^^^
+2 |
+3 | def test_case_5_1():
+  |
+help: Remove unused import: `pytest`
+  |
+  - import pytest
+1 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_util6.py:1:1
+  |
+1 | import pytest
+  | ^^^^^^^^^^^^^
+2 |
+3 | def test_case_6_1():
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def test_case_6_1():
+  |
+
+F401 [*] `pytest` imported but unused
+ --> tests/test_util6.py:1:8
+  |
+1 | import pytest
+  |        ^^^^^^
+2 |
+3 | def test_case_6_1():
+  |
+help: Remove unused import: `pytest`
+  |
+  - import pytest
+1 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_util7.py:1:1
+  |
+1 | import pytest
+  | ^^^^^^^^^^^^^
+2 |
+3 | def test_case_7_1():
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def test_case_7_1():
+  |
+
+F401 [*] `pytest` imported but unused
+ --> tests/test_util7.py:1:8
+  |
+1 | import pytest
+  |        ^^^^^^
+2 |
+3 | def test_case_7_1():
+  |
+help: Remove unused import: `pytest`
+  |
+  - import pytest
+1 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests/test_util8.py:1:1
+  |
+1 | import pytest
+  | ^^^^^^^^^^^^^
+2 |
+3 | def test_case_8_1():
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def test_case_8_1():
+  |
+
+F401 [*] `pytest` imported but unused
+ --> tests/test_util8.py:1:8
+  |
+1 | import pytest
+  |        ^^^^^^
+2 |
+3 | def test_case_8_1():
+  |
+help: Remove unused import: `pytest`
+  |
+  - import pytest
+1 |
+  |
+
+Found 54 errors.
+[*] 43 fixable with `--fix` (5 unsafe fixes available with `--fix --unsafe-fixes`).

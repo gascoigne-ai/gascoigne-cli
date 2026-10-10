@@ -1,0 +1,13 @@
+# example.com/shop/bad2
+bad2/b.go:3:32: not enough return values
+	have (number)
+	want (int, error)
+bad2/b.go:4:30: s.Push undefined (type []string has no field or method Push)
+bad2/b.go:5:23: undefined: missing
+# example.com/shop/bad1
+bad1/a.go:10:2: declared and not used: x
+bad1/a.go:11:19: cannot use n (variable of type int) as string value in argument to os.Getenv
+bad1/a.go:14:23: cannot use "b" (untyped string constant) as int value in return statement
+bad1/a.go:15:12: undefined: undefinedThing
+bad1/a.go:16:12: undefined: undefinedThing
+bad1/a.go:16:34: declared and not used: y

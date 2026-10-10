@@ -1,0 +1,22 @@
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 4 modules transformed.
+✗ Build failed in 19ms
+error during build:
+src/main.js (1:9): "formatPrice" is not exported by "src/util.js", imported by "src/main.js".
+file: /home/user/src/vapp/src/main.js:1:9
+
+1: import { formatPrice } from './util.js';
+            ^
+2: document.getElementById('app').textContent = formatPrice(20);
+
+    at getRollupError (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/parseAst.js:319:41)
+    at error (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/parseAst.js:315:42)
+    at Module.error (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/node-entry.js:17860:16)
+    at Module.traceVariable (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/node-entry.js:18294:29)
+    at ModuleScope.findVariable (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/node-entry.js:15882:39)
+    at Identifier.bind (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/node-entry.js:5727:40)
+    at CallExpression.bind (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/node-entry.js:3050:23)
+    at CallExpression.bind (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/node-entry.js:12980:15)
+    at AssignmentExpression.bind (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/node-entry.js:3050:23)
+    at ExpressionStatement.bind (file:///home/user/src/webapp/node_modules/rollup/dist/es/shared/node-entry.js:3050:23)

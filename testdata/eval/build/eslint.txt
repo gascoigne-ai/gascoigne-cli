@@ -1,0 +1,46 @@
+
+/home/user/src/web/src/App.tsx
+  162:3  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:4  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:12  error  'React' is defined but never used  @typescript-eslint/no-unused-vars
+  141:3  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  90:25  warning  Unexpected console statement  no-console
+  152:14  warning  'React' is defined but never used  @typescript-eslint/no-unused-vars
+  1:23  error  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  105:8  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  10:36  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  25:19  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  149:19  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  108:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/user/src/web/src/components/Cart.tsx
+  120:10  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  145:31  error  Unexpected console statement  no-console
+  156:6  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  98:7  warning  'React' is defined but never used  @typescript-eslint/no-unused-vars
+  84:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  111:15  warning  Unexpected console statement  no-console
+  123:25  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  153:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  128:17  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  82:20  warning  'React' is defined but never used  @typescript-eslint/no-unused-vars
+  37:31  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  169:40  error  'React' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/user/src/web/src/hooks/useOrders.ts
+  76:3  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  4:31  error  Unexpected console statement  no-console
+  63:31  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  126:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  76:32  error  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  133:39  warning  Unexpected console statement  no-console
+  5:9  warning  'React' is defined but never used  @typescript-eslint/no-unused-vars
+  137:22  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  188:34  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  90:24  error  Unexpected console statement  no-console
+  10:1  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  176:7  warning  Unexpected console statement  no-console
+
+✖ 36 problems (12 errors, 24 warnings)
+  4 errors and 0 warnings potentially fixable with the `--fix` option.
+

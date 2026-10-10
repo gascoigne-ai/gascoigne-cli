@@ -1,0 +1,19 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+MSBuild version 17.12.6+db5f6012c for .NET
+/home/user/src/shop/src/Shop/Cart.cs(14,20): error CS0029: Cannot implicitly convert type 'string' to 'int' [/home/user/src/shop/src/Shop/Shop.csproj]
+/home/user/src/shop/src/Shop/Cart.cs(22,13): error CS0103: The name 'FormatPrice' does not exist in the current context [/home/user/src/shop/src/Shop/Shop.csproj]
+/home/user/src/shop/src/Shop/Orders/OrderService.cs(41,9): warning CS0168: The variable 'ex' is declared but never used [/home/user/src/shop/src/Shop/Shop.csproj]
+/home/user/src/shop/src/Shop/Orders/OrderService.cs(57,16): error CS1061: 'Order' does not contain a definition for 'Totl' and no accessible extension method 'Totl' accepting a first argument of type 'Order' could be found (are you missing a using directive or an assembly reference?) [/home/user/src/shop/src/Shop/Shop.csproj]
+  Shop.Domain -> /home/user/src/shop/src/Shop.Domain/bin/Debug/net9.0/Shop.Domain.dll
+
+Build FAILED.
+
+/home/user/src/shop/src/Shop/Cart.cs(14,20): error CS0029: Cannot implicitly convert type 'string' to 'int' [/home/user/src/shop/src/Shop/Shop.csproj]
+/home/user/src/shop/src/Shop/Cart.cs(22,13): error CS0103: The name 'FormatPrice' does not exist in the current context [/home/user/src/shop/src/Shop/Shop.csproj]
+/home/user/src/shop/src/Shop/Orders/OrderService.cs(41,9): warning CS0168: The variable 'ex' is declared but never used [/home/user/src/shop/src/Shop/Shop.csproj]
+/home/user/src/shop/src/Shop/Orders/OrderService.cs(57,16): error CS1061: 'Order' does not contain a definition for 'Totl' and no accessible extension method 'Totl' accepting a first argument of type 'Order' could be found (are you missing a using directive or an assembly reference?) [/home/user/src/shop/src/Shop/Shop.csproj]
+    1 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:03.42

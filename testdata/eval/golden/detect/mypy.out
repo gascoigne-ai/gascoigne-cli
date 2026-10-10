@@ -1,0 +1,11 @@
+same in several files:
+  error Unsupported operand types for + ("str" and "int")  [operator]
+    at shop_typed.py:13, mod_d.py:13, mod_c.py:13, mod_b.py:13, mod_a.py:13
+  error "Cart" has no attribute "items"  [attr-defined]
+    at shop_typed.py:17, shop_typed.py:19, mod_d.py:17, mod_d.py:19, mod_c.py:17, mod_c.py:19, mod_b.py:17, mod_b.py:19, mod_a.py:17, mod_a.py:19
+  error Incompatible return value type (got "int", expected "str")  [return-value]
+    at shop_typed.py:19, mod_d.py:19, mod_c.py:19, mod_b.py:19, mod_a.py:19
+  error Unsupported operand types for - ("int" and "str")  [operator]
+    at shop_typed.py:6, mod_d.py:6, mod_c.py:6, mod_b.py:6, mod_a.py:6
+Found 25 errors in 5 files (checked 5 source files)
+25 errors in 5 files

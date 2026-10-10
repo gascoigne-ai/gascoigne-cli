@@ -1,0 +1,11 @@
+[INFO]
+[ERROR] COMPILATION ERROR :
+/home/user/src/shop/src/main/java/com/example/shop/Cart.java
+  14:20 error incompatible types: java.lang.String cannot be converted to int (×2, first shown)
+  22:13 error cannot find symbol (×2, first shown)
+    symbol:   method formatPrice(int)
+    location: class com.example.shop.Cart
+[INFO] 2 errors
+[INFO] BUILD FAILURE
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.13.0:compile (default-compile) on project shop: Compilation failure: Compilation failure:
+4 errors in 1 file
