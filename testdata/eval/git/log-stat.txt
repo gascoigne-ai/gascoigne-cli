@@ -1,0 +1,146 @@
+commit 459db858fa1761e75b596da5db6667d90caebc0a
+Author: Ada Lovelace <ada@example.com>
+Date:   Sat Oct 10 16:19:49 2026 +0200
+
+    feat(dashboard): drawn moon in the banner
+    
+    The plain gradient circle becomes an inline SVG moon: shaded sphere,
+    darker maria, rimmed craters, limb darkening and a blood-red edge, with
+    a pale and crimson glow.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+ cmd/gascoigne/dashboard.html | 42 ++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 36 insertions(+), 6 deletions(-)
+
+commit d6d237fdc5842884a5515d959bca30a849e81381
+Author: Ada Lovelace <ada@example.com>
+Date:   Sat Oct 10 16:18:51 2026 +0200
+
+    feat(dashboard): Bloodborne-style banner over the plain dashboard
+    
+    The header becomes a dark, blood-lit banner in both themes: a pale moon
+    as the emblem, gold serif capitals, an ornament and a pulsing crimson
+    live indicator, with the theme switch styled to match. Everything below
+    keeps the neutral design. System serif fonts only, no external requests.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+ cmd/gascoigne/dashboard.html | 57 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 41 insertions(+), 16 deletions(-)
+
+commit 83baada04fb877f7afd58a752c107a2ab9a08d84
+Author: Ada Lovelace <ada@example.com>
+Date:   Sat Oct 10 16:17:09 2026 +0200
+
+    feat(dashboard): neutral corporate design with light and dark themes
+    
+    The themed look and copy gave way to a plain, professional dashboard:
+    system fonts and no external requests, neutral labels (Tokens saved,
+    Recent runs, Runs not optimized, Excluded sources, Re-enable), status
+    badges colored by outcome. The page follows the system's light or dark
+    preference; an Auto / Light / Dark switch overrides it and is remembered
+    per browser, applied before first paint to avoid a flash.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+ cmd/gascoigne/dashboard.html | 439 +++++++++++++++++++++++--------------------
+ docs/ledger.md               |  22 ++-
+ 2 files changed, 243 insertions(+), 218 deletions(-)
+
+commit 9269b1ab9b128ad1c2333ddd062a0636eee630e7
+Author: Ada Lovelace <ada@example.com>
+Date:   Sat Oct 10 13:17:45 2026 +0200
+
+    fix(cli): installed hooks tag runs with their agent and session
+    
+    Only wrap sets GASCOIGNE_AGENT and GASCOIGNE_SESSION for an agent's
+    shell. With hooks registered for good (wrap -print, the only way for
+    Cursor), commands rewritten to gascoigne exec ran without them, so their
+    runs had no agent in gain and the dashboard. The hook now adds -agent and
+    -session (the hook event's session id) to the rewritten command when the
+    environment lacks them; wrapped commands stay as short as before.
+    
+    The dashboard labels runs without an agent as "no agent", with a
+    tooltip: a terminal or script, or recorded before runs were tagged.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+ .harness/architecture.md     |  3 +++
+ cmd/gascoigne/dashboard.html | 12 ++++++++++--
+ cmd/gascoigne/hook.go        | 34 +++++++++++++++++++++++++---------
+ cmd/gascoigne/hook_test.go   | 28 ++++++++++++++++++++++++----
+ docs/agents.md               |  4 ++++
+ 5 files changed, 66 insertions(+), 15 deletions(-)
+
+commit 52e2a2377855b00d7bd21da7d69e64ad961b30f1
+Author: Ada Lovelace <ada@example.com>
+Date:   Sat Oct 10 13:00:46 2026 +0200
+
+    feat(config): user config laid over defaults, written on first run
+    
+    A user config file used to replace the built-in one, so it had to repeat
+    every pipeline and component. It is now laid over the defaults: maps
+    merge, values and lists replace, empty keys keep the default. On first
+    run, with no -config or GASCOIGNE_CONFIG, gascoigne writes
+    ~/.config/gascoigne/config.yaml from configs/user.yaml: every setting of
+    every component, commented out with a short note, so the defaults apply
+    until something is uncommented. Existing files are never overwritten.
+    
+    Tests keep the template honest: uncommented it equals the defaults, and
+    every Config field of every used component must appear in it.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+ .harness/architecture.md               |   9 +-
+ .harness/skills/add-component/SKILL.md |   3 +-
+ cmd/gascoigne/main.go                  |  19 ---
+ cmd/gascoigne/userconfig.go            | 121 +++++++++++++++++
+ cmd/gascoigne/userconfig_test.go       | 229 +++++++++++++++++++++++++++++++++
+ configs/configs.go                     |   6 +
+ configs/user.yaml                      | 182 ++++++++++++++++++++++++++
+ docs/configuration.md                  |  51 ++++++--
+ docs/getting-started.md                |   2 +-
+ 9 files changed, 586 insertions(+), 36 deletions(-)
+
+commit 66ccabce3ef359b10f0877c1b93b77c72968008b
+Author: Ada Lovelace <ada@example.com>
+Date:   Sat Oct 10 12:16:46 2026 +0200
+
+    feat(cli): background server keeps the dashboard up; reset stats
+    
+    One server per user on 127.0.0.1:7878 (the port is the lock) hosts the
+    dashboard. exec, the codex hook, mcp, mcp-proxy and wrap start it detached
+    when /api/health does not answer, so the dashboard is there whenever
+    gascoigne runs; wrap prints its address. A server from another build is
+    replaced, one serving another ledger left alone. Optimization still runs
+    in each process: startup is ~7 ms and the check ~0.3 ms, so a missing
+    server never slows or fails an agent. GASCOIGNE_SERVER=off opts out.
+    
+    gascoigne server run|start|stop|status manage it; dashboard prints the
+    address. gascoigne reset deletes recorded runs by session, agent, model
+    or period (flags only, never env); -all also drops originals and failure
+    history. The dashboard gets Reset stats and Stop server buttons.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+ .harness/architecture.md        |  12 +-
+ CLAUDE.md                       |   3 +-
+ cmd/gascoigne/agents.go         |   8 ++
+ cmd/gascoigne/dashboard.go      |  51 ++++-----
+ cmd/gascoigne/dashboard.html    |  48 +++++++-
+ cmd/gascoigne/dashboard_test.go |  57 +++++++++-
+ cmd/gascoigne/detach_other.go   |   7 ++
+ cmd/gascoigne/detach_unix.go    |  12 ++
+ cmd/gascoigne/hook.go           |   1 +
+ cmd/gascoigne/ledger.go         |  32 ++++++
+ cmd/gascoigne/main.go           |  23 +++-
+ cmd/gascoigne/server.go         | 246 ++++++++++++++++++++++++++++++++++++++++
+ docs/agents.md                  |   2 +-
+ docs/cli.md                     |  32 +++++-
+ docs/getting-started.md         |  12 +-
+ docs/ledger.md                  |  46 +++++++-
+ extension/ledger/ledger.go      |   9 +-
+ extension/ledger/ledger_test.go |  68 +++++++++++
+ extension/ledger/report.go      |  30 +++++
+ 19 files changed, 649 insertions(+), 50 deletions(-)

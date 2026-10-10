@@ -54,6 +54,27 @@ Date:   Fri Jul 10 10:00:00 2026 +0000
 	}
 }
 
+// TestLogKeepsFileLists is a regression test: --stat, --name-only and
+// --name-status lines used to be dropped with the commit headers.
+func TestLogKeepsFileLists(t *testing.T) {
+	head := "commit 0123456789abcdef0123456789abcdef01234567\nAuthor: Ada <ada@example.com>\nDate:   Sat Jul 11 06:13:07 2026 +0530\n\n    feat: mcp\n\n"
+	tests := []struct{ name, files, want string }{
+		{"stat",
+			" go.sum                             |  16 ++++\n receiver/mcpreceiver/mcp.go        | 140 +++++++++++++++++\n .harness/scripts/check-imports.sh  |   2 +-\n assets/logo.png                    | Bin 0 -> 1234 bytes\n 4 files changed, 157 insertions(+), 1 deletion(-)\n",
+			"  go.sum | 16 +\n  receiver/mcpreceiver/mcp.go | 140 +\n  .harness/scripts/check-imports.sh | 2 +-\n  assets/logo.png | Bin 0 -> 1234 bytes\n  4 files changed, 157 insertions(+), 1 deletion(-)\n"},
+		{"name-status", "M\tgo.sum\nA\treceiver/mcpreceiver/mcp.go\n", "  M\tgo.sum\n  A\treceiver/mcpreceiver/mcp.go\n"},
+		{"name-only", "go.sum\nreceiver/mcpreceiver/mcp.go\n", "  go.sum\n  receiver/mcpreceiver/mcp.go\n"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			want := "0123456 2026-07-11 Ada: feat: mcp\n" + tt.want
+			if got := run(t, detect.GitLog, head+tt.files); got != want {
+				t.Fatalf("got:\n%s\nwant:\n%s", got, want)
+			}
+		})
+	}
+}
+
 func TestOnelineLogUntouched(t *testing.T) {
 	in := "0123456 fix a\n89abcde feat b\n"
 	if got := run(t, detect.GitLog, in); got != in {

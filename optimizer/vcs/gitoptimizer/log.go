@@ -2,12 +2,14 @@ package gitoptimizer
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 )
 
 // log rewrites default git log format to one line per commit:
-// "<sha7> <date> <author> <subject>" plus refs and a body-size note.
+// "<sha7> <date> <author> <subject>" plus refs and a body-size note. File
+// lists (--stat, --name-only, --name-status) stay under their commit.
 // Patches (git log -p) go through the diff compressor.
 func (o *Optimizer) log(lines []string) []string {
 	var out, patch []string
@@ -15,6 +17,7 @@ func (o *Optimizer) log(lines []string) []string {
 	emit := func() {
 		if c.sha != "" {
 			out = append(out, c.String())
+			out = append(out, c.files...)
 		}
 		if len(patch) > 0 {
 			out = append(out, o.diff(patch)...)
@@ -42,6 +45,8 @@ func (o *Optimizer) log(lines []string) []string {
 			} else if strings.TrimSpace(l) != "" {
 				c.body++
 			}
+		case strings.TrimSpace(l) != "":
+			c.files = append(c.files, "  "+statLine(l))
 		}
 	}
 	emit()
@@ -52,6 +57,33 @@ type commit struct {
 	sha, refs, author, date, subject string
 	body                             int
 	merge                            bool
+	files                            []string // --stat, --name-only, --name-status lines
+}
+
+var (
+	// statCol is a --stat line: a padded path, then what changed.
+	statCol = regexp.MustCompile(`^\s*(.+?)\s+\|\s+(.+)$`)
+	// statBar is the change count and a bar of + and - scaled to the terminal.
+	statBar = regexp.MustCompile(`^(\d+) ([+-]+)$`)
+)
+
+// statLine trims a file list line. A --stat bar is scaled, so only which
+// signs it has carries information: "| 140 ++++++++" becomes "| 140 +".
+func statLine(l string) string {
+	m := statCol.FindStringSubmatch(l)
+	if m == nil {
+		return strings.TrimSpace(l)
+	}
+	change := m[2]
+	if b := statBar.FindStringSubmatch(change); b != nil {
+		change = b[1] + " "
+		for _, s := range "+-" {
+			if strings.ContainsRune(b[2], s) {
+				change += string(s)
+			}
+		}
+	}
+	return m[1] + " | " + change
 }
 
 func parseCommitLine(l string) commit {

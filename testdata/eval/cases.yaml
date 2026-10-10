@@ -311,6 +311,11 @@
   expect_type: vcs/git-log
   keep: ["adbc881", "fix: resolve macOS test link failure"]
   min_saved: 65
+- file: git/log-stat.txt
+  attrs: { cmd: git log -6 --stat }
+  expect_type: vcs/git-log
+  keep: ["cmd/gascoigne/hook.go | 34 +-", "cmd/gascoigne/dashboard.html | 439 +-", "19 files changed, 649 insertions(+), 50 deletions(-)"]
+  min_saved: 40
 - file: git/diff.txt
   attrs: { cmd: git diff HEAD~12 }
   expect_type: vcs/git-diff

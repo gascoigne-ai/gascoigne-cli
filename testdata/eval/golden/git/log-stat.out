@@ -1,0 +1,49 @@
+459db85 2026-10-10 Ada Lovelace: feat(dashboard): drawn moon in the banner (+4 body lines)
+  cmd/gascoigne/dashboard.html | 42 +-
+  1 file changed, 36 insertions(+), 6 deletions(-)
+d6d237f 2026-10-10 Ada Lovelace: feat(dashboard): Bloodborne-style banner over the plain dashboard (+5 body lines)
+  cmd/gascoigne/dashboard.html | 57 +-
+  1 file changed, 41 insertions(+), 16 deletions(-)
+83baada 2026-10-10 Ada Lovelace: feat(dashboard): neutral corporate design with light and dark themes (+7 body lines)
+  cmd/gascoigne/dashboard.html | 439 +-
+  docs/ledger.md | 22 +-
+  2 files changed, 243 insertions(+), 218 deletions(-)
+9269b1a 2026-10-10 Ada Lovelace: fix(cli): installed hooks tag runs with their agent and session (+9 body lines)
+  .harness/architecture.md | 3 +
+  cmd/gascoigne/dashboard.html | 12 +-
+  cmd/gascoigne/hook.go | 34 +-
+  cmd/gascoigne/hook_test.go | 28 +-
+  docs/agents.md | 4 +
+  5 files changed, 66 insertions(+), 15 deletions(-)
+52e2a23 2026-10-10 Ada Lovelace: feat(config): user config laid over defaults, written on first run (+10 body lines)
+  .harness/architecture.md | 9 +-
+  .harness/skills/add-component/SKILL.md | 3 +-
+  cmd/gascoigne/main.go | 19 -
+  cmd/gascoigne/userconfig.go | 121 +
+  cmd/gascoigne/userconfig_test.go | 229 +
+  configs/configs.go | 6 +
+  configs/user.yaml | 182 +
+  docs/configuration.md | 51 +-
+  docs/getting-started.md | 2 +-
+  9 files changed, 586 insertions(+), 36 deletions(-)
+66ccabc 2026-10-10 Ada Lovelace: feat(cli): background server keeps the dashboard up; reset stats (+12 body lines)
+  .harness/architecture.md | 12 +-
+  CLAUDE.md | 3 +-
+  cmd/gascoigne/agents.go | 8 +
+  cmd/gascoigne/dashboard.go | 51 +-
+  cmd/gascoigne/dashboard.html | 48 +-
+  cmd/gascoigne/dashboard_test.go | 57 +-
+  cmd/gascoigne/detach_other.go | 7 +
+  cmd/gascoigne/detach_unix.go | 12 +
+  cmd/gascoigne/hook.go | 1 +
+  cmd/gascoigne/ledger.go | 32 +
+  cmd/gascoigne/main.go | 23 +-
+  cmd/gascoigne/server.go | 246 +
+  docs/agents.md | 2 +-
+  docs/cli.md | 32 +-
+  docs/getting-started.md | 12 +-
+  docs/ledger.md | 46 +-
+  extension/ledger/ledger.go | 9 +-
+  extension/ledger/ledger_test.go | 68 +
+  extension/ledger/report.go | 30 +
+  19 files changed, 649 insertions(+), 50 deletions(-)
