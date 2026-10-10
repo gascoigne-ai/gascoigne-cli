@@ -240,6 +240,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     </label>
     <div class="spacer"></div>
     <div class="actions">
+      <button id="flush" title="Delete stored originals (the cache behind gascoigne raw)">Clear originals</button>
       <button id="reset" class="danger" title="Delete recorded runs matching the current filters">Reset statistics</button>
       <button id="stop" title="Stop the background server">Stop server</button>
     </div>
@@ -605,6 +606,24 @@ $("reset").onclick = async () => {
   alert(`${deleted_events} runs deleted.`);
 };
 
+function bytes(n) {
+  return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : n >= 1024 ? (n / 1024).toFixed(1) + " kB" : n + " B";
+}
+
+async function refreshOriginals() {
+  const u = await getJSON("/api/originals");
+  $("flush").textContent = `Clear originals (${u.count} · ${bytes(u.bytes)})`;
+}
+
+$("flush").onclick = async () => {
+  if (!confirm("Delete all stored originals?\n\nRecorded runs and savings are kept, but their full output can no longer be retrieved.")) return;
+  const r = await fetch("/api/flush", { method: "POST" });
+  if (!r.ok) { alert("Clearing failed: " + (await r.text())); return; }
+  const { deleted_originals } = await r.json();
+  refreshOriginals().catch(console.error);
+  alert(`${deleted_originals} originals deleted.`);
+};
+
 $("stop").onclick = async () => {
   if (!confirm("Stop the gascoigne server?\n\nThe next gascoigne command, or `gascoigne dashboard`, starts it again.")) return;
   await fetch("/api/shutdown", { method: "POST" }).catch(() => {});
@@ -629,6 +648,8 @@ setInterval(() => {
   for (const td of document.querySelectorAll("td.when")) td.textContent = ago(td.dataset.ts);
 }, 15000);
 setInterval(() => refreshLists().catch(console.error), 30000);
+setInterval(() => refreshOriginals().catch(console.error), 30000);
+refreshOriginals().catch(console.error);
 
 refreshLists().catch(console.error);
 refreshOverview().catch(console.error);

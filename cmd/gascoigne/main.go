@@ -41,6 +41,7 @@ commands:
   forget <key>       clear failure history for a source
   gain        token savings report
   reset       clear savings stats (-session/-agent/-since; -all: also originals and failures)
+  flush       delete stored originals, the cache behind raw ids (-older 7d: only older ones)
   dashboard   start the background server if needed, print the dashboard address
   server run|start|stop|status  the background server hosting the dashboard (one per user)
   eval        benchmark pipeline on fixtures
@@ -65,6 +66,7 @@ var commands = map[string]func(ctx context.Context, args []string) error{
 	"dashboard":  cmdDashboard,
 	"server":     cmdServer,
 	"reset":      cmdReset,
+	"flush":      cmdFlush,
 	"eval":       cmdEval,
 	"components": cmdComponents,
 	"config":     cmdConfig,

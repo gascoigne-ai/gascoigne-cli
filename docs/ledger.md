@@ -6,7 +6,7 @@ Every run through gascoigne is recorded in a local sqlite ledger:
 
 | Table | Holds | Kept |
 |---|---|---|
-| `raw` | originals of optimized payloads, by content-derived id | `raw_ttl` (24h by default) |
+| `raw` | originals of optimized payloads, gzip-compressed, by content-derived id | `raw_ttl` (24h by default), or until `flush` |
 | `events` | every run: time, session, agent, model, command, source key, route, tokens in/out, outcome, the component that stopped it and why | forever |
 | `steps` | per event, each optimizer that changed tokens: family, dialect, tokens before/after | forever |
 | `failures` | per source key: how often it optimized badly, when, why | until `forget` |
@@ -35,6 +35,18 @@ This lives in the pipeline core, not in optimizers:
 | dashboard | open a run → *Show original output* |
 
 Ids are derived from content, so the same original always has the same id.
+
+Originals are stored gzip-compressed (command output shrinks about 9×; rows saved before
+compression are still read). To drop them sooner than `raw_ttl`:
+
+```sh
+gascoigne flush               # every stored original
+gascoigne flush -older 2h     # only originals saved more than 2 hours ago
+```
+
+`flush` vacuums the database, so the space goes back to the disk. Runs and savings stay; only
+`gascoigne raw <id>` for the flushed ids stops working. The dashboard's *Clear originals* button
+(it shows the count and size) does the same.
 
 ## Sources that optimized badly
 
@@ -193,6 +205,8 @@ The page is built on a small JSON API you can also script against:
 | `GET /api/failures` | failing sources |
 | `POST /api/forget?key=<key>` | clear a source's failure history |
 | `POST /api/reset?session=&agent=&model=&since=&all=1` | delete recorded runs; `all=1` (no filters) also originals and failures |
+| `GET /api/originals` | stored originals: count and compressed size |
+| `POST /api/flush` | delete every stored original |
 | `GET /api/health` | pid, build, ledger, address, start time |
 | `POST /api/shutdown` | stop the server |
 

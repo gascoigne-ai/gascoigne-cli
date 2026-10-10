@@ -228,6 +228,48 @@ func parseSince(s string) (time.Duration, error) {
 
 // cmdReset clears savings stats. Filters come from flags only, never from
 // GASCOIGNE_* env: deleting should say exactly what it deletes.
+// cmdFlush deletes stored originals: the cache behind "gascoigne raw <id>".
+func cmdFlush(ctx context.Context, args []string) error {
+	var older string
+	return withLedger(ctx, "flush", args, 0, func(fs *flag.FlagSet) {
+		fs.StringVar(&older, "older", "", "only originals saved before this period: 24h, 7d, 4w, 6mo")
+	}, func(l *ledger.Ledger, _ *common, _ []string) error {
+		var cutoff time.Time
+		if older != "" {
+			d, err := parseSince(older)
+			if err != nil {
+				return err
+			}
+			cutoff = time.Now().Add(-d)
+		}
+		before, err := l.RawUsage(ctx)
+		if err != nil {
+			return err
+		}
+		n, err := l.FlushRaw(ctx, cutoff)
+		if err != nil {
+			return err
+		}
+		after, err := l.RawUsage(ctx)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("gascoigne: deleted %d stored originals (%s), %d left (%s)\n",
+			n, humanBytes(before.Bytes-after.Bytes), after.Count, humanBytes(after.Bytes))
+		return nil
+	})
+}
+
+func humanBytes(n int64) string {
+	switch {
+	case n >= 1<<20:
+		return fmt.Sprintf("%.1f MB", float64(n)/(1<<20))
+	case n >= 1<<10:
+		return fmt.Sprintf("%.1f kB", float64(n)/(1<<10))
+	}
+	return fmt.Sprintf("%d B", n)
+}
+
 func cmdReset(ctx context.Context, args []string) error {
 	var (
 		all   bool

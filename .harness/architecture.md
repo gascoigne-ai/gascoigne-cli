@@ -166,7 +166,8 @@ Lives in core (`service/pipeline.go`), not in optimizers:
 5. Retrieval: `gascoigne raw <id>`, MCP `retrieve` / `gascoigne_retrieve` (later HTTP proxy `GET /raw/<id>`).
 
 ## Ledger (gorm + sqlite, `extension/ledger`)
-Tables: `events` (every trip: route, tokens, outcome), `raw` (originals, TTL-pruned),
+Tables: `events` (every trip: route, tokens, outcome), `raw` (originals gzip-compressed, plain
+JSON rows from before still read; TTL-pruned, `gascoigne flush [-older]` / `POST /api/flush` delete and VACUUM),
 `failures` (per-key count). Gorm models in `models.go`; `AutoMigrate` on Start adds new
 tables/columns/indexes. Renames, drops or type changes need an explicit migration step — ask first.
 Pure-Go driver (`gormlite`), WAL mode, busy timeout 5s.

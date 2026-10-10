@@ -50,6 +50,14 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		}
 		respond(w, map[string]int64{"deleted_events": n}, nil)
 	})
+	mux.HandleFunc("GET /api/originals", func(w http.ResponseWriter, r *http.Request) {
+		u, err := l.RawUsage(r.Context())
+		respond(w, u, err)
+	})
+	mux.HandleFunc("POST /api/flush", func(w http.ResponseWriter, r *http.Request) {
+		n, err := l.FlushRaw(r.Context(), time.Time{})
+		respond(w, map[string]int64{"deleted_originals": n}, err)
+	})
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write(dashboardHTML)

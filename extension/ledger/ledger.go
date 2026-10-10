@@ -3,12 +3,15 @@
 package ledger
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -87,7 +90,11 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (s
 		return "", err
 	}
 	sum := sha256.Sum256(blob)
-	r := raw{ID: hex.EncodeToString(sum[:8]), Created: time.Now().UnixMilli(), Key: key, Payload: blob}
+	packed, err := pack(blob)
+	if err != nil {
+		return "", err
+	}
+	r := raw{ID: hex.EncodeToString(sum[:8]), Created: time.Now().UnixMilli(), Key: key, Payload: packed}
 	err = l.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"created"}),
@@ -104,8 +111,65 @@ func (l *Ledger) GetRaw(ctx context.Context, id string) (string, *payload.Payloa
 	if err != nil {
 		return "", nil, err
 	}
+	blob, err := unpack(r.Payload)
+	if err != nil {
+		return "", nil, fmt.Errorf("raw %s: %w", id, err)
+	}
 	var p payload.Payload
-	return r.Key, &p, json.Unmarshal(r.Payload, &p)
+	return r.Key, &p, json.Unmarshal(blob, &p)
+}
+
+// pack gzips an original: command output compresses several times over.
+func pack(blob []byte) ([]byte, error) {
+	var b bytes.Buffer
+	w := gzip.NewWriter(&b)
+	if _, err := w.Write(blob); err != nil {
+		return nil, err
+	}
+	if err := w.Close(); err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
+}
+
+// unpack reverses pack. Rows saved before compression are plain JSON,
+// which never starts with the gzip magic.
+func unpack(data []byte) ([]byte, error) {
+	if !bytes.HasPrefix(data, []byte{0x1f, 0x8b}) {
+		return data, nil
+	}
+	r, err := gzip.NewReader(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+	return io.ReadAll(r)
+}
+
+// RawUsage is what stored originals take up.
+type RawUsage struct {
+	Count int64 `json:"count"`
+	Bytes int64 `json:"bytes"` // compressed, as stored
+}
+
+// RawUsage counts stored originals and their size.
+func (l *Ledger) RawUsage(ctx context.Context) (RawUsage, error) {
+	var u RawUsage
+	err := l.db.WithContext(ctx).Model(&raw{}).Select("count(*) AS count, coalesce(sum(length(payload)), 0) AS bytes").Scan(&u).Error
+	return u, err
+}
+
+// FlushRaw deletes stored originals saved before cutoff (zero: all) and
+// gives the space back to the disk. Their hints stop resolving.
+func (l *Ledger) FlushRaw(ctx context.Context, cutoff time.Time) (int64, error) {
+	q := l.db.WithContext(ctx).Where("1 = 1")
+	if !cutoff.IsZero() {
+		q = q.Where("created < ?", cutoff.UnixMilli())
+	}
+	res := q.Delete(&raw{})
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return res.RowsAffected, l.db.WithContext(ctx).Exec("VACUUM").Error
 }
 
 func (l *Ledger) Record(ctx context.Context, ev component.Event) error {

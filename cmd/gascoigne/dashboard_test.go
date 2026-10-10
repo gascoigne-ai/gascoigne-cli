@@ -193,6 +193,23 @@ func TestServerControl(t *testing.T) {
 	}
 }
 
+func TestFlushOriginals(t *testing.T) {
+	l, _ := testDashboard(t)
+	h := dashboard(l, time.Second, serverInfo{}, func() {})
+	if _, err := l.SaveRaw(t.Context(), "cmd:ls", payload.New(payload.CmdOutput, "a\nb")); err != nil {
+		t.Fatal(err)
+	}
+	if w := get(h, "GET", "/api/originals"); !strings.Contains(w.Body.String(), `"count":1`) {
+		t.Fatalf("originals: %s", w.Body.String())
+	}
+	if w := get(h, "POST", "/api/flush"); w.Code != 200 || !strings.Contains(w.Body.String(), `"deleted_originals":1`) {
+		t.Fatalf("flush: %d %s", w.Code, w.Body.String())
+	}
+	if w := get(h, "GET", "/api/originals"); !strings.Contains(w.Body.String(), `"count":0`) {
+		t.Fatalf("after flush: %s", w.Body.String())
+	}
+}
+
 func TestServerAction(t *testing.T) {
 	info := serverInfo{Build: "b1", Ledger: "/data/l.db"}
 	tests := []struct {

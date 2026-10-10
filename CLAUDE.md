@@ -14,6 +14,7 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 - agents: `bin/gascoigne wrap claude|codex|pi [args]` (per run), `install [-g] [agent...]` (for good: project, `-g` user configs; also cursor), `wrap -print <agent>` prints it, `unwrap [agent...]` removes it; hooks call `gascoigne hook <agent>`
 - live view: background server auto-started by exec/hook/mcp/wrap → http://127.0.0.1:7878; `server status|stop|start|run`, `dashboard` prints the URL, `GASCOIGNE_SERVER=off`
 - `bin/gascoigne reset [-session|-agent|-since]` clears savings stats; `-all` also originals and failures
+- `bin/gascoigne flush [-older 7d]` deletes stored originals (gzip in `raw`) and vacuums
 - savings: `bin/gascoigne gain [-session ID] [-json]` overview; `gain -by day|week|month|agent|model|session|command|optimizer|family|dialect|outcome|reason`, filters `-agent -model -session -since 7d`
 - per agent/run tuning: `-set path=yaml`, `-only`, `-disable` (or `GASCOIGNE_SET/ONLY/DISABLE`); `bin/gascoigne config` shows the result
 

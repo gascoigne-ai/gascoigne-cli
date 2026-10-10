@@ -16,6 +16,7 @@ Run `gascoigne <command> -h` for the flags of one command.
 | `gain [flags]` | Savings report: overview, or one grouping with `-by`. |
 | `dashboard` | Start the background server if it is not running and print the dashboard address. |
 | `server run\|start\|stop\|status` | The background server hosting the dashboard: one per user, started automatically. |
+| `flush [-older 7d]` | Delete stored originals (the cache behind `raw <id>`) and vacuum the ledger. |
 | `reset [flags]` | Clear savings stats; `-all` also clears stored originals and failure history. |
 | `wrap <agent> [agent args]` | Start `claude`, `codex` or `pi` with gascoigne registered for that run. |
 | `install [-g] [agent...]` | Register gascoigne for good in this project's agent configs, or with `-g` in the user's (default: agents found on `PATH`). |
@@ -100,6 +101,15 @@ gascoigne reset -all                              # also stored originals and fa
 Deletes recorded runs (what `gain` and the dashboard show). Filters come from flags only, never
 from `GASCOIGNE_*` variables, so it deletes exactly what it says. `-all` cannot be combined with
 filters: originals and failure history carry no session or agent.
+
+## `flush`
+
+```sh
+gascoigne flush               # every stored original
+gascoigne flush -older 7d     # only older ones
+```
+
+Deletes originals and prints how much space went. Recorded runs and savings stay.
 
 ## `eval`
 

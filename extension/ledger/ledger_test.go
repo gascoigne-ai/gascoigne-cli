@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -45,6 +46,58 @@ func TestRawRoundTrip(t *testing.T) {
 	}
 	if _, _, err := l.GetRaw(ctx, "missing"); !errors.Is(err, ErrNotFound) {
 		t.Fatalf("missing err = %v", err)
+	}
+}
+
+func TestRawStoredCompressed(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	text := strings.Repeat("ok  \tgithub.com/example/pkg\t0.012s\n", 200)
+	id, err := l.SaveRaw(ctx, "", payload.New(payload.CmdOutput, text))
+	if err != nil {
+		t.Fatal(err)
+	}
+	u, err := l.RawUsage(ctx)
+	if err != nil || u.Count != 1 || u.Bytes == 0 || u.Bytes > int64(len(text))/10 {
+		t.Fatalf("usage %+v (text %d bytes), err %v", u, len(text), err)
+	}
+	if _, got, err := l.GetRaw(ctx, id); err != nil || got.Text() != text {
+		t.Fatalf("round trip: err %v", err)
+	}
+}
+
+func TestRawReadsUncompressedRows(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	// A row as saved before originals were compressed.
+	if err := l.db.Create(&raw{ID: "old", Key: "cmd:ls", Payload: []byte(`{"blocks":[{"kind":"cmd_output","text":"a\nb"}]}`)}).Error; err != nil {
+		t.Fatal(err)
+	}
+	if _, got, err := l.GetRaw(t.Context(), "old"); err != nil || got.Text() != "a\nb" {
+		t.Fatalf("got %+v, err %v", got, err)
+	}
+}
+
+func TestFlushRaw(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	old, _ := l.SaveRaw(ctx, "", payload.New(payload.Message, "old"))
+	l.db.Model(&raw{}).Where("id = ?", old).Update("created", time.Now().Add(-48*time.Hour).UnixMilli())
+	fresh, _ := l.SaveRaw(ctx, "", payload.New(payload.Message, "fresh"))
+
+	if n, err := l.FlushRaw(ctx, time.Now().Add(-24*time.Hour)); err != nil || n != 1 {
+		t.Fatalf("flush older: n %d, err %v", n, err)
+	}
+	if _, _, err := l.GetRaw(ctx, old); !errors.Is(err, ErrNotFound) {
+		t.Error("old original kept")
+	}
+	if _, _, err := l.GetRaw(ctx, fresh); err != nil {
+		t.Error("fresh original flushed")
+	}
+	if n, err := l.FlushRaw(ctx, time.Time{}); err != nil || n != 1 {
+		t.Fatalf("flush all: n %d, err %v", n, err)
+	}
+	if u, _ := l.RawUsage(ctx); u.Count != 0 {
+		t.Errorf("left %+v", u)
 	}
 }
 
