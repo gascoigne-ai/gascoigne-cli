@@ -23,9 +23,11 @@ type part struct {
 
 // sections fits markdown into a token budget by whole sections: the intro,
 // then sections matching the query (best first), then the rest in page order
-// while they fit. Dropped sections keep their heading when it is one of the
-// page's top two levels, so the outline stays readable; the rest of what was
-// dropped becomes "… N lines omitted".
+// where they fit. A best match too big for what is left keeps its head, so a
+// page that is one huge section still answers the query. Dropped sections
+// keep their heading when it is one of the page's top two levels, so the
+// outline stays readable; the rest of what was dropped becomes
+// "… N lines omitted".
 func sections(lines []string, query string, budget int) []string {
 	secs := split(lines)
 	total := 0
@@ -35,26 +37,40 @@ func sections(lines []string, query string, budget int) []string {
 	if total <= budget {
 		return lines
 	}
-	keep := make([]bool, len(secs))
-	keep[0] = true
+	keep := make([]int, len(secs)) // lines kept per section
+	take := func(i int) {
+		keep[i] = len(secs[i].lines)
+	}
+	take(0)
 	used := secs[0].tokens
-	for _, i := range byRelevance(secs, query) {
-		if used+secs[i].tokens <= budget {
-			keep[i] = true
+	for n, i := range byRelevance(secs, query) {
+		switch {
+		case used+secs[i].tokens <= budget:
+			take(i)
 			used += secs[i].tokens
+		case n == 0:
+			keep[i] = head(secs[i], budget-used)
+			used = budget
 		}
 	}
 	for i, s := range secs {
-		if keep[i] {
-			continue
+		if keep[i] == 0 && used+s.tokens <= budget {
+			take(i)
+			used += s.tokens
 		}
-		if used+s.tokens > budget {
-			break
-		}
-		keep[i] = true
-		used += s.tokens
 	}
 	return render(secs, keep)
+}
+
+// head is how many leading lines of s fit in budget tokens (at least the heading).
+func head(s *part, budget int) int {
+	used := 0
+	for n, l := range s.lines {
+		if used += tokens.Estimate(l) + 1; used > budget {
+			return max(n, 1)
+		}
+	}
+	return len(s.lines)
 }
 
 func split(lines []string) []*part {
@@ -98,7 +114,7 @@ func byRelevance(secs []*part, query string) []int {
 	return hits
 }
 
-func render(secs []*part, keep []bool) []string {
+func render(secs []*part, keep []int) []string {
 	top := 6
 	for _, s := range secs[1:] {
 		top = min(top, s.level)
@@ -113,9 +129,11 @@ func render(secs []*part, keep []bool) []string {
 	}
 	for i, s := range secs {
 		switch {
-		case keep[i]:
+		case len(s.lines) == 0: // no intro before the first heading
+		case keep[i] > 0:
 			flush()
-			out = append(out, s.lines...)
+			out = append(out, s.lines[:keep[i]]...)
+			omitted += len(s.lines) - keep[i]
 		case s.level <= top+1:
 			flush()
 			out = append(out, s.lines[0])

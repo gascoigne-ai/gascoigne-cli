@@ -121,3 +121,14 @@ func TestHelpQuery(t *testing.T) {
 		t.Fatal("no query changed the help")
 	}
 }
+
+func TestHugeBestSectionKeepsItsHead(t *testing.T) {
+	filler := strings.Repeat("lorem ipsum dolor sit amet consectetur\n", 200)
+	in := "# Page\n## Events\nPostToolUse can replace output.\n" + filler + "## Small\nshort text\n"
+	got := compress.Join(sections(compress.Lines(in), "PostToolUse replace", 200))
+	for _, want := range []string{"## Events\nPostToolUse can replace output.", "lines omitted", "## Small"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("missing %q in:\n%s", want, got)
+		}
+	}
+}

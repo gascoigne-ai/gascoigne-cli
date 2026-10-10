@@ -41,8 +41,7 @@ func (w *writer) node(n *html.Node) {
 	switch a := n.DataAtom; {
 	case headings[a] != "":
 		w.block()
-		w.b.WriteString(headings[a] + " ")
-		w.children(n)
+		w.b.WriteString(headings[a] + " " + w.inline(n))
 		w.block()
 	case a == atom.P || a == atom.Div || a == atom.Section || a == atom.Article || a == atom.Main ||
 		a == atom.Dl || a == atom.Figure || a == atom.Details || a == atom.Summary:
@@ -144,6 +143,21 @@ func (w *writer) atLineStart() bool {
 }
 
 // block ends the current paragraph.
+// inline renders n's children on one line: doc sites wrap heading text in
+// divs and anchor icons ("<h2><div><a>\u200b</a></div><span>Hooks</span>"),
+// which would otherwise leave an empty "##" with the title lines below.
+func (w *writer) inline(n *html.Node) string {
+	sub := &writer{links: w.links}
+	sub.children(n)
+	text := strings.Map(func(r rune) rune {
+		if r == '\u200b' || r == '\ufeff' {
+			return -1
+		}
+		return r
+	}, sub.b.String())
+	return strings.Join(strings.Fields(text), " ")
+}
+
 func (w *writer) block() {
 	w.trimTrailingSpace()
 	if w.b.Len() > 0 && !strings.HasSuffix(w.b.String(), "\n\n") {
