@@ -1,0 +1,71 @@
+Name:             web-7d9f8c6b5-a3a30
+Namespace:        shop
+Priority:         0
+Service Account:  default
+Node:             node-1/10.0.1.19
+Start Time:       Thu, 09 Oct 2026 08:00:00 +0000
+Labels:           app=web
+                  pod-template-hash=7d9f8c6b5
+Annotations:      <none>
+Status:           Running
+IP:               10.244.9.17
+IPs:
+  IP:           10.244.9.17
+Controlled By:  ReplicaSet/web-7d9f8c6b5
+Containers:
+  web:
+    Container ID:   containerd://3ee2a5e369e7174c9e45601e664bd3592b69de57cff4ffa4832c938e6dfe8523
+    Image:          ghcr.io/example/shop-web:1.4.2
+    Image ID:       ghcr.io/example/shop-web@sha256:1b59a5cd01a9d78fc052cf8cc57fe94c73870ef3496465f24f0ee2b2c7307bfe
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Fri, 10 Oct 2026 07:58:00 +0000
+      Finished:     Fri, 10 Oct 2026 07:58:03 +0000
+    Ready:          False
+    Restart Count:  7
+    Limits:
+      memory:  512Mi
+    Requests:
+      cpu:      100m
+      memory:   256Mi
+    Readiness:  http-get http://:8080/healthz delay=5s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      DATABASE_URL:  <set to the key 'url' in secret 'shop-db'>  Optional: false
+      LOG_LEVEL:     info
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-c3a5b (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-71430:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                  From               Message
+  ----     ------     ----                 ----               -------
+  Normal   Scheduled  25h                  default-scheduler  Successfully assigned shop/web-7d9f8c6b5-a3a30 to node-1
+  Normal   Pulled     25h                  kubelet            Container image "ghcr.io/example/shop-web:1.4.2" already present on machine
+  Normal   Created    25h                  kubelet            Created container web
+  Normal   Started    25h                  kubelet            Started container web
+  Normal   Pulled     12m (x5 over 20m)    kubelet            Container image "ghcr.io/example/shop-web:1.4.2" already present on machine
+  Normal   Created    12m (x5 over 20m)    kubelet            Created container web
+  Normal   Started    12m (x5 over 20m)    kubelet            Started container web
+  Warning  Unhealthy  12m (x9 over 20m)    kubelet            Readiness probe failed: Get "http://10.244.9.17:8080/healthz": dial tcp 10.244.9.17:8080: connect: connection refused
+  Warning  BackOff    2m (x41 over 19m)    kubelet            Back-off restarting failed container web in pod web-7d9f8c6b5-a3a30_shop(751a93c6-3c31-b68b-abc6-d0d7ce59c2b8)

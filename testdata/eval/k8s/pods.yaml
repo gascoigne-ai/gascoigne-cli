@@ -1,0 +1,4411 @@
+apiVersion: v1
+items:
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"2155a41c-1221-8804-d885-bea436c2a4c7"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-424e6
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 4b6ea010-07ac-6e7c-2054-af25d670a838
+      resourceVersion: '737955'
+      uid: ff7d5ec0-03b1-fe33-469d-258ed59a0625
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-4a6f1
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-1
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-4a6f1
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:a6ea1c0d2f8b9e9de3d6e4b9d96e182dcd502d42af1ffe0de8d79f49af6d114c
+          containerID: containerd://2ff7c0fcbbe8f88da415c4c839a44721de85eb9025ac45a0aa8b230f3b05e392
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.10
+      phase: Running
+      podIP: 10.244.0.23
+      podIPs:
+        - ip: 10.244.0.225
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"e5f31bed-c147-8cb9-906b-6df8fb3e7196"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-cb4ac
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: abb4da1c-5d3c-e37d-6e08-5052a37e3728
+      resourceVersion: '787081'
+      uid: 1e0b4ee5-5892-d1d4-983c-a23fcc5aad8f
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-cf4b1
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-2
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-cf4b1
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:f306dc016fcfd73dbea7f23973790dfbd38cadcd432ff218ce5915e6e36b0753
+          containerID: containerd://7c9df9403be93fb8d9959a625b1196f741b79d35e08409f0cb348bfb23b6bd8f
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.11
+      phase: Running
+      podIP: 10.244.1.69
+      podIPs:
+        - ip: 10.244.1.178
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"5f013c82-759f-4302-9b01-655047b7097b"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-72c8d
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: e3a707d6-217a-93c3-7da8-3c468cce8914
+      resourceVersion: '692819'
+      uid: 3c556a25-e2f9-31c8-b398-218f5dcf019d
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-8de1c
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-3
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-8de1c
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:7182a8d0ba9c678aad442d8b70bcb8e32285c6affcb627afbf97e5209c76df52
+          containerID: containerd://40d90a1e5b33199985cf3a6b2dedf12233df56d44b1634e12d37de818935b826
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.12
+      phase: Running
+      podIP: 10.244.2.20
+      podIPs:
+        - ip: 10.244.2.112
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"a3992461-40f2-28e5-bbaf-bc7b69da8a2e"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-a6b72
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: de451397-4053-e2dd-c28c-59c0cd9cb03a
+      resourceVersion: '312922'
+      uid: b494a73d-da89-a168-5ff0-b76d8535dcf4
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-a10bc
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-1
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-a10bc
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:de14bff2eed7a24a6c9fee24b808a677008eef6a63c2a48f76b1fd3df4237526
+          containerID: containerd://71f33313d690b21cb2b8af9ace5c42997f7eb68924496fe339935c590b0fb71c
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.13
+      phase: Running
+      podIP: 10.244.3.170
+      podIPs:
+        - ip: 10.244.3.37
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"91e42acb-5761-2ea1-4b9a-2a1b316039ee"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-e6c4b
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: c9932458-af1c-8e27-1cbd-39bee68ee564
+      resourceVersion: '275456'
+      uid: 11b36a90-6ddc-a4be-9859-ce988e600acf
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-f8a75
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-2
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-f8a75
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:9e03793fdc8fe9e63632ffcd7f1071ecb903ce233cd73b439a7ef9e4b432d4f7
+          containerID: containerd://ba4a204d9541240e5bfe6fb309e4d1f4975a8550b3a8d61294b431de0ae56cc4
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.14
+      phase: Running
+      podIP: 10.244.4.141
+      podIPs:
+        - ip: 10.244.4.179
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"98e5f5af-b2f2-13d2-f03b-85a3784abebb"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-09f09
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 5ddfe744-da04-d5a2-0929-51d601769a3c
+      resourceVersion: '451013'
+      uid: 27b23ddc-7f1e-8f4c-f843-8445886367b8
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-f89a7
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-3
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-f89a7
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:2061499b00c2f09186ce51bd17b8b123a524bf3f57d2b7d3d34a8fb870890268
+          containerID: containerd://90a6957044d988fbe81fdd2d4d2f4ed06875944e1f1baf6a4f829b65ff7746e5
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.15
+      phase: Running
+      podIP: 10.244.5.213
+      podIPs:
+        - ip: 10.244.5.123
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"37157ac5-4230-6cc3-9687-5b063c5b3eee"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-3919f
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: c5dd85ca-3e87-9793-4990-342f6d8a1848
+      resourceVersion: '771827'
+      uid: 59cf4bb2-6ce8-09c1-5122-75ee65cb60bf
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-ab647
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-1
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-ab647
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:e91014a0b6d75e84805a391b604c8773082018facc7eb77d4beb197c350cc530
+          containerID: containerd://d95fd86ad2fe2e7eaf1dbf276ce4744e4220eca425784f4fbd060962283643b7
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.16
+      phase: Running
+      podIP: 10.244.6.24
+      podIPs:
+        - ip: 10.244.6.19
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"6f599e70-f399-2311-25fb-0d77dd12968b"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-c215e
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 1ca7bd1f-5e59-d2d1-2800-4ed637e0de00
+      resourceVersion: '418088'
+      uid: 9a6da5b1-636a-4a7a-088b-20d658fc0342
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-0bacf
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-2
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-0bacf
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:7312be6d30bff1924e6ee408c61b1fbfa7414f01010c6b51ebda5a4f998d1525
+          containerID: containerd://872ec08d4a18738a0fb13bbc5536b8d863c2504c8dfc2307fdd2cb407b116911
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.17
+      phase: Running
+      podIP: 10.244.7.27
+      podIPs:
+        - ip: 10.244.7.94
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"e31f9713-8b9f-bd5a-2029-0143e6ff96fd"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-7dabb
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: e5004ddd-3f84-e98f-de38-2655ae7c7ae4
+      resourceVersion: '194040'
+      uid: 7a9ac0a7-ee8f-5f24-1203-4399585022a3
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-711e6
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-3
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-711e6
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:88f931f459dde3310b27c3726f2bf862fd670591955235a4e05e8c5f95d215c8
+          containerID: containerd://e494f02a2aa8e42d529d62b60c96a183cdbd527df7b47b61211d78594ba49966
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.18
+      phase: Running
+      podIP: 10.244.8.207
+      podIPs:
+        - ip: 10.244.8.212
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"25cc1d24-27bb-cb2f-d2fc-f916b862b8be"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-a3a30
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 046a8415-2d77-90bc-1112-2b3c4b797600
+      resourceVersion: '829107'
+      uid: 79d99f50-f61a-31b0-aa86-7e77fe4bd6ad
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-2d5b6
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-1
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-2d5b6
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'False'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'False'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:8f64b9bcef6855edb3aa58e46b893320070202441d19df81b93ac7ee3d56ac8d
+          containerID: containerd://0aab4e37d43584656a1e5eb2092936eb7af0702b7727bd62341a4181dedbf20a
+          ready: false
+          restartCount: 7
+          started: false
+          state:
+            waiting:
+              reason: CrashLoopBackOff
+              message: back-off 5m0s restarting failed container=web pod=web-7d9f8c6b5-a3a30
+          lastState:
+            terminated:
+              exitCode: 1
+              reason: Error
+              startedAt: '2026-10-10T07:58:00Z'
+              finishedAt: '2026-10-10T07:58:03Z'
+              containerID: containerd://2601bc31f6b2ec9a86a45d2c7fda4620cd3c46c6bb1e7ce546ed37b233bfb0e8
+      hostIP: 10.0.1.19
+      phase: Running
+      podIP: 10.244.9.2
+      podIPs:
+        - ip: 10.244.9.156
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"29191a6f-9f44-faac-d54a-b74dac9c8903"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-5f67b
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: b36964f8-4a59-eb18-c312-1c020a710087
+      resourceVersion: '199269'
+      uid: 4ef73c23-67df-ff03-633f-63dd78a268ff
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-0d557
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-2
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-0d557
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:b754c094862c71271b6e777903fd3b8cba1864982ac29be007c8adbbee84a991
+          containerID: containerd://6ca2239ea09c74e3cf1ec7ba5569dab7ffe797d4174759c0ddc89919457288a2
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.20
+      phase: Running
+      podIP: 10.244.10.70
+      podIPs:
+        - ip: 10.244.10.40
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"da80ddef-5ffe-6a88-2815-d603fe454634"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-c8ea6
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: c30802d0-cd09-7bea-68c0-27b242ee9aa1
+      resourceVersion: '583470'
+      uid: 94054dee-e6ec-f541-8964-31a37691cb91
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-26456
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-3
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-26456
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:46b88c5e424f6311883ead0f077de52b86bddb7c00f0a5724d0957fb733f59ad
+          containerID: containerd://f3d107a2d99f72ddf43856933f4f2878fe0022c2efeffc4f39f303d954fad640
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.21
+      phase: Running
+      podIP: 10.244.11.198
+      podIPs:
+        - ip: 10.244.11.98
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"14a69560-e29b-e753-7f37-85799238c6a1"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-b6cf3
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: b9848002-d5a3-0e2e-36dc-becfb495548a
+      resourceVersion: '780566'
+      uid: b0f94bb3-6dae-06ea-f596-05a388193416
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-79e1f
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-1
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-79e1f
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:d23c56467b60049c08c0d133e7dd092492abf1fb077041bb30d2ec9fd4d686ce
+          containerID: containerd://4ea98bad220746cc96c030420168ef241a5632e0201222832dc04d358033ada7
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.22
+      phase: Running
+      podIP: 10.244.12.200
+      podIPs:
+        - ip: 10.244.12.222
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"180c5db5-3e61-50fa-87c5-027481060d35"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-ae5fd
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 9241b7ed-730b-e45a-c280-5705e8334ba1
+      resourceVersion: '784666'
+      uid: 386ef954-9bae-0d02-864d-fe18b35a8de7
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-24b6b
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-2
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-24b6b
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:802ccf7dbb62bd1c0db79902a67ce511275bbf809e931932d6f8e8484c53f466
+          containerID: containerd://9ba8d5510581ee7a7c8a0ac739c88ec041e5a5dec03750baed04c6666d8ed9a5
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.23
+      phase: Running
+      podIP: 10.244.13.111
+      podIPs:
+        - ip: 10.244.13.62
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"aaccb15c-4893-9738-17c5-b67d41d7b79c"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-ea002
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 222eece1-2017-b9e8-2dad-1abf98b5e570
+      resourceVersion: '159200'
+      uid: 8bf8cbc2-a446-2446-9c2c-82f5bc3f67cc
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-8290f
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-3
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-8290f
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:777eff8cee8eb1b125fb16b4ea068ba05e75bd5b19b3426d0341ea23bd94509c
+          containerID: containerd://3a028d23b888d0205843990bae6d4bca22210d76d4cfc3c15a3b0fe3d1262cc8
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.24
+      phase: Running
+      podIP: 10.244.14.8
+      podIPs:
+        - ip: 10.244.14.200
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"47cd73ed-5697-612a-ac1c-e9a31fe4ed6b"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-76427
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 34a71692-af02-53cd-6013-13e59477f5ca
+      resourceVersion: '902942'
+      uid: 7a76c589-ee82-6a0f-4cd6-ed97d065af78
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-e0577
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-1
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-e0577
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:9268004fce0c15287fcfcdac9230a15ad091714293fbe97f61901e605b36d6af
+          containerID: containerd://f3d05e5986fab07e71c7bd69dbef2191eed9797d1141033569f35da38364a709
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.25
+      phase: Running
+      podIP: 10.244.15.202
+      podIPs:
+        - ip: 10.244.15.8
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"4cc60823-d713-f7df-87ea-6e73352ea759"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-fc753
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: eef8b474-8fbf-4b6a-02e3-a102342eedfe
+      resourceVersion: '193437'
+      uid: bfe7b406-1ce5-a7f4-20eb-1121f4b5f9d5
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-b68c8
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-2
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-b68c8
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:0f99d8bcbfed6be0e4fa4f2a906e69a47b40d4cb6917397263b8bc3e729d8fd2
+          containerID: containerd://fd834c405319ccf1884a2af82552fbf900d37833372a6a14401b99a21475d76c
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.26
+      phase: Running
+      podIP: 10.244.16.143
+      podIPs:
+        - ip: 10.244.16.100
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"736f04b7-ad62-cde8-fee4-24875414221c"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-b7978
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 72b84be7-a0fc-99a8-a2e4-2ce4c46f2c95
+      resourceVersion: '246656'
+      uid: d6d5dbd7-3d8d-9455-85f9-c984f012dcec
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-3fa3c
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-3
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-3fa3c
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'False'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'False'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:10d4ece6985c5900b879b1ab1088ffc11dcebaefc7d84fb877b73ab311626327
+          containerID: containerd://0e7c4b32ea2c086b902c6f3731277d932df5e784b27d832c86e8a2a5633f786d
+          ready: false
+          restartCount: 0
+          started: false
+          state:
+            waiting:
+              reason: ImagePullBackOff
+              message: back-off 5m0s restarting failed container=web pod=web-7d9f8c6b5-b7978
+          lastState:
+            terminated:
+              exitCode: 1
+              reason: Error
+              startedAt: '2026-10-10T07:58:00Z'
+              finishedAt: '2026-10-10T07:58:03Z'
+              containerID: containerd://e365476bffc086c3b8301c12349436e49ff8915e61bfac3507071f96bb65c1e7
+      hostIP: 10.0.1.27
+      phase: Pending
+      podIP: 10.244.17.181
+      podIPs:
+        - ip: 10.244.17.184
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"47b9c18a-be43-b733-3637-d6de18d2e698"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-2c9aa
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: a6e915bf-15a0-2922-0c0a-1e90db8bf020
+      resourceVersion: '889123'
+      uid: 41200102-2649-cee6-ff31-9fe2383a1447
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-176e7
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-1
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-176e7
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:432170383ea485f24c24c5a16befa1434e0aa5616d2db9e3c6803238b4c2b198
+          containerID: containerd://486dd1b6e820ba0f6aede4768dd19d7fb71f244e943635c8ce56ee274814dc4a
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.28
+      phase: Running
+      podIP: 10.244.18.80
+      podIPs:
+        - ip: 10.244.18.27
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"5d1139a4-1ff9-0085-b666-7d6ee30aa425"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-1a6bc
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 16973aec-b244-19e3-c4f6-db0bcc406a65
+      resourceVersion: '958168'
+      uid: 44d22a4f-7290-03eb-6be0-23a3eb9a5398
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-7e379
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-2
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-7e379
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:8b89800093547e48e52fb081b45293190bc0983a1ab5ffe4994902ca710733fe
+          containerID: containerd://d756c0f054e968577a67fccc3bbc81ce7a44c8adb5bb3b242306bcc46b8bae5d
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.29
+      phase: Running
+      podIP: 10.244.19.182
+      podIPs:
+        - ip: 10.244.19.2
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"25e0d4e3-bdfb-28f2-903d-a1452b59f450"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-a1d02
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 6d64e7ad-f17d-0e83-cc73-996bf4f31a2b
+      resourceVersion: '553246'
+      uid: c516a51a-1f89-7de7-6906-35568d394c62
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-853ed
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-3
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-853ed
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:04ef06236fb0f1c0e7d8fb296db6f3d626a9d986590c01c43e6a210f23e96221
+          containerID: containerd://1b607a8d3161b010bf29d2bc59569429c066972b5415a0435cbfc8365b5ce106
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.30
+      phase: Running
+      podIP: 10.244.20.211
+      podIPs:
+        - ip: 10.244.20.41
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"d581c03a-f4ee-9817-c046-0c998ef141a3"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-9e93f
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: c8738f37-761b-70c2-1a5b-da368951d398
+      resourceVersion: '886773'
+      uid: 832cbaff-b8f6-73cc-be5f-e412249808d0
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-f3263
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-1
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-f3263
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:e969fb6e5716517b64ce86c8ca27330265ea48fe0538236cccb7d4bf6060f3b3
+          containerID: containerd://2b217fb366a4e1f83e0ad8758e2b5c7e14942fc9499c01506673663c6dd54cb4
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.31
+      phase: Running
+      podIP: 10.244.21.201
+      podIPs:
+        - ip: 10.244.21.144
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"e88130ba-757e-6678-d92f-28ea9da9065d"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-0b1be
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: 709721e5-c566-34be-6e66-914ac10a4086
+      resourceVersion: '512376'
+      uid: 0e945e97-6409-6721-38c4-a98ccd852ea4
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-8e1fb
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-2
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-8e1fb
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:7fb1ac680b72bb916f3b6fa6f8dd08983dbf4fd806e1dd67303ca1d0b903f111
+          containerID: containerd://bd7a505430d05c52598183ddc6592aad0ae955576cb1be29e6372f4745def5bf
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.32
+      phase: Running
+      podIP: 10.244.22.190
+      podIPs:
+        - ip: 10.244.22.50
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      managedFields:
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:generateName: {}
+              f:labels:
+                .: {}
+                f:app: {}
+                f:pod-template-hash: {}
+              f:ownerReferences:
+                .: {}
+                k:{"uid":"21d37d2e-dd93-f585-740e-7e081606f8cc"}: {}
+            f:spec:
+              f:containers:
+                k:{"name":"web"}:
+                  .: {}
+                  f:env: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports: {}
+                  f:readinessProbe: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:enableServiceLinks: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+          manager: kube-controller-manager
+          operation: Update
+          time: '2026-10-09T08:00:00Z'
+        - apiVersion: v1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:status:
+              f:conditions: {}
+              f:containerStatuses: {}
+              f:hostIP: {}
+              f:phase: {}
+              f:podIP: {}
+              f:podIPs: {}
+              f:startTime: {}
+          manager: kubelet
+          operation: Update
+          subresource: status
+          time: '2026-10-09T08:01:00Z'
+      name: web-7d9f8c6b5-9061f
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          blockOwnerDeletion: true
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+          uid: f81a1ebb-7d57-963a-a0fa-14d5729f32f4
+      resourceVersion: '660672'
+      uid: 8324c234-b081-8228-0368-b5ff0f568068
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: kube-api-access-e10e4
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      nodeName: node-3
+      preemptionPolicy: PreemptLowerPriority
+      priority: 0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - effect: NoExecute
+          key: node.kubernetes.io/not-ready
+          operator: Exists
+          tolerationSeconds: 300
+        - effect: NoExecute
+          key: node.kubernetes.io/unreachable
+          operator: Exists
+          tolerationSeconds: 300
+      volumes:
+        - name: kube-api-access-e10e4
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+                  name: kube-root-ca.crt
+              - downwardAPI:
+                  items:
+                    - fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+                      path: namespace
+    status:
+      conditions:
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastProbeTime: null
+          lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          imageID: ghcr.io/example/shop-web@sha256:86529299724467bb0440ea57b2fe4fc2097ceae809fc3d743461d5b76c456bfc
+          containerID: containerd://81294a71dfe4c7a5ea7bd40266eef9f864a2f1ae9ca99acfaf698a52b95bf2e9
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+          lastState: {}
+      hostIP: 10.0.1.33
+      phase: Running
+      podIP: 10.244.23.206
+      podIPs:
+        - ip: 10.244.23.127
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+kind: List
+metadata:
+  resourceVersion: ''

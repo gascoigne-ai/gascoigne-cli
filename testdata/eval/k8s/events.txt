@@ -1,0 +1,51 @@
+LAST SEEN   TYPE      REASON              OBJECT                    MESSAGE
+12m         Normal    Created             pod/api-b0535af83-c53cc   Started container api
+14m         Normal    SuccessfulCreate    pod/api-9468f2692-89b83   Scaled up replica set api-x to 3
+39m         Normal    Scheduled           pod/api-ca98419e6-eba90   Created pod: api-x
+9m          Normal    Started             pod/api-35481f84f-fbc51   Started container api
+2m          Normal    ScalingReplicaSet   pod/api-46655265c-19b1b   Container image already present on machine
+3m          Normal    Created             pod/api-0712cc6ba-12137   Successfully assigned shop/api to node-2
+8m          Normal    Created             pod/api-915bc501a-c3d5e   Scaled up replica set api-x to 3
+50m         Normal    Pulled              pod/api-9bf0e8eae-7c693   Created pod: api-x
+30m         Normal    SuccessfulCreate    pod/api-0b6f0710a-77708   Created pod: api-x
+46m         Normal    Scheduled           pod/api-9f53eaf88-56fe4   Created pod: api-x
+48m         Normal    Created             pod/api-e14574782-680fe   Started container api
+55m         Normal    Scheduled           pod/api-39867797c-f3516   Created container api
+10m         Warning   BackOff             pod/web-7d9f8c6b5-92e7d   Back-off restarting failed container web
+5m          Normal    Started             pod/api-4954af6cb-afe43   Started container api
+19m         Normal    ScalingReplicaSet   pod/api-acfe2ea9b-6ad91   Container image already present on machine
+32m         Normal    Pulled              pod/api-91a7a68ac-89475   Started container api
+20m         Normal    Scheduled           pod/api-413e55585-73816   Container image already present on machine
+31m         Normal    Scheduled           pod/api-0aee31121-6d2c3   Created pod: api-x
+5m          Normal    Started             pod/api-49cb61c9e-35caa   Scaled up replica set api-x to 3
+8m          Normal    SuccessfulCreate    pod/api-b9df6932d-acf55   Created container api
+1m          Normal    Created             pod/api-7f23565f1-054e6   Scaled up replica set api-x to 3
+11m         Normal    SuccessfulCreate    pod/api-05427629e-cc20a   Created container api
+48m         Normal    ScalingReplicaSet   pod/api-6cea92bbd-0039f   Started container api
+9m          Normal    ScalingReplicaSet   pod/api-6f5fc4414-0cda5   Created container api
+10m         Normal    Pulled              pod/api-5c03d02bf-c50f8   Scaled up replica set api-x to 3
+25m         Normal    Pulled              pod/api-d4c9d855d-b91b4   Created pod: api-x
+31m         Normal    Pulled              pod/api-105e2c3a9-507b5   Container image already present on machine
+4m          Normal    Pulled              pod/api-43840bf9f-5b38b   Created pod: api-x
+54m         Normal    Started             pod/api-8d7780e67-a1846   Created container api
+1m          Normal    Scheduled           pod/api-ebcf0f5e1-30c2e   Created container api
+59m         Warning   BackOff             pod/web-7d9f8c6b5-8cd81   0/3 nodes are available: 3 Insufficient memory.
+47m         Normal    Pulled              pod/api-12368cfbb-6aae3   Started container api
+29m         Normal    Created             pod/api-85086600a-416d5   Successfully assigned shop/api to node-2
+45m         Normal    Started             pod/api-a489169e8-3a39a   Started container api
+8m          Normal    Started             pod/api-3e4cc6294-1af9c   Successfully assigned shop/api to node-2
+14m         Normal    Scheduled           pod/api-3556dbd37-2b3de   Scaled up replica set api-x to 3
+6m          Normal    ScalingReplicaSet   pod/api-658a3c280-3f740   Container image already present on machine
+38m         Normal    SuccessfulCreate    pod/api-151af2113-1438b   Scaled up replica set api-x to 3
+21m         Normal    Started             pod/api-b77943027-6bf30   Started container api
+26m         Normal    Scheduled           pod/api-95dd8fdb5-69dc1   Created pod: api-x
+12m         Normal    Created             pod/api-c4bd4265c-b0c95   Started container api
+31m         Warning   FailedScheduling    pod/web-7d9f8c6b5-1167c   0/3 nodes are available: 3 Insufficient memory.
+10m         Normal    Scheduled           pod/api-a5a65cc06-d47d7   Scaled up replica set api-x to 3
+40m         Normal    Scheduled           pod/api-5a01fddb7-5b0cd   Started container api
+38m         Normal    Started             pod/api-8beeee559-631b2   Container image already present on machine
+7m          Normal    ScalingReplicaSet   pod/api-f36af93dc-e73ee   Scaled up replica set api-x to 3
+26m         Normal    ScalingReplicaSet   pod/api-8dc4800c7-1a91b   Created pod: api-x
+46m         Normal    Pulled              pod/api-a1fd55b00-d9122   Scaled up replica set api-x to 3
+26m         Normal    Started             pod/api-a7d3aee56-851f5   Container image already present on machine
+26m         Normal    SuccessfulCreate    pod/api-d127e0d8b-453a3   Started container api

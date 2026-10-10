@@ -1,0 +1,29 @@
+NAME: shop
+LAST DEPLOYED: Fri Oct 10 07:55:12 2026
+NAMESPACE: shop
+STATUS: failed
+REVISION: 12
+TEST SUITE: None
+NOTES:
+  1. Get the application URL by running these commands:
+    export POD_NAME=$(kubectl get pods --namespace shop -l "app.kubernetes.io/name=shop" -o jsonpath="{.items[0].metadata.name}")
+    export CONTAINER_PORT=$(kubectl get pod --namespace shop $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+    echo "Visit http://127.0.0.1:8080 to use your application"
+    kubectl --namespace shop port-forward $POD_NAME 8080:$CONTAINER_PORT
+  
+  2. Database migrations run as a pre-upgrade hook. Check them with:
+    kubectl logs -n shop job/shop-migrate
+  
+  3. To scale workers:
+    helm upgrade shop ./chart --set worker.replicas=5
+  
+  4. Monitoring dashboards are available at:
+    https://grafana.example.com/d/shop
+  
+  5. Troubleshooting:
+    - Check pod status: kubectl get pods -n shop
+    - Check events: kubectl get events -n shop --sort-by=.lastTimestamp
+    - Check logs: kubectl logs -n shop deploy/web
+  
+  6. Upgrading notes:
+    Version 2.x renamed values: web.image -> image.web, worker.image -> image.worker

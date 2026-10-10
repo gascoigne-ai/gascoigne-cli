@@ -210,6 +210,23 @@
 - { name: detect/mongosh, file: db/mongosh-find.txt, expect_type: db/mongosh }
 - { name: detect/alembic, file: db/alembic-upgrade.txt, expect_type: db/migrate }
 
+# --- k8s family
+- { file: k8s/pods.yaml, attrs: { cmd: kubectl get pods -n shop -o yaml }, expect_type: k8s/manifest,
+    keep: ["CrashLoopBackOff", "ImagePullBackOff", "restartCount: 7", "DATABASE_URL", "items omitted"], min_saved: 70 }
+- { file: k8s/deploy.json, attrs: { cmd: kubectl get deploy web -o json }, expect_type: k8s/manifest,
+    keep: ["MinimumReplicasUnavailable", "unavailableReplicas: 1", "image: ghcr.io/example/shop-web:1.4.2", "maxSurge: 25%"], min_saved: 75 }
+- { file: k8s/get-pods.txt, attrs: { cmd: kubectl get pods -n shop }, expect_type: k8s/get, keep: ["CrashLoopBackOff", "ImagePullBackOff", "0/1"], min_saved: 30 }
+- { file: k8s/describe-pod.txt, attrs: { cmd: kubectl describe pod -n shop web-7d9f8c6b5 }, expect_type: k8s/describe,
+    keep: ["Reason:       CrashLoopBackOff", "Exit Code:    1", "Readiness probe failed", "Back-off restarting failed container", "Restart Count:  7"], min_saved: 25 }
+- { file: k8s/events.txt, attrs: { cmd: kubectl get events -n shop }, expect_type: k8s/events, keep: ["warnings:", "Insufficient memory", "BackOff"], min_saved: 45 }
+- { file: k8s/helm-status.txt, attrs: { cmd: helm status shop }, expect_type: k8s/helm, keep: ["STATUS: failed", "REVISION: 12", "notes lines omitted"], min_saved: 30 }
+- { name: detect/k8s-yaml, file: k8s/pods.yaml, expect_type: k8s/manifest }
+- { name: detect/k8s-json, file: k8s/deploy.json, expect_type: k8s/manifest }
+- { name: detect/k8s-get, file: k8s/get-pods.txt, expect_type: k8s/get }
+- { name: detect/k8s-describe, file: k8s/describe-pod.txt, expect_type: k8s/describe }
+- { name: detect/k8s-events, file: k8s/events.txt, expect_type: k8s/events }
+- { name: detect/helm, file: k8s/helm-status.txt, expect_type: k8s/helm }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }

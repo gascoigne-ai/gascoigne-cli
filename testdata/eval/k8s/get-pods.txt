@@ -1,0 +1,25 @@
+NAME                  READY   STATUS             RESTARTS     AGE
+web-7d9f8c6b5-424e6   1/1     Running            0            25h
+web-7d9f8c6b5-cb4ac   1/1     Running            0            25h
+web-7d9f8c6b5-72c8d   1/1     Running            0            25h
+web-7d9f8c6b5-a6b72   1/1     Running            0            25h
+web-7d9f8c6b5-e6c4b   1/1     Running            0            25h
+web-7d9f8c6b5-09f09   1/1     Running            0            25h
+web-7d9f8c6b5-3919f   1/1     Running            0            25h
+web-7d9f8c6b5-c215e   1/1     Running            0            25h
+web-7d9f8c6b5-7dabb   1/1     Running            0            25h
+web-7d9f8c6b5-a3a30   0/1     CrashLoopBackOff   7 (2m ago)   25h
+web-7d9f8c6b5-5f67b   1/1     Running            0            25h
+web-7d9f8c6b5-c8ea6   1/1     Running            0            25h
+web-7d9f8c6b5-b6cf3   1/1     Running            0            25h
+web-7d9f8c6b5-ae5fd   1/1     Running            0            25h
+web-7d9f8c6b5-ea002   1/1     Running            0            25h
+web-7d9f8c6b5-76427   1/1     Running            0            25h
+web-7d9f8c6b5-fc753   1/1     Running            0            25h
+web-7d9f8c6b5-b7978   0/1     ImagePullBackOff   0            25h
+web-7d9f8c6b5-2c9aa   1/1     Running            0            25h
+web-7d9f8c6b5-1a6bc   1/1     Running            0            25h
+web-7d9f8c6b5-a1d02   1/1     Running            0            25h
+web-7d9f8c6b5-9e93f   1/1     Running            0            25h
+web-7d9f8c6b5-0b1be   1/1     Running            0            25h
+web-7d9f8c6b5-9061f   1/1     Running            0            25h

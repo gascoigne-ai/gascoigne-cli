@@ -18,7 +18,7 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [task, test, build, git, grep, ls, json, log, cat, pkg, table, db, html]
+  default: [task, test, build, git, grep, ls, json, log, cat, pkg, table, db, k8s, html]
 
 optimizers:
   test: {}
@@ -48,6 +48,7 @@ optimizers:
   pkg: {}
   table: { max_rows: 30, max_cell: 60 }
   db: { max_rows: 30, max_cell: 80, plan_min_share: 0.02 }
+  k8s: { max_items: 15, max_rows: 30, max_cell: 60, notes_lines: 8 }
   task: {}
   html: { links: true }
 

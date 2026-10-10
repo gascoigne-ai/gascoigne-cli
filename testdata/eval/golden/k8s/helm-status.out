@@ -1,0 +1,16 @@
+NAME: shop
+LAST DEPLOYED: Fri Oct 10 07:55:12 2026
+NAMESPACE: shop
+STATUS: failed
+REVISION: 12
+TEST SUITE: None
+NOTES:
+  1. Get the application URL by running these commands:
+    export POD_NAME=$(kubectl get pods --namespace shop -l "app.kubernetes.io/name=shop" -o jsonpath="{.items[0].metadata.name}")
+    export CONTAINER_PORT=$(kubectl get pod --namespace shop $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+    echo "Visit http://127.0.0.1:8080 to use your application"
+    kubectl --namespace shop port-forward $POD_NAME 8080:$CONTAINER_PORT
+
+  2. Database migrations run as a pre-upgrade hook. Check them with:
+    kubectl logs -n shop job/shop-migrate
+… 14 notes lines omitted
