@@ -21,7 +21,7 @@ const (
 func init() {
 	register(
 		Spec{Type: GoBuild, Cmds: []string{"go build", "go vet", "go install", "staticcheck"}, Priority: 51,
-			Sniff: anyLine(`^# [\w./-]+$|^\S+\.go:\d+:\d+: `)},
+			Sniff: anyLine(`^# [a-z][\w./-]*$|^\S+\.go:\d+:\d+: `)}, // package paths are lowercase, headings rarely
 		Spec{Type: TSC, Cmds: []string{"tsc", "vue-tsc"}, Priority: 52,
 			Sniff: anyLine(`\.tsx?\(\d+,\d+\): error TS\d+|\.tsx?:\d+:\d+ - error TS\d+`)},
 		Spec{Type: ESLint, Cmds: []string{"eslint", "next lint"}, Priority: 52,

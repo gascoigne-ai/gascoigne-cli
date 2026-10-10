@@ -1,0 +1,178 @@
+Usage: ls [OPTION]... [FILE]...
+List information about the FILEs (the current directory by default).
+Sort entries alphabetically if none of -cftuvSUX nor --sort is specified.
+
+Mandatory arguments to long options are mandatory for short options too.
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-a\[1m-a, --all[0m]8;;\
+         do not ignore entries starting with .
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-A\[1m-A, --almost-all[0m]8;;\
+         do not list implied . and ..
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--author\[1m--author[0m]8;;\
+         with -l, print the author of each file
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-b\[1m-b, --escape[0m]8;;\
+         print C-style escapes for nongraphic characters
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--block-size\[1m--block-size=SIZE[0m]8;;\
+         with -l, scale sizes by SIZE when printing them;
+         e.g., '--block-size=M'; see SIZE format below
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-B\[1m-B, --ignore-backups[0m]8;;\
+         do not list implied entries ending with ~
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-c\[1m-c[0m]8;;\
+         with -lt: sort by, and show, ctime
+           (time of last change of file status information);
+         with -l: show ctime and sort by name;
+         otherwise: sort by ctime, newest first
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-C\[1m-C[0m]8;;\
+         list entries by columns
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--color\[1m--color[=WHEN][0m]8;;\
+         color the output WHEN; more info below
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-d\[1m-d, --directory[0m]8;;\
+         list directories themselves, not their contents
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-D\[1m-D, --dired[0m]8;;\
+         generate output designed for Emacs' dired mode
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-f\[1m-f[0m]8;;\
+         same as -a -U
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-F\[1m-F, --classify[=WHEN][0m]8;;\
+         append indicator (one of */=>@|) to entries WHEN
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--file-type\[1m--file-type[0m]8;;\
+         like -F, except do not append '*'
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--format\[1m--format=WORD[0m]8;;\
+         across,horizontal (-x), commas (-m), long (-l),
+         single-column (-1), verbose (-l), vertical (-C)
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--full-time\[1m--full-time[0m]8;;\
+         like -l --time-style=full-iso
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-g\[1m-g[0m]8;;\
+         like -l, but do not list owner
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--group-directories-first\[1m--group-directories-first[0m]8;;\
+         group directories before files
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-G\[1m-G, --no-group[0m]8;;\
+         in a long listing, don't print group names
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-h\[1m-h, --human-readable[0m]8;;\
+         with -l and -s, print sizes like 1K 234M 2G etc.
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--si\[1m--si[0m]8;;\
+         likewise, but use powers of 1000 not 1024
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-H\[1m-H, --dereference-command-line[0m]8;;\
+         follow symbolic links listed on the command line
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--dereference-command-line-symlink-to-dir\[1m--dereference-command-line-symlink-to-dir[0m]8;;\
+         follow each command line symbolic link that points to a directory
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--hide\[1m--hide=PATTERN[0m]8;;\
+         do not list implied entries matching shell PATTERN
+         (overridden by -a or -A)
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--hyperlink\[1m--hyperlink[=WHEN][0m]8;;\
+         hyperlink file names WHEN
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--indicator-style\[1m--indicator-style=WORD[0m]8;;\
+         append indicator with style WORD to entry names:
+           none (default), slash (-p), file-type (--file-type), classify (-F)
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-i\[1m-i, --inode[0m]8;;\
+         print the index number of each file
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-I\[1m-I, --ignore=PATTERN[0m]8;;\
+         do not list implied entries matching shell PATTERN
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-k\[1m-k, --kibibytes[0m]8;;\
+         default to 1024-byte blocks for file system usage;
+         used only with -s and per directory totals
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-l\[1m-l[0m]8;;\
+         use a long listing format
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-L\[1m-L, --dereference[0m]8;;\
+         when showing file information for a symbolic link,
+         show information for the file the link references
+         rather than for the link itself
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-m\[1m-m[0m]8;;\
+         fill width with a comma separated list of entries
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-n\[1m-n, --numeric-uid-gid[0m]8;;\
+         like -l, but list numeric user and group IDs
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-N\[1m-N, --literal[0m]8;;\
+         print entry names without quoting
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-o\[1m-o[0m]8;;\
+         like -l, but do not list group information
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-p\[1m-p, --indicator-style=slash[0m]8;;\
+         append / indicator to directories
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-q\[1m-q, --hide-control-chars[0m]8;;\
+         print ? instead of nongraphic characters
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--show-control-chars\[1m--show-control-chars[0m]8;;\
+         show nongraphic characters as-is;
+         the default, unless program is 'ls' and output is a terminal
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-Q\[1m-Q, --quote-name[0m]8;;\
+         enclose entry names in double quotes
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--quoting-style\[1m--quoting-style=WORD[0m]8;;\
+         use quoting style WORD for entry names:
+           literal, locale, shell, shell-always,
+           shell-escape, shell-escape-always, c, escape
+         (overrides QUOTING_STYLE environment variable)
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-r\[1m-r, --reverse[0m]8;;\
+         reverse order while sorting
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-R\[1m-R, --recursive[0m]8;;\
+         list subdirectories recursively
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-s\[1m-s, --size[0m]8;;\
+         print the allocated size of each file, in blocks
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-S\[1m-S[0m]8;;\
+         sort by file size, largest first
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--sort\[1m--sort=WORD[0m]8;;\
+         change default 'name' sort to WORD:
+           none (-U), size (-S), time (-t),
+           version (-v), extension (-X), name, width
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--time\[1m--time=WORD[0m]8;;\
+         select which timestamp used to display or sort;
+           access time (-u): atime, access, use;
+           metadata change time (-c): ctime, status;
+           modified time (default): mtime, modification;
+           birth time: birth, creation;
+         with -l, WORD determines which time to show;
+         with --sort=time, sort by WORD (newest first)
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--time-style\[1m--time-style=TIME_STYLE[0m]8;;\
+         time/date format with -l; see TIME_STYLE below
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-t\[1m-t[0m]8;;\
+         sort by time, newest first; see --time
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-T\[1m-T, --tabsize=COLS[0m]8;;\
+         assume tab stops at each COLS instead of 8
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-u\[1m-u[0m]8;;\
+         with -lt: sort by, and show, access time;
+         with -l: show access time and sort by name;
+         otherwise: sort by access time, newest first
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-U\[1m-U[0m]8;;\
+         do not sort directory entries
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-v\[1m-v[0m]8;;\
+         natural sort of (version) numbers within text
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-w\[1m-w, --width=COLS[0m]8;;\
+         set output width to COLS.  0 means no limit
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-x\[1m-x[0m]8;;\
+         list entries by lines instead of by columns
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-X\[1m-X[0m]8;;\
+         sort alphabetically by entry extension
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-Z\[1m-Z, --context[0m]8;;\
+         print any security context of each file
+      ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls--zero\[1m--zero[0m]8;;\
+         end each output line with NUL, not newline
+  ]8;;https://www.gnu.org/software/coreutils/manual/coreutils.html#ls-1\[1m-1[0m]8;;\
+         list one file per line
+      ]8;;https://www.gnu.org/software/coreutils/ls#ls--help\[1m--help[0m]8;;\
+         display this help and exit
+      ]8;;https://www.gnu.org/software/coreutils/ls#ls--version\[1m--version[0m]8;;\
+         output version information and exit
+
+The SIZE argument is an integer and optional unit (example: 10K is 10*1024).
+Units are K,M,G,T,P,E,Z,Y,R,Q (powers of 1024) or KB,MB,... (powers of 1000).
+Binary prefixes can be used, too: KiB=K, MiB=M, and so on.
+
+The TIME_STYLE argument can be full-iso, long-iso, iso, locale, or +FORMAT.
+FORMAT is interpreted like in date(1).  If FORMAT is FORMAT1<newline>FORMAT2,
+then FORMAT1 applies to non-recent files and FORMAT2 to recent files.
+TIME_STYLE prefixed with 'posix-' takes effect only outside the POSIX locale.
+Also the TIME_STYLE environment variable sets the default style to use.
+
+The WHEN argument defaults to 'always' and can also be 'auto' or 'never'.
+
+Using color to distinguish file types is disabled both by default and
+with --color=never.  With --color=auto, ls emits color codes only when
+standard output is connected to a terminal.  The LS_COLORS environment
+variable can change the settings.  Use the dircolors(1) command to set it.
+
+Exit status:
+ 0  if OK,
+ 1  if minor problems (e.g., cannot access subdirectory),
+ 2  if serious trouble (e.g., cannot access command-line argument).
+
+Report bugs to: bug-coreutils@gnu.org
+GNU coreutils home page: <https://www.gnu.org/software/coreutils/>
+General help using GNU software: <https://www.gnu.org/gethelp/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/ls>
+or available locally via: info '(coreutils) ls invocation'

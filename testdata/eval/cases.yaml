@@ -267,6 +267,22 @@
 - { name: detect/cdk, file: infra/cdk-deploy.txt, expect_type: infra/cdk }
 - { name: detect/helm-diff, file: infra/helm-diff.txt, expect_type: infra/helm-diff }
 
+# --- doc family
+- { file: doc/go-sqlite3-README.md, attrs: { cmd: cat README.md }, expect_type: doc/markdown,
+    keep: ["# Installation", "go get github.com/mattn/go-sqlite3", "_loc=auto", "table of contents entries omitted"], min_saved: 10 }
+- { file: doc/man-ls.txt, attrs: { cmd: man ls }, expect_type: doc/man,
+    keep: ["SYNOPSIS", "-a, --all", "--sort=WORD", "Exit status:"], min_saved: 10 }
+- { file: doc/curl-help.txt, attrs: { cmd: curl --help all }, expect_type: doc/help,
+    keep: ["--retry <num>", "-X, --request <method>"], min_saved: 2 }
+- { file: doc/ls-help.txt, attrs: { cmd: ls --help }, expect_type: doc/help,
+    keep: ["use a long listing format", "Exit status:"], min_saved: 40 }
+- { file: doc/ngtcp2-README.rst, attrs: { file: README.rst }, expect_type: doc/rst,
+    keep: ["Requirements", "RFC9000"] }
+- { name: detect/markdown, file: doc/go-sqlite3-README.md, expect_type: doc/markdown }
+- { name: detect/man, file: doc/man-ls.txt, expect_type: doc/man }
+- { name: detect/help, file: doc/ls-help.txt, expect_type: doc/help }
+- { name: detect/rst, file: doc/ngtcp2-README.rst, expect_type: doc/rst }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }

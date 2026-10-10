@@ -15,6 +15,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/data/jsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/logoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/db/dboptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/doc/docoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/catoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/lsoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/infra/infraoptimizer"
@@ -62,6 +63,7 @@ func Factories() []component.Factory {
 		infraoptimizer.NewFactory(),
 		taskoptimizer.NewFactory(),
 		htmloptimizer.NewFactory(),
+		docoptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),
 		// extensions
