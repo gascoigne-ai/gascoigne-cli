@@ -43,6 +43,7 @@ type raw struct {
 	Created int64  `gorm:"not null;index"`
 	Key     string `gorm:"not null"`
 	Payload []byte `gorm:"not null"` // JSON encoded payload.Payload
+	Output  []byte // gzip optimized text of the latest run with this original, for comparison
 }
 
 func (raw) TableName() string { return "raw" }

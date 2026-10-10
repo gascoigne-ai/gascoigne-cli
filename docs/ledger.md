@@ -191,8 +191,19 @@ remembered per browser.
 Filters at the top narrow everything to one session, one agent, or a period. *Reset statistics*
 deletes the runs matching the filters (after a confirmation); *Stop server* stops the
 background server. The footer shows the server's pid, uptime, ledger and build. Clicking a run
-opens its details: source key, pipeline and route, the optimizer chain, each step's
-tokens before and after with its dialect, the stop reason, timing, and the original.
+opens its details (`#run-42` in the address links straight to one):
+
+- **Compare** puts the original and what the agent read side by side, with line numbers,
+  synchronized scrolling and optional wrapping. Lines dropped from the original are struck
+  through; lines gascoigne added (omission markers, summaries, path legends) are highlighted.
+  Either side can be shown alone.
+- **Steps** shows each optimizer that changed the run as a bar of what was left after it.
+- **Details** lists the source key, pipeline and route, optimizer chain, stop reason, timing
+  and the `gascoigne raw` command.
+
+A run that lost over 99.5% of a large output gets a warning to check it. The optimized text is
+kept next to the original (gzip, same retention), so runs recorded before that show only the
+original. Viewing either here does not mark the source as failing.
 
 The live feed uses server-sent events and polls the ledger every second, since other
 gascoigne processes write to it.

@@ -259,6 +259,8 @@ events+steps by filters (flags only, never env); `-all` also raw and failures, n
 The server (`dashboard.go`, one embedded `dashboard.html`, no build step) serves the ledger live: totals, days, outcomes, commands,
 optimizers, dialects, skip/fail/unchanged reasons, failing sources (forget button) and a feed of
 runs over server-sent events (`/api/stream`, polls the ledger since other processes write it;
+run details compare original and optimized side by side (`/api/raw/{id}`, `/api/out/{id}`: the
+optimized text is `Event.Output`, kept gzip in `raw.output`), `#run-ID` deep links;
 `ledger.Recent`). A run opens its steps and original; viewing an original there does not mark the
 source as failing. Loopback Host names only (DNS rebinding), cross-origin writes refused.
 

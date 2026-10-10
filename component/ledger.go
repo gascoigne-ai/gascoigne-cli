@@ -35,6 +35,9 @@ type Event struct {
 	Filter     string // component that stopped optimization: bypassing filter, failing optimizer, "ledger"
 	Reason     string // why it was not optimized: filter detail, optimizer error, unhandled types
 	Steps      []Step // optimizers that changed the payload, in order
+	// Output is the optimized text of an optimized run; ledgers may keep it
+	// next to the original (RawID) so both can be compared.
+	Output string
 }
 
 // Step is one optimizer's effect on a payload.

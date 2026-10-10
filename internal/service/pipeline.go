@@ -124,6 +124,7 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 	p.Set(payload.AttrRawID, id)
 	ev.RawID = id
 	ev.Outcome = component.Optimized
+	ev.Output = p.Text()
 	return p, nil
 }
 

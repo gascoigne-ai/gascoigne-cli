@@ -373,3 +373,24 @@ func TestPath(t *testing.T) {
 		t.Fatalf("Path() = %q", got)
 	}
 }
+
+func TestOutputKeptWithOriginal(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	id, err := l.SaveRaw(ctx, "cmd:x", payload.New(payload.CmdOutput, "long original\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok, _ := l.GetOutput(ctx, id); ok {
+		t.Fatal("output before any run")
+	}
+	if err := l.Record(ctx, component.Event{TS: time.Now(), RawID: id, Outcome: component.Optimized, Output: "short\n"}); err != nil {
+		t.Fatal(err)
+	}
+	if out, ok, err := l.GetOutput(ctx, id); err != nil || !ok || out != "short\n" {
+		t.Fatalf("got %q %v %v", out, ok, err)
+	}
+	if _, ok, err := l.GetOutput(ctx, "unknown"); ok || err != nil {
+		t.Fatalf("unknown id: %v %v", ok, err)
+	}
+}

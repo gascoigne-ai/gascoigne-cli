@@ -173,6 +173,11 @@ func (l *Ledger) FlushRaw(ctx context.Context, cutoff time.Time) (int64, error) 
 }
 
 func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
+	if ev.RawID != "" && ev.Output != "" {
+		if err := l.saveOutput(ctx, ev.RawID, ev.Output); err != nil {
+			return err
+		}
+	}
 	steps := make([]step, len(ev.Steps))
 	for i, s := range ev.Steps {
 		steps[i] = step{Optimizer: s.Optimizer, Family: s.Family, Dialect: s.Dialect, RawTokens: s.RawTokens, OutTokens: s.OutTokens}
@@ -222,4 +227,30 @@ func (l *Ledger) Failures(ctx context.Context, key string) (component.FailureInf
 // Forget clears failure history for key, re-enabling optimization.
 func (l *Ledger) Forget(ctx context.Context, key string) error {
 	return l.db.WithContext(ctx).Delete(&failure{Key: key}).Error
+}
+
+func (l *Ledger) saveOutput(ctx context.Context, id, text string) error {
+	packed, err := pack([]byte(text))
+	if err != nil {
+		return err
+	}
+	return l.db.WithContext(ctx).Model(&raw{}).Where("id = ?", id).Update("output", packed).Error
+}
+
+// GetOutput returns the optimized text last produced from original id;
+// false when none was kept (runs from before outputs were kept, or pruned).
+func (l *Ledger) GetOutput(ctx context.Context, id string) (string, bool, error) {
+	var r raw
+	err := l.db.WithContext(ctx).Select("output").Where("id = ?", id).Take(&r).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) || err == nil && len(r.Output) == 0 {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, err
+	}
+	out, err := unpack(r.Output)
+	if err != nil {
+		return "", false, err
+	}
+	return string(out), true, nil
 }

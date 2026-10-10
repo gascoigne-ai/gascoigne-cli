@@ -104,6 +104,15 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		io.WriteString(w, p.Text())
 	})
+	mux.HandleFunc("GET /api/out/{id}", func(w http.ResponseWriter, r *http.Request) {
+		out, ok, err := l.GetOutput(r.Context(), r.PathValue("id"))
+		if err != nil || !ok {
+			http.Error(w, "optimized output not kept for this run", http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		io.WriteString(w, out)
+	})
 	mux.HandleFunc("GET /api/failures", func(w http.ResponseWriter, r *http.Request) {
 		fs, err := l.FailureList(r.Context())
 		type failure struct {

@@ -274,3 +274,20 @@ func TestWatchBinary(t *testing.T) {
 		})
 	}
 }
+
+func TestOptimizedOutputEndpoint(t *testing.T) {
+	l, h := testDashboard(t)
+	id, err := l.SaveRaw(t.Context(), "cmd:x", payload.New(payload.CmdOutput, "long original\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if w := get(h, "GET", "/api/out/"+id); w.Code != 404 {
+		t.Fatalf("before a run: %d", w.Code)
+	}
+	if err := l.Record(t.Context(), component.Event{TS: time.Now(), RawID: id, Outcome: component.Optimized, Output: "short\n"}); err != nil {
+		t.Fatal(err)
+	}
+	if w := get(h, "GET", "/api/out/"+id); w.Code != 200 || w.Body.String() != "short\n" {
+		t.Fatalf("got %d %q", w.Code, w.Body.String())
+	}
+}

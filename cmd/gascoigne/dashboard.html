@@ -152,12 +152,51 @@ td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-word; }
 .day .lbl { font-size: 12px; color: var(--faint); margin-top: 4px; white-space: nowrap; }
 .day .amt { font-size: 12px; color: var(--muted); margin-bottom: 3px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-/* Detail dialog */
-dialog { width: min(980px, calc(100vw - 32px)); max-height: calc(100vh - 48px); color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); }
+/* Detail dialog: summary on top, then Compare / Steps / Details. */
+dialog { width: min(1400px, calc(100vw - 32px)); height: calc(100vh - 48px); color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); }
+dialog[open] { display: flex; flex-direction: column; }
 dialog::backdrop { background: rgba(15, 18, 24, .5); }
-.dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
-.dlg-head h3 { margin: 0; font-size: 15px; font-weight: 650; font-family: var(--mono); word-break: break-word; }
-.dlg-body { padding: 14px 18px 18px; overflow: auto; max-height: calc(100vh - 140px); }
+.dlg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 14px 18px 12px; border-bottom: 1px solid var(--border); }
+.dlg-head h3 { margin: 0 0 6px; font-size: 15px; font-weight: 650; font-family: var(--mono); word-break: break-word; }
+.dlg-sum { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; color: var(--muted); font-size: 12.5px; }
+.dlg-sum .big { font-size: 20px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.dlg-sum .saved { font-weight: 700; color: var(--ok); }
+.dlg-sum .meter { width: 160px; }
+.alert-box { margin: 10px 18px 0; padding: 8px 12px; border-radius: 8px; background: var(--warn-soft); color: var(--warn); font-size: 12.5px; }
+.tabs { display: flex; gap: 2px; padding: 8px 18px 0; border-bottom: 1px solid var(--border); }
+.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--muted); padding: 7px 12px; font-weight: 600; }
+.tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.dlg-body { padding: 14px 18px 18px; overflow: auto; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 10px; font-size: 12.5px; color: var(--muted); }
+.toolbar label { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; color: var(--text); }
+.seg { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; padding: 5px 10px; }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+.legend { display: inline-flex; gap: 12px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.legend .l-drop { background: var(--err-soft); border: 1px solid var(--err); }
+.legend .l-new { background: var(--ok-soft); border: 1px solid var(--ok); }
+.compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; flex: 1; min-height: 0; }
+.compare.one { grid-template-columns: minmax(0, 1fr); }
+.pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.pane[hidden] { display: none; }
+.pane-head { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; background: var(--surface-2); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; }
+.pane-head span:last-child { color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+.code { flex: 1; overflow: auto; font: 12px/1.5 var(--mono); background: var(--surface); }
+.code .ln { display: flex; }
+.code .no { flex: none; width: 4.5em; padding-right: 8px; text-align: right; color: var(--faint); user-select: none; border-right: 1px solid var(--border); }
+.code .tx { padding: 0 10px; white-space: pre; }
+.wrap .code .tx { white-space: pre-wrap; word-break: break-word; }
+.code .drop { background: var(--err-soft); }
+.code .drop .tx { color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--err) 45%, transparent); }
+.code .new { background: var(--ok-soft); }
+.code .more { padding: 8px 10px; color: var(--muted); }
+.steps { display: grid; gap: 8px; max-width: 760px; }
+.step { display: grid; grid-template-columns: 9em minmax(0, 1fr) 11em; gap: 10px; align-items: center; font-size: 12.5px; }
+.step .track { position: relative; height: 14px; background: var(--track); border-radius: 4px; overflow: hidden; }
+.step .track span { position: absolute; top: 0; bottom: 0; background: var(--accent); border-radius: 4px; }
+.step .lbl { font-family: var(--mono); }
+.step .num { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
 dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0 0 16px; }
 dt { font-size: 12px; font-weight: 600; color: var(--muted); padding-top: 1px; }
 dd { margin: 0; word-break: break-word; }
@@ -302,8 +341,10 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     Data is read from the local ledger and never leaves this machine. Any gascoigne command, or <code>gascoigne dashboard</code>, starts the server.</footer>
 </div>
 
-<dialog id="detail">
-  <div class="dlg-head"><h3 id="d-title"></h3><button id="d-close">Close</button></div>
+<dialog id="detail" aria-labelledby="d-title">
+  <div class="dlg-head"><div><h3 id="d-title"></h3><div class="dlg-sum" id="d-sum"></div></div><button id="d-close">Close</button></div>
+  <div id="d-alert"></div>
+  <div class="tabs" role="tablist" id="d-tabs"></div>
   <div class="dlg-body" id="d-body"></div>
 </dialog>
 
@@ -326,7 +367,7 @@ function el(tag, attrs, ...kids) {
   const n = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
     if (k === "class") n.className = v;
-    else if (k === "onclick") n.onclick = v;
+    else if (k.startsWith("on") && typeof v === "function") n[k] = v;
     else n.setAttribute(k, v);
   }
   for (const k of kids.flat()) n.append(k instanceof Node ? k : document.createTextNode(k ?? ""));
@@ -514,6 +555,9 @@ function addEvents(list, fresh) {
     feed.prepend(feedRow(e, fresh));
   }
   while (feed.children.length > 300) feed.removeChild(feed.lastElementChild);
+  // #run-42 opens that run once it has arrived (links to a run).
+  const m = /^#run-(\d+)$/.exec(location.hash);
+  if (m && state.events.has(+m[1]) && !$("detail").open) showDetail(+m[1]);
 }
 
 function connect() {
@@ -542,15 +586,46 @@ function scheduleRefresh() {
   state.refresh = setTimeout(() => refreshOverview().catch(console.error), 800);
 }
 
+// Lines shown per pane before "Show all": big originals stay responsive.
+const PANE_LINES = 4000;
+
 async function showDetail(id) {
   const e = state.events.get(id);
   if (!e) return;
+  history.replaceState(null, "", "#run-" + id);
+  const saved = e.raw_tokens - e.out_tokens, cut = pct(saved, e.raw_tokens);
   $("d-title").textContent = e.command || e.key || "Run " + e.id;
-  const saved = e.raw_tokens - e.out_tokens;
+  $("d-sum").replaceChildren(
+    badge(e.outcome),
+    el("span", { class: "big" }, `${human(e.raw_tokens)} → ${human(e.out_tokens)}`),
+    el("span", {}, "tokens"),
+    el("span", { class: "saved" }, saved > 0 ? `${fmtPct(cut)} saved` : "nothing saved"),
+    el("span", { class: "meter" }, bar(cut)),
+    el("span", {}, [e.agent || agentLabel(e), e.model].filter(Boolean).join(" · ")),
+    el("span", {}, new Date(e.ts).toLocaleString()),
+    el("span", {}, e.duration_ms + " ms"));
+  // Nearly everything cut from a big output: worth a look (it happened to a
+  // docs page whose sections did not fit the budget).
+  $("d-alert").replaceChildren(...(cut > 99.5 && e.raw_tokens > 2000 ? [el("div", { class: "alert-box" },
+    `${fmtPct(cut)} of this output was cut. Compare both sides to check nothing the agent needed was dropped; `
+    + "if it was, gascoigne raw " + e.raw_id + " gives it back and marks the source.")] : []));
+  const tabs = [["compare", "Compare", () => compareView(e)], ["steps", "Steps", () => stepsView(e)], ["details", "Details", () => detailsView(e)]];
+  const show = (name) => {
+    for (const b of $("d-tabs").children) b.setAttribute("aria-selected", b.dataset.tab === name);
+    const t = tabs.find((t) => t[0] === name);
+    $("d-body").replaceChildren(...[].concat(t[2]()));
+  };
+  $("d-tabs").replaceChildren(...tabs.map(([name, title]) =>
+    el("button", { role: "tab", "data-tab": name, onclick: () => show(name) }, title)));
+  show(e.raw_id ? "compare" : "details");
+  $("detail").showModal();
+}
+
+function detailsView(e) {
   const facts = [
     ["Outcome", badge(e.outcome)],
     ["Time", new Date(e.ts).toLocaleString()],
-    ["Tokens", `${e.raw_tokens} → ${e.out_tokens} (saved ${saved}, ${fmtPct(pct(saved, e.raw_tokens))})`],
+    ["Tokens", `${e.raw_tokens} → ${e.out_tokens}`],
     ["Agent · model", e.agent ? [e.agent, e.model].filter(Boolean).join(" · ") : agentLabel(e)],
     ["Session", e.session || "—"],
     ["Source key", el("code", {}, e.key || "—")],
@@ -561,31 +636,80 @@ async function showDetail(id) {
     ["Duration", e.duration_ms + " ms"],
     ["Original", e.raw_id ? el("code", {}, "gascoigne raw " + e.raw_id) : "Not stored (output was not changed)"],
   ];
-  const body = [el("dl", {}, facts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]))];
-  body.push(el("h2", {}, "Optimization steps"), el("p", { class: "hint" }, "Each optimizer that changed the output, in order"), table([
-    { title: "Optimizer", get: (s) => s.optimizer, mono: true },
-    { title: "Family", get: (s) => s.family },
-    { title: "Content type", get: (s) => s.dialect, mono: true },
-    { title: "Before", get: (s) => human(s.raw_tokens), num: true },
-    { title: "After", get: (s) => human(s.out_tokens), num: true },
-    { title: "", get: (s) => bar(pct(s.raw_tokens - s.out_tokens, s.raw_tokens)) },
-  ], e.steps, "No optimizer changed this run."));
-  if (e.raw_id) {
-    const pre = el("pre", {}, "…");
-    const btn = el("button", { onclick: async () => {
-      btn.disabled = true;
-      const r = await fetch("/api/raw/" + encodeURIComponent(e.raw_id));
-      pre.textContent = await r.text();
-      body.at(-1).replaceWith(pre);
-    } }, "Show original output");
-    body.push(el("h2", { class: "row-gap" }, "Original output"),
-      el("p", { class: "hint" }, "Viewing it here does not exclude the source from optimization."), btn);
-  }
-  $("d-body").replaceChildren(...body);
-  $("detail").showModal();
+  return el("dl", {}, facts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]));
+}
+
+function stepsView(e) {
+  if (!e.steps.length) return el("p", { class: "hint" }, "No optimizer changed this run.");
+  const max = Math.max(e.raw_tokens, 1);
+  return [el("p", { class: "hint" }, "Each optimizer that changed the output, in order: the bar is what was left after it."),
+    el("div", { class: "steps" }, e.steps.map((s) => el("div", { class: "step" },
+      el("span", { class: "lbl" }, s.optimizer),
+      el("span", { class: "track", title: s.dialect || s.family }, el("span", { style: `left:0;width:${100 * s.out_tokens / max}%` })),
+      el("span", { class: "num" }, `${human(s.raw_tokens)} → ${human(s.out_tokens)}`))))];
+}
+
+function compareView(e) {
+  if (!e.raw_id) return el("p", { class: "hint" }, "Nothing to compare: the output went to the agent unchanged.");
+  const wrap = el("div", { class: "compare" }, el("p", { class: "hint" }, "Loading…"));
+  const pressed = (b, on) => b.setAttribute("aria-pressed", on);
+  const mode = (m) => {
+    for (const b of seg.children) pressed(b, b.dataset.m === m);
+    wrap.classList.toggle("one", m !== "both");
+    const [raw, out] = wrap.querySelectorAll(".pane");
+    if (raw) { raw.hidden = m === "out"; out.hidden = m === "raw"; }
+  };
+  const seg = el("span", { class: "seg" }, ...[["both", "Side by side"], ["raw", "Original"], ["out", "What the agent read"]]
+    .map(([m, t]) => el("button", { "data-m": m, onclick: () => mode(m) }, t)));
+  const wrapBox = el("input", { type: "checkbox", id: "d-wrap", onchange: () => wrap.classList.toggle("wrap", wrapBox.checked) });
+  const syncBox = el("input", { type: "checkbox", id: "d-sync", checked: "" });
+  const tools = el("div", { class: "toolbar" }, seg,
+    el("label", {}, wrapBox, " Wrap lines"), el("label", {}, syncBox, " Sync scroll"),
+    el("span", { class: "legend" }, el("span", {}, el("i", { class: "l-drop" }), "dropped"), el("span", {}, el("i", { class: "l-new" }), "added by gascoigne (markers, summaries)")),
+    el("span", { class: "hint" }, "Viewing here does not mark the source as failing."));
+  Promise.all([
+    fetch("/api/raw/" + encodeURIComponent(e.raw_id)).then((r) => r.ok ? r.text() : Promise.reject("original expired or flushed")),
+    fetch("/api/out/" + encodeURIComponent(e.raw_id)).then((r) => r.ok ? r.text() : null),
+  ]).then(([raw, out]) => {
+    const rawLines = raw.split("\n"), outLines = out === null ? null : out.split("\n");
+    const inOut = new Set(outLines || []), inRaw = new Set(rawLines);
+    const rawPane = pane("Original", `${rawLines.length} lines · ${human(e.raw_tokens)} tokens`, rawLines, (l) => outLines && l.trim() && !inOut.has(l) ? "drop" : "");
+    const outPane = outLines
+      ? pane("What the agent read", `${outLines.length} lines · ${human(e.out_tokens)} tokens`, outLines, (l) => l.trim() && !inRaw.has(l) ? "new" : "")
+      : el("div", { class: "pane" }, el("div", { class: "pane-head" }, el("span", {}, "What the agent read")),
+        el("p", { class: "hint", style: "padding:10px" }, "Not kept for runs recorded before optimized output was stored; newer runs show it here."));
+    wrap.replaceChildren(rawPane, outPane);
+    const codes = wrap.querySelectorAll(".code");
+    let syncing = false;
+    codes.forEach((c, i) => c.addEventListener("scroll", () => {
+      if (!syncBox.checked || syncing || codes.length < 2) return;
+      const o = codes[1 - i], f = c.scrollTop / Math.max(1, c.scrollHeight - c.clientHeight);
+      syncing = true; o.scrollTop = f * (o.scrollHeight - o.clientHeight); requestAnimationFrame(() => (syncing = false));
+    }));
+    mode("both");
+  }).catch((err) => wrap.replaceChildren(el("p", { class: "hint" }, String(err))));
+  return [tools, wrap];
+}
+
+// pane renders numbered lines; mark names a class per line (drop, new).
+function pane(title, meta, lines, mark) {
+  const code = el("div", { class: "code" });
+  const render = (n) => {
+    const frag = document.createDocumentFragment();
+    lines.slice(0, n).forEach((l, i) => {
+      const cls = mark(l);
+      frag.append(el("div", { class: "ln" + (cls ? " " + cls : "") }, el("span", { class: "no" }, String(i + 1)), el("span", { class: "tx" }, l || " ")));
+    });
+    if (n < lines.length) frag.append(el("div", { class: "more" },
+      el("button", { onclick: () => { code.replaceChildren(); render(lines.length); } }, `Show all ${lines.length} lines`)));
+    code.append(frag);
+  };
+  render(PANE_LINES);
+  return el("div", { class: "pane" }, el("div", { class: "pane-head" }, el("span", {}, title), el("span", {}, meta)), code);
 }
 
 $("d-close").onclick = () => $("detail").close();
+$("detail").addEventListener("close", () => history.replaceState(null, "", location.pathname + location.search));
 
 function scope() {
   const f = filters(), parts = [];
