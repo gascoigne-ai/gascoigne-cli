@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gascoigne · Hunter's Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root {
+  --night: #0a0708;
+  --stone: #141011;
+  --stone-2: #1c1615;
+  --edge: #3b2b24;
+  --edge-2: #5a4232;
+  --parchment: #e2d4b7;
+  --ash: #9a8a72;
+  --dim: #6b5d4c;
+  --blood: #8e1220;
+  --blood-bright: #c8283a;
+  --gold: #b8955a;
+  --gold-bright: #dcbc7c;
+  --moon: #f1e6cf;
+  --ok: #8fa36a;
+  --warn: #c9973f;
+  --serif: "EB Garamond", Garamond, Georgia, "Times New Roman", serif;
+  --title: "Cinzel", "Trajan Pro", Georgia, serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--night); }
+body {
+  margin: 0; min-height: 100vh; color: var(--parchment); font: 17px/1.45 var(--serif);
+  background:
+    radial-gradient(ellipse 70% 40% at 50% -5%, rgba(142, 18, 32, .28), transparent 70%),
+    radial-gradient(ellipse 120% 80% at 50% 120%, rgba(0, 0, 0, .9), transparent 60%),
+    var(--night);
+}
+a { color: var(--gold-bright); }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px 48px; }
+
+/* Header: the moon over Yharnam */
+header { position: relative; padding: 36px 0 20px; text-align: center; border-bottom: 1px solid var(--edge); }
+.moon {
+  position: absolute; top: 14px; right: 6%; width: 74px; height: 74px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, var(--moon), #cdbb98 55%, #8d7a5a 100%);
+  box-shadow: 0 0 40px 8px rgba(241, 230, 207, .18), 0 0 120px 30px rgba(200, 40, 58, .08);
+  opacity: .85;
+}
+h1 {
+  margin: 0; font: 700 clamp(28px, 5vw, 46px)/1.1 var(--title); letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold-bright); text-shadow: 0 2px 0 #000, 0 0 24px rgba(200, 40, 58, .35);
+}
+.subtitle { margin-top: 6px; color: var(--ash); font-style: italic; }
+.ornament { color: var(--blood-bright); letter-spacing: .6em; margin: 10px 0 0; font-size: 14px; }
+.live { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font: 13px var(--title); letter-spacing: .12em; color: var(--ash); text-transform: uppercase; }
+.live i { width: 9px; height: 9px; border-radius: 50%; background: var(--dim); }
+.live.on i { background: var(--blood-bright); box-shadow: 0 0 10px var(--blood-bright); animation: pulse 2.2s infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+
+/* Filters */
+.filters { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 18px 0 6px; }
+.filters label { display: flex; flex-direction: column; gap: 3px; font: 11px var(--title); letter-spacing: .14em; text-transform: uppercase; color: var(--ash); }
+select, button {
+  font: 15px var(--serif); color: var(--parchment); background: var(--stone-2);
+  border: 1px solid var(--edge-2); border-radius: 2px; padding: 6px 10px; min-width: 150px;
+}
+button { min-width: 0; cursor: pointer; font-family: var(--title); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+button:hover, select:hover { border-color: var(--gold); }
+button.blood { border-color: var(--blood); color: var(--blood-bright); }
+button.blood:hover { background: var(--blood); color: var(--moon); }
+
+/* Panels */
+.panel {
+  position: relative; background: linear-gradient(180deg, var(--stone-2), var(--stone));
+  border: 1px solid var(--edge); padding: 16px 18px; margin-top: 18px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .6), 0 10px 30px rgba(0, 0, 0, .45);
+}
+.panel::before, .panel::after { content: "✠"; position: absolute; top: 6px; color: var(--edge-2); font-size: 11px; }
+.panel::before { left: 8px; } .panel::after { right: 8px; }
+h2 { margin: 0 0 2px; font: 700 15px var(--title); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+.hint { margin: 0 0 12px; color: var(--dim); font-style: italic; font-size: 14px; }
+.grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
+.grid > .panel { margin-top: 0; }
+.row-gap { margin-top: 18px; }
+
+/* Vials: KPI tiles */
+.vials { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-top: 18px; }
+.vial { background: var(--stone); border: 1px solid var(--edge); border-top: 2px solid var(--blood); padding: 12px 14px; }
+.vial .name { font: 11px var(--title); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.vial .value { font: 600 30px/1.15 var(--title); color: var(--moon); margin-top: 4px; }
+.vial .plain { color: var(--dim); font-size: 13px; font-style: italic; }
+.vial.blood .value { color: var(--blood-bright); }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th { text-align: left; font: 11px var(--title); letter-spacing: .12em; text-transform: uppercase; color: var(--ash); border-bottom: 1px solid var(--edge-2); padding: 6px 8px; }
+td { padding: 6px 8px; border-bottom: 1px solid rgba(59, 43, 36, .55); vertical-align: top; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.mono { font-family: var(--mono); font-size: 13px; word-break: break-word; }
+.scroll { max-height: 520px; overflow: auto; }
+.empty { color: var(--dim); font-style: italic; padding: 10px 8px; }
+#feed tr { cursor: pointer; }
+#feed tr:hover td { background: rgba(142, 18, 32, .12); }
+#feed tr.fresh td { animation: blood 1.6s ease-out; }
+@keyframes blood { from { background: rgba(200, 40, 58, .45); } to { background: transparent; } }
+.when { color: var(--dim); white-space: nowrap; font-size: 13px; }
+.dialect { color: var(--ash); font-size: 13px; }
+
+/* Bars: a vial of blood, filled by saved % */
+.bar { position: relative; height: 8px; min-width: 70px; background: #0d0a0a; border: 1px solid var(--edge); }
+.bar > span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--blood), var(--blood-bright)); }
+.badge { display: inline-block; font: 10px var(--title); letter-spacing: .12em; text-transform: uppercase; padding: 2px 6px; border: 1px solid; white-space: nowrap; }
+.badge.optimized { color: var(--blood-bright); border-color: var(--blood); }
+.badge.unchanged { color: var(--ash); border-color: var(--edge-2); }
+.badge.bypassed { color: var(--gold); border-color: var(--gold); }
+.badge.error { color: var(--moon); border-color: var(--blood-bright); background: var(--blood); }
+
+/* Night chart: last days */
+.nights { display: flex; align-items: flex-end; gap: 10px; height: 150px; padding-top: 8px; }
+.night { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+.night .col { width: 100%; max-width: 46px; background: linear-gradient(180deg, var(--blood-bright), var(--blood) 70%, #3a070d); border: 1px solid var(--blood); min-height: 2px; }
+.night .lbl { font-size: 12px; color: var(--dim); margin-top: 4px; white-space: nowrap; }
+.night .amt { font-size: 12px; color: var(--ash); margin-bottom: 3px; white-space: nowrap; }
+
+/* Detail drawer */
+dialog { width: min(980px, calc(100vw - 32px)); max-height: calc(100vh - 48px); color: var(--parchment); background: var(--stone); border: 1px solid var(--gold); padding: 0; }
+dialog::backdrop { background: rgba(5, 2, 3, .78); }
+.dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--edge); background: var(--stone-2); }
+.dlg-head h3 { margin: 0; font: 700 16px var(--title); letter-spacing: .1em; color: var(--gold-bright); word-break: break-word; }
+.dlg-body { padding: 14px 18px 18px; overflow: auto; max-height: calc(100vh - 140px); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 14px; }
+dt { font: 11px var(--title); letter-spacing: .12em; text-transform: uppercase; color: var(--ash); padding-top: 3px; }
+dd { margin: 0; word-break: break-word; }
+pre { margin: 8px 0 0; padding: 12px; background: #070505; border: 1px solid var(--edge); color: var(--parchment); font: 12.5px/1.45 var(--mono); white-space: pre-wrap; word-break: break-word; max-height: 420px; overflow: auto; }
+code { font-family: var(--mono); font-size: 13px; color: var(--gold-bright); }
+footer { margin-top: 28px; text-align: center; color: var(--dim); font-style: italic; font-size: 14px; }
+
+@media (max-width: 640px) {
+  .moon { width: 46px; height: 46px; right: 4px; }
+  .grid { grid-template-columns: 1fr; }
+  .hide-sm { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="moon" aria-hidden="true"></div>
+    <h1>Gascoigne</h1>
+    <div class="subtitle">The Hunter's Ledger — every token taken, every original kept</div>
+    <div class="ornament" aria-hidden="true">✠ ❦ ✠</div>
+    <div id="live" class="live"><i></i><span>Awaiting the hunt</span></div>
+  </header>
+
+  <div class="filters">
+    <label>Session <select id="f-session"><option value="">All sessions</option></select></label>
+    <label>Agent <select id="f-agent"><option value="">All agents</option></select></label>
+    <label>Since
+      <select id="f-since">
+        <option value="24h">Last 24 hours</option>
+        <option value="7d" selected>Last 7 nights</option>
+        <option value="4w">Last 4 weeks</option>
+        <option value="">Since the first hunt</option>
+      </select>
+    </label>
+  </div>
+
+  <section class="vials" id="vials" aria-label="Totals"></section>
+
+  <div class="grid row-gap">
+    <section class="panel">
+      <h2>Nights of the Hunt</h2>
+      <p class="hint">Tokens saved per day</p>
+      <div class="nights" id="nights"></div>
+    </section>
+    <section class="panel">
+      <h2>Outcomes</h2>
+      <p class="hint">How each run ended, by share of input tokens</p>
+      <div id="outcomes"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>The Hunt — live</h2>
+    <p class="hint">Every run as it lands in the ledger, newest first. Click a run for its steps and original.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>When</th><th class="hide-sm">Agent</th><th>Command</th><th class="hide-sm">Content</th><th class="num">Tokens</th><th>Saved</th><th>Outcome</th></tr></thead>
+        <tbody id="feed"><tr><td colspan="7" class="empty">No runs yet. Run something through gascoigne.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="grid row-gap">
+    <section class="panel">
+      <h2>Prey</h2>
+      <p class="hint">Savings by command</p>
+      <div id="commands"></div>
+    </section>
+    <section class="panel">
+      <h2>Weapons</h2>
+      <p class="hint">Savings by optimizer, then by content type</p>
+      <div id="optimizers"></div>
+      <div id="dialects" class="row-gap"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Why the Hunt Was Abandoned</h2>
+    <p class="hint">Runs not optimized: skipped by a filter, failed, or left unchanged, with the latest reason</p>
+    <div id="reasons"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Cursed Sources</h2>
+    <p class="hint">Sources passed through untouched because their optimized output was not enough. Cleanse one to optimize it again.</p>
+    <div id="failures"></div>
+  </section>
+
+  <footer>Fear the old tokens. · <code>gascoigne dashboard</code> reads the local ledger; nothing leaves this machine.</footer>
+</div>
+
+<dialog id="detail">
+  <div class="dlg-head"><h3 id="d-title"></h3><button id="d-close">Close</button></div>
+  <div class="dlg-body" id="d-body"></div>
+</dialog>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const state = { events: new Map(), source: null, refresh: 0 };
+
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") n.className = v;
+    else if (k === "onclick") n.onclick = v;
+    else n.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) n.append(k instanceof Node ? k : document.createTextNode(k ?? ""));
+  return n;
+}
+
+function human(n) {
+  n = n || 0;
+  const a = Math.abs(n);
+  if (a >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
+  if (a >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k";
+  return String(n);
+}
+const pct = (saved, raw) => raw > 0 ? (100 * saved / raw) : 0;
+const fmtPct = (p) => p.toFixed(1) + "%";
+
+function bar(p) {
+  const s = el("span");
+  s.style.width = Math.max(0, Math.min(100, p)) + "%";
+  return el("div", { class: "bar", title: fmtPct(p) }, s);
+}
+
+function ago(ts) {
+  const s = Math.round((Date.now() - new Date(ts)) / 1000);
+  if (s < 60) return s + "s ago";
+  if (s < 3600) return Math.floor(s / 60) + "m ago";
+  if (s < 86400) return Math.floor(s / 3600) + "h ago";
+  return new Date(ts).toLocaleDateString();
+}
+
+function filters() {
+  const p = new URLSearchParams();
+  for (const k of ["session", "agent", "since"]) {
+    const v = $("f-" + k).value;
+    if (v) p.set(k, v);
+  }
+  return p;
+}
+
+async function getJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(url + ": " + r.status + " " + (await r.text()));
+  return r.json();
+}
+
+function table(cols, rows, empty) {
+  if (!rows || rows.length === 0) return el("div", { class: "empty" }, empty || "Nothing here yet.");
+  return el("table", {},
+    el("thead", {}, el("tr", {}, cols.map((c) => el("th", { class: c.num ? "num" : "" }, c.title)))),
+    el("tbody", {}, rows.map((r) => el("tr", {}, cols.map((c) => {
+      const v = c.get(r);
+      return el("td", { class: (c.num ? "num " : "") + (c.mono ? "mono" : "") }, v);
+    })))));
+}
+
+const savedCols = (title, get) => [
+  { title, get, mono: true },
+  { title: "Runs", get: (r) => human(r.runs), num: true },
+  { title: "In", get: (r) => human(r.raw_tokens), num: true },
+  { title: "Out", get: (r) => human(r.out_tokens), num: true },
+  { title: "Saved", get: (r) => human(r.saved_tokens), num: true },
+  { title: "", get: (r) => bar(r.saved_pct) },
+  { title: "%", get: (r) => fmtPct(r.saved_pct), num: true },
+];
+
+function renderVials(o) {
+  const t = o.total;
+  const count = (name) => (o.outcomes.find((x) => x.group === name) || {}).runs || 0;
+  const vials = [
+    ["Echoes Reclaimed", human(t.saved_tokens), "tokens saved", "blood"],
+    ["Insight", fmtPct(t.saved_pct), "of input tokens saved"],
+    ["Hunts", human(t.runs), "runs recorded"],
+    ["Beasts Slain", human(count("optimized")), "runs optimized"],
+    ["Spared", human(count("unchanged") + count("bypassed")), "unchanged or bypassed"],
+    ["Fallen", human(count("error")), "optimizer errors", count("error") ? "blood" : ""],
+  ];
+  $("vials").replaceChildren(...vials.map(([name, value, plain, cls]) =>
+    el("div", { class: "vial " + (cls || "") }, el("div", { class: "name" }, name), el("div", { class: "value" }, value), el("div", { class: "plain" }, plain))));
+}
+
+function renderNights(days) {
+  const best = Math.max(1, ...days.map((d) => d.saved_tokens));
+  $("nights").replaceChildren(...days.map((d) => {
+    const col = el("div", { class: "col", title: `${d.group}: ${human(d.saved_tokens)} saved in ${d.runs} runs` });
+    col.style.height = (100 * d.saved_tokens / best) + "%";
+    return el("div", { class: "night" }, el("div", { class: "amt" }, human(d.saved_tokens)), col, el("div", { class: "lbl" }, d.group.slice(5)));
+  }));
+  if (days.length === 0) $("nights").replaceChildren(el("div", { class: "empty" }, "No nights recorded."));
+}
+
+function renderReasons(o) {
+  const rows = [
+    ...o.skipped.map((r) => ({ ...r, kind: "bypassed" })),
+    ...o.failed.map((r) => ({ ...r, kind: "error" })),
+    ...o.unchanged.map((r) => ({ ...r, kind: "unchanged" })),
+  ];
+  $("reasons").replaceChildren(table([
+    { title: "Outcome", get: (r) => el("span", { class: "badge " + r.kind }, r.kind) },
+    { title: "Stopped by", get: (r) => r.group, mono: true },
+    { title: "Command", get: (r) => r.command || "—", mono: true },
+    { title: "Runs", get: (r) => human(r.runs), num: true },
+    { title: "Tokens", get: (r) => human(r.raw_tokens), num: true },
+    { title: "Latest reason", get: (r) => r.reason || "—", mono: true },
+  ], rows, "Every run was optimized."));
+}
+
+async function refreshOverview() {
+  const o = await getJSON("/api/overview?" + filters());
+  renderVials(o);
+  renderNights(o.days || []);
+  $("outcomes").replaceChildren(table([
+    { title: "Outcome", get: (r) => el("span", { class: "badge " + r.group }, r.group) },
+    { title: "Runs", get: (r) => human(r.runs), num: true },
+    { title: "In", get: (r) => human(r.raw_tokens), num: true },
+    { title: "Out", get: (r) => human(r.out_tokens), num: true },
+    { title: "Share of input", get: (r) => bar(pct(r.raw_tokens, o.total.raw_tokens)) },
+  ], o.outcomes));
+  $("commands").replaceChildren(table(savedCols("Command", (r) => r.group), o.commands));
+  $("optimizers").replaceChildren(table(savedCols("Optimizer", (r) => r.group + (r.family ? " · " + r.family : "")), o.optimizers));
+  $("dialects").replaceChildren(table(savedCols("Content type", (r) => r.group), o.dialects));
+  renderReasons(o);
+  await refreshFailures();
+}
+
+async function refreshFailures() {
+  const fs = await getJSON("/api/failures");
+  $("failures").replaceChildren(table([
+    { title: "Source", get: (f) => f.key, mono: true },
+    { title: "Times", get: (f) => f.count, num: true },
+    { title: "Last", get: (f) => ago(f.last) },
+    { title: "Reason", get: (f) => f.reason, mono: true },
+    { title: "", get: (f) => el("button", { class: "blood", onclick: () => forget(f.key) }, "Cleanse") },
+  ], fs, "No cursed sources. Every source is optimized."));
+}
+
+async function forget(key) {
+  const r = await fetch("/api/forget?key=" + encodeURIComponent(key), { method: "POST" });
+  if (!r.ok) alert("Could not cleanse " + key + ": " + (await r.text()));
+  refreshFailures();
+}
+
+async function refreshLists() {
+  const sessions = await getJSON("/api/sessions");
+  const sel = $("f-session"), keep = sel.value;
+  sel.replaceChildren(el("option", { value: "" }, "All sessions"),
+    ...sessions.filter((s) => s.group).map((s) => el("option", { value: s.group }, `${s.group} · ${human(s.saved_tokens)} saved`)));
+  sel.value = keep;
+  const o = await getJSON("/api/overview");
+  const asel = $("f-agent"), akeep = asel.value;
+  asel.replaceChildren(el("option", { value: "" }, "All agents"),
+    ...o.agents.filter((a) => a.group).map((a) => el("option", { value: a.group }, a.group)));
+  asel.value = akeep;
+}
+
+function feedRow(e, fresh) {
+  const saved = e.raw_tokens - e.out_tokens;
+  const dialects = [...new Set(e.steps.map((s) => s.dialect).filter(Boolean))].join(", ");
+  const tr = el("tr", { class: fresh ? "fresh" : "", onclick: () => showDetail(e.id) },
+    el("td", { class: "when", title: new Date(e.ts).toLocaleString(), "data-ts": e.ts }, ago(e.ts)),
+    el("td", { class: "hide-sm" }, e.agent || "—"),
+    el("td", { class: "mono" }, e.command || e.key || "—"),
+    el("td", { class: "hide-sm dialect" }, dialects || (e.filter ? "via " + e.filter : "")),
+    el("td", { class: "num" }, e.outcome === "optimized" ? `${human(e.raw_tokens)} → ${human(e.out_tokens)}` : human(e.raw_tokens)),
+    el("td", {}, bar(pct(saved, e.raw_tokens))),
+    el("td", {}, el("span", { class: "badge " + e.outcome }, e.outcome)));
+  return tr;
+}
+
+function addEvents(list, fresh) {
+  const feed = $("feed");
+  if (state.events.size === 0) feed.replaceChildren();
+  list.sort((a, b) => a.id - b.id);
+  for (const e of list) {
+    if (state.events.has(e.id)) continue;
+    state.events.set(e.id, e);
+    feed.prepend(feedRow(e, fresh));
+  }
+  while (feed.children.length > 300) {
+    const last = feed.lastElementChild;
+    feed.removeChild(last);
+  }
+}
+
+function connect() {
+  if (state.source) state.source.close();
+  state.events.clear();
+  $("feed").replaceChildren(el("tr", {}, el("td", { colspan: 7, class: "empty" }, "No runs yet. Run something through gascoigne.")));
+  const src = new EventSource("/api/stream?" + filters());
+  state.source = src;
+  let first = true;
+  src.onopen = () => setLive(true);
+  src.onerror = () => setLive(false);
+  src.onmessage = (m) => {
+    addEvents(JSON.parse(m.data), !first);
+    if (!first) scheduleRefresh();
+    first = false;
+  };
+}
+
+function setLive(on) {
+  $("live").classList.toggle("on", on);
+  $("live").querySelector("span").textContent = on ? "The night is live" : "The dream has faded — reconnecting";
+}
+
+function scheduleRefresh() {
+  clearTimeout(state.refresh);
+  state.refresh = setTimeout(() => refreshOverview().catch(console.error), 800);
+}
+
+async function showDetail(id) {
+  const e = state.events.get(id);
+  if (!e) return;
+  $("d-title").textContent = e.command || e.key || "run " + e.id;
+  const saved = e.raw_tokens - e.out_tokens;
+  const facts = [
+    ["Outcome", el("span", { class: "badge " + e.outcome }, e.outcome)],
+    ["When", new Date(e.ts).toLocaleString()],
+    ["Tokens", `${e.raw_tokens} → ${e.out_tokens} (saved ${saved}, ${fmtPct(pct(saved, e.raw_tokens))})`],
+    ["Agent · model", [e.agent || "—", e.model].filter(Boolean).join(" · ")],
+    ["Session", e.session || "—"],
+    ["Source key", el("code", {}, e.key || "—")],
+    ["Pipeline · route", `${e.pipeline} · ${e.route || "—"}`],
+    ["Chain", (e.optimizers || []).join(" → ") || "—"],
+    ["Stopped by", e.filter || "—"],
+    ["Reason", e.reason || "—"],
+    ["Took", e.duration_ms + " ms"],
+    ["Original", e.raw_id ? el("code", {}, "gascoigne raw " + e.raw_id) : "not stored (output was not changed)"],
+  ];
+  const body = [el("dl", {}, facts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]))];
+  body.push(el("h2", {}, "Steps"), table([
+    { title: "Optimizer", get: (s) => s.optimizer, mono: true },
+    { title: "Family", get: (s) => s.family },
+    { title: "Content type", get: (s) => s.dialect, mono: true },
+    { title: "Before", get: (s) => human(s.raw_tokens), num: true },
+    { title: "After", get: (s) => human(s.out_tokens), num: true },
+    { title: "", get: (s) => bar(pct(s.raw_tokens - s.out_tokens, s.raw_tokens)) },
+  ], e.steps, "No optimizer changed this run."));
+  if (e.raw_id) {
+    const pre = el("pre", {}, "…");
+    const btn = el("button", { onclick: async () => {
+      btn.disabled = true;
+      const r = await fetch("/api/raw/" + encodeURIComponent(e.raw_id));
+      pre.textContent = await r.text();
+      body.at(-1).replaceWith(pre);
+    } }, "Reveal the original");
+    body.push(el("h2", { class: "row-gap" }, "Original"), el("p", { class: "hint" }, "Viewing it here does not mark the source as cursed."), btn);
+  }
+  $("d-body").replaceChildren(...body);
+  $("detail").showModal();
+}
+
+$("d-close").onclick = () => $("detail").close();
+for (const k of ["session", "agent", "since"]) {
+  $("f-" + k).onchange = () => { connect(); refreshOverview().catch(console.error); };
+}
+setInterval(() => {
+  for (const td of document.querySelectorAll("td.when")) td.textContent = ago(td.dataset.ts);
+}, 15000);
+setInterval(() => refreshLists().catch(console.error), 30000);
+
+refreshLists().catch(console.error);
+refreshOverview().catch(console.error);
+connect();
+</script>
+</body>
+</html>

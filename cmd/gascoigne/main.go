@@ -40,6 +40,7 @@ commands:
   fail <key|raw_id>  mark a source as badly optimized
   forget <key>       clear failure history for a source
   gain        token savings report
+  dashboard   live savings and runs in the browser (http://127.0.0.1:7878)
   eval        benchmark pipeline on fixtures
   components  list built-in components
   config      print the effective config (after -set/-only/-disable and env)
@@ -58,6 +59,7 @@ var commands = map[string]func(ctx context.Context, args []string) error{
 	"fail":       cmdFail,
 	"forget":     cmdForget,
 	"gain":       cmdGain,
+	"dashboard":  cmdDashboard,
 	"eval":       cmdEval,
 	"components": cmdComponents,
 	"config":     cmdConfig,

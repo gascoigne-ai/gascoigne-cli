@@ -198,6 +198,12 @@ Filters and no-op optimizers explain themselves via the `skip_reason` attr (`pay
 Events record `command` (normalized via `detect.Command`, else MCP tool + URL host) and, when
 bypassed, the `filter` that skipped them.
 MCP `stats {by?, session?, format?: json}` defaults to the overview of the calling session (`session: all` for every session).
+`gascoigne dashboard [-addr 127.0.0.1:7878]` (`cmd/gascoigne/dashboard.go`, one embedded
+`dashboard.html`, no build step) serves the ledger live: totals, days, outcomes, commands,
+optimizers, dialects, skip/fail/unchanged reasons, failing sources (forget button) and a feed of
+runs over server-sent events (`/api/stream`, polls the ledger since other processes write it;
+`ledger.Recent`). A run opens its steps and original; viewing an original there does not mark the
+source as failing. Loopback Host names only (DNS rebinding), cross-origin writes refused.
 
 Failure signals → `MarkFailure(key, reason)`:
 - optimizer error (`error`), agent fetched raw (`raw_requested`), `gascoigne fail` (`manual`).

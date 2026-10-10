@@ -221,3 +221,34 @@ func TestStatsDimensionsAndFilters(t *testing.T) {
 		}
 	}
 }
+
+func TestRecent(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	now := time.Now()
+	for i, s := range []string{"a", "b", "a"} {
+		ev := component.Event{TS: now.Add(time.Duration(i) * time.Second), Session: s, Command: fmt.Sprint("cmd", i),
+			Outcome: component.Optimized, RawTokens: 100, OutTokens: 10, RawID: fmt.Sprint("raw", i),
+			Steps: []component.Step{{Optimizer: "git", Family: "vcs", Dialect: "vcs/git-log", RawTokens: 100, OutTokens: 10}}}
+		if err := l.Record(ctx, ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := l.Recent(ctx, component.StatsQuery{}, 0, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 || got[0].Command != "cmd2" || got[1].Command != "cmd1" {
+		t.Fatalf("want the 2 newest, newest first: %+v", got)
+	}
+	if got[0].RawID != "raw2" || len(got[0].Steps) != 1 || got[0].Steps[0].Dialect != "vcs/git-log" {
+		t.Fatalf("fields or steps missing: %+v", got[0])
+	}
+	newer, err := l.Recent(ctx, component.StatsQuery{Session: "a"}, got[1].ID-1, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(newer) != 1 || newer[0].Command != "cmd2" {
+		t.Fatalf("after id and session filter: %+v", newer)
+	}
+}

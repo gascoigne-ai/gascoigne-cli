@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -164,4 +165,42 @@ func (l *Ledger) reasons(ctx context.Context, q component.StatsQuery) ([]compone
 		}
 	}
 	return stats, nil
+}
+
+// Entry is a recorded event with its row id, for feeds that ask what is new.
+type Entry struct {
+	ID uint
+	component.Event
+}
+
+// Recent lists events matching q's filters with an id above after, newest
+// first, at most limit.
+func (l *Ledger) Recent(ctx context.Context, q component.StatsQuery, after uint, limit int) ([]Entry, error) {
+	var rows []event
+	tx := filter(l.db.WithContext(ctx).Preload("Steps"), "events", q).Where("events.id > ?", after)
+	if err := tx.Order("events.id DESC").Limit(limit).Find(&rows).Error; err != nil {
+		return nil, err
+	}
+	out := make([]Entry, len(rows))
+	for i, r := range rows {
+		out[i] = Entry{ID: r.ID, Event: r.component()}
+	}
+	return out, nil
+}
+
+func (r event) component() component.Event {
+	steps := make([]component.Step, len(r.Steps))
+	for i, s := range r.Steps {
+		steps[i] = component.Step{Optimizer: s.Optimizer, Family: s.Family, Dialect: s.Dialect, RawTokens: s.RawTokens, OutTokens: s.OutTokens}
+	}
+	var optimizers []string
+	if r.Optimizers != "" {
+		optimizers = strings.Split(r.Optimizers, ",")
+	}
+	return component.Event{
+		TS: time.UnixMilli(r.TS), Session: r.Session, Agent: r.Agent, Model: r.Model, Command: r.Command,
+		Pipeline: r.Pipeline, Key: r.Key, Route: r.Route, Optimizers: optimizers,
+		RawTokens: r.RawTokens, OutTokens: r.OutTokens, Duration: time.Duration(r.DurationMS) * time.Millisecond,
+		RawID: r.RawID, Outcome: component.Outcome(r.Outcome), Filter: r.Filter, Reason: r.Reason, Steps: steps,
+	}
 }
