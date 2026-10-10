@@ -16,7 +16,7 @@ gascoigne wrap pi     [pi args…]
 ```
 
 `wrap` starts the agent with gascoigne registered for that run only. No config file is
-touched. It also sets `GASCOIGNE_AGENT` (the agent name) and `GASCOIGNE_SESSION`
+touched. It first makes sure the background server runs and prints the dashboard address. It also sets `GASCOIGNE_AGENT` (the agent name) and `GASCOIGNE_SESSION`
 (`<agent>-<date>-<time>`), so every event of the run is tagged and `gascoigne gain` inside the
 agent shows that session.
 

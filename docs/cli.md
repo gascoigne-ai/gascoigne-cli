@@ -14,7 +14,9 @@ Run `gascoigne <command> -h` for the flags of one command.
 | `run [flags]` | Run a pipeline. Default `cli`: stdin in, optimized text out. |
 | `raw <id>` | Print an original byte-exact. Also marks its source as badly optimized (see [Ledger](ledger.md)). |
 | `gain [flags]` | Savings report: overview, or one grouping with `-by`. |
-| `dashboard [-addr host:port]` | Live savings, runs and skip reasons in the browser. Default `http://127.0.0.1:7878`. |
+| `dashboard` | Start the background server if it is not running and print the dashboard address. |
+| `server run\|start\|stop\|status` | The background server hosting the dashboard: one per user, started automatically. |
+| `reset [flags]` | Clear savings stats; `-all` also clears stored originals and failure history. |
 | `wrap <agent> [agent args]` | Start `claude`, `codex` or `pi` with gascoigne registered for that run. |
 | `wrap -print <agent>` | Print the config that registers gascoigne for good (also `cursor`). |
 | `unwrap [agent...]` | Remove gascoigne from agents' config files (default: every agent). |
@@ -71,14 +73,32 @@ gascoigne gain -json                    # machine-readable
 | `-json` | JSON output |
 | `-color auto\|always\|never` | `auto` honors `NO_COLOR` and whether stdout is a terminal |
 
-## `dashboard`
+## `server` and `dashboard`
 
 ```sh
-gascoigne dashboard                       # http://127.0.0.1:7878
-gascoigne dashboard -addr 127.0.0.1:9000
+gascoigne dashboard            # start the server if needed, print http://127.0.0.1:7878
+gascoigne server status        # pid, uptime, ledger, build
+gascoigne server stop
+gascoigne server start         # start in the background and wait until it answers
+gascoigne server run           # run in the foreground (what the background process runs)
 ```
 
-See [Ledger, retrieval and gain](ledger.md#dashboard).
+All take `-addr host:port` (default `$GASCOIGNE_SERVER_ADDR` or `127.0.0.1:7878`). `exec`,
+`hook`, `mcp`, `mcp-proxy` and `wrap` start the server when it is not answering, so the
+dashboard is up whenever gascoigne is used. See [Ledger, retrieval and gain](ledger.md#dashboard).
+
+## `reset`
+
+```sh
+gascoigne reset -session claude-20261010-111234   # one session's runs
+gascoigne reset -agent codex -since 24h
+gascoigne reset                                   # every recorded run
+gascoigne reset -all                              # also stored originals and failure history
+```
+
+Deletes recorded runs (what `gain` and the dashboard show). Filters come from flags only, never
+from `GASCOIGNE_*` variables, so it deletes exactly what it says. `-all` cannot be combined with
+filters: originals and failure history carry no session or agent.
 
 ## `eval`
 
@@ -99,6 +119,8 @@ See [Ledger, retrieval and gain](ledger.md#dashboard).
 | `GASCOIGNE_SET`, `GASCOIGNE_ONLY`, `GASCOIGNE_DISABLE` | Per-run config overrides, as the flags above. |
 | `GASCOIGNE_SESSION`, `GASCOIGNE_AGENT`, `GASCOIGNE_MODEL` | Identity tags for events. `wrap` sets the first two. |
 | `GASCOIGNE_CAT_MODE` | Source file mode: `auto`, `full`, `clean`, `outline` (see [Source files](source-files.md)). |
+| `GASCOIGNE_SERVER=off` | Never start the background server. |
+| `GASCOIGNE_SERVER_ADDR` | Server address (default `127.0.0.1:7878`). |
 | `NO_COLOR` | No colors in `gain`. |
 
 ## Exit codes

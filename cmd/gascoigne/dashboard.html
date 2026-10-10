@@ -61,6 +61,7 @@ h1 {
 
 /* Filters */
 .filters { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 18px 0 6px; }
+.rites { display: flex; gap: 8px; }
 .filters label { display: flex; flex-direction: column; gap: 3px; font: 11px var(--title); letter-spacing: .14em; text-transform: uppercase; color: var(--ash); }
 select, button {
   font: 15px var(--serif); color: var(--parchment); background: var(--stone-2);
@@ -166,6 +167,12 @@ footer { margin-top: 28px; text-align: center; color: var(--dim); font-style: it
         <option value="">Since the first hunt</option>
       </select>
     </label>
+    <label>Rites
+      <span class="rites">
+        <button id="reset" class="blood" title="Delete recorded runs matching the filters">Reset stats</button>
+        <button id="stop" title="Stop the background server">Stop server</button>
+      </span>
+    </label>
   </div>
 
   <section class="vials" id="vials" aria-label="Totals"></section>
@@ -220,7 +227,8 @@ footer { margin-top: 28px; text-align: center; color: var(--dim); font-style: it
     <div id="failures"></div>
   </section>
 
-  <footer>Fear the old tokens. · <code>gascoigne dashboard</code> reads the local ledger; nothing leaves this machine.</footer>
+  <footer>Fear the old tokens. · <span id="server-info">gascoigne server</span><br>
+    Reads the local ledger; nothing leaves this machine. Any gascoigne command, or <code>gascoigne dashboard</code>, wakes the server.</footer>
 </div>
 
 <dialog id="detail">
@@ -490,6 +498,44 @@ async function showDetail(id) {
 }
 
 $("d-close").onclick = () => $("detail").close();
+
+function scope() {
+  const f = filters(), parts = [];
+  if (f.get("session")) parts.push("session " + f.get("session"));
+  if (f.get("agent")) parts.push("agent " + f.get("agent"));
+  if (f.get("since")) parts.push("the last " + f.get("since"));
+  return parts.length ? parts.join(", ") : "every session, all time";
+}
+
+$("reset").onclick = async () => {
+  if (!confirm(`Reset savings stats for ${scope()}?\n\nRecorded runs are deleted. Stored originals and failure history stay.`)) return;
+  const r = await fetch("/api/reset?" + filters(), { method: "POST" });
+  if (!r.ok) { alert("Reset failed: " + (await r.text())); return; }
+  const { deleted_events } = await r.json();
+  connect();
+  await refreshOverview();
+  refreshLists().catch(console.error);
+  alert(`${deleted_events} runs deleted.`);
+};
+
+$("stop").onclick = async () => {
+  if (!confirm("Stop the gascoigne server?\n\nThe next gascoigne command, or `gascoigne dashboard`, starts it again.")) return;
+  await fetch("/api/shutdown", { method: "POST" }).catch(() => {});
+  state.source && state.source.close();
+  $("live").classList.remove("on");
+  $("live").querySelector("span").textContent = "The hunter rests — server stopped";
+  setTimeout(() => { connect(); }, 5000); // reconnects once something wakes it
+};
+
+async function refreshServer() {
+  try {
+    const h = await getJSON("/api/health");
+    const up = Math.round((Date.now() - new Date(h.started)) / 60000);
+    $("server-info").textContent = `server pid ${h.pid} on ${h.addr}, up ${up < 60 ? up + "m" : Math.floor(up / 60) + "h " + (up % 60) + "m"} · ledger ${h.ledger} · build ${h.build}`;
+  } catch { $("server-info").textContent = "server not answering"; }
+}
+refreshServer();
+setInterval(refreshServer, 60000);
 for (const k of ["session", "agent", "since"]) {
   $("f-" + k).onchange = () => { connect(); refreshOverview().catch(console.error); };
 }

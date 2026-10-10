@@ -17,6 +17,7 @@ import (
 	"go.yaml.in/yaml/v3"
 
 	"github.com/lukaszb/gascoigne/configs"
+	"github.com/lukaszb/gascoigne/extension/ledger"
 	"github.com/lukaszb/gascoigne/internal/config"
 	"github.com/lukaszb/gascoigne/internal/registry"
 	"github.com/lukaszb/gascoigne/internal/service"
@@ -40,7 +41,9 @@ commands:
   fail <key|raw_id>  mark a source as badly optimized
   forget <key>       clear failure history for a source
   gain        token savings report
-  dashboard   live savings and runs in the browser (http://127.0.0.1:7878)
+  reset       clear savings stats (-session/-agent/-since; -all: also originals and failures)
+  dashboard   start the background server if needed, print the dashboard address
+  server run|start|stop|status  the background server hosting the dashboard (one per user)
   eval        benchmark pipeline on fixtures
   components  list built-in components
   config      print the effective config (after -set/-only/-disable and env)
@@ -60,6 +63,8 @@ var commands = map[string]func(ctx context.Context, args []string) error{
 	"forget":     cmdForget,
 	"gain":       cmdGain,
 	"dashboard":  cmdDashboard,
+	"server":     cmdServer,
+	"reset":      cmdReset,
 	"eval":       cmdEval,
 	"components": cmdComponents,
 	"config":     cmdConfig,
@@ -100,6 +105,9 @@ type common struct {
 	session string
 	agent   string
 	model   string
+	// server: this command optimizes for an agent or user, so it makes sure
+	// the background server (dashboard) runs.
+	server bool
 }
 
 func (c *common) register(fs *flag.FlagSet) {
@@ -171,7 +179,16 @@ func (c *common) start(ctx context.Context) (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	return svc, svc.Start(ctx)
+	if err := svc.Start(ctx); err != nil {
+		return svc, err
+	}
+	if l, ok := svc.Ledger().(*ledger.Ledger); ok && c.server {
+		// Never fails the command: the dashboard is a convenience.
+		if err := ensureServer(ctx, serverAddr(), l.Path(), false); err != nil {
+			log.Debug("server not started", "err", err)
+		}
+	}
+	return svc, nil
 }
 
 func (c *common) load() (*config.Config, error) {
@@ -256,6 +273,7 @@ func cmdExec(ctx context.Context, args []string) error {
 	if *raw {
 		c.attrs[payload.AttrRaw] = "true"
 	}
+	c.server = true
 	svc, err := c.start(ctx)
 	if err != nil {
 		return err
@@ -288,6 +306,7 @@ func serve(ctx context.Context, pipeline string, args []string, with func(contex
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	c.server = true
 	svc, err := c.start(ctx)
 	if err != nil {
 		return err

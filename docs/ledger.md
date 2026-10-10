@@ -114,12 +114,47 @@ Every run that was not optimized records a factual reason:
 `gascoigne gain -by reason` lists only these groups. The detected types in "unchanged" reasons
 show which content has no engine yet.
 
+## Resetting stats
+
+```sh
+gascoigne reset -session <id>     # or -agent, -model, -since 24h; none: every run
+gascoigne reset -all              # also stored originals and failure history
+```
+
+A reset deletes recorded runs and their steps. Stored originals and failure history stay
+unless you pass `-all`, so `raw <id>` hints already shown to an agent keep working. The
+dashboard's *Reset stats* button does the same for its current filters.
+
 ## Dashboard
 
 ```sh
-gascoigne dashboard                       # http://127.0.0.1:7878
-gascoigne dashboard -addr 127.0.0.1:9000
+gascoigne dashboard               # http://127.0.0.1:7878
 ```
+
+### The background server
+
+The dashboard is served by one background process per user, like a build daemon:
+
+- **Always there.** `exec`, `hook`, `mcp`, `mcp-proxy` and `wrap` start it when nothing answers
+  on its address. `wrap` prints the address before the agent starts. Checking costs about
+  0.3 ms per command.
+- **One instance.** The listening port is the lock: a second server cannot start.
+- **Follows upgrades.** The server reports a build id (the binary's path, size and mtime). A
+  command from a rebuilt or upgraded gascoigne stops the old server and starts a new one.
+- **Stays out of the way.** Optimization still runs in each command, so a stopped or broken
+  server never slows down or fails an agent. A server serving another ledger (for example an
+  isolated `GASCOIGNE_LEDGER`) is left alone.
+- **Detached.** It runs in its own session and outlives the terminal or agent that started it.
+  Its log is `~/.cache/gascoigne/server.log` (`$XDG_CACHE_HOME`).
+
+```sh
+gascoigne server status           # pid, uptime, ledger, build
+gascoigne server stop             # or the Stop server button in the dashboard
+GASCOIGNE_SERVER=off              # never start it
+GASCOIGNE_SERVER_ADDR=127.0.0.1:9000
+```
+
+### The page
 
 One self-contained page served from the binary, styled after a gothic hunter's ledger:
 
@@ -133,7 +168,9 @@ One self-contained page served from the binary, styled after a gothic hunter's l
 | Why the Hunt Was Abandoned | runs not optimized, by stopping component and command, with the latest reason |
 | Cursed Sources | failing sources, each with a *Cleanse* button (`forget`) |
 
-Filters at the top narrow everything to one session, one agent, or a period. Clicking a run
+Filters at the top narrow everything to one session, one agent, or a period. *Reset stats*
+deletes the runs matching the filters (after a confirmation); *Stop server* stops the
+background server. The footer shows the server's pid, uptime, ledger and build. Clicking a run
 opens its details: source key, pipeline and route, the optimizer chain, each step's
 tokens before and after with its dialect, the stop reason, timing, and the original.
 
@@ -153,6 +190,9 @@ The page is built on a small JSON API you can also script against:
 | `GET /api/raw/<id>` | an original as text (does not mark the source) |
 | `GET /api/failures` | failing sources |
 | `POST /api/forget?key=<key>` | clear a source's failure history |
+| `POST /api/reset?session=&agent=&model=&since=&all=1` | delete recorded runs; `all=1` (no filters) also originals and failures |
+| `GET /api/health` | pid, build, ledger, address, start time |
+| `POST /api/shutdown` | stop the server |
 
 ### Safety
 

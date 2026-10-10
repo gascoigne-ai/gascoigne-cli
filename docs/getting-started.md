@@ -66,11 +66,9 @@ gascoigne gain -by command
 gascoigne gain -since 7d -by day
 ```
 
-Or watch it live in the browser:
-
-```sh
-gascoigne dashboard          # http://127.0.0.1:7878
-```
+Or watch it live in the browser at http://127.0.0.1:7878. The first gascoigne command
+started a small background server for it; `gascoigne dashboard` prints the address and
+starts it if needed, `gascoigne server stop` stops it.
 
 Every run appears as it happens, with its savings, content type and, when it was not
 optimized, the reason. Click a run to see its optimizer steps and the original.
@@ -94,7 +92,9 @@ go through `gascoigne exec`, and the MCP server adds `fetch`, `compress`, `retri
 | built-in config | `configs/default.yaml`, embedded in the binary |
 
 Originals are kept for 24 hours by default (`extensions.ledger.raw_ttl`). Events and savings
-are kept.
+are kept until you clear them with `gascoigne reset`.
+
+| background server log | `$XDG_CACHE_HOME/gascoigne/server.log` (usually `~/.cache/gascoigne/server.log`) |
 
 ## Next
 

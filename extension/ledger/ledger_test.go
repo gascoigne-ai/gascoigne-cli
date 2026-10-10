@@ -252,3 +252,71 @@ func TestRecent(t *testing.T) {
 		t.Fatalf("after id and session filter: %+v", newer)
 	}
 }
+
+func TestReset(t *testing.T) {
+	ctx := t.Context()
+	setup := func(t *testing.T) *Ledger {
+		l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RawTTL: time.Hour})
+		for _, s := range []string{"a", "b", "b"} {
+			ev := component.Event{TS: time.Now(), Session: s, Outcome: component.Optimized, RawTokens: 10, OutTokens: 1,
+				Steps: []component.Step{{Optimizer: "git", Family: "vcs", RawTokens: 10, OutTokens: 1}}}
+			if err := l.Record(ctx, ev); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if _, err := l.SaveRaw(ctx, "cmd:ls", payload.New(payload.CmdOutput, "x")); err != nil {
+			t.Fatal(err)
+		}
+		if err := l.MarkFailure(ctx, "cmd:ls", "manual"); err != nil {
+			t.Fatal(err)
+		}
+		return l
+	}
+	t.Run("one session keeps the rest", func(t *testing.T) {
+		l := setup(t)
+		n, err := l.Reset(ctx, component.StatsQuery{Session: "b"}, false)
+		if err != nil || n != 2 {
+			t.Fatalf("deleted %d, %v", n, err)
+		}
+		left, _ := l.Recent(ctx, component.StatsQuery{}, 0, 10)
+		if len(left) != 1 || left[0].Session != "a" || len(left[0].Steps) != 1 {
+			t.Fatalf("left: %+v", left)
+		}
+		if f, _ := l.Failures(ctx, "cmd:ls"); f.Count != 1 {
+			t.Fatal("failure history must survive a stats reset")
+		}
+	})
+	t.Run("everything", func(t *testing.T) {
+		l := setup(t)
+		n, err := l.Reset(ctx, component.StatsQuery{}, true)
+		if err != nil || n != 3 {
+			t.Fatalf("deleted %d, %v", n, err)
+		}
+		var steps int64
+		l.db.Model(&step{}).Count(&steps)
+		if steps != 0 {
+			t.Fatalf("%d orphan steps", steps)
+		}
+		if f, _ := l.Failures(ctx, "cmd:ls"); f.Count != 0 {
+			t.Fatal("failures kept")
+		}
+		var raws int64
+		l.db.Model(&raw{}).Count(&raws)
+		if raws != 0 {
+			t.Fatal("originals kept")
+		}
+	})
+	t.Run("everything refuses filters", func(t *testing.T) {
+		l := setup(t)
+		if _, err := l.Reset(ctx, component.StatsQuery{Session: "a"}, true); err == nil {
+			t.Fatal("originals and failures have no session: a filtered full reset would be a lie")
+		}
+	})
+}
+
+func TestPath(t *testing.T) {
+	p := filepath.Join(t.TempDir(), "l.db")
+	if got := start(t, &Config{Path: p}).Path(); got != p {
+		t.Fatalf("Path() = %q", got)
+	}
+}

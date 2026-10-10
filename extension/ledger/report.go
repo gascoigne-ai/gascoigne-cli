@@ -3,6 +3,7 @@ package ledger
 import (
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -203,4 +204,33 @@ func (r event) component() component.Event {
 		RawTokens: r.RawTokens, OutTokens: r.OutTokens, Duration: time.Duration(r.DurationMS) * time.Millisecond,
 		RawID: r.RawID, Outcome: component.Outcome(r.Outcome), Filter: r.Filter, Reason: r.Reason, Steps: steps,
 	}
+}
+
+// Reset deletes recorded events and their steps matching q's filters and
+// reports how many events went. all also deletes stored originals and
+// failure history, which carry no session or agent, so it takes no filters.
+func (l *Ledger) Reset(ctx context.Context, q component.StatsQuery, all bool) (int64, error) {
+	if all && (q.Session != "" || q.Agent != "" || q.Model != "" || !q.Since.IsZero()) {
+		return 0, errors.New("reset: originals and failure history cannot be filtered; drop the filters or the full reset")
+	}
+	var n int64
+	err := l.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		ids := filter(tx.Model(&event{}).Select("id"), "events", q)
+		if err := tx.Where("event_id IN (?)", ids).Delete(&step{}).Error; err != nil {
+			return err
+		}
+		res := filter(tx.Where("1 = 1"), "events", q).Delete(&event{})
+		if res.Error != nil {
+			return res.Error
+		}
+		n = res.RowsAffected
+		if !all {
+			return nil
+		}
+		if err := tx.Where("1 = 1").Delete(&raw{}).Error; err != nil {
+			return err
+		}
+		return tx.Where("1 = 1").Delete(&failure{}).Error
+	})
+	return n, err
 }

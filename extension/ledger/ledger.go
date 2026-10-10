@@ -27,9 +27,13 @@ import (
 var ErrNotFound = errors.New("not found")
 
 type Ledger struct {
-	cfg *Config
-	db  *gorm.DB
+	cfg  *Config
+	db   *gorm.DB
+	path string
 }
+
+// Path is the database file in use, after the env override and defaults.
+func (l *Ledger) Path() string { return l.path }
 
 var _ component.Ledger = (*Ledger)(nil)
 
@@ -42,6 +46,7 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 	if err != nil {
 		return err
 	}
+	l.path = path
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}

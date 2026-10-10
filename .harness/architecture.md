@@ -198,8 +198,16 @@ Filters and no-op optimizers explain themselves via the `skip_reason` attr (`pay
 Events record `command` (normalized via `detect.Command`, else MCP tool + URL host) and, when
 bypassed, the `filter` that skipped them.
 MCP `stats {by?, session?, format?: json}` defaults to the overview of the calling session (`session: all` for every session).
-`gascoigne dashboard [-addr 127.0.0.1:7878]` (`cmd/gascoigne/dashboard.go`, one embedded
-`dashboard.html`, no build step) serves the ledger live: totals, days, outcomes, commands,
+Background server (`cmd/gascoigne/server.go`): one per user on `$GASCOIGNE_SERVER_ADDR`
+(default `127.0.0.1:7878`; the port is the lock), started detached (setsid, log in the user cache
+dir) by commands with `common.server` set (`exec`, `serve` for mcp/mcp-proxy, the codex hook's
+`optimize`) and by `wrap`, when `/api/health` does not answer. Health reports pid, build (binary
+path+size+mtime hash) and ledger path: another build is replaced (stop + spawn), another ledger
+left alone. Optimization never goes through it (startup is ~7 ms, the check ~0.3 ms), so a
+missing server cannot slow or fail an agent. `server run|start|stop|status`, `dashboard` =
+`server start`, `GASCOIGNE_SERVER=off`. `gascoigne reset` / `POST /api/reset` → `ledger.Reset`:
+events+steps by filters (flags only, never env); `-all` also raw and failures, no filters.
+The server (`dashboard.go`, one embedded `dashboard.html`, no build step) serves the ledger live: totals, days, outcomes, commands,
 optimizers, dialects, skip/fail/unchanged reasons, failing sources (forget button) and a feed of
 runs over server-sent events (`/api/stream`, polls the ledger since other processes write it;
 `ledger.Recent`). A run opens its steps and original; viewing an original there does not mark the

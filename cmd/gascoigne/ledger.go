@@ -225,3 +225,35 @@ func parseSince(s string) (time.Duration, error) {
 	}
 	return d, nil
 }
+
+// cmdReset clears savings stats. Filters come from flags only, never from
+// GASCOIGNE_* env: deleting should say exactly what it deletes.
+func cmdReset(ctx context.Context, args []string) error {
+	var (
+		all   bool
+		since string
+	)
+	return withLedger(ctx, "reset", args, 0, func(fs *flag.FlagSet) {
+		fs.BoolVar(&all, "all", false, "also delete stored originals and failure history (no filters)")
+		fs.StringVar(&since, "since", "", "only runs of the last period: 24h, 7d, 4w, 6mo")
+	}, func(l *ledger.Ledger, c *common, _ []string) error {
+		q := component.StatsQuery{Session: c.session, Agent: c.agent, Model: c.model}
+		if since != "" {
+			d, err := parseSince(since)
+			if err != nil {
+				return err
+			}
+			q.Since = time.Now().Add(-d)
+		}
+		n, err := l.Reset(ctx, q, all)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("gascoigne: deleted %d runs from %s", n, l.Path())
+		if all {
+			fmt.Print(", all stored originals and failure history")
+		}
+		fmt.Println()
+		return nil
+	})
+}

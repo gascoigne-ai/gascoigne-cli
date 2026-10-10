@@ -23,7 +23,7 @@ func testDashboard(t *testing.T) (*ledger.Ledger, http.Handler) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { l.Shutdown(context.Background()) })
-	return l, dashboard(l, 10*time.Millisecond)
+	return l, dashboard(l, 10*time.Millisecond, serverInfo{PID: 42, Build: "b1", Ledger: l.Path()}, func() {})
 }
 
 func record(t *testing.T, l *ledger.Ledger, session, cmd string) {
@@ -158,5 +158,60 @@ func TestDashboardStream(t *testing.T) {
 	}
 	if len(batches) != 2 || batches[0][0].Command != "git log" || batches[1][0].Command != "go test" {
 		t.Fatalf("want the backlog, then the new event: %+v", batches)
+	}
+}
+
+func TestServerControl(t *testing.T) {
+	l, _ := testDashboard(t)
+	stopped := make(chan struct{})
+	h := dashboard(l, time.Second, serverInfo{PID: 42, Build: "b1", Ledger: l.Path()}, func() { close(stopped) })
+	record(t, l, "s1", "git log")
+	record(t, l, "s2", "go test")
+
+	if w := get(h, "GET", "/api/health"); !strings.Contains(w.Body.String(), `"build":"b1"`) {
+		t.Fatalf("health: %s", w.Body.String())
+	}
+	if w := get(h, "POST", "/api/reset?session=s1"); w.Code != 200 || !strings.Contains(w.Body.String(), `"deleted_events":1`) {
+		t.Fatalf("reset: %d %s", w.Code, w.Body.String())
+	}
+	if w := get(h, "GET", "/api/events"); strings.Contains(w.Body.String(), "git log") || !strings.Contains(w.Body.String(), "go test") {
+		t.Fatalf("reset of s1 touched the wrong events: %s", w.Body.String())
+	}
+	if w := get(h, "POST", "/api/reset?session=s2&all=1"); w.Code != 400 {
+		t.Fatalf("filtered full reset: %d", w.Code)
+	}
+	if w := get(h, "POST", "/api/shutdown", "Origin", "http://evil.example"); w.Code != 403 {
+		t.Fatalf("cross-origin shutdown: %d", w.Code)
+	}
+	if w := get(h, "POST", "/api/shutdown"); w.Code != 202 {
+		t.Fatalf("shutdown: %d", w.Code)
+	}
+	select {
+	case <-stopped:
+	case <-time.After(time.Second):
+		t.Fatal("shutdown did not stop the server")
+	}
+}
+
+func TestServerAction(t *testing.T) {
+	info := serverInfo{Build: "b1", Ledger: "/data/l.db"}
+	tests := []struct {
+		name    string
+		running bool
+		ledger  string
+		build   string
+		want    action
+	}{
+		{"none running", false, "/data/l.db", "b1", startServer},
+		{"same build and ledger", true, "/data/l.db", "b1", keepServer},
+		{"rebuilt binary", true, "/data/l.db", "b2", replaceServer},
+		{"another ledger", true, "/tmp/eval.db", "b2", keepServer},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := serverAction(info, tt.running, tt.ledger, tt.build); got != tt.want {
+				t.Fatalf("got %d, want %d", got, tt.want)
+			}
+		})
 	}
 }

@@ -4,14 +4,11 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
-	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"time"
 
@@ -23,34 +20,36 @@ import (
 //go:embed dashboard.html
 var dashboardHTML []byte
 
-// cmdDashboard serves a live view of the ledger on a local port: savings,
-// every run as it happens, why runs were skipped, originals, failing sources.
+// cmdDashboard makes sure the background server runs and prints its address.
 func cmdDashboard(ctx context.Context, args []string) error {
-	var addr string
-	return withLedger(ctx, "dashboard", args, 0, func(fs *flag.FlagSet) {
-		fs.StringVar(&addr, "addr", "127.0.0.1:7878", "listen address (loopback only: the page shows originals)")
-	}, func(l *ledger.Ledger, _ *common, _ []string) error {
-		ln, err := net.Listen("tcp", addr)
-		if err != nil {
-			return err
-		}
-		srv := &http.Server{Handler: dashboard(l, time.Second), ReadHeaderTimeout: 5 * time.Second}
-		go func() {
-			<-ctx.Done()
-			srv.Shutdown(context.WithoutCancel(ctx))
-		}()
-		fmt.Fprintf(os.Stderr, "gascoigne dashboard: http://%s\n", ln.Addr())
-		if err := srv.Serve(ln); !errors.Is(err, http.ErrServerClosed) {
-			return err
-		}
-		return nil
-	})
+	return cmdServer(ctx, append([]string{"start"}, args...))
 }
 
 // dashboard routes the page and its JSON API; poll is how often the live
-// stream checks the ledger, which other gascoigne processes write to.
-func dashboard(l *ledger.Ledger, poll time.Duration) http.Handler {
+// stream checks the ledger, which other gascoigne processes write to. stop
+// ends the server.
+func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func()) http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, _ *http.Request) {
+		respond(w, info, nil)
+	})
+	mux.HandleFunc("POST /api/shutdown", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusAccepted)
+		go stop() // after the response is written
+	})
+	mux.HandleFunc("POST /api/reset", func(w http.ResponseWriter, r *http.Request) {
+		q, err := statsQuery(r.URL.Query())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		n, err := l.Reset(r.Context(), q, r.URL.Query().Get("all") == "1")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		respond(w, map[string]int64{"deleted_events": n}, nil)
+	})
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write(dashboardHTML)

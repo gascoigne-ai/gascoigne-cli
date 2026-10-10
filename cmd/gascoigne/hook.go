@@ -123,6 +123,7 @@ func shellOutput(raw json.RawMessage) (string, int, bool) {
 
 // optimize runs text through the hook pipeline.
 func (c *common) optimize(ctx context.Context, text, cmd string) (*payload.Payload, error) {
+	c.server = true
 	svc, err := c.start(ctx)
 	if err != nil {
 		return nil, err

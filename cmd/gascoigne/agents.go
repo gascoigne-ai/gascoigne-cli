@@ -97,6 +97,14 @@ func cmdWrap(_ context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
+	if !serverOff() {
+		// The dashboard address goes to stderr before the agent takes the terminal.
+		start := exec.Command(exe, "server", "start")
+		start.Stdout, start.Stderr = os.Stderr, os.Stderr
+		if err := start.Run(); err != nil {
+			fmt.Fprintln(os.Stderr, "gascoigne: dashboard not started:", err)
+		}
+	}
 	cmd := exec.Command(a.bin, append(extra, fs.Args()[1:]...)...)
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 	cmd.Env = append(os.Environ(),
