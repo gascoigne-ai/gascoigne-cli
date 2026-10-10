@@ -1,0 +1,30 @@
+
+Stack shop-api
+IAM Statement Changes
+┌───┬─────────────────────────┬────────┬─────────────────┬──────────────────────────────┬───────────┐
+│   │ Resource                │ Effect │ Action          │ Principal                    │ Condition │
+├───┼─────────────────────────┼────────┼─────────────────┼──────────────────────────────┼───────────┤
+│ + │ ${OrdersTable.Arn}      │ Allow  │ dynamodb:PutItem│ AWS:${OrdersFn/ServiceRole}  │           │
+└───┴─────────────────────────┴────────┴─────────────────┴──────────────────────────────┴───────────┘
+(NOTE: There may be security-related changes not in this list. See https://github.com/aws/aws-cdk/issues/1299)
+
+Resources
+[+] AWS::DynamoDB::Table OrdersTable OrdersTable4E424B92
+[~] AWS::Lambda::Function OrdersFn OrdersFn5D09DD29
+ ├─ [~] Code
+ │   └─ [~] .S3Key:
+│       ├─ [-] c50e2b9943cdc3567c55dde1d5d1cbd047e5eb8dab163406b4581e378f2f3949.zip
+│       └─ [+] a6523995570f0cbef20f678df4f6717c4b39e336b74acffbb0ddb48bfb1ff91a.zip
+ └─ [~] Runtime
+     ├─ [-] nodejs18.x
+     └─ [+] nodejs20.x
+
+shop-api | 13/14 | 10:25:40 AM | UPDATE_FAILED      | AWS::Lambda::Function | OrdersFn (OrdersFn8CC8678B) Resource handler returned message: "Uploaded file must be a non-empty zip" (RequestToken: 9d128945, HandlerErrorCode: InvalidRequest)
+shop-api | 14/14 | 10:25:52 AM | UPDATE_ROLLBACK_IN_P | AWS::CloudFormation::Stack | shop-api The following resource(s) failed to update: [OrdersFn4D27667D].
+
+Failed resources:
+shop-api | 10:25:40 AM | UPDATE_FAILED      | AWS::Lambda::Function | OrdersFn (OrdersFn18463B8A) Resource handler returned message: "Uploaded file must be a non-empty zip"
+
+ ❌  shop-api failed: _ToolkitError: The stack named shop-api failed to deploy: UPDATE_ROLLBACK_COMPLETE: Resource handler returned message: "Uploaded file must be a non-empty zip"
+
+… 24 progress events omitted

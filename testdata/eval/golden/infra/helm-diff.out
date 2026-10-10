@@ -1,0 +1,59 @@
+default, shop-web, Deployment (apps) has changed:
+  # Source: shop/templates/deployment.yaml
+  apiVersion: apps/v1
+  kind: Deployment
+… 2 lines omitted
+    labels:
+      app.kubernetes.io/name: shop-web
+      app.kubernetes.io/instance: shop
+-     helm.sh/chart: shop-1.4.1
++     helm.sh/chart: shop-1.4.2
+      app.kubernetes.io/managed-by: Helm
+  spec:
+    replicas: 3
+… 15 lines omitted
+          fsGroup: 2000
+        containers:
+          - name: web
+-           image: "ghcr.io/example/shop-web:1.4.1"
++           image: "ghcr.io/example/shop-web:1.4.2"
+            imagePullPolicy: IfNotPresent
+            ports:
+              - name: http
+… 9 lines omitted
+                port: http
+            resources:
+              limits:
+-               memory: 256Mi
++               memory: 512Mi
+                cpu: 500m
+              requests:
+                memory: 128Mi
+… 59 lines omitted
+                value: "off"
+              - name: FEATURE_29
+                value: "on"
+default, shop-web, ConfigMap (v1) has changed:
+  # Source: shop/templates/configmap.yaml
+  apiVersion: v1
+  kind: ConfigMap
+… 40 lines omitted
+    key_37: "06d087a565a4"
+    key_38: "598a76dec5ce"
+    key_39: "ae875c6d13a1"
+-   LOG_LEVEL: debug
++   LOG_LEVEL: info
+    key_40: "d009beb9722b"
+    key_41: "21ea973efa14"
+    key_42: "00b9095367c2"
+… 14 lines omitted
+    key_57: "aead64514f42"
+    key_58: "b838da163580"
+    key_59: "e61e324bbcb0"
+default, shop-worker, Deployment (apps) has been removed:
+- # Source: shop/templates/worker.yaml
+- apiVersion: apps/v1
+- kind: Deployment
+- metadata:
+-   name: shop-worker
+

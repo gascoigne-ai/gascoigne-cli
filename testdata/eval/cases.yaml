@@ -247,6 +247,26 @@
 - { name: detect/gcp-yaml, file: cloud/gcloud-run-describe.yaml, expect_type: cloud/gcp }
 - { name: detect/azure-json, file: cloud/az-vm-list.json, expect_type: cloud/azure }
 
+# --- infra family
+- { file: infra/terraform-plan.txt, attrs: { cmd: terraform plan }, expect_type: infra/terraform,
+    keep: ["aws_db_instance.main must be replaced", "storage_encrypted                     = false -> true # forces replacement", "\"nodejs16.x\" -> \"nodejs20.x\"",
+           "\"0.0.0.0/0\"", "\"10.0.0.0/16\"", "Plan: 25 to add, 2 to change, 1 to destroy.", "Warning: Argument is deprecated", "known after apply: arn"], min_saved: 50 }
+- { file: infra/terraform-apply-error.txt, attrs: { cmd: terraform apply -auto-approve }, expect_type: infra/terraform,
+    keep: ["Error: creating SQS Queue (jobs-3)", "QueueDeletedRecently", "on queues.tf line 1", "5 resources completed"], min_saved: 60 }
+- { file: infra/pulumi-up.txt, attrs: { cmd: pulumi up --yes }, expect_type: infra/pulumi,
+    keep: ["ConflictException: Route with key POST /orders", "updated (4s) [diff: ~code,runtime]", "2 changes. 30 unchanged", "unchanged resource rows omitted"], min_saved: 30 }
+- { file: infra/ansible-playbook.txt, attrs: { cmd: ansible-playbook -i inv.ini play.yml }, expect_type: infra/ansible,
+    keep: ["fatal: [web-07]", "migrated", "TASK [Write release marker] changed: web-02, web-05", "PLAY RECAP", "failed=1", "web-08  "], min_saved: 50 }
+- { file: infra/cdk-deploy.txt, attrs: { cmd: cdk deploy shop-api }, expect_type: infra/cdk,
+    keep: ["UPDATE_FAILED", "Uploaded file must be a non-empty zip", "[+] AWS::DynamoDB::Table", "nodejs20.x", "dynamodb:PutItem"], min_saved: 30 }
+- { file: infra/helm-diff.txt, attrs: { cmd: helm diff upgrade shop ./chart }, expect_type: infra/helm-diff,
+    keep: ["shop-web:1.4.2", "memory: 512Mi", "LOG_LEVEL: info", "shop-worker, Deployment (apps) has been removed"], min_saved: 50 }
+- { name: detect/terraform, file: infra/terraform-plan.txt, expect_type: infra/terraform }
+- { name: detect/pulumi, file: infra/pulumi-up.txt, expect_type: infra/pulumi }
+- { name: detect/ansible, file: infra/ansible-playbook.txt, expect_type: infra/ansible }
+- { name: detect/cdk, file: infra/cdk-deploy.txt, expect_type: infra/cdk }
+- { name: detect/helm-diff, file: infra/helm-diff.txt, expect_type: infra/helm-diff }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }

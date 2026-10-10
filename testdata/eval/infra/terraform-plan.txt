@@ -1,0 +1,826 @@
+aws_s3_bucket.assets[0]: Refreshing state... [id=subnet-c5bc8fbbcbde5c099]
+aws_s3_bucket.assets[1]: Refreshing state... [id=c77330bdbd7210dff]
+aws_s3_bucket.assets[2]: Refreshing state... [id=sg-e0d464138a6233255]
+aws_s3_bucket.assets[3]: Refreshing state... [id=sg-75f2dd97f1cfb10f6]
+aws_iam_role_policy_attachment.lambda[0]: Refreshing state... [id=sg-18b33e968617959ce]
+aws_iam_role_policy_attachment.lambda[1]: Refreshing state... [id=sg-3bb2edb20035b7399]
+aws_iam_role_policy_attachment.lambda[2]: Refreshing state... [id=rtbassoc-e2e9c82b1478c281d]
+aws_iam_role_policy_attachment.lambda[3]: Refreshing state... [id=rtbassoc-cc30d8b7628dbd25e]
+aws_iam_role_policy_attachment.lambda[4]: Refreshing state... [id=99e30691c238642ea]
+aws_iam_role_policy_attachment.lambda[5]: Refreshing state... [id=rtbassoc-021da8978206f5c66]
+aws_iam_role_policy_attachment.lambda[6]: Refreshing state... [id=3c60a3cab359eeefb]
+aws_iam_role_policy_attachment.lambda[7]: Refreshing state... [id=sg-42a9eba0cdf561d80]
+aws_iam_role_policy_attachment.lambda[8]: Refreshing state... [id=subnet-832ea6928f6236bf2]
+aws_iam_role_policy_attachment.lambda[9]: Refreshing state... [id=sg-ff0e3cd972e81d66d]
+aws_iam_role_policy_attachment.lambda[10]: Refreshing state... [id=sg-ef7108e96f770c226]
+aws_iam_role_policy_attachment.lambda[11]: Refreshing state... [id=rtbassoc-50585a01c4c7d6df0]
+aws_cloudwatch_log_group.fn["orders"]: Refreshing state... [id=rtbassoc-2ef901b932a7c1880]
+aws_cloudwatch_log_group.fn["users"]: Refreshing state... [id=subnet-454f46a6910acff00]
+aws_cloudwatch_log_group.fn["cart"]: Refreshing state... [id=bad8d194a98921396]
+aws_cloudwatch_log_group.fn["search"]: Refreshing state... [id=subnet-54f59672710e6d8e6]
+aws_cloudwatch_log_group.fn["billing"]: Refreshing state... [id=subnet-5b24891917b121dc5]
+aws_cloudwatch_log_group.fn["mail"]: Refreshing state... [id=sg-b78f845f57b3120df]
+module.vpc.aws_subnet.private[0]: Refreshing state... [id=sg-f419521fe0e979cf3]
+module.vpc.aws_subnet.private[1]: Refreshing state... [id=5bff29101f3001cee]
+module.vpc.aws_subnet.private[2]: Refreshing state... [id=rtbassoc-c8c8f95ef04a012e8]
+module.vpc.aws_subnet.private[3]: Refreshing state... [id=rtbassoc-960597bdc5dbe4409]
+module.vpc.aws_subnet.private[4]: Refreshing state... [id=b0bf64ef773ec28d0]
+module.vpc.aws_subnet.private[5]: Refreshing state... [id=sg-ff486ab739faba827]
+module.vpc.aws_route_table_association.private[0]: Refreshing state... [id=sg-3c177f1131e782196]
+module.vpc.aws_route_table_association.private[1]: Refreshing state... [id=rtbassoc-58332f05a58296818]
+module.vpc.aws_route_table_association.private[2]: Refreshing state... [id=subnet-1767d5274c68deb5d]
+module.vpc.aws_route_table_association.private[3]: Refreshing state... [id=subnet-04bbdbb01dc14ed57]
+module.vpc.aws_route_table_association.private[4]: Refreshing state... [id=rtbassoc-1fa749692f21ff5eb]
+module.vpc.aws_route_table_association.private[5]: Refreshing state... [id=sg-9834c1b69573ac59a]
+data.aws_caller_identity.current: Refreshing state... [id=subnet-525f02628eb07c30d]
+data.aws_caller_identity.current: Read complete after 0s [id=ec984692ba03]
+data.aws_region.current: Refreshing state... [id=5af9b74f84ffcbf42]
+data.aws_region.current: Read complete after 0s [id=2d6f4e613a36]
+aws_lambda_function.orders: Refreshing state... [id=b261c374ba07657d6]
+aws_db_instance.main: Refreshing state... [id=subnet-27bd9e8a1ff297d0e]
+aws_security_group.db: Refreshing state... [id=9fc98500014b9adb5]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+  ~ update in-place
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # aws_db_instance.main must be replaced
+-/+ resource "aws_db_instance" "main" {
+      ~ address                               = "shop-main.c9akciq32.eu-west-1.rds.amazonaws.com" -> (known after apply)
+      ~ arn                                   = "arn:aws:rds:eu-west-1:123456789012:db:shop-main" -> (known after apply)
+      ~ endpoint                              = "shop-main.c9akciq32.eu-west-1.rds.amazonaws.com:5432" -> (known after apply)
+      ~ engine_version_actual                 = "15.4" -> (known after apply)
+      ~ id                                    = "db-0867E84707EC717F158895787F" -> (known after apply)
+      ~ storage_encrypted                     = false -> true # forces replacement
+      + kms_key_id                            = (known after apply)
+      ~ latest_restorable_time                = "2026-10-10T07:55:00Z" -> (known after apply)
+        tags                                  = {
+            "env" = "prod"
+        }
+        # (42 unchanged attributes hidden)
+    }
+
+  # aws_lambda_function.orders will be updated in-place
+  ~ resource "aws_lambda_function" "orders" {
+        id                             = "shop-orders"
+      ~ last_modified                  = "2026-09-30T10:00:00.000+0000" -> (known after apply)
+      ~ runtime                        = "nodejs16.x" -> "nodejs20.x"
+      ~ source_code_hash               = "400d3881a5058056ed0980dc6ffbd953dc23cc21779=" -> "faa0e42d43c2547f19c6bf84914a6a5bc9974a677c6="
+        tags                           = {}
+        # (24 unchanged attributes hidden)
+
+      ~ environment {
+          ~ variables = {
+              ~ "LOG_LEVEL" = "debug" -> "info"
+                # (3 unchanged elements hidden)
+            }
+        }
+
+        # (3 unchanged blocks hidden)
+    }
+
+  # aws_security_group.db will be updated in-place
+  ~ resource "aws_security_group" "db" {
+        id                     = "sg-0a36939efea83854a"
+      ~ ingress                = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - from_port        = 5432
+              - protocol         = "tcp"
+              - to_port          = 5432
+            },
+          + {
+              + cidr_blocks      = [
+                  + "10.0.0.0/16",
+                ]
+              + from_port        = 5432
+              + protocol         = "tcp"
+              + to_port          = 5432
+            },
+        ]
+        name                   = "shop-db"
+        # (7 unchanged attributes hidden)
+    }
+
+  # module.queues.aws_sqs_queue.this["q00"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q00"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q01"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q01"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q02"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q02"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q03"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q03"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q04"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q04"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q05"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q05"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q06"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q06"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q07"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q07"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q08"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q08"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q09"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q09"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q10"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q10"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q11"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q11"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q12"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q12"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q13"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q13"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q14"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q14"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q15"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q15"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q16"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q16"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q17"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q17"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q18"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q18"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q19"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q19"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q20"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q20"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q21"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q21"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q22"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q22"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q23"] will be created
+  + resource "aws_sqs_queue" "this" {
+      + arn                               = (known after apply)
+      + content_based_deduplication       = false
+      + deduplication_scope               = (known after apply)
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + fifo_throughput_limit             = (known after apply)
+      + id                                = (known after apply)
+      + kms_data_key_reuse_period_seconds = (known after apply)
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q23"
+      + name_prefix                       = (known after apply)
+      + policy                            = (known after apply)
+      + receive_wait_time_seconds         = 0
+      + redrive_allow_policy              = (known after apply)
+      + redrive_policy                    = (known after apply)
+      + sqs_managed_sse_enabled           = (known after apply)
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + url                               = (known after apply)
+      + visibility_timeout_seconds        = 30
+    }
+
+Plan: 25 to add, 2 to change, 1 to destroy.
+
+Changes to Outputs:
+  ~ db_endpoint = "shop-main.c9akciq32.eu-west-1.rds.amazonaws.com:5432" -> (known after apply)
+╷
+│ Warning: Argument is deprecated
+│ 
+│   with aws_s3_bucket.assets,
+│   on s3.tf line 12, in resource "aws_s3_bucket" "assets":
+│   12:   acl    = "private"
+│ 
+│ Use the aws_s3_bucket_acl resource instead
+│ 
+│ (and 3 more similar warnings elsewhere)
+╵
+
+─────────────────────────────────────────────────────────────────────────────
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.

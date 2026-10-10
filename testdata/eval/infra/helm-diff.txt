@@ -1,0 +1,192 @@
+default, shop-web, Deployment (apps) has changed:
+  # Source: shop/templates/deployment.yaml
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: shop-web
+    labels:
+      app.kubernetes.io/name: shop-web
+      app.kubernetes.io/instance: shop
+-     helm.sh/chart: shop-1.4.1
++     helm.sh/chart: shop-1.4.2
+      app.kubernetes.io/managed-by: Helm
+  spec:
+    replicas: 3
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: shop-web
+        app.kubernetes.io/instance: shop
+    template:
+      metadata:
+        annotations:
+          checksum/config: f5532e9c4b0e9e7f94b59db0f37b7afb56e12b56833ce1378b93983c4b978eaf
+        labels:
+          app.kubernetes.io/name: shop-web
+          app.kubernetes.io/instance: shop
+      spec:
+        serviceAccountName: shop-web
+        securityContext:
+          runAsNonRoot: true
+          fsGroup: 2000
+        containers:
+          - name: web
+-           image: "ghcr.io/example/shop-web:1.4.1"
++           image: "ghcr.io/example/shop-web:1.4.2"
+            imagePullPolicy: IfNotPresent
+            ports:
+              - name: http
+                containerPort: 8080
+                protocol: TCP
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: http
+            readinessProbe:
+              httpGet:
+                path: /readyz
+                port: http
+            resources:
+              limits:
+-               memory: 256Mi
++               memory: 512Mi
+                cpu: 500m
+              requests:
+                memory: 128Mi
+                cpu: 100m
+            env:
+              - name: FEATURE_00
+                value: "off"
+              - name: FEATURE_01
+                value: "on"
+              - name: FEATURE_02
+                value: "off"
+              - name: FEATURE_03
+                value: "off"
+              - name: FEATURE_04
+                value: "off"
+              - name: FEATURE_05
+                value: "off"
+              - name: FEATURE_06
+                value: "on"
+              - name: FEATURE_07
+                value: "on"
+              - name: FEATURE_08
+                value: "off"
+              - name: FEATURE_09
+                value: "off"
+              - name: FEATURE_10
+                value: "on"
+              - name: FEATURE_11
+                value: "on"
+              - name: FEATURE_12
+                value: "on"
+              - name: FEATURE_13
+                value: "off"
+              - name: FEATURE_14
+                value: "on"
+              - name: FEATURE_15
+                value: "off"
+              - name: FEATURE_16
+                value: "on"
+              - name: FEATURE_17
+                value: "off"
+              - name: FEATURE_18
+                value: "on"
+              - name: FEATURE_19
+                value: "off"
+              - name: FEATURE_20
+                value: "off"
+              - name: FEATURE_21
+                value: "off"
+              - name: FEATURE_22
+                value: "off"
+              - name: FEATURE_23
+                value: "on"
+              - name: FEATURE_24
+                value: "off"
+              - name: FEATURE_25
+                value: "off"
+              - name: FEATURE_26
+                value: "off"
+              - name: FEATURE_27
+                value: "off"
+              - name: FEATURE_28
+                value: "off"
+              - name: FEATURE_29
+                value: "on"
+default, shop-web, ConfigMap (v1) has changed:
+  # Source: shop/templates/configmap.yaml
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: shop-web
+  data:
+    key_00: "980d988700ad"
+    key_01: "bdb34283de5c"
+    key_02: "4d01fb218ac1"
+    key_03: "40467f0de0a1"
+    key_04: "05096a5daa44"
+    key_05: "f1f751b3fb36"
+    key_06: "4eb7fbf98bb8"
+    key_07: "edf67de3a31c"
+    key_08: "24ae49516704"
+    key_09: "06167a18755f"
+    key_10: "a8f91f33ebee"
+    key_11: "f5f99f26dab2"
+    key_12: "3ed971871853"
+    key_13: "0a3b4b08ce11"
+    key_14: "22edc81de77b"
+    key_15: "6473d3a98330"
+    key_16: "7af403614a8b"
+    key_17: "8f7088562827"
+    key_18: "3e544616f203"
+    key_19: "796aef6cbfc5"
+    key_20: "0969c82b12a6"
+    key_21: "7d783ee395e6"
+    key_22: "d80a44873bea"
+    key_23: "b8b1279eb8d9"
+    key_24: "4925fd23a604"
+    key_25: "7e054b0e62be"
+    key_26: "fe139ba859ef"
+    key_27: "84aa798171f9"
+    key_28: "dd0da516a273"
+    key_29: "e1729a962848"
+    key_30: "e51ebe54430c"
+    key_31: "04231e40fa8c"
+    key_32: "2043c2a97ce2"
+    key_33: "48474cfa0116"
+    key_34: "b541889351cd"
+    key_35: "9d13560c117e"
+    key_36: "bb344bfc8983"
+    key_37: "06d087a565a4"
+    key_38: "598a76dec5ce"
+    key_39: "ae875c6d13a1"
+-   LOG_LEVEL: debug
++   LOG_LEVEL: info
+    key_40: "d009beb9722b"
+    key_41: "21ea973efa14"
+    key_42: "00b9095367c2"
+    key_43: "8da0409eca59"
+    key_44: "af8c74a319dc"
+    key_45: "1b8beaa48aed"
+    key_46: "affae35012c7"
+    key_47: "30f18babefb1"
+    key_48: "6dfe03ba3cf5"
+    key_49: "cebac7441601"
+    key_50: "984a6d7fd04d"
+    key_51: "b063935d428e"
+    key_52: "f409b54b5d27"
+    key_53: "a61ba1da2cea"
+    key_54: "dbd37b5c6d05"
+    key_55: "d758e9662ca3"
+    key_56: "79c862ae5e51"
+    key_57: "aead64514f42"
+    key_58: "b838da163580"
+    key_59: "e61e324bbcb0"
+default, shop-worker, Deployment (apps) has been removed:
+- # Source: shop/templates/worker.yaml
+- apiVersion: apps/v1
+- kind: Deployment
+- metadata:
+-   name: shop-worker
+

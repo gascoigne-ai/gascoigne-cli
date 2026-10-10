@@ -1,0 +1,112 @@
+
+  # aws_db_instance.main must be replaced
+-/+ resource "aws_db_instance" "main" {
+      ~ address                               = "shop-main.c9akciq32.eu-west-1.rds.amazonaws.com" -> (known after apply)
+      ~ arn                                   = "arn:aws:rds:eu-west-1:123456789012:db:shop-main" -> (known after apply)
+      ~ endpoint                              = "shop-main.c9akciq32.eu-west-1.rds.amazonaws.com:5432" -> (known after apply)
+      ~ engine_version_actual                 = "15.4" -> (known after apply)
+      ~ id                                    = "db-0867E84707EC717F158895787F" -> (known after apply)
+      ~ storage_encrypted                     = false -> true # forces replacement
+        (known after apply: kms_key_id)
+      ~ latest_restorable_time                = "2026-10-10T07:55:00Z" -> (known after apply)
+        tags                                  = {
+            "env" = "prod"
+        }
+    }
+
+  # aws_lambda_function.orders will be updated in-place
+  ~ resource "aws_lambda_function" "orders" {
+        id                             = "shop-orders"
+      ~ last_modified                  = "2026-09-30T10:00:00.000+0000" -> (known after apply)
+      ~ runtime                        = "nodejs16.x" -> "nodejs20.x"
+      ~ source_code_hash               = "400d3881a5058056ed0980dc6ffbd953dc23cc21779=" -> "faa0e42d43c2547f19c6bf84914a6a5bc9974a677c6="
+        tags                           = {}
+
+      ~ environment {
+          ~ variables = {
+              ~ "LOG_LEVEL" = "debug" -> "info"
+            }
+        }
+
+    }
+
+  # aws_security_group.db will be updated in-place
+  ~ resource "aws_security_group" "db" {
+        id                     = "sg-0a36939efea83854a"
+      ~ ingress                = [
+          - {
+              - cidr_blocks      = [
+                  - "0.0.0.0/0",
+                ]
+              - from_port        = 5432
+              - protocol         = "tcp"
+              - to_port          = 5432
+            },
+          + {
+              + cidr_blocks      = [
+                  + "10.0.0.0/16",
+                ]
+              + from_port        = 5432
+              + protocol         = "tcp"
+              + to_port          = 5432
+            },
+        ]
+        name                   = "shop-db"
+    }
+
+  # module.queues.aws_sqs_queue.this["q00"] will be created
+  + resource "aws_sqs_queue" "this" {
+        (known after apply: arn, deduplication_scope, fifo_throughput_limit, id, kms_data_key_reuse_period_seconds, name_prefix, policy, redrive_allow_policy, redrive_policy, sqs_managed_sse_enabled, url)
+      + content_based_deduplication       = false
+      + delay_seconds                     = 0
+      + fifo_queue                        = false
+      + max_message_size                  = 262144
+      + message_retention_seconds         = 345600
+      + name                              = "shop-q00"
+      + receive_wait_time_seconds         = 0
+      + tags                              = {
+          + "env" = "prod"
+        }
+      + tags_all                          = {
+          + "env" = "prod"
+        }
+      + visibility_timeout_seconds        = 30
+    }
+
+  # module.queues.aws_sqs_queue.this["q01"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q02"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q03"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q04"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q05"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q06"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q07"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q08"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q09"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q10"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q11"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q12"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q13"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q14"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q15"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q16"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q17"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q18"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q19"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q20"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q21"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q22"] will be created (like above)
+  # module.queues.aws_sqs_queue.this["q23"] will be created (like above)
+Plan: 25 to add, 2 to change, 1 to destroy.
+
+Changes to Outputs:
+  ~ db_endpoint = "shop-main.c9akciq32.eu-west-1.rds.amazonaws.com:5432" -> (known after apply)
+Warning: Argument is deprecated
+
+  with aws_s3_bucket.assets,
+  on s3.tf line 12, in resource "aws_s3_bucket" "assets":
+  12:   acl    = "private"
+
+Use the aws_s3_bucket_acl resource instead
+
+(and 3 more similar warnings elsewhere)
+

@@ -17,6 +17,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/db/dboptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/catoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/fs/lsoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/infra/infraoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/k8s/k8soptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/pkg/pkgoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/search/grepoptimizer"
@@ -58,6 +59,7 @@ func Factories() []component.Factory {
 		dboptimizer.NewFactory(),
 		k8soptimizer.NewFactory(),
 		cloudoptimizer.NewFactory(),
+		infraoptimizer.NewFactory(),
 		taskoptimizer.NewFactory(),
 		htmloptimizer.NewFactory(),
 		// exporters

@@ -1,0 +1,127 @@
+aws_s3_bucket.assets[0]: Refreshing state... [id=57e5a3930cd39e158]
+aws_s3_bucket.assets[1]: Refreshing state... [id=23501e088d6a34d3e]
+aws_s3_bucket.assets[2]: Refreshing state... [id=9bb4e5c11fb368220]
+aws_s3_bucket.assets[3]: Refreshing state... [id=a21fdac3af325ffbe]
+aws_iam_role_policy_attachment.lambda[0]: Refreshing state... [id=6c9bafe62e580c35e]
+aws_iam_role_policy_attachment.lambda[1]: Refreshing state... [id=62b37d8171b4c24c2]
+aws_iam_role_policy_attachment.lambda[2]: Refreshing state... [id=02634f16f5f7cc5d8]
+aws_iam_role_policy_attachment.lambda[3]: Refreshing state... [id=46baf71d7d8407b1a]
+aws_iam_role_policy_attachment.lambda[4]: Refreshing state... [id=e7401f5ce2425d75a]
+aws_iam_role_policy_attachment.lambda[5]: Refreshing state... [id=d9ed2aa0cffd21f09]
+aws_iam_role_policy_attachment.lambda[6]: Refreshing state... [id=8f9dba1db2b56955d]
+aws_iam_role_policy_attachment.lambda[7]: Refreshing state... [id=7f5cb2afc741b324d]
+aws_iam_role_policy_attachment.lambda[8]: Refreshing state... [id=5bac0d757b057c162]
+aws_iam_role_policy_attachment.lambda[9]: Refreshing state... [id=4462731417aa286ac]
+aws_iam_role_policy_attachment.lambda[10]: Refreshing state... [id=e675ebe3b78573797]
+aws_iam_role_policy_attachment.lambda[11]: Refreshing state... [id=61cd0c151258170f9]
+aws_cloudwatch_log_group.fn["orders"]: Refreshing state... [id=8fd06f9f6d2723248]
+aws_cloudwatch_log_group.fn["users"]: Refreshing state... [id=a2dece95af5b67e6e]
+aws_cloudwatch_log_group.fn["cart"]: Refreshing state... [id=d7fd39898efe8b3b5]
+aws_cloudwatch_log_group.fn["search"]: Refreshing state... [id=12e1c5d3a56a68b41]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_sqs_queue.jobs[0] will be created
+  + resource "aws_sqs_queue" "jobs" {
+      + arn                        = (known after apply)
+      + id                         = (known after apply)
+      + name                       = "jobs-0"
+      + url                        = (known after apply)
+      + visibility_timeout_seconds = 30
+    }
+
+  # aws_sqs_queue.jobs[1] will be created
+  + resource "aws_sqs_queue" "jobs" {
+      + arn                        = (known after apply)
+      + id                         = (known after apply)
+      + name                       = "jobs-1"
+      + url                        = (known after apply)
+      + visibility_timeout_seconds = 30
+    }
+
+  # aws_sqs_queue.jobs[2] will be created
+  + resource "aws_sqs_queue" "jobs" {
+      + arn                        = (known after apply)
+      + id                         = (known after apply)
+      + name                       = "jobs-2"
+      + url                        = (known after apply)
+      + visibility_timeout_seconds = 30
+    }
+
+  # aws_sqs_queue.jobs[3] will be created
+  + resource "aws_sqs_queue" "jobs" {
+      + arn                        = (known after apply)
+      + id                         = (known after apply)
+      + name                       = "jobs-3"
+      + url                        = (known after apply)
+      + visibility_timeout_seconds = 30
+    }
+
+  # aws_sqs_queue.jobs[4] will be created
+  + resource "aws_sqs_queue" "jobs" {
+      + arn                        = (known after apply)
+      + id                         = (known after apply)
+      + name                       = "jobs-4"
+      + url                        = (known after apply)
+      + visibility_timeout_seconds = 30
+    }
+
+  # aws_sqs_queue.jobs[5] will be created
+  + resource "aws_sqs_queue" "jobs" {
+      + arn                        = (known after apply)
+      + id                         = (known after apply)
+      + name                       = "jobs-5"
+      + url                        = (known after apply)
+      + visibility_timeout_seconds = 30
+    }
+
+Plan: 6 to add, 0 to change, 0 to destroy.
+
+aws_sqs_queue.jobs[0]: Creating...
+aws_sqs_queue.jobs[1]: Creating...
+aws_sqs_queue.jobs[2]: Creating...
+aws_sqs_queue.jobs[3]: Creating...
+aws_sqs_queue.jobs[4]: Creating...
+aws_sqs_queue.jobs[5]: Creating...
+aws_sqs_queue.jobs[0]: Still creating... [10s elapsed]
+aws_sqs_queue.jobs[1]: Still creating... [10s elapsed]
+aws_sqs_queue.jobs[2]: Still creating... [10s elapsed]
+aws_sqs_queue.jobs[4]: Still creating... [10s elapsed]
+aws_sqs_queue.jobs[5]: Still creating... [10s elapsed]
+aws_sqs_queue.jobs[0]: Still creating... [20s elapsed]
+aws_sqs_queue.jobs[1]: Still creating... [20s elapsed]
+aws_sqs_queue.jobs[2]: Still creating... [20s elapsed]
+aws_sqs_queue.jobs[4]: Still creating... [20s elapsed]
+aws_sqs_queue.jobs[5]: Still creating... [20s elapsed]
+aws_sqs_queue.jobs[0]: Still creating... [30s elapsed]
+aws_sqs_queue.jobs[1]: Still creating... [30s elapsed]
+aws_sqs_queue.jobs[2]: Still creating... [30s elapsed]
+aws_sqs_queue.jobs[4]: Still creating... [30s elapsed]
+aws_sqs_queue.jobs[5]: Still creating... [30s elapsed]
+aws_sqs_queue.jobs[0]: Still creating... [40s elapsed]
+aws_sqs_queue.jobs[1]: Still creating... [40s elapsed]
+aws_sqs_queue.jobs[2]: Still creating... [40s elapsed]
+aws_sqs_queue.jobs[4]: Still creating... [40s elapsed]
+aws_sqs_queue.jobs[5]: Still creating... [40s elapsed]
+aws_sqs_queue.jobs[0]: Still creating... [50s elapsed]
+aws_sqs_queue.jobs[1]: Still creating... [50s elapsed]
+aws_sqs_queue.jobs[2]: Still creating... [50s elapsed]
+aws_sqs_queue.jobs[4]: Still creating... [50s elapsed]
+aws_sqs_queue.jobs[5]: Still creating... [50s elapsed]
+aws_sqs_queue.jobs[0]: Creation complete after 1m2s [id=https://sqs.eu-west-1.amazonaws.com/123456789012/jobs-0]
+aws_sqs_queue.jobs[1]: Creation complete after 1m2s [id=https://sqs.eu-west-1.amazonaws.com/123456789012/jobs-1]
+aws_sqs_queue.jobs[2]: Creation complete after 1m2s [id=https://sqs.eu-west-1.amazonaws.com/123456789012/jobs-2]
+aws_sqs_queue.jobs[4]: Creation complete after 1m2s [id=https://sqs.eu-west-1.amazonaws.com/123456789012/jobs-4]
+aws_sqs_queue.jobs[5]: Creation complete after 1m2s [id=https://sqs.eu-west-1.amazonaws.com/123456789012/jobs-5]
+╷
+│ Error: creating SQS Queue (jobs-3): operation error SQS: CreateQueue, https response error StatusCode: 400, RequestID: 7deaab64-45b6, QueueDeletedRecently: You must wait 60 seconds after deleting a queue before you can create another with the same name.
+│ 
+│   with aws_sqs_queue.jobs[3],
+│   on queues.tf line 1, in resource "aws_sqs_queue" "jobs":
+│    1: resource "aws_sqs_queue" "jobs" {
+│ 
+╵

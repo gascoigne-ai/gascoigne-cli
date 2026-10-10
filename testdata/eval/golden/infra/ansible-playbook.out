@@ -1,0 +1,22 @@
+
+PLAY [Configure web nodes]
+
+TASK [Create app directory] changed: web-01, web-02, web-03, web-04, web-05, web-06, web-07, web-08
+TASK [Create config directory] changed: web-01, web-02, web-03, web-04, web-05, web-06, web-07, web-08
+TASK [Render nginx config] changed: web-01, web-02, web-03, web-04, web-05, web-06, web-07, web-08
+TASK [Render app env] changed: web-01, web-02, web-03, web-04, web-05, web-06, web-07, web-08
+TASK [Write release marker] changed: web-02, web-05 (ok/skipped ×6)
+TASK [Verify migrations applied]
+fatal: [web-07]: FAILED! => {"changed": false, "changed_when_result": false, "cmd": ["test", "-f", "/srv/deploy/out/web-07/migrated"], "delta": "0:00:00.001187", "end": "2026-10-10 06:23:19.127705", "msg": "The command exited with a non-zero return code.", "rc": 1, "start": "2026-10-10 06:23:19.126518", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+
+PLAY RECAP
+web-01                     : ok=9    changed=4    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0
+web-02                     : ok=9    changed=5    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0
+web-03                     : ok=8    changed=4    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
+web-04                     : ok=8    changed=4    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
+web-05                     : ok=9    changed=5    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0
+web-06                     : ok=8    changed=4    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
+web-07                     : ok=6    changed=4    unreachable=0    failed=1    skipped=2    rescued=0    ignored=0
+web-08                     : ok=8    changed=4    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
+
+… 5 ok/skipped-only tasks omitted

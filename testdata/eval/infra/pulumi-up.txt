@@ -1,0 +1,67 @@
+Updating (dev)
+
+View in Browser (Ctrl+O): https://app.pulumi.com/acme/shop/dev/updates/42
+
+    pulumi:pulumi:Stack shop-dev running
+    aws:iam:Role role-00  
+    aws:lambda:Function fn-01  
+    aws:cloudwatch:LogGroup logs-02  
+    aws:sqs:Queue queue-03  
+    aws:s3:BucketV2 bucket-04  
+    aws:iam:Role role-05  
+    aws:lambda:Function fn-06  
+    aws:cloudwatch:LogGroup logs-07  
+    aws:sqs:Queue queue-08  
+    aws:s3:BucketV2 bucket-09  
+    aws:iam:Role role-10  
+    aws:lambda:Function fn-11  
+    aws:cloudwatch:LogGroup logs-12  
+    aws:sqs:Queue queue-13  
+    aws:s3:BucketV2 bucket-14  
+    aws:iam:Role role-15  
+    aws:lambda:Function fn-16  
+    aws:cloudwatch:LogGroup logs-17  
+    aws:sqs:Queue queue-18  
+    aws:s3:BucketV2 bucket-19  
+    aws:iam:Role role-20  
+    aws:lambda:Function fn-21  
+    aws:cloudwatch:LogGroup logs-22  
+    aws:sqs:Queue queue-23  
+    aws:s3:BucketV2 bucket-24  
+    aws:iam:Role role-25  
+    aws:lambda:Function fn-26  
+    aws:cloudwatch:LogGroup logs-27  
+    aws:sqs:Queue queue-28  
+    aws:s3:BucketV2 bucket-29  
+@ updating....
+ +  aws:sqs:Queue jobs creating (0s) 
+@ updating.....
+ +  aws:sqs:Queue jobs created (1s) 
+ ~  aws:lambda:Function fn-01 updating (0s) [diff: ~code,runtime]
+@ updating......
+ ~  aws:lambda:Function fn-01 updated (4s) [diff: ~code,runtime]
+ +  aws:apigatewayv2:Route orders-route creating (0s) 
+@ updating.......
+ +  aws:apigatewayv2:Route orders-route creating failed error: creating API Gateway v2 route: ConflictException: Route with key POST /orders already exists for this API
+ +  aws:apigatewayv2:Route orders-route **creating failed** error: creating API Gateway v2 route: ConflictException: Route with key POST /orders already exists for this API
+    pulumi:pulumi:Stack shop-dev running error: update failed
+    pulumi:pulumi:Stack shop-dev **failed** 1 error
+Diagnostics:
+  aws:apigatewayv2:Route (orders-route):
+    error:   sdk-v2/provider2.go:385: sdk.helper_schema: creating API Gateway v2 route: ConflictException: Route with key POST /orders already exists for this API: provider=aws@6.52.0
+    error: 1 error occurred:
+    	* creating API Gateway v2 route: ConflictException: Route with key POST /orders already exists for this API
+
+  pulumi:pulumi:Stack (shop-dev):
+    error: update failed
+
+Outputs:
+    apiUrl: "https://abc123.execute-api.eu-west-1.amazonaws.com"
+
+Resources:
+    + 1 created
+    ~ 1 updated
+    2 changes. 30 unchanged
+
+Duration: 18s
+

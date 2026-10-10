@@ -1,0 +1,67 @@
+✨  Synthesis time: 6.31s
+
+shop-api: building assets...
+
+[0%] start: Building c938c68d1027e5d35c7fe05880b91b2ede0d0fc58c5050eac832652e83e2c328:current_account-current_region
+[100%] success: Built c277af3208c9196da9fd1ce996655f23b1d117b75b0f13b0c65fb8a2cb8f1137:current_account-current_region
+
+shop-api: assets built
+
+Stack shop-api
+IAM Statement Changes
+┌───┬─────────────────────────┬────────┬─────────────────┬──────────────────────────────┬───────────┐
+│   │ Resource                │ Effect │ Action          │ Principal                    │ Condition │
+├───┼─────────────────────────┼────────┼─────────────────┼──────────────────────────────┼───────────┤
+│ + │ ${OrdersTable.Arn}      │ Allow  │ dynamodb:PutItem│ AWS:${OrdersFn/ServiceRole}  │           │
+└───┴─────────────────────────┴────────┴─────────────────┴──────────────────────────────┴───────────┘
+(NOTE: There may be security-related changes not in this list. See https://github.com/aws/aws-cdk/issues/1299)
+
+Resources
+[+] AWS::DynamoDB::Table OrdersTable OrdersTable4E424B92
+[~] AWS::Lambda::Function OrdersFn OrdersFn5D09DD29
+ ├─ [~] Code
+ │   └─ [~] .S3Key:
+│       ├─ [-] c50e2b9943cdc3567c55dde1d5d1cbd047e5eb8dab163406b4581e378f2f3949.zip
+│       └─ [+] a6523995570f0cbef20f678df4f6717c4b39e336b74acffbb0ddb48bfb1ff91a.zip
+ └─ [~] Runtime
+     ├─ [-] nodejs18.x
+     └─ [+] nodejs20.x
+
+
+✨  Number of stacks with differences: 1
+
+shop-api: deploying... [1/1]
+shop-api: creating CloudFormation changeset...
+
+shop-api |  1/14 | 10:01:11 AM | CREATE_COMPLETE    | AWS::Lambda::Function | OrdersTable 
+shop-api |  2/14 | 10:02:11 AM | UPDATE_IN_PROGRESS | AWS::DynamoDB::Table | OrdersFn/ServiceRole 
+shop-api |  3/14 | 10:03:11 AM | UPDATE_IN_PROGRESS | AWS::IAM::Policy | OrdersTable 
+shop-api |  4/14 | 10:04:11 AM | UPDATE_IN_PROGRESS | AWS::DynamoDB::Table | OrdersTable 
+shop-api |  5/14 | 10:05:11 AM | UPDATE_IN_PROGRESS | AWS::IAM::Policy | OrdersTable 
+shop-api |  6/14 | 10:06:11 AM | CREATE_COMPLETE    | AWS::IAM::Policy | OrdersTable 
+shop-api |  7/14 | 10:07:11 AM | UPDATE_IN_PROGRESS | AWS::IAM::Role | OrdersFn/ServiceRole 
+shop-api |  8/14 | 10:08:11 AM | CREATE_COMPLETE    | AWS::IAM::Role | OrdersTable 
+shop-api |  9/14 | 10:09:11 AM | UPDATE_COMPLETE    | AWS::DynamoDB::Table | OrdersFn/ServiceRole 
+shop-api | 10/14 | 10:10:11 AM | CREATE_IN_PROGRESS | AWS::IAM::Policy | OrdersFn 
+shop-api | 11/14 | 10:11:11 AM | UPDATE_COMPLETE    | AWS::DynamoDB::Table | OrdersFn/ServiceRole 
+shop-api | 12/14 | 10:12:11 AM | UPDATE_IN_PROGRESS | AWS::Lambda::Function | OrdersFn 
+shop-api | 13/14 | 10:13:11 AM | CREATE_COMPLETE    | AWS::IAM::Policy | OrdersFn/ServiceRole 
+shop-api | 14/14 | 10:14:11 AM | CREATE_COMPLETE    | AWS::IAM::Role | OrdersFn/ServiceRole 
+shop-api | 15/14 | 10:15:11 AM | CREATE_COMPLETE    | AWS::Lambda::Function | OrdersTable 
+shop-api | 16/14 | 10:16:11 AM | CREATE_COMPLETE    | AWS::IAM::Role | OrdersFn 
+shop-api | 17/14 | 10:17:11 AM | CREATE_COMPLETE    | AWS::Lambda::Function | OrdersTable 
+shop-api | 18/14 | 10:18:11 AM | CREATE_COMPLETE    | AWS::IAM::Policy | OrdersFn 
+shop-api | 19/14 | 10:19:11 AM | CREATE_IN_PROGRESS | AWS::IAM::Policy | OrdersTable 
+shop-api | 20/14 | 10:20:11 AM | UPDATE_IN_PROGRESS | AWS::IAM::Policy | OrdersFn/ServiceRole 
+shop-api | 21/14 | 10:21:11 AM | CREATE_IN_PROGRESS | AWS::IAM::Role | OrdersFn 
+shop-api | 22/14 | 10:22:11 AM | UPDATE_IN_PROGRESS | AWS::Lambda::Function | OrdersTable 
+shop-api | 23/14 | 10:23:11 AM | UPDATE_COMPLETE    | AWS::DynamoDB::Table | OrdersTable 
+shop-api | 24/14 | 10:24:11 AM | CREATE_IN_PROGRESS | AWS::DynamoDB::Table | OrdersFn 
+shop-api | 13/14 | 10:25:40 AM | UPDATE_FAILED      | AWS::Lambda::Function | OrdersFn (OrdersFn8CC8678B) Resource handler returned message: "Uploaded file must be a non-empty zip" (RequestToken: 9d128945, HandlerErrorCode: InvalidRequest)
+shop-api | 14/14 | 10:25:52 AM | UPDATE_ROLLBACK_IN_P | AWS::CloudFormation::Stack | shop-api The following resource(s) failed to update: [OrdersFn4D27667D].
+
+Failed resources:
+shop-api | 10:25:40 AM | UPDATE_FAILED      | AWS::Lambda::Function | OrdersFn (OrdersFn18463B8A) Resource handler returned message: "Uploaded file must be a non-empty zip"
+
+ ❌  shop-api failed: _ToolkitError: The stack named shop-api failed to deploy: UPDATE_ROLLBACK_COMPLETE: Resource handler returned message: "Uploaded file must be a non-empty zip"
+

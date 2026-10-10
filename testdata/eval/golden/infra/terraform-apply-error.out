@@ -1,0 +1,22 @@
+
+  # aws_sqs_queue.jobs[0] will be created
+  + resource "aws_sqs_queue" "jobs" {
+        (known after apply: arn, id, url)
+      + name                       = "jobs-0"
+      + visibility_timeout_seconds = 30
+    }
+
+  # aws_sqs_queue.jobs[1] will be created (like above)
+  # aws_sqs_queue.jobs[2] will be created (like above)
+  # aws_sqs_queue.jobs[3] will be created (like above)
+  # aws_sqs_queue.jobs[4] will be created (like above)
+  # aws_sqs_queue.jobs[5] will be created (like above)
+Plan: 6 to add, 0 to change, 0 to destroy.
+
+Error: creating SQS Queue (jobs-3): operation error SQS: CreateQueue, https response error StatusCode: 400, RequestID: 7deaab64-45b6, QueueDeletedRecently: You must wait 60 seconds after deleting a queue before you can create another with the same name.
+
+  with aws_sqs_queue.jobs[3],
+  on queues.tf line 1, in resource "aws_sqs_queue" "jobs":
+   1: resource "aws_sqs_queue" "jobs" {
+
+(5 resources completed)

@@ -1,0 +1,30 @@
+Updating (dev)
+
+View in Browser (Ctrl+O): https://app.pulumi.com/acme/shop/dev/updates/42
+
+ +  aws:sqs:Queue jobs created (1s)
+ ~  aws:lambda:Function fn-01 updated (4s) [diff: ~code,runtime]
+ +  aws:apigatewayv2:Route orders-route creating failed error: creating API Gateway v2 route: ConflictException: Route with key POST /orders already exists for this API
+ +  aws:apigatewayv2:Route orders-route **creating failed** error: creating API Gateway v2 route: ConflictException: Route with key POST /orders already exists for this API
+    pulumi:pulumi:Stack shop-dev running error: update failed
+    pulumi:pulumi:Stack shop-dev **failed** 1 error
+Diagnostics:
+  aws:apigatewayv2:Route (orders-route):
+    error:   sdk-v2/provider2.go:385: sdk.helper_schema: creating API Gateway v2 route: ConflictException: Route with key POST /orders already exists for this API: provider=aws@6.52.0
+    error: 1 error occurred:
+    	* creating API Gateway v2 route: ConflictException: Route with key POST /orders already exists for this API
+
+  pulumi:pulumi:Stack (shop-dev):
+    error: update failed
+
+Outputs:
+    apiUrl: "https://abc123.execute-api.eu-west-1.amazonaws.com"
+
+Resources:
+    + 1 created
+    ~ 1 updated
+    2 changes. 30 unchanged
+
+Duration: 18s
+
+… 31 unchanged resource rows omitted
