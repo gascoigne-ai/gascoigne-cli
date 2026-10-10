@@ -223,7 +223,7 @@ func TestStats(t *testing.T) {
 func TestEnvPathOverrides(t *testing.T) {
 	want := filepath.Join(t.TempDir(), "env.db")
 	t.Setenv(EnvPath, want)
-	got, err := (&Config{Path: "/nope.db"}).path()
+	got, err := (&Config{Path: "/nope.db"}).File()
 	if err != nil || got != want {
 		t.Fatalf("path = %q, %v", got, err)
 	}

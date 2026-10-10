@@ -45,7 +45,7 @@ func New(cfg *Config) *Ledger {
 }
 
 func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
-	path, err := l.cfg.path()
+	path, err := l.cfg.File()
 	if err != nil {
 		return err
 	}

@@ -132,7 +132,7 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 | `GASCOIGNE_SET`, `GASCOIGNE_ONLY`, `GASCOIGNE_DISABLE` | Per-run config overrides, as the flags above. |
 | `GASCOIGNE_SESSION`, `GASCOIGNE_AGENT`, `GASCOIGNE_MODEL` | Identity tags for events. `wrap` sets the first two. |
 | `GASCOIGNE_CAT_MODE` | Source file mode: `auto`, `full`, `clean`, `outline` (see [Source files](source-files.md)). |
-| `GASCOIGNE_SERVER=off` | Never start the background server. |
+| `GASCOIGNE_SERVER=off` | Never start or use the background server: every command builds its own pipeline. |
 | `GASCOIGNE_SERVER_ADDR` | Server address (default `127.0.0.1:7878`). |
 | `NO_COLOR` | No colors in `gain`. |
 

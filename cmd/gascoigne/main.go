@@ -67,6 +67,13 @@ type common struct {
 	// server: this command optimizes for an agent or user, so it makes sure
 	// the background server (dashboard) runs.
 	server bool
+	// useServer: payloads go to the background server's warm pipeline when
+	// it serves this build and ledger; else (or when it fails) the pipeline
+	// is built here.
+	useServer bool
+	// pipeline, when set, is the only one this run builds: a remote run has
+	// no ledger for the other pipelines' receivers (MCP) to start with.
+	pipeline string
 }
 
 func (c *common) register(fs *flag.FlagSet) {
@@ -119,9 +126,16 @@ func (l *listFlag) Set(s string) error { *l = append(*l, s); return nil }
 
 // start builds and starts the service; callers must Shutdown it.
 func (c *common) start(ctx context.Context) (*service.Service, error) {
-	cfg, err := c.load()
+	data, err := configData(c.config)
 	if err != nil {
 		return nil, err
+	}
+	cfg, err := config.ParseWith(data, c.overrides())
+	if err != nil {
+		return nil, err
+	}
+	if pc, ok := cfg.Pipelines[c.pipeline]; ok {
+		cfg.Pipelines = map[string]config.Pipeline{c.pipeline: pc}
 	}
 	level := slog.LevelWarn
 	if c.verbose {
@@ -134,7 +148,11 @@ func (c *common) start(ctx context.Context) (*service.Service, error) {
 			c.attrs[k] = v
 		}
 	}
-	svc, err := service.New(ctx, cfg, registry.Factories(), service.Options{Logger: log, Attrs: c.attrs})
+	opts := service.Options{Logger: log, Attrs: c.attrs}
+	if c.useServer {
+		opts.Remote = c.remote(data, cfg, log)
+	}
+	svc, err := service.New(ctx, cfg, registry.Factories(), opts)
 	if err != nil {
 		return nil, err
 	}
@@ -188,6 +206,7 @@ func cmdRun(ctx context.Context, args []string) error {
 	if *raw {
 		c.attrs[payload.AttrRaw] = "true"
 	}
+	c.useServer, c.pipeline = true, *pipeline
 	svc, err := c.start(ctx)
 	if err != nil {
 		return err
@@ -215,7 +234,7 @@ func cmdExec(ctx context.Context, args []string) error {
 	if *raw {
 		c.attrs[payload.AttrRaw] = "true"
 	}
-	c.server = true
+	c.server, c.useServer, c.pipeline = true, true, *pipeline
 	svc, err := c.start(ctx)
 	if err != nil {
 		return err

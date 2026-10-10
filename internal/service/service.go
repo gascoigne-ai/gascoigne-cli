@@ -13,17 +13,27 @@ import (
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/internal/config"
+	"github.com/lukaszb/gascoigne/payload"
 )
 
 type Options struct {
 	Logger *slog.Logger
 	// Attrs are added to every payload unless already set (e.g. CLI -attr flags).
 	Attrs map[string]string
+	// Remote, when set, optimizes every payload in place of this service:
+	// only receivers and exporters are built, so a short CLI run can hand its
+	// payload to a long-lived process that keeps the rest warm.
+	Remote Remote
 }
+
+// Remote runs a pipeline's filters, router, optimizers and ledger
+// bookkeeping (Pipeline.Optimize) somewhere else.
+type Remote func(ctx context.Context, pipeline string, p *payload.Payload) (*payload.Payload, error)
 
 type Service struct {
 	log        *slog.Logger
 	attrs      map[string]string
+	remote     Remote
 	factories  map[component.Kind]map[string]component.Factory
 	extensions map[component.ID]component.Component
 	filters    map[string]component.Filter
@@ -40,6 +50,7 @@ func New(ctx context.Context, cfg *config.Config, factories []component.Factory,
 	s := &Service{
 		log:        opts.Logger,
 		attrs:      opts.Attrs,
+		remote:     opts.Remote,
 		factories:  map[component.Kind]map[string]component.Factory{},
 		extensions: map[component.ID]component.Component{},
 		filters:    map[string]component.Filter{},
@@ -65,22 +76,10 @@ func New(ctx context.Context, cfg *config.Config, factories []component.Factory,
 }
 
 func (s *Service) build(ctx context.Context, cfg *config.Config) error {
-	for _, id := range slices.Sorted(maps.Keys(cfg.Extensions)) {
-		c, err := s.create(ctx, component.KindExtension, id, cfg.Extensions[id], nil)
-		if err != nil {
+	if s.remote == nil {
+		if err := s.buildLocal(ctx, cfg); err != nil {
 			return err
 		}
-		pid, _ := component.ParseID(id)
-		s.extensions[pid] = c
-		if l, ok := c.(component.Ledger); ok && s.ledger == nil {
-			s.ledger = l
-		}
-	}
-	if err := buildAll(ctx, s, component.KindFilter, cfg.Filters, s.filters); err != nil {
-		return err
-	}
-	if err := buildAll(ctx, s, component.KindOptimizer, cfg.Optimizers, s.optimizers); err != nil {
-		return err
 	}
 	if err := buildAll(ctx, s, component.KindExporter, cfg.Exporters, s.exporters); err != nil {
 		return err
@@ -88,7 +87,7 @@ func (s *Service) build(ctx context.Context, cfg *config.Config) error {
 	for _, name := range slices.Sorted(maps.Keys(cfg.Pipelines)) {
 		pc := cfg.Pipelines[name]
 		pl := &Pipeline{name: name, svc: s, router: cfg.RouterFor(pc)}
-		if len(pl.router.Optimizers()) > 0 && s.ledger == nil {
+		if len(pl.router.Optimizers()) > 0 && s.ledger == nil && s.remote == nil {
 			return fmt.Errorf("pipeline %s: optimizers need a ledger extension to keep originals retrievable", name)
 		}
 		for _, id := range pc.Filters {
@@ -111,6 +110,26 @@ func (s *Service) build(ctx context.Context, cfg *config.Config) error {
 		s.pipelines[name] = pl
 	}
 	return nil
+}
+
+// buildLocal builds what Pipeline.Optimize needs: extensions (the ledger),
+// filters and optimizers.
+func (s *Service) buildLocal(ctx context.Context, cfg *config.Config) error {
+	for _, id := range slices.Sorted(maps.Keys(cfg.Extensions)) {
+		c, err := s.create(ctx, component.KindExtension, id, cfg.Extensions[id], nil)
+		if err != nil {
+			return err
+		}
+		pid, _ := component.ParseID(id)
+		s.extensions[pid] = c
+		if l, ok := c.(component.Ledger); ok && s.ledger == nil {
+			s.ledger = l
+		}
+	}
+	if err := buildAll(ctx, s, component.KindFilter, cfg.Filters, s.filters); err != nil {
+		return err
+	}
+	return buildAll(ctx, s, component.KindOptimizer, cfg.Optimizers, s.optimizers)
 }
 
 func buildAll[T any](ctx context.Context, s *Service, kind component.Kind, comps config.Components, into map[string]T) error {

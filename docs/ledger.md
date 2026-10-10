@@ -153,9 +153,14 @@ The dashboard is served by one background process per user, like a build daemon:
 - **One instance.** The listening port is the lock: a second server cannot start.
 - **Follows upgrades.** The server reports a build id (the binary's path, size and mtime). A
   command from a rebuilt or upgraded gascoigne stops the old server and starts a new one.
-- **Stays out of the way.** Optimization still runs in each command, so a stopped or broken
-  server never slows down or fails an agent. A server serving another ledger (for example an
-  isolated `GASCOIGNE_LEDGER`) is left alone.
+- **Keeps the pipeline warm.** `exec`, `run` and the codex hook run the command themselves and
+  hand its output to the server, which keeps config, optimizers and the ledger open between
+  runs (about 1 ms and 40% CPU less per command). The server only takes requests from the same
+  build and ledger, and runs with `GASCOIGNE_RAW`, `GASCOIGNE_CAT_MODE` or `GASCOIGNE_LEDGER`
+  set stay local.
+- **Stays out of the way.** With no server, another build, or a server that fails, the command
+  builds the pipeline itself, so a stopped or broken server never fails an agent. A server
+  serving another ledger (for example an isolated `GASCOIGNE_LEDGER`) is left alone.
 - **Detached.** It runs in its own session and outlives the terminal or agent that started it.
   Its log is `~/.cache/gascoigne/server.log` (`$XDG_CACHE_HOME`).
 

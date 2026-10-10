@@ -15,6 +15,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/lukaszb/gascoigne/extension/ledger"
@@ -98,7 +100,12 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string) error {
 	ctx, stop := context.WithCancel(ctx)
 	defer stop()
 	info := serverInfo{PID: os.Getpid(), Build: build(), Ledger: l.Path(), Addr: ln.Addr().String(), Started: time.Now()}
-	srv := &http.Server{Handler: dashboard(l, time.Second, info, stop), ReadHeaderTimeout: 5 * time.Second}
+	w := newWarm(ctx, info.Build, info.Ledger)
+	defer w.Close()
+	mux := http.NewServeMux()
+	mux.Handle("/", dashboard(l, time.Second, info, stop))
+	mux.Handle("POST /api/optimize", localOnly(w))
+	srv := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
 	go func() {
 		<-ctx.Done()
 		srv.Shutdown(context.WithoutCancel(ctx))
@@ -184,12 +191,25 @@ func spawnServer(addr string) error {
 	}
 	defer log.Close()
 	cmd := exec.Command(exe, "server", "run", "-addr", addr)
+	cmd.Env = serverEnv(os.Environ())
 	cmd.Stdout, cmd.Stderr = log, log
 	detach(cmd)
 	if err := cmd.Start(); err != nil {
 		return err
 	}
 	return cmd.Process.Release()
+}
+
+// serverEnv is the environment of a spawned server: GASCOIGNE_* variables
+// of the command that spawns it (raw mode, overrides, agent identity) would
+// otherwise apply to every later run it optimizes. Only those naming its
+// ledger, config and address stay.
+func serverEnv(env []string) []string {
+	return slices.DeleteFunc(slices.Clone(env), func(kv string) bool {
+		k, _, _ := strings.Cut(kv, "=")
+		return strings.HasPrefix(k, "GASCOIGNE_") &&
+			!slices.Contains([]string{ledger.EnvPath, "GASCOIGNE_CONFIG", "GASCOIGNE_SERVER_ADDR"}, k)
+	})
 }
 
 func serverLog() string {

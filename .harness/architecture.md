@@ -221,8 +221,15 @@ Background server (`cmd/gascoigne/server.go`): one per user on `$GASCOIGNE_SERVE
 dir) by commands with `common.server` set (`exec`, `serve` for mcp/mcp-proxy, the codex hook's
 `optimize`) and by `wrap`, when `/api/health` does not answer. Health reports pid, build (binary
 path+size+mtime hash) and ledger path: another build is replaced (stop + spawn), another ledger
-left alone. Optimization never goes through it (startup is ~7 ms, the check ~0.3 ms), so a
-missing server cannot slow or fail an agent. `server run|start|stop|status`, `dashboard` =
+left alone. Server mode (`remote.go`): `exec`, `run` and the codex hook (`common.useServer`)
+build only their pipeline's receivers and exporters (`service.Options.Remote`) and POST the
+payload to `/api/optimize`, where a warm service per config hash (defaults+user file and
+overrides; receivers/exporters stripped, ≤ 8 kept, one payload at a time) runs
+`Pipeline.Optimize`. Same build and ledger path required (409 otherwise); refused, 409 or a
+broken server → the full pipeline is built locally for that payload (which also starts/replaces
+the server); pipeline errors (422) are returned. Runs with other `GASCOIGNE_*` env (raw,
+cat mode, ledger) stay local; a spawned server drops the spawner's `GASCOIGNE_*` env except
+ledger/config/addr. ~7.7 → 6.5 ms per exec, client CPU −40%; Go init (~3 ms) is the floor. `server run|start|stop|status`, `dashboard` =
 `server start`, `GASCOIGNE_SERVER=off`. `gascoigne reset` / `POST /api/reset` → `ledger.Reset`:
 events+steps by filters (flags only, never env); `-all` also raw and failures, no filters.
 The server (`dashboard.go`, one embedded `dashboard.html`, no build step) serves the ledger live: totals, days, outcomes, commands,

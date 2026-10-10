@@ -26,7 +26,9 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-func (c *Config) path() (string, error) {
+// File is the sqlite db the ledger opens: $GASCOIGNE_LEDGER, else Path, else
+// the default.
+func (c *Config) File() (string, error) {
 	if p := os.Getenv(EnvPath); p != "" {
 		return p, nil
 	}

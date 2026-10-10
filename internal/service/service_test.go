@@ -315,3 +315,38 @@ func TestReasonsRecorded(t *testing.T) {
 		}
 	}
 }
+
+func TestRemoteOptimizes(t *testing.T) {
+	cfg, err := config.Parse([]byte(cfgYAML))
+	if err != nil {
+		t.Fatal(err)
+	}
+	exp := &capture{}
+	var gotPipeline string
+	var gotAttrs map[string]string
+	remote := func(_ context.Context, pipeline string, p *payload.Payload) (*payload.Payload, error) {
+		gotPipeline, gotAttrs = pipeline, p.Attrs
+		p.Blocks[0].Text = "remote"
+		return p, nil
+	}
+	// No upper/boom factories: a remote service builds no optimizers.
+	s, err := New(t.Context(), cfg, append(registry.Factories(), factory(component.KindExporter, "capture", exp)), Options{Attrs: map[string]string{"session": "s1"}, Remote: remote})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s.Ledger() != nil {
+		t.Fatal("remote service opened a ledger")
+	}
+	in := payload.New(payload.CmdOutput, "local")
+	pl, _ := s.Pipeline("cli")
+	out, err := pl.Process(t.Context(), in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out.Text() != "remote" || in.Text() != "local" || len(exp.got) != 1 {
+		t.Fatalf("out %q, in %q, exported %d", out.Text(), in.Text(), len(exp.got))
+	}
+	if gotPipeline != "cli" || gotAttrs["session"] != "s1" {
+		t.Fatalf("remote got pipeline %q attrs %v", gotPipeline, gotAttrs)
+	}
+}
