@@ -1,8 +1,11 @@
 package lsoptimizer
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/payload"
 )
@@ -48,5 +51,46 @@ func TestHuman(t *testing.T) {
 		if got := human(in); got != want {
 			t.Errorf("human(%s) = %s, want %s", in, got, want)
 		}
+	}
+}
+
+func fsOptimizer() *Optimizer {
+	return &Optimizer{cfg: &Config{SizesUpTo: 60, Width: 120, MaxPerDir: 3}}
+}
+
+func TestTree(t *testing.T) {
+	in := ".\n├── a\n│   ├── 1.go\n│   ├── sub\n│   │   └── x.md\n│   ├── 2.go\n│   ├── 3.go\n│   └── 4.go\n└── README.md\n\n2 directories, 6 files\n"
+	got := compress.Join(fsOptimizer().tree(compress.Lines(in)))
+	want := ".\na/\n  1.go\n  sub/\n    x.md\n  2.go\n  3.go\n  … 1 more: .go ×1\nREADME.md\n\n2 directories, 6 files\n"
+	if got != want {
+		t.Fatalf("got:\n%s", got)
+	}
+}
+
+func TestPathsGroupByDir(t *testing.T) {
+	in := "./a\n./a/1.go\n./a/2.go\n./a/3.go\n./a/4.txt\n./b/c.go\n"
+	got := compress.Join(fsOptimizer().paths(compress.Lines(in)))
+	if got != "a/: 1.go  2.go  3.go  … 1 more: .txt ×1\nb/: c.go\n" {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestDUKeepsLargest(t *testing.T) {
+	var in []string
+	for i := range 10 {
+		in = append(in, fmt.Sprintf("%dK\t./d%d", i+1, i))
+	}
+	in = append(in, "2.5M\t./big", "3.1M\t.")
+	got := compress.Join(fsOptimizer().du(in))
+	if !strings.HasPrefix(got, "largest:\n2.5M\t./big\n10K\t./d9\n") || !strings.HasSuffix(got, "… 5 smaller entries omitted\n3.1M\t.\n") {
+		t.Fatalf("got:\n%s", got)
+	}
+}
+
+func TestDFDropsPseudo(t *testing.T) {
+	in := "Filesystem      Size  Used Avail Use% Mounted on\n/dev/sda1       100G   50G   50G  50% /\ntmpfs            16G     0   16G   0% /dev/shm\n/dev/sda2       1.0G  100M  900M  10% /boot\n"
+	got := compress.Join(fsOptimizer().df(compress.Lines(in)))
+	if strings.Contains(got, "tmpfs") || !strings.Contains(got, "/boot") || !strings.Contains(got, "1 pseudo filesystem") {
+		t.Fatalf("got:\n%s", got)
 	}
 }

@@ -6,6 +6,10 @@ const (
 	GitStatus = "vcs/git-status"
 	GitLog    = "vcs/git-log"
 	GitRemote = "vcs/git-remote" // push, pull, fetch, clone
+	GitBlame  = "vcs/git-blame"
+	GitBranch = "vcs/git-branch"
+	GHList    = "vcs/gh-list" // gh pr/issue/run/release/repo list
+	GHView    = "vcs/gh-view" // gh pr/issue view
 )
 
 func init() {
@@ -16,5 +20,11 @@ func init() {
 		Spec{Type: GitStatus, Cmds: []string{"git status"}, Priority: 42,
 			Sniff: anyLine(`^On branch |^HEAD detached |^Changes (not staged|to be committed)|^Untracked files:|^nothing to commit`)},
 		Spec{Type: GitRemote, Cmds: []string{"git push", "git pull", "git fetch", "git clone"}},
+		Spec{Type: GitBlame, Cmds: []string{"git blame", "git annotate"}, Priority: 43,
+			Sniff: ratio(`^\^?[0-9a-f]{7,40} (\S+ )?\(.+ \d{4}-\d\d-\d\d \d\d:\d\d:\d\d [+-]\d{4} +\d+\) `, 0.8)},
+		Spec{Type: GitBranch, Cmds: []string{"git branch"}},
+		Spec{Type: GHList, Cmds: []string{"gh pr list", "gh issue list", "gh run list", "gh release list", "gh repo list", "gh workflow list", "gh pr status", "gh search prs", "gh search issues"}},
+		Spec{Type: GHView, Cmds: []string{"gh pr view", "gh issue view"}, Priority: 44,
+			Sniff: all(firstLine(`^title:\t`), anyLine(`^state:\t`), anyLine(`^--$`))},
 	)
 }

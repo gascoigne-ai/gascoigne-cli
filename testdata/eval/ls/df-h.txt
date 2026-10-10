@@ -1,0 +1,14 @@
+Filesystem        Size  Used Avail Use% Mounted on
+dev                32G     0   32G   0% /dev
+run                32G  1.9M   32G   1% /run
+efivarfs          128K   72K   52K  58% /sys/firmware/efi/efivars
+/dev/mapper/root  1.9T  1.1T  791G  59% /
+tmpfs              32G  1.3M   32G   1% /dev/shm
+none              1.0M     0  1.0M   0% /run/credentials/systemd-journald.service
+none              1.0M     0  1.0M   0% /run/credentials/systemd-resolved.service
+tmpfs              32G  799M   31G   3% /tmp
+/dev/mapper/root  1.9T  1.1T  791G  59% /var/cache/pacman/pkg
+/dev/mapper/root  1.9T  1.1T  791G  59% /var/log
+/dev/mapper/root  1.9T  1.1T  791G  59% /home
+/dev/nvme2n1p1    3.8G  495M  3.3G  13% /boot
+tmpfs             6.3G  5.2M  6.3G   1% /run/user/1000

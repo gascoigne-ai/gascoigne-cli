@@ -330,6 +330,12 @@
   file: git/diff.txt
   expect_type: vcs/git-diff
 
+- { file: git/blame.txt, attrs: { cmd: git blame detect/detect.go }, expect_type: vcs/git-blame, keep: ["54c53fae dev 2026-10-10", "func Detect(text string, h Hints) string {"], min_saved: 30 }
+- { file: git/branch-a.txt, attrs: { cmd: git branch -a }, expect_type: vcs/git-branch, keep: ["* feature/router", "remotes/origin/HEAD -> origin/main", "mirrored locally"], min_saved: 30 }
+- { file: git/gh-pr-list.tsv, attrs: { cmd: gh pr list --limit 60 }, expect_type: vcs/gh-list, keep: ["STATE=OPEN", "4210", "items omitted"], min_saved: 30 }
+- { file: git/gh-pr-view.txt, attrs: { cmd: gh pr view 4187 }, expect_type: vcs/gh-view, keep: ["monalisa (Changes requested)", "Adds tiered volume discounts", "- [ ] Docs updated"] }
+- { name: detect/git-blame, file: git/blame.txt, expect_type: vcs/git-blame }
+- { name: detect/gh-view, file: git/gh-pr-view.txt, expect_type: vcs/gh-view }
 # --- grep
 - file: grep/grep-rn.txt
   attrs: { cmd: grep -rn Handler --include=*.go . }
@@ -367,6 +373,14 @@
   file: ls/repo.txt
   expect_type: fs/ls
 
+- { file: ls/tree-x-net.txt, attrs: { cmd: eza --tree --level 3 }, expect_type: fs/tree, keep: ["html/", "  dnsmessage/", "more: .go"], min_saved: 40 }
+- { file: ls/find-x-net.txt, attrs: { cmd: find . -type f -name "*.go" }, expect_type: fs/find, keep: ["http2/: ", "bpf/: asm.go", "more: .go"], min_saved: 50 }
+- { file: ls/du-x-net.txt, attrs: { cmd: du -h --max-depth=2 . }, expect_type: fs/du, keep: ["largest:", "./http2", "smaller entries omitted"], min_saved: 20 }
+- { file: ls/df-h.txt, attrs: { cmd: df -h }, expect_type: fs/df, keep: ["/dev/mapper/root", "/boot"] }
+- { name: detect/tree, file: ls/tree-x-net.txt, expect_type: fs/tree }
+- { name: detect/find, file: ls/find-x-net.txt, expect_type: fs/find }
+- { name: detect/du, file: ls/du-x-net.txt, expect_type: fs/du }
+- { name: detect/df, file: ls/df-h.txt, expect_type: fs/df }
 # --- cat (code)
 - file: cat/server.go.txt
   attrs: { cmd: cat net/http/server.go }

@@ -1,6 +1,8 @@
-// Package lsoptimizer rewrites long listings (ls -l, ls -la) to names:
-// directories first with a trailing slash, files with human sizes, and
-// no permissions, owners, link counts or dates.
+// Package lsoptimizer is the fs family engine for listings: long ls output
+// becomes names (directories first, files with human sizes, no permissions,
+// owners or dates), tree output loses box drawing, path lists (find, fd)
+// group by directory, du keeps the largest entries and df the real disks.
+// Long runs of files fold to counts per extension.
 package lsoptimizer
 
 import (
@@ -25,8 +27,21 @@ var entry = regexp.MustCompile(`^([-dlcbps])([rwxsStT-]{9})[.+@]?\s+\d+\s+\S+\s+
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	return p.Rewrite(func(b payload.Block) (string, error) {
-		return compress.Join(o.rewrite(compress.Lines(compress.StripANSI(b.Text)))), nil
-	}, detect.LS)
+		lines := compress.Lines(compress.StripANSI(b.Text))
+		switch b.Type {
+		case detect.Tree:
+			lines = o.tree(lines)
+		case detect.Paths:
+			lines = o.paths(lines)
+		case detect.DU:
+			lines = o.du(lines)
+		case detect.DF:
+			lines = o.df(lines)
+		default:
+			lines = o.rewrite(lines)
+		}
+		return compress.Join(lines), nil
+	}, detect.LS, detect.Tree, detect.Paths, detect.DU, detect.DF)
 }
 
 type listing struct {

@@ -132,3 +132,18 @@ func TestMaxFileLines(t *testing.T) {
 		t.Fatalf("got %d lines, last %q", len(lines), lines[len(lines)-1])
 	}
 }
+
+func TestBlameGroupsRuns(t *testing.T) {
+	in := "54c53fae (dev 2026-10-10 01:07:38 +0200  1) package x\n54c53fae (dev 2026-10-10 01:07:38 +0200  2) \n^602c5ffb (Ann Lee 2026-09-01 02:23:02 +0200  3) func f() {}\n"
+	got := compress.Join(blame(compress.Lines(in)))
+	if got != "54c53fae dev 2026-10-10\n    1 package x\n    2 \n602c5ffb Ann Lee 2026-09-01\n    3 func f() {}\n" {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestGHViewDropsEmptyFields(t *testing.T) {
+	got := compress.Join(ghView("title:\tx\nlabels:\t\nstate:\tOPEN\n--\n<!-- template -->\nbody\n"))
+	if got != "title: x\nstate: OPEN\n--\n\nbody\n" {
+		t.Fatalf("got %q", got)
+	}
+}

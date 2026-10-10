@@ -1,0 +1,27 @@
+largest:
+2.8M	./html
+2.3M	./html/testdata
+1.3M	./http2
+1.1M	./quic
+708K	./internal
+668K	./idna
+452K	./internal/socket
+444K	./ipv4
+444K	./ipv6
+440K	./publicsuffix
+436K	./webdav
+220K	./webdav/internal
+200K	./route
+160K	./dns/dnsmessage
+160K	./dns
+140K	./bpf
+136K	./icmp
+112K	./http2/hpack
+88K	./publicsuffix/data
+88K	./websocket
+72K	./trace
+64K	./html/charset
+60K	./internal/httpcommon
+56K	./html/atom
+… 23 smaller entries omitted
+9.3M	.

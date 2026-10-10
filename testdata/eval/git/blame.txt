@@ -1,0 +1,161 @@
+54c53fae (dev 2026-10-10 01:07:38 +0200   1) // Package detect classifies text into content types so the right optimizer
+602c5ffb (dev 2026-10-10 02:23:02 +0200   2) // handles it. A type is "family/dialect": the family names what the output is
+602c5ffb (dev 2026-10-10 02:23:02 +0200   3) // for (test, build, pkg, table, k8s, cloud…) and picks the engine; the dialect
+602c5ffb (dev 2026-10-10 02:23:02 +0200   4) // names the tool or format and tunes it. Detection uses, in order: the command
+602c5ffb (dev 2026-10-10 02:23:02 +0200   5) // that produced the text, a file name or MIME type, then content sniffing.
+602c5ffb (dev 2026-10-10 02:23:02 +0200   6) // Dialects are declared as specs in this package, one file per family.
+54c53fae (dev 2026-10-10 01:07:38 +0200   7) package detect
+54c53fae (dev 2026-10-10 01:07:38 +0200   8) 
+54c53fae (dev 2026-10-10 01:07:38 +0200   9) import (
+54c53fae (dev 2026-10-10 01:07:38 +0200  10) 	"path"
+54c53fae (dev 2026-10-10 01:07:38 +0200  11) 	"slices"
+54c53fae (dev 2026-10-10 01:07:38 +0200  12) 	"strings"
+54c53fae (dev 2026-10-10 01:07:38 +0200  13) )
+54c53fae (dev 2026-10-10 01:07:38 +0200  14) 
+54c53fae (dev 2026-10-10 01:07:38 +0200  15) type Hints struct {
+54c53fae (dev 2026-10-10 01:07:38 +0200  16) 	Cmd  string // command line that produced the text
+54c53fae (dev 2026-10-10 01:07:38 +0200  17) 	File string // source file path
+54c53fae (dev 2026-10-10 01:07:38 +0200  18) 	MIME string // e.g. from an HTTP Content-Type header
+54c53fae (dev 2026-10-10 01:07:38 +0200  19) }
+54c53fae (dev 2026-10-10 01:07:38 +0200  20) 
+54c53fae (dev 2026-10-10 01:07:38 +0200  21) // HintsFrom reads hints from payload attrs.
+54c53fae (dev 2026-10-10 01:07:38 +0200  22) func HintsFrom(attrs map[string]string) Hints {
+54c53fae (dev 2026-10-10 01:07:38 +0200  23) 	return Hints{Cmd: attrs["cmd"], File: attrs["file"], MIME: attrs["mime"]}
+54c53fae (dev 2026-10-10 01:07:38 +0200  24) }
+54c53fae (dev 2026-10-10 01:07:38 +0200  25) 
+54c53fae (dev 2026-10-10 01:07:38 +0200  26) func Detect(text string, h Hints) string {
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  27) 	for _, t := range []string{FromCmd(h.Cmd), FromFile(h.File), FromMIME(h.MIME)} {
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  28) 		if t != "" {
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  29) 			return refine(t, text)
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  30) 		}
+54c53fae (dev 2026-10-10 01:07:38 +0200  31) 	}
+54c53fae (dev 2026-10-10 01:07:38 +0200  32) 	return Sniff(text)
+54c53fae (dev 2026-10-10 01:07:38 +0200  33) }
+54c53fae (dev 2026-10-10 01:07:38 +0200  34) 
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  35) // refine swaps a generic type for a spec refining it whose sniffer matches.
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  36) func refine(t, text string) string {
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  37) 	for _, s := range specs {
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  38) 		if slices.Contains(s.Refines, t) && s.Sniff(text, sample(text)) {
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  39) 			return s.Type
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  40) 		}
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  41) 	}
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  42) 	return t
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  43) }
+e6a4e569 (dev 2026-10-10 06:36:42 +0200  44) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200  45) // Family is the family part of a type: "test" for "test/jest".
+602c5ffb (dev 2026-10-10 02:23:02 +0200  46) func Family(typ string) string {
+602c5ffb (dev 2026-10-10 02:23:02 +0200  47) 	family, _, _ := strings.Cut(typ, "/")
+602c5ffb (dev 2026-10-10 02:23:02 +0200  48) 	return family
+602c5ffb (dev 2026-10-10 02:23:02 +0200  49) }
+54c53fae (dev 2026-10-10 01:07:38 +0200  50) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200  51) // Dialect is the dialect part of a type: "jest" for "test/jest".
+602c5ffb (dev 2026-10-10 02:23:02 +0200  52) func Dialect(typ string) string {
+602c5ffb (dev 2026-10-10 02:23:02 +0200  53) 	_, dialect, _ := strings.Cut(typ, "/")
+602c5ffb (dev 2026-10-10 02:23:02 +0200  54) 	return dialect
+602c5ffb (dev 2026-10-10 02:23:02 +0200  55) }
+602c5ffb (dev 2026-10-10 02:23:02 +0200  56) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200  57) var (
+602c5ffb (dev 2026-10-10 02:23:02 +0200  58) 	// wrappers are skipped to find the real command.
+602c5ffb (dev 2026-10-10 02:23:02 +0200  59) 	wrappers = map[string]bool{"sudo": true, "time": true, "env": true, "command": true, "exec": true, "nice": true, "nohup": true}
+602c5ffb (dev 2026-10-10 02:23:02 +0200  60) 	// runners execute the package named next: "npx nx run-many" is nx.
+602c5ffb (dev 2026-10-10 02:23:02 +0200  61) 	runners = map[string]bool{"npx": true, "bunx": true, "pnpx": true, "uvx": true, "pipx": true}
+602c5ffb (dev 2026-10-10 02:23:02 +0200  62) )
+602c5ffb (dev 2026-10-10 02:23:02 +0200  63) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200  64) // Argv splits cmd, drops env assignments and wrappers, unwraps package
+602c5ffb (dev 2026-10-10 02:23:02 +0200  65) // runners and reduces the program to its base name.
+54c53fae (dev 2026-10-10 01:07:38 +0200  66) func Argv(cmd string) []string {
+54c53fae (dev 2026-10-10 01:07:38 +0200  67) 	args := strings.Fields(cmd)
+602c5ffb (dev 2026-10-10 02:23:02 +0200  68) 	for len(args) > 0 && (strings.Contains(args[0], "=") || wrappers[path.Base(args[0])] || runners[path.Base(args[0])] && len(args) > 1) {
+54c53fae (dev 2026-10-10 01:07:38 +0200  69) 		args = args[1:]
+602c5ffb (dev 2026-10-10 02:23:02 +0200  70) 		for len(args) > 1 && strings.HasPrefix(args[0], "-") { // npx --yes nx …
+602c5ffb (dev 2026-10-10 02:23:02 +0200  71) 			args = args[1:]
+602c5ffb (dev 2026-10-10 02:23:02 +0200  72) 		}
+54c53fae (dev 2026-10-10 01:07:38 +0200  73) 	}
+54c53fae (dev 2026-10-10 01:07:38 +0200  74) 	if len(args) > 0 {
+54c53fae (dev 2026-10-10 01:07:38 +0200  75) 		args[0] = path.Base(args[0])
+54c53fae (dev 2026-10-10 01:07:38 +0200  76) 	}
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  77) 	// "uv run pytest", "bundle exec rspec", "npm exec vitest", "python -m pytest".
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  78) 	if len(args) > 2 && (execs[args[0]+" "+args[1]] || strings.HasPrefix(args[0], "python") && args[1] == "-m") {
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  79) 		return Argv(strings.Join(args[2:], " "))
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  80) 	}
+54c53fae (dev 2026-10-10 01:07:38 +0200  81) 	return args
+54c53fae (dev 2026-10-10 01:07:38 +0200  82) }
+54c53fae (dev 2026-10-10 01:07:38 +0200  83) 
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  84) // execs run the command that follows them.
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  85) var execs = map[string]bool{
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  86) 	"uv run": true, "poetry run": true, "pipenv run": true, "pdm run": true, "hatch run": true,
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  87) 	"bundle exec": true, "npm exec": true, "pnpm exec": true, "pnpm dlx": true, "yarn exec": true, "yarn dlx": true,
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  88) }
+ab6a2eea (dev 2026-10-10 02:28:50 +0200  89) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200  90) // valueFlags take a separate value before positional arguments
+602c5ffb (dev 2026-10-10 02:23:02 +0200  91) // (git -C dir status, kubectl -n ns get pods, aws --profile p s3 ls).
+602c5ffb (dev 2026-10-10 02:23:02 +0200  92) var valueFlags = map[string]bool{
+602c5ffb (dev 2026-10-10 02:23:02 +0200  93) 	"-C": true, "-c": true, "--git-dir": true, "--work-tree": true, "--prefix": true,
+602c5ffb (dev 2026-10-10 02:23:02 +0200  94) 	"-n": true, "--namespace": true, "--context": true, "--kubeconfig": true,
+602c5ffb (dev 2026-10-10 02:23:02 +0200  95) 	"--profile": true, "--region": true, "--project": true, "--subscription": true,
+602c5ffb (dev 2026-10-10 02:23:02 +0200  96) 	"-o": true, "--output": true, "--format": true,
+54c53fae (dev 2026-10-10 01:07:38 +0200  97) }
+54c53fae (dev 2026-10-10 01:07:38 +0200  98) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200  99) // positional returns arguments after the program that are not flags or flag values.
+602c5ffb (dev 2026-10-10 02:23:02 +0200 100) func positional(args []string) []string {
+602c5ffb (dev 2026-10-10 02:23:02 +0200 101) 	var out []string
+54c53fae (dev 2026-10-10 01:07:38 +0200 102) 	for i := 1; i < len(args); i++ {
+54c53fae (dev 2026-10-10 01:07:38 +0200 103) 		switch a := args[i]; {
+54c53fae (dev 2026-10-10 01:07:38 +0200 104) 		case valueFlags[a]:
+54c53fae (dev 2026-10-10 01:07:38 +0200 105) 			i++
+54c53fae (dev 2026-10-10 01:07:38 +0200 106) 		case !strings.HasPrefix(a, "-"):
+602c5ffb (dev 2026-10-10 02:23:02 +0200 107) 			out = append(out, a)
+54c53fae (dev 2026-10-10 01:07:38 +0200 108) 		}
+54c53fae (dev 2026-10-10 01:07:38 +0200 109) 	}
+602c5ffb (dev 2026-10-10 02:23:02 +0200 110) 	return out
+54c53fae (dev 2026-10-10 01:07:38 +0200 111) }
+54c53fae (dev 2026-10-10 01:07:38 +0200 112) 
+54c53fae (dev 2026-10-10 01:07:38 +0200 113) func hasFlag(args []string, flag string) bool {
+602c5ffb (dev 2026-10-10 02:23:02 +0200 114) 	return slices.ContainsFunc(args, func(a string) bool { return a == flag || strings.HasPrefix(a, flag+"=") })
+54c53fae (dev 2026-10-10 01:07:38 +0200 115) }
+54c53fae (dev 2026-10-10 01:07:38 +0200 116) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200 117) // flagValue returns the value of -o yaml, -o=yaml, -oyaml style flags.
+602c5ffb (dev 2026-10-10 02:23:02 +0200 118) func flagValue(args []string, names ...string) string {
+602c5ffb (dev 2026-10-10 02:23:02 +0200 119) 	for i, a := range args {
+602c5ffb (dev 2026-10-10 02:23:02 +0200 120) 		for _, n := range names {
+602c5ffb (dev 2026-10-10 02:23:02 +0200 121) 			switch {
+602c5ffb (dev 2026-10-10 02:23:02 +0200 122) 			case a == n && i+1 < len(args):
+602c5ffb (dev 2026-10-10 02:23:02 +0200 123) 				return args[i+1]
+602c5ffb (dev 2026-10-10 02:23:02 +0200 124) 			case strings.HasPrefix(a, n+"="):
+602c5ffb (dev 2026-10-10 02:23:02 +0200 125) 				return a[len(n)+1:]
+602c5ffb (dev 2026-10-10 02:23:02 +0200 126) 			case len(n) == 2 && strings.HasPrefix(a, n) && len(a) > 2 && a[2] != '-':
+602c5ffb (dev 2026-10-10 02:23:02 +0200 127) 				return a[2:]
+602c5ffb (dev 2026-10-10 02:23:02 +0200 128) 			}
+54c53fae (dev 2026-10-10 01:07:38 +0200 129) 		}
+54c53fae (dev 2026-10-10 01:07:38 +0200 130) 	}
+54c53fae (dev 2026-10-10 01:07:38 +0200 131) 	return ""
+54c53fae (dev 2026-10-10 01:07:38 +0200 132) }
+54c53fae (dev 2026-10-10 01:07:38 +0200 133) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200 134) // tools whose subcommands are worth reporting ("go test", "git log", "kubectl get").
+602c5ffb (dev 2026-10-10 02:23:02 +0200 135) var subcommandTools = map[string]int{
+602c5ffb (dev 2026-10-10 02:23:02 +0200 136) 	"go": 1, "git": 1, "npm": 1, "pnpm": 1, "yarn": 1, "bun": 1, "nx": 1, "turbo": 1,
+602c5ffb (dev 2026-10-10 02:23:02 +0200 137) 	"cargo": 1, "docker": 1, "podman": 1, "kubectl": 1, "helm": 1, "gh": 2, "make": 1, "pip": 1,
+602c5ffb (dev 2026-10-10 02:23:02 +0200 138) 	"uv": 1, "poetry": 1, "terraform": 1, "tofu": 1, "pulumi": 1, "dotnet": 1, "deno": 1,
+602c5ffb (dev 2026-10-10 02:23:02 +0200 139) 	"aws": 2, "gcloud": 3, "az": 2, "systemctl": 1, "journalctl": 0, "mvn": 1, "gradle": 1,
+54c53fae (dev 2026-10-10 01:07:38 +0200 140) }
+54c53fae (dev 2026-10-10 01:07:38 +0200 141) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200 142) // Command names a command line for reports: the program plus its subcommands
+602c5ffb (dev 2026-10-10 02:23:02 +0200 143) // for multi-command tools ("go test", "aws s3 ls", "npx nx run-many" → "nx run-many").
+bd97b2af (dev 2026-10-10 01:59:58 +0200 144) func Command(cmd string) string {
+bd97b2af (dev 2026-10-10 01:59:58 +0200 145) 	args := Argv(cmd)
+bd97b2af (dev 2026-10-10 01:59:58 +0200 146) 	if len(args) == 0 {
+bd97b2af (dev 2026-10-10 01:59:58 +0200 147) 		return ""
+bd97b2af (dev 2026-10-10 01:59:58 +0200 148) 	}
+602c5ffb (dev 2026-10-10 02:23:02 +0200 149) 	pos := positional(args)
+602c5ffb (dev 2026-10-10 02:23:02 +0200 150) 	n := min(subcommandTools[args[0]], len(pos))
+602c5ffb (dev 2026-10-10 02:23:02 +0200 151) 	return strings.Join(append([]string{args[0]}, pos[:n]...), " ")
+602c5ffb (dev 2026-10-10 02:23:02 +0200 152) }
+602c5ffb (dev 2026-10-10 02:23:02 +0200 153) 
+602c5ffb (dev 2026-10-10 02:23:02 +0200 154) // lastArg is the last positional argument (the file of cat, head, tail).
+602c5ffb (dev 2026-10-10 02:23:02 +0200 155) func lastArg(args []string) string {
+602c5ffb (dev 2026-10-10 02:23:02 +0200 156) 	pos := positional(args)
+602c5ffb (dev 2026-10-10 02:23:02 +0200 157) 	if len(pos) == 0 {
+602c5ffb (dev 2026-10-10 02:23:02 +0200 158) 		return ""
+bd97b2af (dev 2026-10-10 01:59:58 +0200 159) 	}
+602c5ffb (dev 2026-10-10 02:23:02 +0200 160) 	return pos[len(pos)-1]
+bd97b2af (dev 2026-10-10 01:59:58 +0200 161) }
