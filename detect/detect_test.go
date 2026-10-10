@@ -5,6 +5,9 @@ import "testing"
 func TestFromCmd(t *testing.T) {
 	tests := []struct{ cmd, want string }{
 		{"go test ./...", GoTest},
+		{"cat web/index.html", Code}, // a page when fetched, source when read from disk
+		{"sed -n 1,40p templates/base.html", Code},
+		{"sed -n 10,20p main.go", Code},
 		{"go test -json ./...", GoTestJSON},
 		{"CGO_ENABLED=0 go build ./cmd/x", GoBuild},
 		{"/usr/bin/git -C repo status", GitStatus},

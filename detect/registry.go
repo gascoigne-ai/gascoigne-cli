@@ -52,7 +52,11 @@ func Types() []string {
 }
 
 // fileReaders print a file: their type comes from the file name.
-var fileReaders = map[string]bool{"cat": true, "head": true, "tail": true, "bat": true, "less": true, "more": true}
+var fileReaders = map[string]bool{"cat": true, "head": true, "tail": true, "bat": true, "less": true, "more": true, "sed": true}
+
+// sourceMarkup are file types that are pages when fetched but source when
+// read from disk: an agent reading index.html means to edit it.
+var sourceMarkup = map[string]bool{HTML: true}
 
 // FromCmd maps a command line to a type; "" when unknown.
 func FromCmd(cmd string) string {
@@ -61,7 +65,10 @@ func FromCmd(cmd string) string {
 		return ""
 	}
 	if fileReaders[args[0]] {
-		return FromFile(lastArg(args))
+		if t := FromFile(lastArg(args)); !sourceMarkup[t] {
+			return t
+		}
+		return Code
 	}
 	best, score := "", 0
 	for _, s := range specs {
