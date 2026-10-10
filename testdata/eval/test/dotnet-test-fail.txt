@@ -1,0 +1,52 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Shop -> /home/user/src/shop/src/Shop/bin/Debug/net9.0/Shop.dll
+  Shop.Tests -> /home/user/src/shop/tests/Shop.Tests/bin/Debug/net9.0/Shop.Tests.dll
+Test run for /home/user/src/shop/tests/Shop.Tests/bin/Debug/net9.0/Shop.Tests.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.12.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  Passed Shop.Tests.UtilTests.Case1 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case2 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case3 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case4 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case5 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case6 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case7 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case8 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case9 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case10 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case11 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case12 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case13 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case14 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case15 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case16 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case17 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case18 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case19 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case20 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case21 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case22 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case23 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case24 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case25 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case26 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case27 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case28 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case29 [< 1 ms]
+  Passed Shop.Tests.UtilTests.Case30 [< 1 ms]
+  Failed Shop.Tests.CartTests.NeverNegative [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0
+Actual:   -4
+  Stack Trace:
+     at Shop.Tests.CartTests.NeverNegative() in /home/user/src/shop/tests/Shop.Tests/CartTests.cs:line 18
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Passed Shop.Tests.CartTests.Empty [< 1 ms]
+  Passed Shop.Tests.CartTests.Single [< 1 ms]
+
+Failed!  - Failed:     1, Passed:    32, Skipped:     0, Total:    33, Duration: 61 ms - Shop.Tests.dll (net9.0)

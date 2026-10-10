@@ -1,0 +1,14 @@
+Test run for /home/user/src/shop/tests/Shop.Tests/bin/Debug/net9.0/Shop.Tests.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.12.0 (x64)
+
+  Failed Shop.Tests.CartTests.NeverNegative [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 0
+Actual:   -4
+  Stack Trace:
+     at Shop.Tests.CartTests.NeverNegative() in /home/user/src/shop/tests/Shop.Tests/CartTests.cs:line 18
+… 2 dependency stack frames omitted
+
+Failed!  - Failed:     1, Passed:    32, Skipped:     0, Total:    33, Duration: 61 ms - Shop.Tests.dll (net9.0)
+… 32 passing test lines omitted

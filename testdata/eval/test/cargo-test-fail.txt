@@ -1,0 +1,77 @@
+   Compiling shop v0.1.0 (/home/user/src/shop)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.84s
+     Running unittests src/lib.rs (target/debug/deps/shop-4b1f2c9a7d3e5f61)
+
+running 46 tests
+test util::tests::case_1 ... ok
+test util::tests::case_2 ... ok
+test util::tests::case_3 ... ok
+test util::tests::case_4 ... ok
+test util::tests::case_5 ... ok
+test util::tests::case_6 ... ok
+test util::tests::case_7 ... ok
+test util::tests::case_8 ... ok
+test util::tests::case_9 ... ok
+test util::tests::case_10 ... ok
+test util::tests::case_11 ... ok
+test util::tests::case_12 ... ok
+test util::tests::case_13 ... ok
+test util::tests::case_14 ... ok
+test util::tests::case_15 ... ok
+test util::tests::case_16 ... ok
+test util::tests::case_17 ... ok
+test util::tests::case_18 ... ok
+test util::tests::case_19 ... ok
+test util::tests::case_20 ... ok
+test util::tests::case_21 ... ok
+test util::tests::case_22 ... ok
+test util::tests::case_23 ... ok
+test util::tests::case_24 ... ok
+test util::tests::case_25 ... ok
+test util::tests::case_26 ... ok
+test util::tests::case_27 ... ok
+test util::tests::case_28 ... ok
+test util::tests::case_29 ... ok
+test util::tests::case_30 ... ok
+test util::tests::case_31 ... ok
+test util::tests::case_32 ... ok
+test util::tests::case_33 ... ok
+test util::tests::case_34 ... ok
+test util::tests::case_35 ... ok
+test util::tests::case_36 ... ok
+test util::tests::case_37 ... ok
+test util::tests::case_38 ... ok
+test util::tests::case_39 ... ok
+test util::tests::case_40 ... ok
+test util::tests::case_41 ... ok
+test util::tests::case_42 ... ok
+test cart::tests::empty ... ok
+test cart::tests::single ... ok
+test cart::tests::never_negative ... FAILED
+test cart::tests::coupon_lowercase ... FAILED
+
+failures:
+
+---- cart::tests::never_negative stdout ----
+
+thread 'cart::tests::never_negative' panicked at src/cart.rs:41:9:
+assertion `left == right` failed
+  left: -4
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- cart::tests::coupon_lowercase stdout ----
+
+thread 'cart::tests::coupon_lowercase' panicked at src/cart.rs:52:9:
+assertion `left == right` failed
+  left: 10
+ right: 5
+
+
+failures:
+    cart::tests::coupon_lowercase
+    cart::tests::never_negative
+
+test result: FAILED. 44 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--lib`

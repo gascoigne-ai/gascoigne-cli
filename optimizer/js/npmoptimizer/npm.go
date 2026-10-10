@@ -24,11 +24,8 @@ func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if b.Type == detect.NPM {
 			lines = install(lines)
 		}
-		if compress.HasJSTest(text) {
-			lines = compress.JSTest(lines)
-		}
 		return compress.Join(TSC(lines)), nil
-	}, detect.NPM, detect.JSTest, detect.TSC)
+	}, detect.NPM, detect.TSC)
 }
 
 var (

@@ -1,0 +1,98 @@
+npm notice run webapp@1.0.0 npx
+npm notice run 'mocha' mt/*.spec.js
+
+
+  total
+    ✔ empty
+    1) never negative
+
+  coupon
+    ✔ HALF
+    2) lowercase
+
+  util1
+    ✔ case 1
+    ✔ case 2
+    ✔ case 3
+    ✔ case 4
+    ✔ case 5
+    ✔ case 6
+    ✔ case 7
+    ✔ case 8
+
+  util2
+    ✔ case 1
+    ✔ case 2
+    ✔ case 3
+    ✔ case 4
+    ✔ case 5
+    ✔ case 6
+    ✔ case 7
+    ✔ case 8
+
+  util3
+    ✔ case 1
+    ✔ case 2
+    ✔ case 3
+    ✔ case 4
+    ✔ case 5
+    ✔ case 6
+    ✔ case 7
+    ✔ case 8
+
+  util4
+    ✔ case 1
+    ✔ case 2
+    ✔ case 3
+    ✔ case 4
+    ✔ case 5
+    ✔ case 6
+    ✔ case 7
+    ✔ case 8
+
+  util5
+    ✔ case 1
+    ✔ case 2
+    ✔ case 3
+    ✔ case 4
+    ✔ case 5
+    ✔ case 6
+    ✔ case 7
+    ✔ case 8
+
+
+  42 passing (4ms)
+  2 failing
+
+  1) total
+       never negative:
+
+      AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+-4 !== 0
+
+      + expected - actual
+
+      --4
+      +0
+      
+      at Context.<anonymous> (mt/cart.spec.js:5:37)
+      at process.processImmediate (node:internal/timers:574:21)
+
+  2) coupon
+       lowercase:
+
+      AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+10 !== 5
+
+      + expected - actual
+
+      -10
+      +5
+      
+      at Context.<anonymous> (mt/cart.spec.js:9:32)
+      at process.processImmediate (node:internal/timers:574:21)
+
+
+

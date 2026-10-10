@@ -25,9 +25,6 @@ func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 				lines = append(lines, l)
 			}
 		}
-		if compress.HasJSTest(text) {
-			lines = compress.JSTest(lines)
-		}
 		return compress.Join(compress.SqueezeBlank(lines)), nil
-	}, detect.BunTest, detect.BunInstall)
+	}, detect.BunInstall)
 }

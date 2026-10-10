@@ -1,0 +1,31 @@
+........................F.........................F..
+
+Failures:
+
+  1) Cart is never negative
+     Failure/Error: it("is never negative") { expect(Cart.total([[1, 1]], 5)).to eq(0) }
+
+       expected: 0
+            got: -4
+
+       (compared using ==)
+     # ./spec/cart_spec.rb:4:in 'block (2 levels) in <top (required)>'
+… 2 dependency stack frames omitted
+
+  2) Cart accepts lowercase coupon
+     Failure/Error: it("accepts lowercase coupon") { expect(Cart.coupon(10, "half")).to eq(5) }
+
+       expected: 5
+            got: 10
+
+       (compared using ==)
+     # ./spec/cart_spec.rb:6:in 'block (2 levels) in <top (required)>'
+… 1 dependency stack frames omitted
+
+Finished in 0.01452 seconds (files took 0.08123 seconds to load)
+54 examples, 2 failures
+
+Failed examples:
+
+rspec ./spec/cart_spec.rb:4 # Cart is never negative
+rspec ./spec/cart_spec.rb:6 # Cart accepts lowercase coupon

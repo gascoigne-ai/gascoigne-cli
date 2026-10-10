@@ -1,7 +1,6 @@
 package npmoptimizer
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/lukaszb/gascoigne/compress"
@@ -41,12 +40,5 @@ func TestTSC(t *testing.T) {
 	want := "src/a.ts:\n  (3,3) TS2322: Type 'string' is not assignable.\n    Type 'x' is not 'y'.\n  (9,1) TS7006: any\nsrc/b.ts:\n  (1,1) TS1005: ';' expected.\n"
 	if got := compress.Join(TSC(in)); got != want {
 		t.Fatalf("got:\n%s\nwant:\n%s", got, want)
-	}
-}
-
-func TestJestInsideNPM(t *testing.T) {
-	got := run(detect.NPM, "npm notice run jest\nPASS src/a.test.js\nFAIL src/b.test.js\n  ● b › works\nTests:       1 failed, 1 passed, 2 total\n")
-	if strings.Contains(got, "PASS src/a.test.js") || strings.Contains(got, "npm notice") || !strings.Contains(got, "● b › works") {
-		t.Fatalf("got:\n%s", got)
 	}
 }

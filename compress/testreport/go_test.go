@@ -1,12 +1,10 @@
-package gooptimizer
+package testreport
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/payload"
 )
 
 func TestSummarize(t *testing.T) {
@@ -22,7 +20,7 @@ ok  	example.com/y	0.01s
 ok  	example.com/z	0.01s
 ?   	example.com/w	[no test files]
 `
-	got := compress.Join(summarize(compress.Lines(in)))
+	got := compress.Join(Go(compress.Lines(in)))
 	want := `--- FAIL: TestB (0.01s)
     b_test.go:9: want 1, got 2
 FAIL	example.com/x	0.02s
@@ -50,7 +48,7 @@ created by testing.(*T).Run in goroutine 1
 	/usr/local/go/src/testing/testing.go:2101 +0x4c5
 FAIL	example.com/x	0.003s
 `
-	got := compress.Join(summarize(compress.Lines(in)))
+	got := compress.Join(Go(compress.Lines(in)))
 	for _, keep := range []string{"panic: boom", "example.com/x.TestX", "/src/x/x_test.go:7", "… 3 standard library frames omitted", "FAIL\texample.com/x"} {
 		if !strings.Contains(got, keep) {
 			t.Errorf("lost %q:\n%s", keep, got)
@@ -80,7 +78,7 @@ func TestIsStdFrame(t *testing.T) {
 	}
 }
 
-func TestOptimizeJSON(t *testing.T) {
+func TestGoJSON(t *testing.T) {
 	events := `{"Action":"start","Package":"example.com/x"}
 {"Action":"run","Package":"example.com/x","Test":"TestA"}
 {"Action":"output","Package":"example.com/x","Test":"TestA","Output":"=== RUN   TestA\n"}
@@ -90,12 +88,12 @@ func TestOptimizeJSON(t *testing.T) {
 {"Action":"fail","Package":"example.com/x"}
 {"Action":"pass","Package":"example.com/y"}
 `
-	p := &payload.Payload{Blocks: []payload.Block{{Text: events, Type: detect.GoTestJSON}, {Text: "untouched", Type: detect.Log}}}
-	if err := (Optimizer{}).Optimize(t.Context(), p); err != nil {
+	got, err := GoJSON(events)
+	if err != nil {
 		t.Fatal(err)
 	}
 	want := "--- FAIL: TestA (0.00s)\n    a_test.go:3: bad\nFAIL\texample.com/x\nok 1 package: example.com/y\n"
-	if p.Blocks[0].Text != want || p.Blocks[1].Text != "untouched" {
-		t.Fatalf("got:\n%q", p.Blocks[0].Text)
+	if compress.Join(got) != want {
+		t.Fatalf("got:\n%q", compress.Join(got))
 	}
 }

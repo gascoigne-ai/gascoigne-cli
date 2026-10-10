@@ -1,0 +1,45 @@
+ ❯ vt/cart.test.mjs (5 tests | 2 failed) 5ms
+   × total > never negative 4ms
+     → expected -4 to be +0 // Object.is equality
+   × coupon > lowercase 0ms
+     → expected 10 to be 5 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  vt/cart.test.mjs > total > never negative
+AssertionError: expected -4 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ -4
+
+ ❯ vt/cart.test.mjs:6:78
+      4|   test('empty', () => expect(cart.total([])).toBe(0));
+      5|   test('single', () => expect(cart.total([{ price: 5, qty: 2 }])).toBe…
+      6|   test('never negative', () => expect(cart.total([{ price: 1, qty: 1 }…
+       |                                                                              ^
+      7| });
+      8| describe('coupon', () => {
+
+ FAIL  vt/cart.test.mjs > coupon > lowercase
+AssertionError: expected 10 to be 5 // Object.is equality
+
+- Expected
++ Received
+
+- 5
++ 10
+
+ ❯ vt/cart.test.mjs:10:64
+      8| describe('coupon', () => {
+      9|   test('HALF', () => expect(cart.applyCoupon(10, 'HALF')).toBe(5));
+     10|   test('lowercase', () => expect(cart.applyCoupon(10, 'half')).toBe(5)…
+       |                                                                ^
+     11| });
+     12|
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  2 failed | 51 passed (53)
+… 9 passing test lines omitted

@@ -1,6 +1,5 @@
-// Package gooptimizer compresses go test, go build and go vet output: passing
-// tests and packages collapse to counts, failures keep their output, panics
-// keep only frames outside the standard library.
+// Package gooptimizer compresses go build and go vet output (deduped).
+// Test output moved to the test family (compress/testreport).
 package gooptimizer
 
 import (
@@ -16,17 +15,6 @@ type Optimizer struct{ component.Nop }
 
 func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	return p.Rewrite(func(b payload.Block) (string, error) {
-		lines := compress.Lines(compress.StripANSI(b.Text))
-		switch b.Type {
-		case detect.GoTestJSON:
-			text, err := jsonToText(b.Text)
-			if err != nil {
-				return "", err
-			}
-			lines = compress.Lines(text)
-		case detect.GoBuild:
-			return compress.Join(compress.DedupeAll(lines)), nil
-		}
-		return compress.Join(summarize(lines)), nil
-	}, detect.GoTest, detect.GoTestJSON, detect.GoBuild)
+		return compress.Join(compress.DedupeAll(compress.Lines(compress.StripANSI(b.Text)))), nil
+	}, detect.GoBuild)
 }

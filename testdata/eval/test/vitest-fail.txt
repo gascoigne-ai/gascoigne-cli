@@ -1,0 +1,66 @@
+npm notice run webapp@1.0.0 npx
+npm notice run 'vitest' run vt
+
+ RUN  v3.2.7 /home/user/src/webapp
+
+ ✓ vt/util5.test.mjs (8 tests) 2ms
+ ✓ vt/util4.test.mjs (8 tests) 2ms
+ ✓ vt/util2.test.mjs (8 tests) 2ms
+ ✓ vt/util1.test.mjs (8 tests) 4ms
+ ✓ vt/util6.test.mjs (8 tests) 4ms
+ ✓ vt/util3.test.mjs (8 tests) 2ms
+ ❯ vt/cart.test.mjs (5 tests | 2 failed) 5ms
+   ✓ total > empty 1ms
+   ✓ total > single 0ms
+   × total > never negative 4ms
+     → expected -4 to be +0 // Object.is equality
+   ✓ coupon > HALF 0ms
+   × coupon > lowercase 0ms
+     → expected 10 to be 5 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  vt/cart.test.mjs > total > never negative
+AssertionError: expected -4 to be +0 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ -4[39m
+
+ ❯ vt/cart.test.mjs:6:78
+      4|   test('empty', () => expect(cart.total([])).toBe(0));
+      5|   test('single', () => expect(cart.total([{ price: 5, qty: 2 }])).toBe…
+      6|   test('never negative', () => expect(cart.total([{ price: 1, qty: 1 }…
+       |                                                                              ^
+      7| });
+      8| describe('coupon', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  vt/cart.test.mjs > coupon > lowercase
+AssertionError: expected 10 to be 5 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 5[39m
+[31m+ 10[39m
+
+ ❯ vt/cart.test.mjs:10:64
+      8| describe('coupon', () => {
+      9|   test('HALF', () => expect(cart.applyCoupon(10, 'HALF')).toBe(5));
+     10|   test('lowercase', () => expect(cart.applyCoupon(10, 'half')).toBe(5)…
+       |                                                                ^
+     11| });
+     12| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  2 failed | 51 passed (53)
+   Start at  02:26:59
+   Duration  156ms (transform 28ms, setup 0ms, collect 60ms, tests 21ms, environment 1ms, prepare 259ms)
+

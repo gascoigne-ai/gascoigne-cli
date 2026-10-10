@@ -1,0 +1,51 @@
+============================= test session starts ==============================
+
+tests/test_api.py F                                                      [  1%]
+tests/test_shop.py ...F.F                                                [  8%]
+
+=================================== FAILURES ===================================
+__________________________________ test_fetch __________________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7202f7e2c0>
+
+    def test_fetch(monkeypatch):
+        def boom(*a, **k):
+            raise requests.ConnectionError("connection refused: http://localhost:9/api")
+        monkeypatch.setattr(requests, "get", boom)
+>       assert requests.get("http://localhost:9/api").status_code == 200
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_api.py:7:
+
+a = ('http://localhost:9/api',), k = {}
+
+    def boom(*a, **k):
+>       raise requests.ConnectionError("connection refused: http://localhost:9/api")
+E       requests.exceptions.ConnectionError: connection refused: http://localhost:9/api
+
+tests/test_api.py:5: ConnectionError
+____________________________ test_total[items3-5-0] ____________________________
+
+items = [(1, 1)], discount = 5, want = 0
+
+    @pytest.mark.parametrize("items,discount,want", [([], 0, 0), ([(5, 2)], 0, 10), ([(5, 2)], 3, 7), ([(1, 1)], 5, 0)])
+    def test_total(items, discount, want):
+>       assert total(items, discount) == want
+E       assert -4 == 0
+E        +  where -4 = total([(1, 1)], 5)
+
+tests/test_shop.py:6: AssertionError
+____________________________ test_coupon_lowercase _____________________________
+
+    def test_coupon_lowercase():
+>       assert apply_coupon(10, "half") == 5
+E       AssertionError: assert 10 == 5
+E        +  where 10 = apply_coupon(10, 'half')
+
+tests/test_shop.py:12: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_api.py::test_fetch - requests.exceptions.ConnectionError: c...
+FAILED tests/test_shop.py::test_total[items3-5-0] - assert -4 == 0
+FAILED tests/test_shop.py::test_coupon_lowercase - AssertionError: assert 10 ...
+========================= 3 failed, 84 passed in 0.06s =========================
+… 8 passing test lines omitted

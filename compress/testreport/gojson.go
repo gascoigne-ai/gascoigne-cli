@@ -1,9 +1,11 @@
-package gooptimizer
+package testreport
 
 import (
 	"bufio"
 	"encoding/json"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/compress"
 )
 
 type event struct {
@@ -14,8 +16,16 @@ type event struct {
 	Elapsed float64
 }
 
-// jsonToText turns go test -json events back into plain go test output,
-// keeping only output of failed tests and package results.
+// GoJSON compresses go test -json events: they are folded back into plain
+// go test output (failed tests and package results only), then into Go.
+func GoJSON(text string) ([]string, error) {
+	plain, err := jsonToText(text)
+	if err != nil {
+		return nil, err
+	}
+	return Go(compress.Lines(plain)), nil
+}
+
 func jsonToText(text string) (string, error) {
 	type pkg struct {
 		out    map[string][]string // test → output

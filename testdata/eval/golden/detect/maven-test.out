@@ -1,0 +1,25 @@
+[INFO]  T E S T S
+[INFO] Running com.example.shop.UtilTest
+[INFO] Running com.example.shop.PriceTest
+[INFO] Running com.example.shop.InventoryTest
+[INFO] Running com.example.shop.OrderTest
+[INFO] Running com.example.shop.CartTest
+[ERROR] Tests run: 5, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.031 s <<< FAILURE! -- in com.example.shop.CartTest
+[ERROR] com.example.shop.CartTest.neverNegative -- Time elapsed: 0.008 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <0> but was: <-4>
+… 4 dependency stack frames omitted
+	at com.example.shop.CartTest.neverNegative(CartTest.java:24)
+… 2 dependency stack frames omitted
+[ERROR] com.example.shop.CartTest.lowercaseCoupon -- Time elapsed: 0.002 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <5> but was: <10>
+… 2 dependency stack frames omitted
+	at com.example.shop.CartTest.lowercaseCoupon(CartTest.java:31)
+… 1 dependency stack frames omitted
+[INFO] Results:
+[ERROR] Failures:
+[ERROR]   CartTest.lowercaseCoupon:31 expected: <5> but was: <10>
+[ERROR]   CartTest.neverNegative:24 expected: <0> but was: <-4>
+[ERROR] Tests run: 53, Failures: 2, Errors: 0, Skipped: 0
+[INFO] BUILD FAILURE
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project shop: There are test failures.
+… 4 passing test lines omitted

@@ -1,0 +1,28 @@
+test cart::tests::never_negative ... FAILED
+test cart::tests::coupon_lowercase ... FAILED
+
+failures:
+
+---- cart::tests::never_negative stdout ----
+
+thread 'cart::tests::never_negative' panicked at src/cart.rs:41:9:
+assertion `left == right` failed
+  left: -4
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- cart::tests::coupon_lowercase stdout ----
+
+thread 'cart::tests::coupon_lowercase' panicked at src/cart.rs:52:9:
+assertion `left == right` failed
+  left: 10
+ right: 5
+
+failures:
+    cart::tests::coupon_lowercase
+    cart::tests::never_negative
+
+test result: FAILED. 44 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--lib`
+… 44 passing test lines omitted

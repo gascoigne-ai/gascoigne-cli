@@ -1,0 +1,61 @@
+Check cart_test.ts
+Check util1_test.ts
+Check util2_test.ts
+Check util3_test.ts
+Check util4_test.ts
+running 2 tests from ./cart_test.ts
+empty ... ok (221µs)
+never negative ... FAILED (237µs)
+running 8 tests from ./util1_test.ts
+util1 case 1 ... ok (187µs)
+util1 case 2 ... ok (18µs)
+util1 case 3 ... ok (9µs)
+util1 case 4 ... ok (9µs)
+util1 case 5 ... ok (17µs)
+util1 case 6 ... ok (11µs)
+util1 case 7 ... ok (14µs)
+util1 case 8 ... ok (7µs)
+running 8 tests from ./util2_test.ts
+util2 case 1 ... ok (185µs)
+util2 case 2 ... ok (77µs)
+util2 case 3 ... ok (11µs)
+util2 case 4 ... ok (9µs)
+util2 case 5 ... ok (18µs)
+util2 case 6 ... ok (11µs)
+util2 case 7 ... ok (12µs)
+util2 case 8 ... ok (9µs)
+running 8 tests from ./util3_test.ts
+util3 case 1 ... ok (191µs)
+util3 case 2 ... ok (23µs)
+util3 case 3 ... ok (8µs)
+util3 case 4 ... ok (7µs)
+util3 case 5 ... ok (22µs)
+util3 case 6 ... ok (13µs)
+util3 case 7 ... ok (10µs)
+util3 case 8 ... ok (6µs)
+running 8 tests from ./util4_test.ts
+util4 case 1 ... ok (170µs)
+util4 case 2 ... ok (15µs)
+util4 case 3 ... ok (7µs)
+util4 case 4 ... ok (6µs)
+util4 case 5 ... ok (15µs)
+util4 case 6 ... ok (8µs)
+util4 case 7 ... ok (8µs)
+util4 case 8 ... ok (8µs)
+
+ ERRORS 
+
+never negative => ./cart_test.ts:4:6
+error: Error: Values are not equal: -4 !== 0
+function assertEquals(a: unknown, b: unknown) { if (a !== b) throw new Error(`Values are not equal: ${a} !== ${b}`); }
+                                                                   ^
+    at assertEquals (file:///home/user/src/denop/cart_test.ts:2:68)
+    at file:///home/user/src/denop/cart_test.ts:4:35
+
+ FAILURES 
+
+never negative => ./cart_test.ts:4:6
+
+FAILED | 33 passed | 1 failed (47ms)
+
+error: Test failed

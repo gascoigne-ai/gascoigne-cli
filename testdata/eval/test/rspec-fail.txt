@@ -1,0 +1,35 @@
+Randomized with seed 41123
+........................F.........................F..
+
+Failures:
+
+  1) Cart is never negative
+     Failure/Error: it("is never negative") { expect(Cart.total([[1, 1]], 5)).to eq(0) }
+
+       expected: 0
+            got: -4
+
+       (compared using ==)
+     # ./spec/cart_spec.rb:4:in 'block (2 levels) in <top (required)>'
+     # /home/user/.gem/ruby/3.4.0/gems/rspec-core-3.13.2/lib/rspec/core/example.rb:263:in 'instance_exec'
+     # /home/user/.gem/ruby/3.4.0/gems/rspec-core-3.13.2/lib/rspec/core/example.rb:263:in 'block in run'
+
+  2) Cart accepts lowercase coupon
+     Failure/Error: it("accepts lowercase coupon") { expect(Cart.coupon(10, "half")).to eq(5) }
+
+       expected: 5
+            got: 10
+
+       (compared using ==)
+     # ./spec/cart_spec.rb:6:in 'block (2 levels) in <top (required)>'
+     # /home/user/.gem/ruby/3.4.0/gems/rspec-core-3.13.2/lib/rspec/core/example.rb:263:in 'instance_exec'
+
+Finished in 0.01452 seconds (files took 0.08123 seconds to load)
+54 examples, 2 failures
+
+Failed examples:
+
+rspec ./spec/cart_spec.rb:4 # Cart is never negative
+rspec ./spec/cart_spec.rb:6 # Cart accepts lowercase coupon
+
+Randomized with seed 41123

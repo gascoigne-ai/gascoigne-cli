@@ -1,0 +1,19 @@
+never negative ... FAILED (237µs)
+
+ ERRORS
+
+never negative => ./cart_test.ts:4:6
+error: Error: Values are not equal: -4 !== 0
+function assertEquals(a: unknown, b: unknown) { if (a !== b) throw new Error(`Values are not equal: ${a} !== ${b}`); }
+                                                                   ^
+    at assertEquals (file:///home/user/src/denop/cart_test.ts:2:68)
+    at file:///home/user/src/denop/cart_test.ts:4:35
+
+ FAILURES
+
+never negative => ./cart_test.ts:4:6
+
+FAILED | 33 passed | 1 failed (47ms)
+
+error: Test failed
+… 33 passing test lines omitted

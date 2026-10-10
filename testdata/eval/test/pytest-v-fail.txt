@@ -1,0 +1,140 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- /home/user/src/pyproj/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/user/src/pyproj
+collecting ... collected 87 items
+
+tests/test_api.py::test_fetch FAILED                                     [  1%]
+tests/test_shop.py::test_total[items0-0-0] PASSED                        [  2%]
+tests/test_shop.py::test_total[items1-0-10] PASSED                       [  3%]
+tests/test_shop.py::test_total[items2-3-7] PASSED                        [  4%]
+tests/test_shop.py::test_total[items3-5-0] FAILED                        [  5%]
+tests/test_shop.py::test_coupon_half PASSED                              [  6%]
+tests/test_shop.py::test_coupon_lowercase FAILED                         [  8%]
+tests/test_util1.py::test_case_1_1 PASSED                                [  9%]
+tests/test_util1.py::test_case_1_2 PASSED                                [ 10%]
+tests/test_util1.py::test_case_1_3 PASSED                                [ 11%]
+tests/test_util1.py::test_case_1_4 PASSED                                [ 12%]
+tests/test_util1.py::test_case_1_5 PASSED                                [ 13%]
+tests/test_util1.py::test_case_1_6 PASSED                                [ 14%]
+tests/test_util1.py::test_case_1_7 PASSED                                [ 16%]
+tests/test_util1.py::test_case_1_8 PASSED                                [ 17%]
+tests/test_util1.py::test_case_1_9 PASSED                                [ 18%]
+tests/test_util1.py::test_case_1_10 PASSED                               [ 19%]
+tests/test_util2.py::test_case_2_1 PASSED                                [ 20%]
+tests/test_util2.py::test_case_2_2 PASSED                                [ 21%]
+tests/test_util2.py::test_case_2_3 PASSED                                [ 22%]
+tests/test_util2.py::test_case_2_4 PASSED                                [ 24%]
+tests/test_util2.py::test_case_2_5 PASSED                                [ 25%]
+tests/test_util2.py::test_case_2_6 PASSED                                [ 26%]
+tests/test_util2.py::test_case_2_7 PASSED                                [ 27%]
+tests/test_util2.py::test_case_2_8 PASSED                                [ 28%]
+tests/test_util2.py::test_case_2_9 PASSED                                [ 29%]
+tests/test_util2.py::test_case_2_10 PASSED                               [ 31%]
+tests/test_util3.py::test_case_3_1 PASSED                                [ 32%]
+tests/test_util3.py::test_case_3_2 PASSED                                [ 33%]
+tests/test_util3.py::test_case_3_3 PASSED                                [ 34%]
+tests/test_util3.py::test_case_3_4 PASSED                                [ 35%]
+tests/test_util3.py::test_case_3_5 PASSED                                [ 36%]
+tests/test_util3.py::test_case_3_6 PASSED                                [ 37%]
+tests/test_util3.py::test_case_3_7 PASSED                                [ 39%]
+tests/test_util3.py::test_case_3_8 PASSED                                [ 40%]
+tests/test_util3.py::test_case_3_9 PASSED                                [ 41%]
+tests/test_util3.py::test_case_3_10 PASSED                               [ 42%]
+tests/test_util4.py::test_case_4_1 PASSED                                [ 43%]
+tests/test_util4.py::test_case_4_2 PASSED                                [ 44%]
+tests/test_util4.py::test_case_4_3 PASSED                                [ 45%]
+tests/test_util4.py::test_case_4_4 PASSED                                [ 47%]
+tests/test_util4.py::test_case_4_5 PASSED                                [ 48%]
+tests/test_util4.py::test_case_4_6 PASSED                                [ 49%]
+tests/test_util4.py::test_case_4_7 PASSED                                [ 50%]
+tests/test_util4.py::test_case_4_8 PASSED                                [ 51%]
+tests/test_util4.py::test_case_4_9 PASSED                                [ 52%]
+tests/test_util4.py::test_case_4_10 PASSED                               [ 54%]
+tests/test_util5.py::test_case_5_1 PASSED                                [ 55%]
+tests/test_util5.py::test_case_5_2 PASSED                                [ 56%]
+tests/test_util5.py::test_case_5_3 PASSED                                [ 57%]
+tests/test_util5.py::test_case_5_4 PASSED                                [ 58%]
+tests/test_util5.py::test_case_5_5 PASSED                                [ 59%]
+tests/test_util5.py::test_case_5_6 PASSED                                [ 60%]
+tests/test_util5.py::test_case_5_7 PASSED                                [ 62%]
+tests/test_util5.py::test_case_5_8 PASSED                                [ 63%]
+tests/test_util5.py::test_case_5_9 PASSED                                [ 64%]
+tests/test_util5.py::test_case_5_10 PASSED                               [ 65%]
+tests/test_util6.py::test_case_6_1 PASSED                                [ 66%]
+tests/test_util6.py::test_case_6_2 PASSED                                [ 67%]
+tests/test_util6.py::test_case_6_3 PASSED                                [ 68%]
+tests/test_util6.py::test_case_6_4 PASSED                                [ 70%]
+tests/test_util6.py::test_case_6_5 PASSED                                [ 71%]
+tests/test_util6.py::test_case_6_6 PASSED                                [ 72%]
+tests/test_util6.py::test_case_6_7 PASSED                                [ 73%]
+tests/test_util6.py::test_case_6_8 PASSED                                [ 74%]
+tests/test_util6.py::test_case_6_9 PASSED                                [ 75%]
+tests/test_util6.py::test_case_6_10 PASSED                               [ 77%]
+tests/test_util7.py::test_case_7_1 PASSED                                [ 78%]
+tests/test_util7.py::test_case_7_2 PASSED                                [ 79%]
+tests/test_util7.py::test_case_7_3 PASSED                                [ 80%]
+tests/test_util7.py::test_case_7_4 PASSED                                [ 81%]
+tests/test_util7.py::test_case_7_5 PASSED                                [ 82%]
+tests/test_util7.py::test_case_7_6 PASSED                                [ 83%]
+tests/test_util7.py::test_case_7_7 PASSED                                [ 85%]
+tests/test_util7.py::test_case_7_8 PASSED                                [ 86%]
+tests/test_util7.py::test_case_7_9 PASSED                                [ 87%]
+tests/test_util7.py::test_case_7_10 PASSED                               [ 88%]
+tests/test_util8.py::test_case_8_1 PASSED                                [ 89%]
+tests/test_util8.py::test_case_8_2 PASSED                                [ 90%]
+tests/test_util8.py::test_case_8_3 PASSED                                [ 91%]
+tests/test_util8.py::test_case_8_4 PASSED                                [ 93%]
+tests/test_util8.py::test_case_8_5 PASSED                                [ 94%]
+tests/test_util8.py::test_case_8_6 PASSED                                [ 95%]
+tests/test_util8.py::test_case_8_7 PASSED                                [ 96%]
+tests/test_util8.py::test_case_8_8 PASSED                                [ 97%]
+tests/test_util8.py::test_case_8_9 PASSED                                [ 98%]
+tests/test_util8.py::test_case_8_10 PASSED                               [100%]
+
+=================================== FAILURES ===================================
+__________________________________ test_fetch __________________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fdb4df7a3f0>
+
+    def test_fetch(monkeypatch):
+        def boom(*a, **k):
+            raise requests.ConnectionError("connection refused: http://localhost:9/api")
+        monkeypatch.setattr(requests, "get", boom)
+>       assert requests.get("http://localhost:9/api").status_code == 200
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_api.py:7: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+a = ('http://localhost:9/api',), k = {}
+
+    def boom(*a, **k):
+>       raise requests.ConnectionError("connection refused: http://localhost:9/api")
+E       requests.exceptions.ConnectionError: connection refused: http://localhost:9/api
+
+tests/test_api.py:5: ConnectionError
+____________________________ test_total[items3-5-0] ____________________________
+
+items = [(1, 1)], discount = 5, want = 0
+
+    @pytest.mark.parametrize("items,discount,want", [([], 0, 0), ([(5, 2)], 0, 10), ([(5, 2)], 3, 7), ([(1, 1)], 5, 0)])
+    def test_total(items, discount, want):
+>       assert total(items, discount) == want
+E       assert -4 == 0
+E        +  where -4 = total([(1, 1)], 5)
+
+tests/test_shop.py:6: AssertionError
+____________________________ test_coupon_lowercase _____________________________
+
+    def test_coupon_lowercase():
+>       assert apply_coupon(10, "half") == 5
+E       AssertionError: assert 10 == 5
+E        +  where 10 = apply_coupon(10, 'half')
+
+tests/test_shop.py:12: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_api.py::test_fetch - requests.exceptions.ConnectionError: c...
+FAILED tests/test_shop.py::test_total[items3-5-0] - assert -4 == 0
+FAILED tests/test_shop.py::test_coupon_lowercase - AssertionError: assert 10 ...
+========================= 3 failed, 84 passed in 0.07s =========================

@@ -1,4 +1,8 @@
-package gooptimizer
+// Package testreport compresses test runner output: passing tests collapse
+// to counts, failures keep their details, dependency stack frames go,
+// summaries stay. Go output is parsed; other runners follow declarative
+// dialect rules over one generic engine.
+package testreport
 
 import (
 	"cmp"
@@ -28,7 +32,8 @@ type test struct {
 	out    []string // output attributed to the test
 }
 
-func summarize(lines []string) []string {
+// Go compresses go test output (plain or -v).
+func Go(lines []string) []string {
 	s := &summary{tests: map[string]*test{}}
 	for _, l := range lines {
 		s.line(l)

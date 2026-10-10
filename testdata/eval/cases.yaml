@@ -43,6 +43,61 @@
   file: go/test-json.ndjson
   expect_type: test/go-json
 
+# --- test family: other runners
+- file: test/pytest-fail.txt
+  attrs: { cmd: pytest tests }
+  expect_type: test/pytest
+  keep: ["FAILED tests/test_shop.py::test_total[items3-5-0] - assert -4 == 0", "tests/test_shop.py:12: AssertionError", "3 failed, 84 passed"]
+  min_saved: 20
+- file: test/pytest-v-fail.txt
+  attrs: { cmd: python -m pytest -v tests }
+  expect_type: test/pytest
+  keep: ["assert -4 == 0", "3 failed, 84 passed", "test_coupon_lowercase"]
+  min_saved: 70
+- file: test/vitest-fail.txt
+  attrs: { cmd: npx vitest run vt }
+  expect_type: test/vitest
+  keep: ["× total > never negative", "expected -4 to be +0", "Tests  2 failed | 51 passed"]
+  min_saved: 30
+- file: test/mocha-fail.txt
+  attrs: { cmd: npx mocha mt/*.spec.js }
+  expect_type: test/mocha
+  keep: ["2 failing", "1) total", "-4"]
+  min_saved: 45
+- file: test/deno-fail.txt
+  attrs: { cmd: deno test }
+  expect_type: test/deno
+  keep: ["never negative => ./cart_test.ts:4:6", "FAILED | 33 passed | 1 failed", "Values are not equal: -4 !== 0"]
+  min_saved: 60
+- file: test/rspec-fail.txt
+  attrs: { cmd: bundle exec rspec }
+  expect_type: test/rspec
+  keep: ["1) Cart is never negative", "got: -4", "./spec/cart_spec.rb:4", "54 examples, 2 failures"]
+  min_saved: 20
+- file: test/cargo-test-fail.txt
+  attrs: { cmd: cargo test }
+  expect_type: test/cargo
+  keep: ["---- cart::tests::never_negative stdout ----", "src/cart.rs:41:9", "left: -4", "test result: FAILED. 44 passed; 2 failed"]
+  min_saved: 60
+- file: test/maven-test-fail.txt
+  attrs: { cmd: mvn test }
+  expect_type: test/maven
+  keep: ["CartTest.neverNegative:24 expected: <0> but was: <-4>", "CartTest.java:24", "Tests run: 53, Failures: 2", "BUILD FAILURE"]
+  min_saved: 65
+- file: test/dotnet-test-fail.txt
+  attrs: { cmd: dotnet test }
+  expect_type: test/dotnet
+  keep: ["Failed Shop.Tests.CartTests.NeverNegative", "Actual:   -4", "CartTests.cs:line 18", "Failed:     1, Passed:    32"]
+  min_saved: 70
+- { name: detect/pytest, file: test/pytest-fail.txt, expect_type: test/pytest }
+- { name: detect/vitest, file: test/vitest-fail.txt, expect_type: test/vitest }
+- { name: detect/mocha, file: test/mocha-fail.txt, expect_type: test/mocha }
+- { name: detect/deno, file: test/deno-fail.txt, expect_type: test/deno }
+- { name: detect/rspec, file: test/rspec-fail.txt, expect_type: test/rspec }
+- { name: detect/cargo-test, file: test/cargo-test-fail.txt, expect_type: test/cargo }
+- { name: detect/maven-test, file: test/maven-test-fail.txt, expect_type: test/maven }
+- { name: detect/dotnet-test, file: test/dotnet-test-fail.txt, expect_type: test/dotnet }
+
 # --- git
 - file: git/status.txt
   attrs: { cmd: git status }
@@ -159,12 +214,12 @@
   min_saved: 95
 - file: npm/test-jest-fail.txt
   attrs: { cmd: npm test }
-  expect_type: pkg/npm
+  expect_type: test/jest
   keep: ["FAIL src/cart.test.js", "● total › never negative", "Received: -4", "● applyCoupon › lowercase", "Tests:"]
   min_saved: 5
 - file: npm/tsc-errors.txt
   attrs: { cmd: npm run build }
-  expect_type: pkg/npm
+  expect_type: build/tsc
   keep: ["src/order.ts(3,3): error TS2322", "src/order.ts(12,22): error TS7006"]
 - name: detect/npm-verbose
   file: npm/install-verbose.txt

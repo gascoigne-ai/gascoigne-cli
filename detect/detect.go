@@ -68,7 +68,17 @@ func Argv(cmd string) []string {
 	if len(args) > 0 {
 		args[0] = path.Base(args[0])
 	}
+	// "uv run pytest", "bundle exec rspec", "npm exec vitest", "python -m pytest".
+	if len(args) > 2 && (execs[args[0]+" "+args[1]] || strings.HasPrefix(args[0], "python") && args[1] == "-m") {
+		return Argv(strings.Join(args[2:], " "))
+	}
 	return args
+}
+
+// execs run the command that follows them.
+var execs = map[string]bool{
+	"uv run": true, "poetry run": true, "pipenv run": true, "pdm run": true, "hatch run": true,
+	"bundle exec": true, "npm exec": true, "pnpm exec": true, "pnpm dlx": true, "yarn exec": true, "yarn dlx": true,
 }
 
 // valueFlags take a separate value before positional arguments

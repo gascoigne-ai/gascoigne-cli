@@ -4,8 +4,16 @@ package detect
 const (
 	GoTest     = "test/go"
 	GoTestJSON = "test/go-json"
-	JSTest     = "test/jest" // jest, vitest
+	JSTest     = "test/jest"
+	Vitest     = "test/vitest"
 	BunTest    = "test/bun"
+	Mocha      = "test/mocha"
+	DenoTest   = "test/deno"
+	Pytest     = "test/pytest"
+	CargoTest  = "test/cargo"
+	RSpec      = "test/rspec"
+	MavenTest  = "test/maven"
+	DotnetTest = "test/dotnet"
 )
 
 func init() {
@@ -17,7 +25,20 @@ func init() {
 		Spec{Type: GoTest, Cmds: []string{"go test"}, Priority: 50,
 			Sniff: anyLine(`^=== RUN |^--- (FAIL|PASS|SKIP): |^ok  \t|^FAIL\t|^\?   \t.*\[no test files\]`)},
 		Spec{Type: BunTest, Cmds: []string{"bun test"}, Priority: 53, Sniff: anyLine(`^bun test v\d`)},
-		Spec{Type: JSTest, Cmds: []string{"jest", "vitest"}, Priority: 56,
-			Sniff: anyLine(`^\s*(PASS|FAIL)\s+\S+\.(test|spec)\.\w+|^Tests:\s+\d|^\s*Test Files\s+\d`)},
+		Spec{Type: Vitest, Cmds: []string{"vitest"}, Priority: 55, Sniff: anyLine(`^\s*RUN\s+v\d|^\s*Test Files\s+\d`)},
+		Spec{Type: JSTest, Cmds: []string{"jest"}, Priority: 56,
+			Sniff: anyLine(`^\s*(PASS|FAIL)\s+\S+\.(test|spec)\.\w+|^Tests:\s+\d`)},
+		Spec{Type: Pytest, Cmds: []string{"pytest", "py.test"}, Priority: 48,
+			Sniff: anyLine(`^=+ (test session starts|FAILURES|ERRORS|short test summary info) =+$|^=+ .*\d+ (passed|failed).* in [\d.]+s`)},
+		Spec{Type: CargoTest, Cmds: []string{"cargo test", "cargo nextest"}, Priority: 48,
+			Sniff: anyLine(`^test result: (ok|FAILED)\. \d+ passed`)},
+		Spec{Type: Mocha, Cmds: []string{"mocha"}, Priority: 48, Sniff: anyLine(`^\s+\d+ passing \(\d+m?s\)`)},
+		Spec{Type: RSpec, Cmds: []string{"rspec"}, Priority: 48, Sniff: anyLine(`^\d+ examples?, \d+ failures?`)},
+		Spec{Type: MavenTest, Cmds: []string{"mvn test", "mvn verify", "mvnw test", "mvnw verify"}, Priority: 48,
+			Sniff: anyLine(`^\[INFO\]  T E S T S|^\[(INFO|ERROR|WARNING)\] Tests run: \d+, Failures: \d+`)},
+		Spec{Type: DotnetTest, Cmds: []string{"dotnet test"}, Priority: 48,
+			Sniff: anyLine(`^(Passed|Failed)!\s+-\s+Failed:\s+\d+`)},
+		Spec{Type: DenoTest, Cmds: []string{"deno test"}, Priority: 48,
+			Sniff: anyLine(`^(ok|FAILED) \| \d+ passed|^running \d+ tests? from `)},
 	)
 }

@@ -19,6 +19,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/js/npmoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/js/nxoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/search/grepoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/test/testoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/vcs/gitoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/web/htmloptimizer"
 	"github.com/lukaszb/gascoigne/receiver/execreceiver"
@@ -42,6 +43,7 @@ func Factories() []component.Factory {
 		// optimizers
 		passthroughoptimizer.NewFactory(),
 		gooptimizer.NewFactory(),
+		testoptimizer.NewFactory(),
 		gitoptimizer.NewFactory(),
 		grepoptimizer.NewFactory(),
 		lsoptimizer.NewFactory(),
