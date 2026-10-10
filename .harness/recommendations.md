@@ -7,7 +7,7 @@ Direction for upcoming work. Rules are in `rules.md`; this is advice.
 |---|---|
 | `tsc --watch`, `vite`/`webpack` dev servers | watch loops: keep the last cycle's errors, drop earlier cycles |
 | container log prefixes | normalize pod/container prefixes (`kubectl logs --prefix`, compose) before templating |
-| `diff` moves/renames | detect moved blocks, summarize pure renames (task 008) |
+| `diff` moved blocks | detect code moved within or across files, show it once as a move (task 008; pure renames are already one line) |
 | `truncate` | head + tail with marker, last resort at the end of the default chain |
 
 New tools of an existing family are dialects, not optimizers (skill `add-component`).
@@ -41,4 +41,4 @@ workloads. `simd/archsimd` still needs GOEXPERIMENT=simd; stats loops are not a 
 - Deterministic output ⇒ prompt-cache friendly. No timestamps or random ids in optimized text.
 - Measure before claiming: every optimizer gets eval cases with real-shaped fixtures.
 - Keep hint/marker text short; it costs tokens too.
-- Prefer stdlib: `os/exec`, `net/http`, `encoding/json`, `bufio.Scanner`, `regexp` (sparingly).
+- Prefer stdlib: `os/exec`, `net/http`, `encoding/json`, `bufio.Scanner`, `regexp` (sparingly; package-level patterns via `lazyre.New`).
