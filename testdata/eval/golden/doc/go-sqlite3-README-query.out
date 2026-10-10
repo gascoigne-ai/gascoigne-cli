@@ -16,9 +16,23 @@ This package follows the official [Golang Release Policy](https://golang.org/doc
 ### Overview
 
 # Installation
-… 11 lines omitted
+
+This package can be installed with the `go get` command:
+
+    go get github.com/mattn/go-sqlite3
+
+_go-sqlite3_ is *cgo* package.
+If you want to build your app using go-sqlite3, you need gcc.
+However, after you have built and installed _go-sqlite3_ with `go install github.com/mattn/go-sqlite3` (which requires gcc), you can build your app without relying on gcc in future.
+
+***Important: because this is a `CGO` enabled package, you are required to set the environment variable `CGO_ENABLED=1` and have a `gcc` compiler present within your path.***
+
 # API Reference
-… 5 lines omitted
+
+API documentation can be found [here](http://godoc.org/github.com/mattn/go-sqlite3).
+
+Examples can be found under the [examples](./_example) directory.
+
 # Connection String
 
 When creating a new SQLite database or connection to an existing one, with the file name additional options can be given.
@@ -67,9 +81,34 @@ Boolean values can be one of:
 | Cache Size | `_cache_size` | `int` | Maximum cache size; default is 2000K (2M). See [PRAGMA cache_size](https://sqlite.org/pragma.html#pragma_cache_size) |
 
 ## DSN Examples
-… 5 lines omitted
+
+```
+file:test.db?cache=shared&mode=memory
+```
+
 # Features
-… 22 lines omitted
+
+This package allows additional configuration of features available within SQLite3 to be enabled or disabled by golang build constraints also known as build `tags`.
+
+Click [here](https://golang.org/pkg/go/build/#hdr-Build_Constraints) for more information about build tags / constraints.
+
+### Usage
+
+If you wish to build this library with additional extensions / features, use the following command:
+
+```bash
+go build -tags "<FEATURE>"
+```
+
+For available features, see the extension list.
+When using multiple build tags, all the different tags should be space delimited.
+
+Example:
+
+```bash
+go build -tags "icu json1 fts5 secure_delete"
+```
+
 ### Feature / Extension List
 
 | Extension | Build Tag | Description |
@@ -96,13 +135,42 @@ Boolean values can be one of:
 | Virtual Tables | sqlite_vtable | SQLite Virtual Tables see [SQLite Official VTABLE Documentation](https://www.sqlite.org/vtab.html) for more information, and a [full example here](https://github.com/mattn/go-sqlite3/tree/master/_example/vtable) |
 
 # Compilation
-… 5 lines omitted
+
+This package requires the `CGO_ENABLED=1` environment variable if not set by default, and the presence of the `gcc` compiler.
+
+If you need to add additional CFLAGS or LDFLAGS to the build command, and do not want to modify this package, then this can be achieved by using the `CGO_CFLAGS` and `CGO_LDFLAGS` environment variables.
+
 ## Android
-… 10 lines omitted
+
+This package can be compiled for android.
+Compile with:
+
+```bash
+go build -tags "android"
+```
+
+For more information see [#201](https://github.com/mattn/go-sqlite3/issues/201)
+
 # ARM
-… 13 lines omitted
+
+To compile for `ARM` use the following environment:
+
+```bash
+env CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ \
+    CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 \
+    go build -v
+```
+
+Additional information:
+- [#242](https://github.com/mattn/go-sqlite3/issues/242)
+- [#504](https://github.com/mattn/go-sqlite3/issues/504)
+
 # Cross Compile
-… 5 lines omitted
+
+This library can be cross-compiled.
+
+In some cases you are required to the `CC` environment variable with the cross compiler.
+
 ## Cross Compiling from macOS
 … 8 lines omitted
 # Google Cloud Platform

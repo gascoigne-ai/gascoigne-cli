@@ -5,7 +5,7 @@ Every block of output is detected as a type `family/dialect`: `test/pytest`, `bu
 **dialects** tune it for one tool. One payload can mix types (a CI log with test and build
 sections), and each part meets its own engine.
 
-Savings below are from the eval fixtures in `testdata/eval` (`make eval`), measured as bytes/4.
+Savings below are from the eval fixtures in `testdata/eval` (`make eval`), measured with `tokens.Estimate`: BPE-style pieces (words, digit groups, punctuation runs, whitespace runs), within ~10% of a 200k-vocabulary tokenizer on these fixtures where bytes/4 is off by 28% and treats indentation and column padding as expensive. Tables print as aligned columns for the same reason: a run of spaces is one token, `" | "` two or three.
 
 ## How detection works
 
@@ -217,7 +217,7 @@ nginx access log: 34,382 → 215 (99.4%). `kubectl logs` with JSON lines: 13,459
 | `doc/help` | `--help` output (sniffed) | dedented, boilerplate dropped |
 | `doc/text` | anything else | runs of repeated lines deduplicated |
 
-**Long pages.** Markdown over `doc.max_tokens` (4000) keeps the intro, then sections that match
+**Long pages.** Markdown over `doc.max_tokens` (5200) keeps the intro, then sections that match
 the `query` attribute well (at least half the best BM25 score), then the rest in page order
 while they fit. Dropped sections keep their heading when it is one of the page's top two
 levels, then `… N lines omitted`. Dotted versions (`go1.27`, `v2.3.1`) are search terms with
@@ -308,7 +308,7 @@ after frame folding: 162→123. Source files (`fs`) and data are never touched.
 
 ## Last resort (`truncate`, after every other optimizer)
 
-A block still over 8000 tokens after its engine keeps its first and last 2500 tokens and up to
+A block still over 10000 tokens after its engine keeps its first and last 3200 tokens and up to
 20 error lines (`error`, `failed`, `fatal`, `panic`, `exception`, `traceback`) from the middle;
 each cut leaves `… N lines omitted`, and lines over 2000 bytes are cut in the middle. Source
 files (`fs/code`) and structured families (`data`, `k8s`, `cloud`) are never cut: they would no

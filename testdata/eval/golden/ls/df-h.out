@@ -1,0 +1,7 @@
+Filesystem        Size  Used  Avail  Use%  Mounted-on
+/dev/mapper/root  1.9T  1.1T  791G   59%   /
+/dev/mapper/root  1.9T  1.1T  791G   59%   /var/cache/pacman/pkg
+/dev/mapper/root  1.9T  1.1T  791G   59%   /var/log
+/dev/mapper/root  1.9T  1.1T  791G   59%   /home
+/dev/nvme2n1p1    3.8G  495M  3.3G   13%   /boot
+… 8 pseudo filesystem rows omitted

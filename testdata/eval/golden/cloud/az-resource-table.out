@@ -1,33 +1,33 @@
 same in all rows: ResourceGroup=shop-prod, Location=westeurope
-Name | Type
-shop-st-00 | Microsoft.Storage/storageAccounts
-shop-st-01 | Microsoft.Storage/storageAccounts
-shop-st-02 | Microsoft.Network/networkInterfaces
-shop-pip-03 | Microsoft.Compute/virtualMachines
-shop-st-04 | Microsoft.Compute/virtualMachines
-shop-disk-05 | Microsoft.Storage/storageAccounts
-shop-st-06 | Microsoft.Compute/disks
-shop-st-07 | Microsoft.Network/networkInterfaces
-shop-disk-08 | Microsoft.Compute/disks
-shop-nic-09 | Microsoft.Network/networkInterfaces
-shop-vm-10 | Microsoft.Network/publicIPAddresses
-shop-app-11 | Microsoft.Storage/storageAccounts
-shop-pip-12 | Microsoft.Compute/disks
-shop-app-13 | Microsoft.Storage/storageAccounts
-shop-vm-14 | Microsoft.Network/networkInterfaces
-shop-disk-15 | Microsoft.Web/sites
-shop-disk-16 | Microsoft.Compute/disks
-shop-nic-17 | Microsoft.Storage/storageAccounts
-shop-app-18 | Microsoft.Storage/storageAccounts
-shop-st-19 | Microsoft.Compute/disks
-shop-st-20 | Microsoft.Storage/storageAccounts
-shop-st-21 | Microsoft.Web/sites
-shop-pip-22 | Microsoft.Network/publicIPAddresses
-shop-st-23 | Microsoft.Storage/storageAccounts
-shop-st-24 | Microsoft.Compute/virtualMachines
+Name          Type
+shop-st-00    Microsoft.Storage/storageAccounts
+shop-st-01    Microsoft.Storage/storageAccounts
+shop-st-02    Microsoft.Network/networkInterfaces
+shop-pip-03   Microsoft.Compute/virtualMachines
+shop-st-04    Microsoft.Compute/virtualMachines
+shop-disk-05  Microsoft.Storage/storageAccounts
+shop-st-06    Microsoft.Compute/disks
+shop-st-07    Microsoft.Network/networkInterfaces
+shop-disk-08  Microsoft.Compute/disks
+shop-nic-09   Microsoft.Network/networkInterfaces
+shop-vm-10    Microsoft.Network/publicIPAddresses
+shop-app-11   Microsoft.Storage/storageAccounts
+shop-pip-12   Microsoft.Compute/disks
+shop-app-13   Microsoft.Storage/storageAccounts
+shop-vm-14    Microsoft.Network/networkInterfaces
+shop-disk-15  Microsoft.Web/sites
+shop-disk-16  Microsoft.Compute/disks
+shop-nic-17   Microsoft.Storage/storageAccounts
+shop-app-18   Microsoft.Storage/storageAccounts
+shop-st-19    Microsoft.Compute/disks
+shop-st-20    Microsoft.Storage/storageAccounts
+shop-st-21    Microsoft.Web/sites
+shop-pip-22   Microsoft.Network/publicIPAddresses
+shop-st-23    Microsoft.Storage/storageAccounts
+shop-st-24    Microsoft.Compute/virtualMachines
 … 18 items omitted
-shop-vm-43 | Microsoft.Web/sites
-shop-st-44 | Microsoft.Network/networkInterfaces
-shop-pip-45 | Microsoft.Network/networkInterfaces
-shop-pip-46 | Microsoft.Compute/disks
-shop-nic-47 | Microsoft.Compute/virtualMachines
+shop-vm-43    Microsoft.Web/sites
+shop-st-44    Microsoft.Network/networkInterfaces
+shop-pip-45   Microsoft.Network/networkInterfaces
+shop-pip-46   Microsoft.Compute/disks
+shop-nic-47   Microsoft.Compute/virtualMachines

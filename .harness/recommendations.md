@@ -20,10 +20,6 @@ Keep optimizers deterministic and idempotent (running twice changes nothing more
 
 ## Exporters / extensions
 - `upstream` exporter: forwards rewritten request for `httpproxy`.
-- `tokenizer` extension: swap bytes/4 estimate for a real count when accuracy matters. Bytes/4
-  overrates whitespace: on Python source, indentation changes "save" 14% by bytes/4 but 2.7%
-  with a real tokenizer (runs of spaces/newlines merge into one token). Never pick a transform
-  for whitespace alone; comments are where source tokens are (14–50%).
 
 ## Performance notes
 JSON optimizer: ~35–70 MB/s (`go test ./optimizer/data/jsonoptimizer -bench .`). Decoding into
@@ -36,4 +32,6 @@ workloads. `simd/archsimd` still needs GOEXPERIMENT=simd; stats loops are not a 
 - Deterministic output ⇒ prompt-cache friendly. No timestamps or random ids in optimized text.
 - Measure before claiming: every optimizer gets eval cases with real-shaped fixtures.
 - Keep hint/marker text short; it costs tokens too.
+- Never pick a transform for whitespace alone: runs of spaces and newlines are one token each
+  (`tokens.Estimate` counts them so); comments are where source tokens are (14–50%).
 - Prefer stdlib: `os/exec`, `net/http`, `encoding/json`, `bufio.Scanner`, `regexp` (sparingly; package-level patterns via `lazyre.New`).

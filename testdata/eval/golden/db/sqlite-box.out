@@ -1,38 +1,38 @@
 ╭────┬──────────┬─────────┬────────╮
-id | customer | status | total
-1 | cust_012 | paid | 21.55
-2 | cust_033 | paid | 123.16
-3 | cust_056 | paid | 129.5
-4 | cust_070 | paid | 187.46
-5 | cust_004 | paid | 75.98
-6 | cust_055 | shipped | 178.9
-7 | cust_031 | paid | 49.97
-8 | cust_066 | paid | 104.49
-9 | cust_058 | paid | 160.37
-10 | cust_076 | paid | 73.99
-11 | cust_060 | shipped | 132.71
-12 | cust_065 | shipped | 105.5
-13 | cust_060 | shipped | 73.4
-14 | cust_063 | shipped | 133.48
-15 | cust_079 | paid | 57.29
-16 | cust_065 | paid | 114.63
-17 | cust_040 | shipped | 147.53
-18 | cust_044 | paid | 146.56
+id  customer  status   total
+1   cust_012  paid     21.55
+2   cust_033  paid     123.16
+3   cust_056  paid     129.5
+4   cust_070  paid     187.46
+5   cust_004  paid     75.98
+6   cust_055  shipped  178.9
+7   cust_031  paid     49.97
+8   cust_066  paid     104.49
+9   cust_058  paid     160.37
+10  cust_076  paid     73.99
+11  cust_060  shipped  132.71
+12  cust_065  shipped  105.5
+13  cust_060  shipped  73.4
+14  cust_063  shipped  133.48
+15  cust_079  paid     57.29
+16  cust_065  paid     114.63
+17  cust_040  shipped  147.53
+18  cust_044  paid     146.56
 … 12 items omitted
-31 | cust_063 | shipped | 105.39
-32 | cust_078 | paid | 194.28
+31  cust_063  shipped  105.39
+32  cust_078  paid     194.28
 … 8 items omitted
-41 | cust_040 | shipped | 109.43
-42 | cust_056 | paid | 87.99
+41  cust_040  shipped  109.43
+42  cust_056  paid     87.99
 … 7 items omitted
-50 | cust_025 | shipped | 27.57
+50  cust_025  shipped  27.57
 … 1 item omitted
-52 | cust_016 | paid | 20.7
-53 | cust_028 | shipped | 140.07
+52  cust_016  paid     20.7
+53  cust_028  shipped  140.07
 … 2 items omitted
-56 | cust_054 | shipped | 186.75
-57 | cust_030 | shipped | 35.5
-58 | cust_011 | shipped | 119.25
-59 | cust_046 | paid | 39.35
-60 | cust_009 | shipped | 160.72
+56  cust_054  shipped  186.75
+57  cust_030  shipped  35.5
+58  cust_011  shipped  119.25
+59  cust_046  paid     39.35
+60  cust_009  shipped  160.72
 ╰────┴──────────┴─────────┴────────╯

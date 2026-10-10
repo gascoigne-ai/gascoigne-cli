@@ -175,7 +175,8 @@ cycle when `watch.End` sees its result line, background runs included.
 ## Full-payload guarantee
 Lives in core (`service/pipeline.go`), not in optimizers:
 1. Before optimizers run, core snapshots the payload.
-2. If output differs, original goes to the ledger first; `raw_id` set; stdout hint:
+2. Output no smaller than the input (by `tokens.Estimate`) → original kept, outcome unchanged.
+   If output differs, original goes to the ledger first; `raw_id` set; stdout hint:
    `[gascoigne: optimized 4120→610 tokens · full: gascoigne raw <id>]`.
 3. Ledger save fails → original returned. Optimizer errors → original returned + failure recorded.
 4. Up-front opt-out: `bypass` filter (`-raw`, `GASCOIGNE_RAW=1`, attr `raw=true`).

@@ -1,0 +1,26 @@
+title: feat(cart): apply volume discounts
+state: OPEN
+author: octocat
+labels: enhancement
+reviewers: hubot (Requested), monalisa (Changes requested)
+number: 4187
+url: https://github.com/acme/shop/pull/4187
+additions: 214
+deletions: 38
+auto-merge: disabled
+--
+
+## What
+
+Adds tiered volume discounts to the cart total.
+
+## How was it tested
+
+- [x] unit tests
+- [ ] e2e
+
+## Checklist
+
+- [x] I have read the CONTRIBUTING guide
+- [x] Tests added
+- [ ] Docs updated

@@ -17,7 +17,7 @@ type Config struct {
 }
 
 func defaults() *Config {
-	return &Config{MaxTokens: 8000, HeadTokens: 2500, TailTokens: 2500, MaxErrors: 20, Skip: []string{"fs/code", "data", "k8s", "cloud"}}
+	return &Config{MaxTokens: 10000, HeadTokens: 3200, TailTokens: 3200, MaxErrors: 20, Skip: []string{"fs/code", "data", "k8s", "cloud"}}
 }
 
 func (c *Config) Validate() error {

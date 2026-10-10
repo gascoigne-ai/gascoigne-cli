@@ -106,6 +106,13 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 		ev.Outcome, ev.Reason = component.Unchanged, unchangedReason(p, ev.Optimizers)
 		return p, nil
 	}
+	if in, out := orig.Tokens(), p.Tokens(); out >= in {
+		// Rewritten but no cheaper (aligned columns turned into separators):
+		// the original reads better for the same tokens.
+		ev.Outcome, ev.Steps = component.Unchanged, nil
+		ev.Reason = fmt.Sprintf("optimized output not smaller (%d → %d tokens), original kept", in, out)
+		return orig, nil
+	}
 
 	id, err := pl.svc.ledger.SaveRaw(ctx, ev.Key, orig)
 	if err != nil {

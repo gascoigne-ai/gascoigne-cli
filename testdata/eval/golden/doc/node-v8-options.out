@@ -130,7 +130,38 @@ Options:
         type: bool  default: --no-experimental-fuzzing
   --future (Implies all staged features that we want to ship in the not-too-far future)
         type: bool  default: --no-future
-… 770 lines omitted
+  --force-emit-interrupt-budget-checks (force emit tier-up logic from all non-turbofan code, even if it is the top enabled tier)
+        type: bool  default: --no-force-emit-interrupt-budget-checks
+  --maglev (enable the maglev optimizing compiler)
+        type: bool  default: --maglev
+  --maglev-future (enable maglev features that we want to ship in the not-too-far future (experimental))
+        type: bool  default: --no-maglev-future
+  --optimize-on-next-call-optimizes-to-maglev (make OptimizeFunctionOnNextCall optimize to maglev instead of turbofan)
+        type: bool  default: --no-optimize-on-next-call-optimizes-to-maglev
+  --stress-maglev (trigger maglev compilation earlier)
+        type: bool  default: --no-stress-maglev
+  --maglev-max-small-graph-size (max inlined maglev graph size that counts as a small function)
+        type: int  default: --maglev-max-small-graph-size=10
+  --maglev-as-top-tier (disable Turbofan/Turbolev, make Maglev optimize more aggressively)
+        type: bool  default: --no-maglev-as-top-tier
+  --maglev-inlining (enable inlining in the maglev optimizing compiler)
+        type: bool  default: --maglev-inlining
+  --maglev-loop-peeling (enable loop peeling in the maglev optimizing compiler)
+        type: bool  default: --maglev-loop-peeling
+  --maglev-optimistic-peeled-loops (enable aggressive optimizations for loops (loop SPeeling) in the maglev optimizing compiler)
+        type: bool  default: --maglev-optimistic-peeled-loops
+  --maglev-loop-peeling-max-size (max loop size for loop peeling in the maglev optimizing compiler)
+        type: int  default: --maglev-loop-peeling-max-size=400
+  --maglev-loop-peeling-max-size-cumulative (max cumulative size for loop peeling in the maglev optimizing compiler)
+        type: int  default: --maglev-loop-peeling-max-size-cumulative=900
+  --maglev-deopt-data-on-background (Generate deopt data on background thread)
+        type: bool  default: --maglev-deopt-data-on-background
+  --maglev-build-code-on-background (Generate code on background thread)
+        type: bool  default: --maglev-build-code-on-background
+  --maglev-destroy-on-background (Destroy compilation jobs on background thread)
+        type: bool  default: --maglev-destroy-on-background
+  --maglev-inline-api-calls (Inline CallApiCallback builtin into generated code)
+… 739 lines omitted
   --experimental-wasm-legacy-eh (enable legacy exception handling opcodes for Wasm)
 … 109 lines omitted
   --wasm-allow-mixed-eh-for-testing (Allow mixed legacy and new exception handling instructions in the same wasm module)
@@ -164,7 +195,40 @@ Options:
 … 1 line omitted
   --detailed-error-stack-trace (includes arguments for each function call in the error stack frames array)
         type: bool  default: --no-detailed-error-stack-trace
-… 217 lines omitted
+… 184 lines omitted
+  --gdbjit-dump (dump elf objects with debug info to disk)
+        type: bool  default: --no-gdbjit-dump
+  --gdbjit-dump-filter (dump only objects containing this substring)
+        type: string  default: --gdbjit-dump-filter=""
+  --enable-slow-asserts (enable asserts that are slow to execute)
+        type: bool  default: --no-enable-slow-asserts
+  --print-ast (print source AST)
+        type: bool  default: --no-print-ast
+  --print-scopes (print scopes)
+        type: bool  default: --no-print-scopes
+  --trace-contexts (trace contexts operations)
+        type: bool  default: --no-trace-contexts
+  --gc-verbose (print stuff during garbage collection)
+        type: bool  default: --no-gc-verbose
+  --code-stats (report code statistics after GC)
+        type: bool  default: --no-code-stats
+  --print-handles (report handles after GC)
+        type: bool  default: --no-print-handles
+  --check-handle-count (Check that there are not too many handles at GC)
+        type: bool  default: --no-check-handle-count
+  --print-global-handles (report global handles after GC)
+        type: bool  default: --no-print-global-handles
+  --trace-turbo-escape (enable tracing in escape analysis)
+        type: bool  default: --no-trace-turbo-escape
+  --trace-module-status (Trace status transitions of ECMAScript modules)
+        type: bool  default: --no-trace-module-status
+  --trace-normalization (prints when objects are turned into dictionaries.)
+        type: bool  default: --no-trace-normalization
+  --trace-lazy (trace lazy compilation)
+        type: bool  default: --no-trace-lazy
+  --trace-isolates (trace isolate state changes)
+        type: bool  default: --no-trace-isolates
+  --regexp-possessive-quantifier (enable possessive quantifier syntax for testing)
         type: bool  default: --no-regexp-possessive-quantifier
   --print-break-location (print source location on debug break)
         type: bool  default: --no-print-break-location

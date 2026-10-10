@@ -62,7 +62,7 @@
 #     shorten_hashes: true                        ## long hashes and base64 keep a prefix
 #     tabulate_min: 3                             ## fewest similar objects worth a table
 #     lossless_min_saving: 0.3                    ## lossless table used when it saves this share
-#     lossless_max_tokens: 1500                   ## and stays under this size
+#     lossless_max_tokens: 2000                   ## and stays under this size
 #     min_items: 5                                ## smaller arrays are never sampled
 #     min_tokens: 200
 #     max_items: 15                               ## sample target
@@ -80,7 +80,7 @@
 #       shorten_hashes: true
 #       tabulate_min: 3
 #       lossless_min_saving: 0.3
-#       lossless_max_tokens: 1500
+#       lossless_max_tokens: 2000
 #       min_items: 5
 #       min_tokens: 200
 #       max_items: 15
@@ -120,7 +120,7 @@
 #       shorten_hashes: true
 #       tabulate_min: 3
 #       lossless_min_saving: 0.3
-#       lossless_max_tokens: 1500
+#       lossless_max_tokens: 2000
 #       min_items: 5
 #       min_tokens: 200
 #       max_items: 15
@@ -151,7 +151,7 @@
 #       shorten_hashes: true
 #       tabulate_min: 3
 #       lossless_min_saving: 0.3
-#       lossless_max_tokens: 1500
+#       lossless_max_tokens: 2000
 #       min_items: 5
 #       min_tokens: 200
 #       max_items: 15
@@ -162,7 +162,7 @@
 #   html: { links: true }                         ## false keeps link text only
 #   doc:
 #     max_code_lines: 40                          ## longer code blocks keep head and tail
-#     max_tokens: 4000                            ## longer markdown keeps whole sections, query first
+#     max_tokens: 5200                            ## longer markdown keeps whole sections, query first
 #     man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON]
 #   paths:                                        ## repeated long path prefixes → §1/file.go, legend on top
 #     families: [test, build, search, log, task]  ## never fs: source is edited by exact text
@@ -170,9 +170,9 @@
 #     min_saving: 30                              ## fewest tokens saved, legend included
 #     max_aliases: 9                              ## ids in the legend
 #   truncate:                                     ## last resort: head, tail and error lines of a block still too big
-#     max_tokens: 8000                            ## largest block left whole
-#     head_tokens: 2500                           ## kept from the start
-#     tail_tokens: 2500                           ## kept from the end
+#     max_tokens: 10000                           ## largest block left whole
+#     head_tokens: 3200                           ## kept from the start
+#     tail_tokens: 3200                           ## kept from the end
 #     max_errors: 20                              ## error lines kept from the cut middle
 #     skip: [fs/code, data, k8s, cloud]             ## types or families never cut: source, structured data
 

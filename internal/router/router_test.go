@@ -56,7 +56,7 @@ func TestRoute(t *testing.T) {
 	}{
 		{"attr glob", withCmd("git status"), "git", []string{"g"}},
 		{"attr miss", withCmd("ls"), DefaultRoute, []string{"d"}},
-		{"kind+size", payload.New(payload.JSON, strings.Repeat("x", 40)), "route1", []string{"j"}},
+		{"kind+size", payload.New(payload.JSON, strings.Repeat("x ", 40)), "route1", []string{"j"}},
 		{"kind too small", payload.New(payload.JSON, "{}"), DefaultRoute, []string{"d"}},
 		{"kind miss", payload.New(payload.Message, strings.Repeat("x", 40)), DefaultRoute, []string{"d"}},
 		{"content", typed("go-test"), "go", []string{"t"}},

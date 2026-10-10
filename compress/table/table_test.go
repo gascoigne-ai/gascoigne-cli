@@ -1,6 +1,7 @@
 package table
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -20,7 +21,7 @@ func render(t *testing.T, in string, max int) string {
 func TestPsql(t *testing.T) {
 	in := " id | name  | status\n----+-------+--------\n  1 | alice | active\n  2 | bob   | active\n  3 | carol | banned\n(3 rows)\n"
 	got := render(t, in, 30)
-	for _, w := range []string{"id | name | status", "3 | carol | banned", "(3 rows)"} {
+	for _, w := range []string{"id  name   status", "3   carol  banned", "(3 rows)"} {
 		if !strings.Contains(got, w) {
 			t.Errorf("missing %q in:\n%s", w, got)
 		}
@@ -30,7 +31,7 @@ func TestPsql(t *testing.T) {
 func TestMySQLBox(t *testing.T) {
 	in := "+----+-------+\n| id | name  |\n+----+-------+\n|  1 | alice |\n|  2 | bob   |\n+----+-------+\n2 rows in set (0.00 sec)\n"
 	got := render(t, in, 30)
-	if !strings.Contains(got, "id | name\n1 | alice\n2 | bob\n2 rows in set") {
+	if !strings.Contains(got, "id  name\n1   alice\n2   bob\n2 rows in set") {
 		t.Fatalf("got:\n%s", got)
 	}
 }
@@ -58,5 +59,13 @@ func TestFixedWidthEmptyCells(t *testing.T) {
 	got := render(t, in, 30)
 	if !strings.Contains(got, "def | db |  | db-1") {
 		t.Fatalf("got:\n%s", got)
+	}
+}
+
+func TestAlignFallsBackOnEmptyCells(t *testing.T) {
+	got := align([]string{"a" + cell + "b", "1" + cell + "", "… 3 rows omitted"})
+	want := []string{"a | b", "1 | ", "… 3 rows omitted"}
+	if !slices.Equal(got, want) {
+		t.Fatalf("got %q", got)
 	}
 }

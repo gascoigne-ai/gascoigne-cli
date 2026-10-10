@@ -1,0 +1,10 @@
+HTTP/1.1 301 Moved Permanently
+Location: https://api.example.com/v2/orders
+HTTP/2 429 
+content-type: application/problem+json
+retry-after: 30
+x-ratelimit-limit: 100
+x-ratelimit-remaining: 0
+x-request-id: 7f3c2a9e-1b2d-4c5e-8f90-a1b2c3d4e5f6
+
+{"detail":"Quota of 100 requests per minute exceeded for key sk_live_…","instance":"/v2/orders","status":429,"title":"Too Many Requests","type":"https://api.example.com/problems/rate-limit"}

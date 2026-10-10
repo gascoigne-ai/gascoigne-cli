@@ -14,7 +14,7 @@ func TestFilter(t *testing.T) {
 		want component.Decision
 	}{
 		{"abcd", component.Bypass},
-		{"abcde", component.Continue},
+		{"ab cd", component.Continue},
 	}
 	for _, tt := range tests {
 		if got, _ := f.Filter(t.Context(), payload.New(payload.CmdOutput, tt.text)); got != tt.want {

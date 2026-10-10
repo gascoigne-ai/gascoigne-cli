@@ -77,7 +77,7 @@ func TestCSVAsTable(t *testing.T) {
 }
 
 func TestYAMLKeepsSmallerOriginal(t *testing.T) {
-	in := "a: 1\nb: [x, y]\n"
+	in := "a: 1\nb: 2\n"
 	if got, err := testOptimizer().yaml(in, nil); err != nil || got != in {
 		t.Fatalf("got %q, %v", got, err)
 	}

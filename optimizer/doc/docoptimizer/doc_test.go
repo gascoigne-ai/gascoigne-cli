@@ -58,9 +58,9 @@ func TestSections(t *testing.T) {
 		keep, drop  []string
 	}{
 		{"under budget", "", 10000, []string{"## not a heading", "widget"}, []string{"omitted"}},
-		{"page order", "", 300, []string{"intro", "## Alpha\nlorem", "## Beta\n… 21 lines omitted", "## Gamma\n… 23 lines omitted"},
+		{"page order", "", 200, []string{"intro", "## Alpha\nlorem", "## Beta\n… 21 lines omitted", "## Gamma\n… 23 lines omitted"},
 			[]string{"widget", "### Alpha detail"}},
-		{"query first", "widget settings", 300, []string{"intro", "## Alpha\n… 41 lines omitted", "## Beta\nthe widget setting"},
+		{"query first", "widget settings", 200, []string{"intro", "## Alpha\n… 41 lines omitted", "## Beta\nthe widget setting"},
 			[]string{"### Alpha detail"}},
 	}
 	for _, tt := range tests {
@@ -83,7 +83,7 @@ func TestSections(t *testing.T) {
 func TestWeakMatchesWaitTheirTurn(t *testing.T) {
 	filler := strings.Repeat("lorem ipsum dolor sit amet consectetur\n", 10)
 	in := "# Page\n## Alpha\n" + filler + "## Beta\nwidget v1.2 setting\n" + filler + "## Gamma\none widget\n" + filler
-	got := compress.Join(sections(compress.Lines(in), "widget setting v1.2", 260))
+	got := compress.Join(sections(compress.Lines(in), "widget setting v1.2", 180))
 	if !strings.Contains(got, "## Alpha\nlorem") || !strings.Contains(got, "## Beta\nwidget") || strings.Contains(got, "one widget") {
 		t.Fatalf("want Beta by relevance, then Alpha by page order, not the weak Gamma:\n%s", got)
 	}

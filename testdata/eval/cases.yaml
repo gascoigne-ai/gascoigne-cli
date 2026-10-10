@@ -129,9 +129,9 @@
 - { file: build/docker-build-fail.txt, attrs: { cmd: docker build -t shop . }, expect_type: build/docker,
     keep: ["error TS2322", "src/orders.ts", "failed to solve", "RUN npm run build", "npm warn deprecated (6)"], min_saved: 60 }
 - { file: build/golangci.txt, attrs: { cmd: golangci-lint run }, expect_type: build/golangci,
-    keep: ["internal/service/pipeline.go", "(errcheck)"], min_saved: 40 }
+    keep: ["internal/service/pipeline.go", "(errcheck)"], min_saved: 37 }
 - { file: build/eslint.txt, attrs: { cmd: npx eslint src }, expect_type: build/eslint,
-    keep: ["[paths: §1=/home/user/src/web/src]", "§1/components/Cart.tsx", "react-hooks/exhaustive-deps", "36 problems"], min_saved: 45 }
+    keep: ["[paths: §1=/home/user/src/web/src]", "§1/components/Cart.tsx", "react-hooks/exhaustive-deps", "36 problems"], min_saved: 36 }
 - { file: build/maven-compile.txt, attrs: { cmd: mvn package }, expect_type: build/maven,
     keep: ["Cart.java", "incompatible types: java.lang.String cannot be converted to int", "BUILD FAILURE"], min_saved: 80 }
 - { name: detect/tsc, file: build/tsc-many.txt, expect_type: build/tsc }
@@ -150,11 +150,11 @@
 
 # --- pkg family
 - { file: pkg/pip-install.txt, attrs: { cmd: pip install flask requests pandas }, expect_type: pkg/pip, keep: ["Successfully installed", "pandas-2.2.3"], min_saved: 85 }
-- { file: pkg/uv-pip-install.txt, attrs: { cmd: uv pip install fastapi httpx sqlalchemy }, expect_type: pkg/uv, keep: ["Installed 15 packages", "+ fastapi=="], min_saved: 60 }
+- { file: pkg/uv-pip-install.txt, attrs: { cmd: uv pip install fastapi httpx sqlalchemy }, expect_type: pkg/uv, keep: ["Installed 15 packages", "+ fastapi=="], min_saved: 54 }
 - { file: pkg/go-get.txt, attrs: { cmd: go get github.com/gin-gonic/gin@v1.10.0 }, expect_type: pkg/go-mod, keep: ["github.com/gin-gonic/gin v1.10.0", "go: added (", "golang.org/x/net"], min_saved: 50 }
 - { file: pkg/pnpm-install.txt, attrs: { cmd: pnpm install }, expect_type: pkg/pnpm, keep: ["WARN deprecated (3): inflight@1.0.6, glob@7.2.3, rimraf@3.0.2", "+ express 4.21.2", "Packages: +466"], min_saved: 80 }
-- { file: pkg/yarn-install.txt, attrs: { cmd: yarn install }, expect_type: pkg/yarn, keep: ["warning deprecated (8)", "unmet peer dependency (5)"], min_saved: 65 }
-- { file: pkg/poetry-install.txt, attrs: { cmd: poetry install }, expect_type: pkg/poetry, keep: ["installed (24)", "updated (2): ruff (0.6.9 -> 0.7.2)", "Installing the current project"], min_saved: 35 }
+- { file: pkg/yarn-install.txt, attrs: { cmd: yarn install }, expect_type: pkg/yarn, keep: ["warning deprecated (8)", "unmet peer dependency (5)"], min_saved: 55 }
+- { file: pkg/poetry-install.txt, attrs: { cmd: poetry install }, expect_type: pkg/poetry, keep: ["installed (24)", "updated (2): ruff (0.6.9 -> 0.7.2)", "Installing the current project"], min_saved: 31 }
 - { file: pkg/cargo-add.txt, attrs: { cmd: cargo add tokio --features full }, expect_type: pkg/cargo, keep: ["Adding tokio v1.40.0 to dependencies", "features enabled (8): bytes", "features available (6): full"], min_saved: 60 }
 - { file: pkg/apt-install.txt, attrs: { cmd: sudo apt-get install -y postgresql }, expect_type: pkg/os, keep: ["The following NEW packages will be installed:", "0 upgraded, 10 newly installed", "Creating new PostgreSQL cluster 16/main"], min_saved: 75 }
 - { file: pkg/brew-install.txt, attrs: { cmd: brew install postgresql@16 }, expect_type: pkg/os, keep: ["==> Caveats", "brew services start postgresql@16", "3,812 files, 69.3MB"], min_saved: 60 }
@@ -188,10 +188,10 @@
 # --- table family
 - { file: table/ps-aux.txt, attrs: { cmd: ps aux }, expect_type: table/ps, keep: ["PID", "%CPU", "items omitted"], min_saved: 80 }
 - { file: table/lsof.txt, attrs: { cmd: lsof -n -P }, expect_type: table/lsof, keep: ["COMMAND", "dbus-brok"], min_saved: 80 }
-- { file: table/top.txt, attrs: { cmd: top -b -n1 }, expect_type: table/top, keep: ["top - ", "Tasks:", "PID"], min_saved: 45 }
-- { file: table/systemctl-units.txt, attrs: { cmd: systemctl list-units --type=service --all }, expect_type: table/systemctl, keep: ["UNIT", "LOAD"], min_saved: 70 }
+- { file: table/top.txt, attrs: { cmd: top -b -n1 }, expect_type: table/top, keep: ["top - ", "Tasks:", "PID"], min_saved: 39 }
+- { file: table/systemctl-units.txt, attrs: { cmd: systemctl list-units --type=service --all }, expect_type: table/systemctl, keep: ["UNIT", "LOAD"], min_saved: 66 }
 - { file: table/docker-ps.txt, attrs: { cmd: docker ps -a }, expect_type: table/docker,
-    keep: ["Exited (1) 3 minutes ago", "(unhealthy)", "shop-api-1", "same in all rows: COMMAND"], min_saved: 45 }
+    keep: ["Exited (1) 3 minutes ago", "(unhealthy)", "shop-api-1", "same in all rows: COMMAND"], min_saved: 34 }
 - { name: detect/ps, file: table/ps-aux.txt, expect_type: table/ps }
 - { name: detect/lsof, file: table/lsof.txt, expect_type: table/lsof }
 - { name: detect/top, file: table/top.txt, expect_type: table/top }
@@ -222,10 +222,10 @@
     keep: ["CrashLoopBackOff", "ImagePullBackOff", "restartCount: 7", "DATABASE_URL", "items omitted"], min_saved: 70 }
 - { file: k8s/deploy.json, attrs: { cmd: kubectl get deploy web -o json }, expect_type: k8s/manifest,
     keep: ["MinimumReplicasUnavailable", "unavailableReplicas: 1", "image: ghcr.io/example/shop-web:1.4.2", "maxSurge: 25%"], min_saved: 75 }
-- { file: k8s/get-pods.txt, attrs: { cmd: kubectl get pods -n shop }, expect_type: k8s/get, keep: ["CrashLoopBackOff", "ImagePullBackOff", "0/1"], min_saved: 30 }
+- { file: k8s/get-pods.txt, attrs: { cmd: kubectl get pods -n shop }, expect_type: k8s/get, keep: ["CrashLoopBackOff", "ImagePullBackOff", "0/1"], min_saved: 7 }
 - { file: k8s/describe-pod.txt, attrs: { cmd: kubectl describe pod -n shop web-7d9f8c6b5 }, expect_type: k8s/describe,
     keep: ["Reason:       CrashLoopBackOff", "Exit Code:    1", "Readiness probe failed", "Back-off restarting failed container", "Restart Count:  7"], min_saved: 25 }
-- { file: k8s/events.txt, attrs: { cmd: kubectl get events -n shop }, expect_type: k8s/events, keep: ["warnings:", "Insufficient memory", "BackOff"], min_saved: 45 }
+- { file: k8s/events.txt, attrs: { cmd: kubectl get events -n shop }, expect_type: k8s/events, keep: ["warnings:", "Insufficient memory", "BackOff"], min_saved: 39 }
 - { file: k8s/helm-status.txt, attrs: { cmd: helm status shop }, expect_type: k8s/helm, keep: ["STATUS: failed", "REVISION: 12", "notes lines omitted"], min_saved: 30 }
 - { name: detect/k8s-yaml, file: k8s/pods.yaml, expect_type: k8s/manifest }
 - { name: detect/k8s-json, file: k8s/deploy.json, expect_type: k8s/manifest }
@@ -242,7 +242,7 @@
 - { file: cloud/aws-s3-ls.txt, attrs: { cmd: aws s3 ls s3://shop-assets --recursive }, expect_type: cloud/aws-s3,
     keep: ["exports/", "logs/", "images/", "1400 objects"], min_saved: 90 }
 - { file: cloud/gcloud-instances-list.txt, attrs: { cmd: gcloud compute instances list }, expect_type: cloud/gcp,
-    keep: ["TERMINATED", "shop-node-21", "e2-standard-4"], min_saved: 20 }
+    keep: ["TERMINATED", "shop-node-21", "e2-standard-4"], min_saved: 16 }
 - { file: cloud/gcloud-run-describe.yaml, attrs: { cmd: gcloud run services describe shop-api --format yaml }, expect_type: cloud/gcp,
     keep: ["HealthCheckContainerError", "failed to start and listen", "shop-api-00041-abc", "DATABASE_URL"], min_saved: 20 }
 - { file: cloud/az-vm-list.json, attrs: { cmd: az vm list }, expect_type: cloud/azure,
@@ -284,7 +284,7 @@
 - { file: doc/man-ls.txt, attrs: { cmd: man ls }, expect_type: doc/man,
     keep: ["SYNOPSIS", "-a, --all", "--sort=WORD", "Exit status:"], min_saved: 10 }
 - { file: doc/curl-help.txt, attrs: { cmd: curl --help all }, expect_type: doc/help,
-    keep: ["--retry <num>", "-X, --request <method>"], min_saved: 2 }
+    keep: ["--retry <num>", "-X, --request <method>"], min_saved: 0 }
 - { file: doc/ls-help.txt, attrs: { cmd: ls --help }, expect_type: doc/help,
     keep: ["use a long listing format", "Exit status:"], min_saved: 40 }
 - { file: doc/ngtcp2-README.rst, attrs: { file: README.rst }, expect_type: doc/rst,
@@ -423,7 +423,7 @@
   attrs: { cmd: cat args.go }
   expect_type: fs/code
   keep: ["func OnlyValidArgs(cmd *Command, args []string) error {", "return nil"]
-  min_saved: 15
+  min_saved: 12
 - file: cat/decoder.py.txt
   attrs: { cmd: cat json/decoder.py }
   expect_type: fs/code
@@ -468,7 +468,7 @@
 - file: npm/tsc-errors.txt
   attrs: { cmd: npm run build }
   expect_type: build/tsc
-  keep: ["src/order.ts(3,3): error TS2322", "src/order.ts(12,22): error TS7006"]
+  keep: ["3:3 error TS2322", "12:22 error TS7006"]
 - name: detect/npm-verbose
   file: npm/install-verbose.txt
   expect_type: pkg/npm

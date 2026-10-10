@@ -1,35 +1,35 @@
-id | customer | status | total
-1 | cust_046 | shipped | 108.16
-2 | cust_052 | shipped | 18.76
-3 | cust_032 | paid | 90.47
-4 | cust_025 | paid | 111.84
-5 | cust_009 | shipped | 18.31
-6 | cust_051 | paid | 111.68
-7 | cust_024 | paid | 145.09
-8 | cust_042 | paid | 142.67
-9 | cust_057 | paid | 154.71
-10 | cust_004 | shipped | 64.45
-11 | cust_068 | paid | 116.63
-12 | cust_075 | paid | 91.49
-13 | cust_048 | shipped | 69.06
-14 | cust_014 | paid | 42.69
-15 | cust_063 | paid | 115.69
-16 | cust_013 | paid | 10.41
-17 | cust_017 | paid | 92.37
-18 | cust_043 | paid | 120.96
-19 | cust_049 | paid | 191.01
-20 | cust_054 | paid | 156.56
-21 | cust_024 | paid | 91.56
-22 | cust_036 | paid | 46.31
-23 | cust_067 | paid | 163.94
+id  customer  status   total
+1   cust_046  shipped  108.16
+2   cust_052  shipped  18.76
+3   cust_032  paid     90.47
+4   cust_025  paid     111.84
+5   cust_009  shipped  18.31
+6   cust_051  paid     111.68
+7   cust_024  paid     145.09
+8   cust_042  paid     142.67
+9   cust_057  paid     154.71
+10  cust_004  shipped  64.45
+11  cust_068  paid     116.63
+12  cust_075  paid     91.49
+13  cust_048  shipped  69.06
+14  cust_014  paid     42.69
+15  cust_063  paid     115.69
+16  cust_013  paid     10.41
+17  cust_017  paid     92.37
+18  cust_043  paid     120.96
+19  cust_049  paid     191.01
+20  cust_054  paid     156.56
+21  cust_024  paid     91.56
+22  cust_036  paid     46.31
+23  cust_067  paid     163.94
 … 9 items omitted
-33 | cust_030 | failed | 65.41
+33  cust_030  failed   65.41
 … 17 items omitted
-51 | cust_039 | paid | 9.03
+51  cust_039  paid     9.03
 … 24 items omitted
-76 | cust_034 | shipped | 161.13
-77 | cust_002 | shipped | 51.08
-78 | cust_051 | shipped | 169.75
-79 | cust_043 | paid | 99.47
-80 | cust_030 | paid | 74.94
+76  cust_034  shipped  161.13
+77  cust_002  shipped  51.08
+78  cust_051  shipped  169.75
+79  cust_043  paid     99.47
+80  cust_030  paid     74.94
 80 rows in set (0.01 sec)

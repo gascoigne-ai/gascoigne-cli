@@ -35,7 +35,7 @@ type Config struct {
 func Default() *Config {
 	return &Config{
 		DropEmpty: true, MaxString: 300, ShortenHashes: true, TabulateMin: 3,
-		LosslessMinSaving: 0.3, LosslessMaxTokens: 1500,
+		LosslessMinSaving: 0.3, LosslessMaxTokens: 2000,
 		MinItems: 5, MinTokens: 200, MaxItems: 15, HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3,
 	}
 }

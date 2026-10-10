@@ -210,7 +210,7 @@ rows, query matches) and mark every gap.
 | | `json` | | Crusher options for JSON bodies. |
 | `html` | `links` | true | Keep hrefs as `[text](url)`; false keeps link text only. |
 | `doc` | `max_code_lines` | 40 | Longer code blocks keep head and tail. |
-| | `max_tokens` | 4000 | Longer markdown is fitted by whole sections, query matches first. |
+| | `max_tokens` | 5200 | Longer markdown is fitted by whole sections, query matches first. |
 | | `man_drop` | built-in list | Man page sections dropped as boilerplate. |
 | `test`, `pkg`, `task` | — | | No options. |
 
@@ -223,7 +223,7 @@ rows, query matches) and mark every gap.
 | `shorten_hashes` | true | Long hash/base64 tokens (checksums, ids) keep a prefix. |
 | `tabulate_min` | 3 | Fewest similar objects worth a table. |
 | `lossless_min_saving` | 0.3 | A lossless table is used when it saves at least this share… |
-| `lossless_max_tokens` | 1500 | …and stays under this size. |
+| `lossless_max_tokens` | 2000 | …and stays under this size. |
 | `min_items`, `min_tokens` | 5, 200 | Arrays smaller than both are never sampled. |
 | `max_items` | 15 | Sample target. |
 | `head_share`, `tail_share` | 0.3, 0.15 | Share of the sample taken from each end. |

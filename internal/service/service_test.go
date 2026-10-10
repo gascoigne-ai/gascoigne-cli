@@ -33,6 +33,13 @@ func (boom) Optimize(_ context.Context, p *payload.Payload) error {
 	return errors.New("boom")
 }
 
+type grow struct{ component.Nop }
+
+func (grow) Optimize(_ context.Context, p *payload.Payload) error {
+	p.Blocks[0].Text = strings.ReplaceAll(p.Blocks[0].Text, " ", " | ")
+	return nil
+}
+
 type capture struct {
 	component.Nop
 	got []*payload.Payload
@@ -75,6 +82,7 @@ func newService(t *testing.T, yaml string) (*Service, *capture) {
 	factories := append(registry.Factories(),
 		factory(component.KindOptimizer, "upper", upper{}),
 		factory(component.KindOptimizer, "boom", boom{}),
+		factory(component.KindOptimizer, "grow", grow{}),
 		factory(component.KindExporter, "capture", exp),
 	)
 	s, err := New(t.Context(), cfg, factories, Options{})
@@ -105,8 +113,8 @@ func process(t *testing.T, s *Service, cmd, text string, attrs ...string) *paylo
 
 func TestOptimizedIsReversible(t *testing.T) {
 	s, exp := newService(t, cfgYAML)
-	out := process(t, s, "up x", "hello\n")
-	if out.Text() != "HELLO\n" || len(exp.got) != 1 {
+	out := process(t, s, "up x", "hello hello hello\n")
+	if out.Text() != "HELLOHELLOHELLO\n" || len(exp.got) != 1 {
 		t.Fatalf("out = %q, exported %d", out.Text(), len(exp.got))
 	}
 	id := out.Attrs[payload.AttrRawID]
@@ -114,7 +122,7 @@ func TestOptimizedIsReversible(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if key != "cmd:up x" || raw.Text() != "hello\n" {
+	if key != "cmd:up x" || raw.Text() != "hello hello hello\n" {
 		t.Fatalf("raw = %q %q", key, raw.Text())
 	}
 }
@@ -348,5 +356,13 @@ func TestRemoteOptimizes(t *testing.T) {
 	}
 	if gotPipeline != "cli" || gotAttrs["session"] != "s1" {
 		t.Fatalf("remote got pipeline %q attrs %v", gotPipeline, gotAttrs)
+	}
+}
+
+func TestNotSmallerKeepsOriginal(t *testing.T) {
+	s, _ := newService(t, strings.NewReplacer("default: [passthrough]", "default: [grow]", "passthrough: {} }", "passthrough: {}, grow: {} }").Replace(cfgYAML))
+	out := process(t, s, "grow x", "a b c d\n")
+	if out.Text() != "a b c d\n" || out.Attrs[payload.AttrRawID] != "" {
+		t.Fatalf("out %q attrs %v", out.Text(), out.Attrs)
 	}
 }

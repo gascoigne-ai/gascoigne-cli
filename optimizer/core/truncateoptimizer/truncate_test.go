@@ -67,8 +67,8 @@ func TestCut(t *testing.T) {
 
 func TestLongLines(t *testing.T) {
 	cfg := defaults()
-	got := run(t, cfg, "doc/text", strings.Repeat("x", 50000)+"\n")
-	if tokens.Estimate(got) > 1000 {
+	got := run(t, cfg, "doc/text", strings.Repeat("ab+", 30000)+"\n")
+	if tokens.Estimate(got) > 2000 {
 		t.Fatalf("one long line kept at %d tokens", tokens.Estimate(got))
 	}
 }

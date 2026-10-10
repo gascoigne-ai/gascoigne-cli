@@ -223,17 +223,100 @@ sudo apt-get install build-essential
 ```
 
 ## macOS
-… 42 lines omitted
+
+macOS should have all the tools present to compile this package. If not, install XCode to add all the developers tools.
+
+Required dependency:
+
+```bash
+brew install sqlite3
+```
+
+For macOS, there is an additional package to install which is required if you wish to build the `icu` extension.
+
+This additional package can be installed with `homebrew`:
+
+```bash
+brew upgrade icu4c
+```
+
+To compile for macOS on x86:
+
+```bash
+go build -tags "darwin amd64"
+```
+
+To compile for macOS on ARM chips:
+
+```bash
+go build -tags "darwin arm64"
+```
+
+If you wish to link directly to libsqlite3, use the `libsqlite3` build tag:
+
+```
+# x86
+go build -tags "libsqlite3 darwin amd64"
+# ARM
+go build -tags "libsqlite3 darwin arm64"
+```
+
+Additional information:
+- [#206](https://github.com/mattn/go-sqlite3/issues/206)
+- [#404](https://github.com/mattn/go-sqlite3/issues/404)
+
 ## Windows
-… 10 lines omitted
+
+To compile this package on Windows, you must have the `gcc` compiler installed.
+
+1) Install a Windows `gcc` toolchain.
+2) Add the `bin` folder to the Windows path, if the installer did not do this by default.
+3) Open a terminal for the TDM-GCC toolchain, which can be found in the Windows Start menu.
+4) Navigate to your project folder and run the `go build ...` command for this package.
+
+For example the TDM-GCC Toolchain can be found [here](https://jmeubank.github.io/tdm-gcc/).
+
 ## Errors
-… 29 lines omitted
+
+- Compile error: `can not be used when making a shared object; recompile with -fPIC`
+
+    When receiving a compile time error referencing recompile with `-FPIC` then you
+    are probably using a hardend system.
+
+    You can compile the library on a hardend system with the following command.
+
+    ```bash
+    go build -ldflags '-extldflags=-fno-PIC'
+    ```
+
+    More details see [#120](https://github.com/mattn/go-sqlite3/issues/120)
+
+- Can't build go-sqlite3 on windows 64bit.
+
+    > Probably, you are using go 1.0, go1.0 has a problem when it comes to compiling/linking on windows 64bit.
+    > See: [#27](https://github.com/mattn/go-sqlite3/issues/27)
+
+- `go get github.com/mattn/go-sqlite3` throws compilation error.
+
+    `gcc` throws: `internal compiler error`
+
+    Remove the download repository from your disk and try re-install with:
+
+    ```bash
+    go install github.com/mattn/go-sqlite3
+    ```
+
 # User Authentication
-… 3 lines omitted
+
+This package supports the SQLite User Authentication module.
+
 ## Compile
-… 3 lines omitted
+
+To use the User authentication module, the package has to be compiled with the tag `sqlite_userauth`. See [Features](#features).
+
 ## Usage
-… 102 lines omitted
+
+… 101 lines omitted
 # Extensions
 … 3 lines omitted
 ## Spatialite

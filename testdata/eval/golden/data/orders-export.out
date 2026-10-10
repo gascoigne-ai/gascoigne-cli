@@ -1,45 +1,45 @@
 same in all rows: currency=EUR, channel=web
-order_id | created_at | customer_email | country | status | items | total | payment_method
-100000 | 2026-09-01T15:07:00Z | customer783@example.com | FR | paid | 2 | 19.02 | card
-100001 | 2026-09-01T03:34:00Z | customer238@example.com | DE | paid | 2 | 60.44 | card
-100002 | 2026-09-01T01:08:00Z | customer237@example.com | NL | paid | 6 | 231.97 | paypal
-100003 | 2026-09-01T13:13:00Z | customer608@example.com | PL | paid | 1 | 187.38 | card
-100004 | 2026-09-01T10:12:00Z | customer211@example.com | DE | paid | 4 | 147.03 | blik
-100005 | 2026-09-01T07:13:00Z | customer742@example.com | DE | paid | 4 | 210.57 | card
-100006 | 2026-09-01T05:22:00Z | customer138@example.com | DE | paid | 2 | 31.89 | paypal
-100007 | 2026-09-01T02:47:00Z | customer544@example.com | FR | paid | 6 | 24.95 | card
-100008 | 2026-09-01T13:46:00Z | customer377@example.com | DE | paid | 3 | 83.07 | card
+order_id  created_at            customer_email           country  status      items  total     payment_method
+100000    2026-09-01T15:07:00Z  customer783@example.com  FR       paid        2      19.02     card
+100001    2026-09-01T03:34:00Z  customer238@example.com  DE       paid        2      60.44     card
+100002    2026-09-01T01:08:00Z  customer237@example.com  NL       paid        6      231.97    paypal
+100003    2026-09-01T13:13:00Z  customer608@example.com  PL       paid        1      187.38    card
+100004    2026-09-01T10:12:00Z  customer211@example.com  DE       paid        4      147.03    blik
+100005    2026-09-01T07:13:00Z  customer742@example.com  DE       paid        4      210.57    card
+100006    2026-09-01T05:22:00Z  customer138@example.com  DE       paid        2      31.89     paypal
+100007    2026-09-01T02:47:00Z  customer544@example.com  FR       paid        6      24.95     card
+100008    2026-09-01T13:46:00Z  customer377@example.com  DE       paid        3      83.07     card
 … 42 items omitted
-100051 | 2026-09-04T23:50:00Z | customer933@example.com | NL | paid | 3 | 59.54 | paypal
+100051    2026-09-04T23:50:00Z  customer933@example.com  NL       paid        3      59.54     paypal
 … 25 items omitted
-100077 | 2026-09-06T13:27:00Z | customer736@example.com | DE | refunded | 3 | 185.93 | card
-100078 | 2026-09-06T17:15:00Z | customer946@example.com | DE | paid | 5 | 222.01 | card
+100077    2026-09-06T13:27:00Z  customer736@example.com  DE       refunded    3      185.93    card
+100078    2026-09-06T17:15:00Z  customer946@example.com  DE       paid        5      222.01    card
 … 16 items omitted
-100095 | 2026-09-07T02:04:00Z | customer687@example.com | DE | paid | 4 | 201.70 | card
+100095    2026-09-07T02:04:00Z  customer687@example.com  DE       paid        4      201.70    card
 … 41 items omitted
-100137 | 2026-09-10T09:31:00Z | customer331@example.com | DE | paid | 3 | 61.73 | paypal
+100137    2026-09-10T09:31:00Z  customer331@example.com  DE       paid        3      61.73     paypal
 … 12 items omitted
-100150 | 2026-09-11T04:15:00Z | customer922@example.com | DE | paid | 4 | 48210.00 | card
-100151 | 2026-09-11T22:37:00Z | customer597@example.com | DE | paid | 1 | 239.81 | paypal
+100150    2026-09-11T04:15:00Z  customer922@example.com  DE       paid        4      48210.00  card
+100151    2026-09-11T22:37:00Z  customer597@example.com  DE       paid        1      239.81    paypal
 … 29 items omitted
-100181 | 2026-09-13T20:35:00Z | customer248@example.com | PL | paid | 1 | 115.88 | card
+100181    2026-09-13T20:35:00Z  customer248@example.com  PL       paid        1      115.88    card
 … 21 items omitted
-100203 | 2026-09-15T21:58:00Z | customer379@example.com | FR | chargeback | 1 | 171.39 | blik
-100204 | 2026-09-15T07:41:00Z | customer138@example.com | PL | paid | 1 | 202.54 | card
+100203    2026-09-15T21:58:00Z  customer379@example.com  FR       chargeback  1      171.39    blik
+100204    2026-09-15T07:41:00Z  customer138@example.com  PL       paid        1      202.54    card
 … 20 items omitted
-100225 | 2026-09-17T03:12:00Z | customer741@example.com | DE | paid | 1 | 159.42 | card
+100225    2026-09-17T03:12:00Z  customer741@example.com  DE       paid        1      159.42    card
 … 41 items omitted
-100267 | 2026-09-20T21:22:00Z | customer647@example.com | PL | paid | 2 | 97.07 | paypal
+100267    2026-09-20T21:22:00Z  customer647@example.com  PL       paid        2      97.07     paypal
 … 41 items omitted
-100309 | 2026-09-23T22:55:00Z | customer924@example.com | PL | paid | 4 | 124.38 | blik
+100309    2026-09-23T22:55:00Z  customer924@example.com  PL       paid        4      124.38    blik
 … 1 item omitted
-100311 | 2026-09-23T19:09:00Z | customer344@example.com | DE | refunded | 1 | 149.04 | paypal
-100312 | 2026-09-23T07:27:00Z | customer329@example.com | NL | paid | 4 | 230.20 | paypal
+100311    2026-09-23T19:09:00Z  customer344@example.com  DE       refunded    1      149.04    paypal
+100312    2026-09-23T07:27:00Z  customer329@example.com  NL       paid        4      230.20    paypal
 … 40 items omitted
-100353 | 2026-09-26T08:43:00Z | customer576@example.com | NL | paid | 6 | 137.37 | blik
+100353    2026-09-26T08:43:00Z  customer576@example.com  NL       paid        6      137.37    blik
 … 41 items omitted
-100395 | 2026-09-29T19:42:00Z | customer265@example.com | DE | paid | 2 | 136.22 | blik
-100396 | 2026-09-29T01:46:00Z | customer584@example.com | FR | paid | 1 | 123.04 | paypal
-100397 | 2026-09-29T17:04:00Z | customer359@example.com | NL | paid | 1 | 59.88 | blik
-100398 | 2026-09-29T09:53:00Z | customer649@example.com | PL | paid | 5 | 186.72 | card
-100399 | 2026-09-29T23:01:00Z | customer180@example.com | DE | paid | 4 | 49.00 | card
+100395    2026-09-29T19:42:00Z  customer265@example.com  DE       paid        2      136.22    blik
+100396    2026-09-29T01:46:00Z  customer584@example.com  FR       paid        1      123.04    paypal
+100397    2026-09-29T17:04:00Z  customer359@example.com  NL       paid        1      59.88     blik
+100398    2026-09-29T09:53:00Z  customer649@example.com  PL       paid        5      186.72    card
+100399    2026-09-29T23:01:00Z  customer180@example.com  DE       paid        4      49.00     card

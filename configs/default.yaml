@@ -35,7 +35,7 @@ optimizers:
     shorten_hashes: true
     tabulate_min: 3
     lossless_min_saving: 0.3
-    lossless_max_tokens: 1500
+    lossless_max_tokens: 2000
     min_items: 5
     min_tokens: 200
     max_items: 15
@@ -59,8 +59,8 @@ optimizers:
   # paths: long path prefixes repeated in test/build/search/log/task output → §1/file.go, legend on top
   paths: { families: [test, build, search, log, task], min_prefix: 20, min_saving: 30, max_aliases: 9 }
   # truncate: last resort, a block still over max_tokens keeps head, tail and error lines between
-  truncate: { max_tokens: 8000, head_tokens: 2500, tail_tokens: 2500, max_errors: 20, skip: [fs/code, data, k8s, cloud] }
-  doc: { max_code_lines: 40, max_tokens: 4000 } # man_drop: man sections dropped as boilerplate
+  truncate: { max_tokens: 10000, head_tokens: 3200, tail_tokens: 3200, max_errors: 20, skip: [fs/code, data, k8s, cloud] }
+  doc: { max_code_lines: 40, max_tokens: 5200 } # man_drop: man sections dropped as boilerplate
 
 exporters:
   stdout: { hint: true }

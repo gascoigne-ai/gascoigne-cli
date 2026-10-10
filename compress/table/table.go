@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/lukaszb/gascoigne/compress"
 	"github.com/lukaszb/gascoigne/compress/rows"
@@ -195,11 +196,51 @@ func Render(t Table, o Options) []string {
 	if len(same) > 0 {
 		out = append(out, "same in all rows: "+strings.Join(same, ", "))
 	}
-	out = append(out, strings.Join(hdr, " | "))
-	for _, r := range sample(hdr, body, o) {
-		out = append(out, r)
+	rows := append([]string{strings.Join(hdr, cell)}, sample(hdr, body, o)...)
+	return append(append(out, align(rows)...), t.After...)
+}
+
+// cell separates cells of a rendered row until align lays them out.
+const cell = "\x1f"
+
+// align pads cells into columns two spaces apart, which real tokenizers
+// read as one token per gap where " | " costs two or three. Rows with an
+// empty cell or a cell holding a double space would be ambiguous: the
+// table then keeps " | ". Lines without cells (omission markers) stay.
+func align(lines []string) []string {
+	var widths []int
+	ambiguous := false
+	for _, l := range lines {
+		if !strings.Contains(l, cell) {
+			continue
+		}
+		for i, c := range strings.Split(l, cell) {
+			if c == "" || strings.Contains(c, "  ") {
+				ambiguous = true
+			}
+			if i >= len(widths) {
+				widths = append(widths, 0)
+			}
+			widths[i] = max(widths[i], utf8.RuneCountInString(c))
+		}
 	}
-	return append(out, t.After...)
+	out := make([]string, len(lines))
+	for n, l := range lines {
+		cs := strings.Split(l, cell)
+		if len(cs) == 1 || ambiguous {
+			out[n] = strings.Join(cs, " | ")
+			continue
+		}
+		var b strings.Builder
+		for i, c := range cs {
+			b.WriteString(c)
+			if i < len(cs)-1 {
+				b.WriteString(strings.Repeat(" ", widths[i]-utf8.RuneCountInString(c)+2))
+			}
+		}
+		out[n] = b.String()
+	}
+	return out
 }
 
 // hoist moves columns with one value in every row out of the table.
@@ -246,7 +287,7 @@ func sample(header []string, data [][]string, o Options) []string {
 		for i, c := range r {
 			cs[i] = compress.TruncateLine(c, o.MaxCell)
 		}
-		return strings.Join(cs, " | ")
+		return strings.Join(cs, cell)
 	}
 	if o.MaxRows <= 0 || len(data) <= o.MaxRows {
 		out := make([]string, len(data))
