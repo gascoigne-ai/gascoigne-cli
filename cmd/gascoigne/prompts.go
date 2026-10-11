@@ -3,14 +3,17 @@ package main
 import (
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 
+	"github.com/lukaszb/gascoigne/compress/terse"
 	"github.com/lukaszb/gascoigne/cost"
 	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/lukaszb/gascoigne/mcptool"
 	"github.com/lukaszb/gascoigne/tokens"
 )
 
@@ -54,8 +57,12 @@ func cmdPrompts(_ context.Context, args []string) error {
 	model := fs.String("model", "", "model to price (default: the agent's)")
 	large := fs.Int("large", 2000, "imports of at least `n` model tokens are reported")
 	asJSON := fs.Bool("json", false, "print JSON instead of a table")
+	terse := fs.Float64("terse", 0, "instead of listing: drop up to this `share` (0-1) of the words of the files given, articles and fillers first; each original kept as <file>.bak")
 	if err := fs.Parse(args); err != nil {
 		return err
+	}
+	if *terse > 0 {
+		return terseFiles(fs.Args(), *terse)
 	}
 	dir, err := filepath.Abs(cmp.Or(fs.Arg(0), "."))
 	if err != nil {
@@ -353,4 +360,32 @@ func printPrompts(agent, model string, s cost.Saving, perRequest float64, srcs [
 	for _, f := range findings {
 		fmt.Fprintf(w, "  %-16s %-*s %8s  %s\n", f.Kind, width, f.Path, human(f.Tokens), f.Detail)
 	}
+}
+
+// terseFiles prunes instruction prose in place (compress/terse), keeping
+// each original as <file>.bak, and reports the tokens saved.
+func terseFiles(files []string, ratio float64) error {
+	if len(files) == 0 {
+		return errors.New("prompts -terse: want files to prune")
+	}
+	for _, f := range files {
+		data, err := os.ReadFile(f)
+		if err != nil {
+			return err
+		}
+		out := terse.Prune(string(data), min(ratio, 1))
+		if out == string(data) {
+			fmt.Printf("%s: unchanged\n", f)
+			continue
+		}
+		if err := os.WriteFile(f+".bak", data, 0o644); err != nil {
+			return err
+		}
+		if err := os.WriteFile(f, []byte(out), 0o644); err != nil {
+			return err
+		}
+		before, after := tokens.Estimate(string(data)), tokens.Estimate(out)
+		fmt.Printf("%s: %d → %d tokens (-%s), original in %s.bak\n", f, before, after, mcptool.Percent(before-after, before), f)
+	}
+	return nil
 }

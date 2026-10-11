@@ -22,6 +22,12 @@ their record is git history.
   only ~0.1% of eval output; `… N lines omitted`, `§1`, `_cols/_rows`, `L12-30` have no cheaper
   form. Re-run with `tokens` and a key before changing Claude-facing markers.
 
+- A/B on OpenRouter (`AB_ENV_FILE`, `~anthropic/claude-sonnet-latest`, 4 tasks × 3, "on" arm), 2026-10-11:
+  base 12/12, $0.095/run, 484 output tokens; guide line "Keep your own text brief" 12/12,
+  $0.091, 408 output tokens (−16%): kept. Instruction pruning (`prompts -terse 0.3` on CLAUDE.md
+  and `.harness/*.md`) removes only 1.3–2.4% (the files hold few articles/fillers) and moved
+  nothing (12/12, $0.093): no runtime use. Tasks are easy (all arms 100%); rerun on harder ones.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Generic multi-line repeat folding: the log engine already folds repeated traces; after the

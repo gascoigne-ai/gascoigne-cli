@@ -14,7 +14,7 @@
 # cache dir) so a running gascoigne server and its stats stay untouched.
 # Variants: -a picks arms ("on" alone to compare builds), AB_TAG labels the
 # rows (arm "on-<tag>"), so a change to gascoigne itself can be A/B tested
-# by running once per build.
+# by running once per build, or a change to the worktree with AB_PREPARE.
 # Usage: .harness/scripts/ab.sh [-n] [-r repeats=3] [-m model] [-a "off on"] [task...]
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -89,6 +89,9 @@ setup() {
 	local task=$1 dir=$2
 	git worktree add -q --detach "$dir" "$base"
 	[ ! -f "testdata/ab/$task/setup.patch" ] || git -C "$dir" apply "$PWD/testdata/ab/$task/setup.patch"
+	# AB_PREPARE (a shell command, $gascoigne set) changes the worktree for a
+	# variant, e.g. pruned instruction files.
+	[ -z "${AB_PREPARE:-}" ] || (cd "$dir" && gascoigne=$gascoigne sh -c "$AB_PREPARE" > /dev/null)
 }
 
 check() {
