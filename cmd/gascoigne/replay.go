@@ -37,18 +37,34 @@ func cmdReplay(ctx context.Context, args []string) error {
 		dir      string
 		sessions int
 		asJSON   bool
+		against  string
 	)
 	home, _ := os.UserHomeDir()
 	fs := newFlags("replay")
 	fs.StringVar(&dir, "dir", filepath.Join(home, ".claude", "projects"), "`directory` with session transcripts (*.jsonl), searched recursively")
 	fs.IntVar(&sessions, "sessions", 10, "newest `n` transcripts to replay")
 	fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
+	fs.StringVar(&against, "compare", "", "also print what changed since an earlier `report` (replay -json)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
-	files, err := transcripts(dir, sessions)
-	if err != nil {
-		return err
+	// Transcripts named as arguments, so two builds replay the same ones.
+	files := fs.Args()
+	if len(files) == 0 {
+		var err error
+		if files, err = transcripts(dir, sessions); err != nil {
+			return err
+		}
+	}
+	var old *replayReport
+	if against != "" {
+		data, err := os.ReadFile(against)
+		if err != nil {
+			return err
+		}
+		if err := json.Unmarshal(data, &old); err != nil {
+			return fmt.Errorf("%s: %w", against, err)
+		}
 	}
 
 	tmp, err := os.MkdirTemp("", "gascoigne-replay-")
@@ -80,6 +96,10 @@ func cmdReplay(ctx context.Context, args []string) error {
 		return writeJSON(rep)
 	}
 	rep.print()
+	if old != nil {
+		fmt.Println()
+		rep.compare(old)
+	}
 	return nil
 }
 
@@ -451,4 +471,48 @@ func (r replayReport) print() {
 	}
 	fmt.Fprintf(w, "total\t%d\t%d\t%d\t%s\t%d\n", total.Results, total.Raw, total.Out, mcptool.Percent(total.Raw-total.Out, total.Raw), total.Folded)
 	w.Flush()
+}
+
+// compare prints what changed since an earlier report of the same transcripts.
+func (r replayReport) compare(old *replayReport) {
+	fmt.Printf("since the earlier report: requests %d → %d, unstable messages %d → %d, message input $%.2f → $%.2f (%+.2f)\n",
+		old.Requests, r.Requests, old.Unstable, r.Unstable, old.CostOut, r.CostOut, r.CostOut-old.CostOut)
+	changes := toolChanges(old.Tools, r.Tools)
+	if len(changes) == 0 {
+		fmt.Println("no tool's results changed")
+		return
+	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(w, "tool\tout tok before\tout tok now\tchange")
+	for _, c := range changes {
+		fmt.Fprintf(w, "%s\t%d\t%d\t%+d\n", c.tool, c.was, c.now, c.now-c.was)
+	}
+	w.Flush()
+}
+
+type toolChange struct {
+	tool     string
+	was, now int
+}
+
+// toolChanges lists tools whose forwarded tokens differ, by name; a tool
+// one side lacks counts as 0.
+func toolChanges(old, cur map[string]*toolReplay) []toolChange {
+	all := maps.Clone(cur)
+	maps.Insert(all, maps.All(old))
+	var out []toolChange
+	for _, n := range slices.Sorted(maps.Keys(all)) {
+		var c toolChange
+		c.tool = n
+		if t := old[n]; t != nil {
+			c.was = t.Out
+		}
+		if t := cur[n]; t != nil {
+			c.now = t.Out
+		}
+		if c.was != c.now {
+			out = append(out, c)
+		}
+	}
+	return out
 }

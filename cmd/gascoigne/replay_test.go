@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -99,5 +100,14 @@ func TestPromptCost(t *testing.T) {
 				t.Errorf("cost %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestToolChanges(t *testing.T) {
+	old := map[string]*toolReplay{"Bash": {Out: 100}, "Read": {Out: 50}, "Grep": {Out: 7}}
+	cur := map[string]*toolReplay{"Bash": {Out: 90}, "Read": {Out: 50}, "Glob": {Out: 3}}
+	want := []toolChange{{"Bash", 100, 90}, {"Glob", 0, 3}, {"Grep", 7, 0}}
+	if got := toolChanges(old, cur); !slices.Equal(got, want) {
+		t.Errorf("changes %v, want %v", got, want)
 	}
 }

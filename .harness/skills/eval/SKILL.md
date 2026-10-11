@@ -35,5 +35,6 @@ requests and sends them through the LLM API proxy (stand-in upstream, throwaway 
 savings per tool, message input cost before/after (cache reads for the prefix the previous
 request sent identically, writes for the rest; model from the transcript), and prompt-cache stability (messages sent again must stay byte-identical;
 anything below 100% is a bug). Bash results in transcripts were already shortened by the hook,
-so its column is the proxy's extra. Compare two builds: build each (e.g. in a `git worktree`),
-run both with `-json` on the same `-sessions`, diff.
+so its column is the proxy's extra. Compare with another ref: `.harness/scripts/compare.sh
+[REF=master] [N=10]` builds REF in a temp worktree, replays the same N newest transcripts with
+both builds (`replay -compare old.json files…`) and shows the `baseline.tsv` diff (fixtures).
