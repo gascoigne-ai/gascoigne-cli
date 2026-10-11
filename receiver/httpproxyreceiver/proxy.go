@@ -182,6 +182,7 @@ func (r *Receiver) rewrite(req *http.Request, api rewriter) {
 	if r.cfg.FoldMinLines > 0 {
 		m.folder = newFolder(r.cfg.FoldMinLines, r.cfg.FoldMinChars)
 	}
+	r.recordPrompts(req.Context(), doc, m)
 	shortened := api(req.Context(), r, doc, m)
 	if !r.compactTools(req.Context(), doc, m) && !shortened {
 		return
