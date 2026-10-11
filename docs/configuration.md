@@ -18,6 +18,20 @@ change something:
 #     max_per_file: 15                            ## distinct match lines per file
 ```
 
+### After an upgrade
+
+New versions add, rename and drop settings. Your file only holds what you changed, so new
+defaults apply on their own; the template part is what goes stale.
+
+- **A file that sets nothing** is refreshed by itself on the next command (the old one is kept
+  as `config.yaml.bak`), so new settings show up in it.
+- **A file with settings** is left alone. `gascoigne config -upgrade` rewrites it on the new
+  template, puts your settings below it and drops the ones this version no longer has, naming
+  each. The old file stays as `config.yaml.bak`.
+- **A setting this version does not know** stops every command with an error naming it and
+  pointing at `config -upgrade`, instead of being ignored.
+
+
 To change a setting, uncomment it together with its parent keys:
 
 ```yaml

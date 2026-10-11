@@ -284,8 +284,12 @@ func cmdConfig(_ context.Context, args []string) error {
 	var c common
 	fs := newFlags("config")
 	c.register(fs)
+	upgrade := fs.Bool("upgrade", false, "rewrite the config file on this version's template, keeping your settings (old file: .bak)")
 	if err := fs.Parse(args); err != nil {
 		return err
+	}
+	if *upgrade {
+		return upgradeCmd(c.config)
 	}
 	cfg, err := c.load()
 	if err != nil {

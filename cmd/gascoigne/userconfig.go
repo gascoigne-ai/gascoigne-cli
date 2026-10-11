@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"cmp"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"go.yaml.in/yaml/v3"
 
@@ -18,13 +20,11 @@ import (
 // the user's file is created from the commented template, so every setting
 // is there to read and change while the defaults still apply.
 func configData(path string) ([]byte, error) {
-	path = cmp.Or(path, os.Getenv("GASCOIGNE_CONFIG"))
+	path, own := configPath(path)
 	if path == "" {
-		dir, err := os.UserConfigDir()
-		if err != nil {
-			return configs.Default, nil
-		}
-		path = filepath.Join(dir, "gascoigne", "config.yaml")
+		return configs.Default, nil
+	}
+	if own {
 		if err := writeUserConfig(path); err != nil {
 			fmt.Fprintln(os.Stderr, "gascoigne: could not write a config template:", err)
 			return configs.Default, nil
@@ -34,11 +34,46 @@ func configData(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if own && !bytes.Equal(over, configs.User) {
+		over = refreshTemplate(path, over)
+		if bad := unknownSettings(over); len(bad) > 0 {
+			return nil, fmt.Errorf("config %s: not settings in this version: %s; gascoigne config -upgrade drops them (old file kept as .bak)", path, strings.Join(bad, ", "))
+		}
+	}
 	data, err := overlay(configs.Default, over)
 	if err != nil {
 		return nil, fmt.Errorf("config %s: %w", path, err)
 	}
 	return data, nil
+}
+
+// configPath is the config file to read (-config, $GASCOIGNE_CONFIG, else
+// the user's) and whether it is the user's own, which gascoigne writes and
+// upgrades. "" when there is no user config dir.
+func configPath(flag string) (path string, own bool) {
+	if p := cmp.Or(flag, os.Getenv("GASCOIGNE_CONFIG")); p != "" {
+		return p, false
+	}
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		return "", false
+	}
+	return filepath.Join(dir, "gascoigne", "config.yaml"), true
+}
+
+// refreshTemplate brings a user config that sets nothing up to this
+// version's template, so new settings show up in it. A file with settings is
+// left alone: gascoigne config -upgrade moves those over.
+func refreshTemplate(path string, data []byte) []byte {
+	var doc yaml.Node
+	if yaml.Unmarshal(data, &doc) != nil || hasSettings(&doc) {
+		return data
+	}
+	if _, changed, err := writeUpgrade(path); err != nil || !changed {
+		return data
+	}
+	fmt.Fprintf(os.Stderr, "gascoigne: updated %s to this version's settings (none of yours were set)\n", path)
+	return configs.User
 }
 
 // writeUserConfig creates path from the template unless it exists.

@@ -335,7 +335,10 @@ Failure signals → `MarkFailure(key, reason)`:
 (`-config` > `$GASCOIGNE_CONFIG` > `$XDG_CONFIG_HOME/gascoigne/config.yaml`) is laid over it
 (`cmd/gascoigne/userconfig.go` `overlay`: maps merge, values and lists replace, empty keys keep
 the default). With neither flag nor env, first run writes `configs/user.yaml` there: every
-setting of every component commented out (`##` docs, `#` settings). Tests keep it honest: the
+setting of every component commented out (`##` docs, `#` settings); a later version refreshes a
+file that sets nothing, `config -upgrade` (`configupgrade.go`) rebuilds one with settings on the new
+template (unknown ones dropped and named, old file `.bak`), and an unknown setting fails up front
+naming the upgrade. Tests keep it honest: the
 template uncommented equals the defaults, and every `Config` field of every used component
 appears in it (a new field fails until documented). Strict decoding: unknown fields fail.
 Pipelines may override `router` (proxy and CLI route differently).

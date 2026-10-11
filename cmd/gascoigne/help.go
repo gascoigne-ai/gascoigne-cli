@@ -147,8 +147,12 @@ func init() {
 			run:      cmdServer},
 
 		{name: "config", args: "[flags]", group: groupDev,
-			summary:  "print the effective config, overrides applied",
-			examples: []string{"gascoigne config -set optimizers.grep.max_per_file=50"},
+			summary: "print the effective config, overrides applied; -upgrade moves your settings to a new version",
+			about: "Your config file (~/.config/gascoigne/config.yaml) lists every setting commented out. After an\n" +
+				"upgrade, a file that sets nothing is refreshed by itself; one with settings is left alone, and\n" +
+				"config -upgrade rewrites it on the new template, keeps your settings and drops the ones this\n" +
+				"version no longer has (the old file stays as config.yaml.bak).",
+			examples: []string{"gascoigne config -set optimizers.grep.max_per_file=50", "gascoigne config -upgrade"},
 			run:      cmdConfig},
 		{name: "components", group: groupDev,
 			summary: "list built-in components",
