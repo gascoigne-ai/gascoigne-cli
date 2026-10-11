@@ -316,9 +316,9 @@ the server); pipeline errors (422) are returned. Runs with other `GASCOIGNE_*` e
 cat mode, ledger) stay local; a spawned server drops the spawner's `GASCOIGNE_*` env except
 ledger/config/addr. Package-level patterns use `lazyre` (`TestPatternsCompile` runs
 `lazyre.Check`), so a served run never compiles them. `server run|start|stop|status`, `dashboard` =
-`server start`, `GASCOIGNE_SERVER=off`. `gascoigne reset` / `POST /api/reset` → `ledger.Reset`:
+`server start -open` (opens a browser unless no display; `-open=false`), `GASCOIGNE_SERVER=off`. `gascoigne reset` / `POST /api/reset` → `ledger.Reset`:
 events+steps by filters (flags only, never env); `-all` also raw and failures, no filters.
-The server (`dashboard.go`, one embedded `dashboard.html`, no build step) serves the ledger live: totals, days, outcomes, commands,
+The server (`dashboard.go`, one embedded `dashboard.html`, no build step) serves the ledger live (version in the header, the logo moon's phase = savings rate; tables in equal-height boxes, rows rendered as they scroll; deleting data (reset, clear originals) asks twice): totals, days, outcomes, commands,
 optimizers, dialects, skip/fail/unchanged reasons, failing sources (forget button) and a feed of
 runs over server-sent events (`/api/stream`, polls the ledger since other processes write it;
 run details compare original and optimized side by side (`/api/raw/{id}`, `/api/out/{id}`: the

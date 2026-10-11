@@ -133,7 +133,8 @@ func init() {
 			run:      cmdTokens},
 
 		{name: "dashboard", args: "[flags]", group: groupServer,
-			summary: "start the server if needed, print the dashboard address",
+			summary: "start the server if needed, open the dashboard in a browser",
+			about:   "Prints the dashboard address and opens it in the default browser; -open=false only prints it.",
 			run:     cmdDashboard},
 		{name: "server", args: "[run|start|stop|status] [flags]", short: "[start|stop|status]", group: groupServer,
 			summary: "the background server behind the dashboard, one per user",

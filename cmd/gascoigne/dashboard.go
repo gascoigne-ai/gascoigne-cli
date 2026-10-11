@@ -21,9 +21,10 @@ import (
 //go:embed dashboard.html
 var dashboardHTML []byte
 
-// cmdDashboard makes sure the background server runs and prints its address.
+// cmdDashboard makes sure the background server runs, prints its address and
+// opens it in a browser.
 func cmdDashboard(ctx context.Context, args []string) error {
-	return cmdServer(ctx, append([]string{"start"}, args...))
+	return cmdServer(ctx, append([]string{"start", "-open"}, args...))
 }
 
 // dashboard routes the page and its JSON API; poll is how often the live

@@ -10,42 +10,47 @@ try { const t = localStorage.getItem("gascoigne-theme"); if (t === "light" || t 
 </script>
 <style>
 :root {
-  --bg: #f6f7f9;
+  /* Burgundy night and moonlight: wine accent, warm neutrals, silver moon.
+     Deleting data uses a brighter scarlet (--err) so it never reads as the accent. */
+  --bg: #f6f3f4;
   --surface: #ffffff;
-  --surface-2: #f1f3f6;
-  --border: #e2e5ea;
-  --border-strong: #cfd4dc;
-  --text: #1c2330;
-  --muted: #5b6577;
-  --faint: #8a93a3;
-  --accent: #2563eb;
-  --accent-soft: #e8efff;
-  --ok: #15803d;
-  --ok-soft: #e7f6ec;
-  --warn: #b45309;
-  --warn-soft: #fdf3e2;
-  --err: #b91c1c;
-  --err-soft: #fdecec;
-  --track: #e9ecf1;
-  --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .06);
+  --surface-2: #f5f0f2;
+  --border: #e6dfe2;
+  --border-strong: #d4cace;
+  --text: #22161b;
+  --muted: #66545b;
+  --faint: #978990;
+  --accent: #7a1f3d;
+  --accent-soft: #f6e8ed;
+  --ok: #17804a;
+  --ok-soft: #e5f5ec;
+  --warn: #a8570c;
+  --warn-soft: #fbf1e3;
+  --err: #d1281b;
+  --err-soft: #fdecea;
+  --track: #ece5e8;
+  --shadow: 0 1px 2px rgba(34, 22, 27, .05), 0 2px 6px rgba(34, 22, 27, .05);
+  --night: linear-gradient(120deg, #2a0d18 0%, #4f1428 55%, #6e1f3c 100%);
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1218; --surface: #161a22; --surface-2: #1c212b; --border: #262c38; --border-strong: #343b4a;
-    --text: #e6e9ef; --muted: #a3acbb; --faint: #737d8e; --accent: #6b9cff; --accent-soft: #1b2a47;
-    --ok: #4ade80; --ok-soft: #13291b; --warn: #f5b04a; --warn-soft: #2e2312; --err: #f87171; --err-soft: #331618;
-    --track: #232937; --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+    --bg: #140f12; --surface: #1c1519; --surface-2: #241b20; --border: #33262d; --border-strong: #47353e;
+    --text: #f1e8eb; --muted: #bfaab2; --faint: #85717a; --accent: #e88aa6; --accent-soft: #3a1a27;
+    --ok: #5ed39a; --ok-soft: #112a20; --warn: #f0b05a; --warn-soft: #2c2214; --err: #ff6b5e; --err-soft: #3a1714;
+    --track: #2d2228; --shadow: 0 1px 2px rgba(0, 0, 0, .45);
+    --night: linear-gradient(120deg, #1f0a13 0%, #3d0f22 55%, #571a33 100%);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f1218; --surface: #161a22; --surface-2: #1c212b; --border: #262c38; --border-strong: #343b4a;
-  --text: #e6e9ef; --muted: #a3acbb; --faint: #737d8e; --accent: #6b9cff; --accent-soft: #1b2a47;
-  --ok: #4ade80; --ok-soft: #13291b; --warn: #f5b04a; --warn-soft: #2e2312; --err: #f87171; --err-soft: #331618;
-  --track: #232937; --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+  --bg: #140f12; --surface: #1c1519; --surface-2: #241b20; --border: #33262d; --border-strong: #47353e;
+  --text: #f1e8eb; --muted: #bfaab2; --faint: #85717a; --accent: #e88aa6; --accent-soft: #3a1a27;
+  --ok: #5ed39a; --ok-soft: #112a20; --warn: #f0b05a; --warn-soft: #2c2214; --err: #ff6b5e; --err-soft: #3a1714;
+  --track: #2d2228; --shadow: 0 1px 2px rgba(0, 0, 0, .45);
+  --night: linear-gradient(120deg, #1f0a13 0%, #3d0f22 55%, #571a33 100%);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -53,40 +58,36 @@ html, body { background: var(--bg); }
 body { margin: 0; color: var(--text); font: 14px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
 .wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px 40px; }
 
-/* Header: a Bloodborne-style banner, dark in both themes; the rest stays plain. */
+/* Header: a night band in both themes. The moon's phase is the savings rate:
+   the dark part is the share of tokens saved. */
 header {
-  position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center;
-  justify-content: space-between; gap: 16px; margin-top: 16px; padding: 22px 24px; border-radius: 12px;
-  border: 1px solid #3b2b24; color: #e2d4b7;
+  position: relative; overflow: hidden;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px;
+  margin-top: 16px; padding: 18px 22px; border-radius: 14px; color: #f8eff2;
   background:
-    radial-gradient(ellipse 60% 120% at 12% 0%, rgba(200, 40, 58, .35), transparent 60%),
-    radial-gradient(ellipse 80% 140% at 100% 120%, rgba(0, 0, 0, .85), transparent 60%),
-    linear-gradient(180deg, #1a1012, #0a0708);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .6), 0 8px 24px rgba(0, 0, 0, .25);
+    radial-gradient(1px 1px at 22% 28%, rgba(255, 255, 255, .7), transparent),
+    radial-gradient(1px 1px at 38% 70%, rgba(255, 255, 255, .5), transparent),
+    radial-gradient(1.5px 1.5px at 55% 22%, rgba(255, 255, 255, .6), transparent),
+    radial-gradient(1px 1px at 68% 78%, rgba(255, 255, 255, .45), transparent),
+    radial-gradient(1px 1px at 47% 45%, rgba(255, 255, 255, .35), transparent),
+    radial-gradient(circle at 5% 50%, rgba(246, 236, 240, .08), transparent 150px),
+    var(--night);
+  box-shadow: 0 6px 20px rgba(42, 13, 24, .2);
 }
-header::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: repeating-linear-gradient(90deg, transparent 0 46px, rgba(184, 149, 90, .04) 46px 47px);
-}
-.brand { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; }
-.moon { flex: none; width: 60px; height: 60px; filter: drop-shadow(0 0 14px rgba(241, 230, 207, .22)) drop-shadow(0 0 30px rgba(200, 40, 58, .22)); }
+.brand { display: flex; align-items: center; gap: 14px; }
+.moon { flex: none; width: 68px; height: 68px; filter: drop-shadow(0 0 12px rgba(246, 236, 240, .3)); }
 .moon svg { display: block; width: 100%; height: 100%; }
-h1 {
-  margin: 0; font: 700 26px/1.1 "Cinzel", "Trajan Pro", "Times New Roman", Georgia, serif;
-  letter-spacing: .2em; text-transform: uppercase; color: #dcbc7c;
-  text-shadow: 0 2px 0 #000, 0 0 18px rgba(200, 40, 58, .4);
-}
-.subtitle { margin-top: 4px; color: #b9a98d; font: italic 14px Georgia, "Times New Roman", serif; }
-.ornament { color: #c8283a; letter-spacing: .5em; font-size: 11px; margin-top: 4px; }
-.head-right { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; }
-.live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #b9a98d; }
-.live i { width: 8px; height: 8px; border-radius: 50%; background: #6b5d4c; }
-.live.on i { background: #c8283a; box-shadow: 0 0 10px #c8283a; animation: pulse 2.2s infinite; }
-@keyframes pulse { 50% { opacity: .4; } }
-.theme { display: inline-flex; border: 1px solid #5a4232; border-radius: 8px; overflow: hidden; background: rgba(10, 7, 8, .6); }
-.theme button { border: 0; border-radius: 0; background: transparent; padding: 5px 10px; color: #b9a98d; }
-.theme button:hover { color: #dcbc7c; }
-.theme button[aria-pressed="true"] { background: rgba(142, 18, 32, .55); color: #f1e6cf; font-weight: 600; }
+h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: .01em; }
+.subtitle { color: #d4b3bf; font-size: 13px; }
+.head-right { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.ver { font-size: 12px; color: #b58c9b; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #e3cbd4; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: #6f7799; }
+.live.on i { background: #5ed39a; box-shadow: 0 0 0 3px rgba(94, 211, 154, .2); }
+.theme { display: inline-flex; border: 1px solid rgba(246, 236, 240, .22); border-radius: 999px; padding: 2px; background: rgba(20, 6, 12, .35); }
+.theme button { border: 0; border-radius: 999px; padding: 4px 12px; background: transparent; color: #e3cbd4; }
+.theme button:hover { color: #fff; }
+.theme button[aria-pressed="true"] { background: #f6ecf0; color: #4f1428; font-weight: 600; }
 
 /* Toolbar */
 .toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 18px 0 4px; }
@@ -98,25 +99,28 @@ select { min-width: 170px; }
 button { cursor: pointer; }
 button:hover, select:hover { border-color: var(--accent); }
 button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-button.danger { color: var(--err); }
-button.danger:hover { border-color: var(--err); background: var(--err-soft); }
+/* Actions that delete data: their own red group, apart from the rest. */
+.delete-zone { display: inline-flex; gap: 6px; padding: 3px; border: 1px dashed color-mix(in srgb, var(--err) 45%, transparent); border-radius: 9px; background: var(--err-soft); }
+button.danger { color: var(--err); border-color: color-mix(in srgb, var(--err) 40%, transparent); }
+button.danger:hover { border-color: var(--err); background: var(--err); color: #fff; }
 button:disabled { opacity: .55; cursor: default; }
 
 /* Cards */
-.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-top: 16px; box-shadow: var(--shadow); }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-top: 16px; box-shadow: var(--shadow); }
 h2 { margin: 0; font-size: 15px; font-weight: 650; }
 .hint { margin: 2px 0 12px; color: var(--muted); font-size: 13px; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); margin-top: 16px; }
-.grid > .panel { margin-top: 0; }
-.row-gap { margin-top: 16px; }
+.grid > .panel { margin-top: 0; display: flex; flex-direction: column; }
+.grid > .panel > .scroll { flex: 1 0 auto; } /* a longer hint beside it must not shift the box */
 
 /* KPIs */
-.kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-top: 16px; }
-.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow); }
-.kpi .name { font-size: 12px; font-weight: 600; color: var(--muted); }
-.kpi .value { font-size: 26px; font-weight: 650; letter-spacing: -.02em; margin-top: 2px; font-variant-numeric: tabular-nums; }
+/* One strip split by hairlines (the shadows draw them; the strip clips the outer ones). */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-top: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.kpi { padding: 16px 20px; box-shadow: -1px 0 0 var(--border), 0 -1px 0 var(--border); }
+.kpi .name { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.kpi .value { font-size: 32px; font-weight: 300; letter-spacing: -.03em; line-height: 1.2; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .kpi .plain { color: var(--faint); font-size: 12px; }
-.kpi.accent .value { color: var(--accent); }
+.kpi.accent .value { color: var(--accent); font-weight: 500; }
 .kpi.alert .value { color: var(--err); }
 
 /* Tables */
@@ -126,7 +130,8 @@ td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: t
 tr:last-child td { border-bottom: 0; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-word; }
-.scroll { max-height: 520px; overflow: auto; }
+/* Every table box has one height, so panels side by side line up; rows load as it scrolls. */
+.scroll { height: 420px; overflow: auto; }
 .empty { color: var(--faint); padding: 10px 8px; }
 #feed tr { cursor: pointer; }
 .feed-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 8px; }
@@ -174,8 +179,8 @@ dialog::backdrop { background: rgba(15, 18, 24, .5); }
 .tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--muted); padding: 7px 12px; font-weight: 600; }
 .tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
 .dlg-body { padding: 14px 18px 18px; overflow: auto; flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 10px; font-size: 12.5px; color: var(--muted); }
-.toolbar label { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; color: var(--text); }
+.dlg-body .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 0; margin-bottom: 10px; font-size: 12.5px; color: var(--muted); }
+.dlg-body .toolbar label { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; color: var(--text); }
 .seg { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 6px; overflow: hidden; }
 .seg button { border: 0; border-radius: 0; padding: 5px 10px; }
 .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
@@ -230,47 +235,48 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 <div class="wrap">
   <header>
     <div class="brand">
-      <div class="moon" aria-hidden="true">
-        <svg viewBox="0 0 100 100">
+      <div class="moon" role="img" id="moon" aria-label="Moon: the dark part is the share of tokens saved">
+        <svg viewBox="0 0 48 48">
           <defs>
-            <radialGradient id="m-body" cx="38%" cy="34%" r="70%">
-              <stop offset="0" stop-color="#fbf3e2"/><stop offset=".5" stop-color="#e3d3b2"/><stop offset="1" stop-color="#a8916a"/>
-            </radialGradient>
-            <radialGradient id="m-limb" cx="50%" cy="50%" r="50%">
-              <stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#2a1a12" stop-opacity=".55"/>
-            </radialGradient>
-            <radialGradient id="m-blood" cx="92%" cy="88%" r="60%">
-              <stop offset="0" stop-color="#c8283a" stop-opacity=".6"/><stop offset="1" stop-color="#c8283a" stop-opacity="0"/>
-            </radialGradient>
-            <radialGradient id="m-crater" cx="40%" cy="40%" r="60%">
-              <stop offset="0" stop-color="#6e5c40" stop-opacity=".9"/><stop offset=".8" stop-color="#b8a27c" stop-opacity=".35"/><stop offset="1" stop-color="#fff6e4" stop-opacity=".5"/>
-            </radialGradient>
-            <clipPath id="m-clip"><circle cx="50" cy="50" r="46"/></clipPath>
+            <radialGradient id="moon-lit" cx="38%" cy="32%" r="72%"><stop offset="0" stop-color="#fffdfb"/><stop offset=".6" stop-color="#ece4e2"/><stop offset="1" stop-color="#c9bcbf"/></radialGradient>
+            <radialGradient id="moon-dark" cx="60%" cy="60%" r="70%"><stop offset="0" stop-color="#4a1a2c"/><stop offset="1" stop-color="#2a0c17"/></radialGradient>
+            <radialGradient id="moon-crater" cx="38%" cy="38%" r="62%"><stop offset="0" stop-color="#9c8b8f"/><stop offset=".75" stop-color="#c4b6b8"/><stop offset="1" stop-color="#fffaf8"/></radialGradient>
+            <radialGradient id="moon-halo" r="50%"><stop offset=".78" stop-color="#f6ecf0" stop-opacity=".18"/><stop offset="1" stop-color="#f6ecf0" stop-opacity="0"/></radialGradient>
+            <clipPath id="moon-clip"><path id="moon-lit-path"/></clipPath>
+            <clipPath id="moon-disc"><circle cx="24" cy="24" r="19"/></clipPath>
           </defs>
-          <circle cx="50" cy="50" r="46" fill="url(#m-body)"/>
-          <g clip-path="url(#m-clip)">
-            <path d="M18 38c6-10 20-14 30-8 8 5 4 14-6 16-9 2-14 8-21 4-5-3-6-7-3-12z" fill="#8a7352" opacity=".5"/>
-            <path d="M52 52c8-6 22-4 27 4 4 7-2 14-11 15-10 1-21-3-20-10 0-4 1-7 4-9z" fill="#8a7352" opacity=".45"/>
-            <path d="M30 70c5-4 13-3 15 2 2 5-3 9-9 9-6 0-10-6-6-11z" fill="#8a7352" opacity=".42"/>
-            <circle cx="64" cy="28" r="7" fill="url(#m-crater)"/>
-            <circle cx="36" cy="58" r="5" fill="url(#m-crater)"/>
-            <circle cx="72" cy="66" r="4.5" fill="url(#m-crater)"/>
-            <circle cx="24" cy="30" r="3" fill="url(#m-crater)"/>
-            <circle cx="52" cy="82" r="3.5" fill="url(#m-crater)"/>
-            <circle cx="47" cy="22" r="2" fill="url(#m-crater)"/>
-            <circle cx="82" cy="46" r="2.5" fill="url(#m-crater)"/>
-            <circle cx="50" cy="50" r="46" fill="url(#m-blood)"/>
+          <circle cx="24" cy="24" r="24" fill="url(#moon-halo)"/>
+          <circle cx="24" cy="24" r="19" fill="url(#moon-dark)" stroke="rgba(246,236,240,.3)" stroke-width=".8"/>
+          <g clip-path="url(#moon-disc)" fill="#5a2236" opacity=".6"><!-- earthshine: seas faintly on the dark side -->
+            <path d="M10 18c3-5 10-6 14-3 3 3 0 7-4 8-4 1-7 4-10 1-2-2-2-4 0-6z"/>
+            <path d="M25 26c4-3 10-2 12 2 2 3-1 7-5 7-5 1-9-1-9-5 0-2 1-3 2-4z"/>
           </g>
-          <circle cx="50" cy="50" r="46" fill="url(#m-limb)"/>
+          <path id="moon-lit-shape" fill="url(#moon-lit)"/>
+          <g clip-path="url(#moon-clip)">
+            <g fill="#b3a2a7" opacity=".5"><!-- seas -->
+              <path d="M10 18c3-5 10-6 14-3 3 3 0 7-4 8-4 1-7 4-10 1-2-2-2-4 0-6z"/>
+              <path d="M25 26c4-3 10-2 12 2 2 3-1 7-5 7-5 1-9-1-9-5 0-2 1-3 2-4z"/>
+              <path d="M17 33c2-2 6-2 7 1 1 2-1 4-4 4-3 0-5-3-3-5z"/>
+              <path d="M28 10c2-1 5 0 5 2 0 2-2 3-4 3s-3-3-1-5z"/>
+            </g>
+            <g fill="url(#moon-crater)"><!-- craters, lit from the upper left -->
+              <circle cx="31" cy="17" r="3"/><circle cx="35" cy="28" r="2"/><circle cx="21" cy="29" r="2.4"/>
+              <circle cx="15" cy="15" r="1.6"/><circle cx="25" cy="38" r="1.5"/><circle cx="12" cy="27" r="1.3"/><circle cx="37" cy="21" r="1.1"/>
+              <circle cx="38.5" cy="31" r=".8"/><circle cx="33" cy="35" r=".9"/><circle cx="36" cy="14" r=".7"/><circle cx="29" cy="24" r=".6"/><circle cx="32" cy="40" r=".7"/>
+            </g>
+            <g stroke="#fffaf8" stroke-width=".5" opacity=".7" fill="none"><!-- rays from the bright crater -->
+              <path d="M21 29l-5 4M21 29l-6-1M21 29l-2 6M21 29l3 5"/>
+            </g>
+          </g>
         </svg>
       </div>
       <div>
         <h1>Gascoigne</h1>
         <div class="subtitle">Token savings for coding agents</div>
-        <div class="ornament" aria-hidden="true">✠ ❦ ✠</div>
       </div>
     </div>
     <div class="head-right">
+      <span id="version" class="ver" title="gascoigne version"></span>
       <div id="live" class="live"><i></i><span>Connecting…</span></div>
       <div class="theme" role="group" aria-label="Theme">
         <button data-theme="auto" aria-pressed="true">Auto</button>
@@ -293,9 +299,11 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     </label>
     <div class="spacer"></div>
     <div class="actions">
-      <button id="flush" title="Delete stored originals (the cache behind gascoigne raw)">Clear originals</button>
-      <button id="reset" class="danger" title="Delete recorded runs matching the current filters">Reset statistics</button>
       <button id="stop" title="Stop the background server">Stop server</button>
+      <span class="delete-zone" role="group" aria-label="Delete data">
+        <button id="flush" class="danger" title="Delete stored originals (the cache behind gascoigne raw)">Clear originals</button>
+        <button id="reset" class="danger" title="Delete recorded runs matching the current filters">Reset statistics</button>
+      </span>
     </div>
   </div>
 
@@ -338,26 +346,32 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     <section class="panel">
       <h2>By command</h2>
       <p class="hint">Savings per command</p>
-      <div id="commands"></div>
+      <div class="scroll" id="commands"></div>
     </section>
     <section class="panel">
       <h2>By optimizer</h2>
-      <p class="hint">Savings per optimizer, then per content type</p>
-      <div id="optimizers"></div>
-      <div id="dialects" class="row-gap"></div>
+      <p class="hint">Savings per optimizer</p>
+      <div class="scroll" id="optimizers"></div>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>By content type</h2>
+      <p class="hint">Savings per detected content type</p>
+      <div class="scroll" id="dialects"></div>
+    </section>
+    <section class="panel">
+      <h2>Excluded sources</h2>
+      <p class="hint">Sources passed through unmodified because their optimized output was insufficient. Re-enable a source to optimize it again.</p>
+      <div class="scroll" id="failures"></div>
     </section>
   </div>
 
   <section class="panel">
     <h2>Runs not optimized</h2>
     <p class="hint">Skipped by a filter, failed, or left unchanged, with the most recent reason</p>
-    <div id="reasons"></div>
-  </section>
-
-  <section class="panel">
-    <h2>Excluded sources</h2>
-    <p class="hint">Sources passed through unmodified because their optimized output was insufficient. Re-enable a source to optimize it again.</p>
-    <div id="failures"></div>
+    <div class="scroll" id="reasons"></div>
   </section>
 
   <footer><span id="server-info">gascoigne server</span><br>
@@ -446,6 +460,32 @@ function table(cols, rows, empty) {
     })))));
 }
 
+// lazyTable fills the scroll box with a table whose rows render a chunk at a
+// time as the box scrolls. Re-rendering keeps the rows shown and the scroll
+// position, so live refreshes do not jump back to the top.
+const CHUNK = 50;
+function lazyTable(box, cols, rows, empty) {
+  if (box._io) box._io.disconnect();
+  const top = box.scrollTop, shown = box._shown || CHUNK;
+  if (!rows || rows.length === 0) { box._shown = 0; box.replaceChildren(table(cols, rows, empty)); return; }
+  const t = table(cols, rows.slice(0, shown), empty), body = t.tBodies[0];
+  let n = Math.min(shown, rows.length);
+  const more = () => {
+    const next = rows.slice(n, n + CHUNK);
+    body.append(...table(cols, next).tBodies[0].children);
+    n += next.length;
+    box._shown = n;
+    if (n >= rows.length) box._io.disconnect();
+  };
+  box._shown = n;
+  box.replaceChildren(t);
+  box.scrollTop = top;
+  const sentinel = el("div");
+  box.append(sentinel);
+  box._io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) more(); }, { root: box, rootMargin: "200px" });
+  if (n < rows.length) box._io.observe(sentinel);
+}
+
 const savedCols = (title, get) => [
   { title, get, mono: true },
   { title: "Runs", get: (r) => human(r.runs), num: true },
@@ -459,8 +499,20 @@ const savedCols = (title, get) => [
 const outcomeLabel = { optimized: "Optimized", unchanged: "Unchanged", bypassed: "Bypassed", error: "Error" };
 const badge = (o) => el("span", { class: "badge " + o }, outcomeLabel[o] || o);
 
+// setMoon draws the lit part of the logo's moon: what is left after saving
+// saved% of the tokens (a waning moon; 0% saved is a full moon).
+function setMoon(saved) {
+  const lit = 1 - Math.max(0, Math.min(100, saved)) / 100, r = 19, rx = r * Math.abs(1 - 2 * lit);
+  const d = `M24 5 A${r} ${r} 0 0 1 24 43 A${rx} ${r} 0 0 ${lit > .5 ? 1 : 0} 24 5 Z`;
+  $("moon-lit-shape").setAttribute("d", d);
+  $("moon-lit-path").setAttribute("d", d);
+  $("moon").title = `${fmtPct(saved)} of tokens saved`;
+}
+setMoon(50);
+
 function renderKPIs(o) {
   const t = o.total;
+  setMoon(t.saved_pct);
   const count = (name) => (o.outcomes.find((x) => x.group === name) || {}).runs || 0;
   const kpis = [
     ["Tokens saved", human(t.saved_tokens), `of ${human(t.raw_tokens)} input tokens`, "accent"],
@@ -490,14 +542,14 @@ function renderReasons(o) {
     ...o.failed.map((r) => ({ ...r, kind: "error" })),
     ...o.unchanged.map((r) => ({ ...r, kind: "unchanged" })),
   ];
-  $("reasons").replaceChildren(table([
+  lazyTable($("reasons"), [
     { title: "Outcome", get: (r) => badge(r.kind) },
     { title: "Stopped by", get: (r) => r.group, mono: true },
     { title: "Command", get: (r) => r.command || "—", mono: true },
     { title: "Runs", get: (r) => human(r.runs), num: true },
     { title: "Tokens", get: (r) => human(r.raw_tokens), num: true },
     { title: "Most recent reason", get: (r) => r.reason || "—", mono: true },
-  ], rows, "All runs in this period were optimized."));
+  ], rows, "All runs in this period were optimized.");
 }
 
 async function refreshOverview() {
@@ -511,22 +563,22 @@ async function refreshOverview() {
     { title: "Output", get: (r) => human(r.out_tokens), num: true },
     { title: "Share of input", get: (r) => bar(pct(r.raw_tokens, o.total.raw_tokens)) },
   ], o.outcomes));
-  $("commands").replaceChildren(table(savedCols("Command", (r) => r.group), o.commands));
-  $("optimizers").replaceChildren(table(savedCols("Optimizer", (r) => r.group + (r.family ? " · " + r.family : "")), o.optimizers));
-  $("dialects").replaceChildren(table(savedCols("Content type", (r) => r.group), o.dialects));
+  lazyTable($("commands"), savedCols("Command", (r) => r.group), o.commands);
+  lazyTable($("optimizers"), savedCols("Optimizer", (r) => r.group + (r.family ? " · " + r.family : "")), o.optimizers);
+  lazyTable($("dialects"), savedCols("Content type", (r) => r.group), o.dialects);
   renderReasons(o);
   await refreshFailures();
 }
 
 async function refreshFailures() {
   const fs = await getJSON("/api/failures");
-  $("failures").replaceChildren(table([
+  lazyTable($("failures"), [
     { title: "Source", get: (f) => f.key, mono: true },
     { title: "Count", get: (f) => f.count, num: true },
     { title: "Last", get: (f) => ago(f.last) },
     { title: "Reason", get: (f) => f.reason, mono: true },
     { title: "", get: (f) => el("button", { onclick: () => forget(f.key) }, "Re-enable") },
-  ], fs, "No excluded sources."));
+  ], fs, "No excluded sources.");
 }
 
 async function forget(key) {
@@ -796,6 +848,14 @@ function pane(title, meta, lines, mark) {
 $("d-close").onclick = () => $("detail").close();
 $("detail").addEventListener("close", () => history.replaceState(null, "", location.pathname + location.search));
 
+// confirmDelete asks twice before deleting data: a confirm with what goes,
+// then the word "delete" typed out.
+function confirmDelete(what) {
+  if (!confirm(what)) return false;
+  const typed = prompt('This cannot be undone. Type "delete" to confirm.');
+  return typed !== null && typed.trim().toLowerCase() === "delete";
+}
+
 function scope() {
   const f = filters(), parts = [];
   if (f.get("session")) parts.push("session " + f.get("session"));
@@ -805,7 +865,7 @@ function scope() {
 }
 
 $("reset").onclick = async () => {
-  if (!confirm(`Reset statistics for ${scope()}?\n\nRecorded runs will be deleted. Stored originals and excluded sources are kept.`)) return;
+  if (!confirmDelete(`Reset statistics for ${scope()}?\n\nRecorded runs will be deleted. Stored originals and excluded sources are kept.`)) return;
   const r = await fetch("/api/reset?" + filters(), { method: "POST" });
   if (!r.ok) { alert("Reset failed: " + (await r.text())); return; }
   const { deleted_events } = await r.json();
@@ -825,7 +885,7 @@ async function refreshOriginals() {
 }
 
 $("flush").onclick = async () => {
-  if (!confirm("Delete all stored originals?\n\nRecorded runs and savings are kept, but their full output can no longer be retrieved.")) return;
+  if (!confirmDelete("Delete all stored originals?\n\nRecorded runs and savings are kept, but their full output can no longer be retrieved.")) return;
   const r = await fetch("/api/flush", { method: "POST" });
   if (!r.ok) { alert("Clearing failed: " + (await r.text())); return; }
   const { deleted_originals } = await r.json();
@@ -845,7 +905,8 @@ async function refreshServer() {
   try {
     const h = await getJSON("/api/health");
     const up = Math.round((Date.now() - new Date(h.started)) / 60000);
-    $("server-info").textContent = `Server PID ${h.pid} on ${h.addr} · uptime ${up < 60 ? up + "m" : Math.floor(up / 60) + "h " + (up % 60) + "m"} · ledger ${h.ledger} · build ${h.build}`;
+    $("version").textContent = h.version ? "v" + h.version : "";
+    $("server-info").textContent = `gascoigne ${h.version || "unknown version"} · server PID ${h.pid} on ${h.addr} · uptime ${up < 60 ? up + "m" : Math.floor(up / 60) + "h " + (up % 60) + "m"} · ledger ${h.ledger}`;
   } catch { $("server-info").textContent = "Server not responding"; }
 }
 refreshServer();

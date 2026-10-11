@@ -57,10 +57,14 @@ func cmdServer(ctx context.Context, args []string) error {
 	}
 	var addr string
 	var idle time.Duration
+	var open bool
 	flags := func(fs *flag.FlagSet) {
 		fs.StringVar(&addr, "addr", serverAddr(), "listen `address`, loopback only (default $GASCOIGNE_SERVER_ADDR or "+defaultServerAddr+")")
 		if sub == "run" {
 			fs.DurationVar(&idle, "idle", serverIdle(), "exit after this long without a request, 0 never (default $GASCOIGNE_SERVER_IDLE or 30m)")
+		}
+		if sub == "start" {
+			fs.BoolVar(&open, "open", false, "open the dashboard in a browser")
 		}
 	}
 	switch sub {
@@ -80,6 +84,9 @@ func cmdServer(ctx context.Context, args []string) error {
 				return err
 			}
 			fmt.Printf("gascoigne dashboard: http://%s\n", addr)
+			if open {
+				openBrowser("http://" + addr)
+			}
 			return nil
 		})
 	case "stop", "status":
