@@ -2,6 +2,9 @@ package ledger
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -441,5 +444,35 @@ func TestRecentOutputs(t *testing.T) {
 	}
 	if got, _ := l.RecentOutputs(ctx, "s1", "cmd:go test", now.Add(-10*time.Minute), 1); len(got) != 1 {
 		t.Fatalf("limit 1: got %q", got)
+	}
+}
+
+func TestRawIDShortAndUnique(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	p := payload.New(payload.CmdOutput, "original\n")
+	id, err := l.SaveRaw(ctx, "cmd:x", p)
+	if err != nil || len(id) != 8 {
+		t.Fatalf("id %q (%v), want 8 hex", id, err)
+	}
+	if again, _ := l.SaveRaw(ctx, "cmd:x", p); again != id {
+		t.Fatalf("same original: id %q, want %q", again, id)
+	}
+
+	// Another original already holding the next one's 8-hex prefix.
+	q := payload.New(payload.CmdOutput, "other\n")
+	blob, _ := json.Marshal(q)
+	sum := sha256.Sum256(blob)
+	prefix := hex.EncodeToString(sum[:])[:8]
+	other, _ := pack([]byte(`{"blocks":[]}`))
+	if err := l.db.Create(&raw{ID: prefix, Key: "cmd:y", Payload: other}).Error; err != nil {
+		t.Fatal(err)
+	}
+	id2, err := l.SaveRaw(ctx, "cmd:z", q)
+	if err != nil || id2 != hex.EncodeToString(sum[:])[:12] {
+		t.Fatalf("collision: id %q (%v), want the 12-hex prefix", id2, err)
+	}
+	if _, got, err := l.GetRaw(ctx, id2); err != nil || got.Text() != "other\n" {
+		t.Fatalf("GetRaw(%s) = %v, %v", id2, got, err)
 	}
 }

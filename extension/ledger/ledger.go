@@ -84,22 +84,60 @@ func (l *Ledger) prune(ctx context.Context) error {
 }
 
 // SaveRaw stores p and returns a content-derived id; saving again refreshes its TTL.
+// idLengths are the hex lengths a raw id tries, shortest first: every hint
+// carries one, and 8 hex digits cost ~7 fewer tokens than 16. A prefix
+// already holding another original moves on to a longer one, so ids stay
+// unique and content-addressed (the same original gets the same id).
+var idLengths = []int{8, 12, 16, 64}
+
 func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (string, error) {
 	blob, err := json.Marshal(p)
 	if err != nil {
 		return "", err
 	}
-	sum := sha256.Sum256(blob)
+	full := sha256.Sum256(blob)
+	sum := hex.EncodeToString(full[:])
 	packed, err := pack(blob)
 	if err != nil {
 		return "", err
 	}
-	r := raw{ID: hex.EncodeToString(sum[:8]), Created: time.Now().UnixMilli(), Key: key, Payload: packed}
-	err = l.db.WithContext(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns([]string{"created"}),
-	}).Create(&r).Error
-	return r.ID, err
+	db := l.db.WithContext(ctx)
+	for _, n := range idLengths {
+		id := sum[:n]
+		taken, same, err := l.holds(ctx, id, blob)
+		if err != nil {
+			return "", err
+		}
+		if !taken {
+			// Another process may insert the same id in between: then the
+			// row decides, as if it had been there.
+			err := db.Create(&raw{ID: id, Created: time.Now().UnixMilli(), Key: key, Payload: packed}).Error
+			if err == nil {
+				return id, nil
+			}
+			if _, same, _ = l.holds(ctx, id, blob); !same {
+				continue
+			}
+		}
+		if same {
+			return id, db.Model(&raw{}).Where("id = ?", id).Update("created", time.Now().UnixMilli()).Error
+		}
+	}
+	return "", fmt.Errorf("raw: no free id for %s", sum)
+}
+
+// holds reports whether id is taken and whether by blob.
+func (l *Ledger) holds(ctx context.Context, id string, blob []byte) (taken, same bool, err error) {
+	var r raw
+	err = l.db.WithContext(ctx).Select("payload").Take(&r, "id = ?", id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, false, nil
+	}
+	if err != nil {
+		return false, false, err
+	}
+	old, err := unpack(r.Payload)
+	return true, err == nil && bytes.Equal(old, blob), nil
 }
 
 func (l *Ledger) GetRaw(ctx context.Context, id string) (string, *payload.Payload, error) {

@@ -264,6 +264,8 @@ Lives in core (`service/pipeline.go`), not in optimizers:
 5. Retrieval: `gascoigne raw <id>`, MCP `retrieve` / `gascoigne_retrieve` (later HTTP proxy `GET /raw/<id>`).
 
 ## Ledger (gorm + sqlite, `extension/ledger`)
+Raw ids are sha256 prefixes of the original, 8 hex digits unless that prefix holds another
+original (then 12, 16, 64): ~7 fewer tokens in every hint, still content-addressed and unique.
 Tables: `events` (every trip: route, tokens, outcome), `raw` (originals gzip-compressed, plain
 JSON rows from before still read; TTL-pruned, `gascoigne flush [-older]` / `POST /api/flush` delete and VACUUM),
 `failures` (per-key count). Gorm models in `models.go`; `AutoMigrate` on Start adds new

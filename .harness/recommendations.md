@@ -16,6 +16,12 @@ their record is git history.
   budget before the story (forbes, gov.br pages); precision is lost to the same menus, share
   bars and footers outside `<footer>`. Link-dense blocks could fold like `<nav>`.
 
+## Measured
+- Marker audit with exact o200k counts (`tokenizer/`; Claude needs an API key, not yet measured):
+  raw id 16→8 hex saves 7 tokens per hint (done); `(×60)`→`×60` and `[↑ …`→`[…` save 2 each but
+  only ~0.1% of eval output; `… N lines omitted`, `§1`, `_cols/_rows`, `L12-30` have no cheaper
+  form. Re-run with `tokens` and a key before changing Claude-facing markers.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Generic multi-line repeat folding: the log engine already folds repeated traces; after the

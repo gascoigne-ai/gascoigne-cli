@@ -38,10 +38,10 @@ $ gascoigne exec -- terraform plan
   # module.queues.aws_sqs_queue.this["q02"] will be created (like above)
   …
 Plan: 25 to add, 2 to change, 1 to destroy.
-[gascoigne: optimized 10000→1311 tokens · full: gascoigne raw af6b9bf6295f3d8e]
+[gascoigne: optimized 10000→1311 tokens · full: gascoigne raw af6b9bf6]
 ```
 
-The last line is the deal: 87% fewer tokens, and `gascoigne raw af6b9bf6295f3d8e` prints the
+The last line is the deal: 87% fewer tokens, and `gascoigne raw af6b9bf6` prints the
 untouched original, byte for byte.
 
 ### The dashboard
@@ -124,7 +124,7 @@ kubectl get pods -o yaml | gascoigne run     # or optimize anything on stdin
 **Get the full output back**
 
 ```sh
-gascoigne raw af6b9bf6295f3d8e               # the id from the [gascoigne: …] hint
+gascoigne raw af6b9bf6               # the id from the [gascoigne: …] hint
 gascoigne exec -raw -- git diff              # skip optimization for one run
 GASCOIGNE_RAW=1 make test                    # or for everything in this shell
 ```

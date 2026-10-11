@@ -109,7 +109,7 @@ func init() {
 			run:      cmdGain},
 		{name: "raw", args: "<id> [-lines a-b|-grep re|-query words]", group: groupSavings,
 			summary:  "print an original byte-exact (marks the source as failing), or part of it",
-			examples: []string{"gascoigne raw 9f1c2e7a0b3d4c55", "gascoigne raw 9f1c2e7a0b3d4c55 -grep 'FAIL|panic' -C 2"},
+			examples: []string{"gascoigne raw 9f1c2e7a", "gascoigne raw 9f1c2e7a -grep 'FAIL|panic' -C 2"},
 			run:      cmdRaw},
 		{name: "fail", args: "<key|raw id>", group: groupSavings,
 			summary:  "mark a source as badly optimized",
