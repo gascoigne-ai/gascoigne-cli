@@ -541,7 +541,7 @@
 - file: log/structured.ndjson
   attrs: { cmd: kubectl logs api }
   expect_type: log/kubectl
-  keep: ["card_declined: insufficient funds", "status=402", "lines omitted"]
+  keep: ["card_declined: insufficient funds", "status=402", "repeats of lines above"]
   min_saved: 90
 - { file: data/catalog.yaml, attrs: { file: catalog.yaml }, expect_type: data/yaml, keep: ["SKU-1013", "SKU-1057", "\"_table\""], min_saved: 50 }
 - { file: data/compose.yaml, attrs: { file: compose.yaml }, expect_type: data/yaml, keep: ["postgres:16"] }

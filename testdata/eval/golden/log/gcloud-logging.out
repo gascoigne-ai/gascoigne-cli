@@ -1,14 +1,14 @@
 2026-10-10T07:00:00.128447Z INFO GET https://shop-api-x7y2z-ew.a.run.app/api/products 200 (×4)
 2026-10-10T07:01:00.521287Z INFO handled request path=/api/products/715 status=200 ms=30 (×22)
-… 1 line omitted
+… 1 repeat of a line above
 2026-10-10T07:03:00.667523Z INFO POST https://shop-api-x7y2z-ew.a.run.app/api/orders 200 (×4)
-… 1 line omitted
+… 1 repeat of a line above
 2026-10-10T07:05:00.883210Z INFO handled request path=/api/products/820 status=200 ms=7
 2026-10-10T07:06:00.482675Z INFO GET https://shop-api-x7y2z-ew.a.run.app/api/products 200
 2026-10-10T07:07:00.661950Z WARNING slow query: 812ms SELECT * FROM orders WHERE customer_id=$1
 2026-10-10T07:08:00.615536Z INFO handled request path=/api/products/451 status=200 ms=78
 2026-10-10T07:09:00.451324Z INFO POST https://shop-api-x7y2z-ew.a.run.app/api/orders 200
-… 5 lines omitted
+… 5 repeats of lines above
 2026-10-10T07:15:00.335838Z INFO POST https://shop-api-x7y2z-ew.a.run.app/api/orders 200
 2026-10-10T07:16:00.306737Z INFO handled request path=/api/products/372 status=200 ms=73
 2026-10-10T07:17:00.375230Z ERROR pq: could not serialize access due to concurrent update
@@ -18,22 +18,22 @@
 2026-10-10T07:22:00.490932Z WARNING slow query: 812ms SELECT * FROM orders WHERE customer_id=$1
 2026-10-10T07:23:00.971058Z INFO handled request path=/api/products/385 status=200 ms=6
 2026-10-10T07:24:00.220011Z INFO GET https://shop-api-x7y2z-ew.a.run.app/api/products 200
-… 10 lines omitted
+… 10 repeats of lines above
 2026-10-10T07:35:00.771277Z INFO handled request path=/api/products/557 status=200 ms=47
 2026-10-10T07:36:00.467307Z INFO GET https://shop-api-x7y2z-ew.a.run.app/api/products 200
 2026-10-10T07:37:00.881386Z WARNING slow query: 812ms SELECT * FROM orders WHERE customer_id=$1
 2026-10-10T07:38:00.208246Z INFO handled request path=/api/products/81 status=200 ms=56
 2026-10-10T07:39:00.631074Z INFO POST https://shop-api-x7y2z-ew.a.run.app/api/orders 200
-… 2 lines omitted
+… 2 repeats of lines above
 2026-10-10T07:42:00.455948Z INFO GET https://shop-api-x7y2z-ew.a.run.app/api/products 200
 2026-10-10T07:43:00.305462Z INFO handled request path=/api/products/830 status=200 ms=67
 2026-10-10T07:44:00.182495Z ERROR pq: could not serialize access due to concurrent update
 2026-10-10T07:45:00.489482Z INFO POST https://shop-api-x7y2z-ew.a.run.app/api/orders 200
 2026-10-10T07:46:00.786052Z INFO handled request path=/api/products/315 status=200 ms=42
-… 3 lines omitted
+… 3 repeats of lines above
 2026-10-10T07:50:00.626569Z INFO handled request path=/api/products/400 status=200 ms=10
 2026-10-10T07:51:00.370298Z INFO POST https://shop-api-x7y2z-ew.a.run.app/api/orders 200
 2026-10-10T07:52:00.783198Z WARNING slow query: 812ms SELECT * FROM orders WHERE customer_id=$1
 2026-10-10T07:53:00.931983Z INFO handled request path=/api/products/694 status=200 ms=44
 2026-10-10T07:54:00.771973Z INFO GET https://shop-api-x7y2z-ew.a.run.app/api/products 200
-… 5 lines omitted
+… 5 repeats of lines above

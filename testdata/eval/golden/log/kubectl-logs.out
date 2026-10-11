@@ -1,6 +1,6 @@
 … 1 line omitted
 2026-10-10T07:00:00.624Z  INFO 1 --- [nio-8080-exec-8] c.e.shop.web.AccessLogFilter           : GET /api/products/112 200 24ms (×304)
-… 1 line omitted
+… 1 repeat of a line above
 2026-10-10T07:00:01.126Z  INFO 1 --- [nio-8080-exec-4] c.e.shop.web.AccessLogFilter           : GET /api/products/459 200 3ms (×2)
 2026-10-10T07:00:01.316Z  WARN 1 --- [   scheduling-1] c.e.shop.cache.CacheWarmer             : cache warm-up took 1457ms (threshold 1000ms)
 2026-10-10T07:00:01.591Z  INFO 1 --- [nio-8080-exec-7] c.e.shop.web.AccessLogFilter           : GET /api/products/840 200 70ms

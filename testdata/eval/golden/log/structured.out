@@ -3,18 +3,18 @@
 2026-10-01T12:10:19.886Z INFO request handled duration_ms=185 method=GET path=/api/users/me request_id=34f4706b303c5759 status=200 (×25)
 2026-10-01T12:10:19.911Z INFO request handled duration_ms=27 method=GET path=/api/products request_id=b548efbd333faa0a status=200 (×32)
 2026-10-01T12:10:20.791Z INFO request handled duration_ms=122 method=GET path=/api/cart request_id=c5b2ea8a9603c77c status=200 (×31)
-… 2 lines omitted
+… 2 repeats of lines above
 2026-10-01T12:10:22.139Z INFO request handled duration_ms=108 method=POST path=/api/products request_id=5cfb6bb1ea4739ed status=200 (×35)
 2026-10-01T12:10:22.159Z INFO request handled duration_ms=86 method=GET path=/api/orders request_id=6641f7ccfc8400b7 status=200 (×25)
 2026-10-01T12:10:22.410Z INFO request handled duration_ms=87 method=POST path=/api/cart request_id=3d958fad965597f1 status=200 (×28)
-… 3 lines omitted
+… 3 repeats of lines above
 2026-10-01T12:10:23.325Z INFO request handled duration_ms=101 method=POST path=/api/users/me request_id=ccb59c9e28e8ea25 status=200 (×26)
-… 11 lines omitted
+… 11 repeats of lines above
 2026-10-01T12:10:28.223Z INFO request handled duration_ms=2 method=GET path=/healthz request_id=ff9ae45f2977b4ba status=200 (×34)
-… 122 lines omitted
+… 122 repeats of lines above
 2026-10-01T12:11:18.729Z INFO request handled duration_ms=50 method=POST path=/api/cart request_id=b553304517097c4d status=200
 2026-10-01T12:11:19.320Z INFO request handled duration_ms=113 method=POST path=/api/users/me request_id=319a5f53ec02205a status=200
 2026-10-01T12:11:20.156Z ERROR payment declined duration_ms=176 error=card_declined: insufficient funds method=POST path=/api/users/me request_id=0c22f291537cbe65 status=402
 2026-10-01T12:11:20.673Z INFO request handled duration_ms=28 method=POST path=/api/users/me request_id=555235fa09c3f1d0 status=200
 2026-10-01T12:11:20.938Z INFO request handled duration_ms=112 method=POST path=/api/products request_id=861a7d6cc7230526 status=200
-… 147 lines omitted
+… 147 repeats of lines above

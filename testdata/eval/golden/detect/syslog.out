@@ -45,7 +45,7 @@ Oct 09 20:11:10 host systemd[1]: Stopped target System Time Set.
 Oct 09 20:11:10 host systemd[1]: Received SIGRTMIN+20 from PID 186022 (plymouthd). (×4)
 Oct 09 20:11:10 host systemd[1]: bluetooth.service: Deactivated successfully.
 Oct 09 20:11:10 host systemd[1]: Stopped Bluetooth service.
-… 1 line omitted
+… 1 repeat of a line above
 Oct 09 20:11:10 host systemd[1]: Started Show Plymouth Power Off Screen.
 Oct 09 20:11:10 host systemd[1]: Requested transaction contradicts existing jobs: Transaction for sound.target/start is destructive (systemd-poweroff.service has 'start' job queued, but 'stop' is included in transaction).
 Oct 09 20:11:10 host systemd[1]: sys-devices-pci0000:00-0000:00:01.1-0000:01:00.1-sound-card1-controlC1.device: Failed to enqueue SYSTEMD_WANTS job, ignoring: Transaction for sound.target/start is destructive (systemd-poweroff.service has 'start' job queued, but 'stop' is included in transaction).
@@ -112,7 +112,7 @@ Oct 10 00:05:44 host systemd[1]: Started Network Manager.
 Oct 10 00:05:44 host systemd[1]: Reached target Network.
 Oct 10 00:05:44 host systemd[1]: Finished Permit User Sessions.
 Oct 10 00:05:44 host systemd[1]: Started Network Manager Script Dispatcher Service.
-… 2 lines omitted
+… 2 repeats of lines above
 Oct 10 00:05:44 host systemd[1]: Finished Hold until boot process finishes up.
 Oct 10 00:05:44 host systemd[1]: Finished Terminate Plymouth Boot Screen.
 Oct 10 00:05:44 host systemd[1]: Reached target Multi-User System.
@@ -148,4 +148,4 @@ Oct 10 00:26:46 host systemd[1]: Started Accounts Service.
 Oct 10 00:31:44 host systemd[1]: plocate-updatedb.service: Deactivated successfully.
 Oct 10 00:31:44 host systemd[1]: Finished Update the plocate database.
 Oct 10 00:31:44 host systemd[1]: plocate-updatedb.service: Consumed 3.779s CPU time over 7.904s wall clock time, 832.8M memory peak.
-… 24 lines omitted
+… 24 repeats of lines above

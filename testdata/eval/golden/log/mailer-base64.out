@@ -17,7 +17,7 @@
 2026-03-14T09:12:17.171Z INFO  mailer.smtp sent id=job-4817 status=250 queued as 8F14E45FCE
 … 3 lines omitted
 2026-03-14T09:12:19.192Z INFO  mailer.smtp sent id=job-4818 status=250 queued as C9F0F895FB
-… 1 line omitted
+… 1 repeat of a line above
 2026-03-14T09:12:23.160Z DEBUG mailer.render attachment invoice-4819.pdf size=2133 bytes
 2026-03-14T09:12:23.160Z DEBUG mailer.smtp payload part=attachment encoding=base64 data=GVgeJ9587QD/HOULIEfnpWfHaxy666vl7wP3wwF7tbeYI6KYloauOBNo+PRh8JoUb2W5pgwz …[2692 bytes dense]… KsvRRy1rqayqkkmaPkJvrgM6K4/DUlP2yBStuNkTNIgxguILURtF4AGdBXy0LH32E9DKOKCfDEjsMr8k
 2026-03-14T09:12:23.160Z ERROR mailer.smtp send failed id=job-4819: 552 5.3.4 Message size exceeds fixed limit

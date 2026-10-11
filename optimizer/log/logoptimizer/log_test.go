@@ -47,6 +47,22 @@ func TestLog(t *testing.T) {
 	}
 }
 
+func TestRepeatGapSaysSo(t *testing.T) {
+	trace := "java.lang.IllegalStateException: pool shut down\n" +
+		"\tat org.apache.http.util.Asserts.check(Asserts.java:34)\n" +
+		"\tat com.example.Gateway.charge(Gateway.java:118)\n" +
+		"\tat com.example.Worker.run(Worker.java:41)\n"
+	in := "10:00 INFO start\n" + trace + "10:01 INFO next\n" + trace + "10:04 INFO end\n"
+	got := run(detect.Log, in)
+	if !strings.Contains(got, "10:01 INFO next\n… 4 repeats of lines above\n") {
+		t.Fatalf("repeated trace gap:\n%s", got)
+	}
+	in = "10:00 INFO start\n" + trace + "10:01 INFO next\n" + trace + "10:02 DEBUG tick\n10:04 INFO end\n"
+	if got := run(detect.Log, in); !strings.Contains(got, "10:01 INFO next\n… 5 lines omitted\n10:04") {
+		t.Fatalf("mixed gap:\n%s", got)
+	}
+}
+
 func TestTextOnlyLosesRepeats(t *testing.T) {
 	in := "Step 1\nStep 2\nsame\nsame\nsame\n\n\n\nend\n"
 	if got, want := run(detect.Text, in), "Step 1\nStep 2\nsame (×3)\n\nend\n"; got != want {

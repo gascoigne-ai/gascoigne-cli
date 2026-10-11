@@ -133,17 +133,20 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 	}
 	var out []entry
 	seen := map[string]bool{}
-	dropped := 0
+	dropped, repeats := 0, 0
 	for i, l := range lines {
 		norm := compress.Normalize(l)
 		keep := important[i] || (!seen[norm] && !(o.cfg.DropDebug && isDebug(l)))
 		if !keep {
 			dropped++
+			if seen[norm] {
+				repeats++
+			}
 			continue
 		}
 		if dropped > 0 {
-			out = append(out, entry{text: compress.Omitted(dropped, "")})
-			dropped = 0
+			out = append(out, entry{text: gap(dropped, repeats)})
+			dropped, repeats = 0, 0
 		}
 		e := entry{l, sources(i)}
 		if !important[i] {
@@ -156,9 +159,22 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 		out = append(out, e)
 	}
 	if dropped > 0 {
-		out = append(out, entry{text: compress.Omitted(dropped, "")})
+		out = append(out, entry{text: gap(dropped, repeats)})
 	}
 	return o.limit(dedupeRuns(out))
+}
+
+// gap marks dropped lines. When each repeats a line shown above (and counted
+// there with ×N), saying so tells the reader nothing new is hidden; a mixed
+// run stays "omitted", the counts above already tell its repeats.
+func gap(dropped, repeats int) string {
+	switch {
+	case repeats < dropped:
+		return compress.Omitted(dropped, "")
+	case dropped == 1:
+		return "… 1 repeat of a line above"
+	}
+	return fmt.Sprintf("… %d repeats of lines above", dropped)
 }
 
 // dedupeRuns collapses consecutive entries equal after Normalize into the

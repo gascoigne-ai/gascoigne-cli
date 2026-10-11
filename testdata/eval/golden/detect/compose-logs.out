@@ -6,22 +6,22 @@ db-1| 2026-10-10 07:00:00.230 UTC [1] LOG:  database system is ready to accept c
 web-1| [2026-10-10 07:00:01 +0000] [1] [INFO] Starting gunicorn 22.0.0
 web-1| [2026-10-10 07:00:01 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
 web-1| [2026-10-10 07:00:01 +0000] [7] [INFO] Booting worker with pid: 7 (×4)
-… 3 lines omitted
+… 3 repeats of lines above
 worker-1| [2026-10-10 07:00:02,004: INFO/MainProcess] Connected to redis://redis:6379/0
 worker-1| [2026-10-10 07:00:02,010: INFO/MainProcess] celery@worker ready.
 redis-1| 1:M 10 Oct 2026 07:00:04.504 * 100 changes in 300 seconds. Saving... (×10)
 web-1| 172.18.0.1 - - [10/Oct/2026:07:00:04 +0000] "GET /api/products HTTP/1.1" 200 1577 "-" "python-requests/2.32.3" (×14)
-… 1 line omitted
+… 1 repeat of a line above
 web-1| 172.18.0.1 - - [10/Oct/2026:07:00:04 +0000] "GET /health HTTP/1.1" 200 366 "-" "python-requests/2.32.3" (×18)
-… 3 lines omitted
+… 3 repeats of lines above
 web-1| 172.18.0.1 - - [10/Oct/2026:07:00:04 +0000] "GET /api/cart HTTP/1.1" 200 1266 "-" "python-requests/2.32.3" (×22)
-… 3 lines omitted
+… 3 repeats of lines above
 worker-1| [2026-10-10 07:00:06,608: INFO/ForkPoolWorker-4] Task shop.tasks.send_receipt[c6f87718-5c1d] succeeded in 0.314s: None (×23)
-… 2 lines omitted
+… 2 repeats of lines above
 db-1| 2026-10-10 07:00:08.846 UTC [74] LOG:  connection authorized: user=shop database=shop (×6)
-… 3 lines omitted
+… 3 repeats of lines above
 web-1| 172.18.0.1 - - [10/Oct/2026:07:00:11 +0000] "GET /api/products/42 HTTP/1.1" 200 2514 "-" "python-requests/2.32.3" (×14)
-… 50 lines omitted
+… 50 repeats of lines above
 web-1| 172.18.0.1 - - [10/Oct/2026:07:00:34 +0000] "GET /api/products/42 HTTP/1.1" 200 3756 "-" "python-requests/2.32.3"
 worker-1| [2026-10-10 07:00:35,934: INFO/ForkPoolWorker-4] Task shop.tasks.send_receipt[d3bf6d01-5c1d] succeeded in 0.918s: None
 worker-1| [2026-10-10 07:00:35,512: ERROR/ForkPoolWorker-2] Task shop.tasks.charge_card[9f1c2e44-5c1d] raised unexpected: ConnectionError('payment gateway timed out')
@@ -36,4 +36,4 @@ worker-1| ConnectionError: payment gateway timed out
 db-1| 2026-10-10 07:00:35.601 UTC [77] ERROR:  duplicate key value violates unique constraint "payments_order_id_key"
 db-1| 2026-10-10 07:00:35.601 UTC [77] DETAIL:  Key (order_id)=(1042) already exists.
 web-1| 172.18.0.1 - - [10/Oct/2026:07:00:35 +0000] "GET /api/products HTTP/1.1" 200 3655 "-" "python-requests/2.32.3"
-… 38 lines omitted
+… 38 repeats of lines above

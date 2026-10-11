@@ -5,7 +5,7 @@
 2026-10-10T07:55:19.226924+00:00 ERROR Compute virtualMachines write (×2)
 2026-10-10T07:53:53.947375+00:00 INFORMATIONAL Compute virtualMachines restart action
 2026-10-10T07:52:15.486185+00:00 INFORMATIONAL Web sites config write
-… 2 lines omitted
+… 2 repeats of lines above
 2026-10-10T07:49:33.381678+00:00 INFORMATIONAL Storage storageAccounts listKeys action (×3)
 2026-10-10T07:48:46.714606+00:00 INFORMATIONAL Compute virtualMachines restart action (×7)
-… 18 lines omitted
+… 18 repeats of lines above
