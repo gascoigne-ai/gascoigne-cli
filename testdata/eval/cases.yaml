@@ -646,3 +646,28 @@
 - file: adversarial/prose.txt
   attrs: { cmd: cat docs/session-store.md }
   unchanged: true
+
+# --- non-English output: CJK and diacritics in messages, names and data
+- file: i18n/pytest-fail-ja.txt
+  attrs: { cmd: pytest tests }
+  expect_type: test/pytest
+  keep: ["AssertionError: 合計金額が負になりました: -400 円", "tests/test_price.py:12", "assert 219 == 218", "2 failed, 62 passed"]
+- file: i18n/app-zh.log
+  attrs: { file: /var/log/shop/app.log }
+  expect_type: log/app
+  keep: ["扣款失败：银行返回错误码", "pay.errors.GatewayError: 余额不足 (code=5012)", "库存低于阈值：剩余 3 件"]
+  min_saved: 80
+- file: i18n/readme-ja.md
+  attrs: { cmd: cat README.md }
+  expect_type: doc/markdown
+  keep: ["## トラブルシューティング", "kura status --data <dir>", "`sync` | `batch`"]
+- file: i18n/products-pl.json
+  attrs: { cmd: curl -s https://shop.example.com/api/produkty }
+  expect_type: data/json
+  keep: ["brak w magazynie", "Półka ścienna"]
+  min_saved: 70
+- file: i18n/tsc-de.txt
+  attrs: { cmd: npx tsc --noEmit --locale de }
+  expect_type: build/tsc
+  keep: ["12:7 error TS2304 Der Name \"steuersatz\" wurde nicht gefunden.", "src/kasse.ts:72", "29 errors in 7 files"]
+  min_saved: 55

@@ -1,0 +1,32 @@
+============================= test session starts ==============================
+
+tests/test_cart.py ..............................F.........              [ 62%]
+tests/test_price.py ...........F............                             [100%]
+
+=================================== FAILURES ===================================
+___________________________ test_合計金額は負にならない ___________________________
+
+    def test_合計金額は負にならない():
+        """割引が商品価格を超えても合計は 0 円以上であること。"""
+        cart = Cart(items=[Item("りんご", 100)])
+        cart.apply_coupon("大特価500")
+>       assert cart.total() >= 0, f"合計金額が負になりました: {cart.total()} 円"
+E       AssertionError: 合計金額が負になりました: -400 円
+E       assert -400 >= 0
+E        +  where -400 = <bound method Cart.total of Cart(items=[Item(name='りんご', price=100)])>()
+
+tests/test_cart.py:31: AssertionError
+_____________________________ test_税込価格の端数 _____________________________
+
+    def test_税込価格の端数():
+        """税込価格は 1 円未満を切り捨てる。"""
+>       assert price_with_tax(199) == 218, "端数処理が仕様と異なります"
+E       AssertionError: 端数処理が仕様と異なります
+E       assert 219 == 218
+E        +  where 219 = price_with_tax(199)
+
+tests/test_price.py:12: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_cart.py::test_合計金額は負にならない - AssertionError: 合計金額が負になりました: -400 円
+FAILED tests/test_price.py::test_税込価格の端数 - AssertionError: 端数処理が仕様と異なります
+========================= 2 failed, 62 passed in 0.41s =========================

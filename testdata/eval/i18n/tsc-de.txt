@@ -1,0 +1,31 @@
+src/warenkorb.ts(82,21): error TS2322: Der Typ "string" kann dem Typ "number" nicht zugewiesen werden.
+src/warenkorb.ts(48,38): error TS2339: Die Eigenschaft "preis" ist für den Typ "Artikel" nicht vorhanden.
+src/warenkorb.ts(6,34): error TS7006: Der Parameter "k" weist implizit einen Typ "any" auf.
+src/warenkorb.ts(34,8): error TS2551: Die Eigenschaft "mange" ist für den Typ "Posten" nicht vorhanden. Meinten Sie "menge"?
+src/kasse.ts(23,12): error TS2322: Der Typ "string" kann dem Typ "number" nicht zugewiesen werden.
+src/kasse.ts(50,35): error TS2339: Die Eigenschaft "preis" ist für den Typ "Artikel" nicht vorhanden.
+src/kasse.ts(34,29): error TS7006: Der Parameter "k" weist implizit einen Typ "any" auf.
+src/kasse.ts(72,11): error TS2551: Die Eigenschaft "mange" ist für den Typ "Posten" nicht vorhanden. Meinten Sie "menge"?
+src/rabatt.ts(76,20): error TS2322: Der Typ "string" kann dem Typ "number" nicht zugewiesen werden.
+src/rabatt.ts(4,18): error TS2339: Die Eigenschaft "preis" ist für den Typ "Artikel" nicht vorhanden.
+src/rabatt.ts(55,22): error TS7006: Der Parameter "k" weist implizit einen Typ "any" auf.
+src/rabatt.ts(26,29): error TS2551: Die Eigenschaft "mange" ist für den Typ "Posten" nicht vorhanden. Meinten Sie "menge"?
+src/lager.ts(23,9): error TS2322: Der Typ "string" kann dem Typ "number" nicht zugewiesen werden.
+src/lager.ts(20,33): error TS2339: Die Eigenschaft "preis" ist für den Typ "Artikel" nicht vorhanden.
+src/lager.ts(19,13): error TS7006: Der Parameter "k" weist implizit einen Typ "any" auf.
+src/lager.ts(3,5): error TS2551: Die Eigenschaft "mange" ist für den Typ "Posten" nicht vorhanden. Meinten Sie "menge"?
+src/versand.ts(29,18): error TS2322: Der Typ "string" kann dem Typ "number" nicht zugewiesen werden.
+src/versand.ts(24,15): error TS2339: Die Eigenschaft "preis" ist für den Typ "Artikel" nicht vorhanden.
+src/versand.ts(40,25): error TS7006: Der Parameter "k" weist implizit einen Typ "any" auf.
+src/versand.ts(28,39): error TS2551: Die Eigenschaft "mange" ist für den Typ "Posten" nicht vorhanden. Meinten Sie "menge"?
+src/rechnung.ts(89,18): error TS2322: Der Typ "string" kann dem Typ "number" nicht zugewiesen werden.
+src/rechnung.ts(26,17): error TS2339: Die Eigenschaft "preis" ist für den Typ "Artikel" nicht vorhanden.
+src/rechnung.ts(52,24): error TS7006: Der Parameter "k" weist implizit einen Typ "any" auf.
+src/rechnung.ts(5,28): error TS2551: Die Eigenschaft "mange" ist für den Typ "Posten" nicht vorhanden. Meinten Sie "menge"?
+src/kunde.ts(56,15): error TS2322: Der Typ "string" kann dem Typ "number" nicht zugewiesen werden.
+src/kunde.ts(21,21): error TS2339: Die Eigenschaft "preis" ist für den Typ "Artikel" nicht vorhanden.
+src/kunde.ts(11,26): error TS7006: Der Parameter "k" weist implizit einen Typ "any" auf.
+src/kunde.ts(41,5): error TS2551: Die Eigenschaft "mange" ist für den Typ "Posten" nicht vorhanden. Meinten Sie "menge"?
+src/kasse.ts(12,7): error TS2304: Der Name "steuersatz" wurde nicht gefunden.
+
+In 7 Dateien wurden 29 Fehler gefunden.

@@ -1,0 +1,13 @@
+src/kasse.ts
+  12:7 error TS2304 Der Name "steuersatz" wurde nicht gefunden.
+same in several files:
+  error TS2551 Die Eigenschaft "mange" ist für den Typ "Posten" nicht vorhanden. Meinten Sie "menge"?
+    at src/warenkorb.ts:34, src/kasse.ts:72, src/rabatt.ts:26, src/lager.ts:3, src/versand.ts:28, src/rechnung.ts:5, src/kunde.ts:41
+  error TS2339 Die Eigenschaft "preis" ist für den Typ "Artikel" nicht vorhanden.
+    at src/warenkorb.ts:48, src/kasse.ts:50, src/rabatt.ts:4, src/lager.ts:20, src/versand.ts:24, src/rechnung.ts:26, src/kunde.ts:21
+  error TS7006 Der Parameter "k" weist implizit einen Typ "any" auf.
+    at src/warenkorb.ts:6, src/kasse.ts:34, src/rabatt.ts:55, src/lager.ts:19, src/versand.ts:40, src/rechnung.ts:52, src/kunde.ts:11
+  error TS2322 Der Typ "string" kann dem Typ "number" nicht zugewiesen werden.
+    at src/warenkorb.ts:82, src/kasse.ts:23, src/rabatt.ts:76, src/lager.ts:23, src/versand.ts:29, src/rechnung.ts:89, src/kunde.ts:56
+In 7 Dateien wurden 29 Fehler gefunden.
+29 errors in 7 files

@@ -253,3 +253,8 @@ adversarial/tiny-fail	42	0	0
 adversarial/diff-constants	495	0	2
 adversarial/errors-near-dup	819	0	0
 adversarial/prose	261	0	0
+i18n/pytest-fail-ja	450	0	0
+i18n/app-zh	789	0	0
+i18n/readme-ja	675	0	10
+i18n/products-pl	1568	0	0
+i18n/tsc-de	378	15	0

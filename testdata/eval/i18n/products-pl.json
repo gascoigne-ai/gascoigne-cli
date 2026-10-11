@@ -1,0 +1,546 @@
+{
+  "produkty": [
+    {
+      "id": 3100,
+      "nazwa": "Fotel wypoczynkowy szary",
+      "cena": 1328.01,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3101,
+      "nazwa": "Krzesło biurowe czarny",
+      "cena": 981.54,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Krzesło biurowe wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3102,
+      "nazwa": "Szafka nocna szary",
+      "cena": 314.22,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3103,
+      "nazwa": "Biurko narożne szary",
+      "cena": 989.24,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3104,
+      "nazwa": "Szafka nocna orzech",
+      "cena": 1289.27,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3105,
+      "nazwa": "Szafka nocna szary",
+      "cena": 1297.04,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3106,
+      "nazwa": "Biurko narożne biały",
+      "cena": 1361.78,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3107,
+      "nazwa": "Lampa stojąca szary",
+      "cena": 533.13,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Lampa stojąca wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3108,
+      "nazwa": "Biurko narożne orzech",
+      "cena": 1186.42,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3109,
+      "nazwa": "Biurko narożne dąb",
+      "cena": 277.84,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3110,
+      "nazwa": "Biurko narożne orzech",
+      "cena": 1113.47,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3111,
+      "nazwa": "Lampa stojąca czarny",
+      "cena": 225.79,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Lampa stojąca wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3112,
+      "nazwa": "Półka ścienna szary",
+      "cena": 1202.81,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Półka ścienna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3113,
+      "nazwa": "Biurko narożne orzech",
+      "cena": 656.92,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3114,
+      "nazwa": "Fotel wypoczynkowy dąb",
+      "cena": 224.44,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3115,
+      "nazwa": "Szafka nocna biały",
+      "cena": 1374.04,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3116,
+      "nazwa": "Lampa stojąca dąb",
+      "cena": 1082.64,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Lampa stojąca wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3117,
+      "nazwa": "Fotel wypoczynkowy biały",
+      "cena": 797.93,
+      "waluta": "PLN",
+      "dostępność": "brak w magazynie",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3118,
+      "nazwa": "Fotel wypoczynkowy orzech",
+      "cena": 1221.01,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3119,
+      "nazwa": "Półka ścienna dąb",
+      "cena": 123.27,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Półka ścienna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3120,
+      "nazwa": "Szafka nocna szary",
+      "cena": 814.9,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3121,
+      "nazwa": "Szafka nocna czarny",
+      "cena": 295.64,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3122,
+      "nazwa": "Biurko narożne dąb",
+      "cena": 376.52,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3123,
+      "nazwa": "Biurko narożne biały",
+      "cena": 1395.92,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3124,
+      "nazwa": "Krzesło biurowe szary",
+      "cena": 176.34,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Krzesło biurowe wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3125,
+      "nazwa": "Fotel wypoczynkowy czarny",
+      "cena": 198.42,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3126,
+      "nazwa": "Krzesło biurowe biały",
+      "cena": 640.15,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Krzesło biurowe wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3127,
+      "nazwa": "Półka ścienna szary",
+      "cena": 588.94,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Półka ścienna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3128,
+      "nazwa": "Biurko narożne szary",
+      "cena": 615.15,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3129,
+      "nazwa": "Fotel wypoczynkowy dąb",
+      "cena": 1279.41,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3130,
+      "nazwa": "Biurko narożne czarny",
+      "cena": 729.07,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3131,
+      "nazwa": "Fotel wypoczynkowy biały",
+      "cena": 660.48,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3132,
+      "nazwa": "Biurko narożne szary",
+      "cena": 321.76,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3133,
+      "nazwa": "Szafka nocna dąb",
+      "cena": 545.41,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3134,
+      "nazwa": "Krzesło biurowe czarny",
+      "cena": 892.25,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Krzesło biurowe wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3135,
+      "nazwa": "Biurko narożne szary",
+      "cena": 913.31,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3136,
+      "nazwa": "Lampa stojąca biały",
+      "cena": 483.12,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Lampa stojąca wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3137,
+      "nazwa": "Krzesło biurowe orzech",
+      "cena": 1237.64,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Krzesło biurowe wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3138,
+      "nazwa": "Półka ścienna orzech",
+      "cena": 1353.13,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Półka ścienna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3139,
+      "nazwa": "Szafka nocna biały",
+      "cena": 1170.85,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3140,
+      "nazwa": "Biurko narożne czarny",
+      "cena": 380.63,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3141,
+      "nazwa": "Biurko narożne dąb",
+      "cena": 1213.24,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3142,
+      "nazwa": "Lampa stojąca czarny",
+      "cena": 231.22,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Lampa stojąca wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3143,
+      "nazwa": "Lampa stojąca szary",
+      "cena": 158.89,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Lampa stojąca wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3144,
+      "nazwa": "Lampa stojąca biały",
+      "cena": 565.32,
+      "waluta": "PLN",
+      "dostępność": "brak w magazynie",
+      "opis": "Lampa stojąca wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3145,
+      "nazwa": "Fotel wypoczynkowy czarny",
+      "cena": 892.1,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3146,
+      "nazwa": "Szafka nocna dąb",
+      "cena": 638.33,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3147,
+      "nazwa": "Półka ścienna orzech",
+      "cena": 1077.76,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Półka ścienna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3148,
+      "nazwa": "Półka ścienna szary",
+      "cena": 121.18,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Półka ścienna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3149,
+      "nazwa": "Szafka nocna dąb",
+      "cena": 1130.7,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3150,
+      "nazwa": "Lampa stojąca czarny",
+      "cena": 655.19,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Lampa stojąca wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3151,
+      "nazwa": "Krzesło biurowe orzech",
+      "cena": 1002.69,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Krzesło biurowe wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3152,
+      "nazwa": "Krzesło biurowe dąb",
+      "cena": 453.57,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Krzesło biurowe wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3153,
+      "nazwa": "Lampa stojąca biały",
+      "cena": 864.58,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Lampa stojąca wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3154,
+      "nazwa": "Szafka nocna czarny",
+      "cena": 1452.66,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3155,
+      "nazwa": "Szafka nocna dąb",
+      "cena": 988.6,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Szafka nocna wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3156,
+      "nazwa": "Fotel wypoczynkowy dąb",
+      "cena": 863.68,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3157,
+      "nazwa": "Fotel wypoczynkowy dąb",
+      "cena": 633.86,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Fotel wypoczynkowy wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/dom"
+    },
+    {
+      "id": 3158,
+      "nazwa": "Biurko narożne czarny",
+      "cena": 754.18,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    },
+    {
+      "id": 3159,
+      "nazwa": "Biurko narożne czarny",
+      "cena": 853.15,
+      "waluta": "PLN",
+      "dostępność": "dostępny",
+      "opis": "Biurko narożne wykonany z materiałów najwyższej jakości, łatwy w montażu, gwarancja 24 miesiące.",
+      "kategoria": "meble/biuro"
+    }
+  ],
+  "strona": 1,
+  "razem": 60
+}

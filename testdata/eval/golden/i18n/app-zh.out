@@ -1,0 +1,35 @@
+2026-09-03 08:00:00.563 INFO  [同步服务] 用户 u439 登录成功，来源 IP 10.0.474.400 (×48)
+2026-09-03 08:00:01.576 INFO  [同步服务] 缓存命中率 261%，键数量 438 (×43)
+2026-09-03 08:00:02.701 INFO  [同步服务] 订单同步完成，共 95 条记录，耗时 412ms (×49)
+… 36 repeats of lines above
+2026-09-03 08:00:39.495 INFO  [同步服务] 订单同步完成，共 39 条记录，耗时 47ms
+2026-09-03 08:00:40.313 INFO  [同步服务] 用户 u326 登录成功，来源 IP 10.0.125.8
+2026-09-03 08:00:41.715 ERROR [支付服务] 订单 ORD-58322 扣款失败：银行返回错误码 5047，余额不足
+Traceback (most recent call last):
+  File "/srv/pay/gateway.py", line 88, in charge
+    resp.raise_for_status()
+pay.errors.GatewayError: 余额不足 (code=5012)
+2026-09-03 08:00:42.737 INFO  [同步服务] 缓存命中率 66%，键数量 492 (×2)
+… 51 repeats of lines above
+2026-09-03 08:01:35.969 INFO  [同步服务] 订单同步完成，共 365 条记录，耗时 33ms (×2)
+2026-09-03 08:01:37.582 ERROR [支付服务] 订单 ORD-46066 扣款失败：银行返回错误码 5027，余额不足
+Traceback (most recent call last):
+  File "/srv/pay/gateway.py", line 88, in charge
+    resp.raise_for_status()
+pay.errors.GatewayError: 余额不足 (code=5012)
+2026-09-03 08:01:38.950 INFO  [同步服务] 缓存命中率 196%，键数量 321 (×2)
+… 18 repeats of lines above
+2026-09-03 08:01:58.564 INFO  [同步服务] 订单同步完成，共 321 条记录，耗时 455ms
+2026-09-03 08:01:59.106 INFO  [同步服务] 缓存命中率 282%，键数量 292
+2026-09-03 08:02:00.768 WARN  [库存服务] 商品 SKU-9235 库存低于阈值：剩余 3 件
+2026-09-03 08:02:01.915 INFO  [同步服务] 缓存命中率 238%，键数量 168
+2026-09-03 08:02:02.766 INFO  [同步服务] 订单同步完成，共 51 条记录，耗时 370ms
+… 8 repeats of lines above
+2026-09-03 08:02:11.988 INFO  [同步服务] 订单同步完成，共 220 条记录，耗时 410ms (×2)
+2026-09-03 08:02:13.803 ERROR [支付服务] 订单 ORD-28415 扣款失败：银行返回错误码 5060，余额不足
+Traceback (most recent call last):
+  File "/srv/pay/gateway.py", line 88, in charge
+    resp.raise_for_status()
+pay.errors.GatewayError: 余额不足 (code=5012)
+2026-09-03 08:02:14.252 INFO  [同步服务] 用户 u462 登录成功，来源 IP 10.0.371.266 (×2)
+… 24 repeats of lines above
