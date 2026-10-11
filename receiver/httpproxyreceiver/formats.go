@@ -43,7 +43,7 @@ func anthropic(ctx context.Context, r *Receiver, doc map[string]any, m meta) boo
 }
 
 // replaceContent shortens a string or the text blocks of a content list;
-// images and other blocks pass.
+// images above max_image_pixels are downscaled, other blocks pass.
 func replaceContent(ctx context.Context, r *Receiver, c call, content any, m meta) (any, bool) {
 	switch v := content.(type) {
 	case string:
@@ -53,6 +53,10 @@ func replaceContent(ctx context.Context, r *Receiver, c call, content any, m met
 		changed := false
 		for _, bv := range v {
 			b, _ := bv.(map[string]any)
+			if r.shrinkImages(ctx, b) {
+				changed = true
+				continue
+			}
 			text, ok := b["text"].(string)
 			if !ok || b["type"] != "text" && b["type"] != "input_text" && b["type"] != "output_text" {
 				continue
@@ -217,4 +221,33 @@ func answered(calls []*geminiCall, fr map[string]any) *geminiCall {
 		}
 	}
 	return nil
+}
+
+// shrinkImages downscales an Anthropic base64 image block in place.
+func (r *Receiver) shrinkImages(ctx context.Context, b map[string]any) bool {
+	if r.cfg.MaxImagePixels <= 0 || b["type"] != "image" {
+		return false
+	}
+	src, _ := b["source"].(map[string]any)
+	data, _ := src["data"].(string)
+	if src["type"] != "base64" || data == "" {
+		return false
+	}
+	mt, _ := src["media_type"].(string)
+	key := "image\x00" + cacheKey(call{name: mt}, data)
+	out, ok := r.cache.get(key)
+	if !ok {
+		var before, after int
+		var shrunk bool
+		out, before, after, shrunk = shrink(data, mt, r.cfg.MaxImagePixels)
+		if shrunk {
+			r.keepImage(ctx, data, mt, before, after)
+		}
+		r.cache.put(key, out)
+	}
+	if out == data {
+		return false
+	}
+	src["data"] = out
+	return true
 }

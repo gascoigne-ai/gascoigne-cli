@@ -27,6 +27,10 @@ type Config struct {
 	// CompactTools drops what tool schemas say twice (titles restating
 	// names, $schema markers); constraints the API checks stay.
 	CompactTools bool `yaml:"compact_tools"`
+	// MaxImagePixels downscales base64 PNG/JPEG images in tool results
+	// above this many pixels (aspect kept); 0 leaves images alone. Image
+	// tokens scale with area: 1280×800 is about half of 1920×1080.
+	MaxImagePixels int `yaml:"max_image_pixels"`
 }
 
 func (c *Config) Validate() error {
@@ -37,6 +41,9 @@ func (c *Config) Validate() error {
 	}
 	if c.FoldMinLines < 0 || c.FoldMinChars < 0 {
 		return errors.New("fold_min_lines and fold_min_chars must not be negative")
+	}
+	if c.MaxImagePixels < 0 {
+		return errors.New("max_image_pixels must not be negative")
 	}
 	if c.CacheEntries < 100 {
 		return errors.New("cache_entries must be >= 100")
