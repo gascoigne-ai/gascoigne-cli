@@ -303,3 +303,7 @@ make eval     # token savings and fact retention on fixtures
 ```
 
 Contributor and agent rules live in [`.harness/`](.harness/README.md).
+
+## License
+
+[Apache License 2.0](LICENSE).
