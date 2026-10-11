@@ -1,6 +1,7 @@
 package catoptimizer
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -118,5 +119,26 @@ func TestModeOverride(t *testing.T) {
 	p.Attrs[AttrMode] = ""
 	if err := opt(Outline).Optimize(t.Context(), p); err == nil {
 		t.Fatal("want error for invalid mode")
+	}
+}
+
+// Only a keyword before a brace makes its block a container.
+func TestBraceOutlineKeywordAfterBrace(t *testing.T) {
+	lines := strings.Split(`const cfg = { a: 1 }; class Shop {
+  total(items) {
+    let s = 0
+    for (const i of items) s += i
+    return s
+  }
+}
+run({ mode: "x" }, function main() {
+  one()
+  two()
+  three()
+})`, "\n")
+	got := opt(Outline).braceOutline(lines)
+	want := []span{{from: 2, to: 4}, {from: 8, to: 10}}
+	if !slices.Equal(got, want) {
+		t.Errorf("spans %v, want %v", got, want)
 	}
 }

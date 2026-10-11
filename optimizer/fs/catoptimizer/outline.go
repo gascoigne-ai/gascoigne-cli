@@ -47,6 +47,15 @@ func (o *Optimizer) braceOutline(lines []string) []span {
 	elide := map[int]int{} // first body line → last body line
 	inBlockComment := false
 	for i, l := range lines {
+		// A block opens in a container when a keyword precedes its brace:
+		// the line's first keyword ends before it. Found once per line, not
+		// per brace, so minified one-line sources stay linear.
+		kw := -1
+		if strings.IndexByte(l, '{') >= 0 {
+			if m := container.FindStringIndex(l); m != nil {
+				kw = m[1]
+			}
+		}
 		for j := 0; j < len(l); j++ {
 			c := l[j]
 			switch {
@@ -63,7 +72,7 @@ func (o *Optimizer) braceOutline(lines []string) []span {
 			case c == '"' || c == '\'' || c == '`':
 				j = skipString(l, j)
 			case c == '{':
-				stack = append(stack, open{i, container.MatchString(l[:j])})
+				stack = append(stack, open{i, kw >= 0 && kw <= j})
 			case c == '}' && len(stack) > 0:
 				top := stack[len(stack)-1]
 				stack = stack[:len(stack)-1]
