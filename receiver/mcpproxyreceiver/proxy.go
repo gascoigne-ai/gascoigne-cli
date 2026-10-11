@@ -14,6 +14,7 @@ import (
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/mcptool"
 	"github.com/lukaszb/gascoigne/payload"
+	"github.com/lukaszb/gascoigne/version"
 )
 
 type Receiver struct {
@@ -55,7 +56,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 		return nil
 	}
 	r.sessions = mcptool.NewSessions(ctx)
-	client := mcp.NewClient(&mcp.Implementation{Name: "gascoigne-proxy", Version: "0.1.0"}, nil)
+	client := mcp.NewClient(&mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}, nil)
 	cs, err := client.Connect(ctx, down, nil)
 	if err != nil {
 		return fmt.Errorf("connect downstream: %w", err)
@@ -65,7 +66,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 	init := cs.InitializeResult()
 	info := init.ServerInfo
 	if info == nil {
-		info = &mcp.Implementation{Name: "gascoigne-proxy", Version: "0.1.0"}
+		info = &mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}
 	}
 	s := mcp.NewServer(info, &mcp.ServerOptions{Instructions: init.Instructions, Logger: r.log})
 	for tool, err := range cs.Tools(ctx, nil) {

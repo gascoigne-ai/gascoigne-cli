@@ -17,9 +17,8 @@ import (
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/mcptool"
 	"github.com/lukaszb/gascoigne/payload"
+	"github.com/lukaszb/gascoigne/version"
 )
-
-const version = "0.1.0"
 
 type Receiver struct {
 	cfg       *Config
@@ -48,7 +47,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 }
 
 func (r *Receiver) server() *mcp.Server {
-	s := mcp.NewServer(&mcp.Implementation{Name: "gascoigne", Version: version}, &mcp.ServerOptions{
+	s := mcp.NewServer(&mcp.Implementation{Name: "gascoigne", Version: version.Number}, &mcp.ServerOptions{
 		Instructions: "Use fetch for web pages and HTTP APIs, compress for large text you already have. " +
 			"Results may be optimized; when a detail is missing call " + r.cfg.Retrieve + " with the id from the hint.",
 		Logger: r.log,
@@ -81,7 +80,7 @@ func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in Fetc
 	if err != nil {
 		return nil, nil, err
 	}
-	req.Header.Set("User-Agent", "gascoigne/"+version)
+	req.Header.Set("User-Agent", "gascoigne/"+version.Number)
 	resp, err := r.http.Do(req)
 	if err != nil {
 		return nil, nil, err

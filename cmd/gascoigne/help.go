@@ -8,6 +8,8 @@ import (
 	"os"
 	"slices"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/version"
 )
 
 // command is one subcommand: how it runs and how help presents it.
@@ -157,6 +159,10 @@ func init() {
 		{name: "help", args: "[command]", group: groupDev,
 			summary: "this overview, or a command's flags and examples",
 			run:     cmdHelp},
+		{name: "version", group: groupDev,
+			summary:  "release and the git commit it was built from",
+			examples: []string{"gascoigne version", "gascoigne --version"},
+			run:      cmdVersion},
 	}
 }
 
@@ -241,7 +247,7 @@ func painterFor(w io.Writer) painter {
 
 func printOverview(w io.Writer) {
 	p := painterFor(w)
-	fmt.Fprintf(w, "%s shrinks what LLM agents read, keeping every original retrievable.\n\n", p.paint(bold, "gascoigne"))
+	fmt.Fprintf(w, "%s %s shrinks what LLM agents read, keeping every original retrievable.\n\n", p.paint(bold, "gascoigne"), p.paint(dim, version.String()))
 	fmt.Fprintf(w, "%s\n  gascoigne %s %s\n", p.paint(bold, "USAGE"), p.paint(cyan, "<command>"), p.paint(dim, "[flags]"))
 	const width = 26
 	for _, g := range groups {
@@ -374,4 +380,12 @@ func wrap(s string, n int) []string {
 		line += word
 	}
 	return append(lines, line)
+}
+
+func cmdVersion(_ context.Context, args []string) error {
+	if err := newFlags("version").Parse(args); err != nil {
+		return err
+	}
+	fmt.Println("gascoigne", version.String())
+	return nil
 }

@@ -31,8 +31,11 @@ func main() {
 		os.Exit(2)
 	}
 	name := os.Args[1]
-	if name == "-h" || name == "-help" || name == "--help" {
+	switch name {
+	case "-h", "-help", "--help":
 		name = "help"
+	case "-v", "-version", "--version":
+		name = "version"
 	}
 	cmd, ok := lookup(name)
 	if !ok {

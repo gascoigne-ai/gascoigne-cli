@@ -22,14 +22,16 @@ import (
 	"time"
 
 	"github.com/lukaszb/gascoigne/extension/ledger"
+	"github.com/lukaszb/gascoigne/version"
 )
 
 const defaultServerAddr = "127.0.0.1:7878"
 
 // serverInfo is what a running server says about itself.
 type serverInfo struct {
-	PID   int    `json:"pid"`
-	Build string `json:"build"`
+	PID     int    `json:"pid"`
+	Version string `json:"version"` // release and commit, for people; Build decides replacement
+	Build   string `json:"build"`
 	// Modified is when the binary was built or installed: an older one never
 	// replaces a newer server.
 	Modified time.Time `json:"modified"`
@@ -92,8 +94,8 @@ func cmdServer(ctx context.Context, args []string) error {
 			return nil
 		}
 		if sub == "status" {
-			fmt.Printf("gascoigne server: running on http://%s\n  pid %d, up %s, exits after %s idle\n  ledger %s\n  build %s\n",
-				info.Addr, info.PID, time.Since(info.Started).Round(time.Second), cmp.Or(info.Idle, "never"), info.Ledger, info.Build)
+			fmt.Printf("gascoigne server: running on http://%s\n  version %s, pid %d, up %s, exits after %s idle\n  ledger %s\n  build %s\n",
+				info.Addr, cmp.Or(info.Version, "unknown"), info.PID, time.Since(info.Started).Round(time.Second), cmp.Or(info.Idle, "never"), info.Ledger, info.Build)
 			return nil
 		}
 		if err := stopServer(addr); err != nil {
@@ -120,7 +122,7 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Dur
 	ctx, stop := context.WithCancel(ctx)
 	defer stop()
 	b, modified := binary()
-	info := serverInfo{PID: os.Getpid(), Build: b, Modified: modified, Ledger: l.Path(), Addr: ln.Addr().String(), Started: time.Now()}
+	info := serverInfo{PID: os.Getpid(), Version: version.String(), Build: b, Modified: modified, Ledger: l.Path(), Addr: ln.Addr().String(), Started: time.Now()}
 	if idle > 0 {
 		info.Idle = idle.String()
 	}
