@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>gascoigne · Token Savings</title>
+<link rel="icon" id="favicon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Ccircle cx=%2224%22 cy=%2224%22 r=%2219%22 fill=%22%23ece4e2%22/%3E%3C/svg%3E">
 <script>
 // Apply the saved theme before first paint to avoid a flash.
 try { const t = localStorage.getItem("gascoigne-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}
@@ -507,6 +508,9 @@ function setMoon(saved) {
   $("moon-lit-shape").setAttribute("d", d);
   $("moon-lit-path").setAttribute("d", d);
   $("moon").title = `${fmtPct(saved)} of tokens saved`;
+  // The tab icon is the same moon, so the phase shows from other tabs too.
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19" fill="#4a1a2c" stroke="#c9bcbf" stroke-width="1.5"/><path d="${d}" fill="#ece4e2"/></svg>`;
+  $("favicon").href = "data:image/svg+xml," + encodeURIComponent(svg);
 }
 setMoon(50);
 
@@ -906,6 +910,7 @@ async function refreshServer() {
     const h = await getJSON("/api/health");
     const up = Math.round((Date.now() - new Date(h.started)) / 60000);
     $("version").textContent = h.version ? "v" + h.version : "";
+    if (h.version) document.title = `gascoigne v${h.version.split(" ")[0]} · Token Savings`;
     $("server-info").textContent = `gascoigne ${h.version || "unknown version"} · server PID ${h.pid} on ${h.addr} · uptime ${up < 60 ? up + "m" : Math.floor(up / 60) + "h " + (up % 60) + "m"} · ledger ${h.ledger}`;
   } catch { $("server-info").textContent = "Server not responding"; }
 }

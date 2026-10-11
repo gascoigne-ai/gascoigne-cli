@@ -8,7 +8,7 @@ import (
 )
 
 // Number is the release.
-const Number = "0.2.0"
+const Number = "0.2.1"
 
 // Commit is the short git hash the binary was built from, with "-dirty"
 // when the work tree had uncommitted changes, or "unknown" when the build
@@ -40,5 +40,5 @@ func commit(settings []debug.BuildSetting) string {
 	return rev
 }
 
-// String is "0.2.0 (abc1234)".
+// String is "0.2.1 (abc1234)".
 func String() string { return Number + " (" + Commit() + ")" }
