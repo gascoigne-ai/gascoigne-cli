@@ -54,5 +54,12 @@ as the agent's default (`claude` → `claude-opus-5-5`, `codex` → `gpt-5.3-cod
 `gemini` → `gemini-3.1-pro`) and marked `*`. Models with no known price are listed as
 *not priced*.
 
-Prices are list prices as of 2026-10-10, from Anthropic's model table and the OpenAI and Google
-pricing pages, in `cost/cost.go`. Batch, priority and regional pricing are not modeled.
+Prices are list prices (standard tier, short context) checked 2026-10-11, in `cost/cost.go`:
+
+- Anthropic: <https://platform.claude.com/docs/en/about-claude/pricing>
+- OpenAI: <https://developers.openai.com/api/docs/pricing>
+- Google: <https://ai.google.dev/gemini-api/docs/pricing>
+
+Batch, flex, fast/priority, regional and long-context pricing are not modeled; promotional prices
+(gpt-5.6-sol, Gemini 3.6/3.8 Flash until 2027-01-01) are used while they last. Model IDs match by
+prefix, so variants priced differently (`-pro`, `-lite`, `-terra`) have their own rows.

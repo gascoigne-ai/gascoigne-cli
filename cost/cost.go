@@ -57,42 +57,73 @@ func claude(id, tok string, in, out, read float64) Model {
 }
 
 // automatic prices a model whose provider caches by itself: no write
-// premium, cached input at read.
+// premium, cached input at read. Models with no cached price pass read = in.
 func automatic(id, tok string, in, out, read float64) Model {
 	return Model{ID: id, Tokenizer: tok, Input: in, Output: out, CacheWrite: in, CacheRead: read}
 }
 
-// Models are list prices (2026-10-10): Anthropic's model table, OpenAI's
-// and Google's pricing pages. IDs match by prefix, so dated or suffixed
-// variants (claude-opus-5-5[1m]) find their model.
+// written prices a model whose provider bills cache writes: OpenAI's
+// models since gpt-5.6 list them at 1.25x input.
+func written(id, tok string, in, out, read float64) Model {
+	return Model{ID: id, Tokenizer: tok, Input: in, Output: out, CacheWrite: in * 1.25, CacheRead: read}
+}
+
+// Models are list prices, standard tier, short context, checked 2026-10-11:
+//   - https://platform.claude.com/docs/en/about-claude/pricing
+//   - https://developers.openai.com/api/docs/pricing
+//   - https://ai.google.dev/gemini-api/docs/pricing
+//
+// Tiers by prompt length (Haiku 5.5 over 100k, gpt-5.x over 272k, Gemini Pro
+// over 200k) take the short-context price. Promotions in force: gpt-5.6-sol
+// (through 2026-11-21), gemini-3.8-flash and gemini-3.6-flash (doubling on
+// 2027-01-01). IDs match by prefix, so dated or suffixed variants
+// (claude-opus-5-5[1m]) find their model; variants priced apart (-pro, -lite,
+// -terra) need their own row.
 var Models = []Model{
 	claude("claude-fable-5-1", "claude", 10, 50, 0.25),
 	claude("claude-fable-5", "claude", 10, 50, 1.00),
 	claude("claude-mythos-5-1", "claude", 10, 50, 0.25),
+	claude("claude-mythos-5", "claude", 10, 50, 1.00),
 	claude("claude-opus-5-5", "claude", 4, 20, 0.20),
 	claude("claude-opus-5", "claude", 5, 25, 0.50),
 	claude("claude-opus-4-8", "claude", 5, 25, 0.50),
 	claude("claude-opus-4-7", "claude", 5, 25, 0.50),
 	claude("claude-opus-4-6", "claude-legacy", 5, 25, 0.50),
-	claude("claude-sonnet-5-5", "claude", 2, 10, 0.20),
+	claude("claude-opus-4-5", "claude-legacy", 5, 25, 0.50),
+	claude("claude-sonnet-5-5", "claude", 2, 10, 0.10),
 	claude("claude-sonnet-5", "claude", 2, 10, 0.20),
 	claude("claude-sonnet-4-6", "claude-legacy", 3, 15, 0.30),
+	claude("claude-sonnet-4-5", "claude-legacy", 3, 15, 0.30),
+	claude("claude-haiku-5-5", "claude", 0.10, 0.50, 0.01),
 	claude("claude-haiku-4-5", "claude-legacy", 1, 5, 0.10),
-	automatic("gpt-5.6-sol", "o200k", 4, 20, 0.40),
+	written("gpt-6-astra", "o200k", 10, 50, 1.00),
+	written("gpt-6.1-sol", "o200k", 2, 10, 0.10),
+	written("gpt-6-sol", "o200k", 2, 10, 0.20),
+	written("gpt-6-luna", "o200k", 0.10, 0.50, 0.01),
+	written("gpt-5.6-sol", "o200k", 4, 20, 0.40),
+	written("gpt-5.6-terra", "o200k", 2, 12, 0.20),
+	written("gpt-5.6-luna", "o200k", 0.20, 1.20, 0.02),
+	automatic("gpt-5.5-pro", "o200k", 30, 180, 30),
 	automatic("gpt-5.5", "o200k", 5, 30, 0.50),
+	automatic("gpt-5.4-pro", "o200k", 30, 180, 30),
 	automatic("gpt-5.4-mini", "o200k", 0.75, 4.5, 0.075),
 	automatic("gpt-5.4-nano", "o200k", 0.20, 1.25, 0.02),
 	automatic("gpt-5.4", "o200k", 2.5, 15, 0.25),
 	automatic("gpt-5.3-codex", "o200k", 1.75, 14, 0.175),
+	automatic("gpt-5.2-pro", "o200k", 21, 168, 21),
 	automatic("gpt-5.2", "o200k", 1.75, 14, 0.175),
 	automatic("gpt-5.1", "o200k", 1.25, 10, 0.125),
+	automatic("gpt-5-pro", "o200k", 15, 120, 15),
 	automatic("gpt-5-mini", "o200k", 0.25, 2, 0.025),
 	automatic("gpt-5-nano", "o200k", 0.05, 0.40, 0.005),
 	automatic("gpt-5", "o200k", 1.25, 10, 0.125),
 	automatic("gemini-3.8-flash", "gemini", 0.75, 3.75, 0.075),
 	automatic("gemini-3.6-flash", "gemini", 0.75, 3.75, 0.075),
+	automatic("gemini-3.5-flash-lite", "gemini", 0.30, 2.50, 0.03),
+	automatic("gemini-3.1-flash-lite", "gemini", 0.25, 1.50, 0.025),
 	automatic("gemini-3.1-pro", "gemini", 2, 12, 0.20),
 	automatic("gemini-2.5-pro", "gemini", 1.25, 10, 0.125),
+	automatic("gemini-2.5-flash-lite", "gemini", 0.10, 0.40, 0.01),
 	automatic("gemini-2.5-flash", "gemini", 0.30, 2.50, 0.03),
 }
 

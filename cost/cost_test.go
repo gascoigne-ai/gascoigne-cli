@@ -14,6 +14,12 @@ func TestLookup(t *testing.T) {
 		{"gpt-5.4-mini-2026-03-01", "gpt-5.4-mini"},
 		{"gpt-5.3-codex", "gpt-5.3-codex"},
 		{"gemini-3.1-pro-preview", "gemini-3.1-pro"},
+		// Variants priced apart must not fall back to their base model's prefix.
+		{"gpt-5.5-pro", "gpt-5.5-pro"},
+		{"gpt-5.6-terra", "gpt-5.6-terra"},
+		{"gemini-2.5-flash-lite", "gemini-2.5-flash-lite"},
+		{"claude-haiku-5-5", "claude-haiku-5-5"},
+		{"gpt-6.1-sol", "gpt-6.1-sol"},
 		{"llama-4", ""},
 	}
 	for _, tt := range tests {
