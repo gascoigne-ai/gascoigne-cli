@@ -152,6 +152,11 @@ func claudeSettings(exe string) map[string]any {
 				"matcher": "Bash|Grep|mcp__.*",
 				"hooks":   []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
 			}},
+			// Starts the background server again before the first request
+			// after it exited idle (the LLM proxy lives in it).
+			"UserPromptSubmit": []any{map[string]any{
+				"hooks": []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
+			}},
 			// Adds the usage guide at start, and again after compaction or /clear.
 			"SessionStart": []any{map[string]any{
 				"hooks": []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
@@ -200,6 +205,7 @@ func codexArgs(exe string) ([]string, error) {
 	return append([]string{
 		"-c", fmt.Sprintf(`mcp_servers.gascoigne={command=%s,args=["mcp"]}`, strconv.Quote(exe)),
 		"-c", fmt.Sprintf(`hooks.PostToolUse=[{matcher=%s,hooks=[{type="command",command=%s}]}]`, strconv.Quote(codexMatcher), strconv.Quote(hookCommand(exe, "codex"))),
+		"-c", fmt.Sprintf(`hooks.UserPromptSubmit=[{hooks=[{type="command",command=%s}]}]`, strconv.Quote(hookCommand(exe, "codex"))),
 	}, proxies...), nil
 }
 
@@ -257,7 +263,13 @@ matcher = %s
 [[hooks.PostToolUse.hooks]]
 type = "command"
 command = %s
-`, strconv.Quote(exe), strconv.Quote(codexMatcher), strconv.Quote(hookCommand(exe, "codex")))
+
+[[hooks.UserPromptSubmit]]
+
+[[hooks.UserPromptSubmit.hooks]]
+type = "command"
+command = %s
+`, strconv.Quote(exe), strconv.Quote(codexMatcher), strconv.Quote(hookCommand(exe, "codex")), strconv.Quote(hookCommand(exe, "codex")))
 }
 
 // codexMatcher: shell commands and every MCP server's tools (the hook

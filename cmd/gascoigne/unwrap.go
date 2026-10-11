@@ -98,6 +98,9 @@ func removeClaudeSettings(root *object) []string {
 	if n := removeHooks(root, "PostToolUse", ourHook("claude")); n > 0 {
 		what = append(what, "PostToolUse hook")
 	}
+	if n := removeHooks(root, "UserPromptSubmit", ourHook("claude")); n > 0 {
+		what = append(what, "UserPromptSubmit hook")
+	}
 	what = append(what, removeClaudeProxy(root)...)
 	if env, ok := root.get("env").(*object); ok && env.get("GASCOIGNE_AGENT") == "claude" {
 		env.del("GASCOIGNE_AGENT")
@@ -298,9 +301,10 @@ func removeCodexEntries(text string) (string, []string) {
 			if !slices.Contains(what, "MCP server gascoigne") {
 				what = append(what, "MCP server gascoigne")
 			}
-		case s.header == "[[hooks.PostToolUse]]":
+		case strings.HasPrefix(s.header, "[[hooks.") && !strings.HasSuffix(s.header, ".hooks]]"):
+			event := strings.TrimSuffix(strings.TrimPrefix(s.header, "[[hooks."), "]]")
 			var handlers, ours []int
-			for j := i + 1; j < len(sections) && sections[j].header == "[[hooks.PostToolUse.hooks]]"; j++ {
+			for j := i + 1; j < len(sections) && sections[j].header == "[[hooks."+event+".hooks]]"; j++ {
 				handlers = append(handlers, j)
 				if strings.Contains(sections[j].body, "gascoigne") && strings.Contains(sections[j].body, ` hook codex"`) {
 					ours = append(ours, j)
@@ -313,7 +317,7 @@ func removeCodexEntries(text string) (string, []string) {
 				drop[j] = true
 			}
 			drop[i] = len(ours) == len(handlers)
-			what = append(what, "PostToolUse hook")
+			what = append(what, event+" hook")
 		}
 	}
 	if len(what) == 0 {

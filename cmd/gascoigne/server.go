@@ -36,6 +36,7 @@ type serverInfo struct {
 	Ledger   string    `json:"ledger"`
 	Addr     string    `json:"addr"`
 	Started  time.Time `json:"started"`
+	Idle     string    `json:"idle,omitempty"` // exits after this long without a request; "" never
 }
 
 // serverAddr is where the one server per user listens.
@@ -53,13 +54,17 @@ func cmdServer(ctx context.Context, args []string) error {
 		sub, args = args[0], args[1:]
 	}
 	var addr string
+	var idle time.Duration
 	flags := func(fs *flag.FlagSet) {
 		fs.StringVar(&addr, "addr", serverAddr(), "listen `address`, loopback only (default $GASCOIGNE_SERVER_ADDR or "+defaultServerAddr+")")
+		if sub == "run" {
+			fs.DurationVar(&idle, "idle", serverIdle(), "exit after this long without a request, 0 never (default $GASCOIGNE_SERVER_IDLE or 30m)")
+		}
 	}
 	switch sub {
 	case "run":
 		err := withLedger(ctx, "server run", args, 0, flags, func(l *ledger.Ledger, _ *common, _ []string) error {
-			return runServer(ctx, l, addr)
+			return runServer(ctx, l, addr, idle)
 		})
 		if errors.Is(err, errNewBuild) {
 			// The ledger is closed and the port free: the new binary takes over.
@@ -87,8 +92,8 @@ func cmdServer(ctx context.Context, args []string) error {
 			return nil
 		}
 		if sub == "status" {
-			fmt.Printf("gascoigne server: running on http://%s\n  pid %d, up %s\n  ledger %s\n  build %s\n",
-				info.Addr, info.PID, time.Since(info.Started).Round(time.Second), info.Ledger, info.Build)
+			fmt.Printf("gascoigne server: running on http://%s\n  pid %d, up %s, exits after %s idle\n  ledger %s\n  build %s\n",
+				info.Addr, info.PID, time.Since(info.Started).Round(time.Second), cmp.Or(info.Idle, "never"), info.Ledger, info.Build)
 			return nil
 		}
 		if err := stopServer(addr); err != nil {
@@ -107,7 +112,7 @@ var errNewBuild = errors.New("binary changed")
 // runServer serves the dashboard in the foreground until ctx ends or a
 // client asks it to stop. It returns errNewBuild once its binary changes,
 // so the new version restarts it.
-func runServer(ctx context.Context, l *ledger.Ledger, addr string) error {
+func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Duration) error {
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
@@ -116,6 +121,9 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string) error {
 	defer stop()
 	b, modified := binary()
 	info := serverInfo{PID: os.Getpid(), Build: b, Modified: modified, Ledger: l.Path(), Addr: ln.Addr().String(), Started: time.Now()}
+	if idle > 0 {
+		info.Idle = idle.String()
+	}
 	w := newWarm(ctx, info.Build, info.Ledger)
 	defer w.Close()
 	mux := http.NewServeMux()
@@ -134,7 +142,12 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string) error {
 		waitIdle(ctx, proxy) // agents' streams finish first
 		stop()
 	})
-	srv := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
+	act := newActivity(time.Now())
+	go watchIdle(ctx, act, idle, min(time.Minute, max(idle/10, time.Second)), func() {
+		fmt.Fprintf(os.Stderr, "gascoigne server: idle for %s, exiting\n", idle)
+		stop()
+	})
+	srv := &http.Server{Handler: act.track(mux), ReadHeaderTimeout: 5 * time.Second}
 	go func() {
 		<-ctx.Done()
 		srv.Shutdown(context.WithoutCancel(ctx))
@@ -269,7 +282,7 @@ func serverEnv(env []string) []string {
 	return slices.DeleteFunc(slices.Clone(env), func(kv string) bool {
 		k, _, _ := strings.Cut(kv, "=")
 		return strings.HasPrefix(k, "GASCOIGNE_") &&
-			!slices.Contains([]string{ledger.EnvPath, "GASCOIGNE_CONFIG", "GASCOIGNE_SERVER_ADDR"}, k)
+			!slices.Contains([]string{ledger.EnvPath, "GASCOIGNE_CONFIG", "GASCOIGNE_SERVER_ADDR", "GASCOIGNE_SERVER_IDLE"}, k)
 	})
 }
 

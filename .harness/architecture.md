@@ -266,7 +266,11 @@ dir) by commands with `common.server` set (`exec`, `serve` for mcp/mcp-proxy, th
 `optimize`) and by `wrap`, when `/api/health` does not answer. Health reports pid, build (binary
 path+size+mtime hash), binary mtime and ledger path: an older build is replaced (stop + spawn),
 a newer one kept, another ledger left alone. The server stats its binary every 2 s; a new build
-seen twice in a row → shut down, close the ledger, spawn the new binary (`watchBinary`). Server mode (`remote.go`): `exec`, `run` and the codex hook (`common.useServer`)
+seen twice in a row → shut down, close the ledger, spawn the new binary (`watchBinary`). Idle exit
+(`idle.go`): requests in flight and the last one's end are tracked (`/api/health` excluded; an
+open stream counts), after `-idle`/`GASCOIGNE_SERVER_IDLE` (30m, 0 never) the server shuts down;
+commands start it again (`ensureServer`), and agents' UserPromptSubmit hooks (claude, codex;
+opencode `chat.message`) bring it back before the next API request reaches the proxy. Server mode (`remote.go`): `exec`, `run` and the codex hook (`common.useServer`)
 build only their pipeline's receivers and exporters (`service.Options.Remote`) and POST the
 payload to `/api/optimize`, where a warm service per config hash (defaults+user file and
 overrides; receivers/exporters stripped, ≤ 8 kept, one payload at a time) runs

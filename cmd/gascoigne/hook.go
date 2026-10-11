@@ -55,6 +55,16 @@ func cmdHook(ctx context.Context, args []string) error {
 		fmt.Fprintln(os.Stderr, "gascoigne hook: read event:", err)
 		return nil
 	}
+	if in.HookEventName == "UserPromptSubmit" {
+		// The server exits when idle; a prompt is where an agent starts
+		// talking to its API again, so bring it back first.
+		if !serverOff() {
+			if err := serverUp(); err != nil {
+				fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
+			}
+		}
+		return nil
+	}
 	if c.agent == "" && os.Getenv("GASCOIGNE_AGENT") == "" {
 		c.agent = name
 	}

@@ -162,6 +162,10 @@ The dashboard is served by one background process per user, like a build daemon:
 - **Stays out of the way.** With no server, another build, or a server that fails, the command
   builds the pipeline itself, so a stopped or broken server never fails an agent. A server
   serving another ledger (for example an isolated `GASCOIGNE_LEDGER`) is left alone.
+- **Exits when idle.** After 30 minutes without a request (health checks don't count, an open
+  dashboard does) it shuts down; the next command, or an agent's next prompt through its
+  UserPromptSubmit hook, starts it again. `gascoigne server run -idle 2h` or
+  `GASCOIGNE_SERVER_IDLE=2h` changes it, `0` keeps it running.
 - **Detached.** It runs in its own session and outlives the terminal or agent that started it.
   Its log is `~/.cache/gascoigne/server.log` (`$XDG_CACHE_HOME`).
 

@@ -23,12 +23,18 @@ import { execFileSync } from "node:child_process";
 
 export const Gascoigne = async () => {
   process.env.GASCOIGNE_AGENT ??= "opencode";
+  const hook = (event: any) => execFileSync(%[1]s, ["hook", "opencode"], { input: JSON.stringify(event) }).toString();
   return {
+    // Starts the background server again before a prompt's first request
+    // after it exited idle (the LLM proxy lives in it).
+    "chat.message": async () => {
+      try { hook({ hook_event_name: "UserPromptSubmit" }); } catch {}
+    },
     "tool.execute.before": async (input: any, output: any) => {
       if (input.tool !== "bash" || typeof output.args?.command !== "string") return;
       try {
         const event = { session_id: input.sessionID, tool_input: output.args };
-        const out = execFileSync(%s, ["hook", "opencode"], { input: JSON.stringify(event) }).toString();
+        const out = hook(event);
         if (out.trim()) output.args.command = JSON.parse(out).command;
       } catch {}
     },

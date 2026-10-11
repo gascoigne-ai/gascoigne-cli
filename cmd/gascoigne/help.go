@@ -123,8 +123,10 @@ func init() {
 		{name: "server", args: "[run|start|stop|status] [flags]", short: "[start|stop|status]", group: groupServer,
 			summary: "the background server behind the dashboard, one per user",
 			about: "Commands that optimize start it when it is not answering; exec, run and the codex hook\n" +
-				"then optimize through it. It restarts itself when its binary changes.\n" +
-				"GASCOIGNE_SERVER=off keeps every command off it.",
+				"then optimize through it, and it serves the LLM proxy under /v1/. It restarts itself when\n" +
+				"its binary changes and exits after 30m without a request (run -idle, GASCOIGNE_SERVER_IDLE,\n" +
+				"0 never); the next command or agent prompt starts it again. GASCOIGNE_SERVER=off keeps\n" +
+				"every command off it.",
 			examples: []string{"gascoigne server status", "gascoigne server stop"},
 			run:      cmdServer},
 
