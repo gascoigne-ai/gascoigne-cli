@@ -37,7 +37,7 @@ func TestInstructions(t *testing.T) {
 
 func TestRecordPromptsOncePerBlock(t *testing.T) {
 	r, _, _, _, _ := setup(t)
-	l := &memLedger{}
+	l := &memLedger{raw: map[string]string{}}
 	r.ledger = l
 	doc := map[string]any{"system": "You are an agent.", "messages": []any{
 		map[string]any{"role": "user", "content": "<system-reminder>The following skills are available: x</system-reminder>"}}}
@@ -49,6 +49,9 @@ func TestRecordPromptsOncePerBlock(t *testing.T) {
 	}
 	if want := []string{"system prompt/prompt/unchanged", "skills/prompt/unchanged"}; !slices.Equal(kinds, want) {
 		t.Fatalf("events %q, want %q", kinds, want)
+	}
+	if id := l.events[0].RawID; id == "" || l.raw[id] != "You are an agent." {
+		t.Fatalf("system prompt not kept: id %q, raw %q", id, l.raw[id])
 	}
 	if promptKind("<system-reminder>Contents of /p/CLAUDE.md (project instructions)") != "CLAUDE.md" ||
 		promptKind("<system-reminder>todo list empty</system-reminder>") != "reminder" {

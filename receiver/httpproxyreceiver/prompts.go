@@ -9,6 +9,7 @@ import (
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/lukaszb/gascoigne/payload"
 	"github.com/lukaszb/gascoigne/tokens"
 )
 
@@ -84,10 +85,18 @@ func (r *Receiver) recordPrompt(ctx context.Context, text string, m meta) {
 		return
 	}
 	r.cache.put(key, "")
+	// The text is kept like an original (gascoigne raw <id>, the dashboard's
+	// run view), so what an agent was told can be read back.
+	p := payload.New(payload.Message, text)
+	p.Set(payload.AttrTool, "prompt")
+	id, err := r.ledger.SaveRaw(ctx, key, p)
+	if err != nil {
+		r.log.Warn("save instructions", "err", err)
+	}
 	n := tokens.Estimate(text)
-	err := r.ledger.Record(ctx, component.Event{
+	err = r.ledger.Record(ctx, component.Event{
 		TS: time.Now(), Agent: m.agent, Model: m.model, Pipeline: "proxy", Key: key, Route: "prompt",
-		Command: promptKind(text), RawTokens: n, OutTokens: n, Outcome: component.Unchanged,
+		Command: promptKind(text), RawTokens: n, OutTokens: n, RawID: id, Output: text, Outcome: component.Unchanged,
 		Reason: "instruction text, sent with every request (recorded once per distinct block)",
 	})
 	if err != nil {
