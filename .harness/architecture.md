@@ -169,7 +169,7 @@ system/developer messages and `instructions`, Gemini `systemInstruction` → one
 per distinct block (route `prompt`, command `system prompt`/`CLAUDE.md`/`skills`/`reminder`), so
 `gain -by command` shows what instruction text costs; the text is kept as the run's original
 (`gascoigne raw <id>`, dashboard run view; pruned with `raw_ttl` like other originals). Skills (`skills.go`): invoked skill bodies (user text starting `Base directory for this skill:`)
-recorded once per body (route `skill`, command `skill <name>`); with `skill_code_lines` code
+recorded once per body with their text kept (route `skill`, command `skill <name>`); with `skill_code_lines` code
 blocks longer than that keep their head plus `… N more lines: gascoigne raw <id> -lines a-b`,
 HTML comments go (measured: a 30k-token bundled skill is prose and tables, −0.3%). Images (`images.go`, `max_image_pixels`, 0 = off):
 base64 PNG/JPEG blocks in tool results above the cap are box-downscaled (deterministic, cached
@@ -268,8 +268,12 @@ Lives in core (`service/pipeline.go`), not in optimizers:
 5. Retrieval: `gascoigne raw <id>`, MCP `retrieve` / `gascoigne_retrieve` (later HTTP proxy `GET /raw/<id>`).
 
 ## Ledger (gorm + sqlite, `extension/ledger`)
-Raw ids are sha256 prefixes of the original, 8 hex digits unless that prefix holds another
-original (then 12, 16, 64): ~7 fewer tokens in every hint, still content-addressed and unique.
+Raw ids are sha256 prefixes of the original's text (attrs aside: the same output from two
+sessions is stored once), 8 hex digits unless that prefix holds another text (then 12, 16, 64):
+~7 fewer tokens in every hint, still content-addressed and unique. Source keys over 200 bytes
+(whole command lines, heredocs) are stored as a 160-byte prefix + `…#<hash>` (`keys.go`
+`storedKey`, applied by every method); ledgers from before were converted once (`PRAGMA
+user_version` 1) and vacuumed: 22 MB → 6 MB on a real one, mostly the key index.
 Tables: `events` (every trip: route, tokens, outcome), `raw` (originals gzip-compressed, plain
 JSON rows from before still read; TTL-pruned, `gascoigne flush [-older]` / `POST /api/flush` delete and VACUUM),
 `failures` (per-key count). Gorm models in `models.go`; `AutoMigrate` on Start adds new

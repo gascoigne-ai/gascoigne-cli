@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/lukaszb/gascoigne/component"
 	"github.com/lukaszb/gascoigne/payload"
@@ -461,8 +461,7 @@ func TestRawIDShortAndUnique(t *testing.T) {
 
 	// Another original already holding the next one's 8-hex prefix.
 	q := payload.New(payload.CmdOutput, "other\n")
-	blob, _ := json.Marshal(q)
-	sum := sha256.Sum256(blob)
+	sum := sha256.Sum256([]byte(q.Text()))
 	prefix := hex.EncodeToString(sum[:])[:8]
 	other, _ := pack([]byte(`{"blocks":[]}`))
 	if err := l.db.Create(&raw{ID: prefix, Key: "cmd:y", Payload: other}).Error; err != nil {
@@ -474,5 +473,59 @@ func TestRawIDShortAndUnique(t *testing.T) {
 	}
 	if _, got, err := l.GetRaw(ctx, id2); err != nil || got.Text() != "other\n" {
 		t.Fatalf("GetRaw(%s) = %v, %v", id2, got, err)
+	}
+}
+
+func TestRawSameTextStoredOnce(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	a := payload.New(payload.CmdOutput, "same output\n")
+	a.Set(payload.AttrSession, "s1")
+	b := payload.New(payload.CmdOutput, "same output\n")
+	b.Set(payload.AttrSession, "s2")
+	ida, _ := l.SaveRaw(ctx, "cmd:x", a)
+	idb, _ := l.SaveRaw(ctx, "cmd:x", b)
+	var n int64
+	l.db.Model(&raw{}).Count(&n)
+	if ida != idb || n != 1 {
+		t.Fatalf("ids %s %s, %d rows; want one", ida, idb, n)
+	}
+}
+
+func TestLongKeys(t *testing.T) {
+	long := "cmd:" + strings.Repeat("echo heredoc line; ", 40)
+	if k := storedKey(long); len(k) > maxKey || !strings.HasPrefix(k, long[:keyPrefix]) || k == storedKey(long+"x") {
+		t.Fatalf("storedKey: %q", k)
+	}
+	if storedKey("cmd:go test") != "cmd:go test" {
+		t.Fatal("short key changed")
+	}
+	if k := storedKey("cmd:" + strings.Repeat("ż", 120)); !utf8.ValidString(k) {
+		t.Fatalf("cut inside a rune: %q", k)
+	}
+
+	path := filepath.Join(t.TempDir(), "l.db")
+	l := start(t, &Config{Path: path})
+	ctx := t.Context()
+	// A ledger written before keys were shortened.
+	l.db.Exec("PRAGMA user_version = 0")
+	l.db.Create(&event{TS: 1, Pipeline: "cli", Key: long, Route: "r", Optimizers: "", Outcome: "optimized"})
+	l.db.Create(&failure{Key: long, Count: 2})
+	if err := l.migrateKeys(ctx); err != nil {
+		t.Fatal(err)
+	}
+	var keys []string
+	l.db.Model(&event{}).Pluck("key", &keys)
+	if len(keys) != 1 || keys[0] != storedKey(long) {
+		t.Fatalf("event keys %q", keys)
+	}
+	if f, err := l.Failures(ctx, long); err != nil || f.Count != 2 {
+		t.Fatalf("failures by full key: %+v %v", f, err)
+	}
+	if err := l.MarkFailure(ctx, long, "x"); err != nil {
+		t.Fatal(err)
+	}
+	if f, _ := l.Failures(ctx, long); f.Count != 3 {
+		t.Fatalf("count %d after mark", f.Count)
 	}
 }

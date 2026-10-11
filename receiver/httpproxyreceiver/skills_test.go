@@ -43,7 +43,7 @@ func TestSkillsInRequest(t *testing.T) {
 		t.Fatalf("shrunk body:\n%s", got)
 	}
 	r.skills(t.Context(), doc, meta{}) // cached: same bytes, no second event
-	if len(l.events) != 1 || l.events[0].Command != "skill big" || l.events[0].Route != "skill" {
+	if len(l.events) != 1 || l.events[0].Command != "skill big" || l.events[0].Route != "skill" || l.raw[l.events[0].RawID] != body {
 		t.Fatalf("events %+v", l.events)
 	}
 }

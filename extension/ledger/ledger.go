@@ -61,6 +61,9 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &step{}, &raw{}, &failure{}, &usage{}); err != nil {
 		return fmt.Errorf("ledger migrate: %w", err)
 	}
+	if err := l.migrateKeys(ctx); err != nil {
+		return fmt.Errorf("ledger migrate keys: %w", err)
+	}
 	return l.prune(ctx)
 }
 
@@ -87,7 +90,8 @@ func (l *Ledger) prune(ctx context.Context) error {
 // idLengths are the hex lengths a raw id tries, shortest first: every hint
 // carries one, and 8 hex digits cost ~7 fewer tokens than 16. A prefix
 // already holding another original moves on to a longer one, so ids stay
-// unique and content-addressed (the same original gets the same id).
+// unique and content-addressed: the same text gets the same id, whatever
+// its attrs (session, agent), so an output seen twice is stored once.
 var idLengths = []int{8, 12, 16, 64}
 
 func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (string, error) {
@@ -95,7 +99,7 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (s
 	if err != nil {
 		return "", err
 	}
-	full := sha256.Sum256(blob)
+	full := sha256.Sum256([]byte(p.Text()))
 	sum := hex.EncodeToString(full[:])
 	packed, err := pack(blob)
 	if err != nil {
@@ -104,18 +108,18 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (s
 	db := l.db.WithContext(ctx)
 	for _, n := range idLengths {
 		id := sum[:n]
-		taken, same, err := l.holds(ctx, id, blob)
+		taken, same, err := l.holds(ctx, id, p.Text())
 		if err != nil {
 			return "", err
 		}
 		if !taken {
 			// Another process may insert the same id in between: then the
 			// row decides, as if it had been there.
-			err := db.Create(&raw{ID: id, Created: time.Now().UnixMilli(), Key: key, Payload: packed}).Error
+			err := db.Create(&raw{ID: id, Created: time.Now().UnixMilli(), Key: storedKey(key), Payload: packed}).Error
 			if err == nil {
 				return id, nil
 			}
-			if _, same, _ = l.holds(ctx, id, blob); !same {
+			if _, same, _ = l.holds(ctx, id, p.Text()); !same {
 				continue
 			}
 		}
@@ -126,8 +130,8 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (s
 	return "", fmt.Errorf("raw: no free id for %s", sum)
 }
 
-// holds reports whether id is taken and whether by blob.
-func (l *Ledger) holds(ctx context.Context, id string, blob []byte) (taken, same bool, err error) {
+// holds reports whether id is taken and whether by the same text.
+func (l *Ledger) holds(ctx context.Context, id, text string) (taken, same bool, err error) {
 	var r raw
 	err = l.db.WithContext(ctx).Select("payload").Take(&r, "id = ?", id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -136,8 +140,12 @@ func (l *Ledger) holds(ctx context.Context, id string, blob []byte) (taken, same
 	if err != nil {
 		return false, false, err
 	}
-	old, err := unpack(r.Payload)
-	return true, err == nil && bytes.Equal(old, blob), nil
+	blob, err := unpack(r.Payload)
+	if err != nil {
+		return true, false, nil
+	}
+	var old payload.Payload
+	return true, json.Unmarshal(blob, &old) == nil && old.Text() == text, nil
 }
 
 func (l *Ledger) GetRaw(ctx context.Context, id string) (string, *payload.Payload, error) {
@@ -229,7 +237,7 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 		Filter:     ev.Filter,
 		Reason:     ev.Reason,
 		Pipeline:   ev.Pipeline,
-		Key:        ev.Key,
+		Key:        storedKey(ev.Key),
 		Route:      ev.Route,
 		Optimizers: strings.Join(ev.Optimizers, ","),
 		RawTokens:  ev.RawTokens,
@@ -242,7 +250,7 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 }
 
 func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
-	f := failure{Key: key, Count: 1, LastTS: time.Now().UnixMilli(), Reason: reason}
+	f := failure{Key: storedKey(key), Count: 1, LastTS: time.Now().UnixMilli(), Reason: reason}
 	return l.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "key"}},
 		DoUpdates: clause.Assignments(map[string]any{
@@ -255,7 +263,7 @@ func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
 
 func (l *Ledger) Failures(ctx context.Context, key string) (component.FailureInfo, error) {
 	var f failure
-	err := l.db.WithContext(ctx).Take(&f, "key = ?", key).Error
+	err := l.db.WithContext(ctx).Take(&f, "key = ?", storedKey(key)).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return component.FailureInfo{}, nil
 	}
@@ -264,7 +272,7 @@ func (l *Ledger) Failures(ctx context.Context, key string) (component.FailureInf
 
 // Forget clears failure history for key, re-enabling optimization.
 func (l *Ledger) Forget(ctx context.Context, key string) error {
-	return l.db.WithContext(ctx).Delete(&failure{Key: key}).Error
+	return l.db.WithContext(ctx).Delete(&failure{Key: storedKey(key)}).Error
 }
 
 func (l *Ledger) saveOutput(ctx context.Context, id, text string) error {
@@ -280,7 +288,7 @@ func (l *Ledger) saveOutput(ctx context.Context, id, text string) error {
 func (l *Ledger) RecentOutputs(ctx context.Context, session, key string, since time.Time, limit int) ([]string, error) {
 	var ids []string
 	err := l.db.WithContext(ctx).Model(&event{}).
-		Where("session = ? AND key = ? AND raw_id != '' AND ts >= ?", session, key, since.UnixMilli()).
+		Where("session = ? AND key = ? AND raw_id != '' AND ts >= ?", session, storedKey(key), since.UnixMilli()).
 		Order("ts DESC, id DESC").Limit(limit).Pluck("raw_id", &ids).Error
 	if err != nil {
 		return nil, err

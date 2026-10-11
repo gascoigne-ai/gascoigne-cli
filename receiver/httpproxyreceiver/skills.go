@@ -19,7 +19,7 @@ const skillHead = "Base directory for this skill: "
 
 var htmlComment = lazyre.New(`(?s)<!--.*?-->\n?`)
 
-// skills records each invoked skill body once and, with skill_code_lines
+// skills records each invoked skill body once, keeping its text, and with skill_code_lines
 // set, shrinks it without changing an instruction: HTML comments go and
 // code blocks longer than skill_code_lines keep their first lines plus a
 // pointer to read the rest by line range. The body is the same in every
@@ -74,23 +74,26 @@ func (r *Receiver) shrinkSkill(ctx context.Context, text string, m meta) string 
 	p.Set(payload.AttrTool, "Skill")
 	ev := component.Event{TS: time.Now(), Agent: m.agent, Model: m.model, Pipeline: "proxy",
 		Key: "skill:" + name, Route: "skill", Command: "skill " + name}
+	// The body is kept like an original, shrunk or not, so gascoigne raw
+	// and the dashboard show what the skill told the agent.
+	id, err := r.ledger.SaveRaw(ctx, ev.Key, p)
+	if err != nil {
+		r.log.Warn("save skill", "skill", name, "err", err)
+		return text
+	}
 	in := tokens.Estimate(text)
 	out := text
 	if r.cfg.SkillCodeLines > 0 {
-		id, err := r.ledger.SaveRaw(ctx, ev.Key, p)
-		if err != nil {
-			r.log.Warn("save skill", "skill", name, "err", err)
-			return text
-		}
 		if shrunk := shrinkSkillText(text, r.cfg.SkillCodeLines, id); in-tokens.Estimate(shrunk) >= minSaving {
-			out, ev.RawID = shrunk, id
+			out = shrunk
 		}
 	}
+	ev.RawID, ev.Output = id, out
 	ev.RawTokens, ev.OutTokens = in, tokens.Estimate(out)
 	ev.Outcome = component.Unchanged
 	ev.Reason = "skill body, sent with every later request (recorded once per distinct body)"
-	if ev.RawID != "" {
-		ev.Outcome, ev.Reason, ev.Output = component.Optimized, "", out
+	if out != text {
+		ev.Outcome, ev.Reason = component.Optimized, ""
 		ev.Optimizers = []string{"skill"}
 		ev.Steps = []component.Step{{Optimizer: "skill", Family: "core", RawTokens: in, OutTokens: ev.OutTokens}}
 	}
