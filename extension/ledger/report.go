@@ -177,9 +177,30 @@ type Entry struct {
 // Recent lists events matching q's filters with an id above after, newest
 // first, at most limit.
 func (l *Ledger) Recent(ctx context.Context, q component.StatsQuery, after uint, limit int) ([]Entry, error) {
+	return l.Page(ctx, q, Page{After: after, Limit: limit})
+}
+
+// Page selects a slice of the run feed, newest first.
+type Page struct {
+	After  uint // only runs with a larger id (new ones, for a live feed)
+	Before uint // only runs with a smaller id (older ones, loading on scroll); 0 = no bound
+	// Outcomes keeps runs with these outcomes ("optimized", "unchanged",
+	// "bypassed", "error"); empty = all.
+	Outcomes []string
+	Limit    int
+}
+
+// Page returns the runs matching q and p, newest first.
+func (l *Ledger) Page(ctx context.Context, q component.StatsQuery, p Page) ([]Entry, error) {
 	var rows []event
-	tx := filter(l.db.WithContext(ctx).Preload("Steps"), "events", q).Where("events.id > ?", after)
-	if err := tx.Order("events.id DESC").Limit(limit).Find(&rows).Error; err != nil {
+	tx := filter(l.db.WithContext(ctx).Preload("Steps"), "events", q).Where("events.id > ?", p.After)
+	if p.Before > 0 {
+		tx = tx.Where("events.id < ?", p.Before)
+	}
+	if len(p.Outcomes) > 0 {
+		tx = tx.Where("events.outcome IN ?", p.Outcomes)
+	}
+	if err := tx.Order("events.id DESC").Limit(p.Limit).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	out := make([]Entry, len(rows))

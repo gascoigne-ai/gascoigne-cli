@@ -121,7 +121,7 @@ h2 { margin: 0; font-size: 15px; font-weight: 650; }
 
 /* Tables */
 table { width: 100%; border-collapse: collapse; }
-th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); padding: 7px 8px; white-space: nowrap; position: sticky; top: 0; background: var(--surface); }
+th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); padding: 7px 8px; white-space: nowrap; position: sticky; top: 0; z-index: 2; background: var(--surface); box-shadow: 0 1px 0 var(--border); }
 td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
 tr:last-child td { border-bottom: 0; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -129,6 +129,9 @@ td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-word; }
 .scroll { max-height: 520px; overflow: auto; }
 .empty { color: var(--faint); padding: 10px 8px; }
 #feed tr { cursor: pointer; }
+.feed-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 8px; }
+.feed-head .hint { margin: 0; }
+.feed-more td { text-align: center; color: var(--faint); font-size: 12.5px; padding: 10px; cursor: default; }
 #feed tr:hover td { background: var(--surface-2); }
 #feed tr.fresh td { animation: fresh 1.6s ease-out; }
 @keyframes fresh { from { background: var(--accent-soft); } to { background: transparent; } }
@@ -158,10 +161,14 @@ dialog[open] { display: flex; flex-direction: column; }
 dialog::backdrop { background: rgba(15, 18, 24, .5); }
 .dlg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 14px 18px 12px; border-bottom: 1px solid var(--border); }
 .dlg-head h3 { margin: 0 0 6px; font-size: 15px; font-weight: 650; font-family: var(--mono); word-break: break-word; }
-.dlg-sum { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; color: var(--muted); font-size: 12.5px; }
-.dlg-sum .big { font-size: 20px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
-.dlg-sum .saved { font-weight: 700; color: var(--ok); }
-.dlg-sum .meter { width: 160px; }
+.dlg-sum { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; color: var(--muted); font-size: 12.5px; }
+.dlg-sum > * { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px; }
+.dlg-sum > .badge { border: 0; }
+.dlg-sum .k { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+.dlg-sum .v { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.dlg-sum .big .v { font-size: 17px; font-weight: 700; }
+.dlg-sum .saved .v { color: var(--ok); }
+.dlg-sum .bar { width: 90px; min-width: 90px; margin: 0; }
 .alert-box { margin: 10px 18px 0; padding: 8px 12px; border-radius: 8px; background: var(--warn-soft); color: var(--warn); font-size: 12.5px; }
 .tabs { display: flex; gap: 2px; padding: 8px 18px 0; border-bottom: 1px solid var(--border); }
 .tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--muted); padding: 7px 12px; font-weight: 600; }
@@ -180,7 +187,10 @@ dialog::backdrop { background: rgba(15, 18, 24, .5); }
 .compare.one { grid-template-columns: minmax(0, 1fr); }
 .pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .pane[hidden] { display: none; }
-.pane-head { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; background: var(--surface-2); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; }
+.pane-head { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border-top: 3px solid var(--border-strong); }
+.pane.orig .pane-head { border-top-color: var(--err); }
+.pane.opt .pane-head { border-top-color: var(--ok); }
+.pane-head span:last-child { text-transform: none; letter-spacing: 0; }
 .pane-head span:last-child { color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
 .code { flex: 1; overflow: auto; font: 12px/1.5 var(--mono); background: var(--surface); }
 .code .ln { display: flex; }
@@ -191,15 +201,19 @@ dialog::backdrop { background: rgba(15, 18, 24, .5); }
 .code .drop .tx { color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--err) 45%, transparent); }
 .code .new { background: var(--ok-soft); }
 .code .more { padding: 8px 10px; color: var(--muted); }
-.steps { display: grid; gap: 8px; max-width: 760px; }
+.steps { display: grid; gap: 0; max-width: 820px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.step { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.step:last-child { border-bottom: 0; }
+.step:nth-child(odd) { background: var(--surface-2); }
 .step { display: grid; grid-template-columns: 9em minmax(0, 1fr) 11em; gap: 10px; align-items: center; font-size: 12.5px; }
 .step .track { position: relative; height: 14px; background: var(--track); border-radius: 4px; overflow: hidden; }
 .step .track span { position: absolute; top: 0; bottom: 0; background: var(--accent); border-radius: 4px; }
 .step .lbl { font-family: var(--mono); }
 .step .num { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
-dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0 0 16px; }
-dt { font-size: 12px; font-weight: 600; color: var(--muted); padding-top: 1px; }
-dd { margin: 0; word-break: break-word; }
+dl { display: grid; grid-template-columns: minmax(130px, max-content) 1fr; margin: 0 0 16px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; max-width: 980px; }
+dt { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 8px 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+dd { margin: 0; padding: 8px 12px; word-break: break-word; border-bottom: 1px solid var(--border); font-size: 13px; }
+dt:nth-last-of-type(1), dd:last-of-type { border-bottom: 0; }
 pre { margin: 8px 0 0; padding: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; font: 12px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; max-height: 420px; overflow: auto; }
 code { font-family: var(--mono); font-size: 12.5px; }
 footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: center; }
@@ -302,8 +316,17 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 
   <section class="panel">
     <h2>Recent runs</h2>
-    <p class="hint">Live feed, newest first. Select a run to see its optimization steps and original output.</p>
-    <div class="scroll">
+    <div class="feed-head">
+      <p class="hint">Live feed, newest first; older runs load as you scroll. Select a run to compare its original with what the agent read.</p>
+      <span class="seg" id="f-outcome" role="group" aria-label="Filter by outcome">
+        <button data-o="" aria-pressed="true">All</button>
+        <button data-o="optimized">Optimized</button>
+        <button data-o="unchanged">Unchanged</button>
+        <button data-o="bypassed">Skipped</button>
+        <button data-o="error">Failed</button>
+      </span>
+    </div>
+    <div class="scroll" id="feed-scroll">
       <table>
         <thead><tr><th>Time</th><th class="hide-sm">Agent</th><th>Command</th><th class="hide-sm">Content type</th><th class="num">Tokens</th><th>Saved</th><th>Outcome</th></tr></thead>
         <tbody id="feed"><tr><td colspan="7" class="empty">No runs recorded yet.</td></tr></tbody>
@@ -351,7 +374,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 <script>
 "use strict";
 const $ = (id) => document.getElementById(id);
-const state = { events: new Map(), source: null, refresh: 0 };
+const state = { events: new Map(), source: null, refresh: 0, outcome: "", oldest: 0, exhausted: false, loading: false };
 
 // Theme: auto follows the OS; an explicit choice is remembered per browser.
 function applyTheme(t) {
@@ -545,32 +568,90 @@ function feedRow(e, fresh) {
     el("td", {}, badge(e.outcome)));
 }
 
-function addEvents(list, fresh) {
+// addEvents puts new runs on top, or older ones (loaded on scroll) at the
+// bottom.
+function addEvents(list, fresh, older) {
   const feed = $("feed");
-  if (state.events.size === 0) feed.replaceChildren();
-  list.sort((a, b) => a.id - b.id);
+  if (state.events.size === 0 && list.length) feed.replaceChildren();
+  list.sort((a, b) => older ? b.id - a.id : a.id - b.id);
   for (const e of list) {
     if (state.events.has(e.id)) continue;
     state.events.set(e.id, e);
-    feed.prepend(feedRow(e, fresh));
+    state.oldest = Math.min(state.oldest || Infinity, e.id);
+    if (older) feed.append(feedRow(e, false));
+    else feed.prepend(feedRow(e, fresh));
   }
-  while (feed.children.length > 300) feed.removeChild(feed.lastElementChild);
   // #run-42 opens that run once it has arrived (links to a run).
   const m = /^#run-(\d+)$/.exec(location.hash);
   if (m && state.events.has(+m[1]) && !$("detail").open) showDetail(+m[1]);
 }
 
+// feedQuery is the dashboard filters plus the outcome chosen above the feed.
+function feedQuery() {
+  const p = filters();
+  if (state.outcome) p.set("outcome", state.outcome);
+  return p;
+}
+
+// fill loads older pages until the feed can scroll (or nothing is left).
+async function fill() {
+  const s = $("feed-scroll");
+  while (!state.exhausted && s.scrollHeight <= s.clientHeight + 200) {
+    const before = state.events.size;
+    await loadOlder();
+    if (state.events.size === before) break;
+  }
+}
+
+// loadOlder fetches the page of runs before the oldest shown, once the
+// feed is scrolled near its end.
+async function loadOlder() {
+  if (state.loading || state.exhausted || !state.oldest) return;
+  state.loading = true;
+  try {
+    const p = feedQuery();
+    p.set("before", state.oldest);
+    p.set("limit", 100);
+    const list = await getJSON("/api/events?" + p);
+    if (list.length < 100) state.exhausted = true;
+    addEvents(list, false, true);
+  } finally {
+    state.loading = false;
+  }
+}
+
+$("feed-scroll").addEventListener("scroll", (ev) => {
+  const s = ev.target;
+  if (s.scrollTop + s.clientHeight > s.scrollHeight - 200) loadOlder().catch(console.error);
+});
+
+for (const b of $("f-outcome").children) {
+  b.onclick = () => {
+    state.outcome = b.dataset.o;
+    for (const o of $("f-outcome").children) o.setAttribute("aria-pressed", o === b);
+    connect();
+  };
+}
+
 function connect() {
   if (state.source) state.source.close();
   state.events.clear();
+  state.oldest = 0;
+  state.exhausted = false;
+  $("feed-scroll").scrollTop = 0;
   $("feed").replaceChildren(el("tr", {}, el("td", { colspan: 7, class: "empty" }, "No runs recorded yet.")));
-  const src = new EventSource("/api/stream?" + filters());
+  const src = new EventSource("/api/stream?" + feedQuery());
   state.source = src;
   let first = true;
   src.onopen = () => setLive(true);
   src.onerror = () => setLive(false);
   src.onmessage = (m) => {
-    addEvents(JSON.parse(m.data), !first);
+    const list = JSON.parse(m.data);
+    addEvents(list, !first);
+    if (first) {
+      state.exhausted = list.length < 50; // the stream starts with the latest 50
+      fill();
+    }
     if (!first) scheduleRefresh();
     first = false;
   };
@@ -597,13 +678,11 @@ async function showDetail(id) {
   $("d-title").textContent = e.command || e.key || "Run " + e.id;
   $("d-sum").replaceChildren(
     badge(e.outcome),
-    el("span", { class: "big" }, `${human(e.raw_tokens)} → ${human(e.out_tokens)}`),
-    el("span", {}, "tokens"),
-    el("span", { class: "saved" }, saved > 0 ? `${fmtPct(cut)} saved` : "nothing saved"),
-    el("span", { class: "meter" }, bar(cut)),
-    el("span", {}, [e.agent || agentLabel(e), e.model].filter(Boolean).join(" · ")),
-    el("span", {}, new Date(e.ts).toLocaleString()),
-    el("span", {}, e.duration_ms + " ms"));
+    stat("Tokens", `${human(e.raw_tokens)} → ${human(e.out_tokens)}`, "big"),
+    stat("Saved", saved > 0 ? fmtPct(cut) : "nothing", "saved", bar(cut)),
+    stat("Agent", [e.agent || agentLabel(e), e.model].filter(Boolean).join(" · ") || "—"),
+    stat("When", new Date(e.ts).toLocaleString()),
+    stat("Took", e.duration_ms + " ms"));
   // Nearly everything cut from a big output: worth a look (it happened to a
   // docs page whose sections did not fit the budget).
   $("d-alert").replaceChildren(...(cut > 99.5 && e.raw_tokens > 2000 ? [el("div", { class: "alert-box" },
@@ -619,6 +698,11 @@ async function showDetail(id) {
     el("button", { role: "tab", "data-tab": name, onclick: () => show(name) }, title)));
   show(e.raw_id ? "compare" : "details");
   $("detail").showModal();
+}
+
+// stat is one labeled value in the run summary.
+function stat(label, value, cls, extra) {
+  return el("span", { class: cls || "" }, el("span", { class: "k" }, label), el("span", { class: "v" }, value), extra || []);
 }
 
 function detailsView(e) {
@@ -676,7 +760,7 @@ function compareView(e) {
     const rawPane = pane("Original", `${rawLines.length} lines · ${human(e.raw_tokens)} tokens`, rawLines, (l) => outLines && l.trim() && !inOut.has(l) ? "drop" : "");
     const outPane = outLines
       ? pane("What the agent read", `${outLines.length} lines · ${human(e.out_tokens)} tokens`, outLines, (l) => l.trim() && !inRaw.has(l) ? "new" : "")
-      : el("div", { class: "pane" }, el("div", { class: "pane-head" }, el("span", {}, "What the agent read")),
+      : el("div", { class: "pane opt" }, el("div", { class: "pane-head" }, el("span", {}, "What the agent read")),
         el("p", { class: "hint", style: "padding:10px" }, "Not kept for runs recorded before optimized output was stored; newer runs show it here."));
     wrap.replaceChildren(rawPane, outPane);
     const codes = wrap.querySelectorAll(".code");
@@ -705,7 +789,8 @@ function pane(title, meta, lines, mark) {
     code.append(frag);
   };
   render(PANE_LINES);
-  return el("div", { class: "pane" }, el("div", { class: "pane-head" }, el("span", {}, title), el("span", {}, meta)), code);
+  const kind = title === "Original" ? " orig" : " opt";
+  return el("div", { class: "pane" + kind }, el("div", { class: "pane-head" }, el("span", {}, title), el("span", {}, meta)), code);
 }
 
 $("d-close").onclick = () => $("detail").close();

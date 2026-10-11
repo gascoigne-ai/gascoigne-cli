@@ -394,3 +394,19 @@ func TestOutputKeptWithOriginal(t *testing.T) {
 		t.Fatalf("unknown id: %v %v", ok, err)
 	}
 }
+
+func TestPage(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	for i, o := range []component.Outcome{component.Optimized, component.Bypassed, component.Optimized, component.Unchanged} {
+		if err := l.Record(ctx, component.Event{TS: time.Now(), Key: fmt.Sprint(i), Outcome: o}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	all, _ := l.Page(ctx, component.StatsQuery{}, Page{Limit: 10})
+	opt, _ := l.Page(ctx, component.StatsQuery{}, Page{Outcomes: []string{"optimized"}, Limit: 10})
+	older, _ := l.Page(ctx, component.StatsQuery{}, Page{Before: all[1].ID, Limit: 10})
+	if len(all) != 4 || len(opt) != 2 || len(older) != 2 || older[0].ID != all[2].ID {
+		t.Fatalf("all %d, optimized %d, older %v", len(all), len(opt), older)
+	}
+}

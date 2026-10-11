@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	_ "embed"
 	"encoding/json"
@@ -81,8 +82,12 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		after, _ := strconv.ParseUint(r.URL.Query().Get("after"), 10, 64)
-		entries, err := l.Recent(r.Context(), q, uint(after), 200)
+		v := r.URL.Query()
+		after, _ := strconv.ParseUint(v.Get("after"), 10, 64)
+		before, _ := strconv.ParseUint(v.Get("before"), 10, 64)
+		limit, _ := strconv.Atoi(v.Get("limit"))
+		entries, err := l.Page(r.Context(), q, ledger.Page{After: uint(after), Before: uint(before),
+			Outcomes: outcomes(v), Limit: min(cmp.Or(limit, 100), 500)})
 		respond(w, eventsJSON(entries), err)
 	})
 	mux.HandleFunc("GET /api/stream", func(w http.ResponseWriter, r *http.Request) {
@@ -91,7 +96,7 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		stream(w, r, l, q, poll)
+		stream(w, r, l, q, outcomes(r.URL.Query()), poll)
 	})
 	mux.HandleFunc("GET /api/raw/{id}", func(w http.ResponseWriter, r *http.Request) {
 		// Unlike gascoigne raw, looking does not mark the source as failing:
@@ -159,7 +164,7 @@ func localOnly(next http.Handler) http.Handler {
 
 // stream sends the latest events, then each new batch as it lands, as
 // server-sent events.
-func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q component.StatsQuery, poll time.Duration) {
+func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q component.StatsQuery, only []string, poll time.Duration) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "streaming unsupported", http.StatusInternalServerError)
@@ -169,7 +174,7 @@ func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q componen
 	w.Header().Set("Cache-Control", "no-cache")
 	var last uint
 	send := func(limit int) error {
-		entries, err := l.Recent(r.Context(), q, last, limit)
+		entries, err := l.Page(r.Context(), q, ledger.Page{After: last, Outcomes: only, Limit: limit})
 		if err != nil || len(entries) == 0 {
 			return err
 		}
@@ -182,7 +187,7 @@ func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q componen
 		flusher.Flush()
 		return nil
 	}
-	if err := send(100); err != nil {
+	if err := send(50); err != nil { // older runs load on scroll (/api/events?before=)
 		return
 	}
 	io.WriteString(w, ": connected\n\n")
@@ -200,6 +205,9 @@ func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q componen
 		}
 	}
 }
+
+// outcomes reads ?outcome=optimized,bypassed for the run feed.
+func outcomes(v url.Values) []string { return splitList(v.Get("outcome"), ",") }
 
 func statsQuery(v url.Values) (component.StatsQuery, error) {
 	q := component.StatsQuery{Session: v.Get("session"), Agent: v.Get("agent"), Model: v.Get("model")}
