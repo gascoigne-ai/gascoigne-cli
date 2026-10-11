@@ -27,8 +27,25 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 ## Harness
 @.harness/rules.md
 @.harness/code-style.md
-@.harness/architecture.md
 @.harness/recommendations.md
+
+Architecture reference: `.harness/architecture.md` (not loaded; ~14k tokens). Read the section
+for the area you touch before changing it (`sed -n '/^## Ledger/,/^## /p' .harness/architecture.md`):
+| Section | Read when touching |
+|---|---|
+| Layout, Flow, Payload | package boundaries, pipeline order, `payload/` attrs |
+| Content detection | `detect/`, `filter/detectfilter`, new dialects |
+| Families | any `optimizer/<family>`, `compress/*` engines, `embedjson`/`dense`/`paths`/`truncate` |
+| MCP | `receiver/mcp*`, `mcptool/` |
+| LLM API proxy | `receiver/httpproxyreceiver`, `llmproxy.go`, `replay.go` |
+| Source files | `optimizer/fs/catoptimizer` |
+| Agents | `agents.go`, `hook.go`, `posthook.go`, `install.go`, `unwrap.go`, `guide.go` |
+| Full-payload guarantee | `internal/service`, hints, raw ids |
+| Ledger | `extension/ledger`, `gain`, `server.go`, `dashboard.go`, cost |
+| Config | `configs/`, `internal/config`, overrides |
+| Adding a component | new receiver/filter/optimizer/exporter/extension |
+
+Changing behavior a section describes: update that section in the same commit.
 
 Layout: public contracts `component/` `payload/` `tokens/`, libs `detect/` `compress/` `mcptool/` `cost/` `lazyre/` (package-level regexps: `lazyre.New`, never `regexp.MustCompile`); components in `receiver/` `filter/` `optimizer/` `exporter/` `extension/` (never import `internal/`); engine in `internal/`.
 
