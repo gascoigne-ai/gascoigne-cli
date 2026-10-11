@@ -171,6 +171,12 @@
 #     max_code_lines: 40                          ## longer code blocks keep head and tail
 #     max_tokens: 5200                            ## longer markdown keeps whole sections, query first
 #     man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON]
+#   dense:                                        ## minified code, base64, data URIs: long space-free lines keep head and tail
+#     min_line: 300                               ## shortest line that can be dense, bytes
+#     min_total: 2000                             ## fewest dense bytes in a block worth eliding (one token or URL stays)
+#     head: 160                                   ## bytes kept from the start of a dense line
+#     tail: 80                                    ## bytes kept from its end
+#     skip: [data, k8s, cloud]                    ## types or families never touched (source read from disk always is)
 #   paths:                                        ## repeated long path prefixes → §1/file.go, legend on top
 #     families: [test, build, search, log, task]  ## never fs: source is edited by exact text
 #     min_prefix: 20                              ## shortest prefix worth an id, bytes
@@ -190,7 +196,7 @@
 ## Which optimizers run. Each picks the blocks whose type it knows, so one chain serves all.
 # router:
 #   routes: []                        ## e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
-#   default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc, paths, truncate]
+#   default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc, dense, paths, truncate]
 
 ## Pipelines: which receivers, filters and exporters each command uses.
 # pipelines:

@@ -290,6 +290,15 @@ engine; S3 listings summarized.
 `compress/compose` sniffs a section and hands it to the test, build or pkg engine. The task
 family and docker builds use it, so `make test` inside a CI log is treated as test output.
 
+## Dense lines (`dense`, after the family engines)
+
+Long lines nearly free of spaces (at least 300 bytes, under 6% spaces, no tabs) are machine
+output: minified bundles, base64 blobs, data URIs, source maps. Once a block holds 2000 such
+bytes, each keeps its first 160 and last 80 bytes around `…[N bytes dense]…`; a lone token or
+signed URL stays whole. JSON lines (alone or after a label) are left to the JSON engine, and
+source read from disk (`cat`, Read) is never touched, since agents edit it by exact text; fetched
+code is. A curl'd minified bundle: 20300→821 tokens.
+
 ## Path legend (`paths`, every family above that lists files)
 
 Last in the chain, the `paths` optimizer replaces long path prefixes that repeat across test,

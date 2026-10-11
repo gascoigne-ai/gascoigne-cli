@@ -27,7 +27,7 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc, paths, truncate]
+  default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc, dense, paths, truncate]
 
 optimizers:
   test: {}
@@ -92,6 +92,8 @@ optimizers:
       lossless_max_tokens: 2000, min_items: 5, min_tokens: 200, max_items: 15, head_share: 0.3,
       tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
   html: { links: true }
+  # dense: long space-free lines (minified code, base64, data URIs) keep head and tail
+  dense: { min_line: 300, min_total: 2000, head: 160, tail: 80, skip: [data, k8s, cloud] }
   # paths: long path prefixes repeated in test/build/search/log/task output → §1/file.go, legend on top
   paths: { families: [test, build, search, log, task], min_prefix: 20, min_saving: 30, max_aliases: 9 }
   # truncate: last resort, a block still over max_tokens keeps head, tail and error lines between

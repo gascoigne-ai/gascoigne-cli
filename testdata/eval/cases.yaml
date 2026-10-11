@@ -577,6 +577,10 @@
   expect_type: log/app
   keep: ["pq: deadlock detected", "src/orders/repo.ts:142:11", "connection pool exhausted", "FATAL [main] shutting down", "upstream timeout", "(×60)"]
   min_saved: 90
+- { file: log/mailer-base64.txt, attrs: { file: /var/log/mailer/app.log }, expect_type: log/app,
+    keep: ["552 5.3.4 Message size exceeds fixed limit", "id=job-4819", "bytes dense]"], min_saved: 80 }
+- { name: dense/curl-bundle, file: web/app.min.js, attrs: { cmd: curl -s https://cdn.example.com/assets/app.min.js }, expect_type: fs/code,
+    keep: ["shop-web v1.4.2", "bytes dense]", "sourceMappingURL=app.min.js.map"], min_saved: 90 }
 - name: detect/log
   file: log/app.log
   expect_type: log/app

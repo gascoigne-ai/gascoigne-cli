@@ -11,6 +11,7 @@ import (
 	"github.com/lukaszb/gascoigne/filter/minsizefilter"
 	"github.com/lukaszb/gascoigne/optimizer/build/buildoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/cloud/cloudoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/core/denseoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/pathsoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/truncateoptimizer"
@@ -55,6 +56,7 @@ func Factories() []component.Factory {
 		historyfilter.NewFactory(),
 		// optimizers
 		passthroughoptimizer.NewFactory(),
+		denseoptimizer.NewFactory(),
 		pathsoptimizer.NewFactory(),
 		truncateoptimizer.NewFactory(),
 		testoptimizer.NewFactory(),

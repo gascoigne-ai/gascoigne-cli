@@ -1,0 +1,33 @@
+2026-03-14T09:12:03.254Z INFO  mailer.queue picked job id=job-4810 to=user0@example.com template=invoice (×13)
+… 2 lines omitted
+2026-03-14T09:12:03.254Z INFO  mailer.smtp sent id=job-4810 status=250 queued as CFCD208495
+… 3 lines omitted
+2026-03-14T09:12:07.766Z INFO  mailer.smtp sent id=job-4811 status=250 queued as C4CA4238A0
+… 3 lines omitted
+2026-03-14T09:12:08.174Z INFO  mailer.smtp sent id=job-4812 status=250 queued as C81E728D9D
+… 3 lines omitted
+2026-03-14T09:12:09.474Z INFO  mailer.smtp sent id=job-4813 status=250 queued as ECCBC87E4B
+… 3 lines omitted
+2026-03-14T09:12:10.619Z INFO  mailer.smtp sent id=job-4814 status=250 queued as A87FF679A2
+… 3 lines omitted
+2026-03-14T09:12:12.138Z INFO  mailer.smtp sent id=job-4815 status=250 queued as E4DA3B7FBB
+… 3 lines omitted
+2026-03-14T09:12:13.544Z INFO  mailer.smtp sent id=job-4816 status=250 queued as 1679091C5A
+… 3 lines omitted
+2026-03-14T09:12:17.171Z INFO  mailer.smtp sent id=job-4817 status=250 queued as 8F14E45FCE
+… 3 lines omitted
+2026-03-14T09:12:19.192Z INFO  mailer.smtp sent id=job-4818 status=250 queued as C9F0F895FB
+… 1 line omitted
+2026-03-14T09:12:23.160Z DEBUG mailer.render attachment invoice-4819.pdf size=2133 bytes
+2026-03-14T09:12:23.160Z DEBUG mailer.smtp payload part=attachment encoding=base64 data=GVgeJ9587QD/HOULIEfnpWfHaxy666vl7wP3wwF7tbeYI6KYloauOBNo+PRh8JoUb2W5pgwz …[2692 bytes dense]… KsvRRy1rqayqkkmaPkJvrgM6K4/DUlP2yBStuNkTNIgxguILURtF4AGdBXy0LH32E9DKOKCfDEjsMr8k
+2026-03-14T09:12:23.160Z ERROR mailer.smtp send failed id=job-4819: 552 5.3.4 Message size exceeds fixed limit
+2026-03-14T09:12:24.328Z INFO  mailer.queue picked job id=job-4820 to=user10@example.com template=invoice
+2026-03-14T09:12:24.328Z DEBUG mailer.render attachment invoice-4820.pdf size=2170 bytes
+… 1 line omitted
+2026-03-14T09:12:24.328Z INFO  mailer.smtp sent id=job-4820 status=250 queued as D3D9446802
+… 3 lines omitted
+2026-03-14T09:12:25.690Z INFO  mailer.smtp sent id=job-4821 status=250 queued as 6512BD43D9
+… 3 lines omitted
+2026-03-14T09:12:29.150Z INFO  mailer.smtp sent id=job-4822 status=250 queued as C20AD4D76F
+… 3 lines omitted
+2026-03-14T09:12:31.147Z INFO  mailer.smtp sent id=job-4823 status=250 queued as C51CE410C1

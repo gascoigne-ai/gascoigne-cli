@@ -90,7 +90,10 @@ lives in public libs so engines and composite families can reuse it:
 | `infra` | plans: refresh/progress folded, known-after-apply listed, count/for_each siblings "(like above)"; ansible: quiet tasks counted, failures and recap kept | terraform, pulumi, ansible, cdk, helm-diff |
 | `cloud` | JSON: pagination/metadata/etags pruned, envelopes unwrapped, items flattened so jsonx hoists leaves; YAML via yamlx; tables; s3 listings summarized | aws, aws-s3, gcp, azure |
 
-`paths` (`optimizer/core/pathsoptimizer`, last in the default chain): long path prefixes repeated
+`dense` (`optimizer/core/denseoptimizer`, after the family engines): long space-free lines
+(minified code, base64, data URIs) keep head/tail bytes around `…[N bytes dense]…` once a block
+holds `min_total` such bytes; JSON lines and fs/code read from disk (file attr, `detect.ReadsFile`) untouched.
+`paths` (`optimizer/core/pathsoptimizer`, after `dense`): long path prefixes repeated
 in test/build/search/log/task blocks → `§1/file.go`, legend `[paths: §1=…]` on top of the first
 such block; greedy by bytes saved, kept only when ≥ `min_saving` tokens; idempotent; never fs/data.
 `truncate` (`optimizer/core/truncateoptimizer`, after `paths`): blocks still > `max_tokens` keep
