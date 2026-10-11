@@ -55,6 +55,12 @@ gascoigne unwrap claude codex
 the pi extension. Other keys keep their order. The original file is saved as
 `<file>.gascoigne-bak`. Files it cannot parse are reported, not rewritten.
 
+`gascoigne uninstall` removes gascoigne entirely: `unwrap` for every agent (user and this
+project's configs), stops the server, deletes `gascoigne/` under the config, data (ledger),
+cache and state dirs and a ledger kept elsewhere (`$GASCOIGNE_LEDGER`), then the binary. It lists
+all of it and asks first (`-y` skips that). Projects installed without `-g` elsewhere need
+`gascoigne unwrap` run in them first.
+
 ## Per agent
 
 | Agent | `wrap` passes | How shell output is optimized |

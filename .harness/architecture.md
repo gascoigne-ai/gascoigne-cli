@@ -223,6 +223,8 @@ gascoigne entries replaced, JSON merged, backup kept, `install.go`), `wrap -prin
 those entries from user and project configs (claude settings + `.mcp.json` + `claude mcp remove`,
 cursor hooks/mcp JSON, codex `config.toml` tables, pi extension), keeps other keys in order and
 saves the original as `<file>.gascoigne-bak`; unparsable files are reported, not rewritten.
+`uninstall [-y]` (`uninstall.go`) = unwrap all + stop server + delete gascoigne's config/data/
+cache/state dirs, an outside ledger's files (never its dir) and the binary; asks first.
 Agents get a usage guide (`guide.go`): claude a SessionStart hook (`additionalContext`), codex
 `-c developer_instructions` per run or an `AGENTS.md` marked block, cursor a project rule, pi an
 `AGENTS.md` block; unwrap removes them.

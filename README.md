@@ -148,7 +148,8 @@ server starts itself when needed and exits after 30 minutes idle.
 `install` writes to this project's config; add `-g` for every project, `-proxy` to also route
 Claude's API traffic through gascoigne (API key, gateway token or Bedrock API key only: with a
 claude.ai login Claude talks to Anthropic directly, see [agents](docs/agents.md#the-llm-proxy-and-a-claudeai-login)). Arguments after the agent name go to the agent
-(`gascoigne wrap claude --continue`). `gascoigne unwrap` removes every trace and keeps a backup.
+(`gascoigne wrap claude --continue`). `gascoigne unwrap` removes every trace and keeps a backup;
+`gascoigne uninstall` also deletes the ledger, config, caches and the binary.
 
 Shell commands then run through `gascoigne exec`, results from other MCP servers are shortened
 after the tool ran, and the LLM API proxy trims what the agent's own tools return (Claude's Read

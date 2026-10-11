@@ -26,6 +26,7 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `install [-g] [agent...]` | Register gascoigne for good in this project's agent configs, or with `-g` in the user's (default: agents found on `PATH`). |
 | `wrap -print <agent>` | Print the config that registers gascoigne for good (also `cursor`). |
 | `unwrap [agent...]` | Remove gascoigne from agents' config files (default: every agent). |
+| `uninstall [-y]` | Remove gascoigne entirely: `unwrap` for every agent, stop the server, delete its config, data (ledger), cache and state dirs and the binary. Asks first. |
 | `hook <agent>` | Agent hook handler. Installed by `wrap`; reads the hook event on stdin. |
 | `mcp` | MCP server on stdio: `fetch`, `compress`, `show`, `retrieve`, `stats`. |
 | `mcp-proxy -- <server cmd>` | MCP proxy: mirrors another server's tools and optimizes their text results. |
