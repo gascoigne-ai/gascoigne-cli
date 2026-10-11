@@ -227,3 +227,28 @@ func TestExplicitConfigSkipsFirstRun(t *testing.T) {
 		t.Fatal("wrote a user config although GASCOIGNE_CONFIG names one")
 	}
 }
+
+// TestDefaultsListEverySetting keeps configs/default.yaml explicit: every
+// field of every used component is written out, so the effective config
+// is readable without the Go sources.
+func TestDefaultsListEverySetting(t *testing.T) {
+	var raw map[string]any
+	if err := yaml.Unmarshal(configs.Default, &raw); err != nil {
+		t.Fatal(err)
+	}
+	def, err := config.Parse(configs.Default)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sections := map[component.Kind]string{
+		component.KindExtension: "extensions", component.KindReceiver: "receivers",
+		component.KindFilter: "filters", component.KindOptimizer: "optimizers", component.KindExporter: "exporters",
+	}
+	for _, f := range registry.Factories() {
+		if _, used := components(def, f.Kind())[f.Type()]; !used {
+			continue
+		}
+		section, _ := raw[sections[f.Kind()]].(map[string]any)
+		missingFields(t, sections[f.Kind()]+"."+f.Type(), reflect.TypeOf(f.DefaultConfig()).Elem(), section[f.Type()])
+	}
+}

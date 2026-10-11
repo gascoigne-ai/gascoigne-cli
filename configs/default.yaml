@@ -1,14 +1,14 @@
 # Flow: receiver → filters → router → optimizers → exporters.
 # Originals of optimized payloads land in the ledger: `gascoigne raw <id>`.
 extensions:
-  ledger: { raw_ttl: 24h } # path default: $XDG_DATA_HOME/gascoigne/ledger.db
+  ledger: { path: "", raw_ttl: 24h } # path "": $XDG_DATA_HOME/gascoigne/ledger.db
 
 receivers:
   stdin: { kind: cmd_output }
   exec: { kind: cmd_output } # gascoigne exec -- <cmd>
   hook: { kind: cmd_output } # gascoigne hook codex: output an agent already captured
-  mcp: { fetch_timeout: 20s, fetch_max_bytes: 5242880 } # gascoigne mcp
-  mcp_proxy: { retrieve: gascoigne_retrieve }           # gascoigne mcp-proxy -- <server cmd>
+  mcp: { ledger: ledger, retrieve: retrieve, fetch_timeout: 20s, fetch_max_bytes: 5242880 } # gascoigne mcp
+  mcp_proxy: { command: [], ledger: ledger, retrieve: gascoigne_retrieve } # gascoigne mcp-proxy -- <server cmd>
   # LLM API proxy, served by the background server under /v1/ (base URL http://127.0.0.1:7878)
   httpproxy:
     anthropic: https://api.anthropic.com
@@ -17,10 +17,12 @@ receivers:
     cache_entries: 50000
 
 filters:
-  bypass: {}                   # attr raw=true or GASCOIGNE_RAW=1
+  bypass: { env: GASCOIGNE_RAW }               # attr raw=true or this env set to 1
   minsize: { min_tokens: 200 } # small payloads are not worth it
-  history: { max_failures: 1 } # skip sources that optimized badly before
-  detect: {}                   # tag each block with its content type
+  history: { ledger: ledger, max_failures: 1 } # skip sources that optimized badly before
+  # edit_safe: files of these families read from disk (cat, sed -n, Read) and under
+  # edit_safe_max_tokens are typed fs/code: kept in their own syntax, only comment lines drop
+  detect: { edit_safe: [data, k8s, cloud, infra], edit_safe_max_tokens: 4000 } # tag each block with its content type
 
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
@@ -53,20 +55,48 @@ optimizers:
   # mode auto|full|clean|outline; per run: -attr cat_mode=full or GASCOIGNE_CAT_MODE
   cat: { mode: auto, clean_min_tokens: 800, outline_min_tokens: 4000, min_body: 4 }
   pkg: {}
-  data: { max_rows: 30, max_cell: 60, max_items: 20 } # yaml, csv, xml, toml; json: crusher keys for yaml
+  # yaml, csv, xml, toml; json: crusher settings for yaml
+  data:
+    max_rows: 30
+    max_cell: 60
+    max_items: 20
+    json: { drop_empty: true, max_string: 300, shorten_hashes: true, tabulate_min: 3, lossless_min_saving: 0.3,
+      lossless_max_tokens: 2000, min_items: 5, min_tokens: 200, max_items: 15, head_share: 0.3,
+      tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
   table: { max_rows: 30, max_cell: 60 }
   db: { max_rows: 30, max_cell: 80, plan_min_share: 0.02 }
   k8s: { max_items: 15, max_rows: 30, max_cell: 60, notes_lines: 8 }
-  cloud: { max_rows: 30, max_cell: 60, max_objects: 30 } # json: same keys as the json optimizer
+  cloud:
+    max_rows: 30
+    max_cell: 60
+    max_objects: 30
+    json: { drop_empty: true, max_string: 300, shorten_hashes: true, tabulate_min: 3, lossless_min_saving: 0.3,
+      lossless_max_tokens: 2000, min_items: 5, min_tokens: 200, max_items: 15, head_share: 0.3,
+      tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
   infra: { max_plan_lines: 300, diff_context: 3 }
   task: {}
-  http: { links: true } # drop_headers: transport headers removed; json: crusher keys for bodies
+  # drop_headers: transport headers removed; json: crusher settings for bodies
+  http:
+    links: true
+    drop_headers: [date, server, connection, keep-alive, vary, via, alt-svc, nel, report-to,
+      strict-transport-security, x-content-type-options, x-frame-options, x-xss-protection,
+      referrer-policy, permissions-policy, content-security-policy, cf-ray, cf-cache-status,
+      x-cache, x-cache-hits, x-served-by, x-timer, age, expires, pragma, accept-ranges, x-amz-cf-id,
+      x-amz-cf-pop, x-amz-id-2, server-timing, x-github-request-id, x-fastly-request-id,
+      cross-origin-opener-policy, cross-origin-resource-policy, cross-origin-embedder-policy,
+      origin-agent-cluster, x-powered-by, x-envoy-upstream-service-time, transfer-encoding,
+      content-length, etag, last-modified, access-control-allow-origin,
+      access-control-expose-headers, access-control-allow-credentials, x-github-media-type,
+      x-github-api-version-selected, x-github-edge-region, x-cloud-trace-context, x-ratelimit-resource]
+    json: { drop_empty: true, max_string: 300, shorten_hashes: true, tabulate_min: 3, lossless_min_saving: 0.3,
+      lossless_max_tokens: 2000, min_items: 5, min_tokens: 200, max_items: 15, head_share: 0.3,
+      tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
   html: { links: true }
   # paths: long path prefixes repeated in test/build/search/log/task output → §1/file.go, legend on top
   paths: { families: [test, build, search, log, task], min_prefix: 20, min_saving: 30, max_aliases: 9 }
   # truncate: last resort, a block still over max_tokens keeps head, tail and error lines between
   truncate: { max_tokens: 10000, head_tokens: 3200, tail_tokens: 3200, max_errors: 20, skip: [fs/code, data, k8s, cloud] }
-  doc: { max_code_lines: 40, max_tokens: 5200 } # man_drop: man sections dropped as boilerplate
+  doc: { max_code_lines: 40, max_tokens: 5200, man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON] }
 
 exporters:
   stdout: { hint: true }
