@@ -1,0 +1,4 @@
+--- FAIL: TestParse (0.00s)
+    parse_test.go:12: got 3, want 4
+FAIL
+FAIL	example.com/cfg	0.002s

@@ -1,0 +1,71 @@
+diff limits.go
+@@ -10,3 +10,3 @@
+ // read limit
+-const Limit0 = 21
++const Limit0 = 24
+
+@@ -19,3 +19,3 @@
+ // write limit
+-const Limit1 = 17
++const Limit1 = 18
+
+@@ -28,3 +28,3 @@
+ // dial limit
+-const Limit2 = 20
++const Limit2 = 28
+
+@@ -37,3 +37,3 @@
+ // idle limit
+-const Limit3 = 84
++const Limit3 = 87
+
+@@ -46,3 +46,3 @@
+ // retry limit
+-const Limit4 = 79
++const Limit4 = 87
+
+@@ -55,3 +55,3 @@
+ // burst limit
+-const Limit5 = 85
++const Limit5 = 91
+
+@@ -64,3 +64,3 @@
+ // queue limit
+-const Limit6 = 20
++const Limit6 = 29
+
+@@ -73,3 +73,3 @@
+ // read limit
+-const Limit7 = 71
++const Limit7 = 74
+
+@@ -82,3 +82,3 @@
+ // write limit
+-const Limit8 = 3
++const Limit8 = 4
+
+@@ -91,3 +91,3 @@
+ // dial limit
+-const Limit9 = 84
++const Limit9 = 86
+
+@@ -100,3 +100,3 @@
+ // idle limit
+-const Limit10 = 68
++const Limit10 = 71
+
+@@ -109,3 +109,3 @@
+ // retry limit
+-const Limit11 = 56
++const Limit11 = 60
+
+@@ -118,3 +118,3 @@
+ // burst limit
+-const Limit12 = 28
++const Limit12 = 29
+
+@@ -127,3 +127,3 @@
+ // queue limit
+-const Limit13 = 33
++const Limit13 = 37
+

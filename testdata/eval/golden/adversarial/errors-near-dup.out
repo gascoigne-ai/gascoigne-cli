@@ -1,0 +1,30 @@
+2026-09-02 14:00:00.399 INFO  [sync] batch 1000 synced 56 orders in 35ms (×85)
+… 2 repeats of lines above
+2026-09-02 14:00:03.954 INFO  [sync] batch 1003 synced 44 orders in 23ms (×2)
+2026-09-02 14:00:05.778 ERROR [sync] order ord-86460 rejected: card stolen (gateway code 2053)
+2026-09-02 14:00:06.946 INFO  [sync] batch 1006 synced 56 orders in 28ms (×2)
+… 12 repeats of lines above
+2026-09-02 14:00:20.433 INFO  [sync] batch 1020 synced 59 orders in 52ms (×2)
+2026-09-02 14:00:22.809 ERROR [sync] order ord-46331 rejected: card declined (gateway code 2065)
+2026-09-02 14:00:23.646 INFO  [sync] batch 1023 synced 55 orders in 52ms (×2)
+… 12 repeats of lines above
+2026-09-02 14:00:37.513 INFO  [sync] batch 1037 synced 50 orders in 46ms (×2)
+2026-09-02 14:00:39.194 ERROR [sync] order ord-57966 rejected: card expired (gateway code 2043)
+2026-09-02 14:00:40.667 INFO  [sync] batch 1040 synced 54 orders in 48ms (×2)
+… 12 repeats of lines above
+2026-09-02 14:00:54.749 INFO  [sync] batch 1054 synced 42 orders in 36ms (×2)
+2026-09-02 14:00:56.168 ERROR [sync] order ord-44662 rejected: card expired (gateway code 2058)
+2026-09-02 14:00:57.111 INFO  [sync] batch 1057 synced 50 orders in 55ms (×2)
+… 12 repeats of lines above
+2026-09-02 14:01:11.774 INFO  [sync] batch 1071 synced 60 orders in 47ms (×2)
+2026-09-02 14:01:13.954 ERROR [sync] order ord-61522 rejected: card stolen (gateway code 2039)
+2026-09-02 14:01:14.804 INFO  [sync] batch 1074 synced 46 orders in 34ms (×2)
+… 12 repeats of lines above
+2026-09-02 14:01:28.465 INFO  [sync] batch 1088 synced 45 orders in 20ms (×2)
+2026-09-02 14:01:30.586 ERROR [sync] order ord-46559 rejected: card stolen (gateway code 2083)
+2026-09-02 14:01:31.305 INFO  [sync] batch 1091 synced 47 orders in 52ms (×2)
+… 12 repeats of lines above
+2026-09-02 14:01:45.954 INFO  [sync] batch 1105 synced 40 orders in 57ms (×2)
+2026-09-02 14:01:47.187 ERROR [sync] order ord-14084 rejected: card expired (gateway code 2017)
+2026-09-02 14:01:48.752 INFO  [sync] batch 1108 synced 51 orders in 26ms (×2)
+… 10 repeats of lines above

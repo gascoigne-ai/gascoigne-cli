@@ -621,3 +621,28 @@
   expect_type: data/json+log/app+vcs/git-diff
   keep: ["FATAL [main] shutting down", "func OnlyValidArgs", "\"_affix\""]
   min_saved: 60
+
+# --- adversarial: little redundancy, every item matters, tiny inputs
+- file: adversarial/sha256sums.txt
+  attrs: { cmd: sha256sum dist/*/*.tar.gz }
+  lossless: true
+- file: adversarial/tickets.json
+  attrs: { cmd: curl -s https://support.example.com/api/tickets }
+  expect_type: data/json
+  lossless: true
+  min_saved: 60
+- file: adversarial/tiny-fail.txt
+  attrs: { cmd: go test ./... }
+  unchanged: true
+- file: adversarial/diff-constants.txt
+  attrs: { cmd: git diff }
+  expect_type: vcs/git-diff
+  keep: ["-const Limit0 = 21", "+const Limit0 = 24", "-const Limit8 = 3", "+const Limit8 = 4", "+const Limit13 = "]
+- file: adversarial/errors-near-dup.log
+  attrs: { cmd: kubectl logs sync-7f9c }
+  expect_type: log/kubectl
+  keep: ["ord-86460 rejected: card stolen (gateway code 2053)", "ord-14084 rejected: card expired (gateway code 2017)"]
+  min_saved: 70
+- file: adversarial/prose.txt
+  attrs: { cmd: cat docs/session-store.md }
+  unchanged: true

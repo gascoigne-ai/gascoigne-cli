@@ -247,3 +247,9 @@ detect/kubectl-prefix	807	2	108
 detect/syslog	3800	0	13
 detect/access	436	0	510
 mixed/json-log-diff	8768	60	1559
+adversarial/sha256sums	3262	0	0
+adversarial/tickets	920	0	0
+adversarial/tiny-fail	42	0	0
+adversarial/diff-constants	495	0	2
+adversarial/errors-near-dup	782	0	0
+adversarial/prose	261	0	0

@@ -1,0 +1,322 @@
+[
+  {
+    "id": "T-4100",
+    "customer": "acct-4374",
+    "plan": "Enterprise",
+    "issue": "seat count wrong 644",
+    "priority": "urgent",
+    "opened": "2026-09-25"
+  },
+  {
+    "id": "T-4101",
+    "customer": "acct-6146",
+    "plan": "Enterprise",
+    "issue": "rate limit below plan 564",
+    "priority": "high",
+    "opened": "2026-09-10"
+  },
+  {
+    "id": "T-4102",
+    "customer": "acct-5070",
+    "plan": "Team",
+    "issue": "seat count wrong 898",
+    "priority": "normal",
+    "opened": "2026-09-03"
+  },
+  {
+    "id": "T-4103",
+    "customer": "acct-5919",
+    "plan": "Enterprise",
+    "issue": "export fails with code 846",
+    "priority": "urgent",
+    "opened": "2026-09-10"
+  },
+  {
+    "id": "T-4104",
+    "customer": "acct-2199",
+    "plan": "Pro",
+    "issue": "rate limit below plan 528",
+    "priority": "normal",
+    "opened": "2026-09-25"
+  },
+  {
+    "id": "T-4105",
+    "customer": "acct-6604",
+    "plan": "Team",
+    "issue": "webhook delayed 531",
+    "priority": "low",
+    "opened": "2026-09-22"
+  },
+  {
+    "id": "T-4106",
+    "customer": "acct-2271",
+    "plan": "Starter",
+    "issue": "export fails with code 811",
+    "priority": "high",
+    "opened": "2026-09-20"
+  },
+  {
+    "id": "T-4107",
+    "customer": "acct-9137",
+    "plan": "Enterprise",
+    "issue": "billing discrepancy on invoice 960",
+    "priority": "low",
+    "opened": "2026-09-09"
+  },
+  {
+    "id": "T-4108",
+    "customer": "acct-8767",
+    "plan": "Pro",
+    "issue": "billing discrepancy on invoice 848",
+    "priority": "high",
+    "opened": "2026-09-21"
+  },
+  {
+    "id": "T-4109",
+    "customer": "acct-8301",
+    "plan": "Starter",
+    "issue": "seat count wrong 495",
+    "priority": "high",
+    "opened": "2026-09-01"
+  },
+  {
+    "id": "T-4110",
+    "customer": "acct-8564",
+    "plan": "Starter",
+    "issue": "SSO login loop 725",
+    "priority": "low",
+    "opened": "2026-09-16"
+  },
+  {
+    "id": "T-4111",
+    "customer": "acct-1965",
+    "plan": "Team",
+    "issue": "export fails with code 232",
+    "priority": "normal",
+    "opened": "2026-09-13"
+  },
+  {
+    "id": "T-4112",
+    "customer": "acct-7405",
+    "plan": "Enterprise",
+    "issue": "billing discrepancy on invoice 270",
+    "priority": "urgent",
+    "opened": "2026-09-13"
+  },
+  {
+    "id": "T-4113",
+    "customer": "acct-5552",
+    "plan": "Team",
+    "issue": "webhook delayed 984",
+    "priority": "high",
+    "opened": "2026-09-23"
+  },
+  {
+    "id": "T-4114",
+    "customer": "acct-7804",
+    "plan": "Starter",
+    "issue": "seat count wrong 489",
+    "priority": "normal",
+    "opened": "2026-09-05"
+  },
+  {
+    "id": "T-4115",
+    "customer": "acct-2359",
+    "plan": "Team",
+    "issue": "SSO login loop 337",
+    "priority": "normal",
+    "opened": "2026-09-01"
+  },
+  {
+    "id": "T-4116",
+    "customer": "acct-8945",
+    "plan": "Team",
+    "issue": "export fails with code 388",
+    "priority": "low",
+    "opened": "2026-09-05"
+  },
+  {
+    "id": "T-4117",
+    "customer": "acct-7864",
+    "plan": "Starter",
+    "issue": "rate limit below plan 679",
+    "priority": "high",
+    "opened": "2026-09-05"
+  },
+  {
+    "id": "T-4118",
+    "customer": "acct-9445",
+    "plan": "Pro",
+    "issue": "webhook delayed 991",
+    "priority": "urgent",
+    "opened": "2026-09-13"
+  },
+  {
+    "id": "T-4119",
+    "customer": "acct-7536",
+    "plan": "Enterprise",
+    "issue": "billing discrepancy on invoice 593",
+    "priority": "urgent",
+    "opened": "2026-09-02"
+  },
+  {
+    "id": "T-4120",
+    "customer": "acct-4122",
+    "plan": "Pro",
+    "issue": "SSO login loop 551",
+    "priority": "normal",
+    "opened": "2026-09-04"
+  },
+  {
+    "id": "T-4121",
+    "customer": "acct-6571",
+    "plan": "Pro",
+    "issue": "billing discrepancy on invoice 100",
+    "priority": "normal",
+    "opened": "2026-09-18"
+  },
+  {
+    "id": "T-4122",
+    "customer": "acct-2662",
+    "plan": "Starter",
+    "issue": "rate limit below plan 126",
+    "priority": "low",
+    "opened": "2026-09-28"
+  },
+  {
+    "id": "T-4123",
+    "customer": "acct-4407",
+    "plan": "Enterprise",
+    "issue": "SSO login loop 749",
+    "priority": "high",
+    "opened": "2026-09-12"
+  },
+  {
+    "id": "T-4124",
+    "customer": "acct-6966",
+    "plan": "Enterprise",
+    "issue": "billing discrepancy on invoice 218",
+    "priority": "urgent",
+    "opened": "2026-09-15"
+  },
+  {
+    "id": "T-4125",
+    "customer": "acct-8870",
+    "plan": "Enterprise",
+    "issue": "export fails with code 187",
+    "priority": "normal",
+    "opened": "2026-09-04"
+  },
+  {
+    "id": "T-4126",
+    "customer": "acct-6613",
+    "plan": "Starter",
+    "issue": "webhook delayed 948",
+    "priority": "normal",
+    "opened": "2026-09-17"
+  },
+  {
+    "id": "T-4127",
+    "customer": "acct-1378",
+    "plan": "Team",
+    "issue": "rate limit below plan 470",
+    "priority": "normal",
+    "opened": "2026-09-23"
+  },
+  {
+    "id": "T-4128",
+    "customer": "acct-9899",
+    "plan": "Pro",
+    "issue": "rate limit below plan 405",
+    "priority": "low",
+    "opened": "2026-09-23"
+  },
+  {
+    "id": "T-4129",
+    "customer": "acct-5278",
+    "plan": "Starter",
+    "issue": "SSO login loop 464",
+    "priority": "normal",
+    "opened": "2026-09-18"
+  },
+  {
+    "id": "T-4130",
+    "customer": "acct-9873",
+    "plan": "Starter",
+    "issue": "seat count wrong 328",
+    "priority": "normal",
+    "opened": "2026-09-26"
+  },
+  {
+    "id": "T-4131",
+    "customer": "acct-4922",
+    "plan": "Enterprise",
+    "issue": "seat count wrong 922",
+    "priority": "normal",
+    "opened": "2026-09-07"
+  },
+  {
+    "id": "T-4132",
+    "customer": "acct-9480",
+    "plan": "Enterprise",
+    "issue": "export fails with code 848",
+    "priority": "low",
+    "opened": "2026-09-01"
+  },
+  {
+    "id": "T-4133",
+    "customer": "acct-5577",
+    "plan": "Enterprise",
+    "issue": "export fails with code 298",
+    "priority": "high",
+    "opened": "2026-09-15"
+  },
+  {
+    "id": "T-4134",
+    "customer": "acct-6726",
+    "plan": "Starter",
+    "issue": "billing discrepancy on invoice 325",
+    "priority": "low",
+    "opened": "2026-09-08"
+  },
+  {
+    "id": "T-4135",
+    "customer": "acct-8701",
+    "plan": "Team",
+    "issue": "export fails with code 309",
+    "priority": "urgent",
+    "opened": "2026-09-20"
+  },
+  {
+    "id": "T-4136",
+    "customer": "acct-1031",
+    "plan": "Enterprise",
+    "issue": "seat count wrong 452",
+    "priority": "low",
+    "opened": "2026-09-27"
+  },
+  {
+    "id": "T-4137",
+    "customer": "acct-2964",
+    "plan": "Enterprise",
+    "issue": "seat count wrong 868",
+    "priority": "normal",
+    "opened": "2026-09-16"
+  },
+  {
+    "id": "T-4138",
+    "customer": "acct-3924",
+    "plan": "Enterprise",
+    "issue": "seat count wrong 440",
+    "priority": "low",
+    "opened": "2026-09-26"
+  },
+  {
+    "id": "T-4139",
+    "customer": "acct-7485",
+    "plan": "Enterprise",
+    "issue": "webhook delayed 861",
+    "priority": "low",
+    "opened": "2026-09-24"
+  }
+]

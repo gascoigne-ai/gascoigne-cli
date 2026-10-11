@@ -39,6 +39,10 @@ type evalCase struct {
 	Keep []string `yaml:"keep"`
 	// MinSaved is the lowest acceptable saving in percent.
 	MinSaved float64 `yaml:"min_saved"`
+	// Unchanged inputs must pass through as they are.
+	Unchanged bool `yaml:"unchanged"`
+	// Lossless cases may shrink but lose no error line or artifact (probe.Run).
+	Lossless bool `yaml:"lossless"`
 }
 
 func (c *evalCase) name() string {
@@ -196,6 +200,15 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		if !strings.Contains(r.text, k) {
 			fail("lost %q", k)
 		}
+	}
+	if r.out > r.raw {
+		fail("output larger than input: %d > %d tokens", r.out, r.raw)
+	}
+	if tc.Unchanged && out.Attrs[payload.AttrRawID] != "" {
+		fail("changed, want unchanged")
+	}
+	if lost := slices.Concat(r.probes.Errors.Lost, r.probes.Artifacts.Lost); tc.Lossless && len(lost) > 0 {
+		fail("lost %d error lines/artifacts, want none: %q", len(lost), lost[0])
 	}
 	if saved := 100 * float64(r.raw-r.out) / float64(max(r.raw, 1)); saved < tc.MinSaved {
 		fail("saved %.1f%% < min %.0f%%", saved, tc.MinSaved)

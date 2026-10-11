@@ -12,6 +12,8 @@ description: Measure gascoigne token savings on fixtures. Use when changing opti
    original no longer readable in the output (`compress/probe`; regrouping and path legends
    count as kept, sampling and caps as lost), `check` = all assertions of the case held.
 3. Per case assertions: `expect_type`, `keep` (substrings that must survive), `min_saved` (%),
+   `unchanged` (must pass through), `lossless` (may shrink, no error line or artifact lost),
+   output never larger than input,
    golden output in `testdata/eval/golden/<name>.out`, original retrievable byte-exact,
    out tokens and lost counts equal to `testdata/eval/baseline.tsv` (the failure says which
    way they moved: more tokens or more lost facts is a regression to justify).

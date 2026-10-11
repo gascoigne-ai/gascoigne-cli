@@ -1,0 +1,16 @@
+The migration moves session state out of process memory and into the shared store. Each
+request now reads its session once at the start and writes it back only when a handler
+changed it, so idle requests cost one read and no write. Sessions written by the old
+format are upgraded on first read; the old reader stays until every node runs the new
+build, which the rollout gate checks before it removes the fallback.
+
+Two failure modes changed. A store outage used to lose sessions silently on restart; it
+now fails requests that need a session with 503 and lets anonymous ones through. A slow
+store used to stall only the node that owned the session; with shared state every node
+waits, so reads time out after 150 ms and fall back to a fresh session, logged once per
+minute per node to keep the log readable during an incident.
+
+Capacity: at the current peak of 4,200 requests per second and a 2.1 KB median session,
+the store needs about 9 MB/s of reads and, at the measured 18% write ratio, 1.6 MB/s of
+writes. The cluster sized for the cache handles four times that, so no new hardware is
+needed for this change; the dashboard gains panels for read latency and upgrade count.
