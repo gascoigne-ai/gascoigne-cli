@@ -3,7 +3,7 @@
 ## Install
 
 ```sh
-go install github.com/lukaszb/gascoigne/cmd/gascoigne@latest
+go install github.com/gascoigne-ai/gascoigne-cli/cmd/gascoigne@latest
 ```
 
 Or from a checkout:

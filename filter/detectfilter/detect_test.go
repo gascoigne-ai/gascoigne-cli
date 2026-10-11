@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 func TestFilterTagsEachBlock(t *testing.T) {

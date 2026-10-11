@@ -4,10 +4,10 @@ package htmloptimizer
 import (
 	"context"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/compress/htmlx"
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/htmlx"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 type Optimizer struct {

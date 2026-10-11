@@ -1,7 +1,7 @@
 === RUN   TestParseID
 --- PASS: TestParseID (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/component	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/component	0.001s
 === RUN   TestParseValid
 --- PASS: TestParseValid (0.00s)
 === RUN   TestParseErrors
@@ -21,7 +21,7 @@ ok  	github.com/lukaszb/gascoigne/internal/component	0.001s
 === RUN   TestPipelineRouterOverride
 --- PASS: TestPipelineRouterOverride (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/config	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/config	0.001s
 === RUN   TestExport
 === RUN   TestExport/verbatim
 === RUN   TestExport/hint
@@ -31,7 +31,7 @@ ok  	github.com/lukaszb/gascoigne/internal/config	0.001s
     --- PASS: TestExport/hint (0.00s)
     --- PASS: TestExport/hint_off (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/exporter/stdoutexporter	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/exporter/stdoutexporter	0.001s
 === RUN   TestRawRoundTrip
 --- PASS: TestRawRoundTrip (0.00s)
 === RUN   TestMigrateIdempotentAndPrune
@@ -43,7 +43,7 @@ ok  	github.com/lukaszb/gascoigne/internal/exporter/stdoutexporter	0.001s
 === RUN   TestEnvPathOverrides
 --- PASS: TestEnvPathOverrides (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/extension/ledger	0.009s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/extension/ledger	0.009s
 === RUN   TestFilter
 === RUN   TestFilter/none
 === RUN   TestFilter/attr
@@ -55,21 +55,21 @@ ok  	github.com/lukaszb/gascoigne/internal/extension/ledger	0.009s
     --- PASS: TestFilter/attr_false (0.00s)
     --- PASS: TestFilter/env (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/filter/bypassfilter	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/filter/bypassfilter	0.001s
 === RUN   TestFilter
 --- PASS: TestFilter (0.00s)
 === RUN   TestStartMissingLedger
 --- PASS: TestStartMissingLedger (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/filter/historyfilter	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/filter/historyfilter	0.001s
 === RUN   TestFilter
 --- PASS: TestFilter (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/filter/minsizefilter	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/filter/minsizefilter	0.001s
 === RUN   TestOptimizeKeepsContent
 --- PASS: TestOptimizeKeepsContent (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/optimizer/passthroughoptimizer	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/optimizer/passthroughoptimizer	0.001s
 === RUN   TestKey
 --- PASS: TestKey (0.00s)
 === RUN   TestCloneIsDeep
@@ -77,12 +77,12 @@ ok  	github.com/lukaszb/gascoigne/internal/optimizer/passthroughoptimizer	0.001s
 === RUN   TestText
 --- PASS: TestText (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/payload	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/payload	0.001s
 === RUN   TestRun
 --- PASS: TestRun (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/receiver/stdinreceiver	0.001s
-?   	github.com/lukaszb/gascoigne/internal/registry	[no test files]
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/receiver/stdinreceiver	0.001s
+?   	github.com/gascoigne-ai/gascoigne-cli/internal/registry	[no test files]
 === RUN   TestGlob
 --- PASS: TestGlob (0.00s)
 === RUN   TestRoute
@@ -98,7 +98,7 @@ ok  	github.com/lukaszb/gascoigne/internal/receiver/stdinreceiver	0.001s
     --- PASS: TestRoute/kind_too_small (0.00s)
     --- PASS: TestRoute/kind_miss (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/router	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/router	0.001s
 === RUN   TestOptimizedIsReversible
 --- PASS: TestOptimizedIsReversible (0.00s)
 === RUN   TestUnchangedHasNoRawID
@@ -116,8 +116,8 @@ ok  	github.com/lukaszb/gascoigne/internal/router	0.001s
 === RUN   TestLifecycleOrder
 --- PASS: TestLifecycleOrder (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/service	0.004s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/service	0.004s
 === RUN   TestEstimate
 --- PASS: TestEstimate (0.00s)
 PASS
-ok  	github.com/lukaszb/gascoigne/internal/tokens	0.001s
+ok  	github.com/gascoigne-ai/gascoigne-cli/internal/tokens	0.001s

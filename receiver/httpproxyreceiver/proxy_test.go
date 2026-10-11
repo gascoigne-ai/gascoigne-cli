@@ -12,7 +12,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // dropComments is a fake pipeline: drops "//" lines (as the cat optimizer

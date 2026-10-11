@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
 )
 
 func run(in string, r Rules) string { return compress.Join(Compress(compress.Lines(in), r)) }

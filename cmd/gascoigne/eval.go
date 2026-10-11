@@ -14,14 +14,14 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/lukaszb/gascoigne/compress/probe"
-	"github.com/lukaszb/gascoigne/extension/ledger"
-	"github.com/lukaszb/gascoigne/internal/config"
-	"github.com/lukaszb/gascoigne/internal/registry"
-	"github.com/lukaszb/gascoigne/internal/service"
-	"github.com/lukaszb/gascoigne/lazyre"
-	"github.com/lukaszb/gascoigne/mcptool"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/probe"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/registry"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/service"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 type evalBlock struct {

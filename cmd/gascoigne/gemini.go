@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // Gemini CLI: a BeforeTool hook rewrites run_shell_command through

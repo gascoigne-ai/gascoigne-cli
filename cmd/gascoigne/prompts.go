@@ -10,11 +10,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress/terse"
-	"github.com/lukaszb/gascoigne/cost"
-	"github.com/lukaszb/gascoigne/lazyre"
-	"github.com/lukaszb/gascoigne/mcptool"
-	"github.com/lukaszb/gascoigne/tokens"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/terse"
+	"github.com/gascoigne-ai/gascoigne-cli/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
 // Instruction files are expanded the way the agents document it: imports

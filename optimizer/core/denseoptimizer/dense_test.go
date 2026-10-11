@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 func run(t *testing.T, typ, text string, attrs ...string) string {

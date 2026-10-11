@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
 )
 
 // notebook renders a Jupyter notebook the way it reads in an editor: cell

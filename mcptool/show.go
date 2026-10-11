@@ -8,8 +8,8 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/lukaszb/gascoigne/compress/symbols"
-	"github.com/lukaszb/gascoigne/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/symbols"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
 )
 
 // Show reads one definition of a source file with its line numbers, or with

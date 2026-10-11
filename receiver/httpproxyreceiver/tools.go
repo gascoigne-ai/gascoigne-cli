@@ -7,10 +7,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/compress/schema"
-	"github.com/lukaszb/gascoigne/payload"
-	"github.com/lukaszb/gascoigne/tokens"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/schema"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
 // compactTools drops what the request's tool schemas say twice (see

@@ -1,6 +1,6 @@
 package k8soptimizer
 
-import "github.com/lukaszb/gascoigne/compress/yamlx"
+import "github.com/gascoigne-ai/gascoigne-cli/compress/yamlx"
 
 // rules drop what Kubernetes adds or defaults: bookkeeping, server-side
 // defaults, the service account token volume and default tolerations.

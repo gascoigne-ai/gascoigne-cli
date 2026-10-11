@@ -7,8 +7,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 type node struct {

@@ -10,7 +10,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/lukaszb/gascoigne/component"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
 )
 
 // Stats aggregates events by route or session, or optimizer steps by family

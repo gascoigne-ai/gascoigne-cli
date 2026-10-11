@@ -6,8 +6,8 @@ package hookreceiver
 import (
 	"context"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // Output is one tool result: Text and Cmd in, Result filled in by Run.

@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/compress/table"
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/table"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // fold summarizes names past max: "… 40 more: .go ×38, .md ×2".

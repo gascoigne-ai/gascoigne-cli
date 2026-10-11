@@ -11,8 +11,8 @@ import (
 	"math"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // shrinkImage downscales a base64 PNG or JPEG above maxPixels to fit it

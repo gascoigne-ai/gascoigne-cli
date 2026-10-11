@@ -1,6 +1,6 @@
 package diag
 
-import "github.com/lukaszb/gascoigne/lazyre"
+import "github.com/gascoigne-ai/gascoigne-cli/lazyre"
 
 func re(s string) *lazyre.Regexp { return lazyre.New(s) }
 

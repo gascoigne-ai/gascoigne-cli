@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 type tag struct{}

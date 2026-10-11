@@ -10,10 +10,10 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/configs"
-	"github.com/lukaszb/gascoigne/internal/config"
-	"github.com/lukaszb/gascoigne/internal/registry"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/configs"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/registry"
 )
 
 // uncomment turns every "# setting" line of the template into a setting;

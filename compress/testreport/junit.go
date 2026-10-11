@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
 )
 
 // junitCase is one <testcase>; Failure, Error and Skipped hold its result.

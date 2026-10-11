@@ -3,7 +3,7 @@ package compress
 import (
 	"strings"
 
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 var (

@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // bedrockRegion is an AWS region name: the upstream host is built from it,

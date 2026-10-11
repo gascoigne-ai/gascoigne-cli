@@ -3,7 +3,7 @@ package passthroughoptimizer
 import (
 	"testing"
 
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 func TestOptimizeKeepsContent(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/cost"
 )
 
 func TestEstimates(t *testing.T) {

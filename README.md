@@ -16,7 +16,7 @@ before they reach the model, and keeps every original one command away.
 ## Start in one line
 
 ```sh
-go install github.com/lukaszb/gascoigne/cmd/gascoigne@latest && gascoigne wrap claude
+go install github.com/gascoigne-ai/gascoigne-cli/cmd/gascoigne@latest && gascoigne wrap claude
 ```
 
 That's it: Claude Code starts with gascoigne in place for this run. No config files touched;
@@ -122,13 +122,13 @@ on (failures, diffs, errors, anomalies, summaries) and folds the rest.
 **With Go** (1.27+), the binary lands in `$(go env GOPATH)/bin`:
 
 ```sh
-go install github.com/lukaszb/gascoigne/cmd/gascoigne@latest
+go install github.com/gascoigne-ai/gascoigne-cli/cmd/gascoigne@latest
 ```
 
 **From a checkout**, into `~/.local/bin` (`PREFIX=…` for elsewhere):
 
 ```sh
-git clone https://github.com/lukaszb/gascoigne && cd gascoigne && make install
+git clone https://github.com/gascoigne-ai/gascoigne-cli && cd gascoigne && make install
 ```
 
 Check it: `gascoigne version`. One static binary, no cgo, no services to run: the background

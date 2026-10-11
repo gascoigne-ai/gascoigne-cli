@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/mcptool"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // maxAnchors caps the places tried per line, so common lines (blank, "}",

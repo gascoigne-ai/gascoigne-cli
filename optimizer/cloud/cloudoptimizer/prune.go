@@ -3,7 +3,7 @@ package cloudoptimizer
 import (
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress/yamlx"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/yamlx"
 )
 
 // dropKeys carry nothing for a reader: pagination, request metadata,

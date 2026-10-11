@@ -4,7 +4,7 @@ import (
 	"slices"
 	"strconv"
 
-	"github.com/lukaszb/gascoigne/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
 )
 
 const (

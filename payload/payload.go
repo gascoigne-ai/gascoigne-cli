@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/tokens"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
 type Kind string

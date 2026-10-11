@@ -10,10 +10,10 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/cost"
-	"github.com/lukaszb/gascoigne/extension/ledger"
-	"github.com/lukaszb/gascoigne/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
 )
 
 // ANSI styles.

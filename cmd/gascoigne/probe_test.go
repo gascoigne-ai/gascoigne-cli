@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 func TestProbeRuns(t *testing.T) {

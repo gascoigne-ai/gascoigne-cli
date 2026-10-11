@@ -1,4 +1,4 @@
-module github.com/lukaszb/gascoigne
+module github.com/gascoigne-ai/gascoigne-cli
 
 go 1.27
 

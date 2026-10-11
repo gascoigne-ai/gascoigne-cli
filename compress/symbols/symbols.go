@@ -12,8 +12,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // Def is one definition: Name is qualified by its container ("Server.Run"),

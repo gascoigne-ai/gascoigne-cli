@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // log rewrites default git log format to one line per commit:

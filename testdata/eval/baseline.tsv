@@ -1,6 +1,6 @@
 # case	out tokens	lost errors	lost artifacts (gascoigne eval -update)
-go/test-pass	76	0	3
-go/test-v-pass	68	0	1
+go/test-pass	80	0	3
+go/test-v-pass	72	0	1
 go/test-fail	185	1	2
 go/test-fail-v	187	1	2
 go/test-panic-trace	186	1	15
@@ -165,7 +165,7 @@ git/log	1151	2	8
 git/show-lockfile	4330	1	42
 git/log-stat	776	1	1
 git/diff	2386	1	15
-git/show-move	2855	2	13
+git/show-move	2867	2	13
 git/show	1236	0	5
 git/push	88	0	0
 detect/git-log	1151	2	8
@@ -195,7 +195,7 @@ detect/find	1632	0	416
 detect/du	189	0	13
 detect/df	161	0	4
 cat/server.go	11420	88	28
-cat/router.go	850	0	0
+cat/router.go	854	0	0
 cat/args.go	1177	0	2
 cat/decoder.py	2865	3	0
 cat/decoder-outline	774	3	0
@@ -216,7 +216,7 @@ bun/test-fail	209	0	0
 detect/bun	209	0	0
 json/github-repos	5283	0	988
 json/package-lock	35024	0	845
-json/go-list-m	1344	0	33
+json/go-list-m	1348	0	33
 json/orders-query	254	0	0
 log/structured	809	0	285
 data/churn	896	3	183

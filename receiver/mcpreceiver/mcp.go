@@ -14,10 +14,10 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/mcptool"
-	"github.com/lukaszb/gascoigne/payload"
-	"github.com/lukaszb/gascoigne/version"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/version"
 )
 
 type Receiver struct {

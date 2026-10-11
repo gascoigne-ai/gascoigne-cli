@@ -4,11 +4,11 @@
 package compose
 
 import (
-	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/compress/diag"
-	"github.com/lukaszb/gascoigne/compress/pkgnoise"
-	"github.com/lukaszb/gascoigne/compress/testreport"
-	"github.com/lukaszb/gascoigne/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/diag"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/pkgnoise"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/testreport"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
 )
 
 // Lines detects the section's type from its command (cmd may be empty) or

@@ -16,9 +16,9 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/cost"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // Ledger looks up the ledger extension by id.

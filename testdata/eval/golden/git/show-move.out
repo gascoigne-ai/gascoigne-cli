@@ -194,9 +194,9 @@ diff optimizer/data/jsonoptimizer/sample.go -> compress/rows/sample.go
 +}
 diff optimizer/data/jsonoptimizer/json.go
 @@ -14,6 +14,7 @@ import (
- 	"github.com/lukaszb/gascoigne/component"
-+	"github.com/lukaszb/gascoigne/compress/rows"
- 	"github.com/lukaszb/gascoigne/detect"
+ 	"github.com/gascoigne-ai/gascoigne-cli/component"
++	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+ 	"github.com/gascoigne-ai/gascoigne-cli/detect"
 @@ -27,7 +28,7 @@ type Optimizer struct {
  func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 -	c := &crusher{cfg: o.cfg, query: terms(p.Attrs[payload.AttrQuery])}

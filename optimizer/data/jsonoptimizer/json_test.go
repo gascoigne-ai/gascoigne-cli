@@ -3,12 +3,12 @@ package jsonoptimizer
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/lukaszb/gascoigne/compress/jsonx"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/jsonx"
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 func testConfig(edit func(*Config)) *Config {

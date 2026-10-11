@@ -12,7 +12,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/component"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
 )
 
 // usageLedger records usage only.

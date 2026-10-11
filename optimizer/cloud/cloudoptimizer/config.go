@@ -3,7 +3,7 @@ package cloudoptimizer
 import (
 	"errors"
 
-	"github.com/lukaszb/gascoigne/compress/jsonx"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/jsonx"
 )
 
 type Config struct {

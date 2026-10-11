@@ -1,6 +1,6 @@
 # Development
 
-Go 1.27, module `github.com/lukaszb/gascoigne`. Builds stay `CGO_ENABLED=0`.
+Go 1.27, module `github.com/gascoigne-ai/gascoigne-cli`. Builds stay `CGO_ENABLED=0`.
 
 ```sh
 make build      # bin/gascoigne (make install → ~/.local/bin)

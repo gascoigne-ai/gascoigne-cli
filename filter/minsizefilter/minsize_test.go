@@ -3,8 +3,8 @@ package minsizefilter
 import (
 	"testing"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 func TestFilter(t *testing.T) {

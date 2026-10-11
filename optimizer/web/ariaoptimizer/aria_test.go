@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
 )
 
 func TestShrink(t *testing.T) {

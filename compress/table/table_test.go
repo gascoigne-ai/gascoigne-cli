@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
 )
 
 func render(t *testing.T, in string, max int) string {

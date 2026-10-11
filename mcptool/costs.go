@@ -6,8 +6,8 @@ import (
 	"maps"
 	"slices"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/cost"
 )
 
 // Costs is what the tokens saved are worth, per model.

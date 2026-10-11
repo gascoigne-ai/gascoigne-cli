@@ -1,6 +1,6 @@
 package compress
 
-import "github.com/lukaszb/gascoigne/lazyre"
+import "github.com/gascoigne-ai/gascoigne-cli/lazyre"
 
 var jsTestOutput = lazyre.New(`(?m)^\s*(PASS|FAIL)\s+\S+\.(test|spec)\.\w+|^Tests:\s+\d|^\s*Test Files\s+\d|^\s*\d+ (pass|fail)$`)
 

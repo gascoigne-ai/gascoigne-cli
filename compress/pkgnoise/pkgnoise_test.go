@@ -3,7 +3,7 @@ package pkgnoise
 import (
 	"testing"
 
-	"github.com/lukaszb/gascoigne/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
 )
 
 func TestCompress(t *testing.T) {

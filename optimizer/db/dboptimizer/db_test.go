@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/compress/table"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/table"
 )
 
 func TestPlanKeepsSlowNodes(t *testing.T) {

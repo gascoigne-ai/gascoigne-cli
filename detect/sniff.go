@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 const (

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/compress/rows"
-	"github.com/lukaszb/gascoigne/compress/table"
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/table"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 var blameLine = lazyre.New(`^\^?([0-9a-f]{7,40}) (?:\S+ )?\((.+?) (\d{4}-\d\d-\d\d) \d\d:\d\d:\d\d [+-]\d{4} +(\d+)\) ?(.*)$`)

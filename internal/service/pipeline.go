@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/internal/router"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/router"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // minSaving is the fewest tokens an optimization must save to be used: the

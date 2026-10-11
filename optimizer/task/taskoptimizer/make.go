@@ -1,8 +1,8 @@
 package taskoptimizer
 
 import (
-	"github.com/lukaszb/gascoigne/compress/compose"
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/compose"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 var (

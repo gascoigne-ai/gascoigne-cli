@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
 )
 
 // diff shrinks unified diffs: one header line per file, index lines dropped,

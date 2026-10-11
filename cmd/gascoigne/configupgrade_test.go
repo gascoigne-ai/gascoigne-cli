@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/configs"
-	"github.com/lukaszb/gascoigne/internal/config"
+	"github.com/gascoigne-ai/gascoigne-cli/configs"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 )
 
 func TestUpgradeConfig(t *testing.T) {

@@ -3,8 +3,8 @@ package httpoptimizer
 import (
 	"context"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/compress/jsonx"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/jsonx"
 )
 
 const (

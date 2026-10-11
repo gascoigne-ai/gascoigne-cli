@@ -21,10 +21,10 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/lukaszb/gascoigne/cost"
-	"github.com/lukaszb/gascoigne/extension/ledger"
-	"github.com/lukaszb/gascoigne/mcptool"
-	"github.com/lukaszb/gascoigne/tokens"
+	"github.com/gascoigne-ai/gascoigne-cli/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
 // cmdReplay rebuilds the requests of recorded agent sessions (Claude Code

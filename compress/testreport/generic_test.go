@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
 )
 
 func TestCompressDialects(t *testing.T) {

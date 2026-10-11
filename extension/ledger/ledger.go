@@ -23,8 +23,8 @@ import (
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 var ErrNotFound = errors.New("not found")

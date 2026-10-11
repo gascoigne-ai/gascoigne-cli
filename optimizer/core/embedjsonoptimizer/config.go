@@ -3,7 +3,7 @@ package embedjsonoptimizer
 import (
 	"errors"
 
-	"github.com/lukaszb/gascoigne/compress/jsonx"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/jsonx"
 )
 
 // Config picks the text blocks searched for JSON and how JSON is crushed.

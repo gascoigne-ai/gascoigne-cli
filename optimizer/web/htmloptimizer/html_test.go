@@ -3,8 +3,8 @@ package htmloptimizer
 import (
 	"testing"
 
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 func TestMarkdown(t *testing.T) {

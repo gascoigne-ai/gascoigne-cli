@@ -10,8 +10,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // Tally counts the facts of one kind and lists the lost ones.

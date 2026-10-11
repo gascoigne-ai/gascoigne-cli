@@ -16,14 +16,14 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/lukaszb/gascoigne/extension/ledger"
-	"github.com/lukaszb/gascoigne/internal/config"
-	"github.com/lukaszb/gascoigne/internal/registry"
-	"github.com/lukaszb/gascoigne/internal/service"
-	"github.com/lukaszb/gascoigne/mcptool"
-	"github.com/lukaszb/gascoigne/payload"
-	"github.com/lukaszb/gascoigne/receiver/execreceiver"
-	"github.com/lukaszb/gascoigne/receiver/mcpproxyreceiver"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/registry"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/service"
+	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/execreceiver"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/mcpproxyreceiver"
 )
 
 func main() {

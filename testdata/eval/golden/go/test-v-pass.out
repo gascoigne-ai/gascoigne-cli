@@ -1,3 +1,3 @@
-ok 13 packages in github.com/lukaszb/gascoigne/internal: component, config, exporter/stdoutexporter, extension/ledger, filter/bypassfilter, filter/historyfilter, filter/minsizefilter, optimizer/passthroughoptimizer, payload, receiver/stdinreceiver, router, service, tokens
+ok 13 packages in github.com/gascoigne-ai/gascoigne-cli/internal: component, config, exporter/stdoutexporter, extension/ledger, filter/bypassfilter, filter/historyfilter, filter/minsizefilter, optimizer/passthroughoptimizer, payload, receiver/stdinreceiver, router, service, tokens
 1 package without tests
 48 tests passed

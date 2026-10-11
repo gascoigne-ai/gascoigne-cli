@@ -3,7 +3,7 @@ index 0d46457..8b1c76e 100644
 --- a/internal/router/router.go
 +++ b/internal/router/router.go
 @@ -9,7 +9,10 @@ import (
- 	"github.com/lukaszb/gascoigne/internal/payload"
+ 	"github.com/gascoigne-ai/gascoigne-cli/internal/payload"
  )
  
 -const DefaultRoute = "default"

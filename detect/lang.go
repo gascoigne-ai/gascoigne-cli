@@ -4,7 +4,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // Languages, grouped by how their blocks are delimited.

@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/internal/config"
-	"github.com/lukaszb/gascoigne/payload"
-	"github.com/lukaszb/gascoigne/receiver/httpproxyreceiver"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/httpproxyreceiver"
 )
 
 // The LLM API proxy is served by the background server under /v1/, so

@@ -4,8 +4,8 @@ package passthroughoptimizer
 import (
 	"context"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 type Optimizer struct{ component.Nop }

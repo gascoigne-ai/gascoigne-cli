@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
 )
 
 // Slice picks part of an original, so reading back a detail costs less than

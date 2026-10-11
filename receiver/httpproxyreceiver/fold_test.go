@@ -9,8 +9,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // numberedFrom renders lines as a Read result starting at line first.

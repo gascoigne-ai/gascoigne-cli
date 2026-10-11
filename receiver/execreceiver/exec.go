@@ -13,9 +13,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/compress/watch"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/watch"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // Invocation is one command run: Args in, ExitCode filled in by Run.

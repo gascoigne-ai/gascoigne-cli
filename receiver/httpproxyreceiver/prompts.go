@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/lazyre"
-	"github.com/lukaszb/gascoigne/payload"
-	"github.com/lukaszb/gascoigne/tokens"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
 // reminder is one <system-reminder> block agents put into user messages.

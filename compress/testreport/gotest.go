@@ -10,7 +10,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
 )
 
 // summary accumulates one go test run.

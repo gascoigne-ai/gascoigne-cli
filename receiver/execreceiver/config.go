@@ -3,7 +3,7 @@ package execreceiver
 import (
 	"errors"
 
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 type Config struct {

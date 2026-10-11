@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
 )
 
 // tally is the usage a response reports, field by field as the API names

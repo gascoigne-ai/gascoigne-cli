@@ -14,11 +14,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/lazyre"
-	"github.com/lukaszb/gascoigne/payload"
-	"github.com/lukaszb/gascoigne/tokens"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
 const legendPrefix = "[paths: "

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/lukaszb/gascoigne/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 	"regexp"
 	"strings"
 	"testing"

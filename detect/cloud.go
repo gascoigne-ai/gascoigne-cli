@@ -1,6 +1,6 @@
 package detect
 
-import "github.com/lukaszb/gascoigne/lazyre"
+import "github.com/gascoigne-ai/gascoigne-cli/lazyre"
 
 // Cloud CLIs.
 const (

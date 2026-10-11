@@ -12,7 +12,7 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/lukaszb/gascoigne/configs"
+	"github.com/gascoigne-ai/gascoigne-cli/configs"
 )
 
 // configData is the config to run: the built-in defaults with a config file

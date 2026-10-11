@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
 )
 
 const goSrc = `package shop

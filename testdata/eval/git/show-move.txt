@@ -253,10 +253,10 @@ index fc18c3b..9b05946 100644
 @@ -14,6 +14,7 @@ import (
  	"strings"
  
- 	"github.com/lukaszb/gascoigne/component"
-+	"github.com/lukaszb/gascoigne/compress/rows"
- 	"github.com/lukaszb/gascoigne/detect"
- 	"github.com/lukaszb/gascoigne/payload"
+ 	"github.com/gascoigne-ai/gascoigne-cli/component"
++	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+ 	"github.com/gascoigne-ai/gascoigne-cli/detect"
+ 	"github.com/gascoigne-ai/gascoigne-cli/payload"
  )
 @@ -27,7 +28,7 @@ type Optimizer struct {
  const legend = `"_table": rows align with _cols; _same: equal in all rows; _affix: value = prefix + cell + suffix`

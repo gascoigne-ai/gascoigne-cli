@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // history is a fake ledger returning fixed earlier outputs.

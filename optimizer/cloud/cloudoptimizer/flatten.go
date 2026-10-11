@@ -1,6 +1,6 @@
 package cloudoptimizer
 
-import "github.com/lukaszb/gascoigne/compress/jsonx"
+import "github.com/gascoigne-ai/gascoigne-cli/compress/jsonx"
 
 // Cloud list responses are arrays of wide, nested, mostly identical objects.
 // Flattening them to dotted keys ("Placement.AvailabilityZone") lets the

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/compress/jsonx"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/jsonx"
 )
 
 func testOptimizer() *Optimizer {

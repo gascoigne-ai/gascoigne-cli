@@ -3,8 +3,8 @@ package testreport
 import (
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress"
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // rules describe a runner's output for the generic engine.

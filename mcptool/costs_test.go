@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/cost"
 )
 
 // agentLedger: claude runs with and without a recorded model, and a model

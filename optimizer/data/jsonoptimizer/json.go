@@ -5,11 +5,11 @@ package jsonoptimizer
 import (
 	"context"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/compress/jsonx"
-	"github.com/lukaszb/gascoigne/compress/rows"
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/jsonx"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 type Config = jsonx.Config

@@ -13,12 +13,12 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress/rows"
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/exporter/stdoutexporter"
-	"github.com/lukaszb/gascoigne/lazyre"
-	"github.com/lukaszb/gascoigne/payload"
-	"github.com/lukaszb/gascoigne/receiver/hookreceiver"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/exporter/stdoutexporter"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/hookreceiver"
 )
 
 // hookInput is the event agent hooks send on stdin. Claude Code, Codex and

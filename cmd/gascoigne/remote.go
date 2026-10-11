@@ -18,12 +18,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/extension/ledger"
-	"github.com/lukaszb/gascoigne/internal/config"
-	"github.com/lukaszb/gascoigne/internal/registry"
-	"github.com/lukaszb/gascoigne/internal/service"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/registry"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/service"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // optimizeRequest hands one CLI payload to the background server, which

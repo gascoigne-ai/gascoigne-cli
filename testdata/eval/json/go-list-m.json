@@ -1,5 +1,5 @@
 {
-	"Path": "github.com/lukaszb/gascoigne",
+	"Path": "github.com/gascoigne-ai/gascoigne-cli",
 	"Main": true,
 	"Dir": "/home/user/Development/gascoigne",
 	"GoMod": "/home/user/Development/gascoigne/go.mod",

@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/payload"
-	"github.com/lukaszb/gascoigne/tokens"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
 func numbered(n int, mark map[int]string) string {

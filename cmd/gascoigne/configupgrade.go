@@ -9,8 +9,8 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/lukaszb/gascoigne/configs"
-	"github.com/lukaszb/gascoigne/internal/config"
+	"github.com/gascoigne-ai/gascoigne-cli/configs"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 )
 
 // keptHeader starts the settings an upgrade carried over from the old file.

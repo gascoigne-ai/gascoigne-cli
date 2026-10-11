@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // goOutline elides bodies of functions and methods using the Go parser.

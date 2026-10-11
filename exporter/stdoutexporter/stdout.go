@@ -7,8 +7,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // AttrHint set to HintTop prints the hint before the text instead of after

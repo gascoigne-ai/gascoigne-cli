@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 const trace = `--- FAIL: TestEncode (0.00s)

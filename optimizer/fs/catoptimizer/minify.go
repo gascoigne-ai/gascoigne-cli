@@ -3,8 +3,8 @@ package catoptimizer
 import (
 	"strings"
 
-	"github.com/lukaszb/gascoigne/detect"
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // syntax is what minifying needs to know about a language: its comments and

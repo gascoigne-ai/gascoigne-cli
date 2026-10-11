@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 func TestGlob(t *testing.T) {

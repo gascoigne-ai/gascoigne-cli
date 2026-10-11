@@ -5,7 +5,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/lukaszb/gascoigne/component"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
 )
 
 const typ = "mcp_proxy"

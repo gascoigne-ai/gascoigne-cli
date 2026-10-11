@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lukaszb/gascoigne/component"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
 )
 
 func TestUsageStats(t *testing.T) {

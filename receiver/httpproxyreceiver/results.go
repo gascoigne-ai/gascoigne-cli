@@ -12,9 +12,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/lukaszb/gascoigne/compress/rows"
-	"github.com/lukaszb/gascoigne/lazyre"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // call is the tool call a result answers.

@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // Patterns compile on first use; this binary links every component, so a

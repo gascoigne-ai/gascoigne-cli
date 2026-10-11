@@ -3,7 +3,7 @@ package pkgoptimizer
 import (
 	"context"
 
-	"github.com/lukaszb/gascoigne/component"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
 )
 
 const (

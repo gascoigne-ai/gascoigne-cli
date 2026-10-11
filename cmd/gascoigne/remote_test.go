@@ -11,10 +11,10 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/lukaszb/gascoigne/component"
-	"github.com/lukaszb/gascoigne/extension/ledger"
-	"github.com/lukaszb/gascoigne/payload"
-	"github.com/lukaszb/gascoigne/receiver/hookreceiver"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/hookreceiver"
 )
 
 func TestProcessEnv(t *testing.T) {

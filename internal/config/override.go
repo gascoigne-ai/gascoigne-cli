@@ -8,7 +8,7 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/lukaszb/gascoigne/internal/router"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/router"
 )
 
 // Overrides adjust a config for one run, e.g. per agent, without editing files.

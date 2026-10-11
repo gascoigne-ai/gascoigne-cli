@@ -1,6 +1,6 @@
 package logoptimizer
 
-import "github.com/lukaszb/gascoigne/lazyre"
+import "github.com/gascoigne-ai/gascoigne-cli/lazyre"
 
 // unitLine is a systemd job message: "<time> host systemd[1]: Starting X...".
 var unitLine = lazyre.New(`^[A-Z][a-z]{2} [ \d]\d \d\d:\d\d:\d\d (\S+ \S+?\[\d+\]): (Starting|Started|Finished|Stopping|Stopped) (.+?)(\.\.\.|\.)$`)

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/lukaszb/gascoigne/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
 // BM25 parameters, the usual defaults.

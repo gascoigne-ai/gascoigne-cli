@@ -12,7 +12,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
 )
 
 // Legend explains table encoding once per output, so readers can decode rows.

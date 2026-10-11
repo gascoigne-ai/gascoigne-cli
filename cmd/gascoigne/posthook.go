@@ -6,8 +6,8 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/lukaszb/gascoigne/lazyre"
-	"github.com/lukaszb/gascoigne/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // Claude Code lets a PostToolUse hook replace any tool's result
