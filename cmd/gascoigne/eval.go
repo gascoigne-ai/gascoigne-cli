@@ -19,6 +19,7 @@ import (
 	"github.com/lukaszb/gascoigne/internal/config"
 	"github.com/lukaszb/gascoigne/internal/registry"
 	"github.com/lukaszb/gascoigne/internal/service"
+	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/mcptool"
 	"github.com/lukaszb/gascoigne/payload"
 )
@@ -49,6 +50,11 @@ type evalCase struct {
 	// tools whose output changed shape. Its output varies, so it has no
 	// golden or baseline; a missing program skips the case.
 	Run string `yaml:"run"`
+	// Reference names a file with the text the output must still hold (an
+	// article's body for a web page); eval reports word recall and
+	// precision against it, and fails under MinRecall (%).
+	Reference string  `yaml:"reference"`
+	MinRecall float64 `yaml:"min_recall"`
 }
 
 func (c *evalCase) name() string {
@@ -116,6 +122,7 @@ func cmdEval(ctx context.Context, args []string) error {
 	var rawTotal, outTotal int
 	var took time.Duration
 	var errs, shows []string
+	var refs []overlap
 	for _, tc := range cases {
 		r, err := runCase(ctx, svc, pl, dir, &tc, ef.update)
 		if errors.Is(err, errNotInstalled) {
@@ -127,6 +134,9 @@ func cmdEval(ctx context.Context, args []string) error {
 		}
 		rawTotal += r.raw
 		outTotal += r.out
+		if r.overlap != nil {
+			refs = append(refs, *r.overlap)
+		}
 		took += r.took
 		cur := r.baseline()
 		if tc.Run == "" {
@@ -154,6 +164,15 @@ func cmdEval(ctx context.Context, args []string) error {
 	}
 	fmt.Fprintf(w, "total\t\t\t%d\t%d\t%s\t\t%s\t\n", rawTotal, outTotal, mcptool.Percent(rawTotal-outTotal, rawTotal), ms(took))
 	w.Flush()
+	if len(refs) > 0 {
+		var recall, precision float64
+		for _, o := range refs {
+			recall += o.recall()
+			precision += o.precision()
+		}
+		n := float64(len(refs))
+		fmt.Printf("reference words, mean of %d cases: recall %.1f%%, precision %.1f%%\n", len(refs), 100*recall/n, 100*precision/n)
+	}
 	if ef.update && len(names) > 0 {
 		if err := writeBaseline(basePath, names, next); err != nil {
 			return err
@@ -173,6 +192,7 @@ type caseResult struct {
 	types, route, text string
 	raw, out           int
 	took               time.Duration
+	overlap            *overlap // nil without a reference
 	probes             probe.Report
 	problems           []string
 }
@@ -232,6 +252,17 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		fail("saved %.1f%% < min %.0f%%", saved, tc.MinSaved)
 	}
 
+	if tc.Reference != "" {
+		ref, err := os.ReadFile(filepath.Join(dir, tc.Reference))
+		if err != nil {
+			return nil, err
+		}
+		o := wordOverlap(string(ref), r.text)
+		r.overlap = &o
+		if recall := 100 * o.recall(); recall < tc.MinRecall {
+			fail("reference recall %.1f%% < min %.0f%%", recall, tc.MinRecall)
+		}
+	}
 	if tc.Run != "" {
 		return r, nil
 	}
@@ -324,6 +355,35 @@ func (c *evalCase) live(ctx context.Context) (*payload.Payload, error) {
 	}
 	return p, nil
 }
+
+// overlap counts the words a reference and an output share, each word as
+// often as both have it: what token-level recall and precision measure.
+type overlap struct{ ref, out, both int }
+
+var wordRe = lazyre.New(`[\pL\pN]+`)
+
+func wordOverlap(ref, out string) overlap {
+	count := func(s string) map[string]int {
+		m := map[string]int{}
+		for _, w := range wordRe.FindAllString(strings.ToLower(s), -1) {
+			m[w]++
+		}
+		return m
+	}
+	r, o := count(ref), count(out)
+	var v overlap
+	for w, n := range r {
+		v.ref += n
+		v.both += min(n, o[w])
+	}
+	for _, n := range o {
+		v.out += n
+	}
+	return v
+}
+
+func (o overlap) recall() float64    { return float64(o.both) / float64(max(o.ref, 1)) }
+func (o overlap) precision() float64 { return float64(o.both) / float64(max(o.out, 1)) }
 
 // lostCell shows lost error lines and artifacts as "errors/artifacts", "-" when none.
 func lostCell(r probe.Report) string {

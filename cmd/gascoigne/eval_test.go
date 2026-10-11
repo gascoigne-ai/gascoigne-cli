@@ -62,3 +62,11 @@ func TestLiveCase(t *testing.T) {
 		})
 	}
 }
+
+func TestWordOverlap(t *testing.T) {
+	o := wordOverlap("The cat sat. The end", "the CAT, the mat; menu")
+	// ref: the×2 cat sat end (5); out: the×2 cat mat menu (5); shared: the×2 cat.
+	if o != (overlap{ref: 5, out: 5, both: 3}) || o.recall() != 0.6 || o.precision() != 0.6 {
+		t.Errorf("overlap %+v", o)
+	}
+}

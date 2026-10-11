@@ -43,3 +43,8 @@ Live drift: `make eval-live` runs `testdata/eval/live.yaml` (`run:` cases: real 
 repo, output varies, so no golden/baseline; missing programs skip). A wrong type or a floor
 missed there while the fixture case passes means the tool's output changed shape: refresh the
 fixture from the live output.
+
+Accuracy against references: a case's `reference:` file is text the output must hold (word
+recall/precision printed, `min_recall` floor). `.harness/scripts/html-bench.sh` runs the public
+article extraction benchmark (181 pages, cloned into the cache dir, never the repo) through the
+cli pipeline as fetched pages: recall/precision of the article text and savings.
