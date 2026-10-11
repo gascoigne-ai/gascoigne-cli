@@ -28,6 +28,9 @@ Measured; don't retry without new data.
   thinking blocks cannot change.
 - Trimming edit-tool result echoes in the proxy: Claude Code Edit/Write results average ~165 bytes
   (a one-line confirmation), 1.7% + 1.0% of tool-result bytes over 40 sessions; nothing to trim.
+- Folding repeated reminders in the proxy: transcripts hold few `<system-reminder>`s; repeats
+  are per-prompt hook context (34.6 KB over 40 sessions, ~330 tokens per session vs ~25k tokens
+  of instructions per request), mostly prompt-cache reads, and repeating is what those hooks want.
 - SIMD JSON parsing: decode is ~30% of jsonx time (35–70 MB/s) and Go values must still be
   built; revisit only if decode dominates real workloads.
 
