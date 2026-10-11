@@ -31,6 +31,7 @@
 #     ledger: ledger
 #     retrieve: gascoigne_retrieve    ## added tool; must not clash with downstream tools
 #     compact_tools: true             ## tool schemas: drop titles restating names, $schema markers
+#     max_tools: 0                    ## >0: more tools than this → search_tools + call_tool (agents without tool search)
 #   httpproxy:                        ## LLM API proxy in the background server (/v1/, base URL http://127.0.0.1:7878)
 #     anthropic: https://api.anthropic.com
 #     openai: https://api.openai.com

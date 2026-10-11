@@ -133,7 +133,9 @@ every payload through one chain of all optimizers; routes only override per comm
   `retrieve id` (optional `lines`/`grep`/`query`: a part, not a failure) returns originals and
   marks the source as badly optimized. `stats` reports savings.
 - `gascoigne mcp-proxy -- <server cmd>`: mirrors a downstream server's tools, optimizes their text
-  results, adds `gascoigne_retrieve`. Non-text content passes untouched.
+  results, adds `gascoigne_retrieve`. `compact_tools` drops redundant schema keys; `max_tools` > 0 (off by
+  default) hides more tools than that behind `search_tools` (BM25 over names and descriptions,
+  top 5 with schemas) and `call_tool`, for agents without native tool search. Non-text content passes untouched.
 - MCP pipelines have no exporters: stdout is the protocol channel.
 
 ## LLM API proxy (`receiver/httpproxyreceiver`, `cmd/gascoigne/llmproxy.go`)

@@ -71,6 +71,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 		info = &mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}
 	}
 	s := mcp.NewServer(info, &mcp.ServerOptions{Instructions: init.Instructions, Logger: r.log})
+	var tools []*mcp.Tool
 	for tool, err := range cs.Tools(ctx, nil) {
 		if err != nil {
 			return fmt.Errorf("list downstream tools: %w", err)
@@ -81,7 +82,14 @@ func (r *Receiver) Run(ctx context.Context) error {
 		if r.cfg.CompactTools {
 			tool.InputSchema = compactSchema(tool.Name, tool.InputSchema)
 		}
-		s.AddTool(tool, r.forward(cs, tool.Name))
+		tools = append(tools, tool)
+	}
+	if r.cfg.MaxTools > 0 && len(tools) > r.cfg.MaxTools {
+		r.addLazy(s, cs, tools)
+	} else {
+		for _, tool := range tools {
+			s.AddTool(tool, r.forward(cs, tool.Name))
+		}
 	}
 	mcptool.AddRetrieve(s, r.cfg.Retrieve, r.ledger)
 	return s.Run(ctx, r.upstream)
@@ -119,25 +127,30 @@ func (r *Receiver) downstream(ctx context.Context) mcp.Transport {
 // forward calls the downstream tool and optimizes its text results.
 func (r *Receiver) forward(cs *mcp.ClientSession, name string) mcp.ToolHandler {
 	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: name, Arguments: req.Params.Arguments})
-		if err != nil {
-			return nil, err
-		}
-		for i, c := range res.Content {
-			tc, ok := c.(*mcp.TextContent)
-			if !ok {
-				continue
-			}
-			p := payload.New(payload.ToolResult, tc.Text)
-			p.Set(payload.AttrTool, name)
-			r.sessions.Tag(p, req)
-			out, err := r.next.Process(ctx, p)
-			if err != nil {
-				r.log.Warn("optimize tool result, passing original", "tool", name, "err", err)
-				continue
-			}
-			res.Content[i] = &mcp.TextContent{Text: mcptool.Text(out, r.cfg.Retrieve), Annotations: tc.Annotations}
-		}
-		return res, nil
+		return r.call(ctx, cs, name, req.Params.Arguments, req)
 	}
+}
+
+// call runs a downstream tool and optimizes its text results.
+func (r *Receiver) call(ctx context.Context, cs *mcp.ClientSession, name string, args any, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: name, Arguments: args})
+	if err != nil {
+		return nil, err
+	}
+	for i, c := range res.Content {
+		tc, ok := c.(*mcp.TextContent)
+		if !ok {
+			continue
+		}
+		p := payload.New(payload.ToolResult, tc.Text)
+		p.Set(payload.AttrTool, name)
+		r.sessions.Tag(p, req)
+		out, err := r.next.Process(ctx, p)
+		if err != nil {
+			r.log.Warn("optimize tool result, passing original", "tool", name, "err", err)
+			continue
+		}
+		res.Content[i] = &mcp.TextContent{Text: mcptool.Text(out, r.cfg.Retrieve), Annotations: tc.Annotations}
+	}
+	return res, nil
 }

@@ -13,9 +13,16 @@ type Config struct {
 	// CompactTools drops what downstream tool schemas say twice (titles
 	// restating names, $schema markers); constraints stay.
 	CompactTools bool `yaml:"compact_tools"`
+	// MaxTools hides the downstream tools behind search_tools and call_tool
+	// when there are more than this many, so agents without tool search do
+	// not send every schema with every request; 0 always mirrors them.
+	MaxTools int `yaml:"max_tools"`
 }
 
 func (c *Config) Validate() error {
+	if c.MaxTools < 0 {
+		return errors.New("max_tools must not be negative")
+	}
 	if c.Retrieve == "" {
 		return errors.New("retrieve must be set")
 	}
