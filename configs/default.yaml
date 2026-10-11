@@ -123,6 +123,9 @@ optimizers:
 exporters:
   stdout: { hint: true }
 
+# Experimental commands to enable ("all" for every one); GASCOIGNE_EXPERIMENTAL adds to it.
+experimental: []
+
 pipelines:
   cli:
     receivers: [stdin]

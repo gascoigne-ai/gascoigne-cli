@@ -22,8 +22,8 @@ type command struct {
 	about    string // longer text for its own help page
 	examples []string
 	run      func(ctx context.Context, args []string) error
-	// experimental commands exist only when GASCOIGNE_EXPERIMENTAL names
-	// them (a comma list, or "all"): help lists them and they run.
+	// experimental commands exist only when the config's experimental list
+	// or GASCOIGNE_EXPERIMENTAL (a comma list) names them, or says "all".
 	experimental bool
 }
 
@@ -32,7 +32,7 @@ func available(c command) bool {
 	if !c.experimental {
 		return true
 	}
-	on := splitList(os.Getenv("GASCOIGNE_EXPERIMENTAL"), ",")
+	on := append(splitList(os.Getenv("GASCOIGNE_EXPERIMENTAL"), ","), configExperimental()...)
 	return slices.Contains(on, "all") || slices.Contains(on, c.name)
 }
 
@@ -218,7 +218,7 @@ func cmdHelp(_ context.Context, args []string) error {
 
 func unknownCommand(name string) error {
 	if i := slices.IndexFunc(commandList, func(c command) bool { return c.name == name }); i >= 0 {
-		return fmt.Errorf("%q is experimental: set GASCOIGNE_EXPERIMENTAL=%s", name, name)
+		return fmt.Errorf("%q is experimental: add it to experimental in the config, or set GASCOIGNE_EXPERIMENTAL=%s", name, name)
 	}
 	msg := fmt.Sprintf("unknown command %q", name)
 	if s := suggest(name); s != "" {

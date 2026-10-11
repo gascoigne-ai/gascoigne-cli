@@ -28,6 +28,9 @@ type Config struct {
 	Exporters  Components          `yaml:"exporters"`
 	Router     router.Config       `yaml:"router"`
 	Pipelines  map[string]Pipeline `yaml:"pipelines"`
+	// Experimental names the CLI commands to enable that are not stable yet
+	// ("all" for every one); GASCOIGNE_EXPERIMENTAL adds to it.
+	Experimental []string `yaml:"experimental"`
 }
 
 type Pipeline struct {

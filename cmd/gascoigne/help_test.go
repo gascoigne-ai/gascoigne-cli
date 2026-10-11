@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"flag"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
 
 func TestOverviewListsCommands(t *testing.T) {
+	t.Setenv("GASCOIGNE_CONFIG", filepath.Join(t.TempDir(), "none.yaml"))
 	var b bytes.Buffer
 	printOverview(&b)
 	for _, c := range commandList {
@@ -24,15 +27,23 @@ func TestOverviewListsCommands(t *testing.T) {
 
 func TestExperimentalCommands(t *testing.T) {
 	for _, tc := range []struct {
-		env  string
-		want bool
+		name, env, config string
+		want              bool
 	}{
-		{"", false},
-		{"other", false},
-		{"other,prompts", true},
-		{"all", true},
+		{"off", "", "", false},
+		{"env names another", "other", "", false},
+		{"env names it", "other,prompts", "", true},
+		{"env all", "all", "", true},
+		{"config names it", "", "experimental: [prompts]\n", true},
+		{"config all", "", "experimental: [all]\n", true},
+		{"config names another", "", "experimental: [other]\n", false},
 	} {
-		t.Run(tc.env, func(t *testing.T) {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := filepath.Join(t.TempDir(), "config.yaml")
+			if err := os.WriteFile(cfg, []byte(tc.config), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			t.Setenv("GASCOIGNE_CONFIG", cfg)
 			t.Setenv("GASCOIGNE_EXPERIMENTAL", tc.env)
 			if _, ok := lookup("prompts"); ok != tc.want {
 				t.Errorf("lookup(prompts) = %v, want %v", ok, tc.want)
@@ -44,6 +55,7 @@ func TestExperimentalCommands(t *testing.T) {
 			}
 		})
 	}
+	t.Setenv("GASCOIGNE_CONFIG", filepath.Join(t.TempDir(), "none.yaml"))
 	t.Setenv("GASCOIGNE_EXPERIMENTAL", "")
 	if err := unknownCommand("prompts"); !strings.Contains(err.Error(), "GASCOIGNE_EXPERIMENTAL=prompts") {
 		t.Errorf("disabled command error = %v, want the env to set", err)

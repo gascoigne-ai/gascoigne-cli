@@ -47,6 +47,22 @@ func configData(path string) ([]byte, error) {
 	return data, nil
 }
 
+// configExperimental is the config's experimental list. A config that
+// does not load enables nothing; the commands that run it say why.
+func configExperimental() []string {
+	data, err := configData("")
+	if err != nil {
+		return nil
+	}
+	var c struct {
+		Experimental []string `yaml:"experimental"`
+	}
+	if yaml.Unmarshal(data, &c) != nil {
+		return nil
+	}
+	return c.Experimental
+}
+
 // configPath is the config file to read (-config, $GASCOIGNE_CONFIG, else
 // the user's) and whether it is the user's own, which gascoigne writes and
 // upgrades. "" when there is no user config dir.

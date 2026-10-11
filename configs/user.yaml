@@ -237,6 +237,9 @@
 #   routes: []                        ## e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
 #   default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, doc, dense, paths, truncate, rerun]
 
+## Experimental commands to enable: prompts, or all. GASCOIGNE_EXPERIMENTAL adds to the list.
+# experimental: []
+
 ## Pipelines: which receivers, filters and exporters each command uses.
 # pipelines:
 #   cli: { receivers: [stdin], filters: [bypass, detect, minsize, history], exporters: [stdout] }
