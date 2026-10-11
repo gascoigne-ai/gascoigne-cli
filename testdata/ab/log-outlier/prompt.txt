@@ -1,0 +1,1 @@
+In testdata/eval/adversarial/errors-near-dup.log one sync batch took far longer than all the others. Which batch number was it? Reply with the number only.

@@ -1,0 +1,11 @@
+--- a/compress/probe/probe.go
++++ b/compress/probe/probe.go
+@@ -132,7 +132,7 @@
+ 
+ // isHash: 7–64 hex digits mixing letters and digits (words like "defaced" are not).
+ func isHash(s string) bool {
+-	return len(s) >= 7 && len(s) <= 64 && strings.ContainsAny(s, "abcdef") && strings.ContainsAny(s, "0123456789") &&
++	return len(s) >= 7 && len(s) <= 64 && strings.ContainsAny(s, "abcdef") &&
+ 		strings.Trim(s, "0123456789abcdef") == ""
+ }
+ 

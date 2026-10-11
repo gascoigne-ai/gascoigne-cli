@@ -48,3 +48,10 @@ Accuracy against references: a case's `reference:` file is text the output must 
 recall/precision printed, `min_recall` floor). `.harness/scripts/html-bench.sh` runs the public
 article extraction benchmark (181 pages, cloned into the cache dir, never the repo) through the
 cli pipeline as fetched pages: recall/precision of the article text and savings.
+
+Task success (costs API money, never in `make check`): `.harness/scripts/ab.sh [-n] [-r 3] [-m
+model] [task…]` runs each `testdata/ab/<task>` (prompt.txt, setup.patch planting a bug on
+`testdata/ab/BASE`, check.sh judging the result) with `claude -p` off (no user settings, MCP or
+gascoigne env) and on (`gascoigne wrap claude`), then prints pass rate, cost, input tokens and
+turns per arm. `-n` checks the tasks for free: each must apply and fail its check unsolved. A
+new task needs a check that passes on the solved state (try it on the base commit).

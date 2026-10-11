@@ -1,0 +1,11 @@
+--- a/optimizer/log/logoptimizer/outliers.go
++++ b/optimizer/log/logoptimizer/outliers.go
+@@ -47,7 +47,7 @@
+ 			continue
+ 		}
+ 		sorted := slices.Sorted(slices.Values(vals))
+-		median := sorted[len(sorted)/2]
++		median := len(sorted) / 2
+ 		if median <= 0 {
+ 			continue
+ 		}
