@@ -22,6 +22,18 @@ type command struct {
 	about    string // longer text for its own help page
 	examples []string
 	run      func(ctx context.Context, args []string) error
+	// experimental commands exist only when GASCOIGNE_EXPERIMENTAL names
+	// them (a comma list, or "all"): help lists them and they run.
+	experimental bool
+}
+
+// available reports whether c can run: stable, or experimental and enabled.
+func available(c command) bool {
+	if !c.experimental {
+		return true
+	}
+	on := splitList(os.Getenv("GASCOIGNE_EXPERIMENTAL"), ",")
+	return slices.Contains(on, "all") || slices.Contains(on, c.name)
 }
 
 const (
@@ -123,8 +135,9 @@ func init() {
 			about: "Reads the instruction files an agent loads for dir (CLAUDE.md chain with @imports, auto\n" +
 				"memory, skill and subagent descriptions; codex: AGENTS.md), counts and prices them, and\n" +
 				"reports large imports, lines sent twice and long descriptions.",
-			examples: []string{"gascoigne prompts", "gascoigne prompts -agent codex -json"},
-			run:      cmdPrompts},
+			examples:     []string{"GASCOIGNE_EXPERIMENTAL=prompts gascoigne prompts", "gascoigne prompts -agent codex -json"},
+			run:          cmdPrompts,
+			experimental: true},
 		{name: "replay", args: "[flags]", group: groupSavings,
 			summary: "replay recorded agent sessions through the LLM API proxy",
 			about: "Rebuilds the requests of Claude Code transcripts and sends them through the proxy against a\n" +
@@ -179,7 +192,7 @@ func init() {
 }
 
 func lookup(name string) (command, bool) {
-	i := slices.IndexFunc(commandList, func(c command) bool { return c.name == name })
+	i := slices.IndexFunc(commandList, func(c command) bool { return c.name == name && available(c) })
 	if i < 0 {
 		return command{}, false
 	}
@@ -204,6 +217,9 @@ func cmdHelp(_ context.Context, args []string) error {
 }
 
 func unknownCommand(name string) error {
+	if i := slices.IndexFunc(commandList, func(c command) bool { return c.name == name }); i >= 0 {
+		return fmt.Errorf("%q is experimental: set GASCOIGNE_EXPERIMENTAL=%s", name, name)
+	}
 	msg := fmt.Sprintf("unknown command %q", name)
 	if s := suggest(name); s != "" {
 		msg += fmt.Sprintf(", did you mean %q?", s)
@@ -215,6 +231,9 @@ func unknownCommand(name string) error {
 func suggest(name string) string {
 	best, bestDist := "", 3
 	for _, c := range commandList {
+		if !available(c) {
+			continue
+		}
 		d := distance(name, c.name)
 		if len(name) >= 2 && strings.HasPrefix(c.name, name) {
 			d = 1
@@ -265,7 +284,7 @@ func printOverview(w io.Writer) {
 	for _, g := range groups {
 		fmt.Fprintf(w, "\n%s\n", p.paint(bold, strings.ToUpper(g)))
 		for _, c := range commandList {
-			if c.group != g {
+			if c.group != g || !available(c) {
 				continue
 			}
 			args := c.short

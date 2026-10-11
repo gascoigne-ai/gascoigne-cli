@@ -13,12 +13,40 @@ func TestOverviewListsCommands(t *testing.T) {
 	printOverview(&b)
 	for _, c := range commandList {
 		listed := strings.Contains(b.String(), "\n  "+c.name+" ") || strings.Contains(b.String(), "\n  "+c.name+"\n")
-		if listed != (c.group != "") {
+		if listed != (c.group != "" && available(c)) {
 			t.Errorf("%s: listed %v, group %q", c.name, listed, c.group)
 		}
 	}
 	if strings.Contains(b.String(), "\x1b[") {
 		t.Error("colors in output that is not a terminal")
+	}
+}
+
+func TestExperimentalCommands(t *testing.T) {
+	for _, tc := range []struct {
+		env  string
+		want bool
+	}{
+		{"", false},
+		{"other", false},
+		{"other,prompts", true},
+		{"all", true},
+	} {
+		t.Run(tc.env, func(t *testing.T) {
+			t.Setenv("GASCOIGNE_EXPERIMENTAL", tc.env)
+			if _, ok := lookup("prompts"); ok != tc.want {
+				t.Errorf("lookup(prompts) = %v, want %v", ok, tc.want)
+			}
+			var b bytes.Buffer
+			printOverview(&b)
+			if listed := strings.Contains(b.String(), "\n  prompts "); listed != tc.want {
+				t.Errorf("overview lists prompts: %v, want %v", listed, tc.want)
+			}
+		})
+	}
+	t.Setenv("GASCOIGNE_EXPERIMENTAL", "")
+	if err := unknownCommand("prompts"); !strings.Contains(err.Error(), "GASCOIGNE_EXPERIMENTAL=prompts") {
+		t.Errorf("disabled command error = %v, want the env to set", err)
 	}
 }
 
