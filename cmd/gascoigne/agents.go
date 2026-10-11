@@ -186,7 +186,7 @@ func claudeArgs(exe string) ([]string, error) {
 func claudeInstall(exe string) string {
 	return fmt.Sprintf(`# merge into ~/.claude/settings.json (or .claude/settings.json in a project)
 %s
-# MCP server (fetch, compress, retrieve, stats)
+# MCP server (fetch, compress, show, retrieve, stats)
 claude mcp add --scope user gascoigne -- %s mcp
 # permission rules see the wrapped command: allow e.g. "Bash(gascoigne exec -- go test:*)"
 # optional: deny "Grep" and "Glob" so searches run through Bash (rg, find) and get optimized,

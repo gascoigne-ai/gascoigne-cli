@@ -60,6 +60,7 @@ func (r *Receiver) server() *mcp.Server {
 		Name:        "compress",
 		Description: "Compress text (command output, logs, JSON, code) to fewer tokens. cmd/file hints improve detection.",
 	}, r.compress)
+	mcptool.AddShow(s)
 	mcptool.AddRetrieve(s, r.cfg.Retrieve, r.ledger)
 	mcptool.AddStats(s, r.ledger, r.sessions)
 	return s

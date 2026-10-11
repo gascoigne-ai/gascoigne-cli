@@ -19,6 +19,7 @@ func guide(rewrites bool) string {
 		b.WriteString("- Keep each shell call a plain command or a && / ; list, piping only into head or tail. Loops, $( ), redirects, subshells and other pipes run unoptimized.\n")
 	}
 	b.WriteString("- Read web pages and HTTP APIs with the gascoigne fetch tool (pass query to focus long pages); for large text you already have, use compress.\n")
+	b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name> (or the show tool); gascoigne show <file> lists its definitions with line ranges.\n")
 	b.WriteString("- Ids like §1 in output stand for the path given in the [paths: §1=…] line above them.\n")
 	b.WriteString("- Output ending in [gascoigne: … full: gascoigne raw <id>] was shortened. If a detail is missing, run gascoigne raw <id> (add -grep PATTERN, -query WORDS or -lines A-B to read only part) or call retrieve with the id instead of re-running the command.\n")
 	return b.String()

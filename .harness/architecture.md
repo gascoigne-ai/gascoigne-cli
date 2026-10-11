@@ -127,8 +127,11 @@ every payload through one chain of all optimizers; routes only override per comm
 ## MCP
 - `gascoigne mcp`: stdio server. `fetch` turns web pages into markdown and compresses API JSON
   (http/https only, timeout, size cap) — the way to read web data cheaply. `compress` takes any
-  text with optional `cmd`/`file` hints. `retrieve id` returns originals and marks the source as
-  badly optimized. `stats` reports savings.
+  text with optional `cmd`/`file` hints. `show {file, symbol?}` (also `gascoigne show
+  file[:symbol]`, `mcptool.Show` on `compress/symbols`: Go parser, Python indent, C-like braces)
+  returns one definition with doc comment and line numbers, or without symbol the outline.
+  `retrieve id` (optional `lines`/`grep`/`query`: a part, not a failure) returns originals and
+  marks the source as badly optimized. `stats` reports savings.
 - `gascoigne mcp-proxy -- <server cmd>`: mirrors a downstream server's tools, optimizes their text
   results, adds `gascoigne_retrieve`. Non-text content passes untouched.
 - MCP pipelines have no exporters: stdout is the protocol channel.

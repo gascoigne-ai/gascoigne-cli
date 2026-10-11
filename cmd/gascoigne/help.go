@@ -76,6 +76,11 @@ func init() {
 			about:   "Reads a hook event on stdin and answers for the agent. Never fails the tool call.",
 			run:     cmdHook},
 
+		{name: "show", args: "<file>[:symbol]", group: groupOptimize,
+			summary:  "print one function, method or type of a source file, or its outline",
+			about:    "With a symbol (Name, Type.Method), prints that definition and its doc comment with line\nnumbers; without one, each definition's signature line and line range.",
+			examples: []string{"gascoigne show internal/service/pipeline.go:Process", "gascoigne show app/models.py"},
+			run:      cmdShow},
 		{name: "exec", args: "[flags] -- <cmd> [args...]", short: "-- <cmd> [args...]", group: groupOptimize,
 			summary: "run a command, print its optimized output, keep its exit code",
 			about: "Runs the command, merges stdout and stderr, optimizes the result and prints it with a\n" +
@@ -88,8 +93,8 @@ func init() {
 			examples: []string{"kubectl get pods -o yaml | gascoigne run", "gascoigne run -attr file=package-lock.json < package-lock.json"},
 			run:      cmdRun},
 		{name: "mcp", args: "[flags]", group: groupOptimize,
-			summary:  "MCP server on stdio: fetch, compress, retrieve, stats",
-			about:    "fetch reads web pages as markdown and compresses API JSON; compress takes any text;\nretrieve returns originals; stats reports savings.",
+			summary:  "MCP server on stdio: fetch, compress, show, retrieve, stats",
+			about:    "fetch reads web pages as markdown and compresses API JSON; compress takes any text;\nshow reads one definition of a source file; retrieve returns originals; stats reports savings.",
 			examples: []string{"claude mcp add gascoigne -- gascoigne mcp"},
 			run:      cmdMCP},
 		{name: "mcp-proxy", args: "[flags] -- <server cmd>", short: "-- <server>", group: groupOptimize,

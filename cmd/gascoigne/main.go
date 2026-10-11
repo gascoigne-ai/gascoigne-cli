@@ -7,6 +7,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -300,5 +301,27 @@ func cmdConfig(_ context.Context, args []string) error {
 		return err
 	}
 	_, err = os.Stdout.Write(out)
+	return err
+}
+
+func cmdShow(_ context.Context, args []string) error {
+	fs := newFlags("show")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if fs.NArg() != 1 {
+		return errors.New("show: want <file>[:symbol]")
+	}
+	path, symbol := fs.Arg(0), ""
+	if i := strings.LastIndexByte(path, ':'); i > 0 {
+		if _, err := os.Stat(path); err != nil {
+			path, symbol = path[:i], path[i+1:]
+		}
+	}
+	text, err := mcptool.Show(path, symbol)
+	if err != nil {
+		return err
+	}
+	_, err = io.WriteString(os.Stdout, text)
 	return err
 }
