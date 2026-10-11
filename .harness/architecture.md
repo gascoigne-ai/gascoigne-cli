@@ -282,6 +282,9 @@ Reports — `gascoigne gain` (add `-session ID`, `-all`, `-json`):
 | `gain -by agent\|model\|session\|command\|optimizer\|family\|outcome\|reason\|route` | one grouping |
 | filters, any view | `-session`, `-agent`, `-model`, `-since 7d\|4w\|6mo\|24h` (combine freely) |
 | `gain -failures` | sources that bypass optimization after going bad |
+The overview ends with `estimates` (`Overview.Estimates`, JSON `estimates`, MCP `stats`): what
+is estimated and how (tokens.Estimate error, cost factors and rereads, image pixels/750, tool sets
+counted once), so totals are not read as billing.
 Terminal output (`cmd/gascoigne/render.go`): human token counts, savings/share bars, colors by
 saved % (green ≥60, yellow ≥30, red); `-color auto|always|never`, auto honors `NO_COLOR` and
 TTY detection. MCP `stats` stays plain text (no ANSI/bars: they cost the agent tokens).

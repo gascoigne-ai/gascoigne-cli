@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand/v2"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -309,6 +310,9 @@ type Overview struct {
 	Skipped   []StatsJSON `json:"skipped"`
 	Failed    []StatsJSON `json:"failed"`
 	Unchanged []StatsJSON `json:"unchanged"`
+	// Estimates says which numbers are estimated and how, so totals are
+	// not read as billing.
+	Estimates []string `json:"estimates"`
 }
 
 func BuildOverview(ctx context.Context, l component.Ledger, filter component.StatsQuery) (Overview, error) {
@@ -371,7 +375,30 @@ func BuildOverview(ctx context.Context, l component.Ledger, filter component.Sta
 			o.Unchanged = append(o.Unchanged, j)
 		}
 	}
+	o.Estimates = estimates(o)
 	return o, nil
+}
+
+// estimates explains how the overview's numbers are made: what is counted,
+// what is modeled, and what the counts leave out.
+func estimates(o Overview) []string {
+	notes := []string{
+		"tokens: estimated from the text (tokens.Estimate, ~10% mean error against a 200k-vocabulary tokenizer), not billed counts",
+	}
+	if len(o.Cost.Savings) > 0 {
+		notes = append(notes,
+			"cost: saved tokens × the model's tokenizer factor × list prices; in context assumes each result is reread "+
+				strconv.FormatFloat(o.Cost.Rereads, 'f', 0, 64)+" times from the prompt cache (measured median), 0.8% of reads missing it")
+	}
+	for _, r := range o.Optimizers {
+		switch r.Group {
+		case "image":
+			notes = append(notes, "image: proxied screenshots counted as pixels/750 tokens (Anthropic's image formula)")
+		case "tools":
+			notes = append(notes, "tools: tool definitions counted once per distinct set, though every request sends them: real savings are larger")
+		}
+	}
+	return notes
 }
 
 // outcomeNotes say what each outcome means for tokens.
@@ -440,6 +467,12 @@ func (o Overview) Table() string {
 	section("skipped", "filter\tcommand\truns\ttokens\treason (latest)", o.Skipped, reasons)
 	section("failed", "optimizer\tcommand\truns\ttokens\terror (latest)", o.Failed, reasons)
 	section("unchanged", "-\tcommand\truns\ttokens\treason (latest)", o.Unchanged, reasons)
+	if len(o.Estimates) > 0 {
+		b.WriteString("\nestimates\n")
+		for _, n := range o.Estimates {
+			b.WriteString("- " + n + "\n")
+		}
+	}
 	return b.String()
 }
 

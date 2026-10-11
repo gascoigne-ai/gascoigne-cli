@@ -199,6 +199,12 @@ func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int, us
 		fmt.Fprintf(w, "\n%s %d sources bypass optimization after going bad · %s\n",
 			p.paint(yellow, "⚠"), failing, p.paint(dim, "gascoigne gain -failures"))
 	}
+	if len(o.Estimates) > 0 {
+		p.section(w, "estimates · how these numbers are made")
+		for _, n := range o.Estimates {
+			fmt.Fprintln(w, p.paint(dim, " "+n))
+		}
+	}
 }
 
 // reasonTable lists runs that were not optimized with the facts behind it.
