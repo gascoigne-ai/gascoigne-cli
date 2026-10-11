@@ -135,6 +135,7 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Dur
 	} else {
 		defer closeProxy()
 		mux.Handle("/v1/", localOnly(proxy))
+		mux.Handle("/v1beta/", localOnly(proxy)) // Gemini
 	}
 	var rebuilt atomic.Bool
 	go watchBinary(ctx, b, 2*time.Second, func() string { b, _ := binary(); return b }, func() {

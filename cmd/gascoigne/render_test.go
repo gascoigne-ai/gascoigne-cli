@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/lukaszb/gascoigne/extension/ledger"
 	"regexp"
 	"strings"
 	"testing"
@@ -79,5 +80,25 @@ func TestParseSince(t *testing.T) {
 		if _, err := parseSince(bad); err == nil {
 			t.Errorf("parseSince(%q) accepted", bad)
 		}
+	}
+}
+
+func TestUsageTable(t *testing.T) {
+	var b strings.Builder
+	painter{false}.usageTable(&b, []ledger.UsageStat{
+		{Agent: "claude", Model: "claude-opus-5-5", Requests: 2, Input: 1_000_000, CacheRead: 10_000_000, CacheWrite: 400_000, Output: 100_000},
+		{Agent: "pi", Model: "local-llm", Requests: 1, Input: 10},
+	})
+	out := b.String()
+	// 1M×$4 + 10M×$0.20 + 0.4M×$5 + 0.1M×$20 = $10
+	for _, want := range []string{"API USAGE", "claude-opus-5-5", "$10", "?", "no known price"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("missing %q in\n%s", want, out)
+		}
+	}
+	b.Reset()
+	painter{false}.usageTable(&b, nil)
+	if b.Len() != 0 {
+		t.Fatalf("empty usage printed: %q", b.String())
 	}
 }

@@ -132,7 +132,10 @@ Served by the background server under `/v1/` (one process, one port: base URL
 `http://127.0.0.1:7878`); the receiver is an `http.Handler` (`Run` is a no-op), built from the
 user's config (`receivers.httpproxy`, pipeline `proxy` via `optimizerService`, payloads one at a
 time under the warm services' lock). Anthropic `/v1/messages*` (by path or
-`anthropic-version`/`x-api-key` headers), OpenAI `/chat/completions` and `/responses`; other paths
+`anthropic-version`/`x-api-key` headers), OpenAI `/chat/completions` and `/responses`, Gemini
+`/v1beta/models/<m>:generateContent|:streamGenerateContent` (also mounted at `/v1beta/`; by path or
+`x-goog-api-key`; `functionResponse.response.output|content` answers the call with its id, else the
+oldest open call of its name; model from the path); other paths
 and every header pass through (`anthropic-beta` carries the OAuth capability, so a claude.ai login
 keeps working), responses stream through (`FlushInterval -1`). Per tool result, one payload with
 attrs from the matching call (`attrsOf`: built-in tools described as the shell command that
@@ -147,12 +150,16 @@ them. Fold (`fold.go`, per request): after shortening, runs of ≥ `fold_min_lin
 uniform number shift) → one pointer (`[↑ L13-18 = L10-15 of earlier Read a.go]`); recomputed each
 request (a result depends only on earlier ones: prefix-stable, no dangling pointers when clients
 clear old results); original via `SaveRaw` (content-addressed id) + event (route `fold`), saves
-memoized; needs `ledger` (looked up in `Start`). Any parse problem → body forwarded unchanged; `X-Gascoigne-Raw: 1` → untouched. On a new
+memoized; needs `ledger` (looked up in `Start`). Usage (`usage.go`): 2xx response bodies pass through a meter (SSE `data:` lines mentioning usage
+decoded, JSON bodies ≤ 8 MB at the end); per API reader, fields max-merged across events, cached
+input split out (OpenAI/Gemini count it in input); on close one `component.Usage` → the ledger's
+optional `component.UsageRecorder` (table `usage`, no session), `gain` section "api usage" priced
+by `cost.Lookup`, JSON `api_usage`; `reset` filters apply. Any parse problem → body forwarded unchanged; `X-Gascoigne-Raw: 1` → untouched. On a new
 build the server waits until no proxied request is in flight (`waitIdle`, ≤ 10 min) before
 restarting.
 Registration (server started first, `serverUp`): wrap claude `ANTHROPIC_BASE_URL` (unless set: user gateway), codex with
 `OPENAI_API_KEY` a `model_providers.gascoigne` (`wire_api=responses`), opencode provider
-`baseURL`s; `install -proxy claude` writes the env for good (SessionStart starts the server), unwrap removes it.
+`baseURL`s, gemini with `GEMINI_API_KEY` `GOOGLE_GEMINI_BASE_URL` (a Google login stays direct); `install -proxy claude` writes the env for good (SessionStart starts the server), unwrap removes it.
 
 ## Source files (`optimizer/fs/catoptimizer`)
 Agents edit by exact text, so source is shrunk only by dropping whole lines; kept lines are
@@ -238,7 +245,8 @@ tables/columns/indexes. Renames, drops or type changes need an explicit migratio
 Pure-Go driver (`gormlite`), WAL mode, busy timeout 5s.
 
 Tables also include `steps` (per event, each optimizer that changed tokens: optimizer, family,
-tokens before/after) and `events.session`.
+tokens before/after), `events.session` and `usage` (per proxied API request: agent, model, input,
+cache read/write, output tokens as the provider billed them).
 
 Identity: `-session ID`, `-agent NAME`, `-model NAME` on any command (env `GASCOIGNE_SESSION`,
 `GASCOIGNE_AGENT`, `GASCOIGNE_MODEL`) tag events. MCP: agent defaults to the client's name

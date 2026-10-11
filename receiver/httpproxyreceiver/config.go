@@ -6,9 +6,10 @@ import (
 )
 
 type Config struct {
-	// Anthropic and OpenAI are the upstream APIs requests are forwarded to.
+	// Anthropic, OpenAI and Gemini are the upstream APIs requests are forwarded to.
 	Anthropic string `yaml:"anthropic"`
 	OpenAI    string `yaml:"openai"`
+	Gemini    string `yaml:"gemini"`
 	// Skip lists tools whose results are never touched: edits confirm what
 	// changed, plans and questions are for the user.
 	Skip []string `yaml:"skip"`
@@ -26,9 +27,9 @@ type Config struct {
 }
 
 func (c *Config) Validate() error {
-	for _, u := range []string{c.Anthropic, c.OpenAI} {
+	for _, u := range []string{c.Anthropic, c.OpenAI, c.Gemini} {
 		if p, err := url.Parse(u); err != nil || p.Scheme == "" || p.Host == "" {
-			return errors.New("anthropic and openai must be absolute URLs")
+			return errors.New("anthropic, openai and gemini must be absolute URLs")
 		}
 	}
 	if c.FoldMinLines < 0 || c.FoldMinChars < 0 {

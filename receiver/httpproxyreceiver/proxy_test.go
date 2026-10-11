@@ -47,7 +47,7 @@ func setup(t *testing.T) (*Receiver, *dropComments, *httptest.Server, *[]byte, *
 	}))
 	t.Cleanup(upstream.Close)
 	cfg := NewFactory().DefaultConfig().(*Config)
-	cfg.Anthropic, cfg.OpenAI = upstream.URL, upstream.URL
+	cfg.Anthropic, cfg.OpenAI, cfg.Gemini = upstream.URL, upstream.URL, upstream.URL
 	fake := &dropComments{}
 	r := New(cfg, fake, nil)
 	proxy := httptest.NewServer(r)

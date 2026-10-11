@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"path"
 	"strings"
 	"sync/atomic"
 
@@ -37,7 +38,8 @@ type Receiver struct {
 	next   component.Pipeline
 	log    *slog.Logger
 	cache  *cache
-	ledger component.Ledger // keeps originals of folded results; nil: no folding
+	ledger component.Ledger        // keeps originals of folded results; nil: no folding
+	usage  component.UsageRecorder // keeps API usage from responses; nil: not metered
 	active atomic.Int64
 }
 
@@ -49,7 +51,8 @@ func New(cfg *Config, next component.Pipeline, log *slog.Logger) *Receiver {
 	return &Receiver{cfg: cfg, next: next, log: log, cache: newCache(cfg.CacheEntries)}
 }
 
-// Start finds the ledger that keeps originals of folded results.
+// Start finds the ledger that keeps originals of folded results and, when
+// it can, API usage.
 func (r *Receiver) Start(_ context.Context, host component.Host) error {
 	if r.cfg.Ledger == "" {
 		return nil
@@ -59,6 +62,7 @@ func (r *Receiver) Start(_ context.Context, host component.Host) error {
 		return fmt.Errorf("httpproxy ledger: %w", err)
 	}
 	r.ledger = l
+	r.usage, _ = l.(component.UsageRecorder)
 	return nil
 }
 
@@ -76,18 +80,25 @@ func (r *Receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	api, upstream := r.route(req)
 	raw := req.Header.Get(RawHeader) == "1"
 	req.Header.Del(RawHeader)
-	if req.Method == http.MethodPost && !raw && api != nil {
-		r.rewrite(req, api)
+	if req.Method == http.MethodPost && !raw && api.rewrite != nil {
+		r.rewrite(req, api.rewrite)
 	}
 	target, err := url.Parse(upstream)
 	if err != nil {
 		http.Error(w, "bad upstream", http.StatusBadGateway)
 		return
 	}
+	agent := agentOf(req.Header.Get("User-Agent"))
 	proxy := &httputil.ReverseProxy{
 		Rewrite: func(pr *httputil.ProxyRequest) {
 			pr.SetURL(target)
 			pr.Out.Host = target.Host
+		},
+		ModifyResponse: func(resp *http.Response) error {
+			if api.usage != nil && r.usage != nil && resp.StatusCode/100 == 2 {
+				resp.Body = r.meter(resp, api.usage, agent)
+			}
+			return nil
 		},
 		FlushInterval: -1, // stream server-sent events as they come
 		ErrorHandler: func(w http.ResponseWriter, _ *http.Request, err error) {
@@ -101,23 +112,44 @@ func (r *Receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 // rewriter shortens the tool results of one API's request body.
 type rewriter func(ctx context.Context, r *Receiver, body map[string]any, meta meta) bool
 
+// api is one LLM API format: how its requests are shortened and its
+// responses report usage; nil fields pass that side through.
+type api struct {
+	rewrite rewriter
+	usage   usageReader
+}
+
+var (
+	anthropicAPI = api{anthropic, anthropicUsage}
+	chatAPI      = api{chatCompletions, chatUsage}
+	responsesAPI = api{responses, responsesUsage}
+	geminiAPI    = api{gemini, geminiUsage}
+)
+
 // route picks the API format and upstream: Anthropic requests carry
-// anthropic-version (or x-api-key), everything else is OpenAI-style.
-func (r *Receiver) route(req *http.Request) (rewriter, string) {
+// anthropic-version or x-api-key, Gemini ones x-goog-api-key or a /v1beta
+// path, the rest is OpenAI.
+func (r *Receiver) route(req *http.Request) (api, string) {
 	p := req.URL.Path
 	if req.Header.Get("anthropic-version") != "" || req.Header.Get("x-api-key") != "" || strings.HasPrefix(p, "/v1/messages") {
 		if strings.HasPrefix(p, "/v1/messages") {
-			return anthropic, r.cfg.Anthropic
+			return anthropicAPI, r.cfg.Anthropic
 		}
-		return nil, r.cfg.Anthropic
+		return api{}, r.cfg.Anthropic
+	}
+	if req.Header.Get("x-goog-api-key") != "" || strings.HasPrefix(p, "/v1beta/") {
+		if strings.HasSuffix(p, ":generateContent") || strings.HasSuffix(p, ":streamGenerateContent") {
+			return geminiAPI, r.cfg.Gemini
+		}
+		return api{}, r.cfg.Gemini
 	}
 	switch {
 	case strings.HasSuffix(p, "/chat/completions"):
-		return chatCompletions, r.cfg.OpenAI
+		return chatAPI, r.cfg.OpenAI
 	case strings.HasSuffix(p, "/responses"):
-		return responses, r.cfg.OpenAI
+		return responsesAPI, r.cfg.OpenAI
 	}
-	return nil, r.cfg.OpenAI
+	return api{}, r.cfg.OpenAI
 }
 
 // meta is what a request says about where its tool results go.
@@ -143,6 +175,9 @@ func (r *Receiver) rewrite(req *http.Request, api rewriter) {
 		return
 	}
 	model, _ := doc["model"].(string)
+	if model == "" { // Gemini names it in the path: /v1beta/models/<model>:generateContent
+		model, _, _ = strings.Cut(path.Base(req.URL.Path), ":")
+	}
 	m := meta{model: model, agent: agentOf(req.Header.Get("User-Agent"))}
 	if r.cfg.FoldMinLines > 0 {
 		m.folder = newFolder(r.cfg.FoldMinLines, r.cfg.FoldMinChars)

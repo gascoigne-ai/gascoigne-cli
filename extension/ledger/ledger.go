@@ -58,7 +58,7 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 	if err != nil {
 		return err
 	}
-	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &step{}, &raw{}, &failure{}); err != nil {
+	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &step{}, &raw{}, &failure{}, &usage{}); err != nil {
 		return fmt.Errorf("ledger migrate: %w", err)
 	}
 	return l.prune(ctx)

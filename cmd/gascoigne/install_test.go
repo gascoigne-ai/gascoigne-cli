@@ -191,6 +191,22 @@ func TestProxyForClaudeKeepsUserGateway(t *testing.T) {
 	}
 }
 
+func TestProxyForGeminiNeedsAPIKey(t *testing.T) {
+	tests := []struct{ name, key, base string }{
+		{"google login", "", ""},
+		{"user gateway", "k", "https://gateway.example.com"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("GEMINI_API_KEY", tt.key)
+			t.Setenv("GOOGLE_GEMINI_BASE_URL", tt.base)
+			if env := proxyForGemini(); env != nil {
+				t.Fatalf("pointed gemini at the proxy: %v", env)
+			}
+		})
+	}
+}
+
 func TestServerHostsLLMProxy(t *testing.T) {
 	sandbox(t)
 	var got string

@@ -33,6 +33,7 @@
 #   httpproxy:                        ## LLM API proxy in the background server (/v1/, base URL http://127.0.0.1:7878)
 #     anthropic: https://api.anthropic.com
 #     openai: https://api.openai.com
+#     gemini: https://generativelanguage.googleapis.com
 #     skip: [Edit, MultiEdit, Write, NotebookEdit, TodoWrite, ExitPlanMode, AskUserQuestion, apply_patch]  ## tools never touched
 #     cache_entries: 50000            ## tool results remembered by hash: later requests send the same bytes
 #     ledger: ledger                  ## keeps originals of folded results (folding needs it)

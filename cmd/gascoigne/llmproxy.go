@@ -149,6 +149,18 @@ func proxyForCodex() []string {
 	}
 }
 
+// proxyForGemini points Gemini CLI's API client at the proxy when it uses an
+// API key; a Google login talks to another backend, left direct.
+func proxyForGemini() []string {
+	if os.Getenv("GEMINI_API_KEY") == "" || os.Getenv("GOOGLE_GEMINI_BASE_URL") != "" {
+		return nil
+	}
+	if u := runProxy(); u != "" {
+		return []string{"GOOGLE_GEMINI_BASE_URL=" + u}
+	}
+	return nil
+}
+
 // proxyForOpencode points opencode's Anthropic and OpenAI providers at the
 // proxy (merged over the user's config).
 func proxyForOpencode() map[string]any {

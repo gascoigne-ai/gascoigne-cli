@@ -206,13 +206,18 @@ func overview(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, asJ
 	if err != nil {
 		return err
 	}
+	usage, err := l.UsageStats(ctx, q)
+	if err != nil {
+		return err
+	}
 	if asJSON {
 		return writeJSON(struct {
 			mcptool.Overview
-			FailingSources int `json:"failing_sources"`
-		}{o, len(failing)})
+			FailingSources int                `json:"failing_sources"`
+			APIUsage       []ledger.UsageStat `json:"api_usage"`
+		}{o, len(failing), usage})
 	}
-	p.renderOverview(os.Stdout, o, len(failing))
+	p.renderOverview(os.Stdout, o, len(failing), usage)
 	return nil
 }
 

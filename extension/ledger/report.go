@@ -245,6 +245,11 @@ func (l *Ledger) Reset(ctx context.Context, q component.StatsQuery, all bool) (i
 			return res.Error
 		}
 		n = res.RowsAffected
+		if q.Session == "" { // usage has no session
+			if err := usageFilter(tx.Where("1 = 1"), q).Delete(&usage{}).Error; err != nil {
+				return err
+			}
+		}
 		if !all {
 			return nil
 		}

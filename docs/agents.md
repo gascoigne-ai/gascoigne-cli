@@ -94,11 +94,15 @@ dashboard):
 | claude | `ANTHROPIC_BASE_URL=http://127.0.0.1:7878`, unless you set one (your gateway stays) | `install -proxy claude`; the SessionStart hook starts the server |
 | codex | with `OPENAI_API_KEY`: a `gascoigne` model provider (Responses API); a ChatGPT login stays direct | — |
 | opencode | `provider.anthropic/openai.options.baseURL` | — |
+| gemini | with `GEMINI_API_KEY`: `GOOGLE_GEMINI_BASE_URL`, unless you set one; a Google login stays direct | — |
 
 - Only the base URL changes: a claude.ai login stays the credential, and every header goes
   through as sent.
 - Read results keep their real line numbers: lines are dropped like `cat` output, never
   renumbered, and each gap is a marker naming the lines to read back.
+- The proxy also records what each request was billed, as the API reports it in the response
+  (input, cache read and write, output tokens per agent and model): `gascoigne gain` shows it
+  under API USAGE with list prices, `gain -json` as `api_usage`.
 - Each tool result is shortened once and sent byte-for-byte the same on every later request,
   so the provider's prompt cache keeps hitting. Anything the proxy cannot parse is forwarded
   unchanged; `X-Gascoigne-Raw: 1` on a request skips it.

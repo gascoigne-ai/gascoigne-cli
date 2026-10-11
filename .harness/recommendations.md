@@ -8,9 +8,8 @@ their record is git history.
 - Real fixtures to replace synthetic ones once tools are at hand: terraform/tofu, pulumi, cdk,
   helm diff, kubectl, aws/gcloud/az, mysql, gh (authenticated). Per change: case savings up,
   `keep` strings intact, goldens reviewed.
-- LLM proxy: real usage accounting from responses (`usage`) into the ledger and cost; Gemini API format.
-- Agents whose hooks can rewrite shell input (gemini `BeforeTool` `tool_input`, opencode plugins).
-- Log engine gap markers: say what a repeated trace's gap holds (`as above`), not just `omitted`.
+- Usage: split 1h vs 5-minute cache writes (Anthropic `cache_creation.ephemeral_1h_input_tokens`)
+  so `gain` prices 1h writes right; compare measured input with tokens saved per agent.
 
 ## Tried and dropped
 Measured; don't retry without new data.

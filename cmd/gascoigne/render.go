@@ -6,10 +6,13 @@ import (
 	"io"
 	"math"
 	"os"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/cost"
+	"github.com/lukaszb/gascoigne/extension/ledger"
 	"github.com/lukaszb/gascoigne/mcptool"
 )
 
@@ -138,7 +141,7 @@ func (p painter) section(w io.Writer, title string) {
 const barWidth = 20
 
 // renderOverview prints the gain overview for terminals.
-func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int) {
+func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int, usage []ledger.UsageStat) {
 	t := o.Total
 	title := "gascoigne savings" + filterLabel(o.Filter)
 	fmt.Fprintln(w, p.paint(bold, title))
@@ -184,6 +187,7 @@ func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int) {
 	p.savingsTable(w, "agents · share of savings", "agent", mcptool.Named(o.Agents), t.Saved, false)
 	p.savingsTable(w, "models · share of savings", "model", mcptool.Named(o.Models), t.Saved, false)
 	p.costTable(w, o.Cost)
+	p.usageTable(w, usage)
 	p.savingsTable(w, "commands · share of savings", "command", o.Commands, t.Saved, false)
 	p.savingsTable(w, "optimizers · share of savings", "optimizer", o.Optimizers, t.Saved, true)
 	p.savingsTable(w, "dialects · share of savings", "dialect", o.Dialects, t.Saved, false)
@@ -364,6 +368,42 @@ func (p painter) costTable(w io.Writer, c mcptool.Costs) {
 	}
 	if len(c.Unpriced) > 0 {
 		fmt.Fprintln(w, p.paint(yellow, " not priced: "+strings.Join(c.Unpriced, ", ")))
+	}
+}
+
+// usageTable shows what the proxied API requests were billed, as the
+// providers reported it, priced at list prices.
+func (p painter) usageTable(w io.Writer, usage []ledger.UsageStat) {
+	if len(usage) == 0 {
+		return
+	}
+	p.section(w, "api usage · measured by the LLM proxy")
+	var rows [][]cell
+	var total float64
+	unpriced := false
+	for _, u := range usage {
+		price := cell{text: "?", right: true, style: dim}
+		if m, ok := cost.Lookup(u.Model); ok {
+			usd := (float64(u.Input)*m.Input + float64(u.CacheRead)*m.CacheRead +
+				float64(u.CacheWrite)*m.CacheWrite + float64(u.Output)*m.Output) / 1e6
+			price, total = cell{text: dollars(usd), right: true}, total+usd
+		} else {
+			unpriced = true
+		}
+		rows = append(rows, []cell{
+			{text: cmp.Or(u.Agent, "-")}, {text: cmp.Or(u.Model, "-")},
+			{text: strconv.Itoa(u.Requests), right: true},
+			{text: human(u.Input), right: true}, {text: human(u.CacheRead), right: true},
+			{text: human(u.CacheWrite), right: true}, {text: human(u.Output), right: true}, price,
+		})
+	}
+	if len(usage) > 1 {
+		rows = append(rows, []cell{{text: "total", style: bold}, {}, {}, {}, {}, {}, {}, {text: dollars(total), right: true, style: bold}})
+	}
+	p.table(w, []string{"agent", "model", "requests", "input", "cache read", "cache write", "output", "cost"}, rows)
+	fmt.Fprintln(w, p.paint(dim, " cache writes at the 5-minute price (1h writes cost more)"))
+	if unpriced {
+		fmt.Fprintln(w, p.paint(dim, " ? no known price for the model"))
 	}
 }
 

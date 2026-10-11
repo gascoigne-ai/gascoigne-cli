@@ -164,3 +164,57 @@ func normalize(a map[string]any) map[string]any {
 	}
 	return a
 }
+
+// gemini shortens functionResponse parts of a generateContent request.
+// A response answers the call with its id, else the oldest unanswered call
+// of its name (Gemini CLI puts tool output under response.output).
+func gemini(ctx context.Context, r *Receiver, doc map[string]any, m meta) bool {
+	var calls []*geminiCall
+	changed := false
+	for _, cv := range asList(doc["contents"]) {
+		content, _ := cv.(map[string]any)
+		for _, pv := range asList(content["parts"]) {
+			part, _ := pv.(map[string]any)
+			if fc, ok := part["functionCall"].(map[string]any); ok {
+				name, _ := fc["name"].(string)
+				id, _ := fc["id"].(string)
+				args, _ := fc["args"].(map[string]any)
+				calls = append(calls, &geminiCall{call: call{name, args}, id: id})
+				continue
+			}
+			fr, _ := part["functionResponse"].(map[string]any)
+			resp, _ := fr["response"].(map[string]any)
+			c := answered(calls, fr)
+			if c == nil || resp == nil {
+				continue
+			}
+			for _, key := range []string{"output", "content"} {
+				if out, ok := replaceContent(ctx, r, c.call, resp[key], m); ok {
+					resp[key] = out
+					changed = true
+				}
+			}
+		}
+	}
+	return changed
+}
+
+type geminiCall struct {
+	call
+	id   string
+	done bool
+}
+
+// answered finds the call a functionResponse answers, by id when it has
+// one, else the oldest open call of its name, and marks it answered.
+func answered(calls []*geminiCall, fr map[string]any) *geminiCall {
+	name, _ := fr["name"].(string)
+	id, _ := fr["id"].(string)
+	for _, c := range calls {
+		if !c.done && (id != "" && c.id == id || id == "" && c.name == name) {
+			c.done = true
+			return c
+		}
+	}
+	return nil
+}

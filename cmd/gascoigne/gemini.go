@@ -128,7 +128,7 @@ func geminiEnv(exe string) ([]string, error) {
 	if err := os.WriteFile(file, out, 0o600); err != nil {
 		return nil, fmt.Errorf("write gemini settings: %w", err)
 	}
-	return []string{"GEMINI_CLI_SYSTEM_SETTINGS_PATH=" + file}, nil
+	return append([]string{"GEMINI_CLI_SYSTEM_SETTINGS_PATH=" + file}, proxyForGemini()...), nil
 }
 
 func geminiInstall(exe string) string {
