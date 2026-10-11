@@ -25,8 +25,9 @@ func proxyURL() string { return "http://" + serverAddr() }
 
 // llmProxy builds the proxy from the user's config: its receiver settings
 // and pipeline "proxy", run like the warm pipelines (one payload at a time,
-// under mu). close shuts the pipeline down.
-func llmProxy(ctx context.Context, mu *sync.Mutex, ledgerPath string, log *slog.Logger) (*httpproxyreceiver.Receiver, func(), error) {
+// under mu). A non-empty upstream replaces every API's upstream (replay).
+// close shuts the pipeline down.
+func llmProxy(ctx context.Context, mu *sync.Mutex, ledgerPath, upstream string, log *slog.Logger) (*httpproxyreceiver.Receiver, func(), error) {
 	data, err := configData("")
 	if err != nil {
 		return nil, nil, err
@@ -38,6 +39,9 @@ func llmProxy(ctx context.Context, mu *sync.Mutex, ledgerPath string, log *slog.
 	rc, _ := httpproxyreceiver.NewFactory().DefaultConfig().(*httpproxyreceiver.Config)
 	if err := config.DecodeNode(cfg.Receivers["httpproxy"], rc); err != nil {
 		return nil, nil, fmt.Errorf("receivers.httpproxy: %w", err)
+	}
+	if upstream != "" {
+		rc.Anthropic, rc.OpenAI, rc.Gemini = upstream, upstream, upstream
 	}
 	if err := rc.Validate(); err != nil {
 		return nil, nil, fmt.Errorf("receivers.httpproxy: %w", err)

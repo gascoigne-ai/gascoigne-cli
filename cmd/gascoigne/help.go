@@ -116,6 +116,13 @@ func init() {
 				"URLs, hashes) and key=number pairs still readable, per family, and the runs that lost most.",
 			examples: []string{"gascoigne probe", "gascoigne probe -since 7d -worst 20", "gascoigne probe -json"},
 			run:      cmdProbe},
+		{name: "replay", args: "[flags]", group: groupSavings,
+			summary: "replay recorded agent sessions through the LLM API proxy",
+			about: "Rebuilds the requests of Claude Code transcripts and sends them through the proxy against a\n" +
+				"stand-in upstream (nothing leaves the machine, throwaway ledger): tool-result savings per tool,\n" +
+				"and whether messages sent again stay byte-identical for the prompt cache.",
+			examples: []string{"gascoigne replay", "gascoigne replay -sessions 50 -json"},
+			run:      cmdReplay},
 		{name: "tokens", args: "[-model list] [file]", group: groupSavings,
 			summary: "count text as each model family does, and price it",
 			about: "Counts a file (or stdin) with every tokenizer family gascoigne knows, then prices one\n" +

@@ -220,7 +220,7 @@ func TestServerHostsLLMProxy(t *testing.T) {
 	write(t, cfg, "extensions: { ledger: { path: "+ledgerFile+" } }\nreceivers: { httpproxy: { anthropic: "+upstream.URL+" } }\n")
 	t.Setenv("GASCOIGNE_CONFIG", cfg)
 	var mu sync.Mutex
-	proxy, closeProxy, err := llmProxy(t.Context(), &mu, ledgerFile, nil)
+	proxy, closeProxy, err := llmProxy(t.Context(), &mu, ledgerFile, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

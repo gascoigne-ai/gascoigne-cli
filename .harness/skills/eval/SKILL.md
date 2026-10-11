@@ -29,3 +29,10 @@ description: Measure gascoigne token savings on fixtures. Use when changing opti
    detection-only variant (no attrs) when the type should be sniffable.
 
 Custom runs: `bin/gascoigne eval -config my.yaml -cases path/cases.yaml -pipeline cli`.
+
+Real sessions: `bin/gascoigne replay [-sessions N] [-json]` rebuilds Claude Code transcripts'
+requests and sends them through the LLM API proxy (stand-in upstream, throwaway ledger):
+savings per tool and prompt-cache stability (messages sent again must stay byte-identical;
+anything below 100% is a bug). Bash results in transcripts were already shortened by the hook,
+so its column is the proxy's extra. Compare two builds: build each (e.g. in a `git worktree`),
+run both with `-json` on the same `-sessions`, diff.

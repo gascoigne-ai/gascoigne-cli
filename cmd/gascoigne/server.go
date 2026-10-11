@@ -129,7 +129,7 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Dur
 	mux := http.NewServeMux()
 	mux.Handle("/", dashboard(l, time.Second, info, stop))
 	mux.Handle("POST /api/optimize", localOnly(w))
-	proxy, closeProxy, err := llmProxy(ctx, &w.mu, info.Ledger, slog.New(slog.NewTextHandler(os.Stderr, nil)))
+	proxy, closeProxy, err := llmProxy(ctx, &w.mu, info.Ledger, "", slog.New(slog.NewTextHandler(os.Stderr, nil)))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne server: LLM proxy off:", err)
 	} else {
