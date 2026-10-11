@@ -12,6 +12,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/build/buildoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/cloud/cloudoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/denseoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/core/embedjsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/pathsoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/truncateoptimizer"
@@ -57,6 +58,7 @@ func Factories() []component.Factory {
 		// optimizers
 		passthroughoptimizer.NewFactory(),
 		denseoptimizer.NewFactory(),
+		embedjsonoptimizer.NewFactory(),
 		pathsoptimizer.NewFactory(),
 		truncateoptimizer.NewFactory(),
 		testoptimizer.NewFactory(),

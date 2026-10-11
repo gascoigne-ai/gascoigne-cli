@@ -171,6 +171,22 @@
 #     max_code_lines: 40                          ## longer code blocks keep head and tail
 #     max_tokens: 5200                            ## longer markdown keeps whole sections, query first
 #     man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON]
+#   embedjson:                                    ## JSON with record arrays inside text (log response bodies), crushed in place
+#     types: [log, test, build, task, doc/text]   ## types or families searched; JSON engines own data, cloud, http
+#     json:                                       ## crusher: same keys as json above
+#       drop_empty: true
+#       max_string: 300
+#       shorten_hashes: true
+#       tabulate_min: 3
+#       lossless_min_saving: 0.3
+#       lossless_max_tokens: 2000
+#       min_items: 5
+#       min_tokens: 200
+#       max_items: 15
+#       head_share: 0.3
+#       tail_share: 0.15
+#       anomaly_std: 2
+#       relevance_k: 3
 #   dense:                                        ## minified code, base64, data URIs: long space-free lines keep head and tail
 #     min_line: 300                               ## shortest line that can be dense, bytes
 #     min_total: 2000                             ## fewest dense bytes in a block worth eliding (one token or URL stays)
@@ -196,7 +212,7 @@
 ## Which optimizers run. Each picks the blocks whose type it knows, so one chain serves all.
 # router:
 #   routes: []                        ## e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
-#   default: [task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc, dense, paths, truncate]
+#   default: [embedjson, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc, dense, paths, truncate]
 
 ## Pipelines: which receivers, filters and exporters each command uses.
 # pipelines:

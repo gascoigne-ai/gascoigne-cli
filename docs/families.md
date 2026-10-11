@@ -290,6 +290,16 @@ engine; S3 listings summarized.
 `compress/compose` sniffs a section and hands it to the test, build or pkg engine. The task
 family and docker builds use it, so `make test` inside a CI log is treated as test output.
 
+## JSON inside text (`embedjson`, first in the chain)
+
+Logs, test failures and build output often wrap a JSON value: a response body after a log line,
+a payload in an assertion. Their block is typed by the text around it, so the JSON engine never
+sees it. Every balanced `{…}`/`[…]` value that parses and holds an array of records (at least two
+items, mostly objects) is crushed in place with the same settings as `json`; the text around it
+stays byte-exact and the table legend goes on top once. Plain lists, config objects and whole
+JSON blocks are left alone. It runs first, before the log engine folds a pretty-printed body line
+by line. An order-sync log with two response bodies: 5922→982 tokens (log engine alone: 1505).
+
 ## Dense lines (`dense`, after the family engines)
 
 Long lines nearly free of spaces (at least 300 bytes, under 6% spaces, no tabs) are machine

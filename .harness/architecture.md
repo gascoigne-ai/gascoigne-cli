@@ -90,6 +90,8 @@ lives in public libs so engines and composite families can reuse it:
 | `infra` | plans: refresh/progress folded, known-after-apply listed, count/for_each siblings "(like above)"; ansible: quiet tasks counted, failures and recap kept | terraform, pulumi, ansible, cdk, helm-diff |
 | `cloud` | JSON: pagination/metadata/etags pruned, envelopes unwrapped, items flattened so jsonx hoists leaves; YAML via yamlx; tables; s3 listings summarized | aws, aws-s3, gcp, azure |
 
+`embedjson` (`optimizer/core/embedjsonoptimizer`, first in the default chain): JSON values with record
+arrays inside log/test/build/task/text blocks (`jsonx.Spans`) crushed in place by jsonx; text around byte-exact.
 `dense` (`optimizer/core/denseoptimizer`, after the family engines): long space-free lines
 (minified code, base64, data URIs) keep head/tail bytes around `…[N bytes dense]…` once a block
 holds `min_total` such bytes; JSON lines and fs/code read from disk (file attr, `detect.ReadsFile`) untouched.

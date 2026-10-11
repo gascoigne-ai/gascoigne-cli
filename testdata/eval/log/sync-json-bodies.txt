@@ -1,0 +1,286 @@
+2026-03-14T09:00:01.120Z INFO  sync.worker starting order sync batch=1 since=2026-03-14T08:00:00Z
+2026-03-14T09:00:01.480Z DEBUG sync.client GET https://api.example.com/v2/orders?page=1 200 in 312ms
+2026-03-14T09:00:01.481Z DEBUG sync.client response body: {"data": [{"id": "ord_5000", "customer": "cus_1000", "status": "paid", "total": 100.48, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:00:00Z"}, {"id": "ord_5001", "customer": "cus_1007", "status": "paid", "total": 121.95, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:01:00Z"}, {"id": "ord_5002", "customer": "cus_1014", "status": "paid", "total": 194.84, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:02:00Z"}, {"id": "ord_5003", "customer": "cus_1021", "status": "shipped", "total": 103.13, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:03:00Z"}, {"id": "ord_5004", "customer": "cus_1028", "status": "pending", "total": 111.57, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:04:00Z"}, {"id": "ord_5005", "customer": "cus_1035", "status": "paid", "total": 127.48, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:05:00Z"}, {"id": "ord_5006", "customer": "cus_1042", "status": "paid", "total": 46.93, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:06:00Z"}, {"id": "ord_5007", "customer": "cus_1049", "status": "paid", "total": 112.38, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:07:00Z"}, {"id": "ord_5008", "customer": "cus_1003", "status": "shipped", "total": 135.98, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:08:00Z"}, {"id": "ord_5009", "customer": "cus_1010", "status": "pending", "total": 168.6, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:09:00Z"}, {"id": "ord_5010", "customer": "cus_1017", "status": "paid", "total": 28.82, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:10:00Z"}, {"id": "ord_5011", "customer": "cus_1024", "status": "paid", "total": 70.68, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:11:00Z"}, {"id": "ord_5012", "customer": "cus_1031", "status": "paid", "total": 28.13, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:12:00Z"}, {"id": "ord_5013", "customer": "cus_1038", "status": "shipped", "total": 171.93, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:13:00Z"}, {"id": "ord_5014", "customer": "cus_1045", "status": "pending", "total": 148.69, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:14:00Z"}, {"id": "ord_5015", "customer": "cus_1052", "status": "paid", "total": 18.38, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:15:00Z"}, {"id": "ord_5016", "customer": "cus_1006", "status": "paid", "total": 206.44, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:16:00Z"}, {"id": "ord_5017", "customer": "cus_1013", "status": "paid", "total": 202.95, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:17:00Z"}, {"id": "ord_5018", "customer": "cus_1020", "status": "shipped", "total": 140.78, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:18:00Z"}, {"id": "ord_5019", "customer": "cus_1027", "status": "pending", "total": 133.11, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:19:00Z"}, {"id": "ord_5020", "customer": "cus_1034", "status": "paid", "total": 41.5, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:20:00Z"}, {"id": "ord_5021", "customer": "cus_1041", "status": "paid", "total": 13.0, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:21:00Z"}, {"id": "ord_5022", "customer": "cus_1048", "status": "paid", "total": 115.68, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:22:00Z"}, {"id": "ord_5023", "customer": "cus_1002", "status": "shipped", "total": 21.91, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:23:00Z"}, {"id": "ord_5024", "customer": "cus_1009", "status": "pending", "total": 48.04, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:24:00Z"}, {"id": "ord_5025", "customer": "cus_1016", "status": "paid", "total": 58.39, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:25:00Z"}, {"id": "ord_5026", "customer": "cus_1023", "status": "paid", "total": 16.02, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:26:00Z"}, {"id": "ord_5027", "customer": "cus_1030", "status": "paid", "total": 102.79, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:27:00Z"}, {"id": "ord_5028", "customer": "cus_1037", "status": "shipped", "total": 98.11, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:28:00Z"}, {"id": "ord_5029", "customer": "cus_1044", "status": "pending", "total": 178.49, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:29:00Z"}, {"id": "ord_5030", "customer": "cus_1051", "status": "paid", "total": 113.82, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:30:00Z"}, {"id": "ord_5031", "customer": "cus_1005", "status": "paid", "total": 138.06, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:31:00Z"}, {"id": "ord_5032", "customer": "cus_1012", "status": "paid", "total": 109.95, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:32:00Z"}, {"id": "ord_5033", "customer": "cus_1019", "status": "shipped", "total": 142.49, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:33:00Z"}, {"id": "ord_5034", "customer": "cus_1026", "status": "pending", "total": 101.47, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:34:00Z"}, {"id": "ord_5035", "customer": "cus_1033", "status": "paid", "total": 65.63, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:35:00Z"}, {"id": "ord_5036", "customer": "cus_1040", "status": "paid", "total": 209.53, "currency": "EUR", "items": 1, "created_at": "2026-03-14T08:36:00Z"}, {"id": "ord_5037", "customer": "cus_1047", "status": "paid", "total": 209.14, "currency": "EUR", "items": 2, "created_at": "2026-03-14T08:37:00Z"}, {"id": "ord_5038", "customer": "cus_1001", "status": "shipped", "total": 178.04, "currency": "EUR", "items": 3, "created_at": "2026-03-14T08:38:00Z"}, {"id": "ord_5039", "customer": "cus_1008", "status": "pending", "total": 151.56, "currency": "EUR", "items": 4, "created_at": "2026-03-14T08:39:00Z"}], "has_more": true, "next": "cur_1"}
+2026-03-14T09:00:02.010Z INFO  sync.worker upserted 40 orders batch=1
+2026-03-14T09:00:02.300Z DEBUG sync.client GET https://api.example.com/v2/orders?page=2 200 in 298ms
+2026-03-14T09:00:02.301Z DEBUG sync.client response body:
+{
+  "data": [
+    {
+      "id": "ord_5040",
+      "customer": "cus_1000",
+      "status": "paid",
+      "total": 73.06,
+      "currency": "EUR",
+      "items": 1,
+      "created_at": "2026-03-14T08:00:00Z"
+    },
+    {
+      "id": "ord_5041",
+      "customer": "cus_1007",
+      "status": "paid",
+      "total": 55.93,
+      "currency": "EUR",
+      "items": 2,
+      "created_at": "2026-03-14T08:01:00Z"
+    },
+    {
+      "id": "ord_5042",
+      "customer": "cus_1014",
+      "status": "paid",
+      "total": 67.81,
+      "currency": "EUR",
+      "items": 3,
+      "created_at": "2026-03-14T08:02:00Z"
+    },
+    {
+      "id": "ord_5043",
+      "customer": "cus_1021",
+      "status": "shipped",
+      "total": 24.04,
+      "currency": "EUR",
+      "items": 4,
+      "created_at": "2026-03-14T08:03:00Z"
+    },
+    {
+      "id": "ord_5044",
+      "customer": "cus_1028",
+      "status": "pending",
+      "total": 163.26,
+      "currency": "EUR",
+      "items": 1,
+      "created_at": "2026-03-14T08:04:00Z"
+    },
+    {
+      "id": "ord_5045",
+      "customer": "cus_1035",
+      "status": "paid",
+      "total": 90.08,
+      "currency": "EUR",
+      "items": 2,
+      "created_at": "2026-03-14T08:05:00Z"
+    },
+    {
+      "id": "ord_5046",
+      "customer": "cus_1042",
+      "status": "paid",
+      "total": 179.32,
+      "currency": "EUR",
+      "items": 3,
+      "created_at": "2026-03-14T08:06:00Z"
+    },
+    {
+      "id": "ord_5047",
+      "customer": "cus_1049",
+      "status": "paid",
+      "total": 87.3,
+      "currency": "EUR",
+      "items": 4,
+      "created_at": "2026-03-14T08:07:00Z"
+    },
+    {
+      "id": "ord_5048",
+      "customer": "cus_1003",
+      "status": "shipped",
+      "total": 201.61,
+      "currency": "EUR",
+      "items": 1,
+      "created_at": "2026-03-14T08:08:00Z"
+    },
+    {
+      "id": "ord_5049",
+      "customer": "cus_1010",
+      "status": "pending",
+      "total": 179.46,
+      "currency": "EUR",
+      "items": 2,
+      "created_at": "2026-03-14T08:09:00Z"
+    },
+    {
+      "id": "ord_5050",
+      "customer": "cus_1017",
+      "status": "paid",
+      "total": 10.11,
+      "currency": "EUR",
+      "items": 3,
+      "created_at": "2026-03-14T08:10:00Z"
+    },
+    {
+      "id": "ord_5051",
+      "customer": "cus_1024",
+      "status": "paid",
+      "total": 51.94,
+      "currency": "EUR",
+      "items": 4,
+      "created_at": "2026-03-14T08:11:00Z"
+    },
+    {
+      "id": "ord_5052",
+      "customer": "cus_1031",
+      "status": "paid",
+      "total": 192.05,
+      "currency": "EUR",
+      "items": 1,
+      "created_at": "2026-03-14T08:12:00Z"
+    },
+    {
+      "id": "ord_5053",
+      "customer": "cus_1038",
+      "status": "shipped",
+      "total": 104.0,
+      "currency": "EUR",
+      "items": 2,
+      "created_at": "2026-03-14T08:13:00Z"
+    },
+    {
+      "id": "ord_5054",
+      "customer": "cus_1045",
+      "status": "pending",
+      "total": 206.07,
+      "currency": "EUR",
+      "items": 3,
+      "created_at": "2026-03-14T08:14:00Z"
+    },
+    {
+      "id": "ord_5055",
+      "customer": "cus_1052",
+      "status": "paid",
+      "total": 89.48,
+      "currency": "EUR",
+      "items": 4,
+      "created_at": "2026-03-14T08:15:00Z"
+    },
+    {
+      "id": "ord_5056",
+      "customer": "cus_1006",
+      "status": "paid",
+      "total": 24.61,
+      "currency": "EUR",
+      "items": 1,
+      "created_at": "2026-03-14T08:16:00Z"
+    },
+    {
+      "id": "ord_5057",
+      "customer": "cus_1013",
+      "status": "failed",
+      "total": 135.89,
+      "currency": "EUR",
+      "items": 2,
+      "created_at": "2026-03-14T08:17:00Z",
+      "error": "card_declined"
+    },
+    {
+      "id": "ord_5058",
+      "customer": "cus_1020",
+      "status": "shipped",
+      "total": 165.7,
+      "currency": "EUR",
+      "items": 3,
+      "created_at": "2026-03-14T08:18:00Z"
+    },
+    {
+      "id": "ord_5059",
+      "customer": "cus_1027",
+      "status": "pending",
+      "total": 63.96,
+      "currency": "EUR",
+      "items": 4,
+      "created_at": "2026-03-14T08:19:00Z"
+    },
+    {
+      "id": "ord_5060",
+      "customer": "cus_1034",
+      "status": "paid",
+      "total": 27.43,
+      "currency": "EUR",
+      "items": 1,
+      "created_at": "2026-03-14T08:20:00Z"
+    },
+    {
+      "id": "ord_5061",
+      "customer": "cus_1041",
+      "status": "paid",
+      "total": 76.52,
+      "currency": "EUR",
+      "items": 2,
+      "created_at": "2026-03-14T08:21:00Z"
+    },
+    {
+      "id": "ord_5062",
+      "customer": "cus_1048",
+      "status": "paid",
+      "total": 202.82,
+      "currency": "EUR",
+      "items": 3,
+      "created_at": "2026-03-14T08:22:00Z"
+    },
+    {
+      "id": "ord_5063",
+      "customer": "cus_1002",
+      "status": "shipped",
+      "total": 161.61,
+      "currency": "EUR",
+      "items": 4,
+      "created_at": "2026-03-14T08:23:00Z"
+    },
+    {
+      "id": "ord_5064",
+      "customer": "cus_1009",
+      "status": "pending",
+      "total": 33.6,
+      "currency": "EUR",
+      "items": 1,
+      "created_at": "2026-03-14T08:24:00Z"
+    },
+    {
+      "id": "ord_5065",
+      "customer": "cus_1016",
+      "status": "paid",
+      "total": 59.28,
+      "currency": "EUR",
+      "items": 2,
+      "created_at": "2026-03-14T08:25:00Z"
+    },
+    {
+      "id": "ord_5066",
+      "customer": "cus_1023",
+      "status": "paid",
+      "total": 30.21,
+      "currency": "EUR",
+      "items": 3,
+      "created_at": "2026-03-14T08:26:00Z"
+    },
+    {
+      "id": "ord_5067",
+      "customer": "cus_1030",
+      "status": "paid",
+      "total": 21.98,
+      "currency": "EUR",
+      "items": 4,
+      "created_at": "2026-03-14T08:27:00Z"
+    },
+    {
+      "id": "ord_5068",
+      "customer": "cus_1037",
+      "status": "shipped",
+      "total": 169.4,
+      "currency": "EUR",
+      "items": 1,
+      "created_at": "2026-03-14T08:28:00Z"
+    },
+    {
+      "id": "ord_5069",
+      "customer": "cus_1044",
+      "status": "pending",
+      "total": 45.54,
+      "currency": "EUR",
+      "items": 2,
+      "created_at": "2026-03-14T08:29:00Z"
+    }
+  ],
+  "has_more": false,
+  "next": null
+}
+2026-03-14T09:00:02.950Z WARN  sync.worker order ord_5057 status=failed error=card_declined, skipping
+2026-03-14T09:00:03.002Z INFO  sync.worker upserted 29 orders batch=2 skipped=1
+2026-03-14T09:00:03.010Z INFO  sync.worker done in 1.89s
