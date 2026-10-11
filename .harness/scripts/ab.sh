@@ -8,16 +8,24 @@
 # cost and tokens per arm; rows go to ab-results.tsv in the cache dir.
 # This calls the API and costs money: -n checks the tasks without it (each
 # must apply cleanly and fail its check before an agent works on it).
-# Usage: .harness/scripts/ab.sh [-n] [-r repeats=3] [-m model] [task...]
+# OpenRouter: AB_ENV_FILE names a dotenv file with OPENROUTER_API_KEY (only
+# that line is read, never printed); both arms then go to OpenRouter, "on"
+# through gascoigne's proxy on its own server (port 7879, ledger in the
+# cache dir) so a running gascoigne server and its stats stay untouched.
+# Variants: -a picks arms ("on" alone to compare builds), AB_TAG labels the
+# rows (arm "on-<tag>"), so a change to gascoigne itself can be A/B tested
+# by running once per build.
+# Usage: .harness/scripts/ab.sh [-n] [-r repeats=3] [-m model] [-a "off on"] [task...]
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-dry=0 repeats=3 model=${AB_MODEL:-claude-sonnet-5-5} budget=${AB_BUDGET_USD:-2}
-while getopts nr:m: o; do
+dry=0 repeats=3 model=${AB_MODEL:-claude-sonnet-5-5} budget=${AB_BUDGET_USD:-2} arms="off on"
+while getopts nr:m:a: o; do
 	case $o in
 	n) dry=1 ;;
 	r) repeats=$OPTARG ;;
 	m) model=$OPTARG ;;
+	a) arms=$OPTARG ;;
 	*) exit 2 ;;
 	esac
 done
@@ -25,6 +33,14 @@ shift $((OPTIND - 1))
 tasks=("$@")
 [ ${#tasks[@]} -gt 0 ] || mapfile -t tasks < <(find testdata/ab -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
 base=$(cat testdata/ab/BASE)
+
+# OpenRouter mode: provider env for both arms, a proxy config for "on".
+key=
+if [ -n "${AB_ENV_FILE:-}" ]; then
+	key=$(sed -n 's/^OPENROUTER_API_KEY=//p' "$AB_ENV_FILE" | tail -1 | tr -d "\"'\r")
+	[ -n "$key" ] || { echo "no OPENROUTER_API_KEY in $AB_ENV_FILE" >&2; exit 2; }
+	[ -n "${AB_MODEL:-}" ] || model="~anthropic/claude-sonnet-latest"
+fi
 
 go build -o bin/gascoigne ./cmd/gascoigne
 gascoigne=$PWD/bin/gascoigne
@@ -34,11 +50,38 @@ results=$out/ab-results.tsv
 tmp=$(mktemp -d)
 trap 'git worktree prune; rm -rf "$tmp"' EXIT
 
-# clean runs a command without any trace of gascoigne from this shell.
+openrouter=https://openrouter.ai/api
+abaddr=127.0.0.1:7879
+if [ -n "$key" ]; then
+	cat > "$tmp/ab.yaml" <<YAML
+extensions:
+  ledger: { path: $out/ab-ledger.db }
+receivers:
+  httpproxy: { anthropic: $openrouter }
+YAML
+	trap 'GASCOIGNE_SERVER_ADDR=$abaddr "$gascoigne" server stop >/dev/null 2>&1 || true; git worktree prune; rm -rf "$tmp"' EXIT
+fi
+
+# providerEnv sets penv, the variables an arm runs with: none for the
+# Anthropic login; for OpenRouter, "off" goes there directly and "on" through
+# gascoigne's own proxy, whose upstream is OpenRouter.
+penv=()
+providerEnv() {
+	penv=()
+	[ -n "$key" ] || return 0
+	if [ "$1" = off ]; then
+		penv=(ANTHROPIC_BASE_URL=$openrouter ANTHROPIC_AUTH_TOKEN="$key" ANTHROPIC_API_KEY=)
+	else
+		penv=(GASCOIGNE_CONFIG="$tmp/ab.yaml" GASCOIGNE_SERVER_ADDR=$abaddr ANTHROPIC_AUTH_TOKEN="$key" ANTHROPIC_API_KEY=)
+	fi
+}
+
+# clean runs a command without any trace of gascoigne from this shell,
+# plus the arm's provider variables (penv).
 clean() {
 	local unset=(-u ANTHROPIC_BASE_URL)
 	for v in $(compgen -e | grep '^GASCOIGNE_' || true); do unset+=(-u "$v"); done
-	env "${unset[@]}" "$@"
+	env "${unset[@]}" "${penv[@]}" "$@"
 }
 
 # setup makes a worktree of the base commit with the task's bug planted.
@@ -49,8 +92,8 @@ setup() {
 }
 
 check() {
-	local task=$1 dir=$2 answer=$3
-	(cd "$dir" && sh "$OLDPWD/testdata/ab/$task/check.sh" "$answer")
+	local task=$1 dir=$2 answer=$3 repo=$PWD
+	(cd "$dir" && sh -x "$repo/testdata/ab/$task/check.sh" "$answer")
 }
 
 if [ $dry = 1 ]; then
@@ -75,20 +118,27 @@ flags=(-p --output-format json --model "$model" --max-budget-usd "$budget"
 for ((rep = 1; rep <= repeats; rep++)); do
 	for task in "${tasks[@]}"; do
 		prompt=$(cat "testdata/ab/$task/prompt.txt")
-		for arm in off on; do
+		for arm in $arms; do
 			dir=$tmp/$task-$arm
 			setup "$task" "$dir"
 			cmd=(claude)
 			[ $arm = on ] && cmd=("$gascoigne" wrap claude)
-			(cd "$dir" && clean "${cmd[@]}" "${flags[@]}" "$prompt" > "$tmp/run.json" 2> "$tmp/run.err") || true
+			providerEnv $arm
+			# The prompt goes on stdin: --allowedTools takes several values and
+			# would swallow a prompt argument after it.
+			(cd "$dir" && clean "${cmd[@]}" "${flags[@]}" <<< "$prompt" > "$tmp/run.json" 2> "$tmp/run.err") || true
 			jq -r '.result // ""' "$tmp/run.json" > "$tmp/answer" 2>/dev/null || : > "$tmp/answer"
+			label=$arm${AB_TAG:+-$AB_TAG}
 			pass=0
-			check "$task" "$dir" "$tmp/answer" && pass=1
-			jq -r --arg t "$task" --arg a "$arm" --arg p $pass '[now|todate, $t, $a, $p, .total_cost_usd, .usage.input_tokens,
+			check "$task" "$dir" "$tmp/answer" > "$out/$task-$label.check" 2>&1 && pass=1
+			git -C "$dir" diff --stat >> "$out/$task-$label.check"
+			cp "$tmp/run.err" "$out/$task-$label.err" # last run's stderr, for failed runs
+			cp "$tmp/run.json" "$out/$task-$label.json"
+			[ -s "$tmp/run.json" ] && jq -r --arg t "$task" --arg a "$label" --arg p $pass '[(now|todate), $t, $a, $p, .total_cost_usd, .usage.input_tokens,
 				.usage.cache_read_input_tokens, .usage.cache_creation_input_tokens, .usage.output_tokens, .num_turns,
 				(.duration_ms/1000|floor)] | @tsv' "$tmp/run.json" >> "$results" ||
-				printf '%s\t%s\t%s\t0\t\t\t\t\t\t\t\n' "$(date -Is)" "$task" "$arm" >> "$results"
-			echo "$task $arm #$rep: pass=$pass"
+				printf '%s\t%s\t%s\t0\t\t\t\t\t\t\t\n' "$(date -Is)" "$task" "$label" >> "$results"
+			echo "$task $label #$rep: pass=$pass"
 			git worktree remove --force "$dir"
 		done
 	done
