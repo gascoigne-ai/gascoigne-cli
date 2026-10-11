@@ -2,6 +2,7 @@ package httpproxyreceiver
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"io"
@@ -192,5 +193,62 @@ func TestGeminiResults(t *testing.T) {
 	}
 	if fake.calls.Load() != 2 {
 		t.Fatalf("pipeline calls = %d", fake.calls.Load())
+	}
+}
+
+func TestUsageFromCompressedStream(t *testing.T) {
+	sse := "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"model\":\"claude-opus-5-5\",\"usage\":{\"input_tokens\":3,\"cache_read_input_tokens\":500,\"cache_creation_input_tokens\":20,\"output_tokens\":1}}}\n\n" +
+		"event: message_delta\ndata: {\"type\":\"message_delta\",\"usage\":{\"output_tokens\":42}}\n\n"
+	var gz bytes.Buffer
+	zw := gzip.NewWriter(&gz)
+	zw.Write([]byte(sse))
+	zw.Close()
+	tests := []struct {
+		encoding string
+		body     []byte
+		metered  bool
+	}{
+		{"gzip", gz.Bytes(), true},
+		{"br", []byte("not really brotli"), false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.encoding, func(t *testing.T) {
+			upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "text/event-stream")
+				w.Header().Set("Content-Encoding", tt.encoding)
+				for b := tt.body; len(b) > 0; b = b[min(7, len(b)):] { // odd-sized pieces
+					w.Write(b[:min(7, len(b))])
+					w.(http.Flusher).Flush()
+				}
+			}))
+			t.Cleanup(upstream.Close)
+			cfg := NewFactory().DefaultConfig().(*Config)
+			cfg.Anthropic = upstream.URL
+			r := New(cfg, &dropComments{}, nil)
+			l := &usageLedger{}
+			r.usage = l
+			proxy := httptest.NewServer(r)
+			t.Cleanup(proxy.Close)
+
+			req, _ := http.NewRequest("POST", proxy.URL+"/v1/messages", strings.NewReader(`{}`))
+			req.Header.Set("Accept-Encoding", tt.encoding) // set by hand: the client keeps the bytes as sent
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
+			if !bytes.Equal(got, tt.body) {
+				t.Fatalf("body changed: %q", got)
+			}
+			l.mu.Lock()
+			defer l.mu.Unlock()
+			if tt.metered != (len(l.got) == 1) {
+				t.Fatalf("recorded %+v", l.got)
+			}
+			if tt.metered && (l.got[0].CacheRead != 500 || l.got[0].Output != 42) {
+				t.Fatalf("usage %+v", l.got[0])
+			}
+		})
 	}
 }

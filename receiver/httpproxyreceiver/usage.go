@@ -2,6 +2,7 @@ package httpproxyreceiver
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"io"
@@ -33,8 +34,16 @@ const maxBody = 8 << 20
 // meter wraps a response body: bytes pass through unchanged while usage
 // events are read, and the usage is recorded once the body is closed.
 func (r *Receiver) meter(resp *http.Response, read usageReader, agent string) io.ReadCloser {
-	return &metered{body: resp.Body, read: read, r: r, agent: agent,
+	m := &metered{body: resp.Body, read: read, r: r, agent: agent,
 		stream: strings.Contains(resp.Header.Get("Content-Type"), "event-stream")}
+	switch resp.Header.Get("Content-Encoding") {
+	case "", "identity":
+	case "gzip":
+		m.inflate()
+	default:
+		return resp.Body // no stdlib decoder (br): not metered
+	}
+	return m
 }
 
 type metered struct {
@@ -46,12 +55,41 @@ type metered struct {
 	buf    bytes.Buffer // stream: the unfinished line; else the body so far
 	t      tally
 	once   sync.Once
+	// gzip bodies: compressed bytes go to zw, a goroutine inflates them
+	// into feed and closes done.
+	zw   *io.PipeWriter
+	done chan struct{}
 }
 
 func (m *metered) Read(p []byte) (int, error) {
 	n, err := m.body.Read(p)
-	m.feed(p[:n])
+	if m.zw != nil {
+		m.zw.Write(p[:n])
+	} else {
+		m.feed(p[:n])
+	}
 	return n, err
+}
+
+// inflate reads a copy of a gzip body; the copy is drained to the end even
+// when it does not inflate, so writes never block the response.
+func (m *metered) inflate() {
+	pr, pw := io.Pipe()
+	m.zw, m.done = pw, make(chan struct{})
+	go func() {
+		defer close(m.done)
+		if zr, err := gzip.NewReader(pr); err == nil {
+			buf := make([]byte, 32<<10)
+			for {
+				n, err := zr.Read(buf)
+				m.feed(buf[:n])
+				if err != nil {
+					break
+				}
+			}
+		}
+		io.Copy(io.Discard, pr)
+	}()
 }
 
 func (m *metered) feed(b []byte) {
@@ -86,7 +124,13 @@ func (m *metered) event(line []byte) {
 
 func (m *metered) Close() error {
 	err := m.body.Close()
-	m.once.Do(m.record)
+	m.once.Do(func() {
+		if m.zw != nil {
+			m.zw.Close()
+			<-m.done
+		}
+		m.record()
+	})
 	return err
 }
 
