@@ -48,8 +48,9 @@ GitHub Actions (`.github/workflows/`): `ci.yml` runs `make check`, `make eval` a
 (`CGO_ENABLED=0`) build for linux, macOS and Windows on every push to `master` and every pull
 request. `release.yml` runs on a `v*` tag: the tag must equal `v` + `version.Number`, then it
 builds `-trimpath` binaries for linux/darwin/windows × amd64/arm64 and publishes them with
-`checksums.txt` as a GitHub release. To release: bump `version.Number`, commit, then
-`git tag v<number> && git push origin v<number>`.
+`checksums.txt` as a GitHub release whose notes are that version's `CHANGELOG.md` section. To
+release: add the section, bump `version.Number`, commit, then
+tag `v<number>` and push the tag to GitHub.
 
 ## Dependencies
 

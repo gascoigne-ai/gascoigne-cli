@@ -47,7 +47,21 @@ jobs:
           done
           (cd dist && sha256sum * > checksums.txt)
 
+      # Release notes are the version's CHANGELOG.md section.
+      - name: Notes
+        run: |
+          awk -v v="${GITHUB_REF_NAME#v}" '
+            index($0, "## [" v "]") == 1 { on = 1; next }
+            on && /^## \[/ { exit }
+            on && /^\[[^]]+\]: / { next }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "CHANGELOG.md has no section for ${GITHUB_REF_NAME#v}" >&2
+            exit 1
+          fi
+
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/* --title "${GITHUB_REF_NAME}" --generate-notes --verify-tag
+        run: gh release create "${GITHUB_REF_NAME}" dist/* --title "${GITHUB_REF_NAME}" --notes-file notes.md --verify-tag

@@ -1,0 +1,78 @@
+# Changelog
+
+All notable changes to gascoigne. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
+[Semantic Versioning](https://semver.org/).
+
+## [0.2.1] - 2026-10-12
+
+First release. gascoigne shrinks command output, tool results and web pages before they reach
+a coding agent, and keeps every original one command away. About 82% fewer tokens across the
+eval fixtures (`make eval`).
+
+```sh
+go install github.com/gascoigne-ai/gascoigne-cli/cmd/gascoigne@latest && gascoigne wrap claude
+```
+
+### Optimizing output
+
+- 16 family engines covering 110+ tools and formats: test, build, pkg, task, vcs, search, fs,
+  table, data, log, doc, web, db, k8s, infra and cloud. Output is recognized by family and
+  tool and shaped by the engine that knows what it is for: failures, diffs, errors and
+  summaries kept, progress, passes and boilerplate folded.
+- Stack traces fold recursion, and goroutines parked on one stack are shown once.
+- A rerun of the same command in a session points at output the agent already saw instead of
+  repeating it.
+- Source files only lose whole lines (comments, outlined bodies); kept lines are byte-exact and
+  every gap names the lines it stands for. `gascoigne show <file>[:symbol]` prints one
+  definition or the file's outline.
+- Deterministic: same input, same output, so prompt caches stay warm.
+
+### Agents
+
+- `gascoigne wrap claude|codex|gemini|opencode|pi` starts an agent with gascoigne for one run,
+  touching no config files.
+- `gascoigne install [-g]` keeps it on for a project or every project (also Cursor);
+  `unwrap` removes it from agent configs, `uninstall` removes gascoigne entirely (configs,
+  server, ledger, caches and the binary, after asking).
+- Agents get a short usage guide and are asked to keep their own text brief (about 16% fewer
+  output tokens in A/B runs).
+
+### MCP and the LLM API proxy
+
+- `gascoigne mcp`: `fetch` for web pages and HTTP APIs, `compress`, `show`, `retrieve`, `stats`.
+- `gascoigne mcp-proxy -- <server>` shortens another MCP server's results; `max_tools` hides a
+  server with many tools behind `search_tools` and `call_tool` (off by default).
+- The LLM API proxy shortens tool results inside requests to the model, trims tool schemas,
+  folds long code blocks in invoked skills and can downscale large screenshots (opt-in).
+  Works with API keys and gateway tokens, including Claude on Amazon Bedrock; a claude.ai or
+  ChatGPT login talks to the provider directly.
+
+### Originals, savings and cost
+
+- Every original goes to a local sqlite ledger first; shortened output carries an 8-digit raw
+  id. `gascoigne raw <id>` reads it back whole or in part (`-lines`, `-grep`, `-query`).
+- Sources whose originals agents keep fetching are passed through next time.
+- `gascoigne gain` reports savings by day, agent, model, session, command or optimizer, with
+  a cost section and a note on which numbers are estimates.
+- `gascoigne dashboard` opens a live view: savings over time, every run, and any run's
+  original side by side with what the agent read. Its moon shows your savings rate.
+- `gascoigne tokens` counts and prices text per tokenizer family, with exact o200k counts
+  locally and Claude counts through `count_tokens` with an API key.
+- Nothing leaves your machine: the ledger and dashboard are local.
+
+### Configuration
+
+- Works without a config file. Overrides go to `~/.config/gascoigne/config.yaml`, per run with
+  `-set`, `-only`, `-disable` or `GASCOIGNE_*` variables; `gascoigne config` prints the result
+  and `config -upgrade` moves settings onto a newer template.
+- Experimental commands are enabled with `experimental: [...]` in the config or
+  `GASCOIGNE_EXPERIMENTAL`: `prompts` audits and prices the instruction text sent with every
+  request.
+
+### Distribution
+
+- One static, pure-Go binary for Linux, macOS and Windows (amd64, arm64), with checksums.
+- Licensed under the Apache License 2.0.
+
+[0.2.1]: https://github.com/gascoigne-ai/gascoigne-cli/releases/tag/v0.2.1
