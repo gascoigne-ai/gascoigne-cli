@@ -122,6 +122,10 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 		}
 	}
 
+	for _, i := range outliers(lines, important) {
+		important[i] = true
+	}
+
 	counts := map[string]int{}
 	srcsOf := map[string][]int{}
 	for i, l := range lines {

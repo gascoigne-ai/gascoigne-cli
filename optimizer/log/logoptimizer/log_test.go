@@ -142,3 +142,30 @@ func TestUnitPairs(t *testing.T) {
 		t.Fatalf("got:\n%s", strings.Join(got, "\n"))
 	}
 }
+
+func TestNumericOutlierKept(t *testing.T) {
+	tests := []struct {
+		name string
+		durs []int
+		kept string // line that must stay, "" when none stands out
+	}{
+		{"slow request", []int{21, 34, 25, 40, 9814, 33, 28, 22, 37, 30}, "batch 4 synced in 9814ms"},
+		{"steady", []int{21, 34, 25, 40, 61, 33, 28, 22, 37, 30}, ""},
+		{"too few to tell", []int{21, 9814, 25}, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var b strings.Builder
+			for i, d := range tt.durs {
+				fmt.Fprintf(&b, "10:00:%02d INFO batch %d synced in %dms\n", i, i, d)
+			}
+			got := run(detect.Log, b.String())
+			if tt.kept != "" && !strings.Contains(got, tt.kept) {
+				t.Errorf("outlier %q folded:\n%s", tt.kept, got)
+			}
+			if lines := len(compress.Lines(got)); tt.kept == "" && lines > 2 {
+				t.Errorf("want one template line and a gap, got:\n%s", got)
+			}
+		})
+	}
+}

@@ -641,7 +641,7 @@
 - file: adversarial/errors-near-dup.log
   attrs: { cmd: kubectl logs sync-7f9c }
   expect_type: log/kubectl
-  keep: ["ord-86460 rejected: card stolen (gateway code 2053)", "ord-14084 rejected: card expired (gateway code 2017)"]
+  keep: ["ord-86460 rejected: card stolen (gateway code 2053)", "ord-14084 rejected: card expired (gateway code 2017)", "batch 1077 synced 44 orders in 9814ms"]
   min_saved: 70
 - file: adversarial/prose.txt
   attrs: { cmd: cat docs/session-store.md }

@@ -10,9 +10,6 @@ their record is git history.
   `keep` strings intact, goldens reviewed.
 - Usage: split 1h vs 5-minute cache writes (Anthropic `cache_creation.ephemeral_1h_input_tokens`)
   so `gain` prices 1h writes right; compare measured input with tokens saved per agent.
-- Log engine: one numeric outlier among templated lines (`batch 1077 … in 9814ms` among
-  20–60ms) folds into "… N repeats" (`adversarial/errors-near-dup`); flag lines whose numbers
-  sit far outside their template's range, like `compress/rows` anomalies.
 
 ## Tried and dropped
 Measured; don't retry without new data.

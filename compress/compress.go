@@ -53,6 +53,12 @@ func Normalize(line string) string {
 	return volatile.ReplaceAllString(line, "#")
 }
 
+// Volatile returns the tokens Normalize replaces, in order: lines with the
+// same Normalize form have them at the same places.
+func Volatile(line string) []string {
+	return volatile.FindAllString(line, -1)
+}
+
 // DedupeRuns collapses consecutive lines equal after Normalize into the first
 // one suffixed with "(×N)".
 func DedupeRuns(lines []string) []string {

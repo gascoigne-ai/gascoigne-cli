@@ -1,4 +1,4 @@
-2026-09-02 14:00:00.399 INFO  [sync] batch 1000 synced 56 orders in 35ms (×85)
+2026-09-02 14:00:00.399 INFO  [sync] batch 1000 synced 56 orders in 35ms (×84)
 … 2 repeats of lines above
 2026-09-02 14:00:03.954 INFO  [sync] batch 1003 synced 44 orders in 23ms (×2)
 2026-09-02 14:00:05.778 ERROR [sync] order ord-86460 rejected: card stolen (gateway code 2053)
@@ -19,7 +19,9 @@
 2026-09-02 14:01:11.774 INFO  [sync] batch 1071 synced 60 orders in 47ms (×2)
 2026-09-02 14:01:13.954 ERROR [sync] order ord-61522 rejected: card stolen (gateway code 2039)
 2026-09-02 14:01:14.804 INFO  [sync] batch 1074 synced 46 orders in 34ms (×2)
-… 12 repeats of lines above
+… 1 repeat of a line above
+2026-09-02 14:01:17.155 INFO  [sync] batch 1077 synced 44 orders in 9814ms
+… 10 repeats of lines above
 2026-09-02 14:01:28.465 INFO  [sync] batch 1088 synced 45 orders in 20ms (×2)
 2026-09-02 14:01:30.586 ERROR [sync] order ord-46559 rejected: card stolen (gateway code 2083)
 2026-09-02 14:01:31.305 INFO  [sync] batch 1091 synced 47 orders in 52ms (×2)
