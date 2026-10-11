@@ -60,3 +60,21 @@ func TestTerms(t *testing.T) {
 		}
 	}
 }
+
+func TestIntent(t *testing.T) {
+	tests := []struct{ in, want string }{
+		{"", ""},
+		{"Run the tests", "tests"},
+		{"Show git log for the auth package", "git log auth package"},
+		{"Find usages of ParseConfig in internal", "usages parseconfig internal"},
+		{"List all files", ""},
+		{"check go1.27 release notes", "go1 27 release notes go1.27"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.in, func(t *testing.T) {
+			if got := Intent(tt.in); got != tt.want {
+				t.Errorf("Intent(%q) = %q, want %q", tt.in, got, tt.want)
+			}
+		})
+	}
+}

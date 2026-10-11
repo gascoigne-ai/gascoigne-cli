@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/detect"
 	"github.com/lukaszb/gascoigne/exporter/stdoutexporter"
 	"github.com/lukaszb/gascoigne/lazyre"
@@ -95,6 +96,12 @@ func rewriteHook(reply func(updated map[string]any) any) hookFunc {
 	return func(_ context.Context, _ *common, in hookInput, prefix string) (any, error) {
 		cmd, _ := in.ToolInput["command"].(string)
 		background, _ := in.ToolInput["run_in_background"].(bool)
+		// The call's description says what the output is read for: ranked
+		// optimizers (search matches, doc sections, JSON items) keep that first.
+		desc, _ := in.ToolInput["description"].(string)
+		if q := rows.Intent(desc); q != "" {
+			prefix += " -attr query=" + shellQuote(q)
+		}
 		wrapped, ok := wrapCommand(cmd, prefix)
 		if !ok || background && !strings.Contains(wrapped, " -watch -- ") {
 			return reply(nil), nil

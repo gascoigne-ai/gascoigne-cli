@@ -75,3 +75,17 @@ func TestMaven(t *testing.T) {
 		t.Fatalf("got:\n%s", got)
 	}
 }
+
+func TestSARIF(t *testing.T) {
+	log := `{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"semgrep","rules":[{"id":"r1"}]}},"results":[
+ {"ruleId":"r1","level":"error","message":{"text":"tainted SQL\nmore help"},"locations":[{"physicalLocation":{"artifactLocation":{"uri":"file://app/db.py"},"region":{"startLine":12,"startColumn":4}}}]},
+ {"ruleId":"r2","message":{"text":"no location"}}]}]}`
+	got, err := SARIF(log)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "semgrep: 2 results\napp/db.py:12:4: error: tainted SQL [r1]\nwarning: no location [r2]"
+	if strings.Join(got, "\n") != want {
+		t.Fatalf("got\n%s\nwant\n%s", strings.Join(got, "\n"), want)
+	}
+}

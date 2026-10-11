@@ -1,0 +1,6 @@
+total: 73.4% of 8 files
+example.com/shop/price/price.go 33.9%: New 0.0%, Get 0.0%, List 0.0%, parse 0.0%, retry 0.0%
+example.com/shop/price/tax.go 69.0%: New 50.0%, Get 75.0%, Update 50.0%, Delete 50.0%, validate 66.7%, parse 75.0%
+example.com/shop/orders/handler.go 78.7%: New 66.7%, List 66.7%, Update 75.0%, validate 50.0%
+example.com/shop/orders/service.go 79.0%: List 75.0%, Delete 75.0%, validate 75.0%, parse 75.0%, retry 75.0%
+4 files at or above 80.0%

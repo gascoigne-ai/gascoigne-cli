@@ -5,6 +5,7 @@ package mcpproxyreceiver
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os/exec"
@@ -12,6 +13,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/compress/schema"
 	"github.com/lukaszb/gascoigne/mcptool"
 	"github.com/lukaszb/gascoigne/payload"
 	"github.com/lukaszb/gascoigne/version"
@@ -76,10 +78,27 @@ func (r *Receiver) Run(ctx context.Context) error {
 		if tool.Name == r.cfg.Retrieve {
 			return fmt.Errorf("downstream tool %q clashes with retrieve tool; set retrieve in config", tool.Name)
 		}
+		if r.cfg.CompactTools {
+			tool.InputSchema = compactSchema(tool.Name, tool.InputSchema)
+		}
 		s.AddTool(tool, r.forward(cs, tool.Name))
 	}
 	mcptool.AddRetrieve(s, r.cfg.Retrieve, r.ledger)
 	return s.Run(ctx, r.upstream)
+}
+
+// compactSchema drops what a downstream tool's schema says twice (see
+// compress/schema); a schema it cannot read passes as it is.
+func compactSchema(name string, in any) any {
+	b, err := json.Marshal(in)
+	if err != nil {
+		return in
+	}
+	var s map[string]any
+	if json.Unmarshal(b, &s) != nil || !schema.Compact(name, s) {
+		return in
+	}
+	return s
 }
 
 func (r *Receiver) downstream(ctx context.Context) mcp.Transport {

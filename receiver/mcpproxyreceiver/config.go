@@ -10,6 +10,9 @@ type Config struct {
 	Ledger string `yaml:"ledger"`
 	// Retrieve names the added tool returning originals; must not clash with downstream tools.
 	Retrieve string `yaml:"retrieve"`
+	// CompactTools drops what downstream tool schemas say twice (titles
+	// restating names, $schema markers); constraints stay.
+	CompactTools bool `yaml:"compact_tools"`
 }
 
 func (c *Config) Validate() error {

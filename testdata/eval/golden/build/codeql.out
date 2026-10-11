@@ -1,0 +1,43 @@
+CodeQL: 36 results
+internal/orders/repo.go
+  20:5 error This query depends on a user-provided value (line 20). [go/sql-injection]
+  35:10 error This query depends on a user-provided value (line 25). [go/path-injection]
+  50:8 warning This query depends on a user-provided value (line 30). [go/log-injection]
+  65:6 note This query depends on a user-provided value (line 35). [go/unused-variable]
+  80:11 error This query depends on a user-provided value (line 40). [go/sql-injection]
+  95:9 error This query depends on a user-provided value (line 45). [go/path-injection]
+  110:7 warning This query depends on a user-provided value (line 50). [go/log-injection]
+  125:5 note This query depends on a user-provided value (line 55). [go/unused-variable]
+internal/orders/handler.go
+  23:6 error This query depends on a user-provided value (line 21). [go/path-injection]
+  38:11 warning This query depends on a user-provided value (line 26). [go/log-injection]
+  53:9 note This query depends on a user-provided value (line 31). [go/unused-variable]
+  68:7 error This query depends on a user-provided value (line 36). [go/sql-injection]
+  83:5 error This query depends on a user-provided value (line 41). [go/path-injection]
+  98:10 warning This query depends on a user-provided value (line 46). [go/log-injection]
+  113:8 note This query depends on a user-provided value (line 51). [go/unused-variable]
+internal/files/serve.go
+  26:7 warning This query depends on a user-provided value (line 22). [go/log-injection]
+  41:5 note This query depends on a user-provided value (line 27). [go/unused-variable]
+  56:10 error This query depends on a user-provided value (line 32). [go/sql-injection]
+  71:8 error This query depends on a user-provided value (line 37). [go/path-injection]
+  86:6 warning This query depends on a user-provided value (line 42). [go/log-injection]
+  101:11 note This query depends on a user-provided value (line 47). [go/unused-variable]
+  116:9 error This query depends on a user-provided value (line 52). [go/sql-injection]
+cmd/api/main.go
+  29:8 note This query depends on a user-provided value (line 23). [go/unused-variable]
+  44:6 error This query depends on a user-provided value (line 28). [go/sql-injection]
+  59:11 error This query depends on a user-provided value (line 33). [go/path-injection]
+  74:9 warning This query depends on a user-provided value (line 38). [go/log-injection]
+  89:7 note This query depends on a user-provided value (line 43). [go/unused-variable]
+  104:5 error This query depends on a user-provided value (line 48). [go/sql-injection]
+  119:10 error This query depends on a user-provided value (line 53). [go/path-injection]
+internal/auth/login.go
+  32:9 error This query depends on a user-provided value (line 24). [go/sql-injection]
+  47:7 error This query depends on a user-provided value (line 29). [go/path-injection]
+  62:5 warning This query depends on a user-provided value (line 34). [go/log-injection]
+  77:10 note This query depends on a user-provided value (line 39). [go/unused-variable]
+  92:8 error This query depends on a user-provided value (line 44). [go/sql-injection]
+  107:6 error This query depends on a user-provided value (line 49). [go/path-injection]
+  122:11 warning This query depends on a user-provided value (line 54). [go/log-injection]
+18 errors, 9 warnings, 9 notes in 5 files

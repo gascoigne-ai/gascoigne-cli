@@ -126,3 +126,11 @@ type Ledger interface {
 	// Stats aggregates recorded events, biggest savings first.
 	Stats(ctx context.Context, q StatsQuery) ([]Stat, error)
 }
+
+// OutputHistory is implemented by ledgers that keep optimized outputs: what
+// an agent was shown for a source, so a re-run can point at it.
+type OutputHistory interface {
+	// RecentOutputs returns outputs of the latest optimized runs of key in
+	// session since the given time, newest first, at most limit.
+	RecentOutputs(ctx context.Context, session, key string, since time.Time, limit int) ([]string, error)
+}

@@ -201,3 +201,69 @@ func TestAttrsFromCalls(t *testing.T) {
 		}
 	}
 }
+
+func TestAttrsQueryFromDescription(t *testing.T) {
+	tests := []struct {
+		name  string
+		input map[string]any
+		want  string
+	}{
+		{"description", map[string]any{"command": "rg -n Parse", "description": "Find where config is parsed"}, "where config parsed"},
+		{"explicit query wins", map[string]any{"query": "tls", "description": "Fetch docs"}, "tls"},
+		{"nothing telling", map[string]any{"command": "ls", "description": "List files"}, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := attrsOf(call{name: "Bash", input: tt.input})[payload.AttrQuery]; got != tt.want {
+				t.Errorf("query = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCompactToolSchemas(t *testing.T) {
+	schema := func() map[string]any {
+		return map[string]any{
+			"$schema": "http://json-schema.org/draft-07/schema#", "title": "read_fileArguments", "type": "object",
+			"properties":           map[string]any{"file_path": map[string]any{"title": "File Path", "type": "string"}},
+			"additionalProperties": false,
+		}
+	}
+	want := `{"additionalProperties":false,"properties":{"file_path":{"type":"string"}},"type":"object"}`
+	tests := []struct {
+		name, path string
+		tools      []any
+		schemaOf   func(tools []any) any
+	}{
+		{"anthropic", "/v1/messages", []any{map[string]any{"name": "read_file", "input_schema": schema()}},
+			func(ts []any) any { return ts[0].(map[string]any)["input_schema"] }},
+		{"chat", "/v1/chat/completions", []any{map[string]any{"type": "function", "function": map[string]any{"name": "read_file", "parameters": schema()}}},
+			func(ts []any) any { return ts[0].(map[string]any)["function"].(map[string]any)["parameters"] }},
+		{"responses", "/v1/responses", []any{map[string]any{"type": "function", "name": "read_file", "parameters": schema()}},
+			func(ts []any) any { return ts[0].(map[string]any)["parameters"] }},
+		{"gemini", "/v1beta/models/gemini-3-pro:generateContent", []any{map[string]any{"functionDeclarations": []any{map[string]any{"name": "read_file", "parametersJsonSchema": schema()}}}},
+			func(ts []any) any {
+				return ts[0].(map[string]any)["functionDeclarations"].([]any)[0].(map[string]any)["parametersJsonSchema"]
+			}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, proxy, got, _ := setup(t)
+			body, _ := json.Marshal(map[string]any{"model": "m", "tools": tt.tools})
+			req, _ := http.NewRequest("POST", proxy.URL+tt.path, bytes.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			resp.Body.Close()
+			var doc map[string]any
+			if err := json.Unmarshal(*got, &doc); err != nil {
+				t.Fatalf("forwarded body %q: %v", *got, err)
+			}
+			if s, _ := json.Marshal(tt.schemaOf(doc["tools"].([]any))); string(s) != want {
+				t.Fatalf("got %s\nwant %s", s, want)
+			}
+		})
+	}
+}

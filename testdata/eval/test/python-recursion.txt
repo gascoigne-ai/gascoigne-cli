@@ -1,0 +1,1330 @@
+Traceback (most recent call last):
+  File "/srv/app/cli.py", line 41, in <module>
+    main()
+  File "/srv/app/cli.py", line 37, in main
+    print(render(tree))
+  File "/srv/app/render.py", line 12, in render
+    return render_node(tree.root, 0)
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 18, in render_node
+    out.append(render_children(node, depth + 1))
+  File "/srv/app/render.py", line 25, in render_children
+    return [render_node(c, depth) for c in node.children]
+  File "/srv/app/render.py", line 16, in render_node
+    if node.kind == "leaf":
+RecursionError: maximum recursion depth exceeded in comparison

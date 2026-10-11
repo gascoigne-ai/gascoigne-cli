@@ -56,27 +56,43 @@ func Result(text string) *mcp.CallToolResult {
 }
 
 type RetrieveInput struct {
-	ID string `json:"id" jsonschema:"id from an [optimized ... id=<id>] hint"`
+	ID      string `json:"id" jsonschema:"id from an [optimized ... id=<id>] hint"`
+	Lines   string `json:"lines,omitempty" jsonschema:"only these lines, e.g. 120-180"`
+	Grep    string `json:"grep,omitempty" jsonschema:"only lines matching this regexp, numbered"`
+	Query   string `json:"query,omitempty" jsonschema:"only the lines best matching these words, numbered"`
+	Context int    `json:"context,omitempty" jsonschema:"lines of context around grep/query matches"`
 }
 
 // AddRetrieve registers a tool returning original, unoptimized content.
-// Asking for it marks the source as badly optimized, so next time it is not.
+// Asking for all of it marks the source as badly optimized, so next time it is
+// not; a part (lines, grep, query) is a lookup, not a complaint.
 func AddRetrieve(s *mcp.Server, name string, l component.Ledger) {
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        name,
-		Description: "Return the full original content of an optimized result, by the id from its [optimized ...] hint.",
+		Description: "Return the original content of an optimized result, by the id from its [optimized ...] hint; lines, grep or query return only part of it.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in RetrieveInput) (*mcp.CallToolResult, any, error) {
-		key, p, err := l.GetRaw(ctx, in.ID)
+		sl := Slice{Lines: in.Lines, Grep: in.Grep, Query: in.Query, Context: in.Context}
+		text, err := Original(ctx, l, in.ID, sl)
 		if err != nil {
 			return nil, nil, err
 		}
-		if key != "" {
-			if err := l.MarkFailure(ctx, key, component.ReasonRawRequested); err != nil {
-				return nil, nil, err
-			}
-		}
-		return Result(p.Text()), nil, nil
+		return Result(text), nil, nil
 	})
+}
+
+// Original returns the original stored under id, or the part sl selects.
+// A whole read marks the source as failing: the optimized output was not enough.
+func Original(ctx context.Context, l component.Ledger, id string, sl Slice) (string, error) {
+	key, p, err := l.GetRaw(ctx, id)
+	if err != nil {
+		return "", err
+	}
+	if key != "" && !sl.Partial() {
+		if err := l.MarkFailure(ctx, key, component.ReasonRawRequested); err != nil {
+			return "", err
+		}
+	}
+	return sl.Apply(p.Text())
 }
 
 type StatsInput struct {

@@ -1,0 +1,39 @@
+// Package traceoptimizer folds stack traces in command output (see
+// compress/trace): recursion cycles once with a count, goroutines of a Go
+// dump on the same stack once with the others' ids. It runs before the
+// family engines, so they parse and cap the shorter text.
+package traceoptimizer
+
+import (
+	"context"
+	"slices"
+	"strings"
+
+	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/compress"
+	"github.com/lukaszb/gascoigne/compress/trace"
+	"github.com/lukaszb/gascoigne/detect"
+	"github.com/lukaszb/gascoigne/payload"
+)
+
+type Optimizer struct {
+	component.Nop
+	cfg *Config
+}
+
+func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
+	for i, b := range p.Blocks {
+		if !slices.Contains(o.cfg.Families, detect.Family(b.Type)) {
+			continue
+		}
+		lines := compress.Lines(b.Text)
+		folded := trace.Cycles(lines, o.cfg.MaxPeriod, o.cfg.MinRepeats)
+		if strings.Contains(b.Text, "goroutine ") {
+			folded = trace.Goroutines(folded, o.cfg.MinGoroutines)
+		}
+		if len(folded) < len(lines) {
+			p.Blocks[i].Text = compress.Join(folded)
+		}
+	}
+	return nil
+}

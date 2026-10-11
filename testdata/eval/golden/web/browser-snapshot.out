@@ -1,0 +1,174 @@
+### Ran Playwright code
+```js
+await page.goto('https://news.example.org/');
+```
+
+### Page state
+- Page URL: https://news.example.org/
+- Page Title: Example News — Technology
+- Page Snapshot:
+```yaml
+- banner [ref=e4]:
+  - link "Example News home" [ref=e6]:
+    - /url: /
+    - img "Example News" [ref=e7]
+  - button "Open menu" [ref=e9]
+  - searchbox "Search news" [ref=e10]
+  - button "Search" [ref=e11]
+  - navigation "Sections" [ref=e12]:
+    - list [ref=e13]:
+      - link "World" [ref=e15]:
+        - /url: /world/
+      - link "Business" [ref=e17]:
+        - /url: /business/
+      - link "Technology" [ref=e19]:
+        - /url: /technology/
+      - link "Science" [ref=e21]:
+        - /url: /science/
+      - link "Health" [ref=e23]:
+        - /url: /health/
+      - link "Sports" [ref=e25]:
+        - /url: /sports/
+      - link "Culture" [ref=e27]:
+        - /url: /culture/
+      - link "Opinion" [ref=e29]:
+        - /url: /opinion/
+      - link "Climate" [ref=e31]:
+        - /url: /climate/
+      - link "Politics" [ref=e33]:
+        - /url: /politics/
+      - … 10 links omitted
+      - link "Obituaries" [ref=e55]:
+        - /url: /obituaries/
+      - link "Puzzles" [ref=e57]:
+        - /url: /puzzles/
+      - link "Cars" [ref=e59]:
+        - /url: /cars/
+      - link "Jobs" [ref=e61]:
+        - /url: /jobs/
+- main [ref=e62]:
+  - heading "Technology" [level=1] [ref=e63]
+  - paragraph [ref=e65]: Latest reporting on software, hardware and the people who build them.
+  - list [ref=e66]:
+    - article [ref=e68]:
+      - link "Chip export rules: what changes this year" [ref=e69]:
+        - /url: /technology/2026/10/chip-export-rules
+      - paragraph [ref=e70]: Reporters look at chip export rules and who is affected first.
+      - generic [ref=e71]: 7 min read
+    - article [ref=e73]:
+      - link "Open-source maintainers: what changes this year" [ref=e74]:
+        - /url: /technology/2026/10/open-source-maintainers
+      - paragraph [ref=e75]: Reporters look at open-source maintainers and who is affected first.
+      - generic [ref=e76]: 4 min read
+    - article [ref=e78]:
+      - link "Battery recycling: what changes this year" [ref=e79]:
+        - /url: /technology/2026/10/battery-recycling
+      - paragraph [ref=e80]: Reporters look at battery recycling and who is affected first.
+      - generic [ref=e81]: 8 min read
+    - article [ref=e83]:
+      - link "Satellite internet: what changes this year" [ref=e84]:
+        - /url: /technology/2026/10/satellite-internet
+      - paragraph [ref=e85]: Reporters look at satellite internet and who is affected first.
+      - generic [ref=e86]: 2 min read
+    - article [ref=e88]:
+      - link "Quantum error correction: what changes this year" [ref=e89]:
+        - /url: /technology/2026/10/quantum-error-correction
+      - paragraph [ref=e90]: Reporters look at quantum error correction and who is affected first.
+      - generic [ref=e91]: 3 min read
+    - article [ref=e93]:
+      - link "Data center water use: what changes this year" [ref=e94]:
+        - /url: /technology/2026/10/data-center-water-use
+      - paragraph [ref=e95]: Reporters look at data center water use and who is affected first.
+      - generic [ref=e96]: 3 min read
+    - article [ref=e98]:
+      - link "Browser privacy: what changes this year" [ref=e99]:
+        - /url: /technology/2026/10/browser-privacy
+      - paragraph [ref=e100]: Reporters look at browser privacy and who is affected first.
+      - generic [ref=e101]: 7 min read
+    - article [ref=e103]:
+      - link "Robotaxi permits: what changes this year" [ref=e104]:
+        - /url: /technology/2026/10/robotaxi-permits
+      - paragraph [ref=e105]: Reporters look at robotaxi permits and who is affected first.
+      - generic [ref=e106]: 2 min read
+    - article [ref=e108]:
+      - link "Spectrum auction: what changes this year" [ref=e109]:
+        - /url: /technology/2026/10/spectrum-auction
+      - paragraph [ref=e110]: Reporters look at spectrum auction and who is affected first.
+      - generic [ref=e111]: 5 min read
+    - article [ref=e113]:
+      - link "Smartphone repair law: what changes this year" [ref=e114]:
+        - /url: /technology/2026/10/smartphone-repair-law
+      - paragraph [ref=e115]: Reporters look at smartphone repair law and who is affected first.
+      - generic [ref=e116]: 2 min read
+    - … 9 articles omitted
+    - article [ref=e163]:
+      - link "Fusion startups: what changes this year" [ref=e164]:
+        - /url: /technology/2026/10/fusion-startups
+      - paragraph [ref=e165]: Reporters look at fusion startups and who is affected first.
+      - generic [ref=e166]: 5 min read
+    - … 16 articles omitted
+    - article [ref=e248]:
+      - link "Search antitrust: what changes this year" [ref=e249]:
+        - /url: /technology/2026/10/search-antitrust
+      - paragraph [ref=e250]: Reporters look at search antitrust and who is affected first.
+      - generic [ref=e251]: 3 min read
+    - article [ref=e253]:
+      - link "Lidar costs: what changes this year" [ref=e254]:
+        - /url: /technology/2026/10/LIDAR-costs
+      - paragraph [ref=e255]: Reporters look at LIDAR costs and who is affected first.
+      - generic [ref=e256]: 2 min read
+    - article [ref=e258]:
+      - link "Robot vacuums: what changes this year" [ref=e259]:
+        - /url: /technology/2026/10/robot-vacuums
+      - paragraph [ref=e260]: Reporters look at robot vacuums and who is affected first.
+      - generic [ref=e261]: 5 min read
+    - article [ref=e263]:
+      - link "Keyboard switches: what changes this year" [ref=e264]:
+        - /url: /technology/2026/10/keyboard-switches
+      - paragraph [ref=e265]: Reporters look at keyboard switches and who is affected first.
+      - generic [ref=e266]: 9 min read
+  - button "Load more stories" [ref=e267]
+- contentinfo [ref=e268]:
+  - list [ref=e270]:
+    - link "About us" [ref=e272]:
+      - /url: /help/about-us
+    - link "Contact" [ref=e274]:
+      - /url: /help/contact
+    - link "Careers" [ref=e276]:
+      - /url: /help/careers
+    - link "Advertise" [ref=e278]:
+      - /url: /help/advertise
+    - link "Privacy policy" [ref=e280]:
+      - /url: /help/privacy-policy
+    - link "Terms of service" [ref=e282]:
+      - /url: /help/terms-of-service
+    - link "Cookie settings" [ref=e284]:
+      - /url: /help/cookie-settings
+    - link "Accessibility" [ref=e286]:
+      - /url: /help/accessibility
+    - link "Help center" [ref=e288]:
+      - /url: /help/help-center
+    - link "Newsletters" [ref=e290]:
+      - /url: /help/newsletters
+    - link "RSS feeds" [ref=e292]:
+      - /url: /help/rss-feeds
+    - link "Site map" [ref=e294]:
+      - /url: /help/site-map
+    - link "Corrections" [ref=e296]:
+      - /url: /help/corrections
+    - link "Ethics" [ref=e298]:
+      - /url: /help/ethics
+    - link "Licensing" [ref=e300]:
+      - /url: /help/licensing
+    - link "Store" [ref=e302]:
+      - /url: /help/store
+    - link "Gift subscriptions" [ref=e304]:
+      - /url: /help/gift-subscriptions
+    - link "Student discount" [ref=e306]:
+      - /url: /help/student-discount
+    - link "Manage account" [ref=e308]:
+      - /url: /help/manage-account
+    - link "Delivery" [ref=e310]:
+      - /url: /help/delivery
+  - paragraph [ref=e311]: © 2026 Example News Company
+```

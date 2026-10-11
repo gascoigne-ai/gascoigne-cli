@@ -1,0 +1,29 @@
+pytest: 100 passed, 2 failed, 1 skipped (0.034s)
+FAIL test_cart::test_discount_applied: AssertionError: 10% discount missing
+  def test_discount_applied():
+  >       assert total([("sku-10", 3)]) == 40.5, "10% discount missing"
+  E       AssertionError: 10% discount missing
+  E       assert 45.0 == 40.5
+  E        +  where 45.0 = total([('sku-10', 3)])
+  
+  test_cart.py:17: AssertionError
+FAIL test_cart::test_unknown_sku: KeyError: 'sku-999'
+  def test_unknown_sku():
+  >       assert total([("sku-999", 1)]) == 0
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+  
+  test_cart.py:20: 
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+  test_cart.py:6: in total
+      return round(sum(PRICES[s] * q for s, q in items), 2)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+  
+  .0 = <list_iterator object at 0x7f2232de0640>
+  
+  >   return round(sum(PRICES[s] * q for s, q in items), 2)
+                       ^^^^^^^^^
+  E   KeyError: 'sku-999'
+  
+  test_cart.py:6: KeyError
+SKIP test_cart::test_tax tax service not mocked (/srv/shop/test_cart.py:22: tax service not mocked)

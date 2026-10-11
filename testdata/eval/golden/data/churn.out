@@ -1,0 +1,86 @@
+# notebook, kernel python3
+# %% [1] markdown
+# Churn analysis
+
+Load monthly orders and fit a simple churn model.
+# %% [2] code In[1]
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+
+df = pd.read_csv('orders.csv', parse_dates=['month'])
+df.head()
+# out:
+       month  customer_id  orders  revenue  churned
+0 2025-01-01         1001       4   182.40        0
+1 2025-01-01         1002       1    19.99        1
+2 2025-01-01         1003       7   402.10        0
+3 2025-01-01         1004       2    55.00        0
+4 2025-01-01         1005       3    99.70        0
+[text/html 775 B]
+# %% [3] code In[2]
+for epoch in range(120):
+    loss = train_step(model, batch(epoch))
+    print(f'epoch {epoch:3d} loss {loss:.4f}')
+# out: stdout
+epoch   0 loss 1.2062
+epoch   1 loss 1.1689
+epoch   2 loss 1.1387
+epoch   3 loss 1.1027
+epoch   4 loss 1.0672
+epoch   5 loss 1.0390
+epoch   6 loss 1.0038
+epoch   7 loss 0.9759
+epoch   8 loss 0.9450
+epoch   9 loss 0.9206
+epoch  10 loss 0.8949
+epoch  11 loss 0.8625
+epoch  12 loss 0.8387
+epoch  13 loss 0.8128
+epoch  14 loss 0.7838
+epoch  15 loss 0.7631
+epoch  16 loss 0.7410
+epoch  17 loss 0.7151
+epoch  18 loss 0.7017
+epoch  19 loss 0.6782
+… 90 lines omitted
+epoch 110 loss 0.0431
+epoch 111 loss 0.0476
+epoch 112 loss 0.0417
+epoch 113 loss 0.0462
+epoch 114 loss 0.0445
+epoch 115 loss 0.0444
+epoch 116 loss 0.0386
+epoch 117 loss 0.0405
+epoch 118 loss 0.0341
+epoch 119 loss 0.0410
+# %% [4] code In[3]
+fig, ax = plt.subplots(figsize=(8, 4))
+df.groupby('month').churned.mean().plot(ax=ax)
+ax.set_title('Monthly churn rate')
+# out:
+Text(0.5, 1.0, 'Monthly churn rate')
+# out:
+<Figure size 800x400 with 1 Axes>
+[image/png 46 KB]
+# %% [5] code In[4]
+from ipywidgets import IntSlider
+IntSlider(min=1, max=12, description='month')
+# out:
+IntSlider(value=1, description='month', max=12, min=1)
+[application/vnd.jupyter.widget-view+json 117 B]
+# %% [6] code In[5]
+X = df[['orders', 'revenue', 'tenure']]
+model = LogisticRegression().fit(X, df.churned)
+# error: KeyError: "['tenure'] not in index"
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+Cell In[5], line 2
+      1 X = df[['orders', 'revenue', 'tenure']]
+File /opt/conda/lib/python3.12/site-packages/pandas/core/frame.py:4108, in DataFrame.__getitem__(self, key)
+KeyError: "['tenure'] not in index"
+# %% [7] markdown
+## Next
+
+- add tenure from the customers table
+- compare with gradient boosting

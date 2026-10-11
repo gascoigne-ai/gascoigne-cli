@@ -8,7 +8,7 @@ receivers:
   exec: { kind: cmd_output } # gascoigne exec -- <cmd>
   hook: { kind: cmd_output } # gascoigne hook codex: output an agent already captured
   mcp: { ledger: ledger, retrieve: retrieve, fetch_timeout: 20s, fetch_max_bytes: 5242880 } # gascoigne mcp
-  mcp_proxy: { command: [], ledger: ledger, retrieve: gascoigne_retrieve } # gascoigne mcp-proxy -- <server cmd>
+  mcp_proxy: { command: [], ledger: ledger, retrieve: gascoigne_retrieve, compact_tools: true } # gascoigne mcp-proxy -- <server cmd>
   # LLM API proxy, served by the background server under /v1/ (base URL http://127.0.0.1:7878)
   httpproxy:
     anthropic: https://api.anthropic.com
@@ -21,6 +21,7 @@ receivers:
     ledger: ledger
     fold_min_lines: 3
     fold_min_chars: 80
+    compact_tools: true # tool schemas: drop titles restating names and $schema markers (constraints stay)
 
 filters:
   bypass: { env: GASCOIGNE_RAW }               # attr raw=true or this env set to 1
@@ -33,10 +34,10 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [embedjson, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc, dense, paths, truncate]
+  default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, doc, dense, paths, truncate, rerun]
 
 optimizers:
-  test: {}
+  test: { coverage_below: 80 } # coverage reports list files under this percent
   build: { max_frame: 4 }
   git: { context_lines: 1, max_file_lines: 200, min_move_lines: 4 }
   grep: { max_per_file: 15, max_files: 100, max_line_len: 160 }
@@ -66,6 +67,7 @@ optimizers:
     max_rows: 30
     max_cell: 60
     max_items: 20
+    max_output_lines: 30 # notebook cell text outputs keep head and tail; tracebacks stay
     json: { drop_empty: true, max_string: 300, shorten_hashes: true, tabulate_min: 3, lossless_min_saving: 0.3,
       lossless_max_tokens: 2000, min_items: 5, min_tokens: 200, max_items: 15, head_share: 0.3,
       tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
@@ -98,18 +100,24 @@ optimizers:
       lossless_max_tokens: 2000, min_items: 5, min_tokens: 200, max_items: 15, head_share: 0.3,
       tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
   html: { links: true }
+  # aria: browser accessibility snapshots; wrappers unwrapped, runs of like siblings keep head, tail and query matches
+  aria: { max_items: 20, head: 10, tail: 4 }
   # embedjson: JSON values holding record arrays inside log/test/build/task/text, crushed in place
   embedjson:
     types: [log, test, build, task, doc/text]
     json: { drop_empty: true, max_string: 300, shorten_hashes: true, tabulate_min: 3, lossless_min_saving: 0.3,
       lossless_max_tokens: 2000, min_items: 5, min_tokens: 200, max_items: 15, head_share: 0.3,
       tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
+  # trace: recursion frame cycles once with a count, Go goroutines on one stack once with the others' ids
+  trace: { families: [test, build, task, log, doc], max_period: 12, min_repeats: 3, min_goroutines: 3 }
   # dense: long space-free lines (minified code, base64, data URIs) keep head and tail
   dense: { min_line: 300, min_total: 2000, head: 160, tail: 80, skip: [data, k8s, cloud] }
   # paths: long path prefixes repeated in test/build/search/log/task output → §1/file.go, legend on top
   paths: { families: [test, build, search, log, task], min_prefix: 20, min_saving: 30, max_aliases: 9 }
   # truncate: last resort, a block still over max_tokens keeps head, tail and error lines between
   truncate: { max_tokens: 10000, head_tokens: 3200, tail_tokens: 3200, max_errors: 20, skip: [fs/code, data, k8s, cloud] }
+  # rerun: runs of lines the last runs of the same command in the session showed (within max_age) → one pointer
+  rerun: { ledger: ledger, families: [test, build, task, pkg, log, search, vcs], max_age: 20m, runs: 3, min_lines: 4, min_chars: 200 }
   doc: { max_code_lines: 40, max_tokens: 5200, man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON] }
 
 exporters:

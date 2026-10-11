@@ -1,5 +1,7 @@
 package detect
 
+import "strings"
+
 // Compilers, linters, type checkers, bundlers.
 const (
 	GoBuild     = "build/go"
@@ -16,10 +18,16 @@ const (
 	DotnetBuild = "build/dotnet"
 	Bundler     = "build/bundler" // vite, webpack, rollup, esbuild
 	DockerBuild = "build/docker"
+	SARIF       = "build/sarif" // static analysis logs
 )
 
 func init() {
 	register(
+		Spec{Type: SARIF, Files: []string{"*.sarif", "*.sarif.json"}, MIME: []string{"application/sarif+json"}, Priority: 18, Refines: []string{"data/json"},
+			Sniff: func(t string, _ []string) bool {
+				head := t[:min(len(t), 2048)]
+				return strings.Contains(head, `"runs"`) && (strings.Contains(head, "sarif") || strings.Contains(head, `"2.1.0"`))
+			}},
 		Spec{Type: GoBuild, Cmds: []string{"go build", "go vet", "go install", "staticcheck"}, Priority: 51,
 			Sniff: anyLine(`^# [a-z][\w./-]*$|^\S+\.go:\d+:\d+: `)}, // package paths are lowercase, headings rarely
 		Spec{Type: TSC, Cmds: []string{"tsc", "vue-tsc"}, Priority: 52,

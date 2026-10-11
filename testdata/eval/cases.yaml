@@ -32,6 +32,15 @@
   expect_type: test/go
   keep: ["[paths: §1=/home/user/src/shop/internal/orders", "§1/orders.go:14", "assignment to entry in nil map", "FAIL\t§2/orders"]
   min_saved: 80
+- file: go/test-timeout-goroutines.txt
+  attrs: { cmd: go test ./sync/ }
+  expect_type: test/go
+  keep: ["panic: test timed out after 10m0s", "TestSyncOrders", "syncer_test.go:31", "goroutine 60 [chan receive, 9 minutes]: +39 more on this stack", "client.go:118", "FAIL\texample.com/shop/sync"]
+  min_saved: 70
+- file: test/python-recursion.txt
+  attrs: { cmd: python cli.py }
+  keep: ["/srv/app/cli.py\", line 37, in main", "render.py\", line 25, in render_children", "repeated 329 more times", "RecursionError: maximum recursion depth exceeded in comparison"]
+  min_saved: 80
 - file: go/test-json.ndjson
   attrs: { cmd: go test -json ./... }
   expect_type: test/go-json
@@ -543,15 +552,26 @@
   expect_type: log/kubectl
   keep: ["card_declined: insufficient funds", "status=402", "repeats of lines above"]
   min_saved: 90
+- file: data/churn.ipynb
+  attrs: { cmd: cat churn.ipynb }
+  expect_type: data/ipynb
+  keep: ["# %% [2] code In[1]", "df = pd.read_csv('orders.csv', parse_dates=['month'])", "epoch 119 loss", "[image/png 46 KB]", "KeyError: \"['tenure'] not in index\"", "add tenure from the customers table"]
+  min_saved: 90
 - { file: data/catalog.yaml, attrs: { file: catalog.yaml }, expect_type: data/yaml, keep: ["SKU-1013", "SKU-1057", "\"_table\""], min_saved: 50 }
 - { file: data/compose.yaml, attrs: { file: compose.yaml }, expect_type: data/yaml, keep: ["postgres:16"] }
 - { file: data/orders-export.csv, attrs: { file: orders-export.csv }, expect_type: data/csv,
     keep: ["refunded", "chargeback", "48210.00", "currency=EUR"], min_saved: 80 }
-- { file: data/junit-report.xml, attrs: { file: report.xml }, expect_type: data/xml,
-    keep: ["10% discount missing", "KeyError: 'sku-999'", "tax service not mocked", "testcase> elements omitted", "failures=\"2\""], min_saved: 60 }
+- { file: data/junit-report.xml, attrs: { file: report.xml }, expect_type: test/junit,
+    keep: ["10% discount missing", "KeyError: 'sku-999'", "tax service not mocked", "100 passed, 2 failed, 1 skipped", "test_cart.py:17"], min_saved: 75 }
+- { file: data/blog-feed.xml, attrs: { file: feed.xml }, expect_type: data/xml, keep: ["Example Engineering Blog", "release-0", "release-39", "<item> elements omitted"], min_saved: 50 }
+- { file: build/codeql.sarif, attrs: { file: results.sarif }, expect_type: build/sarif,
+    keep: ["CodeQL: 36 results", "internal/orders/repo.go", "20:5", "[go/sql-injection]", "internal/auth/login.go"], min_saved: 85 }
+- { file: test/lcov.info, attrs: { file: coverage/lcov.info }, expect_type: test/coverage, keep: ["total: 74.7%", "src/tax.ts 41.1%", "4 files at or above"], min_saved: 90 }
+- { file: test/go-cover-func.txt, attrs: { cmd: go tool cover -func=cover.out }, expect_type: test/coverage, keep: ["total: 73.4%", "price/price.go"], min_saved: 60 }
 - { file: data/Cargo.lock, attrs: { cmd: cat Cargo.lock }, expect_type: data/toml, keep: ["[[package]] ×", "core_arch", "deps: "], min_saved: 30 }
 - { name: detect/csv, file: data/orders-export.csv, expect_type: data/csv }
-- { name: detect/xml, file: data/junit-report.xml, expect_type: data/xml }
+- { name: detect/xml, file: data/blog-feed.xml, expect_type: data/xml }
+- { name: detect/junit, file: data/junit-report.xml, expect_type: test/junit }
 - name: detect/json
   file: json/github-repos.json
   expect_type: data/json
@@ -570,6 +590,11 @@
 - name: detect/html
   file: html/go-dev-blog.html
   expect_type: doc/markdown
+- file: web/browser-snapshot.md
+  attrs: { tool: browser_snapshot, query: battery fusion }
+  expect_type: web/aria
+  keep: ["Page URL: https://news.example.org/", "searchbox \"Search news\" [ref=e10]", "Battery recycling", "Fusion startups", "button \"Load more stories\"", "Keyboard switches"]
+  min_saved: 50
 
 # --- log
 - file: log/app.log

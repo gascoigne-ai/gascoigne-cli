@@ -410,3 +410,36 @@ func TestPage(t *testing.T) {
 		t.Fatalf("all %d, optimized %d, older %v", len(all), len(opt), older)
 	}
 }
+
+func TestRecentOutputs(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	now := time.Now()
+	run := func(session, key, original, output string, ago time.Duration) {
+		t.Helper()
+		id, err := l.SaveRaw(ctx, key, payload.New(payload.CmdOutput, original))
+		if err != nil {
+			t.Fatal(err)
+		}
+		ev := component.Event{TS: now.Add(-ago), Session: session, Key: key, RawID: id, Outcome: component.Optimized, Output: output}
+		if err := l.Record(ctx, ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	run("s1", "cmd:go test", "old original\n", "old\n", time.Hour)
+	run("s1", "cmd:go test", "first original\n", "first\n", 3*time.Minute)
+	run("s1", "cmd:go test", "second original\n", "second\n", time.Minute)
+	run("s2", "cmd:go test", "other session\n", "other\n", time.Minute)
+	run("s1", "cmd:go vet", "other key\n", "vet\n", time.Minute)
+
+	got, err := l.RecentOutputs(ctx, "s1", "cmd:go test", now.Add(-10*time.Minute), 5)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := []string{"second\n", "first\n"}; !slices.Equal(got, want) {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+	if got, _ := l.RecentOutputs(ctx, "s1", "cmd:go test", now.Add(-10*time.Minute), 1); len(got) != 1 {
+		t.Fatalf("limit 1: got %q", got)
+	}
+}

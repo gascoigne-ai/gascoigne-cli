@@ -1,5 +1,10 @@
 package detect
 
+import (
+	"slices"
+	"strings"
+)
+
 // Test runners.
 const (
 	GoTest     = "test/go"
@@ -14,10 +19,22 @@ const (
 	RSpec      = "test/rspec"
 	MavenTest  = "test/maven"
 	DotnetTest = "test/dotnet"
+	JUnit      = "test/junit"    // JUnit XML reports
+	Coverage   = "test/coverage" // lcov tracefiles, go tool cover -func
 )
 
 func init() {
 	register(
+		Spec{Type: JUnit, Files: []string{"junit*.xml", "TEST-*.xml"}, Priority: 30, Refines: []string{"data/xml"},
+			Sniff: func(t string, _ []string) bool {
+				head := t[:min(len(t), 4096)]
+				return strings.Contains(head, "<testsuite") && strings.Contains(t, "<testcase")
+			}},
+		Spec{Type: Coverage, Cmds: []string{"go tool cover -func"}, Files: []string{"lcov.info", "*.lcov"}, Priority: 47,
+			Sniff: func(_ string, l []string) bool {
+				return len(l) > 1 && (strings.HasPrefix(l[0], "TN:") || strings.HasPrefix(l[0], "SF:")) ||
+					slices.ContainsFunc(l, func(s string) bool { return strings.HasPrefix(s, "total:\t") && strings.HasSuffix(s, "%") })
+			}},
 		Spec{Type: GoTestJSON, Cmds: []string{"go test -json"}, Priority: 10,
 			Sniff: func(_ string, l []string) bool {
 				return len(l) > 0 && containsAll(l[0], `"Action":`, `"Package":`)

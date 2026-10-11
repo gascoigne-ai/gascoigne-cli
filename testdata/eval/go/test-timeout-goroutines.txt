@@ -1,0 +1,421 @@
+=== RUN   TestSyncOrders
+panic: test timed out after 10m0s
+	running tests:
+		TestSyncOrders (10m0s)
+
+goroutine 52 [running]:
+testing.(*M).startAlarm.func1()
+	/usr/local/go/src/testing/testing.go:2484 +0x394
+created by time.goFunc
+	/usr/local/go/src/time/sleep.go:215 +0x2d
+
+goroutine 1 [chan receive, 9 minutes]:
+testing.(*T).Run(0xc0001a6820, {0x6f1a2e?, 0x0?}, 0x7182c0)
+	/usr/local/go/src/testing/testing.go:1859 +0x431
+testing.runTests.func1(0xc0001a6820)
+	/usr/local/go/src/testing/testing.go:2279 +0x37
+testing.tRunner(0xc0001a6820, 0xc000117c70)
+	/usr/local/go/src/testing/testing.go:1792 +0xf4
+testing.runTests(0xc0001300a8, {0x9b2f40, 0x6, 0x6}, {0x0?, 0x0?, 0x9bb2a0?})
+	/usr/local/go/src/testing/testing.go:2277 +0x4b4
+testing.(*M).Run(0xc0001aa0a0)
+	/usr/local/go/src/testing/testing.go:2142 +0x64a
+main.main()
+	_testmain.go:57 +0x9b
+
+goroutine 18 [select, 9 minutes]:
+example.com/shop/sync.(*Syncer).Run(0xc0001c4000, {0x71c5a8, 0xc0001b6000})
+	/home/user/src/shop/sync/syncer.go:74 +0x1b8
+example.com/shop/sync.TestSyncOrders(0xc0001a69c0)
+	/home/user/src/shop/sync/syncer_test.go:31 +0x2f1
+testing.tRunner(0xc0001a69c0, 0x7182c0)
+	/usr/local/go/src/testing/testing.go:1792 +0xf4
+created by testing.(*T).Run in goroutine 1
+	/usr/local/go/src/testing/testing.go:1851 +0x413
+
+goroutine 60 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000200000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 61 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000201000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 62 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000202000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 63 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000203000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 64 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000204000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 65 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000205000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 66 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000206000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 67 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000207000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 68 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000208000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 69 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000209000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 70 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00020a000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 71 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00020b000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 72 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00020c000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 73 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00020d000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 74 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00020e000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 75 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00020f000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 76 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000210000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 77 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000211000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 78 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000212000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 79 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000213000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 80 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000214000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 81 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000215000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 82 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000216000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 83 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000217000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 84 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000218000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 85 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000219000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 86 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00021a000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 87 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00021b000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 88 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00021c000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 89 [chan receive, 9 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00021d000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 90 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00021e000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 91 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc00021f000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 92 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000220000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 93 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000221000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 94 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000222000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 95 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000223000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 96 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000224000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 97 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000225000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 98 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000226000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 99 [chan receive, 8 minutes]:
+example.com/shop/sync.(*worker).loop(0xc000227000)
+	/home/user/src/shop/sync/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	/home/user/src/shop/sync/syncer.go:41 +0x9e
+
+goroutine 120 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0000, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003000a0?, 0xc0004000000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 121 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0010, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003010a0?, 0xc0004001000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 122 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0020, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003020a0?, 0xc0004002000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 123 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0030, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003030a0?, 0xc0004003000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 124 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0040, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003040a0?, 0xc0004004000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 125 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0050, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003050a0?, 0xc0004005000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 126 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0060, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003060a0?, 0xc0004006000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 127 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0070, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003070a0?, 0xc0004007000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 128 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0080, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003080a0?, 0xc0004008000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 129 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e0090, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc0003090a0?, 0xc0004009000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 130 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e00a0, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc00030a0a0?, 0xc000400a000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+goroutine 131 [IO wait, 9 minutes]:
+internal/poll.runtime_pollWait(0x7f3a1c5e00b0, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:351 +0x85
+internal/poll.(*pollDesc).wait(0xc00030b0a0?, 0xc000400b000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+net.(*conn).Read(0xc000124038, {0xc000400000?, 0x0?, 0x0?})
+	/usr/local/go/src/net/net.go:194 +0x45
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	/home/user/src/shop/sync/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	/home/user/src/shop/sync/client.go:60 +0x1b5
+
+FAIL	example.com/shop/sync	600.021s
+FAIL

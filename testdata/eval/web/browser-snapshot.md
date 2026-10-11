@@ -1,0 +1,406 @@
+### Ran Playwright code
+```js
+await page.goto('https://news.example.org/');
+```
+
+### Page state
+- Page URL: https://news.example.org/
+- Page Title: Example News — Technology
+- Page Snapshot:
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Example News home" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Example News" [ref=e7]
+        - generic [ref=e8]:
+          - button "Open menu" [ref=e9] [cursor=pointer]
+          - searchbox "Search news" [ref=e10]
+          - button "Search" [ref=e11] [cursor=pointer]
+      - navigation "Sections" [ref=e12]:
+        - list [ref=e13]:
+          - listitem [ref=e14]:
+            - link "World" [ref=e15] [cursor=pointer]:
+              - /url: /world/
+          - listitem [ref=e16]:
+            - link "Business" [ref=e17] [cursor=pointer]:
+              - /url: /business/
+          - listitem [ref=e18]:
+            - link "Technology" [ref=e19] [cursor=pointer]:
+              - /url: /technology/
+          - listitem [ref=e20]:
+            - link "Science" [ref=e21] [cursor=pointer]:
+              - /url: /science/
+          - listitem [ref=e22]:
+            - link "Health" [ref=e23] [cursor=pointer]:
+              - /url: /health/
+          - listitem [ref=e24]:
+            - link "Sports" [ref=e25] [cursor=pointer]:
+              - /url: /sports/
+          - listitem [ref=e26]:
+            - link "Culture" [ref=e27] [cursor=pointer]:
+              - /url: /culture/
+          - listitem [ref=e28]:
+            - link "Opinion" [ref=e29] [cursor=pointer]:
+              - /url: /opinion/
+          - listitem [ref=e30]:
+            - link "Climate" [ref=e31] [cursor=pointer]:
+              - /url: /climate/
+          - listitem [ref=e32]:
+            - link "Politics" [ref=e33] [cursor=pointer]:
+              - /url: /politics/
+          - listitem [ref=e34]:
+            - link "Travel" [ref=e35] [cursor=pointer]:
+              - /url: /travel/
+          - listitem [ref=e36]:
+            - link "Food" [ref=e37] [cursor=pointer]:
+              - /url: /food/
+          - listitem [ref=e38]:
+            - link "Style" [ref=e39] [cursor=pointer]:
+              - /url: /style/
+          - listitem [ref=e40]:
+            - link "Books" [ref=e41] [cursor=pointer]:
+              - /url: /books/
+          - listitem [ref=e42]:
+            - link "Video" [ref=e43] [cursor=pointer]:
+              - /url: /video/
+          - listitem [ref=e44]:
+            - link "Podcasts" [ref=e45] [cursor=pointer]:
+              - /url: /podcasts/
+          - listitem [ref=e46]:
+            - link "Markets" [ref=e47] [cursor=pointer]:
+              - /url: /markets/
+          - listitem [ref=e48]:
+            - link "Real Estate" [ref=e49] [cursor=pointer]:
+              - /url: /real-estate/
+          - listitem [ref=e50]:
+            - link "Education" [ref=e51] [cursor=pointer]:
+              - /url: /education/
+          - listitem [ref=e52]:
+            - link "Weather" [ref=e53] [cursor=pointer]:
+              - /url: /weather/
+          - listitem [ref=e54]:
+            - link "Obituaries" [ref=e55] [cursor=pointer]:
+              - /url: /obituaries/
+          - listitem [ref=e56]:
+            - link "Puzzles" [ref=e57] [cursor=pointer]:
+              - /url: /puzzles/
+          - listitem [ref=e58]:
+            - link "Cars" [ref=e59] [cursor=pointer]:
+              - /url: /cars/
+          - listitem [ref=e60]:
+            - link "Jobs" [ref=e61] [cursor=pointer]:
+              - /url: /jobs/
+  - main [ref=e62]:
+    - heading "Technology" [level=1] [ref=e63]
+    - generic [ref=e64]:
+      - paragraph [ref=e65]: Latest reporting on software, hardware and the people who build them.
+    - list [ref=e66]:
+      - listitem [ref=e67]:
+        - article [ref=e68]:
+          - link "Chip export rules: what changes this year" [ref=e69] [cursor=pointer]:
+            - /url: /technology/2026/10/chip-export-rules
+          - paragraph [ref=e70]: Reporters look at chip export rules and who is affected first.
+          - generic [ref=e71]: 7 min read
+      - listitem [ref=e72]:
+        - article [ref=e73]:
+          - link "Open-source maintainers: what changes this year" [ref=e74] [cursor=pointer]:
+            - /url: /technology/2026/10/open-source-maintainers
+          - paragraph [ref=e75]: Reporters look at open-source maintainers and who is affected first.
+          - generic [ref=e76]: 4 min read
+      - listitem [ref=e77]:
+        - article [ref=e78]:
+          - link "Battery recycling: what changes this year" [ref=e79] [cursor=pointer]:
+            - /url: /technology/2026/10/battery-recycling
+          - paragraph [ref=e80]: Reporters look at battery recycling and who is affected first.
+          - generic [ref=e81]: 8 min read
+      - listitem [ref=e82]:
+        - article [ref=e83]:
+          - link "Satellite internet: what changes this year" [ref=e84] [cursor=pointer]:
+            - /url: /technology/2026/10/satellite-internet
+          - paragraph [ref=e85]: Reporters look at satellite internet and who is affected first.
+          - generic [ref=e86]: 2 min read
+      - listitem [ref=e87]:
+        - article [ref=e88]:
+          - link "Quantum error correction: what changes this year" [ref=e89] [cursor=pointer]:
+            - /url: /technology/2026/10/quantum-error-correction
+          - paragraph [ref=e90]: Reporters look at quantum error correction and who is affected first.
+          - generic [ref=e91]: 3 min read
+      - listitem [ref=e92]:
+        - article [ref=e93]:
+          - link "Data center water use: what changes this year" [ref=e94] [cursor=pointer]:
+            - /url: /technology/2026/10/data-center-water-use
+          - paragraph [ref=e95]: Reporters look at data center water use and who is affected first.
+          - generic [ref=e96]: 3 min read
+      - listitem [ref=e97]:
+        - article [ref=e98]:
+          - link "Browser privacy: what changes this year" [ref=e99] [cursor=pointer]:
+            - /url: /technology/2026/10/browser-privacy
+          - paragraph [ref=e100]: Reporters look at browser privacy and who is affected first.
+          - generic [ref=e101]: 7 min read
+      - listitem [ref=e102]:
+        - article [ref=e103]:
+          - link "Robotaxi permits: what changes this year" [ref=e104] [cursor=pointer]:
+            - /url: /technology/2026/10/robotaxi-permits
+          - paragraph [ref=e105]: Reporters look at robotaxi permits and who is affected first.
+          - generic [ref=e106]: 2 min read
+      - listitem [ref=e107]:
+        - article [ref=e108]:
+          - link "Spectrum auction: what changes this year" [ref=e109] [cursor=pointer]:
+            - /url: /technology/2026/10/spectrum-auction
+          - paragraph [ref=e110]: Reporters look at spectrum auction and who is affected first.
+          - generic [ref=e111]: 5 min read
+      - listitem [ref=e112]:
+        - article [ref=e113]:
+          - link "Smartphone repair law: what changes this year" [ref=e114] [cursor=pointer]:
+            - /url: /technology/2026/10/smartphone-repair-law
+          - paragraph [ref=e115]: Reporters look at smartphone repair law and who is affected first.
+          - generic [ref=e116]: 2 min read
+      - listitem [ref=e117]:
+        - article [ref=e118]:
+          - link "Ai accelerator shortage: what changes this year" [ref=e119] [cursor=pointer]:
+            - /url: /technology/2026/10/AI-accelerator-shortage
+          - paragraph [ref=e120]: Reporters look at AI accelerator shortage and who is affected first.
+          - generic [ref=e121]: 3 min read
+      - listitem [ref=e122]:
+        - article [ref=e123]:
+          - link "Undersea cables: what changes this year" [ref=e124] [cursor=pointer]:
+            - /url: /technology/2026/10/undersea-cables
+          - paragraph [ref=e125]: Reporters look at undersea cables and who is affected first.
+          - generic [ref=e126]: 8 min read
+      - listitem [ref=e127]:
+        - article [ref=e128]:
+          - link "Password managers: what changes this year" [ref=e129] [cursor=pointer]:
+            - /url: /technology/2026/10/password-managers
+          - paragraph [ref=e130]: Reporters look at password managers and who is affected first.
+          - generic [ref=e131]: 8 min read
+      - listitem [ref=e132]:
+        - article [ref=e133]:
+          - link "Municipal broadband: what changes this year" [ref=e134] [cursor=pointer]:
+            - /url: /technology/2026/10/municipal-broadband
+          - paragraph [ref=e135]: Reporters look at municipal broadband and who is affected first.
+          - generic [ref=e136]: 3 min read
+      - listitem [ref=e137]:
+        - article [ref=e138]:
+          - link "E-waste exports: what changes this year" [ref=e139] [cursor=pointer]:
+            - /url: /technology/2026/10/e-waste-exports
+          - paragraph [ref=e140]: Reporters look at e-waste exports and who is affected first.
+          - generic [ref=e141]: 5 min read
+      - listitem [ref=e142]:
+        - article [ref=e143]:
+          - link "Code review bots: what changes this year" [ref=e144] [cursor=pointer]:
+            - /url: /technology/2026/10/code-review-bots
+          - paragraph [ref=e145]: Reporters look at code review bots and who is affected first.
+          - generic [ref=e146]: 3 min read
+      - listitem [ref=e147]:
+        - article [ref=e148]:
+          - link "Solar inverters: what changes this year" [ref=e149] [cursor=pointer]:
+            - /url: /technology/2026/10/solar-inverters
+          - paragraph [ref=e150]: Reporters look at solar inverters and who is affected first.
+          - generic [ref=e151]: 8 min read
+      - listitem [ref=e152]:
+        - article [ref=e153]:
+          - link "Ransomware insurance: what changes this year" [ref=e154] [cursor=pointer]:
+            - /url: /technology/2026/10/ransomware-insurance
+          - paragraph [ref=e155]: Reporters look at ransomware insurance and who is affected first.
+          - generic [ref=e156]: 2 min read
+      - listitem [ref=e157]:
+        - article [ref=e158]:
+          - link "Drone delivery: what changes this year" [ref=e159] [cursor=pointer]:
+            - /url: /technology/2026/10/drone-delivery
+          - paragraph [ref=e160]: Reporters look at drone delivery and who is affected first.
+          - generic [ref=e161]: 3 min read
+      - listitem [ref=e162]:
+        - article [ref=e163]:
+          - link "Fusion startups: what changes this year" [ref=e164] [cursor=pointer]:
+            - /url: /technology/2026/10/fusion-startups
+          - paragraph [ref=e165]: Reporters look at fusion startups and who is affected first.
+          - generic [ref=e166]: 5 min read
+      - listitem [ref=e167]:
+        - article [ref=e168]:
+          - link "Right to repair: what changes this year" [ref=e169] [cursor=pointer]:
+            - /url: /technology/2026/10/right-to-repair
+          - paragraph [ref=e170]: Reporters look at right to repair and who is affected first.
+          - generic [ref=e171]: 2 min read
+      - listitem [ref=e172]:
+        - article [ref=e173]:
+          - link "Edge caching: what changes this year" [ref=e174] [cursor=pointer]:
+            - /url: /technology/2026/10/edge-caching
+          - paragraph [ref=e175]: Reporters look at edge caching and who is affected first.
+          - generic [ref=e176]: 8 min read
+      - listitem [ref=e177]:
+        - article [ref=e178]:
+          - link "App store fees: what changes this year" [ref=e179] [cursor=pointer]:
+            - /url: /technology/2026/10/app-store-fees
+          - paragraph [ref=e180]: Reporters look at app store fees and who is affected first.
+          - generic [ref=e181]: 2 min read
+      - listitem [ref=e182]:
+        - article [ref=e183]:
+          - link "Memory prices: what changes this year" [ref=e184] [cursor=pointer]:
+            - /url: /technology/2026/10/memory-prices
+          - paragraph [ref=e185]: Reporters look at memory prices and who is affected first.
+          - generic [ref=e186]: 5 min read
+      - listitem [ref=e187]:
+        - article [ref=e188]:
+          - link "Grid storage: what changes this year" [ref=e189] [cursor=pointer]:
+            - /url: /technology/2026/10/grid-storage
+          - paragraph [ref=e190]: Reporters look at grid storage and who is affected first.
+          - generic [ref=e191]: 2 min read
+      - listitem [ref=e192]:
+        - article [ref=e193]:
+          - link "Gps jamming: what changes this year" [ref=e194] [cursor=pointer]:
+            - /url: /technology/2026/10/GPS-jamming
+          - paragraph [ref=e195]: Reporters look at GPS jamming and who is affected first.
+          - generic [ref=e196]: 4 min read
+      - listitem [ref=e197]:
+        - article [ref=e198]:
+          - link "Open firmware: what changes this year" [ref=e199] [cursor=pointer]:
+            - /url: /technology/2026/10/open-firmware
+          - paragraph [ref=e200]: Reporters look at open firmware and who is affected first.
+          - generic [ref=e201]: 6 min read
+      - listitem [ref=e202]:
+        - article [ref=e203]:
+          - link "Ev charging standards: what changes this year" [ref=e204] [cursor=pointer]:
+            - /url: /technology/2026/10/EV-charging-standards
+          - paragraph [ref=e205]: Reporters look at EV charging standards and who is affected first.
+          - generic [ref=e206]: 8 min read
+      - listitem [ref=e207]:
+        - article [ref=e208]:
+          - link "Semiconductor fabs: what changes this year" [ref=e209] [cursor=pointer]:
+            - /url: /technology/2026/10/semiconductor-fabs
+          - paragraph [ref=e210]: Reporters look at semiconductor fabs and who is affected first.
+          - generic [ref=e211]: 4 min read
+      - listitem [ref=e212]:
+        - article [ref=e213]:
+          - link "Crypto custody: what changes this year" [ref=e214] [cursor=pointer]:
+            - /url: /technology/2026/10/crypto-custody
+          - paragraph [ref=e215]: Reporters look at crypto custody and who is affected first.
+          - generic [ref=e216]: 3 min read
+      - listitem [ref=e217]:
+        - article [ref=e218]:
+          - link "Speech recognition: what changes this year" [ref=e219] [cursor=pointer]:
+            - /url: /technology/2026/10/speech-recognition
+          - paragraph [ref=e220]: Reporters look at speech recognition and who is affected first.
+          - generic [ref=e221]: 6 min read
+      - listitem [ref=e222]:
+        - article [ref=e223]:
+          - link "Rural 5g: what changes this year" [ref=e224] [cursor=pointer]:
+            - /url: /technology/2026/10/rural-5G
+          - paragraph [ref=e225]: Reporters look at rural 5G and who is affected first.
+          - generic [ref=e226]: 4 min read
+      - listitem [ref=e227]:
+        - article [ref=e228]:
+          - link "Server cooling: what changes this year" [ref=e229] [cursor=pointer]:
+            - /url: /technology/2026/10/server-cooling
+          - paragraph [ref=e230]: Reporters look at server cooling and who is affected first.
+          - generic [ref=e231]: 3 min read
+      - listitem [ref=e232]:
+        - article [ref=e233]:
+          - link "Digital id: what changes this year" [ref=e234] [cursor=pointer]:
+            - /url: /technology/2026/10/digital-ID
+          - paragraph [ref=e235]: Reporters look at digital ID and who is affected first.
+          - generic [ref=e236]: 5 min read
+      - listitem [ref=e237]:
+        - article [ref=e238]:
+          - link "Cloud outages: what changes this year" [ref=e239] [cursor=pointer]:
+            - /url: /technology/2026/10/cloud-outages
+          - paragraph [ref=e240]: Reporters look at cloud outages and who is affected first.
+          - generic [ref=e241]: 7 min read
+      - listitem [ref=e242]:
+        - article [ref=e243]:
+          - link "Tax software: what changes this year" [ref=e244] [cursor=pointer]:
+            - /url: /technology/2026/10/tax-software
+          - paragraph [ref=e245]: Reporters look at tax software and who is affected first.
+          - generic [ref=e246]: 3 min read
+      - listitem [ref=e247]:
+        - article [ref=e248]:
+          - link "Search antitrust: what changes this year" [ref=e249] [cursor=pointer]:
+            - /url: /technology/2026/10/search-antitrust
+          - paragraph [ref=e250]: Reporters look at search antitrust and who is affected first.
+          - generic [ref=e251]: 3 min read
+      - listitem [ref=e252]:
+        - article [ref=e253]:
+          - link "Lidar costs: what changes this year" [ref=e254] [cursor=pointer]:
+            - /url: /technology/2026/10/LIDAR-costs
+          - paragraph [ref=e255]: Reporters look at LIDAR costs and who is affected first.
+          - generic [ref=e256]: 2 min read
+      - listitem [ref=e257]:
+        - article [ref=e258]:
+          - link "Robot vacuums: what changes this year" [ref=e259] [cursor=pointer]:
+            - /url: /technology/2026/10/robot-vacuums
+          - paragraph [ref=e260]: Reporters look at robot vacuums and who is affected first.
+          - generic [ref=e261]: 5 min read
+      - listitem [ref=e262]:
+        - article [ref=e263]:
+          - link "Keyboard switches: what changes this year" [ref=e264] [cursor=pointer]:
+            - /url: /technology/2026/10/keyboard-switches
+          - paragraph [ref=e265]: Reporters look at keyboard switches and who is affected first.
+          - generic [ref=e266]: 9 min read
+    - button "Load more stories" [ref=e267] [cursor=pointer]
+  - contentinfo [ref=e268]:
+    - generic [ref=e269]:
+      - list [ref=e270]:
+        - listitem [ref=e271]:
+          - link "About us" [ref=e272] [cursor=pointer]:
+            - /url: /help/about-us
+        - listitem [ref=e273]:
+          - link "Contact" [ref=e274] [cursor=pointer]:
+            - /url: /help/contact
+        - listitem [ref=e275]:
+          - link "Careers" [ref=e276] [cursor=pointer]:
+            - /url: /help/careers
+        - listitem [ref=e277]:
+          - link "Advertise" [ref=e278] [cursor=pointer]:
+            - /url: /help/advertise
+        - listitem [ref=e279]:
+          - link "Privacy policy" [ref=e280] [cursor=pointer]:
+            - /url: /help/privacy-policy
+        - listitem [ref=e281]:
+          - link "Terms of service" [ref=e282] [cursor=pointer]:
+            - /url: /help/terms-of-service
+        - listitem [ref=e283]:
+          - link "Cookie settings" [ref=e284] [cursor=pointer]:
+            - /url: /help/cookie-settings
+        - listitem [ref=e285]:
+          - link "Accessibility" [ref=e286] [cursor=pointer]:
+            - /url: /help/accessibility
+        - listitem [ref=e287]:
+          - link "Help center" [ref=e288] [cursor=pointer]:
+            - /url: /help/help-center
+        - listitem [ref=e289]:
+          - link "Newsletters" [ref=e290] [cursor=pointer]:
+            - /url: /help/newsletters
+        - listitem [ref=e291]:
+          - link "RSS feeds" [ref=e292] [cursor=pointer]:
+            - /url: /help/rss-feeds
+        - listitem [ref=e293]:
+          - link "Site map" [ref=e294] [cursor=pointer]:
+            - /url: /help/site-map
+        - listitem [ref=e295]:
+          - link "Corrections" [ref=e296] [cursor=pointer]:
+            - /url: /help/corrections
+        - listitem [ref=e297]:
+          - link "Ethics" [ref=e298] [cursor=pointer]:
+            - /url: /help/ethics
+        - listitem [ref=e299]:
+          - link "Licensing" [ref=e300] [cursor=pointer]:
+            - /url: /help/licensing
+        - listitem [ref=e301]:
+          - link "Store" [ref=e302] [cursor=pointer]:
+            - /url: /help/store
+        - listitem [ref=e303]:
+          - link "Gift subscriptions" [ref=e304] [cursor=pointer]:
+            - /url: /help/gift-subscriptions
+        - listitem [ref=e305]:
+          - link "Student discount" [ref=e306] [cursor=pointer]:
+            - /url: /help/student-discount
+        - listitem [ref=e307]:
+          - link "Manage account" [ref=e308] [cursor=pointer]:
+            - /url: /help/manage-account
+        - listitem [ref=e309]:
+          - link "Delivery" [ref=e310] [cursor=pointer]:
+            - /url: /help/delivery
+      - paragraph [ref=e311]: © 2026 Example News Company
+```

@@ -1,0 +1,29 @@
+[paths: §1=/home/user/src/shop/sync]
+panic: test timed out after 10m0s
+	running tests:
+		TestSyncOrders (10m0s)
+
+goroutine 52 [running]:
+
+goroutine 1 [chan receive, 9 minutes]:
+
+goroutine 18 [select, 9 minutes]:
+example.com/shop/sync.(*Syncer).Run(0xc0001c4000, {0x71c5a8, 0xc0001b6000})
+	§1/syncer.go:74 +0x1b8
+example.com/shop/sync.TestSyncOrders(0xc0001a69c0)
+	§1/syncer_test.go:31 +0x2f1
+
+goroutine 60 [chan receive, 9 minutes]: +39 more on this stack: 61 62 63 64 65 66 67 68 69 70 …29 more
+example.com/shop/sync.(*worker).loop(0xc000200000)
+	§1/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	§1/syncer.go:41 +0x9e
+
+goroutine 120 [IO wait, 9 minutes]: +11 more on this stack: 121 122 123 124 125 126 127 128 129 130 …1 more
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	§1/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	§1/client.go:60 +0x1b5
+
+… 13 standard library frames omitted
+FAIL	example.com/shop/sync	600.021s

@@ -1,53 +1,29 @@
-<testsuites name="pytest tests">
- <testsuite name="pytest" errors="0" failures="2" skipped="1" tests="103" time="0.034" timestamp="2026-10-10T06:36:01.335196+02:00" hostname="ci">
-  <testcase classname="test_cart" name="test_price_positive[sku-0]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-1]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-10]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-11]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-12]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-13]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-14]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-15]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-16]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-17]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-18]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-19]" time="0.000"/>
-  <testcase classname="test_cart" name="test_price_positive[sku-2]" time="0.000"/>
-  <!-- … 84 <testcase> elements omitted -->
-  <testcase classname="test_cart" name="test_total_scales[37]" time="0.000"/>
-  <testcase classname="test_cart" name="test_total_scales[38]" time="0.000"/>
-  <testcase classname="test_cart" name="test_total_scales[39]" time="0.000"/>
-  <testcase classname="test_cart" name="test_discount_applied" time="0.000">
-   <failure message="AssertionError: 10% discount missing\nassert 45.0 == 40.5\n +  where 45.0 = total([('sku-10', 3)])">def test_discount_applied():
-&gt;       assert total([("sku-10", 3)]) == 40.5, "10% discount missing"
-E       AssertionError: 10% discount missing
-E       assert 45.0 == 40.5
-E        +  where 45.0 = total([('sku-10', 3)])
-
-test_cart.py:17: AssertionError</failure>
-  </testcase>
-  <testcase classname="test_cart" name="test_unknown_sku" time="0.000">
-   <failure message="KeyError: 'sku-999'">def test_unknown_sku():
-&gt;       assert total([("sku-999", 1)]) == 0
-               ^^^^^^^^^^^^^^^^^^^^^^^
-
-test_cart.py:20: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-test_cart.py:6: in total
-    return round(sum(PRICES[s] * q for s, q in items), 2)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-.0 = &lt;list_iterator object at 0x7f2232de0640&gt;
-
-&gt;   return round(sum(PRICES[s] * q for s, q in items), 2)
-                     ^^^^^^^^^
-E   KeyError: 'sku-999'
-
-test_cart.py:6: KeyError</failure>
-  </testcase>
-  <testcase classname="test_cart" name="test_tax" time="0.000">
-   <skipped type="pytest.skip" message="tax service not mocked">/srv/shop/test_cart.py:22: tax service not mocked</skipped>
-  </testcase>
- </testsuite>
-</testsuites>
+pytest: 100 passed, 2 failed, 1 skipped (0.034s)
+FAIL test_cart::test_discount_applied: AssertionError: 10% discount missing
+  def test_discount_applied():
+  >       assert total([("sku-10", 3)]) == 40.5, "10% discount missing"
+  E       AssertionError: 10% discount missing
+  E       assert 45.0 == 40.5
+  E        +  where 45.0 = total([('sku-10', 3)])
+  
+  test_cart.py:17: AssertionError
+FAIL test_cart::test_unknown_sku: KeyError: 'sku-999'
+  def test_unknown_sku():
+  >       assert total([("sku-999", 1)]) == 0
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+  
+  test_cart.py:20: 
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+  test_cart.py:6: in total
+      return round(sum(PRICES[s] * q for s, q in items), 2)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+  
+  .0 = <list_iterator object at 0x7f2232de0640>
+  
+  >   return round(sum(PRICES[s] * q for s, q in items), 2)
+                       ^^^^^^^^^
+  E   KeyError: 'sku-999'
+  
+  test_cart.py:6: KeyError
+SKIP test_cart::test_tax tax service not mocked (/srv/shop/test_cart.py:22: tax service not mocked)

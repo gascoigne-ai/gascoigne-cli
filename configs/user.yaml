@@ -30,6 +30,7 @@
 #     command: []                     ## downstream server; the CLI passes it after -- instead
 #     ledger: ledger
 #     retrieve: gascoigne_retrieve    ## added tool; must not clash with downstream tools
+#     compact_tools: true             ## tool schemas: drop titles restating names, $schema markers
 #   httpproxy:                        ## LLM API proxy in the background server (/v1/, base URL http://127.0.0.1:7878)
 #     anthropic: https://api.anthropic.com
 #     openai: https://api.openai.com
@@ -39,6 +40,7 @@
 #     ledger: ledger                  ## keeps originals of folded results (folding needs it)
 #     fold_min_lines: 3               ## run an earlier result of the request shows → pointer line; 0: off
 #     fold_min_chars: 80              ## fewest bytes such a run must have
+#     compact_tools: true             ## tool schemas: drop titles restating names, $schema markers
 
 ## Continue or bypass optimization.
 # filters:
@@ -53,7 +55,7 @@
 
 ## One engine per family. Limits keep what an agent acts on first and mark every gap.
 # optimizers:
-#   test: {}
+#   test: { coverage_below: 80 }                ## coverage reports list files under this percent
 #   build: { max_frame: 4 }                       ## code frame lines per diagnostic
 #   git:
 #     context_lines: 1                            ## unchanged lines around diff changes
@@ -85,6 +87,7 @@
 #     max_rows: 30                                ## csv/tsv tables
 #     max_cell: 60
 #     max_items: 20                               ## repeated xml siblings, toml array tables
+#     max_output_lines: 30                        ## notebook cell text outputs keep head and tail
 #     json:                                       ## crusher used for yaml: same keys as json above
 #       drop_empty: true
 #       max_string: 300
@@ -171,6 +174,10 @@
 #       anomaly_std: 2
 #       relevance_k: 3
 #   html: { links: true }                         ## false keeps link text only
+#   aria:                                         ## browser accessibility snapshots (role trees with [ref=eN])
+#     max_items: 20                               ## longest run of like siblings kept whole
+#     head: 10                                    ## kept from the start of a longer run (query matches too)
+#     tail: 4                                     ## kept from its end
 #   doc:
 #     max_code_lines: 40                          ## longer code blocks keep head and tail
 #     max_tokens: 5200                            ## longer markdown keeps whole sections, query first
@@ -191,6 +198,11 @@
 #       tail_share: 0.15
 #       anomaly_std: 2
 #       relevance_k: 3
+#   trace:                                        ## stack traces: recursion cycles and Go goroutines on one stack shown once
+#     families: [test, build, task, log, doc]     ## doc covers unrecognized text
+#     max_period: 12                              ## longest frame cycle searched, lines
+#     min_repeats: 3                              ## times in a row a cycle must occur
+#     min_goroutines: 3                           ## smallest group of goroutines shown once
 #   dense:                                        ## minified code, base64, data URIs: long space-free lines keep head and tail
 #     min_line: 300                               ## shortest line that can be dense, bytes
 #     min_total: 2000                             ## fewest dense bytes in a block worth eliding (one token or URL stays)
@@ -208,6 +220,13 @@
 #     tail_tokens: 3200                           ## kept from the end
 #     max_errors: 20                              ## error lines kept from the cut middle
 #     skip: [fs/code, data, k8s, cloud]             ## types or families never cut: source, structured data
+#   rerun:                                        ## a re-run: lines the last runs of the command in the session showed → one pointer
+#     ledger: ledger                              ## extension keeping earlier outputs; "" off
+#     families: [test, build, task, pkg, log, search, vcs]  ## re-run output, not files edited by exact text
+#     max_age: 20m                                ## older runs may have left the agent's context
+#     runs: 3                                     ## earlier outputs compared
+#     min_lines: 4                                ## shortest run folded
+#     min_chars: 200                              ## smallest run folded, bytes
 
 ## Where results go.
 # exporters:
@@ -216,7 +235,7 @@
 ## Which optimizers run. Each picks the blocks whose type it knows, so one chain serves all.
 # router:
 #   routes: []                        ## e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
-#   default: [embedjson, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, doc, dense, paths, truncate]
+#   default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, doc, dense, paths, truncate, rerun]
 
 ## Pipelines: which receivers, filters and exporters each command uses.
 # pipelines:

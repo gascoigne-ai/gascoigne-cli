@@ -237,6 +237,29 @@ func (l *Ledger) saveOutput(ctx context.Context, id, text string) error {
 	return l.db.WithContext(ctx).Model(&raw{}).Where("id = ?", id).Update("output", packed).Error
 }
 
+// RecentOutputs returns outputs of the latest optimized runs of key in
+// session since the given time, newest first (component.OutputHistory).
+func (l *Ledger) RecentOutputs(ctx context.Context, session, key string, since time.Time, limit int) ([]string, error) {
+	var ids []string
+	err := l.db.WithContext(ctx).Model(&event{}).
+		Where("session = ? AND key = ? AND raw_id != '' AND ts >= ?", session, key, since.UnixMilli()).
+		Order("ts DESC, id DESC").Limit(limit).Pluck("raw_id", &ids).Error
+	if err != nil {
+		return nil, err
+	}
+	var outs []string
+	for _, id := range ids {
+		out, ok, err := l.GetOutput(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if ok {
+			outs = append(outs, out)
+		}
+	}
+	return outs, nil
+}
+
 // GetOutput returns the optimized text last produced from original id;
 // false when none was kept (runs from before outputs were kept, or pruned).
 func (l *Ledger) GetOutput(ctx context.Context, id string) (string, bool, error) {

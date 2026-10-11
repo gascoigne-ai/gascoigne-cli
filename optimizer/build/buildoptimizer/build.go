@@ -33,8 +33,14 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 			r.MaxFrame = o.cfg.MaxFrame
 		}
 		lines := watch.Last(compress.Lines(compress.StripANSI(b.Text)))
-		if dialect == "docker" {
+		switch dialect {
+		case "docker":
 			lines = dockerSteps(lines)
+		case "sarif":
+			var err error
+			if lines, err = diag.SARIF(b.Text); err != nil {
+				return err
+			}
 		}
 		p.Blocks[i].Text = compress.Join(diag.Compress(lines, r))
 	}

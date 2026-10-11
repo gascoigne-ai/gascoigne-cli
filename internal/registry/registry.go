@@ -15,6 +15,8 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/core/embedjsonoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/passthroughoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/pathsoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/core/rerunoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/core/traceoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/core/truncateoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/dataoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/data/jsonoptimizer"
@@ -31,6 +33,7 @@ import (
 	"github.com/lukaszb/gascoigne/optimizer/task/taskoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/test/testoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/vcs/gitoptimizer"
+	"github.com/lukaszb/gascoigne/optimizer/web/ariaoptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/web/htmloptimizer"
 	"github.com/lukaszb/gascoigne/optimizer/web/httpoptimizer"
 	"github.com/lukaszb/gascoigne/receiver/execreceiver"
@@ -58,6 +61,8 @@ func Factories() []component.Factory {
 		// optimizers
 		passthroughoptimizer.NewFactory(),
 		denseoptimizer.NewFactory(),
+		rerunoptimizer.NewFactory(),
+		traceoptimizer.NewFactory(),
 		embedjsonoptimizer.NewFactory(),
 		pathsoptimizer.NewFactory(),
 		truncateoptimizer.NewFactory(),
@@ -79,6 +84,7 @@ func Factories() []component.Factory {
 		taskoptimizer.NewFactory(),
 		httpoptimizer.NewFactory(),
 		htmloptimizer.NewFactory(),
+		ariaoptimizer.NewFactory(),
 		docoptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),

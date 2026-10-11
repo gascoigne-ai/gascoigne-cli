@@ -15,7 +15,7 @@ func NewFactory() component.Factory {
 				Anthropic: "https://api.anthropic.com", OpenAI: "https://api.openai.com",
 				Gemini:       "https://generativelanguage.googleapis.com",
 				Skip:         []string{"Edit", "MultiEdit", "Write", "NotebookEdit", "TodoWrite", "ExitPlanMode", "AskUserQuestion", "apply_patch"},
-				CacheEntries: 50000, Ledger: "ledger", FoldMinLines: 3, FoldMinChars: 80,
+				CacheEntries: 50000, Ledger: "ledger", FoldMinLines: 3, FoldMinChars: 80, CompactTools: true,
 			}
 		},
 		func(_ context.Context, set component.Settings, cfg *Config) (component.Component, error) {

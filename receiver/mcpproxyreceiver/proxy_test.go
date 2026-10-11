@@ -2,6 +2,7 @@ package mcpproxyreceiver
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 	"strings"
 	"testing"
@@ -89,5 +90,17 @@ func TestNoDownstreamIsNoop(t *testing.T) {
 	r := &Receiver{cfg: &Config{Retrieve: "x"}}
 	if err := r.Run(t.Context()); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestCompactSchema(t *testing.T) {
+	in := json.RawMessage(`{"title":"searchArguments","type":"object","properties":{"q":{"title":"Q","type":"string"}}}`)
+	got, _ := json.Marshal(compactSchema("search", in))
+	if want := `{"properties":{"q":{"type":"string"}},"type":"object"}`; string(got) != want {
+		t.Fatalf("got %s, want %s", got, want)
+	}
+	plain := map[string]any{"type": "object"}
+	if out := compactSchema("x", plain); out.(map[string]any)["type"] != "object" {
+		t.Fatalf("unchanged schema: %v", out)
 	}
 }

@@ -156,6 +156,9 @@ func isPkgResult(l string) bool {
 // isStdFrame reports a stack frame of the standard library: by convention its
 // import path has no dot in the first element ("testing.tRunner", not "example.com/x.F").
 func isStdFrame(l string) bool {
+	if strings.HasPrefix(l, "goroutine ") {
+		return false
+	}
 	fn := strings.TrimPrefix(l, "created by ")
 	first, _, _ := strings.Cut(fn, "/")
 	if strings.Contains(fn, "/") {

@@ -40,6 +40,8 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 			out, err = o.xml(b.Text)
 		case detect.TOML:
 			out = o.toml(b.Text)
+		case detect.IPYNB:
+			out, err = o.notebook(b.Text)
 		default:
 			continue
 		}

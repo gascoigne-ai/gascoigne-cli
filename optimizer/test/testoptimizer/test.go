@@ -13,14 +13,17 @@ import (
 	"github.com/lukaszb/gascoigne/payload"
 )
 
-type Optimizer struct{ component.Nop }
+type Optimizer struct {
+	component.Nop
+	cfg *Config
+}
 
-func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
+func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	for i, b := range p.Blocks {
 		if detect.Family(b.Type) != detect.FamilyTest {
 			continue
 		}
-		lines, err := compressBlock(b)
+		lines, err := o.compressBlock(b)
 		if err != nil {
 			return err
 		}
@@ -29,8 +32,12 @@ func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	return nil
 }
 
-func compressBlock(b payload.Block) ([]string, error) {
+func (o *Optimizer) compressBlock(b payload.Block) ([]string, error) {
 	switch dialect := detect.Dialect(b.Type); dialect {
+	case "junit":
+		return testreport.JUnit(b.Text)
+	case "coverage":
+		return testreport.Coverage(compress.Lines(b.Text), o.cfg.CoverageBelow), nil
 	case "go-json":
 		return testreport.GoJSON(b.Text)
 	case "go":

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/lukaszb/gascoigne/compress/rows"
 	"github.com/lukaszb/gascoigne/lazyre"
 	"github.com/lukaszb/gascoigne/payload"
 )
@@ -76,6 +77,8 @@ func attrsOf(c call) map[string]string {
 	}
 	if q := str("query", "q", "search", "prompt"); q != "" {
 		a[payload.AttrQuery] = q // relevance for long pages, search results, JSON
+	} else if q := rows.Intent(str("description")); q != "" {
+		a[payload.AttrQuery] = q // what a shell call is for, in the agent's words
 	}
 	if u := str("url"); u != "" {
 		a[payload.AttrURL] = u

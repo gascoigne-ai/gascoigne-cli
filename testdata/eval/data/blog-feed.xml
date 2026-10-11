@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>Example Engineering Blog</title>
+  <link>https://blog.example.org/</link>
+  <description>Posts from the storage team</description>
+  <item>
+    <title>Release notes 0: storage engine update</title>
+    <link>https://blog.example.org/posts/release-0</link>
+    <guid isPermaLink="false">post-1000</guid>
+    <pubDate>Mon, 01 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 0: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 1: storage engine update</title>
+    <link>https://blog.example.org/posts/release-1</link>
+    <guid isPermaLink="false">post-1001</guid>
+    <pubDate>Mon, 02 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 1: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 2: storage engine update</title>
+    <link>https://blog.example.org/posts/release-2</link>
+    <guid isPermaLink="false">post-1002</guid>
+    <pubDate>Mon, 03 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 2: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 3: storage engine update</title>
+    <link>https://blog.example.org/posts/release-3</link>
+    <guid isPermaLink="false">post-1003</guid>
+    <pubDate>Mon, 04 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 3: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 4: storage engine update</title>
+    <link>https://blog.example.org/posts/release-4</link>
+    <guid isPermaLink="false">post-1004</guid>
+    <pubDate>Mon, 05 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 4: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 5: storage engine update</title>
+    <link>https://blog.example.org/posts/release-5</link>
+    <guid isPermaLink="false">post-1005</guid>
+    <pubDate>Mon, 06 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 5: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 6: storage engine update</title>
+    <link>https://blog.example.org/posts/release-6</link>
+    <guid isPermaLink="false">post-1006</guid>
+    <pubDate>Mon, 07 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 6: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 7: storage engine update</title>
+    <link>https://blog.example.org/posts/release-7</link>
+    <guid isPermaLink="false">post-1007</guid>
+    <pubDate>Mon, 08 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 7: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 8: storage engine update</title>
+    <link>https://blog.example.org/posts/release-8</link>
+    <guid isPermaLink="false">post-1008</guid>
+    <pubDate>Mon, 09 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 8: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 9: storage engine update</title>
+    <link>https://blog.example.org/posts/release-9</link>
+    <guid isPermaLink="false">post-1009</guid>
+    <pubDate>Mon, 10 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 9: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 10: storage engine update</title>
+    <link>https://blog.example.org/posts/release-10</link>
+    <guid isPermaLink="false">post-1010</guid>
+    <pubDate>Mon, 11 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 10: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 11: storage engine update</title>
+    <link>https://blog.example.org/posts/release-11</link>
+    <guid isPermaLink="false">post-1011</guid>
+    <pubDate>Mon, 12 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 11: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 12: storage engine update</title>
+    <link>https://blog.example.org/posts/release-12</link>
+    <guid isPermaLink="false">post-1012</guid>
+    <pubDate>Mon, 13 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 12: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 13: storage engine update</title>
+    <link>https://blog.example.org/posts/release-13</link>
+    <guid isPermaLink="false">post-1013</guid>
+    <pubDate>Mon, 14 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 13: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 14: storage engine update</title>
+    <link>https://blog.example.org/posts/release-14</link>
+    <guid isPermaLink="false">post-1014</guid>
+    <pubDate>Mon, 15 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 14: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 15: storage engine update</title>
+    <link>https://blog.example.org/posts/release-15</link>
+    <guid isPermaLink="false">post-1015</guid>
+    <pubDate>Mon, 16 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 15: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 16: storage engine update</title>
+    <link>https://blog.example.org/posts/release-16</link>
+    <guid isPermaLink="false">post-1016</guid>
+    <pubDate>Mon, 17 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 16: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 17: storage engine update</title>
+    <link>https://blog.example.org/posts/release-17</link>
+    <guid isPermaLink="false">post-1017</guid>
+    <pubDate>Mon, 18 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 17: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 18: storage engine update</title>
+    <link>https://blog.example.org/posts/release-18</link>
+    <guid isPermaLink="false">post-1018</guid>
+    <pubDate>Mon, 19 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 18: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 19: storage engine update</title>
+    <link>https://blog.example.org/posts/release-19</link>
+    <guid isPermaLink="false">post-1019</guid>
+    <pubDate>Mon, 20 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 19: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 20: storage engine update</title>
+    <link>https://blog.example.org/posts/release-20</link>
+    <guid isPermaLink="false">post-1020</guid>
+    <pubDate>Mon, 21 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 20: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 21: storage engine update</title>
+    <link>https://blog.example.org/posts/release-21</link>
+    <guid isPermaLink="false">post-1021</guid>
+    <pubDate>Mon, 22 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 21: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 22: storage engine update</title>
+    <link>https://blog.example.org/posts/release-22</link>
+    <guid isPermaLink="false">post-1022</guid>
+    <pubDate>Mon, 23 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 22: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 23: storage engine update</title>
+    <link>https://blog.example.org/posts/release-23</link>
+    <guid isPermaLink="false">post-1023</guid>
+    <pubDate>Mon, 24 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 23: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 24: storage engine update</title>
+    <link>https://blog.example.org/posts/release-24</link>
+    <guid isPermaLink="false">post-1024</guid>
+    <pubDate>Mon, 25 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 24: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 25: storage engine update</title>
+    <link>https://blog.example.org/posts/release-25</link>
+    <guid isPermaLink="false">post-1025</guid>
+    <pubDate>Mon, 26 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 25: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 26: storage engine update</title>
+    <link>https://blog.example.org/posts/release-26</link>
+    <guid isPermaLink="false">post-1026</guid>
+    <pubDate>Mon, 27 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 26: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 27: storage engine update</title>
+    <link>https://blog.example.org/posts/release-27</link>
+    <guid isPermaLink="false">post-1027</guid>
+    <pubDate>Mon, 28 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 27: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 28: storage engine update</title>
+    <link>https://blog.example.org/posts/release-28</link>
+    <guid isPermaLink="false">post-1028</guid>
+    <pubDate>Mon, 01 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 28: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 29: storage engine update</title>
+    <link>https://blog.example.org/posts/release-29</link>
+    <guid isPermaLink="false">post-1029</guid>
+    <pubDate>Mon, 02 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 29: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 30: storage engine update</title>
+    <link>https://blog.example.org/posts/release-30</link>
+    <guid isPermaLink="false">post-1030</guid>
+    <pubDate>Mon, 03 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 30: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 31: storage engine update</title>
+    <link>https://blog.example.org/posts/release-31</link>
+    <guid isPermaLink="false">post-1031</guid>
+    <pubDate>Mon, 04 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 31: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 32: storage engine update</title>
+    <link>https://blog.example.org/posts/release-32</link>
+    <guid isPermaLink="false">post-1032</guid>
+    <pubDate>Mon, 05 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 32: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 33: storage engine update</title>
+    <link>https://blog.example.org/posts/release-33</link>
+    <guid isPermaLink="false">post-1033</guid>
+    <pubDate>Mon, 06 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 33: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 34: storage engine update</title>
+    <link>https://blog.example.org/posts/release-34</link>
+    <guid isPermaLink="false">post-1034</guid>
+    <pubDate>Mon, 07 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 34: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 35: storage engine update</title>
+    <link>https://blog.example.org/posts/release-35</link>
+    <guid isPermaLink="false">post-1035</guid>
+    <pubDate>Mon, 08 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 35: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 36: storage engine update</title>
+    <link>https://blog.example.org/posts/release-36</link>
+    <guid isPermaLink="false">post-1036</guid>
+    <pubDate>Mon, 09 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 36: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 37: storage engine update</title>
+    <link>https://blog.example.org/posts/release-37</link>
+    <guid isPermaLink="false">post-1037</guid>
+    <pubDate>Mon, 10 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 37: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 38: storage engine update</title>
+    <link>https://blog.example.org/posts/release-38</link>
+    <guid isPermaLink="false">post-1038</guid>
+    <pubDate>Mon, 11 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 38: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+  <item>
+    <title>Release notes 39: storage engine update</title>
+    <link>https://blog.example.org/posts/release-39</link>
+    <guid isPermaLink="false">post-1039</guid>
+    <pubDate>Mon, 12 Sep 2026 10:00:00 +0000</pubDate>
+    <category>releases</category>
+    <description>Changes in build 39: faster compaction, smaller indexes and fixes for replication lag.</description>
+  </item>
+</channel>
+</rss>

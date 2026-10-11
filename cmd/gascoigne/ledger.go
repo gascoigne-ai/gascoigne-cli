@@ -28,11 +28,21 @@ func withLedger(ctx context.Context, name string, args []string, nargs int, flag
 	if flags != nil {
 		flags(fs)
 	}
-	if err := fs.Parse(args); err != nil {
-		return err
+	// Flags may follow arguments too: agents append them to a copied hint
+	// (gascoigne raw <id> -grep FAIL).
+	var pos []string
+	for {
+		if err := fs.Parse(args); err != nil {
+			return err
+		}
+		if fs.NArg() == 0 {
+			break
+		}
+		pos = append(pos, fs.Arg(0))
+		args = fs.Args()[1:]
 	}
-	if fs.NArg() != nargs {
-		return fmt.Errorf("%s: want %d argument(s), got %d", name, nargs, fs.NArg())
+	if len(pos) != nargs {
+		return fmt.Errorf("%s: want %d argument(s), got %d", name, nargs, len(pos))
 	}
 	svc, err := c.start(ctx)
 	if err != nil {
@@ -43,22 +53,22 @@ func withLedger(ctx context.Context, name string, args []string, nargs int, flag
 	if !ok {
 		return errors.New("no ledger extension configured")
 	}
-	return fn(l, &c, fs.Args())
+	return fn(l, &c, pos)
 }
 
 func cmdRaw(ctx context.Context, args []string) error {
-	return withLedger(ctx, "raw", args, 1, nil, func(l *ledger.Ledger, _ *common, args []string) error {
-		key, p, err := l.GetRaw(ctx, args[0])
+	var sl mcptool.Slice
+	return withLedger(ctx, "raw", args, 1, func(fs *flag.FlagSet) {
+		fs.StringVar(&sl.Lines, "lines", "", "only lines `a-b` (1-based, inclusive)")
+		fs.StringVar(&sl.Grep, "grep", "", "only lines matching `regexp`, numbered")
+		fs.StringVar(&sl.Query, "query", "", "only the lines best matching these `words`, numbered")
+		fs.IntVar(&sl.Context, "C", 0, "lines of context around grep/query matches")
+	}, func(l *ledger.Ledger, _ *common, args []string) error {
+		text, err := mcptool.Original(ctx, l, args[0], sl)
 		if err != nil {
 			return err
 		}
-		// Needing the original means the optimized output was not enough.
-		if key != "" {
-			if err := l.MarkFailure(ctx, key, component.ReasonRawRequested); err != nil {
-				return err
-			}
-		}
-		_, err = io.WriteString(os.Stdout, p.Text())
+		_, err = io.WriteString(os.Stdout, text)
 		return err
 	})
 }

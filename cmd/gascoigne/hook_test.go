@@ -80,11 +80,11 @@ func TestRewriteReplies(t *testing.T) {
 	tests := []struct {
 		agent, want string
 	}{
-		{"claude", `{"hookSpecificOutput":{"hookEventName":"PreToolUse","updatedInput":{"command":"gascoigne exec -- go test ./...","description":"run tests"}}}`},
-		{"cursor", `{"permission":"allow","updated_input":{"command":"gascoigne exec -- go test ./...","description":"run tests"}}`},
-		{"pi", `{"command":"gascoigne exec -- go test ./..."}`},
-		{"opencode", `{"command":"gascoigne exec -- go test ./..."}`},
-		{"gemini", `{"hookSpecificOutput":{"tool_input":{"command":"gascoigne exec -- go test ./..."}}}`},
+		{"claude", `{"hookSpecificOutput":{"hookEventName":"PreToolUse","updatedInput":{"command":"gascoigne exec -attr query=tests -- go test ./...","description":"run tests"}}}`},
+		{"cursor", `{"permission":"allow","updated_input":{"command":"gascoigne exec -attr query=tests -- go test ./...","description":"run tests"}}`},
+		{"pi", `{"command":"gascoigne exec -attr query=tests -- go test ./..."}`},
+		{"opencode", `{"command":"gascoigne exec -attr query=tests -- go test ./..."}`},
+		{"gemini", `{"hookSpecificOutput":{"tool_input":{"command":"gascoigne exec -attr query=tests -- go test ./..."}}}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.agent, func(t *testing.T) {

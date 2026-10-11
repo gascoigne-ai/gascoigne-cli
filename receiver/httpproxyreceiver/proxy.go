@@ -182,7 +182,8 @@ func (r *Receiver) rewrite(req *http.Request, api rewriter) {
 	if r.cfg.FoldMinLines > 0 {
 		m.folder = newFolder(r.cfg.FoldMinLines, r.cfg.FoldMinChars)
 	}
-	if !api(req.Context(), r, doc, m) {
+	shortened := api(req.Context(), r, doc, m)
+	if !r.compactTools(req.Context(), doc, m) && !shortened {
 		return
 	}
 	var out bytes.Buffer

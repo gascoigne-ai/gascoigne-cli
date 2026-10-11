@@ -130,3 +130,33 @@ func flatten(v any) string {
 	walk(v)
 	return b.String()
 }
+
+// intentNoise are words of a tool call's description that say nothing about
+// what the agent looks for: function words and generic command verbs.
+var intentNoise = wordSet(`a an the and or of to in on at for from with by into
+		this that these those it its is are be was all any some my our your
+		run runs running show shows list lists check checks get gets view print display see
+		look read reads find finds search fetch execute exec command commands output file files
+		current contents content using use via then also only quick quickly`)
+
+func wordSet(words string) map[string]bool {
+	set := map[string]bool{}
+	for _, w := range strings.Fields(words) {
+		set[w] = true
+	}
+	return set
+}
+
+// Intent turns a description of a tool call ("Run auth tests and show
+// failures") into a query of its telling terms ("auth tests failures"), so
+// output ranks by what the agent wants; "" when nothing telling is left.
+func Intent(desc string) string {
+	var terms []string
+	for _, t := range Terms(desc) {
+		if len(t) < 2 || intentNoise[t] || slices.Contains(terms, t) {
+			continue
+		}
+		terms = append(terms, t)
+	}
+	return strings.Join(terms[:min(len(terms), 12)], " ")
+}

@@ -3,16 +3,24 @@ package detect
 import (
 	"slices"
 	"strings"
+
+	"github.com/lukaszb/gascoigne/lazyre"
 )
+
+// ariaNode is one node of an accessibility snapshot: - link "Home" [ref=e12]
+var ariaNode = lazyre.New(`(?m)^\s*- [a-z]+( "[^"\n]*")?( \[[\w-]+(=[^\]\n]*)?\])* \[ref=e\d+\]`)
 
 // Web content.
 const (
 	HTML = "web/html"
 	HTTP = "web/http" // responses with headers: curl -i/-v/-I, httpie -v
+	ARIA = "web/aria" // accessibility snapshots of browser automation tools: role trees with [ref=eN]
 )
 
 func init() {
 	register(
+		Spec{Type: ARIA, Priority: 16, Refines: []string{"data/yaml", Markdown, Text},
+			Sniff: func(t string, _ []string) bool { return len(ariaNode.FindAllStringIndex(t, 8)) >= 8 }},
 		Spec{Type: HTTP, Priority: 17,
 			CmdFunc: func(args []string) bool {
 				switch args[0] {

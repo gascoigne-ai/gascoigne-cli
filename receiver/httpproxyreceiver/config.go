@@ -24,6 +24,9 @@ type Config struct {
 	FoldMinLines int `yaml:"fold_min_lines"`
 	// FoldMinChars is the fewest bytes such a run must have.
 	FoldMinChars int `yaml:"fold_min_chars"`
+	// CompactTools drops what tool schemas say twice (titles restating
+	// names, $schema markers); constraints the API checks stay.
+	CompactTools bool `yaml:"compact_tools"`
 }
 
 func (c *Config) Validate() error {
