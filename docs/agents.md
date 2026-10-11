@@ -91,13 +91,12 @@ dashboard):
 
 | Agent | Per run (`wrap`) | For good |
 |---|---|---|
-| claude | `ANTHROPIC_BASE_URL=http://127.0.0.1:7878`, unless you set one (your gateway stays) | `install -proxy claude`; the SessionStart hook starts the server |
+| claude | with `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN`: `ANTHROPIC_BASE_URL=http://127.0.0.1:7878`, unless you set one (your gateway stays); a claude.ai login stays direct | `install -proxy claude` (same condition); the SessionStart hook starts the server |
 | codex | with `OPENAI_API_KEY`: a `gascoigne` model provider (Responses API); a ChatGPT login stays direct | — |
 | opencode | `provider.anthropic/openai.options.baseURL` | — |
 | gemini | with `GEMINI_API_KEY`: `GOOGLE_GEMINI_BASE_URL`, unless you set one; a Google login stays direct | — |
 
-- Only the base URL changes: a claude.ai login stays the credential, and every header goes
-  through as sent.
+- Only the base URL changes; every header goes through as sent.
 - Read results keep their real line numbers: lines are dropped like `cat` output, never
   renumbered, and each gap is a marker naming the lines to read back.
 - It also shrinks what is not a tool result but costs the same: tool schemas lose redundant
@@ -126,6 +125,33 @@ dashboard):
 - The server exits after 30 minutes without a request (`GASCOIGNE_SERVER_IDLE`). A
   UserPromptSubmit hook (claude, codex; opencode's `chat.message`) starts it again before the
   agent's next API call, so your next prompt after a break finds the proxy up.
+
+### The LLM proxy and a claude.ai login
+
+With a Claude subscription (Free, Pro, Max: signed in with `/login`, no API key), gascoigne does
+**not** put the LLM proxy in front of Claude Code. `wrap claude` prints why and starts Claude
+talking to Anthropic directly; `install -proxy claude` refuses. Hooks, `gascoigne exec` and the
+MCP server stay on: they never see the credential or the API request, and they produce most of
+the savings.
+
+Why: Anthropic's [legal and compliance page](https://code.claude.com/docs/en/legal-and-compliance)
+says the subscription login "is designed to support ordinary use of Claude Code and other native
+Anthropic applications" and that developers "may not collect, store, or intermediate Claude.ai
+credentials or session tokens". A proxy forwards that session token with every request and changes
+the request body, which the [gateway guide](https://code.claude.com/docs/en/llm-gateway-protocol)
+asks gateways not to do. No sentence names a local proxy a user runs for themselves, but these
+lean against it, and Anthropic enforces this area without notice. This is a reading, not legal
+advice; ask Anthropic for a definite answer.
+
+| Credential | Proxy for Claude |
+|---|---|
+| `ANTHROPIC_API_KEY` (Console) or `ANTHROPIC_AUTH_TOKEN` (gateway) | on: gateways are documented for these |
+| claude.ai login | off, with a notice |
+| claude.ai login and `GASCOIGNE_PROXY=on` | on, at your own risk |
+| `GASCOIGNE_PROXY=off` | off for every agent |
+
+opencode follows the same rule for its Anthropic provider. Codex and Gemini already use the proxy
+only with `OPENAI_API_KEY` / `GEMINI_API_KEY`.
 
 ### Claude Code: built-in search and fetch tools
 

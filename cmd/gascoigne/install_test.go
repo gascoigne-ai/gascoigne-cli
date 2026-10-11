@@ -167,6 +167,7 @@ func TestInstallProxyRoundTrip(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
 	t.Setenv("GASCOIGNE_SERVER_ADDR", "")
 	write(t, ".claude/settings.json", `{"env": {"FOO": "1"}}`)
+	t.Setenv("ANTHROPIC_API_KEY", "sk-test")
 	if _, err := addClaude("gascoigne", false); err != nil {
 		t.Fatal(err)
 	}
@@ -181,6 +182,38 @@ func TestInstallProxyRoundTrip(t *testing.T) {
 	}
 	if got := read(t, ".claude/settings.json"); strings.Contains(got, "ANTHROPIC_BASE_URL") || !strings.Contains(got, `"FOO": "1"`) {
 		t.Fatalf("after unwrap:\n%s", got)
+	}
+}
+
+func TestClaudeProxyNeedsKeyOrOverride(t *testing.T) {
+	tests := []struct {
+		name, key, token, mode string
+		ok                     bool
+	}{
+		{"claude.ai login", "", "", "", false},
+		{"api key", "sk", "", "", true},
+		{"gateway token", "", "tok", "", true},
+		{"login, forced", "", "", "on", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("ANTHROPIC_API_KEY", tt.key)
+			t.Setenv("ANTHROPIC_AUTH_TOKEN", tt.token)
+			t.Setenv("GASCOIGNE_PROXY", tt.mode)
+			if got := claudeProxyOK(); got != tt.ok {
+				t.Fatalf("claudeProxyOK = %v, want %v", got, tt.ok)
+			}
+		})
+	}
+	sandbox(t)
+	t.Setenv("ANTHROPIC_API_KEY", "")
+	t.Setenv("ANTHROPIC_AUTH_TOKEN", "")
+	t.Setenv("GASCOIGNE_PROXY", "")
+	if _, err := addClaudeProxy(false); err == nil || !strings.Contains(err.Error(), "install -proxy refused") {
+		t.Fatalf("install -proxy with a login: %v", err)
+	}
+	if env := proxyForClaude(); env != nil {
+		t.Fatalf("wrap with a login: %v", env)
 	}
 }
 

@@ -21,6 +21,28 @@ import (
 // proxyOff reports GASCOIGNE_PROXY=off: agents are never pointed at it.
 func proxyOff() bool { return os.Getenv("GASCOIGNE_PROXY") == "off" }
 
+// proxyForced reports GASCOIGNE_PROXY=on: the proxy is used for Claude even
+// with a claude.ai login, on the user's own judgment (see claudeProxyOK).
+func proxyForced() bool { return os.Getenv("GASCOIGNE_PROXY") == "on" }
+
+// claudeKey reports an Anthropic API key or gateway token in the
+// environment, the credentials gateways are documented for.
+func claudeKey() bool {
+	return os.Getenv("ANTHROPIC_API_KEY") != "" || os.Getenv("ANTHROPIC_AUTH_TOKEN") != ""
+}
+
+// loginNote explains why Claude talks to Anthropic directly.
+const loginNote = "LLM proxy not used for Claude: no ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN, so the credential is " +
+	"a claude.ai login, whose terms are meant for ordinary use of Claude Code and do not cover tools that " +
+	"intermediate its session token (docs/agents.md). Hooks and MCP stay on. GASCOIGNE_PROXY=on uses it anyway."
+
+// claudeProxyOK reports whether Claude's API traffic may go through the
+// proxy: with an API key or gateway token, or when the user forces it.
+// A claude.ai login stays direct.
+func claudeProxyOK() bool { return claudeKey() || proxyForced() }
+
+var loginNoteOnce sync.Once
+
 func proxyURL() string { return "http://" + serverAddr() }
 
 // llmProxy builds the proxy from the user's config: its receiver settings
@@ -128,7 +150,11 @@ func serverUp() error {
 // proxyForClaude is ANTHROPIC_BASE_URL for a wrapped run, unless the user
 // already points Claude Code at a gateway of their own.
 func proxyForClaude() []string {
-	if os.Getenv("ANTHROPIC_BASE_URL") != "" {
+	if os.Getenv("ANTHROPIC_BASE_URL") != "" || proxyOff() {
+		return nil
+	}
+	if !claudeProxyOK() {
+		loginNoteOnce.Do(func() { fmt.Fprintln(os.Stderr, "gascoigne:", loginNote) })
 		return nil
 	}
 	if u := runProxy(); u != "" {
@@ -176,7 +202,11 @@ func proxyForOpencode() map[string]any {
 		return nil
 	}
 	base := map[string]any{"options": map[string]any{"baseURL": u + "/v1"}}
-	return map[string]any{"anthropic": base, "openai": base}
+	out := map[string]any{"openai": base}
+	if claudeProxyOK() {
+		out["anthropic"] = base
+	}
+	return out
 }
 
 // ensureProxyFor starts the server when this process's agent was pointed

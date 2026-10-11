@@ -188,7 +188,9 @@ with a throwaway ledger, and reports tokens per tool, message input cost as sent
 (`cost` prices: the prefix the previous request sent identically read from the cache, the rest
 written), plus how many re-sent messages the proxy
 forwarded byte-identical (canonical JSON).
-Registration (server started first, `serverUp`): wrap claude `ANTHROPIC_BASE_URL` (unless set: user gateway), codex with
+Registration (server started first, `serverUp`): wrap claude `ANTHROPIC_BASE_URL` only with
+`ANTHROPIC_API_KEY`/`ANTHROPIC_AUTH_TOKEN` or `GASCOIGNE_PROXY=on` (`claudeProxyOK`: a claude.ai login
+stays direct, terms of use; opencode's anthropic provider likewise; `install -proxy` refuses) and unless set (user gateway), codex with
 `OPENAI_API_KEY` a `model_providers.gascoigne` (`wire_api=responses`), opencode provider
 `baseURL`s, gemini with `GEMINI_API_KEY` `GOOGLE_GEMINI_BASE_URL` (a Google login stays direct); `install -proxy claude` writes the env for good (SessionStart starts the server), unwrap removes it.
 

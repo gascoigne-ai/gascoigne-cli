@@ -146,7 +146,8 @@ server starts itself when needed and exits after 30 minutes idle.
 | Cursor | — | `gascoigne install cursor` |
 
 `install` writes to this project's config; add `-g` for every project, `-proxy` to also route
-Claude's API traffic through gascoigne. Arguments after the agent name go to the agent
+Claude's API traffic through gascoigne (API key or gateway token only: with a claude.ai login
+Claude talks to Anthropic directly, see [agents](docs/agents.md#the-llm-proxy-and-a-claudeai-login)). Arguments after the agent name go to the agent
 (`gascoigne wrap claude --continue`). `gascoigne unwrap` removes every trace and keeps a backup.
 
 Shell commands then run through `gascoigne exec`, results from other MCP servers are shortened

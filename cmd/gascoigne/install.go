@@ -382,8 +382,11 @@ func added(file, what, backup string, err error) string {
 }
 
 // addClaudeProxy sets ANTHROPIC_BASE_URL to the proxy in Claude's settings.
-// Only the base URL: a claude.ai login stays the credential.
+// Only with an API key or gateway token, or GASCOIGNE_PROXY=on.
 func addClaudeProxy(global bool) ([]string, error) {
+	if !claudeProxyOK() {
+		return nil, errors.New(strings.Replace(loginNote, "LLM proxy not used for Claude", "install -proxy refused", 1))
+	}
 	settings, err := scoped(global, ".claude/settings.json", ".claude/settings.json")
 	if err != nil {
 		return nil, err
