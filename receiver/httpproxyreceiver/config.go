@@ -3,6 +3,7 @@ package httpproxyreceiver
 import (
 	"errors"
 	"net/url"
+	"strings"
 )
 
 type Config struct {
@@ -10,6 +11,9 @@ type Config struct {
 	Anthropic string `yaml:"anthropic"`
 	OpenAI    string `yaml:"openai"`
 	Gemini    string `yaml:"gemini"`
+	// Bedrock is the Bedrock Runtime upstream; {region} comes from the
+	// request path (/bedrock/<region>/…).
+	Bedrock string `yaml:"bedrock"`
 	// Skip lists tools whose results are never touched: edits confirm what
 	// changed, plans and questions are for the user.
 	Skip []string `yaml:"skip"`
@@ -39,9 +43,9 @@ type Config struct {
 }
 
 func (c *Config) Validate() error {
-	for _, u := range []string{c.Anthropic, c.OpenAI, c.Gemini} {
+	for _, u := range []string{c.Anthropic, c.OpenAI, c.Gemini, strings.ReplaceAll(c.Bedrock, "{region}", "us-east-1")} {
 		if p, err := url.Parse(u); err != nil || p.Scheme == "" || p.Host == "" {
-			return errors.New("anthropic, openai and gemini must be absolute URLs")
+			return errors.New("anthropic, openai, gemini and bedrock must be absolute URLs")
 		}
 	}
 	if c.FoldMinLines < 0 || c.FoldMinChars < 0 {

@@ -168,6 +168,8 @@ func TestInstallProxyRoundTrip(t *testing.T) {
 	t.Setenv("GASCOIGNE_SERVER_ADDR", "")
 	write(t, ".claude/settings.json", `{"env": {"FOO": "1"}}`)
 	t.Setenv("ANTHROPIC_API_KEY", "sk-test")
+	t.Setenv("ANTHROPIC_BASE_URL", "")
+	t.Setenv("CLAUDE_CODE_USE_BEDROCK", "")
 	if _, err := addClaude("gascoigne", false); err != nil {
 		t.Fatal(err)
 	}
@@ -214,6 +216,67 @@ func TestClaudeProxyNeedsKeyOrOverride(t *testing.T) {
 	}
 	if env := proxyForClaude(); env != nil {
 		t.Fatalf("wrap with a login: %v", env)
+	}
+}
+
+func TestClaudeProxyVar(t *testing.T) {
+	clear := func(t *testing.T) {
+		for _, k := range []string{"ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL", "ANTHROPIC_BEDROCK_BASE_URL",
+			"CLAUDE_CODE_USE_BEDROCK", "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY", "AWS_BEARER_TOKEN_BEDROCK",
+			"AWS_REGION", "AWS_DEFAULT_REGION", "GASCOIGNE_PROXY"} {
+			t.Setenv(k, "")
+		}
+	}
+	tests := []struct {
+		name      string
+		env       map[string]string
+		key, path string
+		note      string // substring
+	}{
+		{"claude.ai login", nil, "", "", "claude.ai login"},
+		{"api key", map[string]string{"ANTHROPIC_API_KEY": "sk"}, "ANTHROPIC_BASE_URL", "", ""},
+		{"bedrock api key", map[string]string{"CLAUDE_CODE_USE_BEDROCK": "1", "AWS_BEARER_TOKEN_BEDROCK": "b", "AWS_REGION": "eu-west-1"},
+			"ANTHROPIC_BEDROCK_BASE_URL", "/bedrock/eu-west-1", ""},
+		{"bedrock sigv4", map[string]string{"CLAUDE_CODE_USE_BEDROCK": "1", "AWS_REGION": "eu-west-1"}, "", "", "sign each request body"},
+		{"bedrock no region", map[string]string{"CLAUDE_CODE_USE_BEDROCK": "true", "AWS_BEARER_TOKEN_BEDROCK": "b"}, "", "", "AWS_REGION"},
+		{"bedrock own gateway", map[string]string{"CLAUDE_CODE_USE_BEDROCK": "1", "AWS_BEARER_TOKEN_BEDROCK": "b", "AWS_REGION": "x", "ANTHROPIC_BEDROCK_BASE_URL": "https://gw"}, "", "", ""},
+		{"vertex", map[string]string{"CLAUDE_CODE_USE_VERTEX": "1", "ANTHROPIC_API_KEY": "sk"}, "", "", ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			clear(t)
+			for k, v := range tt.env {
+				t.Setenv(k, v)
+			}
+			key, path, note := claudeProxyVar()
+			if key != tt.key || path != tt.path || (tt.note == "") != (note == "") || !strings.Contains(note, tt.note) {
+				t.Fatalf("got %q %q %q", key, path, note)
+			}
+		})
+	}
+}
+
+func TestInstallBedrockProxyRoundTrip(t *testing.T) {
+	sandbox(t)
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("GASCOIGNE_SERVER_ADDR", "")
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	t.Setenv("CLAUDE_CODE_USE_BEDROCK", "1")
+	t.Setenv("AWS_BEARER_TOKEN_BEDROCK", "b")
+	t.Setenv("AWS_REGION", "us-east-1")
+	t.Setenv("ANTHROPIC_BEDROCK_BASE_URL", "")
+	t.Setenv("ANTHROPIC_BASE_URL", "")
+	if _, err := addClaudeProxy(false); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, ".claude/settings.json"); !strings.Contains(got, `"ANTHROPIC_BEDROCK_BASE_URL": "http://127.0.0.1:7878/bedrock/us-east-1"`) {
+		t.Fatalf("settings:\n%s", got)
+	}
+	if _, err := removeClaude(); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, ".claude/settings.json"); strings.Contains(got, "BEDROCK") {
+		t.Fatalf("after unwrap:\n%s", got)
 	}
 }
 

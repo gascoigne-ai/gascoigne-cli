@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -384,15 +385,16 @@ func added(file, what, backup string, err error) string {
 // addClaudeProxy sets ANTHROPIC_BASE_URL to the proxy in Claude's settings.
 // Only with an API key or gateway token, or GASCOIGNE_PROXY=on.
 func addClaudeProxy(global bool) ([]string, error) {
-	if !claudeProxyOK() {
-		return nil, errors.New(strings.Replace(loginNote, "LLM proxy not used for Claude", "install -proxy refused", 1))
+	key, path, note := claudeProxyVar()
+	if key == "" {
+		return nil, fmt.Errorf("install -proxy refused: %s", cmp.Or(note, "a base URL is already set (your gateway stays)"))
 	}
 	settings, err := scoped(global, ".claude/settings.json", ".claude/settings.json")
 	if err != nil {
 		return nil, err
 	}
-	d, err := addJSON(settings, removeClaudeProxy, map[string]any{"env": map[string]string{"ANTHROPIC_BASE_URL": proxyURL()}},
-		"ANTHROPIC_BASE_URL="+proxyURL()+" (LLM proxy in the background server; the SessionStart hook starts it)", nil)
+	d, err := addJSON(settings, removeClaudeProxy, map[string]any{"env": map[string]string{key: proxyURL() + path}},
+		key+"="+proxyURL()+path+" (LLM proxy in the background server; the SessionStart hook starts it)", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -410,11 +412,13 @@ func removeClaudeProxy(root *object) []string {
 	if !ok {
 		return nil
 	}
-	u, _ := env.get("ANTHROPIC_BASE_URL").(string)
-	if u != proxyURL() {
-		return nil
+	var out []string
+	for _, key := range []string{"ANTHROPIC_BASE_URL", "ANTHROPIC_BEDROCK_BASE_URL"} {
+		if u, _ := env.get(key).(string); u == proxyURL() || strings.HasPrefix(u, proxyURL()+"/") {
+			env.del(key)
+			out = append(out, key+" (LLM proxy)")
+		}
 	}
-	env.del("ANTHROPIC_BASE_URL")
 	pruneEmpty(root, "env")
-	return []string{"ANTHROPIC_BASE_URL (LLM proxy)"}
+	return out
 }

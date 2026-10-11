@@ -267,3 +267,46 @@ func TestCompactToolSchemas(t *testing.T) {
 		})
 	}
 }
+
+func TestBedrockPath(t *testing.T) {
+	tests := []struct {
+		in, up, rest string
+		ok           bool
+	}{
+		{"/bedrock/us-east-1/model/us.anthropic.claude-sonnet-4-5%3A0/invoke-with-response-stream",
+			"https://bedrock-runtime.us-east-1.amazonaws.com", "/model/us.anthropic.claude-sonnet-4-5%3A0/invoke-with-response-stream", true},
+		{"/bedrock/us-gov-west-1/model/m/invoke", "https://bedrock-runtime.us-gov-west-1.amazonaws.com", "/model/m/invoke", true},
+		{"/bedrock/evil.com/model/m/invoke", "", "", false},
+		{"/bedrock/us-east-1.evil.com/x", "", "", false},
+		{"/v1/messages", "", "", false},
+	}
+	for _, tt := range tests {
+		up, rest, ok := bedrock(tt.in, "https://bedrock-runtime.{region}.amazonaws.com")
+		if up != tt.up || rest != tt.rest || ok != tt.ok {
+			t.Errorf("bedrock(%q) = %q %q %v", tt.in, up, rest, ok)
+		}
+	}
+	if m := bedrockModel("/model/us.anthropic.claude-sonnet-4-5%3A0/invoke"); m != "us.anthropic.claude-sonnet-4-5:0" {
+		t.Errorf("model %q", m)
+	}
+}
+
+func TestBedrockRequestShortened(t *testing.T) {
+	r, fake, proxy, got, hdr := setup(t)
+	r.cfg.Bedrock = r.cfg.Anthropic // the test upstream stands in for every region
+	src := numbered("package a", "", "// Add sums.", "// More words.", "func Add() {}", "", "// tail")
+	req, _ := http.NewRequest("POST", proxy.URL+"/bedrock/us-east-1/model/us.anthropic.m%3A0/invoke", bytes.NewReader(anthropicBody(src, "Read")))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer bedrock-key")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if fake.calls.Load() == 0 || !strings.Contains(toolResult(t, *got), "// … comments") {
+		t.Fatalf("not shortened: %s", *got)
+	}
+	if hdr.Get("Authorization") != "Bearer bedrock-key" {
+		t.Fatal("credential not forwarded")
+	}
+}

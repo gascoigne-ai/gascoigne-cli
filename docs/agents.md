@@ -91,9 +91,9 @@ dashboard):
 
 | Agent | Per run (`wrap`) | For good |
 |---|---|---|
-| claude | with `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN`: `ANTHROPIC_BASE_URL=http://127.0.0.1:7878`, unless you set one (your gateway stays); a claude.ai login stays direct | `install -proxy claude` (same condition); the SessionStart hook starts the server |
+| claude | with `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN`: `ANTHROPIC_BASE_URL=http://127.0.0.1:7878`; on Bedrock with a Bedrock API key: `ANTHROPIC_BEDROCK_BASE_URL=…/bedrock/<AWS_REGION>`; a base URL you set stays; a claude.ai login stays direct | `install -proxy claude` (same conditions); the SessionStart hook starts the server |
 | codex | with `OPENAI_API_KEY`: a `gascoigne` model provider (Responses API); a ChatGPT login stays direct | — |
-| opencode | `provider.anthropic/openai.options.baseURL` | — |
+| opencode | `provider.anthropic.options.baseURL` with an Anthropic key, `provider.openai…` with `OPENAI_API_KEY`; subscription logins stay direct | — |
 | gemini | with `GEMINI_API_KEY`: `GOOGLE_GEMINI_BASE_URL`, unless you set one; a Google login stays direct | — |
 
 - Only the base URL changes; every header goes through as sent.
@@ -150,8 +150,25 @@ advice; ask Anthropic for a definite answer.
 | claude.ai login and `GASCOIGNE_PROXY=on` | on, at your own risk |
 | `GASCOIGNE_PROXY=off` | off for every agent |
 
-opencode follows the same rule for its Anthropic provider. Codex and Gemini already use the proxy
-only with `OPENAI_API_KEY` / `GEMINI_API_KEY`.
+Every agent follows the same rule: the proxy only sees API-key traffic, never a subscription
+login.
+
+| Agent | Proxy with | Stays direct with |
+|---|---|---|
+| claude | `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`; Bedrock API key (`AWS_BEARER_TOKEN_BEDROCK`) | claude.ai login; Bedrock with AWS credentials (SigV4 signs the body); Vertex, Foundry; your own base URL |
+| codex | `OPENAI_API_KEY` | ChatGPT login |
+| gemini | `GEMINI_API_KEY` | Google login |
+| opencode | Anthropic key; `OPENAI_API_KEY` | Claude or ChatGPT subscription logins |
+| pi, cursor | — (no proxy) | — |
+
+**Claude on Amazon Bedrock.** Bedrock is billed under your AWS agreement and Anthropic documents
+gateways for it. With `CLAUDE_CODE_USE_BEDROCK=1`, `AWS_REGION` and a Bedrock API key
+(`AWS_BEARER_TOKEN_BEDROCK`), `wrap claude` sets `ANTHROPIC_BEDROCK_BASE_URL` to
+`http://127.0.0.1:7878/bedrock/<region>`; the proxy shortens tool results like for the Anthropic
+API and forwards to `bedrock-runtime.<region>.amazonaws.com` (`receivers.httpproxy.bedrock`, a
+template with `{region}`, e.g. for a VPC endpoint). With AWS access keys or SSO instead, each
+request is SigV4-signed over its body, so a changed body would be rejected: Claude stays direct.
+API usage is not metered on Bedrock (its responses are a binary event stream).
 
 ### Claude Code: built-in search and fetch tools
 

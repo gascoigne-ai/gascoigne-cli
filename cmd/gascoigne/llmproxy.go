@@ -1,11 +1,13 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"log/slog"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"time"
 
@@ -147,20 +149,71 @@ func serverUp() error {
 	return nil
 }
 
-// proxyForClaude is ANTHROPIC_BASE_URL for a wrapped run, unless the user
-// already points Claude Code at a gateway of their own.
+// proxyForClaude is the variable pointing a wrapped Claude run at the
+// proxy, when claudeProxyVar allows one.
 func proxyForClaude() []string {
-	if os.Getenv("ANTHROPIC_BASE_URL") != "" || proxyOff() {
+	if proxyOff() {
 		return nil
 	}
-	if !claudeProxyOK() {
-		loginNoteOnce.Do(func() { fmt.Fprintln(os.Stderr, "gascoigne:", loginNote) })
+	key, path, note := claudeProxyVar()
+	if key == "" {
+		if note != "" {
+			loginNoteOnce.Do(func() { fmt.Fprintln(os.Stderr, "gascoigne:", note) })
+		}
 		return nil
 	}
 	if u := runProxy(); u != "" {
-		return []string{"ANTHROPIC_BASE_URL=" + u}
+		return []string{key + "=" + u + path}
 	}
 	return nil
+}
+
+// claudeProxyVar picks the base URL variable Claude Code reads for its
+// API and the proxy path for it: Anthropic's API with an API key or gateway
+// token, Amazon Bedrock with a Bedrock API key. "" with a note when the
+// proxy must not be used: a claude.ai login (terms of use), Bedrock with
+// AWS signatures (they sign the body the proxy would change), or a base
+// URL the user set (their gateway stays).
+func claudeProxyVar() (key, path, note string) {
+	if truthy(os.Getenv("CLAUDE_CODE_USE_BEDROCK")) {
+		region := cmp.Or(os.Getenv("AWS_REGION"), os.Getenv("AWS_DEFAULT_REGION"))
+		switch {
+		case userGateway("ANTHROPIC_BEDROCK_BASE_URL"):
+			return "", "", ""
+		case os.Getenv("AWS_BEARER_TOKEN_BEDROCK") == "":
+			return "", "", bedrockNote
+		case region == "":
+			return "", "", "LLM proxy not used for Claude on Bedrock: set AWS_REGION."
+		}
+		return "ANTHROPIC_BEDROCK_BASE_URL", "/bedrock/" + region, ""
+	}
+	if truthy(os.Getenv("CLAUDE_CODE_USE_VERTEX")) || truthy(os.Getenv("CLAUDE_CODE_USE_FOUNDRY")) ||
+		userGateway("ANTHROPIC_BASE_URL") {
+		return "", "", ""
+	}
+	if !claudeProxyOK() {
+		return "", "", loginNote
+	}
+	return "ANTHROPIC_BASE_URL", "", ""
+}
+
+// userGateway reports a base URL the user set to something other than
+// gascoigne's own proxy (left by install -proxy).
+func userGateway(key string) bool {
+	u := os.Getenv(key)
+	return u != "" && u != proxyURL() && !strings.HasPrefix(u, proxyURL()+"/")
+}
+
+// bedrockNote explains why Claude on Bedrock with AWS credentials stays direct.
+const bedrockNote = "LLM proxy not used for Claude on Bedrock: AWS credentials sign each request body, which the " +
+	"proxy would change. Use a Bedrock API key (AWS_BEARER_TOKEN_BEDROCK) to route it through gascoigne."
+
+func truthy(v string) bool {
+	switch strings.ToLower(v) {
+	case "1", "true", "yes", "on":
+		return true
+	}
+	return false
 }
 
 // proxyForCodex adds a model provider through the proxy when codex uses an
@@ -201,10 +254,17 @@ func proxyForOpencode() map[string]any {
 	if u == "" {
 		return nil
 	}
+	// Only providers on an API key: subscription logins stay direct.
 	base := map[string]any{"options": map[string]any{"baseURL": u + "/v1"}}
-	out := map[string]any{"openai": base}
+	out := map[string]any{}
+	if os.Getenv("OPENAI_API_KEY") != "" {
+		out["openai"] = base
+	}
 	if claudeProxyOK() {
 		out["anthropic"] = base
+	}
+	if len(out) == 0 {
+		return nil
 	}
 	return out
 }

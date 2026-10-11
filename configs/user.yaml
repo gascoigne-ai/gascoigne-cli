@@ -36,6 +36,7 @@
 #     anthropic: https://api.anthropic.com
 #     openai: https://api.openai.com
 #     gemini: https://generativelanguage.googleapis.com
+#     bedrock: https://bedrock-runtime.{region}.amazonaws.com  ## Claude on Bedrock (Bedrock API key auth); e.g. a VPC endpoint
 #     skip: [Edit, MultiEdit, Write, NotebookEdit, TodoWrite, ExitPlanMode, AskUserQuestion, apply_patch]  ## tools never touched
 #     cache_entries: 50000            ## tool results remembered by hash: later requests send the same bytes
 #     ledger: ledger                  ## keeps originals of folded results (folding needs it)

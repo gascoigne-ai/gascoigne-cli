@@ -78,6 +78,10 @@ func (r *Receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	r.active.Add(1)
 	defer r.active.Add(-1)
 	api, upstream := r.route(req)
+	if up, rest, ok := bedrock(req.URL.Path, r.cfg.Bedrock); ok {
+		api, upstream = bedrockAPI, up
+		req.URL.Path, req.URL.RawPath = rest, ""
+	}
 	raw := req.Header.Get(RawHeader) == "1"
 	req.Header.Del(RawHeader)
 	if req.Method == http.MethodPost && !raw && api.rewrite != nil {
@@ -175,7 +179,10 @@ func (r *Receiver) rewrite(req *http.Request, api rewriter) {
 		return
 	}
 	model, _ := doc["model"].(string)
-	if model == "" { // Gemini names it in the path: /v1beta/models/<model>:generateContent
+	if model == "" { // Bedrock and Gemini name it in the path
+		model = bedrockModel(req.URL.Path)
+	}
+	if model == "" { // Gemini: /v1beta/models/<model>:generateContent
 		model, _, _ = strings.Cut(path.Base(req.URL.Path), ":")
 	}
 	m := meta{model: model, agent: agentOf(req.Header.Get("User-Agent"))}
