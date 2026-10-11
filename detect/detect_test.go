@@ -61,6 +61,8 @@ func TestCommand(t *testing.T) {
 		"ls -la /usr/lib":          "ls",
 		"cat a/b.go":               "cat",
 		"FOO=1 sudo npm ci":        "npm ci",
+		"cd api && go test ./...":  "go test",
+		"cd a; export X=1; make":   "make",
 		"":                         "",
 	}
 	for in, want := range tests {

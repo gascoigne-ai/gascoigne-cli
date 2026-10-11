@@ -1,10 +1,12 @@
 package httpproxyreceiver
 
 import (
+	"cmp"
 	"container/list"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -45,23 +47,69 @@ func cacheKey(c call, text string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// attrsOf gives the payload what the tool call says about its output.
+// attrsOf gives the payload what the tool call says about its output, so
+// detection picks the right engine: the built-in tools of each agent are
+// described as the shell command that prints the same thing.
 func attrsOf(c call) map[string]string {
 	a := map[string]string{payload.AttrTool: c.name}
-	if cmd, ok := c.input["command"].(string); ok && cmd != "" {
-		a[payload.AttrCmd] = cmd
-	}
-	for _, k := range []string{"file_path", "path"} {
-		if f, ok := c.input[k].(string); ok && f != "" {
-			a[payload.AttrFile] = f
-			a[payload.AttrCmd] = "cat " + f // read like cat: source stays line-exact
-			break
+	str := func(keys ...string) string {
+		for _, k := range keys {
+			if v, ok := c.input[k].(string); ok && v != "" {
+				return v
+			}
 		}
+		return ""
 	}
-	if u, ok := c.input["url"].(string); ok && u != "" {
+	if q := str("query", "q", "search", "prompt"); q != "" {
+		a[payload.AttrQuery] = q // relevance for long pages, search results, JSON
+	}
+	if u := str("url"); u != "" {
 		a[payload.AttrURL] = u
 	}
+	switch strings.ToLower(c.name) {
+	case "read", "read_file", "view", "view_file", "fs_read":
+		f := str("file_path", "path", "absolute_path")
+		if f == "" {
+			break
+		}
+		a[payload.AttrFile] = f
+		// A whole file reads like cat (gaps name file lines); a slice like
+		// sed -n (gaps counted), since its first line is not line 1.
+		a[payload.AttrCmd] = "cat " + f
+		if offset, _ := c.input["offset"].(json.Number); offset != "" && offset != "0" && offset != "1" {
+			a[payload.AttrCmd] = "sed -n " + string(offset) + ",$p " + f
+		}
+	case "grep", "grep_search", "search_file_content":
+		args := "rg -n"
+		if mode := str("output_mode"); mode == "files_with_matches" {
+			args = "rg -l"
+		} else if mode == "count" {
+			args = "rg -c"
+		}
+		a[payload.AttrCmd] = args + " " + shellQuote(str("pattern", "query")) + " " + str("path")
+	case "glob", "find", "list_dir", "ls", "list_directory":
+		a[payload.AttrCmd] = "find " + cmp.Or(str("path"), ".") + " -name " + shellQuote(cmp.Or(str("pattern", "glob"), "*"))
+	default:
+		if cmd := str("command", "cmd"); cmd != "" {
+			a[payload.AttrCmd] = cmd
+		} else if f := str("file_path"); f != "" {
+			a[payload.AttrFile] = f
+			a[payload.AttrCmd] = "cat " + f
+		}
+	}
+	a[payload.AttrCmd] = strings.TrimSpace(a[payload.AttrCmd])
+	if a[payload.AttrCmd] == "" {
+		delete(a, payload.AttrCmd)
+	}
 	return a
+}
+
+// shellQuote quotes s for display in a command line.
+func shellQuote(s string) string {
+	if s != "" && !strings.ContainsAny(s, " \t'\"$`\\|&;<>()*?[]{}") {
+		return s
+	}
+	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }
 
 func (r *Receiver) optimize(ctx context.Context, c call, original string, m meta) string {

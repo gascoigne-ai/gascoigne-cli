@@ -176,10 +176,28 @@ func TestResponsesShellOutput(t *testing.T) {
 }
 
 func TestAttrsFromCalls(t *testing.T) {
-	if a := attrsOf(call{"shell", arguments(`{"command":["bash","-lc","go test ./..."]}`)}); a["cmd"] != "go test ./..." {
-		t.Fatalf("got %v", a)
+	tests := []struct {
+		call call
+		want map[string]string
+	}{
+		{call{"shell", arguments(`{"command":["bash","-lc","go test ./..."]}`)}, map[string]string{"cmd": "go test ./..."}},
+		{call{"exec_command", arguments(`{"cmd":"git status"}`)}, map[string]string{"cmd": "git status"}},
+		{call{"Read", map[string]any{"file_path": "/x/a.go"}}, map[string]string{"file": "/x/a.go", "cmd": "cat /x/a.go"}},
+		{call{"Read", map[string]any{"file_path": "/x/a.go", "offset": json.Number("120"), "limit": json.Number("40")}},
+			map[string]string{"cmd": "sed -n 120,$p /x/a.go"}},
+		{call{"Grep", map[string]any{"pattern": "func main", "path": "cmd", "output_mode": "content"}}, map[string]string{"cmd": "rg -n 'func main' cmd"}},
+		{call{"Grep", map[string]any{"pattern": "TODO", "output_mode": "files_with_matches"}}, map[string]string{"cmd": "rg -l TODO"}},
+		{call{"Glob", map[string]any{"pattern": "**/*.go"}}, map[string]string{"cmd": "find . -name '**/*.go'"}},
+		{call{"WebFetch", map[string]any{"url": "https://go.dev/doc", "prompt": "release notes"}}, map[string]string{"url": "https://go.dev/doc", "query": "release notes"}},
+		{call{"WebSearch", map[string]any{"query": "go 1.27 iterators"}}, map[string]string{"query": "go 1.27 iterators"}},
+		{call{"mcp__db__query", map[string]any{"sql": "select 1"}}, map[string]string{"tool": "mcp__db__query"}},
 	}
-	if a := attrsOf(call{"Read", map[string]any{"file_path": "/x/a.go"}}); a["file"] != "/x/a.go" || a["cmd"] != "cat /x/a.go" {
-		t.Fatalf("got %v", a)
+	for _, tt := range tests {
+		got := attrsOf(tt.call)
+		for k, v := range tt.want {
+			if got[k] != v {
+				t.Errorf("%s %v: %s = %q, want %q", tt.call.name, tt.call.input, k, got[k], v)
+			}
+		}
 	}
 }

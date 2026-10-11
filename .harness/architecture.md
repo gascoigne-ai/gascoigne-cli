@@ -63,7 +63,10 @@ A generic type from command, file or MIME is refined by a spec listing it in `Re
 sniffer matches (`cat deploy.yaml` with manifests → `k8s/manifest`, a saved aws response →
 `cloud/aws`). `detect/matrix_test.go` requires a command example for every dialect with
 command patterns and a content example (an eval fixture) for every dialect with a sniffer.
-`detect.Family`/`detect.Dialect` split a type; `detect.Command` names commands for stats.
+`detect.Family`/`detect.Dialect` split a type; `detect.Command` names commands for stats (leading
+`cd`/`export` steps of a list skipped). The detect filter's `edit_safe` types config-sized files
+read from disk (`detect.ReadsFile`: cat/head/tail/sed) of data/k8s/cloud/infra as `fs/code`, so a
+config read to be edited keeps its syntax.
 
 ## Families
 One engine per family (`optimizer/<family>/<family>optimizer`), dialects tune it. Shared logic
@@ -127,8 +130,10 @@ time under the warm services' lock). Anthropic `/v1/messages*` (by path or
 `anthropic-version`/`x-api-key` headers), OpenAI `/chat/completions` and `/responses`; other paths
 and every header pass through (`anthropic-beta` carries the OAuth capability, so a claude.ai login
 keeps working), responses stream through (`FlushInterval -1`). Per tool result, one payload with
-attrs from the matching call (command, `file_path` → `cat <path>`, tool, url; model from the
-body, agent from the User-Agent); `skip` tools, `is_error`, hinted output untouched. Read's
+attrs from the matching call (`attrsOf`: built-in tools described as the shell command that
+prints the same thing — Read → `cat <path>` or `sed -n <offset>,$p` for slices, Grep → `rg -n|-l|-c`,
+Glob/list → `find`; `query`/`prompt` → query attr, url, tool; model from the body, agent from the
+User-Agent); `skip` tools, `is_error`, hinted output untouched. Read's
 `N\t` prefixes are split off, the text optimized like `cat`, and kept lines get their original
 numbers back (`renumber`). Prompt cache: results cached by content hash (LRU `cache_entries`), so
 every later request sends the same bytes; optimizers are deterministic, so a restart recomputes

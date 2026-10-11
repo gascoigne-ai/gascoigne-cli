@@ -142,7 +142,7 @@ var subcommandTools = map[string]int{
 // Command names a command line for reports: the program plus its subcommands
 // for multi-command tools ("go test", "aws s3 ls", "npx nx run-many" → "nx run-many").
 func Command(cmd string) string {
-	args := Argv(cmd)
+	args := Argv(lastCommand(cmd))
 	if len(args) == 0 {
 		return ""
 	}
@@ -159,3 +159,22 @@ func lastArg(args []string) string {
 	}
 	return pos[len(pos)-1]
 }
+
+// lastCommand is the command of a line that does the work: "cd api && go
+// test ./..." names go test, not cd. Leading cd/pushd/export steps of an
+// && or ; list are skipped.
+func lastCommand(line string) string {
+	for {
+		i := strings.IndexAny(line, "&;")
+		if i < 0 {
+			return line
+		}
+		first := strings.Fields(line[:i])
+		if len(first) == 0 || !setup[first[0]] {
+			return line
+		}
+		line = strings.TrimLeft(line[i:], "&; ")
+	}
+}
+
+var setup = map[string]bool{"cd": true, "pushd": true, "export": true, "source": true, ".": true, "set": true}
