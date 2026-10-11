@@ -8,16 +8,17 @@ Everything an agent needs to work on gascoigne consistently. `CLAUDE.md` imports
 | `rules.md` | hard rules (deps, verification, architecture, hygiene) |
 | `code-style.md` | how code should read |
 | `architecture.md` | flow, contracts, detection, families and dialects, source files, agents (wrap/unwrap/hook), full-payload guarantee, ledger, gain |
-| `recommendations.md` | roadmap and design advice |
+| `recommendations.md` | open backlog, dropped ideas with numbers, practices |
 | `skills/` | `verify`, `add-component`, `eval` |
-| `tasks/` | work queue for the autonomous loop |
+| `tasks/` | work queue for the autonomous loop (empty when idle) |
 | `scripts/loop.sh` | autonomous agent loop |
 | `scripts/eval.sh` | token savings benchmark |
 | `logs/` | loop transcripts (gitignored) |
 
 ## Tasks
-One file per task: `tasks/NNN-slug.md`, first line `status: todo` (or `done`). Body = goal,
-scope, acceptance criteria. Keep each task one commit's worth of work.
+One file per task: `tasks/NNN-slug.md`, first line `status: todo`. Body = goal,
+scope, acceptance criteria. Keep each task one commit's worth of work. Delete a task once
+done (git keeps it); open ideas not yet worth a task live in `recommendations.md`.
 
 ## Autonomous loop
 ```sh
@@ -26,7 +27,7 @@ scope, acceptance criteria. Keep each task one commit's worth of work.
 .harness/scripts/loop.sh             # work through all todo tasks
 ```
 Per task: headless `claude -p` with the task + harness rules → `make check` + `make eval`
-→ on success marks task done and commits; on failure stops and prints the log path.
+→ on success deletes the task file and commits; on failure stops and prints the log path.
 Env: `MAX_TURNS` (default 50), `CLAUDE` (binary, default `claude`).
 
 ## Eval

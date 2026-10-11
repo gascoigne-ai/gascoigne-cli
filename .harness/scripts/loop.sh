@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Autonomous agent loop: works through .harness/tasks/*.md marked `status: todo`.
-# Each task: headless claude → make check + make eval → mark done + commit, or stop.
+# Each task: headless claude → make check + make eval → delete task + commit, or stop.
 #
 # usage: loop.sh [--dry-run] [--once]
 # env:   MAX_TURNS (default 50), CLAUDE (default claude)
 set -euo pipefail
+shopt -s nullglob
 cd "$(dirname "$0")/../.."
 
 dry_run=false once=false
@@ -74,9 +75,10 @@ for task in $tasks; do
 		exit 1
 	fi
 
-	sed -i '1s/^status: todo$/status: done/' "$task"
+	title=$(sed -n 's/^# //p' "$task" | head -1)
+	git rm -q "$task" # done tasks live in git history
 	git add -A
-	git commit -q -m "$(sed -n 's/^# //p' "$task" | head -1)" -m "Task: $task"
+	git commit -q -m "$title" -m "Task: $task"
 	echo "    done: $(git log -1 --format=%h)"
 
 	$once && break

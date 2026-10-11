@@ -25,7 +25,8 @@ consistency with bad code. If a reader has to pause, rewrite it.
 ## Comments
 - Say why, never what. Doc comment on every exported identifier that isn't self-evident.
 - Package doc comment in the main file of each package.
-- No commented-out code, no TODO without a task file in `.harness/tasks/`.
+- No commented-out code, no TODO without a task file in `.harness/tasks/` or an Open item in
+  `recommendations.md`.
 
 ## Tests
 - Same package (`package foo`), table-driven, `t.Run` for named cases.

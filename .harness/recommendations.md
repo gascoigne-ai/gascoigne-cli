@@ -1,32 +1,36 @@
 # Recommendations
 
-Direction for upcoming work. Rules are in `rules.md`; this is advice.
+Direction, backlog and lessons. Rules are in `rules.md`; this is advice. Work for the
+autonomous loop goes in `tasks/` (one file per task, `status: todo`); finished tasks are deleted,
+their record is git history.
 
-## Optimizer ideas (not built yet)
-None queued; dialect tuning is in task 008.
+## Open
+- Real fixtures to replace synthetic ones once tools are at hand: terraform/tofu, pulumi, cdk,
+  helm diff, kubectl, aws/gcloud/az, mysql, gh (authenticated). Per change: case savings up,
+  `keep` strings intact, goldens reviewed.
+- LLM proxy: real usage accounting from responses (`usage`) into the ledger and cost; Gemini API format.
+- Agents whose hooks can rewrite shell input (gemini `BeforeTool` `tool_input`, opencode plugins).
+- Log engine gap markers: say what a repeated trace's gap holds (`as above`), not just `omitted`.
 
-New tools of an existing family are dialects, not optimizers (skill `add-component`).
-Dialects that save little are tracked in task 008.
-
-Shared primitives go to `compress/` so engines and composite families can reuse them.
-Keep optimizers deterministic and idempotent (running twice changes nothing more).
-
-## Receivers
-- LLM API proxy follow-ups (task 005, Later): real usage accounting from responses, Gemini API format.
-- Agent integration: `gascoigne wrap`/`hook` cover claude, codex, gemini, opencode, pi and cursor. Next: agents
-  whose hooks can rewrite shell input too (gemini `BeforeTool` `tool_input`, opencode plugins).
-
-## Performance notes
-JSON optimizer: ~35–70 MB/s (`go test ./optimizer/data/jsonoptimizer -bench .`). Decoding into
-`map[string]any` is ~30% of time after removing re-encoding (size estimator, hash dedupe).
-SIMD JSON parsing (e.g. a simdjson port; amd64/AVX2 only, needs a scalar fallback) would only
-speed that part and still has to build Go values — revisit only if decode dominates real
-workloads. `simd/archsimd` still needs GOEXPERIMENT=simd; stats loops are not a bottleneck.
+## Tried and dropped
+Measured; don't retry without new data.
+- Generic multi-line repeat folding: the log engine already folds repeated traces; after the
+  engines +1.6 points on a repeated-trace fixture, before them it broke test/task/log goldens.
+- Replacing stale/superseded file reads in the proxy: reads are ~4% of context and the 1h
+  prompt-cache TTL leaves ~0.2% of requests cold, so rewriting on a cold cache saves ~0.2% of
+  input cost; on warm requests it busts the cache. Unedited re-reads are ~0 (proxy fold covers
+  them). Re-measure for 5-minute-TTL agents (codex).
+- Model-based text compression, rewriting prior reasoning: nondeterministic or lossy; signed
+  thinking blocks cannot change.
+- SIMD JSON parsing: decode is ~30% of jsonx time (35–70 MB/s) and Go values must still be
+  built; revisit only if decode dominates real workloads.
 
 ## Practices
-- Deterministic output ⇒ prompt-cache friendly. No timestamps or random ids in optimized text.
+- New tools of an existing family are dialects, not optimizers (skill `add-component`); shared
+  primitives go to `compress/`.
+- Deterministic, idempotent output ⇒ prompt-cache friendly: no timestamps or random ids.
 - Measure before claiming: every optimizer gets eval cases with real-shaped fixtures.
 - Keep hint/marker text short; it costs tokens too.
-- Never pick a transform for whitespace alone: runs of spaces and newlines are one token each
-  (`tokens.Estimate` counts them so); comments are where source tokens are (14–50%).
-- Prefer stdlib: `os/exec`, `net/http`, `encoding/json`, `bufio.Scanner`, `regexp` (sparingly; package-level patterns via `lazyre.New`).
+- Never transform for whitespace alone (runs of spaces/newlines are one token each);
+  comments are where source tokens are (14–50%).
+- Prefer stdlib; package-level regexps via `lazyre.New`, sparingly.
