@@ -1,17 +1,29 @@
 <div align="center">
 
-# gascoigne
+# 🌘 gascoigne
 
 **Agents read less. Nothing gets lost.**
 
-A token optimizer for LLM agents. It shrinks command output, tool results and web data
+A token optimizer for coding agents. It shrinks command output, tool results and web pages
 before they reach the model, and keeps every original one command away.
 
-`~80% fewer tokens` · `16 families` · `110+ tools & formats` · `pure Go, no cgo`
+`~80% fewer tokens` · `16 families` · `110+ tools & formats` · `claude · codex · gemini · opencode · pi · cursor` · `pure Go, no cgo`
 
 </div>
 
 ---
+
+## Start in one line
+
+```sh
+go install github.com/lukaszb/gascoigne/cmd/gascoigne@latest && gascoigne wrap claude
+```
+
+That's it: Claude Code starts with gascoigne in place for this run. No config files touched;
+swap `claude` for `codex`, `gemini`, `opencode` or `pi`. When you like it, `gascoigne install`
+keeps it on for the project.
+
+## See it work
 
 ```console
 $ gascoigne exec -- terraform plan
@@ -29,7 +41,22 @@ Plan: 25 to add, 2 to change, 1 to destroy.
 [gascoigne: optimized 10000→1311 tokens · full: gascoigne raw af6b9bf6295f3d8e]
 ```
 
-## Why
+The last line is the deal: 87% fewer tokens, and `gascoigne raw af6b9bf6295f3d8e` prints the
+untouched original, byte for byte.
+
+### The dashboard
+
+`gascoigne dashboard` opens a live view in your browser: savings per day, per command and per
+optimizer, every run as it happens, and any run's original side by side with what the agent read.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dashboard-dark.png">
+  <img alt="gascoigne dashboard: tokens saved, savings rate, daily savings, outcomes and a live feed of recent runs" src="docs/images/dashboard-light.png">
+</picture>
+
+<sub>The moon's phase is your savings rate: the darker it gets, the more your agents skipped.</sub>
+
+### What it saves
 
 Agents burn context on progress bars, passing tests, `managedFields`, pagination tokens and
 license boilerplate. gascoigne knows what each kind of output is for, keeps what an agent acts
@@ -51,40 +78,104 @@ on (failures, diffs, errors, anomalies, summaries) and folds the rest.
 
 ## Install
 
+**With Go** (1.27+), the binary lands in `$(go env GOPATH)/bin`:
+
 ```sh
 go install github.com/lukaszb/gascoigne/cmd/gascoigne@latest
 ```
 
-Or from a checkout: `make install` (→ `~/.local/bin`; `PREFIX=…` elsewhere).
-
-## Use
+**From a checkout**, into `~/.local/bin` (`PREFIX=…` for elsewhere):
 
 ```sh
-gascoigne exec -- go test ./...          # run a command, print optimized output
-kubectl get pods -o yaml | gascoigne run # optimize anything on stdin
-gascoigne raw <id>                       # the untouched original, byte-exact
-gascoigne exec -raw -- git diff          # skip optimization for one run
-gascoigne gain                           # where the savings come from
-gascoigne dashboard                      # live runs, savings, original vs optimized at http://127.0.0.1:7878
-gascoigne tokens file.go                 # count it per tokenizer family and price it
+git clone https://github.com/lukaszb/gascoigne && cd gascoigne && make install
 ```
 
-**Agents** — one command registers gascoigne for a run: shell commands go through
-`gascoigne exec`, results the rewrite cannot reach (other MCP servers, piped commands) are
-replaced after the tool ran, and an LLM API proxy in the background server shortens what the
-agent's own tools return (Claude's Read included, line numbers kept):
+Check it: `gascoigne version`. One static binary, no cgo, no services to run: the background
+server starts itself when needed and exits after 30 minutes idle.
+
+## Hook up your agent
+
+| Agent | Try it for one run | Keep it on |
+|---|---|---|
+| Claude Code | `gascoigne wrap claude` | `gascoigne install claude` |
+| Codex | `gascoigne wrap codex` | `gascoigne install codex` |
+| Gemini CLI | `gascoigne wrap gemini` | `gascoigne install gemini` |
+| opencode | `gascoigne wrap opencode` | `gascoigne install opencode` |
+| pi | `gascoigne wrap pi` | `gascoigne install pi` |
+| Cursor | — | `gascoigne install cursor` |
+
+`install` writes to this project's config; add `-g` for every project, `-proxy` to also route
+Claude's API traffic through gascoigne. Arguments after the agent name go to the agent
+(`gascoigne wrap claude --continue`). `gascoigne unwrap` removes every trace and keeps a backup.
+
+Shell commands then run through `gascoigne exec`, results from other MCP servers are shortened
+after the tool ran, and the LLM API proxy trims what the agent's own tools return (Claude's Read
+included, line numbers kept).
+
+## Everyday recipes
+
+**Run anything through it**
 
 ```sh
-gascoigne wrap claude                    # also: codex, gemini, opencode, pi
-gascoigne install                        # register for good in this project (-g: every project, -proxy: LLM proxy too)
-gascoigne unwrap                         # deregister from every agent
+gascoigne exec -- go test ./...              # run a command, print optimized output
+kubectl get pods -o yaml | gascoigne run     # or optimize anything on stdin
 ```
 
-**MCP** — give any agent a cheap way to read the web and tool output:
+**Get the full output back**
 
 ```sh
-gascoigne mcp                            # fetch · compress · retrieve · stats
-gascoigne mcp-proxy -- <server cmd>      # optimize another MCP server's results
+gascoigne raw af6b9bf6295f3d8e               # the id from the [gascoigne: …] hint
+gascoigne exec -raw -- git diff              # skip optimization for one run
+GASCOIGNE_RAW=1 make test                    # or for everything in this shell
+```
+
+Agents do the same through the MCP `retrieve` tool. A source whose originals keep getting
+fetched is marked as badly optimized and passed through untouched next time.
+
+**See what you saved**
+
+```sh
+gascoigne gain                               # overview: by agent, command, optimizer, cost
+gascoigne gain -by day -since 4w             # trend
+gascoigne gain -agent codex -by command      # who saves where
+gascoigne dashboard                          # the same, live, in the browser
+```
+
+**Read the web cheaply**
+
+```sh
+gascoigne mcp                                # MCP server: fetch · compress · retrieve · stats
+gascoigne mcp-proxy -- npx some-mcp-server   # shorten another MCP server's results
+```
+
+`fetch` turns pages into markdown and compacts API JSON; pass `query` to keep the sections
+that matter.
+
+**Tune it without a config file**
+
+```sh
+gascoigne exec -set optimizers.grep.max_per_file=50 -- rg TODO
+GASCOIGNE_DISABLE=truncate gascoigne wrap claude   # per agent, via env
+gascoigne config                                    # print the effective config
+```
+
+Every default lives in `configs/default.yaml`; your overrides go to
+`~/.config/gascoigne/config.yaml` (written on first run, every option commented out; after
+upgrading gascoigne, `gascoigne config -upgrade` moves your settings onto the new template).
+
+**Housekeeping**
+
+```sh
+gascoigne flush -older 7d                    # drop stored originals older than a week
+gascoigne reset -since 24h                   # clear recent stats
+gascoigne forget <source>                    # re-enable a source that was passed through
+gascoigne server status                      # the background server: pid, version, ledger
+```
+
+**Count and price text**
+
+```sh
+gascoigne tokens README.md                   # tokens per model family, and what they cost
 ```
 
 ## Families
@@ -114,7 +205,7 @@ Output is detected as `family/dialect` and handled by one engine per family.
 - **Edit-safe source** — source files only lose whole lines (comments, outlined bodies); kept
   lines are byte-exact and every gap names its original lines (`// … comments L12-30`).
 - **Self-correcting** — sources whose originals agents keep fetching get bypassed next time.
-- **Tunable per agent** — `-set`, `-only`, `-disable` flags or `GASCOIGNE_*` env, no config file needed.
+- **Local** — the ledger and dashboard stay on your machine; nothing is sent anywhere.
 
 ## How it works
 
@@ -139,7 +230,7 @@ Guides and reference live in [`docs/`](docs/README.md): [getting started](docs/g
 
 ```sh
 make check    # gofmt, vet, import boundaries, tests
-make eval     # token savings on fixtures
+make eval     # token savings and fact retention on fixtures
 ```
 
 Contributor and agent rules live in [`.harness/`](.harness/README.md).
