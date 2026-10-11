@@ -14,23 +14,25 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 |---|---|
 | `exec [flags] -- <cmd> [args]` | Run a command, print its optimized output (stdout and stderr merged), exit with its exit code. |
 | `run [flags]` | Run a pipeline. Default `cli`: stdin in, optimized text out. |
-| `raw <id>` | Print an original byte-exact. Also marks its source as badly optimized (see [Ledger](ledger.md)). |
+| `raw <id> [-lines a-b \| -grep re [-C n] \| -query words]` | Print an original byte-exact, which marks its source as badly optimized (see [Ledger](ledger.md)); or only part of it, numbered like `grep -n`, which does not. Flags may follow the id. |
+| `show <file>[:symbol]` | Print one function, method (`Type.Method`) or type with its doc comment and line numbers, or without a symbol every definition with its line range. Go, Python, C-like languages. |
 | `gain [flags]` | Savings report: overview, or one grouping with `-by`. |
 | `dashboard` | Start the background server if it is not running and print the dashboard address. |
 | `server run\|start\|stop\|status` | The background server hosting the dashboard: one per user, started automatically. |
-| `tokens [-model list] [file]` | Count text with each tokenizer family and price one read and its cost in an agent's context (see [cost](cost.md)). |
+| `tokens [-model list] [-exact=false] [file]` | Count text with each tokenizer family and price one read and its cost in an agent's context (see [cost](cost.md)); also exact counts: o200k locally, Claude via `count_tokens` when a key is configured. |
 | `flush [-older 7d]` | Delete stored originals (the cache behind `raw <id>`) and vacuum the ledger. |
 | `reset [flags]` | Clear savings stats; `-all` also clears stored originals and failure history. |
-| `wrap <agent> [agent args]` | Start `claude`, `codex` or `pi` with gascoigne registered for that run. |
+| `wrap <agent> [agent args]` | Start `claude`, `codex`, `gemini`, `opencode` or `pi` with gascoigne registered for that run. |
 | `install [-g] [agent...]` | Register gascoigne for good in this project's agent configs, or with `-g` in the user's (default: agents found on `PATH`). |
 | `wrap -print <agent>` | Print the config that registers gascoigne for good (also `cursor`). |
 | `unwrap [agent...]` | Remove gascoigne from agents' config files (default: every agent). |
 | `hook <agent>` | Agent hook handler. Installed by `wrap`; reads the hook event on stdin. |
-| `mcp` | MCP server on stdio: `fetch`, `compress`, `retrieve`, `stats`. |
+| `mcp` | MCP server on stdio: `fetch`, `compress`, `show`, `retrieve`, `stats`. |
 | `mcp-proxy -- <server cmd>` | MCP proxy: mirrors another server's tools and optimizes their text results. |
 | `fail <key\|raw_id>` | Mark a source as badly optimized by hand. `-reason` sets the note. |
 | `forget <key>` | Clear a source's failure history so it is optimized again. |
 | `eval [flags]` | Measure savings on the fixtures in `testdata/eval` (see [Development](development.md)). |
+| `prompts [-agent claude\|codex] [dir]` | Experimental (`experimental: [prompts]`). List the instruction text an agent sends with every request and price it; `-terse 0.1 <files>` drops articles and fillers from instruction files in place (`.bak` kept). |
 | `components` | List the built-in components and their families. |
 | `config [flags]` | Print the effective config after `-set`, `-only`, `-disable` and environment. |
 

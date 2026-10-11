@@ -171,6 +171,11 @@ Routes you add replace the `routes` list as a whole, like any list.
 | `mcp.retrieve` | `retrieve` | Name of the tool returning originals. |
 | `mcp_proxy.command` | — | Downstream server command; the CLI passes it after `--` instead. |
 | `mcp_proxy.retrieve` | `gascoigne_retrieve` | Added tool's name; must not clash with downstream tools. |
+| `mcp_proxy.compact_tools` | true | Drop titles restating names and `$schema`/`$id` from tool schemas. |
+| `mcp_proxy.max_tools` | 0 | More downstream tools than this → `search_tools` + `call_tool`; 0 mirrors them all. |
+| `httpproxy.compact_tools` | true | The same for the tools of proxied API requests. |
+| `httpproxy.skill_code_lines` | 30 | Code blocks of invoked skill bodies longer than this keep their head and a pointer; 0 off. |
+| `httpproxy.max_image_pixels` | 0 | Downscale tool-result screenshots above this many pixels (e.g. 1024000); 0 off. |
 
 ### Filters
 
@@ -227,7 +232,14 @@ rows, query matches) and mark every gap.
 | `doc` | `max_code_lines` | 40 | Longer code blocks keep head and tail. |
 | | `max_tokens` | 5200 | Longer markdown is fitted by whole sections, query matches first. |
 | | `man_drop` | built-in list | Man page sections dropped as boilerplate. |
-| `test`, `pkg`, `task` | — | | No options. |
+| `test` | `coverage_below` | 80 | Coverage reports list files under this percent; the rest are counted. |
+| `data` | `max_output_lines` | 30 | Notebook cell text outputs keep head and tail; tracebacks stay. |
+| `aria` | `max_items`, `head`, `tail` | 20, 10, 4 | Browser snapshots: runs of like siblings keep head, tail and query matches. |
+| `trace` | `max_period`, `min_repeats` | 12, 3 | Stack-trace frame cycles up to this long, repeated this often, show once with a count. |
+| | `min_goroutines` | 3 | Goroutines on one stack shown once with the others' ids. |
+| `rerun` | `max_age`, `runs` | 20m, 3 | A re-run in the same session folds lines the last runs showed into a pointer. |
+| | `min_lines`, `min_chars` | 4, 200 | Smallest run folded. |
+| `pkg`, `task` | — | | No options. |
 
 #### The JSON crusher (`json`, and `json:` under `data`, `cloud`, `http`)
 
@@ -254,6 +266,16 @@ sampled; gaps read `… N items omitted`.
 | Option | Default | Meaning |
 |---|---|---|
 | `stdout.hint` | true | Add `[gascoigne: optimized A→B tokens · full: gascoigne raw <id>]` when output changed. |
+
+### Tokenizers
+
+Exact counts for `gascoigne tokens`, beside its estimates.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `tokenizers.anthropic_api_key` | `""` | Claude counts via `count_tokens`; empty uses `$ANTHROPIC_API_KEY`. Keep the file private. |
+| `tokenizers.anthropic_model` | `claude-opus-5-5` | Model whose tokenizer counts. |
+| `tokenizers.o200k` | true | Count with the GPT-4o family encoding (vocabulary downloaded once to the cache dir). |
 
 ## Example: a personal config
 

@@ -1,7 +1,10 @@
 # What savings are worth
 
 `gascoigne gain` reports tokens saved, and a cost section that prices them per model.
-`gascoigne tokens [file]` counts any text with every tokenizer family and prices it.
+`gascoigne tokens [file]` counts any text with every tokenizer family and prices it. It also
+counts exactly: o200k with a Go port of the encoding (vocabulary downloaded once, hash-checked,
+identical to the reference on every eval fixture), and Claude through Anthropic's `count_tokens`
+when `tokenizers.anthropic_api_key` or `ANTHROPIC_API_KEY` is set.
 
 ```
 COST · WHAT THE SAVED TOKENS ARE WORTH

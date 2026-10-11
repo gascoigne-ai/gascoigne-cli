@@ -16,7 +16,8 @@ A stdio MCP server. Register it with any MCP client:
 |---|---|---|
 | `fetch` | `url` (http/https), `query?`, `raw?` | The response, optimized: HTML as markdown, JSON compressed, headers trimmed. |
 | `compress` | `text`, `cmd?`, `file?`, `query?`, `raw?` | The text, optimized. `cmd`/`file` make detection exact. |
-| `retrieve` | `id` | The original of an optimized result, byte-exact. Marks the source as badly optimized. |
+| `show` | `file`, `symbol?` | One function, method or type of a source file with line numbers; without `symbol`, its definitions and their line ranges. |
+| `retrieve` | `id`, `lines?`, `grep?`, `query?`, `context?` | The original of an optimized result, byte-exact, which marks the source as badly optimized; or only the lines asked for, which does not. |
 | `stats` | `by?`, `session?`, `format?` | Savings so far, as plain text (no colors or bars: they cost tokens) or `format: json`. |
 
 Every optimized result ends with:
@@ -66,6 +67,11 @@ Starts the downstream server over stdio, mirrors its tools, and optimizes their 
 on the way back. It adds one tool, `gascoigne_retrieve` (name configurable with
 `receivers.mcp_proxy.retrieve`), that returns originals. Non-text content (images,
 resources) passes through untouched.
+
+Tool schemas are compacted on the way (`compact_tools`): titles that restate a property name and
+`$schema`/`$id` markers go, every constraint stays. A server with many tools can hide them behind
+two (`max_tools: 40`): `search_tools` finds tools by what they do and returns their schemas,
+`call_tool` runs one. Use it for agents without native tool search; Claude Code has its own.
 
 Register the proxy in place of the original server:
 

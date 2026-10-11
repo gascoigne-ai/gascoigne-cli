@@ -29,8 +29,8 @@ This lives in the pipeline core, not in optimizers:
 
 | From | How |
 |---|---|
-| shell | `gascoigne raw <id>` |
-| MCP server | `retrieve` with the id |
+| shell | `gascoigne raw <id>`, or part: `-grep re -C 2`, `-query words`, `-lines 120-180` |
+| MCP server | `retrieve` with the id (and `lines`/`grep`/`query` for part) |
 | MCP proxy | `gascoigne_retrieve` with the id |
 | dashboard | open a run → *Show original output* |
 
@@ -47,6 +47,17 @@ gascoigne flush -older 2h     # only originals saved more than 2 hours ago
 `flush` vacuums the database, so the space goes back to the disk. Runs and savings stay; only
 `gascoigne raw <id>` for the flushed ids stops working. The dashboard's *Clear originals* button
 (it shows the count and size) does the same.
+
+Reading only part of an original (`-grep`, `-query`, `-lines`) is a lookup, not a complaint: it
+does not mark the source as failing.
+
+### Storage
+
+Ids are the first 8 hex digits of the text's sha256 (12, 16 or 64 when that prefix holds a
+different text), so the same output from any session is stored once and its hint costs ~7 fewer
+tokens. Originals are gzip-compressed. Source keys longer than 200 bytes (whole command lines,
+heredocs) are stored as a 160-byte prefix plus a hash. Ledgers from older versions are converted
+on first open and vacuumed (a real one: 22 MB → 6 MB).
 
 ## Sources that optimized badly
 
@@ -92,6 +103,13 @@ The overview shows:
 
 Colors follow saved %: green ≥ 60, yellow ≥ 30, red below. `-color never` or `NO_COLOR` turns
 them off.
+
+Beside command output, the LLM proxy records what requests carry besides tool results: the system
+prompt, CLAUDE.md, the skill list and reminders (`system prompt`, `CLAUDE.md`, `skills`,
+`reminder` commands, route `prompt`), invoked skill bodies (`skill <name>`), tool definitions
+(`tool definitions`) and screenshots (`image`). Each distinct block is recorded once with its
+text, readable with `gascoigne raw <id>` and in the dashboard. The overview ends with
+**estimates**: which numbers are estimated and how (token counts, cost model, image tokens).
 
 ### Groupings and filters
 

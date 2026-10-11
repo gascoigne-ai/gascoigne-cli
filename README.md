@@ -73,6 +73,11 @@ on (failures, diffs, errors, anomalies, summaries) and folds the rest.
 | `kubectl get pods -o yaml` | 37,330 | 9,609 | **74.3%** |
 | `git log` | 4,173 | 1,151 | **72.4%** |
 | `cat lib/benchmark.rb` (comments) | 6,390 | 2,800 | **56.2%** |
+| Python `RecursionError` trace | 25,543 | 218 | **99.1%** |
+| `go test` timeout (goroutine dump) | 7,478 | 388 | **94.8%** |
+| `cat churn.ipynb` (notebook) | 20,144 | 896 | **95.6%** |
+| CodeQL SARIF report | 15,590 | 1,065 | **93.2%** |
+| browser snapshot (accessibility tree) | 6,569 | 2,601 | **60.4%** |
 
 <sub>Tokens (BPE-style estimate, within ~10% of a real tokenizer) on the eval fixtures in <code>testdata/eval</code> · <code>make eval</code> · what they are worth per model: <a href="docs/cost.md">cost</a></sub>
 
@@ -121,16 +126,27 @@ gascoigne exec -- go test ./...              # run a command, print optimized ou
 kubectl get pods -o yaml | gascoigne run     # or optimize anything on stdin
 ```
 
-**Get the full output back**
+**Get the full output back, or just the part you need**
 
 ```sh
-gascoigne raw af6b9bf6               # the id from the [gascoigne: …] hint
+gascoigne raw af6b9bf6                       # the id from the [gascoigne: …] hint
+gascoigne raw af6b9bf6 -grep 'FAIL|panic' -C 2   # only matching lines, numbered
+gascoigne raw af6b9bf6 -query "db timeout"   # lines that best match the words
+gascoigne raw af6b9bf6 -lines 120-180        # a line range
 gascoigne exec -raw -- git diff              # skip optimization for one run
 GASCOIGNE_RAW=1 make test                    # or for everything in this shell
 ```
 
-Agents do the same through the MCP `retrieve` tool. A source whose originals keep getting
+Agents do the same through the MCP `retrieve` tool (`lines`, `grep`, `query` too). A source whose originals keep getting
 fetched is marked as badly optimized and passed through untouched next time.
+
+**Read one function, not the whole file**
+
+```sh
+gascoigne show internal/service/pipeline.go             # every definition with its line range
+gascoigne show internal/service/pipeline.go:Process     # one function with its doc comment
+gascoigne show app/models.py:Cart.total                 # Type.method works too (Go, Python, JS/TS, Rust, Java, C…)
+```
 
 **See what you saved**
 
@@ -138,18 +154,25 @@ fetched is marked as badly optimized and passed through untouched next time.
 gascoigne gain                               # overview: by agent, command, optimizer, cost
 gascoigne gain -by day -since 4w             # trend
 gascoigne gain -agent codex -by command      # who saves where
+gascoigne gain -by command                   # includes system prompt, CLAUDE.md, skills
 gascoigne dashboard                          # the same, live, in the browser
 ```
+
+With the LLM proxy on (`wrap`, or `install -proxy claude`) gain also lists the instruction text
+every request carries (system prompt, CLAUDE.md, skill list, invoked skills), with the text kept,
+and the tokens the provider actually billed. Its last section says which numbers are estimates.
 
 **Read the web cheaply**
 
 ```sh
-gascoigne mcp                                # MCP server: fetch · compress · retrieve · stats
+gascoigne mcp                                # MCP server: fetch · compress · show · retrieve · stats
 gascoigne mcp-proxy -- npx some-mcp-server   # shorten another MCP server's results
 ```
 
 `fetch` turns pages into markdown and compacts API JSON; pass `query` to keep the sections
-that matter.
+that matter. The proxy also trims redundant keys from tool schemas, and with `max_tools: 40`
+a server with hundreds of tools shows two (`search_tools`, `call_tool`) to agents without
+native tool search.
 
 **Tune it without a config file**
 
@@ -176,7 +199,11 @@ gascoigne server status                      # the background server: pid, versi
 
 ```sh
 gascoigne tokens README.md                   # tokens per model family, and what they cost
+ANTHROPIC_API_KEY=… gascoigne tokens notes.md    # plus exact Claude and o200k counts
 ```
+
+Exact counts: o200k is counted locally (vocabulary downloaded once); Claude through Anthropic's
+free `count_tokens`, key from `tokenizers.anthropic_api_key` in the config or the environment.
 
 ## Families
 
@@ -184,18 +211,21 @@ Output is detected as `family/dialect` and handled by one engine per family.
 
 | | |
 |---|---|
-| **test** | go · jest · vitest · bun · mocha · deno · pytest · cargo · rspec · maven · dotnet |
-| **build** | go · tsc · eslint · golangci · ruff · mypy · rustc · gcc · clang · javac · dotnet · vite/webpack · docker |
+| **test** | go · jest · vitest · bun · mocha · deno · pytest · cargo · rspec · maven · dotnet · JUnit XML · coverage (lcov, `go tool cover`) |
+| **build** | go · tsc · eslint · golangci · ruff · mypy · rustc · gcc · clang · javac · dotnet · vite/webpack · docker · SARIF |
 | **pkg** | npm · pnpm · yarn · bun · pip · uv · poetry · go mod · cargo · apt/dnf/brew |
 | **task** | nx · turbo · make · just · gradle · compose · CI logs |
 | **vcs** | git status/log/diff/blame/branch · gh |
 | **search · fs** | grep · rg · ag · git grep · ls · tree · find · du · df · source files |
 | **table** | ps · ss · lsof · top · systemctl · docker · any aligned or boxed table |
-| **data** | JSON · NDJSON · YAML · CSV · XML · TOML lockfiles |
+| **data** | JSON · NDJSON · YAML · CSV · XML · TOML lockfiles · Jupyter notebooks |
 | **log** | app · journald · syslog · docker · kubectl · access · CloudWatch · GCP · Azure |
-| **doc · web** | markdown · rst · man · `--help` · HTML → markdown · HTTP responses |
+| **doc · web** | markdown · rst · man · `--help` · HTML → markdown · HTTP responses · browser accessibility snapshots |
 | **db** | psql · mysql · sqlite · EXPLAIN · redis · mongosh · migrations |
 | **k8s · infra · cloud** | kubectl · helm · terraform/tofu · pulumi · ansible · cdk · aws · gcloud · az |
+
+Across families: stack traces fold recursion and goroutines parked on one stack; a test or
+build re-run in the same session points at the failures you already saw instead of repeating them.
 
 ## Guarantees
 

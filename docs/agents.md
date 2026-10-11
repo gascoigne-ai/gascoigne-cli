@@ -100,6 +100,11 @@ dashboard):
   through as sent.
 - Read results keep their real line numbers: lines are dropped like `cat` output, never
   renumbered, and each gap is a marker naming the lines to read back.
+- It also shrinks what is not a tool result but costs the same: tool schemas lose redundant
+  keys (`compact_tools`), invoked skill bodies fold long code blocks (`skill_code_lines`), and
+  screenshots above `max_image_pixels` (off by default) are downscaled. System prompts, CLAUDE.md,
+  the skill list and reminders are recorded with their text, once per distinct block, so `gain
+  -by command` shows what instructions cost.
 - The proxy also records what each request was billed, as the API reports it in the response
   (input, cache read and write, output tokens per agent and model): `gascoigne gain` shows it
   under API USAGE with list prices, `gain -json` as `api_usage`.
@@ -135,7 +140,9 @@ deny rules you wrote yourself.
 
 Agents are told how to get the most out of gascoigne: read and search with shell commands,
 keep shell calls plain (`&&`/`;` lists, only `| head`/`| tail`), read the web with `fetch`, and
-use `gascoigne raw <id>` / `retrieve` instead of re-running a shortened command.
+use `gascoigne raw <id>` / `retrieve` (or only part: `-grep`, `-query`, `-lines`) instead of
+re-running a shortened command, read one function with `gascoigne show file:Name`, and keep
+their own text brief (in an A/B run that cut output tokens 16% at the same success rate).
 
 | Agent | `wrap` | `install` | `install -g` |
 |---|---|---|---|

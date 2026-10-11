@@ -41,6 +41,8 @@ dropped. Go output is parsed; the others follow rules.
 | `test/rspec` | `rspec` |
 | `test/maven` | `mvn test`, `mvn verify` |
 | `test/dotnet` | `dotnet test` |
+| `test/junit` | JUnit XML reports (`junit*.xml`, `TEST-*.xml`, sniffed) | count line per suite; failing and erroring cases with message, details and output; skipped cases with reason |
+| `test/coverage` | lcov (`lcov.info`), `go tool cover -func` | total, then files under `coverage_below` (80%) worst first with uncovered line ranges or weak functions |
 
 ```
 --- FAIL: TestTotal (0.00s)
@@ -74,6 +76,7 @@ their result lines (`Found 3 errors…`). With `exec -watch` each rebuild is pri
 | `build/maven`, `build/dotnet` | `mvn compile/package/install`; `dotnet build/publish`, `msbuild` |
 | `build/bundler` | `vite`, `webpack`, `rollup`, `esbuild`, `next build`, `parcel` |
 | `build/docker` | `docker build`, `docker buildx build`, `podman build`, `docker compose build` |
+| `build/sarif` | `*.sarif` (CodeQL, semgrep, gosec, …) | each result as `file:line:col: level: message [rule]`, then grouped like compiler output; rule help and fingerprints dropped (CodeQL: 15,590 → 1,065) |
 
 `tsc` with many errors: 1,910 → 722 (62.2%). webpack warnings: 2,744 → 104 (96.2%).
 
@@ -173,6 +176,7 @@ query matches and both ends stay.
 | `data/csv` | `*.csv`, `*.tsv` | table engine |
 | `data/xml` | `*.xml`, `pom.xml`, `*.csproj`, feeds, `xmllint` | runs of repeated siblings sampled, failures kept |
 | `data/toml` | `*.toml`, `Cargo.lock`, `poetry.lock`, `uv.lock` | lockfiles one line per package |
+| `data/ipynb` | `*.ipynb` | cells as `# %% [3] code In[2]` + source; text outputs capped (`max_output_lines`), images and widgets as `[image/png 46 KB]`, error tracebacks whole, metadata dropped (20,144 → 896) |
 
 The crusher, in order: drop empty values, shorten hashes, cut long strings; turn arrays of
 similar objects into `_cols`/`_rows` tables (constant columns in `_same`, shared prefixes and
@@ -230,6 +234,7 @@ their prefixes, so `go1.27` matches `go1.27.2`.
 |---|---|---|
 | `web/html` | `*.html`, `text/html` | converted to markdown (navigation, scripts, styles and layout dropped), then the `doc` engine |
 | `web/http` | `curl -i`/`-v` output (sniffed) | transport headers and TLS chatter dropped, body by its type |
+| `web/aria` | browser automation accessibility snapshots (`- link "Home" [ref=e3]`, sniffed) | grouping wrappers unwrapped, `[cursor=pointer]` dropped on clickable roles, runs of like siblings keep head, tail and `query` matches; every kept `ref` stays (6,569 → 2,601) |
 
 `curl -v https://go.dev`: 13,565 → 3,322 (75.5%). A go.dev blog page: 10,722 → 2,020.
 
@@ -299,6 +304,21 @@ items, mostly objects) is crushed in place with the same settings as `json`; the
 stays byte-exact and the table legend goes on top once. Plain lists, config objects and whole
 JSON blocks are left alone. It runs first, before the log engine folds a pretty-printed body line
 by line. An order-sync log with two response bodies: 5922→982 tokens (log engine alone: 1505).
+
+## Stack traces (`trace`, before the family engines)
+
+A frame cycle repeated in a row (recursion, mutual recursion) stays once with
+`… 4 lines above repeated 329 more times`; goroutines of a Go dump waiting on the same stack
+stay once with `+39 more on this stack: 61 62 …`. A Python `RecursionError`: 25,543 → 218; a
+`go test` timeout dump: 7,478 → 388.
+
+## Re-runs (`rerun`, last)
+
+Agents re-run tests and builds after every edit. When the same command runs again in the same
+session (within `max_age`, 20 minutes), runs of 4+ lines that one of the last 3 outputs already
+showed become `[↑ 5 lines as in the previous run, from "--- FAIL: TestParse"]`, so only what
+changed is read again. Needs a session (wrap, hooks); test, build, task, pkg, log, search and vcs
+output only.
 
 ## Dense lines (`dense`, after the family engines)
 

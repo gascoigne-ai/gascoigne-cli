@@ -8,7 +8,7 @@ local ledger so nothing is ever lost.
 |---|---|
 | [Getting started](getting-started.md) | install, run your first command, see savings |
 | [Agents](agents.md) | use gascoigne with Claude Code, Codex, Cursor or pi |
-| [MCP](mcp.md) | give any MCP client `fetch`, `compress`, `retrieve`, `stats`, or optimize another MCP server |
+| [MCP](mcp.md) | give any MCP client `fetch`, `compress`, `show`, `retrieve`, `stats`, or optimize another MCP server |
 | [CLI reference](cli.md) | every command, flag and environment variable |
 | [Configuration](configuration.md) | change limits, routes and pipelines; every option of every component |
 | [Families and dialects](families.md) | know what happens to test, build, git, log, k8s… output |

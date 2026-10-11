@@ -59,6 +59,24 @@ The original is printed byte-exact. Fetching it also tells gascoigne the optimiz
 good enough for that source (the same command, file or URL), so next time that source passes
 through untouched. See [Ledger, retrieval and gain](ledger.md) to undo that.
 
+Often one detail is enough, and reading only it does not mark the source:
+
+```sh
+gascoigne raw 9f1c2e7a -grep 'FAIL|panic' -C 2      # matching lines with 2 around, numbered
+gascoigne raw 9f1c2e7a -query "connection refused"  # the lines that best match the words
+gascoigne raw 9f1c2e7a -lines 200-240               # a line range
+```
+
+## Read one function
+
+```sh
+gascoigne show internal/service/pipeline.go          # definitions with line ranges
+gascoigne show internal/service/pipeline.go:Process  # one, with its doc comment and line numbers
+```
+
+Agents get the same as the MCP `show` tool, and the usage guide tells them to prefer it over
+reading a large file whole.
+
 To skip optimization up front:
 
 ```sh
@@ -92,7 +110,7 @@ gascoigne wrap claude      # or: codex, gemini, opencode, pi
 This starts the agent with gascoigne registered for that run only: shell commands
 go through `gascoigne exec`, other MCP servers' results are optimized, the agent's API traffic
 goes through the LLM proxy in the background server (Claude's Read is shortened too, line
-numbers kept), and the MCP server adds `fetch`, `compress`, `retrieve` and `stats`. No config
+numbers kept), and the MCP server adds `fetch`, `compress`, `show`, `retrieve` and `stats`. No config
 file is touched. `gascoigne install` registers it for good. See [Agents](agents.md).
 
 ## Where things live
