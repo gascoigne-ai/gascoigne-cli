@@ -167,7 +167,10 @@ memoized; needs `ledger` (looked up in `Start`). Tool schemas (`tools.go`, `comp
 event per distinct tool set (route `tools`). Instructions (`prompts.go`): system prompts, `<system-reminder>`s in user text, chat/responses
 system/developer messages and `instructions`, Gemini `systemInstruction` → one unchanged event
 per distinct block (route `prompt`, command `system prompt`/`CLAUDE.md`/`skills`/`reminder`), so
-`gain -by command` shows what instruction text costs. Images (`images.go`, `max_image_pixels`, 0 = off):
+`gain -by command` shows what instruction text costs. Skills (`skills.go`): invoked skill bodies (user text starting `Base directory for this skill:`)
+recorded once per body (route `skill`, command `skill <name>`); with `skill_code_lines` code
+blocks longer than that keep their head plus `… N more lines: gascoigne raw <id> -lines a-b`,
+HTML comments go (measured: a 30k-token bundled skill is prose and tables, −0.3%). Images (`images.go`, `max_image_pixels`, 0 = off):
 base64 PNG/JPEG blocks in tool results above the cap are box-downscaled (deterministic, cached
 by hash), original saved (`raw`), event in image tokens (pixels/750, route `image`). Usage (`usage.go`): 2xx response bodies pass through a meter (SSE `data:` lines mentioning usage
 decoded, JSON bodies ≤ 8 MB at the end); per API reader, fields max-merged across events, cached

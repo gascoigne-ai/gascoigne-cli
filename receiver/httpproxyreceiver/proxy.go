@@ -184,6 +184,9 @@ func (r *Receiver) rewrite(req *http.Request, api rewriter) {
 	}
 	r.recordPrompts(req.Context(), doc, m)
 	shortened := api(req.Context(), r, doc, m)
+	if r.skills(req.Context(), doc, m) {
+		shortened = true
+	}
 	if !r.compactTools(req.Context(), doc, m) && !shortened {
 		return
 	}

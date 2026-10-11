@@ -21,6 +21,7 @@ receivers:
     ledger: ledger
     fold_min_lines: 3
     fold_min_chars: 80
+    skill_code_lines: 30 # skill bodies: code blocks over this keep their head + a pointer to the rest; 0: off
     max_image_pixels: 0 # >0: downscale tool-result screenshots above this many pixels (e.g. 1024000)
     compact_tools: true # tool schemas: drop titles restating names and $schema markers (constraints stay)
 
