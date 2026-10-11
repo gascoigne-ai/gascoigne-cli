@@ -10,6 +10,7 @@ component/  payload/  tokens/        public contracts: what component authors im
 detect/  compress/  mcptool/         public libraries: content detection, text primitives, MCP tools
 lazyre/                              package-level regexps compiled on first use (init stays ~1 ms)
 version/                             release number + git commit from build info (CLI, MCP, health)
+tokenizer/                           exact counts: o200k BPE in Go (vocabulary downloaded once, hash pinned), Claude via count_tokens
 cost/                                tokenizer families (factor vs tokens.Estimate), prices, agent context model
 receiver/  filter/  exporter/        components, one package each, OTel-contrib style (receivers:
                                        stdin, exec, hook, mcp, mcp_proxy, httpproxy);

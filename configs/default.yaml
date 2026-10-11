@@ -127,6 +127,10 @@ exporters:
 # Experimental commands to enable ("all" for every one); GASCOIGNE_EXPERIMENTAL adds to it.
 experimental: []
 
+# Exact counts for gascoigne tokens: claude via Anthropic's count_tokens (key "" → $ANTHROPIC_API_KEY),
+# o200k reimplemented locally (vocabulary downloaded once to the user cache dir).
+tokenizers: { anthropic_api_key: "", anthropic_model: claude-opus-5-5, o200k: true }
+
 pipelines:
   cli:
     receivers: [stdin]

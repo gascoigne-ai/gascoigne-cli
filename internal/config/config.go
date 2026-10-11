@@ -31,6 +31,20 @@ type Config struct {
 	// Experimental names the CLI commands to enable that are not stable yet
 	// ("all" for every one); GASCOIGNE_EXPERIMENTAL adds to it.
 	Experimental []string `yaml:"experimental"`
+	// Tokenizers configures exact token counts for gascoigne tokens.
+	Tokenizers Tokenizers `yaml:"tokenizers"`
+}
+
+// Tokenizers sets how gascoigne tokens counts exactly, beside its estimates.
+type Tokenizers struct {
+	// AnthropicAPIKey enables Claude counts through Anthropic's token
+	// counting endpoint; "" uses $ANTHROPIC_API_KEY, if set.
+	AnthropicAPIKey string `yaml:"anthropic_api_key"`
+	// AnthropicModel is the model whose tokenizer counts.
+	AnthropicModel string `yaml:"anthropic_model"`
+	// O200k counts with the GPT-4o family's encoding; its vocabulary (3.6 MB)
+	// is downloaded to the user cache dir on first use.
+	O200k bool `yaml:"o200k"`
 }
 
 type Pipeline struct {

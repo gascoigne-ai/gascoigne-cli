@@ -242,6 +242,12 @@
 ## Experimental commands to enable: prompts, or all. GASCOIGNE_EXPERIMENTAL adds to the list.
 # experimental: []
 
+## Exact token counts for gascoigne tokens, beside its estimates.
+# tokenizers:
+#   anthropic_api_key: ""             ## Claude counts via count_tokens; "" uses $ANTHROPIC_API_KEY (keep this file private)
+#   anthropic_model: claude-opus-5-5  ## model whose tokenizer counts
+#   o200k: true                       ## GPT-4o family encoding; vocabulary (3.6 MB) downloaded once to the cache dir
+
 ## Pipelines: which receivers, filters and exporters each command uses.
 # pipelines:
 #   cli: { receivers: [stdin], filters: [bypass, detect, minsize, history], exporters: [stdout] }
