@@ -3,12 +3,15 @@ package main
 import (
 	"encoding/json"
 	"log/slog"
+	"math"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/lukaszb/gascoigne/cost"
 )
 
 func TestReplayFile(t *testing.T) {
@@ -67,8 +70,34 @@ func TestReplayFile(t *testing.T) {
 	if rep.Requests != 2 || rep.Compared != 3 || rep.Unstable != 0 {
 		t.Errorf("requests %d, compared %d, unstable %d; want 2, 3, 0", rep.Requests, rep.Compared, rep.Unstable)
 	}
+	// "claude-test" is unknown: priced as the default model, and shorter
+	// results cost less.
+	if rep.Assumed != 1 || rep.CostOut <= 0 || rep.CostOut >= rep.CostRaw {
+		t.Errorf("assumed %d, cost %.6f → %.6f", rep.Assumed, rep.CostRaw, rep.CostOut)
+	}
 	bt := rep.Tools["Bash"]
 	if bt == nil || bt.Results != 2 || bt.Out >= bt.Raw {
 		t.Errorf("Bash %+v, want 2 results shortened", bt)
+	}
+}
+
+func TestPromptCost(t *testing.T) {
+	s := &session{price: cost.Model{Tokenizer: "o200k", CacheWrite: 10, CacheRead: 1}, tokens: map[string]int{}}
+	a, b, c := "aaaa aaaa", "bbbb bbbb", "cccc cccc" // 2 tokens each
+	tests := []struct {
+		name       string
+		msgs, prev []string
+		want       float64 // read tokens × 1 + written × 10, per million
+	}{
+		{"first request writes all", []string{a, b}, nil, 40},
+		{"prefix read, new message written", []string{a, b, c}, []string{a, b}, 2 + 2 + 20},
+		{"a changed message busts the rest", []string{a, c, b}, []string{a, b}, 2 + 20 + 20},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := s.promptCost(tt.msgs, tt.prev) * 1e6; math.Abs(got-tt.want) > 1e-9 {
+				t.Errorf("cost %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

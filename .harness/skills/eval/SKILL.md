@@ -32,7 +32,8 @@ Custom runs: `bin/gascoigne eval -config my.yaml -cases path/cases.yaml -pipelin
 
 Real sessions: `bin/gascoigne replay [-sessions N] [-json]` rebuilds Claude Code transcripts'
 requests and sends them through the LLM API proxy (stand-in upstream, throwaway ledger):
-savings per tool and prompt-cache stability (messages sent again must stay byte-identical;
+savings per tool, message input cost before/after (cache reads for the prefix the previous
+request sent identically, writes for the rest; model from the transcript), and prompt-cache stability (messages sent again must stay byte-identical;
 anything below 100% is a bug). Bash results in transcripts were already shortened by the hook,
 so its column is the proxy's extra. Compare two builds: build each (e.g. in a `git worktree`),
 run both with `-json` on the same `-sessions`, diff.

@@ -165,7 +165,9 @@ restarting.
 `gascoigne replay` (`cmd/gascoigne/replay.go`) rebuilds Claude Code transcripts (`~/.claude/projects`,
 newest first; lines of one role merged, sidechains skipped, compaction restarts) into one request
 per model turn after tool results, sends them through `llmProxy` against an in-process upstream
-with a throwaway ledger, and reports tokens per tool plus how many re-sent messages the proxy
+with a throwaway ledger, and reports tokens per tool, message input cost as sent and as forwarded
+(`cost` prices: the prefix the previous request sent identically read from the cache, the rest
+written), plus how many re-sent messages the proxy
 forwarded byte-identical (canonical JSON).
 Registration (server started first, `serverUp`): wrap claude `ANTHROPIC_BASE_URL` (unless set: user gateway), codex with
 `OPENAI_API_KEY` a `model_providers.gascoigne` (`wire_api=responses`), opencode provider

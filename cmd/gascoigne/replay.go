@@ -21,6 +21,7 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/lukaszb/gascoigne/cost"
 	"github.com/lukaszb/gascoigne/extension/ledger"
 	"github.com/lukaszb/gascoigne/mcptool"
 	"github.com/lukaszb/gascoigne/tokens"
@@ -129,6 +130,14 @@ type replayReport struct {
 	Unstable int                    `json:"unstable"`
 	Examples []string               `json:"unstable_examples,omitempty"`
 	Tools    map[string]*toolReplay `json:"tools"`
+	// Message input cost of every request as the client sent it and as
+	// the proxy forwarded it (promptCost); system prompt and tools are the
+	// same on both sides and left out.
+	CostRaw float64 `json:"cost_raw_usd"`
+	CostOut float64 `json:"cost_out_usd"`
+	// Assumed lists sessions priced with the default model: their
+	// transcript names none cost knows.
+	Assumed int `json:"assumed_model_sessions,omitempty"`
 }
 
 type toolReplay struct {
@@ -149,6 +158,8 @@ type session struct {
 	prevOrig, prevFwd []string
 	// Latest measure per tool result id.
 	results map[string]resultTokens
+	price   cost.Model
+	tokens  map[string]int // memo: canonical message → tokens.Estimate
 }
 
 type resultTokens struct {
@@ -175,7 +186,7 @@ func replayFile(ctx context.Context, proxy http.Handler, up *upstream, path stri
 		return err
 	}
 	defer f.Close()
-	s := &session{tools: map[string]string{}, results: map[string]resultTokens{}}
+	s := &session{tools: map[string]string{}, results: map[string]resultTokens{}, tokens: map[string]int{}}
 	sc := bufio.NewScanner(f)
 	sc.Buffer(nil, 64<<20)
 	lastID := ""
@@ -301,8 +312,40 @@ func (s *session) send(ctx context.Context, proxy http.Handler, up *upstream, pa
 			}
 		}
 	}
+	if s.price.ID == "" {
+		var ok bool
+		if s.price, ok = cost.Lookup(s.model); !ok {
+			s.price, _ = cost.Lookup(cost.AgentModels["claude"])
+			rep.Assumed++
+		}
+	}
+	rep.CostRaw += s.promptCost(orig, s.prevOrig)
+	rep.CostOut += s.promptCost(fwd, s.prevFwd)
 	s.prevOrig, s.prevFwd = orig, fwd
 	return s.measure(body, up.body)
+}
+
+// promptCost prices a request's messages with prompt caching: the run the
+// previous request sent identically is read from the cache, the rest is
+// written to it.
+func (s *session) promptCost(msgs, prev []string) float64 {
+	read, write := 0, 0
+	cached := true
+	for i, m := range msgs {
+		cached = cached && i < len(prev) && m == prev[i]
+		n, ok := s.tokens[m]
+		if !ok {
+			n = tokens.Estimate(m)
+			s.tokens[m] = n
+		}
+		if cached {
+			read += n
+		} else {
+			write += n
+		}
+	}
+	f := cost.Tokenizers[s.price.Tokenizer].Factor
+	return f * (float64(read)*s.price.CacheRead + float64(write)*s.price.CacheWrite) / 1e6
 }
 
 // canonical re-encodes each message of a request body, so key order and
@@ -385,6 +428,11 @@ func (r replayReport) print() {
 		r.Compared-r.Unstable, r.Compared, mcptool.Percent(r.Compared-r.Unstable, r.Compared))
 	for _, e := range r.Examples {
 		fmt.Println("  changed:", e)
+	}
+	fmt.Printf("message input cost, cache reads and writes priced: $%.2f → $%.2f (%s saved)\n",
+		r.CostRaw, r.CostOut, mcptool.Percent(int((r.CostRaw-r.CostOut)*1e4), int(r.CostRaw*1e4)))
+	if r.Assumed > 0 {
+		fmt.Printf("  %d sessions name no known model: priced as %s\n", r.Assumed, cost.AgentModels["claude"])
 	}
 	fmt.Println()
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
