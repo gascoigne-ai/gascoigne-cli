@@ -1,0 +1,45 @@
+# Live cases: real commands run in the repository root (make eval-live).
+# They catch tools whose output changed shape since the fixtures were made:
+# a wrong type or a savings drop here, with the fixture case still passing,
+# means the fixture is stale. Output varies with the repository, so floors
+# sit at about half of what was measured. A missing program skips its case.
+- run: go test -v -count=1 ./compress/... ./lazyre/ ./tokens/
+  expect_type: test/go
+  min_saved: 45
+- run: git log --stat -n 30
+  expect_type: vcs/git-log
+  min_saved: 20
+- run: git diff HEAD~3 HEAD -- cmd/gascoigne
+  expect_type: vcs/git-diff
+  min_saved: 8
+- run: rg -n "func " compress/
+  expect_type: search/rg
+  min_saved: 10
+- run: grep -rn "func New" --include=*.go optimizer/
+  expect_type: search/grep
+- run: find . -name "*.go" -not -path "./.git/*"
+  expect_type: fs/find
+  min_saved: 25
+- run: ls -la cmd/gascoigne
+  expect_type: fs/ls
+  min_saved: 30
+- run: tree -L 2 optimizer
+  expect_type: fs/tree
+  min_saved: 20
+- run: du -ah optimizer | sort -h
+  expect_type: fs/du
+  min_saved: 45
+- run: df -h
+  expect_type: fs/df
+  min_saved: 25
+- run: ps aux
+  expect_type: table/ps
+  min_saved: 45
+- run: cat cmd/gascoigne/eval.go
+  expect_type: fs/code
+  min_saved: 35
+- run: go list -m -json all
+  expect_type: data/json
+  min_saved: 35
+- run: kubectl get pods -A
+  expect_type: k8s/get

@@ -38,3 +38,8 @@ anything below 100% is a bug). Bash results in transcripts were already shortene
 so its column is the proxy's extra. Compare with another ref: `.harness/scripts/compare.sh
 [REF=master] [N=10]` builds REF in a temp worktree, replays the same N newest transcripts with
 both builds (`replay -compare old.json files…`) and shows the `baseline.tsv` diff (fixtures).
+
+Live drift: `make eval-live` runs `testdata/eval/live.yaml` (`run:` cases: real commands in the
+repo, output varies, so no golden/baseline; missing programs skip). A wrong type or a floor
+missed there while the fixture case passes means the tool's output changed shape: refresh the
+fixture from the live output.

@@ -9,6 +9,7 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 ## Commands
 - `make check` — gofmt check, vet, import boundary, tests (must pass before done)
 - `make eval` — token savings and fact retention on `testdata/eval` fixtures (vs `baseline.tsv`)
+- `make eval-live` — the same checks on live commands in this repo (`testdata/eval/live.yaml`): catches tool output drift
 - `make build` → `bin/gascoigne`; `bin/gascoigne components`
 - `bin/gascoigne exec -- <cmd>`, `bin/gascoigne mcp`, `bin/gascoigne mcp-proxy -- <server>`, LLM API proxy in the background server under `/v1/` (base URL http://127.0.0.1:7878: shortens tool results in requests, Read with line numbers kept; `wrap` sets the agent base URL, `install -proxy claude` for good, `GASCOIGNE_PROXY=off`)
 - agents: `bin/gascoigne wrap claude|codex|gemini|opencode|pi [args]` (per run), `install [-g] [agent...]` (for good: project, `-g` user configs; also cursor), `wrap -print <agent>` prints it, `unwrap [agent...]` removes it; hooks call `gascoigne hook <agent>`

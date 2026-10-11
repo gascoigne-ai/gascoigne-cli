@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -44,10 +45,14 @@ type evalCase struct {
 	Unchanged bool `yaml:"unchanged"`
 	// Lossless cases may shrink but lose no error line or artifact (probe.Run).
 	Lossless bool `yaml:"lossless"`
+	// Run is a shell command whose live output replaces File: it catches
+	// tools whose output changed shape. Its output varies, so it has no
+	// golden or baseline; a missing program skips the case.
+	Run string `yaml:"run"`
 }
 
 func (c *evalCase) name() string {
-	return cmp.Or(c.Name, strings.TrimSuffix(c.File, filepath.Ext(c.File)))
+	return cmp.Or(c.Name, strings.TrimSuffix(c.File, filepath.Ext(c.File)), c.Run)
 }
 
 type evalFlags struct {
@@ -113,6 +118,10 @@ func cmdEval(ctx context.Context, args []string) error {
 	var errs, shows []string
 	for _, tc := range cases {
 		r, err := runCase(ctx, svc, pl, dir, &tc, ef.update)
+		if errors.Is(err, errNotInstalled) {
+			fmt.Fprintf(w, "%s\t\t\t\t\t\t\t\tskip: not installed\n", tc.name())
+			continue
+		}
 		if err != nil {
 			return fmt.Errorf("%s: %w", tc.name(), err)
 		}
@@ -120,9 +129,11 @@ func cmdEval(ctx context.Context, args []string) error {
 		outTotal += r.out
 		took += r.took
 		cur := r.baseline()
-		names = append(names, tc.name())
-		next[tc.name()] = cur
-		if old, ok := base[tc.name()]; base != nil && !ef.update {
+		if tc.Run == "" {
+			names = append(names, tc.name())
+			next[tc.name()] = cur
+		}
+		if old, ok := base[tc.name()]; base != nil && !ef.update && tc.Run == "" {
 			if !ok {
 				r.problems = append(r.problems, "not in baseline (rerun with -update)")
 			} else if d := cur.diff(old); d != "" {
@@ -143,7 +154,7 @@ func cmdEval(ctx context.Context, args []string) error {
 	}
 	fmt.Fprintf(w, "total\t\t\t%d\t%d\t%s\t\t%s\t\n", rawTotal, outTotal, mcptool.Percent(rawTotal-outTotal, rawTotal), ms(took))
 	w.Flush()
-	if ef.update {
+	if ef.update && len(names) > 0 {
 		if err := writeBaseline(basePath, names, next); err != nil {
 			return err
 		}
@@ -167,7 +178,7 @@ type caseResult struct {
 }
 
 func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, dir string, tc *evalCase, update bool) (*caseResult, error) {
-	in, err := tc.payload(dir)
+	in, err := tc.payload(ctx, dir)
 	if err != nil {
 		return nil, err
 	}
@@ -221,6 +232,9 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		fail("saved %.1f%% < min %.0f%%", saved, tc.MinSaved)
 	}
 
+	if tc.Run != "" {
+		return r, nil
+	}
 	golden := filepath.Join(dir, "golden", tc.name()+".out")
 	if update {
 		// Unchanged output needs no golden: the fixture is the expectation.
@@ -244,7 +258,13 @@ func sameText(a, b *payload.Payload) bool {
 	return slices.EqualFunc(a.Blocks, b.Blocks, func(x, y payload.Block) bool { return x.Kind == y.Kind && x.Text == y.Text })
 }
 
-func (c *evalCase) payload(dir string) (*payload.Payload, error) {
+// errNotInstalled: a live case's program is missing here.
+var errNotInstalled = errors.New("not installed")
+
+func (c *evalCase) payload(ctx context.Context, dir string) (*payload.Payload, error) {
+	if c.Run != "" {
+		return c.live(ctx)
+	}
 	blocks := c.Blocks
 	if len(blocks) == 0 {
 		blocks = []evalBlock{{c.File, c.Kind}}
@@ -283,6 +303,26 @@ func cmdComponents(_ context.Context, args []string) error {
 		fmt.Fprintf(w, "%s\t%s\t%s\n", f.Kind(), cmp.Or(f.Family(), "-"), f.Type())
 	}
 	return nil
+}
+
+// live runs the case's command in the working directory: stdout and
+// stderr as an agent sees them.
+func (c *evalCase) live(ctx context.Context) (*payload.Payload, error) {
+	out, err := exec.CommandContext(ctx, "sh", "-c", c.Run).CombinedOutput()
+	// A failing command is a case too (test failures, build errors); only
+	// "command not found" (127) or not starting at all is not.
+	exit, failed := errors.AsType[*exec.ExitError](err)
+	if failed && exit.ExitCode() == 127 {
+		return nil, errNotInstalled
+	}
+	if err != nil && !failed {
+		return nil, err
+	}
+	p := &payload.Payload{Blocks: []payload.Block{{Kind: payload.CmdOutput, Text: string(out)}}, Attrs: map[string]string{payload.AttrCmd: c.Run}}
+	for k, v := range c.Attrs {
+		p.Set(k, v)
+	}
+	return p, nil
 }
 
 // lostCell shows lost error lines and artifacts as "errors/artifacts", "-" when none.

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"maps"
 	"path/filepath"
 	"testing"
@@ -35,6 +36,28 @@ func TestBaselineDiff(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.cur.diff(tt.old); got != tt.want {
 				t.Errorf("diff = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestLiveCase(t *testing.T) {
+	tests := []struct {
+		name, run, want string
+		err             error
+	}{
+		{"output", "echo hello", "hello\n", nil},
+		{"failing command is still a case", "echo boom; exit 3", "boom\n", nil},
+		{"missing program skips", "gascoigne-no-such-program-xyz", "", errNotInstalled},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, err := (&evalCase{Run: tt.run}).live(t.Context())
+			if !errors.Is(err, tt.err) {
+				t.Fatalf("err %v, want %v", err, tt.err)
+			}
+			if err == nil && (p.Text() != tt.want || p.Attrs["cmd"] != tt.run) {
+				t.Errorf("text %q cmd %q", p.Text(), p.Attrs["cmd"])
 			}
 		})
 	}
