@@ -11,6 +11,7 @@ import (
 	"slices"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/lukaszb/gascoigne/compress/probe"
 	"github.com/lukaszb/gascoigne/extension/ledger"
@@ -106,8 +107,9 @@ func cmdEval(ctx context.Context, args []string) error {
 	next := map[string]baseline{}
 	var names []string
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "case\ttype\troute\traw tok\tout tok\tsaved\tlost\tcheck")
+	fmt.Fprintln(w, "case\ttype\troute\traw tok\tout tok\tsaved\tlost\tms\tcheck")
 	var rawTotal, outTotal int
+	var took time.Duration
 	var errs, shows []string
 	for _, tc := range cases {
 		r, err := runCase(ctx, svc, pl, dir, &tc, ef.update)
@@ -116,6 +118,7 @@ func cmdEval(ctx context.Context, args []string) error {
 		}
 		rawTotal += r.raw
 		outTotal += r.out
+		took += r.took
 		cur := r.baseline()
 		names = append(names, tc.name())
 		next[tc.name()] = cur
@@ -133,12 +136,12 @@ func cmdEval(ctx context.Context, args []string) error {
 				errs = append(errs, tc.name()+": "+p)
 			}
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n", tc.name(), r.types, r.route, r.raw, r.out, mcptool.Percent(r.raw-r.out, r.raw), lostCell(r.probes), check)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\n", tc.name(), r.types, r.route, r.raw, r.out, mcptool.Percent(r.raw-r.out, r.raw), lostCell(r.probes), ms(r.took), check)
 		if ef.show != "" && strings.Contains(tc.name(), ef.show) {
 			shows = append(shows, fmt.Sprintf("=== %s ===\n%s", tc.name(), r.text))
 		}
 	}
-	fmt.Fprintf(w, "total\t\t\t%d\t%d\t%s\t\n", rawTotal, outTotal, mcptool.Percent(rawTotal-outTotal, rawTotal))
+	fmt.Fprintf(w, "total\t\t\t%d\t%d\t%s\t\t%s\t\n", rawTotal, outTotal, mcptool.Percent(rawTotal-outTotal, rawTotal), ms(took))
 	w.Flush()
 	if ef.update {
 		if err := writeBaseline(basePath, names, next); err != nil {
@@ -158,6 +161,7 @@ func cmdEval(ctx context.Context, args []string) error {
 type caseResult struct {
 	types, route, text string
 	raw, out           int
+	took               time.Duration
 	probes             probe.Report
 	problems           []string
 }
@@ -167,10 +171,12 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 	if err != nil {
 		return nil, err
 	}
+	start := time.Now()
 	out, err := pl.Optimize(ctx, in)
 	if err != nil {
 		return nil, err
 	}
+	took := time.Since(start)
 	again, err := pl.Optimize(ctx, in)
 	if err != nil {
 		return nil, err
@@ -181,6 +187,7 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		text:  out.Text(),
 		raw:   in.Tokens(),
 		out:   out.Tokens(),
+		took:  took,
 	}
 	r.probes = probe.Run(in.Text(), r.text)
 	fail := func(format string, args ...any) { r.problems = append(r.problems, fmt.Sprintf(format, args...)) }
@@ -342,3 +349,7 @@ func writeBaseline(path string, names []string, m map[string]baseline) error {
 	}
 	return os.WriteFile(path, []byte(sb.String()), 0o644)
 }
+
+// ms shows a duration in milliseconds: wall time, so it varies run to run
+// and stays out of the baseline.
+func ms(d time.Duration) string { return fmt.Sprintf("%.1f", float64(d)/float64(time.Millisecond)) }
