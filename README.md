@@ -37,17 +37,17 @@ on (failures, diffs, errors, anomalies, summaries) and folds the rest.
 
 | Output | Before | After | Saved |
 |---|--:|--:|--:|
-| `go test -json ./...` | 11,503 | 124 | **98.9%** |
-| `npm install --verbose` | 18,666 | 52 | **99.7%** |
-| nginx access log | 34,382 | 215 | **99.4%** |
-| `aws ec2 describe-instances` | 39,516 | 2,480 | **93.7%** |
-| `kubectl logs` (JSON) | 13,459 | 1,351 | **90.0%** |
-| `terraform plan` | 10,000 | 1,311 | **86.9%** |
-| `kubectl get pods -o yaml` | 34,682 | 8,273 | **76.1%** |
-| `git log` | 3,086 | 845 | **72.6%** |
-| `cat lib/benchmark.rb` (comments) | 4,778 | 2,096 | **56.1%** |
+| `npm install --verbose` | 24,655 | 76 | **99.7%** |
+| nginx access log | 73,148 | 436 | **99.4%** |
+| `go test -json ./...` | 16,208 | 175 | **98.9%** |
+| `kubectl logs` (JSON) | 23,171 | 2,156 | **90.7%** |
+| `aws ec2 describe-instances` | 33,835 | 4,301 | **87.3%** |
+| `terraform plan` | 10,663 | 1,697 | **84.1%** |
+| `kubectl get pods -o yaml` | 37,330 | 9,609 | **74.3%** |
+| `git log` | 4,173 | 1,151 | **72.4%** |
+| `cat lib/benchmark.rb` (comments) | 6,390 | 2,800 | **56.2%** |
 
-<sub>Tokens on the eval fixtures in <code>testdata/eval</code> · <code>make eval</code></sub>
+<sub>Tokens (BPE-style estimate, within ~10% of a real tokenizer) on the eval fixtures in <code>testdata/eval</code> · <code>make eval</code> · what they are worth per model: <a href="docs/cost.md">cost</a></sub>
 
 ## Install
 
@@ -65,16 +65,18 @@ kubectl get pods -o yaml | gascoigne run # optimize anything on stdin
 gascoigne raw <id>                       # the untouched original, byte-exact
 gascoigne exec -raw -- git diff          # skip optimization for one run
 gascoigne gain                           # where the savings come from
-gascoigne dashboard                      # live runs and savings at http://127.0.0.1:7878
+gascoigne dashboard                      # live runs, savings, original vs optimized at http://127.0.0.1:7878
+gascoigne tokens file.go                 # count it per tokenizer family and price it
 ```
 
-**Agents** — one command registers gascoigne (shell output + MCP server) for a run. Claude,
-Cursor and pi route known shell commands through `gascoigne exec`; Codex gets its shell
-output optimized after the run:
+**Agents** — one command registers gascoigne for a run: shell commands go through
+`gascoigne exec`, results the rewrite cannot reach (other MCP servers, piped commands) are
+replaced after the tool ran, and an LLM API proxy in the background server shortens what the
+agent's own tools return (Claude's Read included, line numbers kept):
 
 ```sh
 gascoigne wrap claude                    # also: codex, gemini, opencode, pi
-gascoigne install                        # register for good in this project (-g: every project)
+gascoigne install                        # register for good in this project (-g: every project, -proxy: LLM proxy too)
 gascoigne unwrap                         # deregister from every agent
 ```
 
@@ -107,8 +109,8 @@ Output is detected as `family/dialect` and handled by one engine per family.
 ## Guarantees
 
 - **Lossless by retrieval** — originals go to a local sqlite ledger first; every optimized
-  output carries its `raw` id.
-- **Deterministic** — same input, same output. Prompt caches stay warm.
+  output carries its `raw` id. Output that would save less than its own hint costs is left as is.
+- **Deterministic** — same input, same output. Prompt caches stay warm, through the LLM proxy too.
 - **Edit-safe source** — source files only lose whole lines (comments, outlined bodies); kept
   lines are byte-exact and every gap names its original lines (`// … comments L12-30`).
 - **Self-correcting** — sources whose originals agents keep fetching get bypassed next time.
@@ -130,7 +132,7 @@ by YAML (`configs/default.yaml`). Details in [`.harness/architecture.md`](.harne
 Guides and reference live in [`docs/`](docs/README.md): [getting started](docs/getting-started.md),
 [agents](docs/agents.md), [MCP](docs/mcp.md), [CLI](docs/cli.md),
 [configuration](docs/configuration.md), [families](docs/families.md),
-[source files](docs/source-files.md), [ledger, gain and dashboard](docs/ledger.md),
+[source files](docs/source-files.md), [ledger, gain and dashboard](docs/ledger.md), [cost](docs/cost.md),
 [architecture](docs/architecture.md), [extending](docs/extending.md).
 
 ## Develop

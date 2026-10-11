@@ -76,10 +76,12 @@ gascoigne gain -since 7d -by day
 
 Or watch it live in the browser at http://127.0.0.1:7878. The first gascoigne command
 started a small background server for it; `gascoigne dashboard` prints the address and
-starts it if needed, `gascoigne server stop` stops it.
+starts it if needed, `gascoigne server stop` stops it. It exits by itself after 30 minutes
+without a request and the next command starts it again.
 
 Every run appears as it happens, with its savings, content type and, when it was not
-optimized, the reason. Click a run to see its optimizer steps and the original.
+optimized, the reason. Click a run to compare the original with what the agent read, side by
+side, and see each optimizer's step.
 
 ## Use it with an agent
 
@@ -88,8 +90,10 @@ gascoigne wrap claude      # or: codex, gemini, opencode, pi
 ```
 
 This starts the agent with gascoigne registered for that run only: shell commands
-go through `gascoigne exec`, and the MCP server adds `fetch`, `compress`, `retrieve` and
-`stats`. No config file is touched. See [Agents](agents.md).
+go through `gascoigne exec`, other MCP servers' results are optimized, the agent's API traffic
+goes through the LLM proxy in the background server (Claude's Read is shortened too, line
+numbers kept), and the MCP server adds `fetch`, `compress`, `retrieve` and `stats`. No config
+file is touched. `gascoigne install` registers it for good. See [Agents](agents.md).
 
 ## Where things live
 

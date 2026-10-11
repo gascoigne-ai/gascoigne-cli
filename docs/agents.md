@@ -107,6 +107,9 @@ dashboard):
   server replaces itself with a new build, it first waits until no proxied request is in
   flight. With `install -proxy`, a stopped server stops the agent until the next session
   starts it.
+- The server exits after 30 minutes without a request (`GASCOIGNE_SERVER_IDLE`). A
+  UserPromptSubmit hook (claude, codex; opencode's `chat.message`) starts it again before the
+  agent's next API call, so your next prompt after a break finds the proxy up.
 
 ### Claude Code: built-in search and fetch tools
 

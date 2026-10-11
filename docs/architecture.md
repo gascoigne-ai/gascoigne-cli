@@ -121,18 +121,24 @@ engine needs lives in public libraries under `compress/`:
 | `compress/jsonx` | the JSON crusher (data, cloud, web) |
 | `compress/yamlx` | YAML prune rules (k8s, cloud) |
 | `compress/htmlx` | HTML to markdown (web, MCP fetch) |
+| `compress/watch` | watch-mode build cycles (build engine, `exec -watch`) |
+
+Other public libraries: `detect` (content types), `mcptool` (MCP tools and reports), `cost`
+(tokenizer families and prices), `lazyre` (package-level patterns compiled on first use, so a
+short CLI run never pays for them), `tokens` (the BPE-style token estimate).
 
 ## Layout
 
 ```
 component/  payload/  tokens/        public contracts: what component authors import
 detect/  compress/  mcptool/         public libraries
+cost/  lazyre/
 receiver/  filter/  exporter/        components, one package each
 extension/
 optimizer/<family>/<name>optimizer   optimizers grouped by family
 internal/config  router  service     engine: YAML, routing, pipeline execution
 internal/registry                    the built-in component list
-cmd/gascoigne                        CLI, agent integration, dashboard
+cmd/gascoigne                        CLI, agent integration, background server (dashboard, LLM proxy)
 configs/default.yaml                 embedded default config
 ```
 
@@ -146,7 +152,23 @@ each could become its own Go module. `make imports` enforces it.
 - **Deterministic.** Same input, same output. No timestamps or random ids in optimized text,
   so prompt caches stay warm and evals are stable.
 - **Extend by adding components**, never by special-casing one inside the core.
+- **Worth the hint.** Output that saves fewer tokens than its retrieve hint costs (20) is
+  left as is.
 - **Errors fall back to the original.** An optimizer that fails returns an error; the core
   returns the original and records the failure.
 - **Explain skips.** A filter that bypasses, or an optimizer that leaves its blocks alone on
   purpose, sets `skip_reason` with a factual reason (numbers, thresholds), which `gain` shows.
+
+## Background server
+
+One per user on `127.0.0.1:7878`, started detached by the first command that needs it:
+
+- **Dashboard** — the ledger live, run details with original and optimized side by side.
+- **Warm pipelines** — `exec`, `run` and the codex hook hand their payloads to
+  `POST /api/optimize` instead of building the pipeline themselves; with no server (or
+  `GASCOIGNE_SERVER=off`) they build it locally.
+- **LLM API proxy** — `/v1/` forwards agents' API requests, shortening tool results on the way
+  (`receiver/httpproxyreceiver`, an `http.Handler` the server mounts). Each result is transformed
+  once and cached by content hash, so the provider's prompt cache keeps hitting.
+- **Lifecycle** — replaces itself when its binary changes (after in-flight proxied requests
+  finish), exits after 30 minutes idle; commands and agents' prompt hooks start it again.

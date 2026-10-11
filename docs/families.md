@@ -51,7 +51,7 @@ ok 3 packages in example.com/shop: api, cart, util
 52 tests passed
 ```
 
-`go test -json`: 11,503 → 124 tokens (98.9%). `go test -v` with a failure: 1,488 → 132.
+`go test -json`: 16,208 → 175 tokens (98.9%). `go test -v` with a failure: 2,086 → 187.
 
 ## build
 
@@ -75,7 +75,7 @@ their result lines (`Found 3 errors…`). With `exec -watch` each rebuild is pri
 | `build/bundler` | `vite`, `webpack`, `rollup`, `esbuild`, `next build`, `parcel` |
 | `build/docker` | `docker build`, `docker buildx build`, `podman build`, `docker compose build` |
 
-`tsc` with many errors: 1,268 → 381 (70%). webpack warnings: 1,817 → 76 (95.8%).
+`tsc` with many errors: 1,910 → 722 (62.2%). webpack warnings: 2,744 → 104 (96.2%).
 
 ## pkg
 
@@ -89,7 +89,7 @@ removed or failed kept.
 | `pkg/go-mod`, `pkg/cargo` | `go mod`, `go get`; `cargo add/update/fetch/install` |
 | `pkg/os` | `apt`, `apt-get`, `dnf`, `yum`, `brew`, `pacman`, `apk`, `zypper`, … |
 
-`pip install`: 1,238 → 108 (91.3%). `npm install --verbose`: 18,666 → 52.
+`pip install`: 1,895 → 159 (91.6%). `npm install --verbose`: 24,655 → 76.
 
 ## task
 
@@ -104,7 +104,7 @@ composed: their content goes to the test, build or pkg engine.
 | `task/compose` | `docker compose up` |
 | `task/ci` | `gh run view --log`, `--log-failed` |
 
-`docker compose up`: 1,959 → 133 (93.2%). CI log: 2,452 → 195 (92%).
+`docker compose up`: 3,386 → 188 (94.4%). CI log: 4,116 → 275 (93.3%).
 
 ## vcs
 
@@ -117,7 +117,7 @@ composed: their content goes to the test, build or pkg engine.
 | `vcs/git-branch`, `vcs/git-remote` | `git branch`; `git push/pull/fetch/clone` | mirrored remote branches and transfer progress dropped |
 | `vcs/gh-list`, `vcs/gh-view` | `gh pr list`, `gh issue list`, …; `gh pr view` | lists as tables |
 
-`git log`: 3,086 → 845 (72.6%).
+`git log`: 4,173 → 1,151 (72.4%).
 
 ## search
 
@@ -161,7 +161,7 @@ query matches and both ends stay.
 | `table/docker` | `docker ps/images/volume ls/network ls`, `podman ps` |
 | `table/aligned`, `table/boxed` | any aligned or box-drawn table (sniffed) |
 
-`ps aux`: 7,409 → 718 (90.3%). `lsof`: 9,620 → 799 (91.7%).
+`ps aux`: 12,762 → 1,473 (88.5%). `lsof`: 10,471 → 1,385 (86.8%).
 
 ## data
 
@@ -206,7 +206,7 @@ replicas shows all of them (`A+B+C| … (×3)`).
 | `log/access` | `access.log`, sniffing |
 | `log/cloudwatch`, `log/gcp`, `log/azure` | `aws logs …`; `gcloud logging read`; `az monitor …` |
 
-nginx access log: 34,382 → 215 (99.4%). `kubectl logs` with JSON lines: 13,459 → 1,351. `kubectl logs --prefix`, three replicas: 5,537 → 523.
+nginx access log: 73,148 → 436 (99.4%). `kubectl logs` with JSON lines: 23,171 → 2,156. `kubectl logs --prefix`, three replicas: 10,493 → 799.
 
 ## doc
 
@@ -231,7 +231,7 @@ their prefixes, so `go1.27` matches `go1.27.2`.
 | `web/html` | `*.html`, `text/html` | converted to markdown (navigation, scripts, styles and layout dropped), then the `doc` engine |
 | `web/http` | `curl -i`/`-v` output (sniffed) | transport headers and TLS chatter dropped, body by its type |
 
-`curl -v https://go.dev`: 12,815 → 3,426 (73.3%). A go.dev blog page: 10,541 → 2,284.
+`curl -v https://go.dev`: 13,565 → 3,322 (75.5%). A go.dev blog page: 10,722 → 2,020.
 
 ## db
 
@@ -243,7 +243,7 @@ their prefixes, so `go1.27` matches `go1.27.2`.
 | `db/mongosh` | `mongosh`, `mongo` | documents as JSON rows |
 | `db/migrate` | `prisma migrate`, `alembic`, `goose`, `flyway`, `dbmate`, `atlas migrate` | repeated step lines folded with counts, failures kept |
 
-`redis-cli keys`: 4,030 → 62 (98.5%).
+`redis-cli keys`: 8,351 → 101 (98.8%).
 
 ## k8s
 
@@ -257,7 +257,7 @@ noise. Lists keep unhealthy items.
 | `k8s/describe`, `k8s/events` | `kubectl describe`; `kubectl get events`, `kubectl events` |
 | `k8s/helm` | `helm list/status/history/install/upgrade/rollback` |
 
-`kubectl get pods -o yaml`: 34,682 → 8,273 (76.1%).
+`kubectl get pods -o yaml`: 37,330 → 9,609 (74.3%).
 
 ## infra
 
@@ -268,7 +268,7 @@ noise. Lists keep unhealthy items.
 | `infra/ansible` | `ansible-playbook`, `ansible` | quiet tasks counted, failures and recap kept |
 | `infra/helm-diff` | `helm diff` | changes with `diff_context` lines |
 
-`terraform plan`: 10,000 → 1,311 (86.9%).
+`terraform plan`: 10,663 → 1,697 (84.1%).
 
 ## cloud
 
@@ -283,7 +283,7 @@ engine; S3 listings summarized.
 | `cloud/gcp` | `gcloud`, `gsutil`, `bq` |
 | `cloud/azure` | `az`, `azd` |
 
-`aws ec2 describe-instances`: 39,516 → 2,480 (93.7%). `aws s3 ls --recursive`: 22,630 → 166.
+`aws ec2 describe-instances`: 33,835 → 4,301 (87.3%). `aws s3 ls --recursive`: 41,148 → 298.
 
 ## Composition
 
