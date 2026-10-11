@@ -118,6 +118,13 @@ func init() {
 				"URLs, hashes) and key=number pairs still readable, per family, and the runs that lost most.",
 			examples: []string{"gascoigne probe", "gascoigne probe -since 7d -worst 20", "gascoigne probe -json"},
 			run:      cmdProbe},
+		{name: "prompts", args: "[flags] [dir]", group: groupSavings,
+			summary: "list the instruction text an agent sends with every request, and its cost",
+			about: "Reads the instruction files an agent loads for dir (CLAUDE.md chain with @imports, auto\n" +
+				"memory, skill and subagent descriptions; codex: AGENTS.md), counts and prices them, and\n" +
+				"reports large imports, lines sent twice and long descriptions.",
+			examples: []string{"gascoigne prompts", "gascoigne prompts -agent codex -json"},
+			run:      cmdPrompts},
 		{name: "replay", args: "[flags]", group: groupSavings,
 			summary: "replay recorded agent sessions through the LLM API proxy",
 			about: "Rebuilds the requests of Claude Code transcripts and sends them through the proxy against a\n" +
