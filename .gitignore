@@ -2,3 +2,5 @@
 .claude/
 coverage.out
 .harness/logs/
+/gascoigne
+*.test
