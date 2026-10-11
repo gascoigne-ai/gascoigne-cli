@@ -25,24 +25,60 @@ keeps it on for the project.
 
 ## See it work
 
-```console
-$ gascoigne exec -- terraform plan
-  # module.queues.aws_sqs_queue.this["q00"] will be created
-  + resource "aws_sqs_queue" "this" {
-        (known after apply: arn, id, policy, url, …)
-      + name                       = "shop-q00"
-      + visibility_timeout_seconds = 30
-    }
+Your agent runs the tests and one hangs. Go prints a 421-line goroutine dump (7,478 tokens)
+when the 10-minute timeout fires. Here is what the agent reads instead:
 
-  # module.queues.aws_sqs_queue.this["q01"] will be created (like above)
-  # module.queues.aws_sqs_queue.this["q02"] will be created (like above)
-  …
-Plan: 25 to add, 2 to change, 1 to destroy.
-[gascoigne: optimized 10000→1311 tokens · full: gascoigne raw af6b9bf6]
+```console
+$ gascoigne exec -- go test ./sync/
+[paths: §1=/home/user/src/shop/sync]
+panic: test timed out after 10m0s
+	running tests:
+		TestSyncOrders (10m0s)
+
+goroutine 52 [running]:
+
+goroutine 1 [chan receive, 9 minutes]:
+
+goroutine 18 [select, 9 minutes]:
+example.com/shop/sync.(*Syncer).Run(0xc0001c4000, {0x71c5a8, 0xc0001b6000})
+	§1/syncer.go:74 +0x1b8
+example.com/shop/sync.TestSyncOrders(0xc0001a69c0)
+	§1/syncer_test.go:31 +0x2f1
+
+goroutine 60 [chan receive, 9 minutes]: +39 more on this stack: 61 62 63 64 65 66 67 68 69 70 …29 more
+example.com/shop/sync.(*worker).loop(0xc000200000)
+	§1/worker.go:52 +0x7c
+created by example.com/shop/sync.(*Syncer).start in goroutine 18
+	§1/syncer.go:41 +0x9e
+
+goroutine 120 [IO wait, 9 minutes]: +11 more on this stack: 121 122 123 124 125 126 127 128 129 130 …1 more
+example.com/shop/sync.(*client).readLoop(0xc0001d2000)
+	§1/client.go:118 +0x8e
+created by example.com/shop/sync.dial in goroutine 18
+	§1/client.go:60 +0x1b5
+
+… 13 standard library frames omitted
+FAIL	example.com/shop/sync	600.021s
+[gascoigne: optimized 7478→388 tokens · full: gascoigne raw 17415a92]
 ```
 
-The last line is the deal: 87% fewer tokens, and `gascoigne raw af6b9bf6` prints the
-untouched original, byte for byte.
+**95% fewer tokens, and the diagnosis is right there:** the test is stuck in `Syncer.Run`,
+40 workers wait on a channel receive, 12 clients on network reads. Long paths became `§1`,
+identical stacks collapsed, standard-library frames were counted, not printed.
+
+Nothing is thrown away. The original sits in a local ledger, and the agent reads back just what
+it needs:
+
+```console
+$ gascoigne raw 17415a92 -grep 'goroutine 7[0-9] ' -C 1
+95-
+96:goroutine 70 [chan receive, 9 minutes]:
+117-example.com/shop/sync.(*worker).loop(0xc00020a000)
+…
+```
+
+And after the fix, the re-run shows only what changed: failures already seen this session
+become one line, `[↑ 5 lines as in the previous run, from "--- FAIL: TestParse"]`.
 
 ### The dashboard
 
