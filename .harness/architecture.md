@@ -101,6 +101,11 @@ such block; greedy by bytes saved, kept only when ≥ `min_saving` tokens; idemp
 `truncate` (`optimizer/core/truncateoptimizer`, after `paths`): blocks still > `max_tokens` keep
 head/tail token budgets + `max_errors` error lines from the middle, long lines cut; `skip`
 fs/code, data, k8s, cloud.
+`compress/probe` measures retention: error lines, artifacts (paths, URLs, hashes, UUIDs) and
+`key=number` pairs of an original still readable in the output (regrouping, path legends and
+short hashes count as kept). `gascoigne eval` shows lost counts per case and pins them with out
+tokens in `testdata/eval/baseline.tsv` (any change fails until `-update`); `gascoigne probe`
+runs it over ledger originals vs stored outputs (proxy folds skipped), per family + worst runs.
 `compress/compose` sniffs a section and calls the test/build/pkg engine: used by `task` and docker
 builds. `compress/rows` samples records (errors, anomalies, change points, query, ends).
 Families are what `gain -by family` reports; `gain -by dialect` splits them.

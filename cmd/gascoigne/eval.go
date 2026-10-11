@@ -12,6 +12,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/lukaszb/gascoigne/compress/probe"
 	"github.com/lukaszb/gascoigne/extension/ledger"
 	"github.com/lukaszb/gascoigne/internal/config"
 	"github.com/lukaszb/gascoigne/internal/registry"
@@ -93,8 +94,15 @@ func cmdEval(ctx context.Context, args []string) error {
 	}
 
 	dir := filepath.Dir(ef.cases)
+	basePath := filepath.Join(dir, "baseline.tsv")
+	base, err := readBaseline(basePath)
+	if err != nil {
+		return err
+	}
+	next := map[string]baseline{}
+	var names []string
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "case\ttype\troute\traw tok\tout tok\tsaved\tcheck")
+	fmt.Fprintln(w, "case\ttype\troute\traw tok\tout tok\tsaved\tlost\tcheck")
 	var rawTotal, outTotal int
 	var errs, shows []string
 	for _, tc := range cases {
@@ -104,6 +112,16 @@ func cmdEval(ctx context.Context, args []string) error {
 		}
 		rawTotal += r.raw
 		outTotal += r.out
+		cur := r.baseline()
+		names = append(names, tc.name())
+		next[tc.name()] = cur
+		if old, ok := base[tc.name()]; base != nil && !ef.update {
+			if !ok {
+				r.problems = append(r.problems, "not in baseline (rerun with -update)")
+			} else if d := cur.diff(old); d != "" {
+				r.problems = append(r.problems, "baseline: "+d+" (review, then rerun with -update)")
+			}
+		}
 		check := "ok"
 		if len(r.problems) > 0 {
 			check = "FAIL"
@@ -111,13 +129,18 @@ func cmdEval(ctx context.Context, args []string) error {
 				errs = append(errs, tc.name()+": "+p)
 			}
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%d\t%s\t%s\n", tc.name(), r.types, r.route, r.raw, r.out, mcptool.Percent(r.raw-r.out, r.raw), check)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n", tc.name(), r.types, r.route, r.raw, r.out, mcptool.Percent(r.raw-r.out, r.raw), lostCell(r.probes), check)
 		if ef.show != "" && strings.Contains(tc.name(), ef.show) {
 			shows = append(shows, fmt.Sprintf("=== %s ===\n%s", tc.name(), r.text))
 		}
 	}
 	fmt.Fprintf(w, "total\t\t\t%d\t%d\t%s\t\n", rawTotal, outTotal, mcptool.Percent(rawTotal-outTotal, rawTotal))
 	w.Flush()
+	if ef.update {
+		if err := writeBaseline(basePath, names, next); err != nil {
+			return err
+		}
+	}
 	for _, s := range shows {
 		fmt.Println(s)
 	}
@@ -131,6 +154,7 @@ func cmdEval(ctx context.Context, args []string) error {
 type caseResult struct {
 	types, route, text string
 	raw, out           int
+	probes             probe.Report
 	problems           []string
 }
 
@@ -154,6 +178,7 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		raw:   in.Tokens(),
 		out:   out.Tokens(),
 	}
+	r.probes = probe.Run(in.Text(), r.text)
 	fail := func(format string, args ...any) { r.problems = append(r.problems, fmt.Sprintf(format, args...)) }
 	if again.Text() != r.text {
 		fail("nondeterministic: two runs differ")
@@ -238,4 +263,69 @@ func cmdComponents(_ context.Context, args []string) error {
 		fmt.Fprintf(w, "%s\t%s\t%s\n", f.Kind(), cmp.Or(f.Family(), "-"), f.Type())
 	}
 	return nil
+}
+
+// lostCell shows lost error lines and artifacts as "errors/artifacts", "-" when none.
+func lostCell(r probe.Report) string {
+	if len(r.Errors.Lost)+len(r.Artifacts.Lost) == 0 {
+		return "-"
+	}
+	return fmt.Sprintf("%d/%d", len(r.Errors.Lost), len(r.Artifacts.Lost))
+}
+
+// baseline is what a case measured when last accepted: optimized tokens and
+// facts lost (probe.Run). Kept in baseline.tsv next to the cases, so a change
+// in savings or retention shows in the diff and fails until accepted.
+type baseline struct{ out, errors, artifacts int }
+
+func (r *caseResult) baseline() baseline {
+	return baseline{r.out, len(r.probes.Errors.Lost), len(r.probes.Artifacts.Lost)}
+}
+
+// diff describes what changed since old, "" when nothing did.
+func (b baseline) diff(old baseline) string {
+	var d []string
+	for _, f := range []struct {
+		what     string
+		cur, old int
+	}{{"out tokens", b.out, old.out}, {"lost errors", b.errors, old.errors}, {"lost artifacts", b.artifacts, old.artifacts}} {
+		if f.cur != f.old {
+			d = append(d, fmt.Sprintf("%s %d→%d", f.what, f.old, f.cur))
+		}
+	}
+	return strings.Join(d, ", ")
+}
+
+// readBaseline returns nil without error when there is no baseline file.
+func readBaseline(path string) (map[string]baseline, error) {
+	data, err := os.ReadFile(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	m := map[string]baseline{}
+	for i, l := range strings.Split(string(data), "\n") {
+		if l == "" || strings.HasPrefix(l, "#") {
+			continue
+		}
+		var name string
+		var b baseline
+		if _, err := fmt.Sscanf(l, "%s %d %d %d", &name, &b.out, &b.errors, &b.artifacts); err != nil {
+			return nil, fmt.Errorf("%s:%d: %w", path, i+1, err)
+		}
+		m[name] = b
+	}
+	return m, nil
+}
+
+func writeBaseline(path string, names []string, m map[string]baseline) error {
+	var sb strings.Builder
+	sb.WriteString("# case\tout tokens\tlost errors\tlost artifacts (gascoigne eval -update)\n")
+	for _, n := range names {
+		b := m[n]
+		fmt.Fprintf(&sb, "%s\t%d\t%d\t%d\n", n, b.out, b.errors, b.artifacts)
+	}
+	return os.WriteFile(path, []byte(sb.String()), 0o644)
 }

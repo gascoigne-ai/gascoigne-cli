@@ -8,13 +8,14 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 
 ## Commands
 - `make check` — gofmt check, vet, import boundary, tests (must pass before done)
-- `make eval` — token savings on `testdata/eval` fixtures
+- `make eval` — token savings and fact retention on `testdata/eval` fixtures (vs `baseline.tsv`)
 - `make build` → `bin/gascoigne`; `bin/gascoigne components`
 - `bin/gascoigne exec -- <cmd>`, `bin/gascoigne mcp`, `bin/gascoigne mcp-proxy -- <server>`, LLM API proxy in the background server under `/v1/` (base URL http://127.0.0.1:7878: shortens tool results in requests, Read with line numbers kept; `wrap` sets the agent base URL, `install -proxy claude` for good, `GASCOIGNE_PROXY=off`)
 - agents: `bin/gascoigne wrap claude|codex|gemini|opencode|pi [args]` (per run), `install [-g] [agent...]` (for good: project, `-g` user configs; also cursor), `wrap -print <agent>` prints it, `unwrap [agent...]` removes it; hooks call `gascoigne hook <agent>`
 - live view: background server auto-started by exec/hook/mcp/wrap → http://127.0.0.1:7878; `server status|stop|start|run`, `dashboard` prints the URL, `GASCOIGNE_SERVER=off`; exec/run/codex hook optimize through it (`POST /api/optimize`, warm pipeline), else build the pipeline locally; it restarts itself when its binary changes and exits after 30m idle (`server run -idle`, `GASCOIGNE_SERVER_IDLE`, 0 never; health checks are not activity), restarted by the next command or agent prompt (UserPromptSubmit hook: claude, codex; opencode `chat.message`)
 - `bin/gascoigne reset [-session|-agent|-since]` clears savings stats; `-all` also originals and failures
 - `bin/gascoigne tokens [file]` counts text per tokenizer family and prices it; `gain` has a cost section (`cost/`, docs/cost.md); hooks record the model from the agent transcript
+- `bin/gascoigne probe [-since 7d]` checks recorded runs for error lines/artifacts their output lost
 - `bin/gascoigne flush [-older 7d]` deletes stored originals (gzip in `raw`) and vacuums
 - savings: `bin/gascoigne gain [-session ID] [-json]` overview; `gain -by day|week|month|agent|model|session|command|optimizer|family|dialect|outcome|reason`, filters `-agent -model -session -since 7d`
 - per agent/run tuning: `-set path=yaml`, `-only`, `-disable` (or `GASCOIGNE_SET/ONLY/DISABLE`); `bin/gascoigne config` shows the result

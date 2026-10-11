@@ -110,6 +110,12 @@ func init() {
 			about:    "Deletes stored originals and vacuums the ledger. Runs and savings stay.",
 			examples: []string{"gascoigne flush", "gascoigne flush -older 2h"},
 			run:      cmdFlush},
+		{name: "probe", args: "[flags]", group: groupSavings,
+			summary: "check recorded runs for error lines and artifacts their output lost",
+			about: "Compares stored originals with their optimized output: error lines, artifacts (paths,\n" +
+				"URLs, hashes) and key=number pairs still readable, per family, and the runs that lost most.",
+			examples: []string{"gascoigne probe", "gascoigne probe -since 7d -worst 20", "gascoigne probe -json"},
+			run:      cmdProbe},
 		{name: "tokens", args: "[-model list] [file]", group: groupSavings,
 			summary: "count text as each model family does, and price it",
 			about: "Counts a file (or stdin) with every tokenizer family gascoigne knows, then prices one\n" +
