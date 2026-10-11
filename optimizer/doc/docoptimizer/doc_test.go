@@ -132,3 +132,17 @@ func TestHugeBestSectionKeepsItsHead(t *testing.T) {
 		}
 	}
 }
+
+// An article under one heading is one section over the budget: without a
+// query it used to keep only its title.
+func TestOneHugeSectionKeepsItsHead(t *testing.T) {
+	filler := strings.Repeat("lorem ipsum dolor sit amet consectetur\n", 200)
+	in := "# Article title\nFirst paragraph of the story.\n" + filler + "Last paragraph.\n"
+	got := compress.Join(sections(compress.Lines(in), "", 200))
+	if !strings.Contains(got, "# Article title\nFirst paragraph of the story.\nlorem") || !strings.Contains(got, "lines omitted") {
+		t.Fatalf("want the head of the article:\n%s", got)
+	}
+	if strings.Contains(got, "Last paragraph.") {
+		t.Fatalf("over budget, the tail should go:\n%s", got)
+	}
+}

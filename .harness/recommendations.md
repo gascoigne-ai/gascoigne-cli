@@ -11,6 +11,11 @@ their record is git history.
 - Usage: split 1h vs 5-minute cache writes (Anthropic `cache_creation.ephemeral_1h_input_tokens`)
   so `gain` prices 1h writes right; compare measured input with tokens saved per agent.
 
+- Web pages: article benchmark (`.harness/scripts/html-bench.sh`, 181 pages) at recall 98.3%,
+  precision 59%. Misses: mega-menus written as plain link lists (not `<nav>`) fill the doc
+  budget before the story (forbes, gov.br pages); precision is lost to the same menus, share
+  bars and footers outside `<footer>`. Link-dense blocks could fold like `<nav>`.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Generic multi-line repeat folding: the log engine already folds repeated traces; after the

@@ -24,7 +24,8 @@ type part struct {
 // sections fits markdown into a token budget by whole sections: the intro,
 // then sections matching the query (best first), then the rest in page order
 // where they fit. A best match too big for what is left keeps its head, so a
-// page that is one huge section still answers the query. Dropped sections
+// page that is one huge section still answers the query; without one, such a
+// page keeps its head when whole sections would leave most of the budget unused. Dropped sections
 // keep their heading when it is one of the page's top two levels, so the
 // outline stays readable; the rest of what was dropped becomes
 // "… N lines omitted".
@@ -57,6 +58,17 @@ func sections(lines []string, query string, budget int) []string {
 		if keep[i] == 0 && used+s.tokens <= budget {
 			take(i)
 			used += s.tokens
+		}
+	}
+	// Whole sections leaving most of the budget unused (an article under one
+	// heading is a single section over it): the first one left out keeps
+	// its head with the rest.
+	if used < budget/2 {
+		for i := 1; i < len(secs); i++ {
+			if keep[i] == 0 {
+				keep[i] = head(secs[i], budget-used)
+				break
+			}
 		}
 	}
 	return render(secs, keep)
