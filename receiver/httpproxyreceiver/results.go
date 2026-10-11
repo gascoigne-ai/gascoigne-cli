@@ -28,9 +28,23 @@ var hintRe = lazyre.New(`\[(gascoigne: )?optimized \d+→\d+ tokens · full: `)
 // result returns the text the model should get for one tool result; the
 // same input always yields the same output, from the cache once seen.
 func (r *Receiver) result(ctx context.Context, c call, text string, m meta) string {
-	if strings.TrimSpace(text) == "" || slices.Contains(r.cfg.Skip, c.name) || hintRe.MatchString(text) {
-		return text
+	skip := slices.Contains(r.cfg.Skip, c.name)
+	out := text
+	if strings.TrimSpace(text) != "" && !skip && !hintRe.MatchString(text) {
+		out = r.shorten(ctx, c, text, m)
 	}
+	if m.folder == nil {
+		return out
+	}
+	folded, ok := m.folder.fold(label(c), out, !skip)
+	if !ok {
+		return out
+	}
+	return r.keep(ctx, c, out, folded, m)
+}
+
+// shorten runs one result through the pipeline, remembered by content.
+func (r *Receiver) shorten(ctx context.Context, c call, text string, m meta) string {
 	key := cacheKey(c, text)
 	if out, ok := r.cache.get(key); ok {
 		return out

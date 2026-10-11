@@ -102,6 +102,13 @@ dashboard):
 - Each tool result is shortened once and sent byte-for-byte the same on every later request,
   so the provider's prompt cache keeps hitting. Anything the proxy cannot parse is forwarded
   unchanged; `X-Gascoigne-Raw: 1` on a request skips it.
+- A result that repeats what an earlier result of the same request shows (a file read again,
+  a command run again) has those runs of 3+ lines replaced by one pointer:
+  `[↑ L13-18 = L10-15 of earlier Read charge.go]` (a re-read after an edit above them),
+  `[↑ 4 lines as in earlier Bash "go test ./..." from "--- FAIL: TestCharge"]`. Only exact
+  runs fold (Read lines may shift by a constant), each result depends only on the ones before
+  it so earlier bytes never change, and the original goes to the ledger behind the usual hint.
+  `fold_min_lines: 0` in `receivers.httpproxy` turns it off.
 - `wrap` starts the server when it is not answering and leaves the agent on its API directly
   if it cannot. `GASCOIGNE_PROXY=off` (or `GASCOIGNE_SERVER=off`) turns it off. When the
   server replaces itself with a new build, it first waits until no proxied request is in

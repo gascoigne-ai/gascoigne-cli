@@ -15,6 +15,11 @@ receivers:
     openai: https://api.openai.com
     skip: [Edit, MultiEdit, Write, NotebookEdit, TodoWrite, ExitPlanMode, AskUserQuestion, apply_patch]
     cache_entries: 50000
+    # a run of fold_min_lines+ lines (fold_min_chars+ bytes) an earlier result of the same request
+    # shows → one pointer line; earlier results never change, so the prompt cache holds. 0: off
+    ledger: ledger
+    fold_min_lines: 3
+    fold_min_chars: 80
 
 filters:
   bypass: { env: GASCOIGNE_RAW }               # attr raw=true or this env set to 1

@@ -35,6 +35,9 @@
 #     openai: https://api.openai.com
 #     skip: [Edit, MultiEdit, Write, NotebookEdit, TodoWrite, ExitPlanMode, AskUserQuestion, apply_patch]  ## tools never touched
 #     cache_entries: 50000            ## tool results remembered by hash: later requests send the same bytes
+#     ledger: ledger                  ## keeps originals of folded results (folding needs it)
+#     fold_min_lines: 3               ## run an earlier result of the request shows → pointer line; 0: off
+#     fold_min_chars: 80              ## fewest bytes such a run must have
 
 ## Continue or bypass optimization.
 # filters:

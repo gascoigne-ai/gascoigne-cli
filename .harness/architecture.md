@@ -142,7 +142,12 @@ User-Agent); `skip` tools, `is_error`, hinted output untouched. Read's
 `N\t` prefixes are split off, the text optimized like `cat`, and kept lines get their original
 numbers back (`renumber`). Prompt cache: results cached by content hash (LRU `cache_entries`), so
 every later request sends the same bytes; optimizers are deterministic, so a restart recomputes
-them. Any parse problem → body forwarded unchanged; `X-Gascoigne-Raw: 1` → untouched. On a new
+them. Fold (`fold.go`, per request): after shortening, runs of ≥ `fold_min_lines` lines /
+`fold_min_chars` bytes an earlier result of the request shows (Read lines matched by text with a
+uniform number shift) → one pointer (`[↑ L13-18 = L10-15 of earlier Read a.go]`); recomputed each
+request (a result depends only on earlier ones: prefix-stable, no dangling pointers when clients
+clear old results); original via `SaveRaw` (content-addressed id) + event (route `fold`), saves
+memoized; needs `ledger` (looked up in `Start`). Any parse problem → body forwarded unchanged; `X-Gascoigne-Raw: 1` → untouched. On a new
 build the server waits until no proxied request is in flight (`waitIdle`, ≤ 10 min) before
 restarting.
 Registration (server started first, `serverUp`): wrap claude `ANTHROPIC_BASE_URL` (unless set: user gateway), codex with

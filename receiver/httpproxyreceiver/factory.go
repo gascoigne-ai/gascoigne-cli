@@ -14,7 +14,7 @@ func NewFactory() component.Factory {
 			return &Config{
 				Anthropic: "https://api.anthropic.com", OpenAI: "https://api.openai.com",
 				Skip:         []string{"Edit", "MultiEdit", "Write", "NotebookEdit", "TodoWrite", "ExitPlanMode", "AskUserQuestion", "apply_patch"},
-				CacheEntries: 50000,
+				CacheEntries: 50000, Ledger: "ledger", FoldMinLines: 3, FoldMinChars: 80,
 			}
 		},
 		func(_ context.Context, set component.Settings, cfg *Config) (component.Component, error) {

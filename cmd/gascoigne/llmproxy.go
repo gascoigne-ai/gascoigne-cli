@@ -52,7 +52,12 @@ func llmProxy(ctx context.Context, mu *sync.Mutex, ledgerPath string, log *slog.
 		return nil, nil, fmt.Errorf("no pipeline proxy in the config")
 	}
 	closer := func() { svc.Shutdown(context.WithoutCancel(ctx)) }
-	return httpproxyreceiver.New(rc, locked{mu, pl}, log), closer, nil
+	r := httpproxyreceiver.New(rc, locked{mu, pl}, log)
+	if err := r.Start(ctx, svc); err != nil {
+		closer()
+		return nil, nil, err
+	}
+	return r, closer, nil
 }
 
 // locked runs a pipeline one payload at a time: components need not be

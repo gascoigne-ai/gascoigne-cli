@@ -15,6 +15,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -24,6 +25,7 @@ import (
 	"sync/atomic"
 
 	"github.com/lukaszb/gascoigne/component"
+	"github.com/lukaszb/gascoigne/mcptool"
 )
 
 // RawHeader set to 1 forwards a request untouched.
@@ -35,6 +37,7 @@ type Receiver struct {
 	next   component.Pipeline
 	log    *slog.Logger
 	cache  *cache
+	ledger component.Ledger // keeps originals of folded results; nil: no folding
 	active atomic.Int64
 }
 
@@ -44,6 +47,19 @@ func New(cfg *Config, next component.Pipeline, log *slog.Logger) *Receiver {
 		log = slog.New(slog.DiscardHandler)
 	}
 	return &Receiver{cfg: cfg, next: next, log: log, cache: newCache(cfg.CacheEntries)}
+}
+
+// Start finds the ledger that keeps originals of folded results.
+func (r *Receiver) Start(_ context.Context, host component.Host) error {
+	if r.cfg.Ledger == "" {
+		return nil
+	}
+	l, err := mcptool.Ledger(host, r.cfg.Ledger)
+	if err != nil {
+		return fmt.Errorf("httpproxy ledger: %w", err)
+	}
+	r.ledger = l
+	return nil
 }
 
 // Run does nothing: the receiver is an http.Handler, mounted by its host
@@ -106,8 +122,9 @@ func (r *Receiver) route(req *http.Request) (rewriter, string) {
 
 // meta is what a request says about where its tool results go.
 type meta struct {
-	model string
-	agent string
+	model  string
+	agent  string
+	folder *folder // results seen so far in this request
 }
 
 // rewrite replaces req's body with shortened tool results; on any problem
@@ -127,6 +144,9 @@ func (r *Receiver) rewrite(req *http.Request, api rewriter) {
 	}
 	model, _ := doc["model"].(string)
 	m := meta{model: model, agent: agentOf(req.Header.Get("User-Agent"))}
+	if r.cfg.FoldMinLines > 0 {
+		m.folder = newFolder(r.cfg.FoldMinLines, r.cfg.FoldMinChars)
+	}
 	if !api(req.Context(), r, doc, m) {
 		return
 	}
