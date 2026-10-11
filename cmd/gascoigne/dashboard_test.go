@@ -291,3 +291,16 @@ func TestOptimizedOutputEndpoint(t *testing.T) {
 		t.Fatalf("got %d %q", w.Code, w.Body.String())
 	}
 }
+
+func TestDashboardHidesInstructionText(t *testing.T) {
+	l, h := testDashboard(t)
+	id, err := l.SaveRaw(t.Context(), "prompt:0a1b2c3d", payload.New(payload.Message, "You are an agent."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{"/api/raw/", "/api/out/"} {
+		if w := get(h, "GET", path+id); w.Code != 403 || strings.Contains(w.Body.String(), "You are an agent") {
+			t.Fatalf("%s: %d %q", path, w.Code, w.Body.String())
+		}
+	}
+}

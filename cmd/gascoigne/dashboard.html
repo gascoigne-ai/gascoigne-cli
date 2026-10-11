@@ -791,6 +791,7 @@ function stepsView(e) {
 
 function compareView(e) {
   if (!e.raw_id) return el("p", { class: "hint" }, "Nothing to compare: the output went to the agent unchanged.");
+  if (e.route === "prompt") return el("p", { class: "hint" }, `Instruction text (${e.command}, ${human(e.raw_tokens)} tokens): its content is not shown here. gascoigne raw ${e.raw_id} prints it.`);
   const wrap = el("div", { class: "compare" }, el("p", { class: "hint" }, "Loading…"));
   const pressed = (b, on) => b.setAttribute("aria-pressed", on);
   const mode = (m) => {

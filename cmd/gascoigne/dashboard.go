@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/lukaszb/gascoigne/component"
@@ -102,15 +103,23 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 	mux.HandleFunc("GET /api/raw/{id}", func(w http.ResponseWriter, r *http.Request) {
 		// Unlike gascoigne raw, looking does not mark the source as failing:
 		// a person debugging is not an agent that lacked information.
-		_, p, err := l.GetRaw(r.Context(), r.PathValue("id"))
+		key, p, err := l.GetRaw(r.Context(), r.PathValue("id"))
 		if err != nil {
 			http.Error(w, "original not found (expired or unknown id)", http.StatusNotFound)
+			return
+		}
+		if hiddenKey(key) {
+			http.Error(w, hiddenText, http.StatusForbidden)
 			return
 		}
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		io.WriteString(w, p.Text())
 	})
 	mux.HandleFunc("GET /api/out/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if key, _, err := l.GetRaw(r.Context(), r.PathValue("id")); err == nil && hiddenKey(key) {
+			http.Error(w, hiddenText, http.StatusForbidden)
+			return
+		}
 		out, ok, err := l.GetOutput(r.Context(), r.PathValue("id"))
 		if err != nil || !ok {
 			http.Error(w, "optimized output not kept for this run", http.StatusNotFound)
@@ -276,3 +285,10 @@ func eventsJSON(entries []ledger.Entry) []eventJSON {
 	}
 	return out
 }
+
+// Instruction text (system prompt, CLAUDE.md, skill list, reminders) is
+// recorded for its size; its content stays out of the dashboard, which
+// anyone with the page open could read. gascoigne raw <id> still prints it.
+const hiddenText = "instruction text is not shown in the dashboard; gascoigne raw <id> prints it"
+
+func hiddenKey(key string) bool { return strings.HasPrefix(key, "prompt:") }

@@ -108,7 +108,8 @@ Beside command output, the LLM proxy records what requests carry besides tool re
 prompt, CLAUDE.md, the skill list and reminders (`system prompt`, `CLAUDE.md`, `skills`,
 `reminder` commands, route `prompt`), invoked skill bodies (`skill <name>`), tool definitions
 (`tool definitions`) and screenshots (`image`). Each distinct block is recorded once with its
-text, readable with `gascoigne raw <id>` and in the dashboard. The overview ends with
+text, readable with `gascoigne raw <id>`. The dashboard shows instruction runs (system prompt,
+CLAUDE.md, skill list, reminders) by size only, never their content. The overview ends with
 **estimates**: which numbers are estimated and how (token counts, cost model, image tokens).
 
 ### Groupings and filters

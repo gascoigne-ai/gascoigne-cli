@@ -195,7 +195,8 @@ gascoigne dashboard                          # the same, live, in the browser
 ```
 
 With the LLM proxy on (`wrap`, or `install -proxy claude`) gain also lists the instruction text
-every request carries (system prompt, CLAUDE.md, skill list, invoked skills), with the text kept,
+every request carries (system prompt, CLAUDE.md, skill list, invoked skills), text kept for
+`gascoigne raw` but not shown in the dashboard,
 and the tokens the provider actually billed. Its last section says which numbers are estimates.
 
 **Read the web cheaply**
