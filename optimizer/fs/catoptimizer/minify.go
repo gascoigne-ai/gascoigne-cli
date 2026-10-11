@@ -31,6 +31,8 @@ var syntaxByExt = map[string]syntax{
 	".lua": dash, ".hs": dash, ".elm": dash,
 	".clj": semi, ".cljs": semi, ".el": semi, ".lisp": semi, ".scm": semi,
 	".erl": {line: "%"}, ".hrl": {line: "%"},
+	// Config files read to be edited (see the detect filter's edit_safe).
+	".yaml": {line: "#"}, ".yml": {line: "#"}, ".toml": {line: "#"}, ".ini": {line: ";"}, ".conf": {line: "#"},
 	".php": {line: "//", block: slash.block, strs: slash.strs, heredoc: true},
 }
 

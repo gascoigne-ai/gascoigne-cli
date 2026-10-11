@@ -39,7 +39,9 @@
 ## Continue or bypass optimization.
 # filters:
 #   bypass: { env: GASCOIGNE_RAW }    ## variable that, when truthy, bypasses everything
-#   detect: {}                        ## tags each block with its family/dialect type
+#   detect:                           ## tags each block with its family/dialect type
+#     edit_safe: [data, k8s, cloud, infra]  ## files of these read from disk (cat, sed -n, Read) stay in their syntax
+#     edit_safe_max_tokens: 4000      ## ...when smaller than this; bigger ones (lockfiles, dumps) are crushed
 #   minsize: { min_tokens: 200 }      ## smaller payloads are not worth it
 #   history:                          ## skip sources that optimized badly before
 #     ledger: ledger

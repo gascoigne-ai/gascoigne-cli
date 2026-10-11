@@ -29,6 +29,7 @@ var langByExt = map[string]string{
 	".nim": LangOther, ".ex": LangOther, ".exs": LangOther, ".tf": LangOther, ".ps1": LangOther,
 	".lua": LangOther, ".hs": LangOther, ".elm": LangOther, ".erl": LangOther, ".hrl": LangOther,
 	".clj": LangOther, ".cljs": LangOther, ".el": LangOther, ".lisp": LangOther, ".scm": LangOther,
+	".yaml": LangOther, ".yml": LangOther, ".toml": LangOther, ".ini": LangOther, ".conf": LangOther,
 }
 
 var langSniffers = []struct {
