@@ -1,0 +1,900 @@
+203.0.113.7 - - [10/Oct/2026:07:00:00 +0000] "GET /api/products?page=8 HTTP/1.1" 200 38783 "-" "curl/8.10.1" 0.339
+10.0.0.133 - - [10/Oct/2026:07:00:01 +0000] "GET /api/products?page=7 HTTP/1.1" 200 1651 "-" "Go-http-client/2.0" 0.167
+10.0.1.160 - - [10/Oct/2026:07:00:02 +0000] "GET /api/products/2166 HTTP/1.1" 200 34786 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.666
+10.0.1.160 - - [10/Oct/2026:07:00:03 +0000] "GET /healthz HTTP/1.1" 200 19469 "-" "kube-probe/1.31" 0.436
+10.0.2.230 - - [10/Oct/2026:07:00:03 +0000] "GET /api/products/4439 HTTP/1.1" 200 22282 "-" "curl/8.10.1" 0.387
+10.0.1.160 - - [10/Oct/2026:07:00:04 +0000] "GET /healthz HTTP/1.1" 200 19636 "-" "kube-probe/1.31" 0.272
+10.0.1.160 - - [10/Oct/2026:07:00:04 +0000] "GET /api/products/2796 HTTP/1.1" 200 18343 "-" "curl/8.10.1" 0.708
+10.0.3.109 - - [10/Oct/2026:07:00:05 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 37164 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.151
+10.0.1.250 - - [10/Oct/2026:07:00:07 +0000] "GET /api/products/986 HTTP/1.1" 200 3231 "-" "curl/8.10.1" 0.842
+10.0.0.54 - - [10/Oct/2026:07:00:07 +0000] "GET /api/products?page=24 HTTP/1.1" 200 43353 "-" "curl/8.10.1" 0.654
+10.0.0.54 - - [10/Oct/2026:07:00:08 +0000] "GET /api/products/3502 HTTP/1.1" 200 11465 "-" "curl/8.10.1" 0.409
+10.0.0.133 - - [10/Oct/2026:07:00:09 +0000] "GET /api/orders/a3184c3b-61e8-4412-a0e9-08bcbcb11d48 HTTP/1.1" 200 23074 "-" "Go-http-client/2.0" 0.759
+10.0.3.47 - - [10/Oct/2026:07:00:11 +0000] "GET /api/products/554 HTTP/1.1" 200 34208 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.621
+10.0.3.232 - - [10/Oct/2026:07:00:12 +0000] "POST /api/cart/items HTTP/1.1" 200 7381 "-" "curl/8.10.1" 0.848
+10.0.3.232 - - [10/Oct/2026:07:00:13 +0000] "POST /api/orders HTTP/1.1" 200 122 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.615
+10.0.3.174 - - [10/Oct/2026:07:00:14 +0000] "GET /api/products?page=1 HTTP/1.1" 200 11028 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.213
+10.0.3.232 - - [10/Oct/2026:07:00:15 +0000] "GET /api/products/1404 HTTP/1.1" 200 43165 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.615
+10.0.0.183 - - [10/Oct/2026:07:00:16 +0000] "GET /api/products/2030 HTTP/1.1" 200 2632 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.578
+10.0.2.174 - - [10/Oct/2026:07:00:18 +0000] "GET /api/products/2176 HTTP/1.1" 200 31578 "-" "Go-http-client/2.0" 0.809
+10.0.2.249 - - [10/Oct/2026:07:00:19 +0000] "GET /api/products/1202 HTTP/1.1" 200 45975 "-" "Go-http-client/2.0" 0.148
+10.0.0.152 - - [10/Oct/2026:07:00:20 +0000] "GET /api/products?page=10 HTTP/1.1" 200 23116 "-" "Go-http-client/2.0" 0.734
+10.0.0.152 - - [10/Oct/2026:07:00:21 +0000] "POST /api/cart/items HTTP/1.1" 200 47984 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.330
+10.0.0.29 - - [10/Oct/2026:07:00:22 +0000] "GET /healthz HTTP/1.1" 200 8359 "-" "kube-probe/1.31" 0.364
+10.0.3.174 - - [10/Oct/2026:07:00:23 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 30076 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.555
+10.0.3.153 - - [10/Oct/2026:07:00:24 +0000] "GET /api/products/309 HTTP/1.1" 200 17773 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.263
+10.0.3.93 - - [10/Oct/2026:07:00:25 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 5731 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.182
+10.0.3.5 - - [10/Oct/2026:07:00:26 +0000] "GET /api/products?page=15 HTTP/1.1" 200 7225 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.086
+10.0.0.183 - - [10/Oct/2026:07:00:27 +0000] "GET /api/products/2628 HTTP/1.1" 200 34269 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.562
+10.0.2.148 - - [10/Oct/2026:07:00:29 +0000] "GET /api/products/1837 HTTP/1.1" 200 26790 "-" "Go-http-client/2.0" 0.226
+10.0.0.133 - - [10/Oct/2026:07:00:30 +0000] "GET /healthz HTTP/1.1" 200 4095 "-" "kube-probe/1.31" 0.723
+10.0.1.160 - - [10/Oct/2026:07:00:31 +0000] "POST /api/orders HTTP/1.1" 200 37525 "-" "Go-http-client/2.0" 0.224
+10.0.0.183 - - [10/Oct/2026:07:00:32 +0000] "GET /api/products/2852 HTTP/1.1" 200 12866 "-" "curl/8.10.1" 0.017
+10.0.3.109 - - [10/Oct/2026:07:00:33 +0000] "GET /api/products/764 HTTP/1.1" 200 21840 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.132
+10.0.2.146 - - [10/Oct/2026:07:00:34 +0000] "GET /api/products?page=18 HTTP/1.1" 200 25961 "-" "Go-http-client/2.0" 0.611
+10.0.3.47 - - [10/Oct/2026:07:00:36 +0000] "GET /api/products/3547 HTTP/1.1" 200 25130 "-" "curl/8.10.1" 0.263
+10.0.2.148 - - [10/Oct/2026:07:00:36 +0000] "GET /api/products/3366 HTTP/1.1" 200 1563 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.468
+10.0.0.152 - - [10/Oct/2026:07:00:37 +0000] "GET /api/products?page=32 HTTP/1.1" 200 5149 "-" "curl/8.10.1" 0.083
+203.0.113.7 - - [10/Oct/2026:07:00:38 +0000] "GET /api/products/4202 HTTP/1.1" 200 22548 "-" "curl/8.10.1" 0.129
+10.0.3.174 - - [10/Oct/2026:07:00:39 +0000] "GET /api/products?page=29 HTTP/1.1" 200 28108 "-" "Go-http-client/2.0" 0.303
+10.0.3.174 - - [10/Oct/2026:07:00:40 +0000] "GET /api/products/848 HTTP/1.1" 200 29476 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.269
+10.0.0.183 - - [10/Oct/2026:07:00:41 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 12198 "-" "Go-http-client/2.0" 0.581
+10.0.1.160 - - [10/Oct/2026:07:00:42 +0000] "GET /api/products/4813 HTTP/1.1" 200 44554 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.676
+10.0.1.138 - - [10/Oct/2026:07:00:43 +0000] "GET /api/products/2497 HTTP/1.1" 200 25967 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.612
+203.0.113.7 - - [10/Oct/2026:07:00:44 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 21204 "-" "curl/8.10.1" 0.544
+10.0.1.48 - - [10/Oct/2026:07:00:45 +0000] "POST /api/cart/items HTTP/1.1" 200 29100 "-" "Go-http-client/2.0" 0.379
+10.0.0.183 - - [10/Oct/2026:07:00:46 +0000] "GET /api/products/3069 HTTP/1.1" 200 18187 "-" "curl/8.10.1" 0.530
+10.0.1.48 - - [10/Oct/2026:07:00:46 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 36028 "-" "curl/8.10.1" 0.513
+10.0.1.250 - - [10/Oct/2026:07:00:47 +0000] "POST /api/cart/items HTTP/1.1" 422 263 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.160
+10.0.1.250 - - [10/Oct/2026:07:00:48 +0000] "GET /api/products/1055 HTTP/1.1" 200 44621 "-" "curl/8.10.1" 0.301
+10.0.3.109 - - [10/Oct/2026:07:00:49 +0000] "GET /healthz HTTP/1.1" 200 16919 "-" "kube-probe/1.31" 0.734
+10.0.0.183 - - [10/Oct/2026:07:00:49 +0000] "GET /api/products?page=27 HTTP/1.1" 200 20468 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.881
+10.0.3.232 - - [10/Oct/2026:07:00:51 +0000] "GET /api/products/1448 HTTP/1.1" 200 10440 "-" "Go-http-client/2.0" 0.452
+10.0.2.174 - - [10/Oct/2026:07:00:52 +0000] "GET /healthz HTTP/1.1" 200 21098 "-" "kube-probe/1.31" 0.900
+10.0.1.160 - - [10/Oct/2026:07:00:52 +0000] "GET /api/products/2428 HTTP/1.1" 200 7739 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.477
+10.0.3.153 - - [10/Oct/2026:07:00:53 +0000] "GET /healthz HTTP/1.1" 200 19943 "-" "kube-probe/1.31" 0.261
+10.0.2.146 - - [10/Oct/2026:07:00:54 +0000] "POST /api/orders HTTP/1.1" 200 42740 "-" "Go-http-client/2.0" 0.341
+10.0.2.230 - - [10/Oct/2026:07:00:55 +0000] "GET /api/products/2112 HTTP/1.1" 200 40018 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.761
+10.0.3.174 - - [10/Oct/2026:07:00:56 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 44593 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.300
+10.0.2.146 - - [10/Oct/2026:07:00:57 +0000] "GET /healthz HTTP/1.1" 200 23783 "-" "kube-probe/1.31" 0.798
+10.0.0.210 - - [10/Oct/2026:07:00:57 +0000] "GET /api/products/3994 HTTP/1.1" 200 12994 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.088
+10.0.2.35 - - [10/Oct/2026:07:00:58 +0000] "GET /api/products?page=23 HTTP/1.1" 200 21737 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.347
+10.0.0.54 - - [10/Oct/2026:07:00:59 +0000] "GET /healthz HTTP/1.1" 200 23680 "-" "kube-probe/1.31" 0.624
+203.0.113.7 - - [10/Oct/2026:07:01:00 +0000] "GET /healthz HTTP/1.1" 200 9080 "-" "kube-probe/1.31" 0.082
+10.0.0.54 - - [10/Oct/2026:07:01:02 +0000] "GET /api/products/782 HTTP/1.1" 200 5367 "-" "curl/8.10.1" 0.436
+10.0.3.47 - - [10/Oct/2026:07:01:02 +0000] "GET /api/products?page=22 HTTP/1.1" 200 8212 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.446
+203.0.113.7 - - [10/Oct/2026:07:01:03 +0000] "GET /api/products/2649 HTTP/1.1" 200 682 "-" "curl/8.10.1" 0.004
+10.0.0.183 - - [10/Oct/2026:07:01:04 +0000] "GET /api/products?page=37 HTTP/1.1" 200 45642 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.185
+10.0.0.54 - - [10/Oct/2026:07:01:05 +0000] "GET /api/products/3479 HTTP/1.1" 200 17639 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.468
+10.0.3.93 - - [10/Oct/2026:07:01:06 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 11430 "-" "Go-http-client/2.0" 0.079
+10.0.2.170 - - [10/Oct/2026:07:01:06 +0000] "GET /api/orders/69f9fce6-c549-4a82-a08c-2b0f354ceac6 HTTP/1.1" 200 44904 "-" "Go-http-client/2.0" 0.348
+10.0.3.174 - - [10/Oct/2026:07:01:08 +0000] "GET /healthz HTTP/1.1" 200 37721 "-" "kube-probe/1.31" 0.878
+10.0.0.54 - - [10/Oct/2026:07:01:09 +0000] "GET /api/products/905 HTTP/1.1" 200 8761 "-" "Go-http-client/2.0" 0.655
+10.0.0.6 - - [10/Oct/2026:07:01:11 +0000] "GET /api/orders/a3e09355-02e8-470f-a5d9-1367d613552d HTTP/1.1" 200 18717 "-" "curl/8.10.1" 0.700
+10.0.2.110 - - [10/Oct/2026:07:01:12 +0000] "GET /api/products/4560 HTTP/1.1" 200 15112 "-" "curl/8.10.1" 0.002
+203.0.113.7 - - [10/Oct/2026:07:01:13 +0000] "GET /api/products?page=18 HTTP/1.1" 200 17122 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.452
+10.0.1.138 - - [10/Oct/2026:07:01:14 +0000] "GET /api/products?page=17 HTTP/1.1" 200 40691 "-" "curl/8.10.1" 0.371
+10.0.1.70 - - [10/Oct/2026:07:01:14 +0000] "GET /api/orders/93547986-af24-4e16-a222-69b06a5dc430 HTTP/1.1" 200 28906 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.110
+10.0.2.146 - - [10/Oct/2026:07:01:15 +0000] "POST /api/cart/items HTTP/1.1" 200 29443 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.524
+10.0.2.230 - - [10/Oct/2026:07:01:16 +0000] "GET /healthz HTTP/1.1" 200 42718 "-" "kube-probe/1.31" 0.002
+10.0.1.160 - - [10/Oct/2026:07:01:17 +0000] "GET /api/products?page=5 HTTP/1.1" 200 46098 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.740
+10.0.3.137 - - [10/Oct/2026:07:01:19 +0000] "GET /api/products?page=27 HTTP/1.1" 200 31600 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.653
+10.0.1.250 - - [10/Oct/2026:07:01:20 +0000] "GET /healthz HTTP/1.1" 200 4488 "-" "kube-probe/1.31" 0.338
+10.0.1.160 - - [10/Oct/2026:07:01:20 +0000] "GET /healthz HTTP/1.1" 200 10858 "-" "kube-probe/1.31" 0.440
+10.0.2.174 - - [10/Oct/2026:07:01:21 +0000] "POST /api/cart/items HTTP/1.1" 200 36930 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.738
+10.0.1.70 - - [10/Oct/2026:07:01:23 +0000] "POST /api/cart/items HTTP/1.1" 200 9549 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.707
+10.0.1.70 - - [10/Oct/2026:07:01:24 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 41643 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.078
+10.0.3.109 - - [10/Oct/2026:07:01:25 +0000] "GET /api/products?page=29 HTTP/1.1" 200 10451 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.509
+10.0.2.110 - - [10/Oct/2026:07:01:26 +0000] "GET /api/products/2525 HTTP/1.1" 200 40654 "-" "curl/8.10.1" 0.112
+10.0.2.174 - - [10/Oct/2026:07:01:27 +0000] "POST /api/cart/items HTTP/1.1" 200 17258 "-" "Go-http-client/2.0" 0.374
+10.0.3.93 - - [10/Oct/2026:07:01:27 +0000] "POST /api/orders HTTP/1.1" 200 36108 "-" "Go-http-client/2.0" 0.677
+10.0.2.230 - - [10/Oct/2026:07:01:29 +0000] "GET /healthz HTTP/1.1" 200 4255 "-" "kube-probe/1.31" 0.616
+10.0.2.174 - - [10/Oct/2026:07:01:30 +0000] "GET /api/orders/95b0151b-751e-4502-acd5-69422e8a3eec HTTP/1.1" 200 45313 "-" "Go-http-client/2.0" 0.080
+10.0.0.54 - - [10/Oct/2026:07:01:30 +0000] "GET /api/products/4342 HTTP/1.1" 200 18477 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.759
+10.0.2.146 - - [10/Oct/2026:07:01:31 +0000] "GET /api/products?page=29 HTTP/1.1" 200 28800 "-" "curl/8.10.1" 0.740
+10.0.1.70 - - [10/Oct/2026:07:01:32 +0000] "GET /api/products/4748 HTTP/1.1" 200 538 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.343
+10.0.2.35 - - [10/Oct/2026:07:01:33 +0000] "GET /api/products/3139 HTTP/1.1" 200 43744 "-" "Go-http-client/2.0" 0.878
+10.0.0.6 - - [10/Oct/2026:07:01:33 +0000] "GET /api/products/2054 HTTP/1.1" 200 29012 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.748
+10.0.0.210 - - [10/Oct/2026:07:01:34 +0000] "GET /api/products/4138 HTTP/1.1" 200 36008 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.166
+10.0.3.47 - - [10/Oct/2026:07:01:35 +0000] "GET /api/products/1020 HTTP/1.1" 200 2705 "-" "Go-http-client/2.0" 0.021
+10.0.2.35 - - [10/Oct/2026:07:01:36 +0000] "GET /api/products/3296 HTTP/1.1" 200 37040 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.623
+10.0.2.230 - - [10/Oct/2026:07:01:37 +0000] "POST /api/cart/items HTTP/1.1" 200 3935 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.656
+10.0.3.174 - - [10/Oct/2026:07:01:38 +0000] "GET /api/products/1792 HTTP/1.1" 200 10950 "-" "curl/8.10.1" 0.299
+10.0.1.70 - - [10/Oct/2026:07:01:40 +0000] "GET /api/orders/97b4d473-a1d3-40be-a52e-15ee8155f81d HTTP/1.1" 200 39928 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.088
+10.0.0.54 - - [10/Oct/2026:07:01:40 +0000] "GET /api/products/4815 HTTP/1.1" 200 26537 "-" "curl/8.10.1" 0.332
+10.0.1.160 - - [10/Oct/2026:07:01:41 +0000] "GET /healthz HTTP/1.1" 200 4050 "-" "kube-probe/1.31" 0.821
+10.0.3.232 - - [10/Oct/2026:07:01:42 +0000] "GET /api/products/3016 HTTP/1.1" 200 34478 "-" "Go-http-client/2.0" 0.368
+10.0.2.148 - - [10/Oct/2026:07:01:43 +0000] "GET /api/products?page=8 HTTP/1.1" 200 40767 "-" "Go-http-client/2.0" 0.186
+10.0.2.110 - - [10/Oct/2026:07:01:44 +0000] "POST /api/orders HTTP/1.1" 200 2129 "-" "curl/8.10.1" 0.222
+10.0.2.249 - - [10/Oct/2026:07:01:45 +0000] "GET /api/orders/f78fcbb6-e7e3-4911-ac1a-34635c61ac23 HTTP/1.1" 200 7785 "-" "curl/8.10.1" 0.554
+10.0.3.174 - - [10/Oct/2026:07:01:46 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 34394 "-" "Go-http-client/2.0" 0.585
+10.0.1.160 - - [10/Oct/2026:07:01:47 +0000] "GET /healthz HTTP/1.1" 200 40109 "-" "kube-probe/1.31" 0.206
+203.0.113.7 - - [10/Oct/2026:07:01:47 +0000] "GET /api/products/1273 HTTP/1.1" 200 27921 "-" "curl/8.10.1" 0.319
+10.0.0.152 - - [10/Oct/2026:07:01:49 +0000] "GET /api/products/642 HTTP/1.1" 404 210 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.659
+10.0.2.249 - - [10/Oct/2026:07:01:50 +0000] "GET /api/products?page=26 HTTP/1.1" 200 8033 "-" "Go-http-client/2.0" 0.201
+10.0.3.137 - - [10/Oct/2026:07:01:51 +0000] "GET /api/products/2430 HTTP/1.1" 200 27188 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.492
+10.0.2.148 - - [10/Oct/2026:07:01:52 +0000] "GET /api/products?page=33 HTTP/1.1" 200 17197 "-" "curl/8.10.1" 0.885
+10.0.1.250 - - [10/Oct/2026:07:01:52 +0000] "GET /api/products/392 HTTP/1.1" 200 13915 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.293
+10.0.3.5 - - [10/Oct/2026:07:01:53 +0000] "GET /api/products?page=20 HTTP/1.1" 200 43146 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.017
+10.0.3.5 - - [10/Oct/2026:07:01:54 +0000] "GET /healthz HTTP/1.1" 200 22409 "-" "kube-probe/1.31" 0.607
+10.0.0.152 - - [10/Oct/2026:07:01:55 +0000] "GET /api/products/833 HTTP/1.1" 404 36 "-" "curl/8.10.1" 0.099
+10.0.0.152 - - [10/Oct/2026:07:01:56 +0000] "GET /api/products/2234 HTTP/1.1" 200 35356 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.485
+10.0.0.210 - - [10/Oct/2026:07:01:57 +0000] "GET /api/products?page=5 HTTP/1.1" 200 19622 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.472
+10.0.0.210 - - [10/Oct/2026:07:01:58 +0000] "GET /api/products?page=39 HTTP/1.1" 200 38439 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.449
+10.0.3.109 - - [10/Oct/2026:07:01:59 +0000] "GET /api/orders/127c4694-f56f-4ecc-aeee-8d99c1ef4307 HTTP/1.1" 200 263 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.160
+10.0.2.174 - - [10/Oct/2026:07:02:00 +0000] "GET /api/products/3677 HTTP/1.1" 200 33915 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.820
+10.0.1.70 - - [10/Oct/2026:07:02:01 +0000] "GET /api/products/682 HTTP/1.1" 200 38121 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.717
+10.0.3.153 - - [10/Oct/2026:07:02:02 +0000] "GET /api/orders/cb8e01e2-e745-46b3-a420-1c25498a0cb7 HTTP/1.1" 200 5843 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.410
+10.0.2.249 - - [10/Oct/2026:07:02:02 +0000] "GET /healthz HTTP/1.1" 200 45351 "-" "kube-probe/1.31" 0.050
+10.0.2.148 - - [10/Oct/2026:07:02:03 +0000] "POST /api/cart/items HTTP/1.1" 200 15371 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.046
+10.0.0.6 - - [10/Oct/2026:07:02:04 +0000] "GET /api/products?page=25 HTTP/1.1" 200 9377 "-" "Go-http-client/2.0" 0.614
+10.0.1.48 - - [10/Oct/2026:07:02:05 +0000] "GET /api/products/3962 HTTP/1.1" 404 246 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.683
+10.0.2.230 - - [10/Oct/2026:07:02:06 +0000] "POST /api/orders HTTP/1.1" 200 40094 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.181
+10.0.3.174 - - [10/Oct/2026:07:02:07 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 40884 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.325
+10.0.3.174 - - [10/Oct/2026:07:02:08 +0000] "GET /api/products/2521 HTTP/1.1" 200 32311 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.493
+10.0.0.133 - - [10/Oct/2026:07:02:09 +0000] "GET /api/products/2406 HTTP/1.1" 200 236 "-" "curl/8.10.1" 0.459
+10.0.0.29 - - [10/Oct/2026:07:02:10 +0000] "GET /healthz HTTP/1.1" 200 6722 "-" "kube-probe/1.31" 0.469
+10.0.1.138 - - [10/Oct/2026:07:02:10 +0000] "GET /api/products/2069 HTTP/1.1" 200 47332 "-" "curl/8.10.1" 0.621
+10.0.3.153 - - [10/Oct/2026:07:02:12 +0000] "GET /api/products?page=11 HTTP/1.1" 200 46281 "-" "curl/8.10.1" 0.865
+10.0.1.160 - - [10/Oct/2026:07:02:13 +0000] "GET /healthz HTTP/1.1" 200 15208 "-" "kube-probe/1.31" 0.866
+203.0.113.7 - - [10/Oct/2026:07:02:14 +0000] "GET /api/products/922 HTTP/1.1" 200 33185 "-" "Go-http-client/2.0" 0.426
+10.0.2.110 - - [10/Oct/2026:07:02:15 +0000] "POST /api/cart/items HTTP/1.1" 200 24462 "-" "curl/8.10.1" 0.787
+10.0.3.47 - - [10/Oct/2026:07:02:16 +0000] "GET /api/products?page=5 HTTP/1.1" 200 17284 "-" "Go-http-client/2.0" 0.047
+10.0.0.29 - - [10/Oct/2026:07:02:17 +0000] "GET /api/products/1511 HTTP/1.1" 200 7729 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.031
+10.0.0.133 - - [10/Oct/2026:07:02:18 +0000] "GET /api/products/3353 HTTP/1.1" 200 45523 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.643
+10.0.3.109 - - [10/Oct/2026:07:02:20 +0000] "GET /api/products/846 HTTP/1.1" 200 18068 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.049
+10.0.3.5 - - [10/Oct/2026:07:02:21 +0000] "POST /api/orders HTTP/1.1" 200 27013 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.292
+203.0.113.7 - - [10/Oct/2026:07:02:21 +0000] "POST /api/cart/items HTTP/1.1" 200 42589 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.369
+10.0.0.54 - - [10/Oct/2026:07:02:22 +0000] "GET /api/products?page=4 HTTP/1.1" 200 20169 "-" "Go-http-client/2.0" 0.186
+203.0.113.7 - - [10/Oct/2026:07:02:23 +0000] "GET /api/products/1648 HTTP/1.1" 200 15629 "-" "Go-http-client/2.0" 0.803
+10.0.2.148 - - [10/Oct/2026:07:02:24 +0000] "GET /healthz HTTP/1.1" 200 37221 "-" "kube-probe/1.31" 0.620
+10.0.1.70 - - [10/Oct/2026:07:02:25 +0000] "POST /api/cart/items HTTP/1.1" 200 6616 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.634
+10.0.3.137 - - [10/Oct/2026:07:02:26 +0000] "GET /api/products/3652 HTTP/1.1" 200 41190 "-" "curl/8.10.1" 0.428
+10.0.0.54 - - [10/Oct/2026:07:02:26 +0000] "GET /api/products/4731 HTTP/1.1" 200 23975 "-" "curl/8.10.1" 0.440
+10.0.2.110 - - [10/Oct/2026:07:02:27 +0000] "GET /healthz HTTP/1.1" 200 935 "-" "kube-probe/1.31" 0.107
+10.0.3.137 - - [10/Oct/2026:07:02:28 +0000] "POST /api/cart/items HTTP/1.1" 200 37835 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.767
+10.0.2.249 - - [10/Oct/2026:07:02:29 +0000] "GET /api/products/3781 HTTP/1.1" 200 42175 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.667
+10.0.3.232 - - [10/Oct/2026:07:02:30 +0000] "GET /healthz HTTP/1.1" 200 12803 "-" "kube-probe/1.31" 0.684
+10.0.1.70 - - [10/Oct/2026:07:02:31 +0000] "GET /api/products/648 HTTP/1.1" 200 4597 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.366
+10.0.3.5 - - [10/Oct/2026:07:02:32 +0000] "GET /api/products/4637 HTTP/1.1" 404 250 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.747
+10.0.2.171 - - [10/Oct/2026:07:02:33 +0000] "GET /healthz HTTP/1.1" 200 38993 "-" "kube-probe/1.31" 0.116
+203.0.113.7 - - [10/Oct/2026:07:02:34 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 46679 "-" "Go-http-client/2.0" 0.150
+203.0.113.7 - - [10/Oct/2026:07:02:34 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 14687 "-" "curl/8.10.1" 0.603
+10.0.3.153 - - [10/Oct/2026:07:02:35 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 38058 "-" "curl/8.10.1" 0.046
+10.0.3.174 - - [10/Oct/2026:07:02:37 +0000] "GET /api/products/4514 HTTP/1.1" 200 25583 "-" "curl/8.10.1" 0.378
+10.0.1.138 - - [10/Oct/2026:07:02:38 +0000] "GET /api/products?page=26 HTTP/1.1" 200 46320 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.812
+203.0.113.7 - - [10/Oct/2026:07:02:39 +0000] "GET /healthz HTTP/1.1" 200 4970 "-" "kube-probe/1.31" 0.825
+10.0.2.230 - - [10/Oct/2026:07:02:40 +0000] "GET /api/products?page=19 HTTP/1.1" 200 29244 "-" "Go-http-client/2.0" 0.726
+10.0.0.6 - - [10/Oct/2026:07:02:40 +0000] "POST /api/cart/items HTTP/1.1" 200 22204 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.271
+10.0.2.110 - - [10/Oct/2026:07:02:41 +0000] "POST /api/cart/items HTTP/1.1" 200 23951 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.800
+10.0.2.174 - - [10/Oct/2026:07:02:42 +0000] "POST /api/cart/items HTTP/1.1" 200 36387 "-" "Go-http-client/2.0" 0.687
+10.0.3.232 - - [10/Oct/2026:07:02:43 +0000] "GET /api/products?page=39 HTTP/1.1" 200 2353 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.346
+10.0.0.183 - - [10/Oct/2026:07:02:44 +0000] "GET /api/products?page=32 HTTP/1.1" 200 3082 "-" "Go-http-client/2.0" 0.140
+10.0.2.110 - - [10/Oct/2026:07:02:45 +0000] "GET /api/products?page=24 HTTP/1.1" 200 35473 "-" "curl/8.10.1" 0.478
+10.0.2.35 - - [10/Oct/2026:07:02:46 +0000] "GET /healthz HTTP/1.1" 200 26335 "-" "kube-probe/1.31" 0.018
+10.0.0.133 - - [10/Oct/2026:07:02:47 +0000] "GET /api/products/3303 HTTP/1.1" 200 9150 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.602
+10.0.1.160 - - [10/Oct/2026:07:02:48 +0000] "GET /api/products/1631 HTTP/1.1" 200 25564 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.272
+10.0.1.70 - - [10/Oct/2026:07:02:50 +0000] "POST /api/cart/items HTTP/1.1" 200 37231 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.729
+10.0.2.35 - - [10/Oct/2026:07:02:51 +0000] "GET /api/products/2302 HTTP/1.1" 200 43235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.428
+10.0.1.160 - - [10/Oct/2026:07:02:51 +0000] "GET /api/products/689 HTTP/1.1" 200 15236 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.350
+10.0.1.250 - - [10/Oct/2026:07:02:52 +0000] "GET /api/products/4061 HTTP/1.1" 200 40765 "-" "Go-http-client/2.0" 0.472
+10.0.0.6 - - [10/Oct/2026:07:02:53 +0000] "POST /api/orders HTTP/1.1" 200 46083 "-" "curl/8.10.1" 0.162
+10.0.0.210 - - [10/Oct/2026:07:02:54 +0000] "GET /api/products/1999 HTTP/1.1" 200 17869 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.177
+10.0.1.160 - - [10/Oct/2026:07:02:55 +0000] "GET /api/products/1991 HTTP/1.1" 200 38858 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.187
+10.0.2.170 - - [10/Oct/2026:07:02:56 +0000] "GET /api/products?page=25 HTTP/1.1" 200 40775 "-" "Go-http-client/2.0" 0.242
+10.0.2.249 - - [10/Oct/2026:07:02:57 +0000] "GET /api/products?page=22 HTTP/1.1" 200 14161 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.101
+203.0.113.7 - - [10/Oct/2026:07:02:58 +0000] "GET /api/products/910 HTTP/1.1" 200 5640 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.478
+10.0.2.146 - - [10/Oct/2026:07:02:59 +0000] "POST /api/orders HTTP/1.1" 200 23014 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.400
+10.0.0.133 - - [10/Oct/2026:07:03:00 +0000] "GET /healthz HTTP/1.1" 200 45806 "-" "kube-probe/1.31" 0.897
+10.0.2.249 - - [10/Oct/2026:07:03:01 +0000] "GET /api/products/3483 HTTP/1.1" 200 47676 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.491
+10.0.0.133 - - [10/Oct/2026:07:03:02 +0000] "GET /api/products/987 HTTP/1.1" 200 47203 "-" "Go-http-client/2.0" 0.333
+10.0.0.183 - - [10/Oct/2026:07:03:04 +0000] "GET /healthz HTTP/1.1" 200 44365 "-" "kube-probe/1.31" 0.230
+10.0.3.137 - - [10/Oct/2026:07:03:04 +0000] "GET /api/products?page=9 HTTP/1.1" 200 37914 "-" "Go-http-client/2.0" 0.081
+10.0.1.250 - - [10/Oct/2026:07:03:05 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 24670 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.583
+10.0.1.138 - - [10/Oct/2026:07:03:06 +0000] "GET /api/products/693 HTTP/1.1" 200 4310 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.877
+10.0.0.54 - - [10/Oct/2026:07:03:07 +0000] "GET /api/products/1398 HTTP/1.1" 200 4387 "-" "Go-http-client/2.0" 0.093
+10.0.2.35 - - [10/Oct/2026:07:03:09 +0000] "GET /healthz HTTP/1.1" 200 25908 "-" "kube-probe/1.31" 0.844
+10.0.2.249 - - [10/Oct/2026:07:03:09 +0000] "GET /api/products/4242 HTTP/1.1" 200 26039 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.384
+10.0.0.54 - - [10/Oct/2026:07:03:10 +0000] "GET /healthz HTTP/1.1" 200 36195 "-" "kube-probe/1.31" 0.093
+10.0.2.171 - - [10/Oct/2026:07:03:11 +0000] "GET /api/products/2121 HTTP/1.1" 200 39427 "-" "Go-http-client/2.0" 0.310
+10.0.2.35 - - [10/Oct/2026:07:03:11 +0000] "GET /api/orders/dc21eee2-22d3-4a16-addc-ada4a3a07d32 HTTP/1.1" 200 35285 "-" "Go-http-client/2.0" 0.119
+10.0.0.54 - - [10/Oct/2026:07:03:12 +0000] "POST /api/cart/items HTTP/1.1" 200 4279 "-" "curl/8.10.1" 0.676
+10.0.3.137 - - [10/Oct/2026:07:03:12 +0000] "GET /healthz HTTP/1.1" 200 987 "-" "kube-probe/1.31" 0.337
+10.0.0.152 - - [10/Oct/2026:07:03:13 +0000] "GET /healthz HTTP/1.1" 200 8190 "-" "kube-probe/1.31" 0.139
+10.0.2.249 - - [10/Oct/2026:07:03:14 +0000] "GET /api/products/2512 HTTP/1.1" 200 254 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.657
+10.0.1.48 - - [10/Oct/2026:07:03:15 +0000] "POST /api/cart/items HTTP/1.1" 200 41225 "-" "curl/8.10.1" 0.474
+10.0.3.93 - - [10/Oct/2026:07:03:15 +0000] "GET /api/products/1534 HTTP/1.1" 200 34819 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.007
+10.0.0.133 - - [10/Oct/2026:07:03:17 +0000] "GET /api/products/3657 HTTP/1.1" 200 24863 "-" "curl/8.10.1" 0.807
+10.0.2.170 - - [10/Oct/2026:07:03:18 +0000] "GET /api/products/4289 HTTP/1.1" 200 20310 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.556
+10.0.3.93 - - [10/Oct/2026:07:03:18 +0000] "GET /api/products/2327 HTTP/1.1" 200 15338 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.113
+10.0.0.6 - - [10/Oct/2026:07:03:19 +0000] "GET /api/products/419 HTTP/1.1" 200 21896 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.199
+10.0.3.153 - - [10/Oct/2026:07:03:21 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 41266 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.011
+10.0.2.174 - - [10/Oct/2026:07:03:22 +0000] "GET /healthz HTTP/1.1" 200 15104 "-" "kube-probe/1.31" 0.773
+10.0.1.138 - - [10/Oct/2026:07:03:23 +0000] "GET /api/products/574 HTTP/1.1" 200 3931 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.474
+10.0.0.210 - - [10/Oct/2026:07:03:24 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 25752 "-" "curl/8.10.1" 0.586
+10.0.2.230 - - [10/Oct/2026:07:03:24 +0000] "GET /api/products/4074 HTTP/1.1" 200 45464 "-" "Go-http-client/2.0" 0.673
+10.0.2.171 - - [10/Oct/2026:07:03:25 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 2810 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.208
+10.0.2.146 - - [10/Oct/2026:07:03:25 +0000] "POST /api/orders HTTP/1.1" 200 27870 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.187
+10.0.1.160 - - [10/Oct/2026:07:03:27 +0000] "POST /api/cart/items HTTP/1.1" 200 46074 "-" "Go-http-client/2.0" 0.503
+10.0.3.109 - - [10/Oct/2026:07:03:27 +0000] "GET /api/products?page=23 HTTP/1.1" 200 47939 "-" "curl/8.10.1" 0.178
+10.0.3.109 - - [10/Oct/2026:07:03:28 +0000] "GET /api/products?page=12 HTTP/1.1" 200 39875 "-" "Go-http-client/2.0" 0.163
+10.0.1.48 - - [10/Oct/2026:07:03:29 +0000] "GET /api/products/1389 HTTP/1.1" 200 10068 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.573
+10.0.1.250 - - [10/Oct/2026:07:03:30 +0000] "POST /api/orders HTTP/1.1" 200 46168 "-" "curl/8.10.1" 0.415
+203.0.113.7 - - [10/Oct/2026:07:03:31 +0000] "GET /healthz HTTP/1.1" 200 20989 "-" "kube-probe/1.31" 0.322
+10.0.0.54 - - [10/Oct/2026:07:03:33 +0000] "GET /api/products?page=25 HTTP/1.1" 200 36092 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.616
+10.0.3.47 - - [10/Oct/2026:07:03:34 +0000] "GET /api/products?page=28 HTTP/1.1" 200 24781 "-" "Go-http-client/2.0" 0.393
+10.0.3.5 - - [10/Oct/2026:07:03:35 +0000] "GET /api/products/4215 HTTP/1.1" 200 31056 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.057
+10.0.3.47 - - [10/Oct/2026:07:03:36 +0000] "GET /api/products/2193 HTTP/1.1" 200 45690 "-" "Go-http-client/2.0" 0.786
+10.0.2.171 - - [10/Oct/2026:07:03:36 +0000] "GET /api/products/3130 HTTP/1.1" 200 7297 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.782
+10.0.1.138 - - [10/Oct/2026:07:03:38 +0000] "GET /api/products?page=9 HTTP/1.1" 200 20060 "-" "curl/8.10.1" 0.836
+10.0.3.174 - - [10/Oct/2026:07:03:39 +0000] "GET /api/products?page=1 HTTP/1.1" 200 32120 "-" "curl/8.10.1" 0.896
+10.0.0.6 - - [10/Oct/2026:07:03:40 +0000] "GET /api/products?page=26 HTTP/1.1" 200 24388 "-" "curl/8.10.1" 0.300
+10.0.1.48 - - [10/Oct/2026:07:03:41 +0000] "GET /healthz HTTP/1.1" 200 30573 "-" "kube-probe/1.31" 0.840
+10.0.3.153 - - [10/Oct/2026:07:03:42 +0000] "GET /healthz HTTP/1.1" 200 32910 "-" "kube-probe/1.31" 0.518
+10.0.2.146 - - [10/Oct/2026:07:03:43 +0000] "GET /api/products/1233 HTTP/1.1" 200 18326 "-" "Go-http-client/2.0" 0.275
+10.0.1.70 - - [10/Oct/2026:07:03:44 +0000] "POST /api/cart/items HTTP/1.1" 200 11598 "-" "Go-http-client/2.0" 0.126
+10.0.1.138 - - [10/Oct/2026:07:03:45 +0000] "GET /healthz HTTP/1.1" 200 22781 "-" "kube-probe/1.31" 0.191
+10.0.2.170 - - [10/Oct/2026:07:03:46 +0000] "GET /healthz HTTP/1.1" 200 5994 "-" "kube-probe/1.31" 0.362
+10.0.0.133 - - [10/Oct/2026:07:03:47 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 2792 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.768
+10.0.3.174 - - [10/Oct/2026:07:03:48 +0000] "GET /api/products/4337 HTTP/1.1" 200 25617 "-" "Go-http-client/2.0" 0.380
+10.0.0.6 - - [10/Oct/2026:07:03:49 +0000] "GET /api/products/926 HTTP/1.1" 200 19449 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.492
+10.0.1.70 - - [10/Oct/2026:07:03:50 +0000] "GET /api/products/3363 HTTP/1.1" 200 7161 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.307
+203.0.113.7 - - [10/Oct/2026:07:03:51 +0000] "GET /api/products/2901 HTTP/1.1" 404 100 "-" "curl/8.10.1" 0.475
+10.0.3.137 - - [10/Oct/2026:07:03:51 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 32748 "-" "Go-http-client/2.0" 0.329
+10.0.0.54 - - [10/Oct/2026:07:03:52 +0000] "POST /api/cart/items HTTP/1.1" 200 7213 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.552
+10.0.2.174 - - [10/Oct/2026:07:03:53 +0000] "GET /api/orders/204483a0-d336-4c35-ac01-ccdb12e431df HTTP/1.1" 200 6899 "-" "curl/8.10.1" 0.352
+10.0.2.146 - - [10/Oct/2026:07:03:54 +0000] "GET /api/products/3071 HTTP/1.1" 200 31722 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.318
+10.0.0.54 - - [10/Oct/2026:07:03:55 +0000] "GET /healthz HTTP/1.1" 200 27675 "-" "kube-probe/1.31" 0.562
+10.0.2.174 - - [10/Oct/2026:07:03:55 +0000] "GET /api/products/2055 HTTP/1.1" 200 10284 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.828
+10.0.2.171 - - [10/Oct/2026:07:03:56 +0000] "GET /api/products/2917 HTTP/1.1" 200 8622 "-" "Go-http-client/2.0" 0.225
+10.0.3.47 - - [10/Oct/2026:07:03:57 +0000] "GET /api/orders/259b12fd-dc4d-44eb-a1d7-a3cea22dc47a HTTP/1.1" 200 41775 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.415
+10.0.2.148 - - [10/Oct/2026:07:03:58 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 13537 "-" "Go-http-client/2.0" 0.290
+10.0.1.250 - - [10/Oct/2026:07:03:59 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 5211 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.895
+10.0.0.6 - - [10/Oct/2026:07:04:00 +0000] "GET /api/products/1699 HTTP/1.1" 200 9104 "-" "Go-http-client/2.0" 0.261
+10.0.0.29 - - [10/Oct/2026:07:04:00 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 5429 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.083
+10.0.3.5 - - [10/Oct/2026:07:04:01 +0000] "GET /api/products?page=16 HTTP/1.1" 200 43934 "-" "curl/8.10.1" 0.120
+10.0.2.170 - - [10/Oct/2026:07:04:02 +0000] "GET /api/products?page=23 HTTP/1.1" 200 11338 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.435
+10.0.3.137 - - [10/Oct/2026:07:04:04 +0000] "GET /api/products/1435 HTTP/1.1" 200 18374 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.181
+10.0.1.138 - - [10/Oct/2026:07:04:05 +0000] "GET /api/products/1503 HTTP/1.1" 200 40704 "-" "curl/8.10.1" 0.190
+10.0.1.160 - - [10/Oct/2026:07:04:06 +0000] "GET /api/products/1640 HTTP/1.1" 200 40222 "-" "Go-http-client/2.0" 0.363
+203.0.113.7 - - [10/Oct/2026:07:04:07 +0000] "GET /api/products?page=40 HTTP/1.1" 200 4176 "-" "curl/8.10.1" 0.461
+10.0.3.153 - - [10/Oct/2026:07:04:08 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 30003 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.025
+10.0.2.35 - - [10/Oct/2026:07:04:09 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 5797 "-" "curl/8.10.1" 0.699
+10.0.3.137 - - [10/Oct/2026:07:04:10 +0000] "GET /api/products/309 HTTP/1.1" 200 26600 "-" "Go-http-client/2.0" 0.675
+10.0.3.174 - - [10/Oct/2026:07:04:11 +0000] "GET /api/products/1709 HTTP/1.1" 404 203 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.828
+10.0.1.48 - - [10/Oct/2026:07:04:13 +0000] "GET /api/products/4414 HTTP/1.1" 200 39125 "-" "Go-http-client/2.0" 0.379
+10.0.2.35 - - [10/Oct/2026:07:04:13 +0000] "GET /api/products?page=12 HTTP/1.1" 200 36886 "-" "curl/8.10.1" 0.100
+10.0.3.93 - - [10/Oct/2026:07:04:14 +0000] "GET /api/products/4614 HTTP/1.1" 200 45600 "-" "Go-http-client/2.0" 0.188
+10.0.2.174 - - [10/Oct/2026:07:04:16 +0000] "GET /healthz HTTP/1.1" 200 42146 "-" "kube-probe/1.31" 0.493
+10.0.2.174 - - [10/Oct/2026:07:04:17 +0000] "POST /api/orders HTTP/1.1" 200 17529 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.746
+10.0.0.210 - - [10/Oct/2026:07:04:18 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 37124 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.465
+10.0.3.174 - - [10/Oct/2026:07:04:19 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 28607 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.723
+10.0.3.153 - - [10/Oct/2026:07:04:20 +0000] "GET /api/products/1172 HTTP/1.1" 200 19171 "-" "curl/8.10.1" 0.825
+10.0.1.160 - - [10/Oct/2026:07:04:21 +0000] "GET /api/products/1043 HTTP/1.1" 200 42058 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.649
+10.0.2.230 - - [10/Oct/2026:07:04:22 +0000] "GET /api/products/2670 HTTP/1.1" 200 3254 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.226
+10.0.2.230 - - [10/Oct/2026:07:04:22 +0000] "GET /api/products/4906 HTTP/1.1" 200 3149 "-" "Go-http-client/2.0" 0.771
+10.0.2.148 - - [10/Oct/2026:07:04:23 +0000] "GET /healthz HTTP/1.1" 200 1404 "-" "kube-probe/1.31" 0.865
+10.0.0.6 - - [10/Oct/2026:07:04:24 +0000] "GET /api/products/4629 HTTP/1.1" 200 9643 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.882
+10.0.3.93 - - [10/Oct/2026:07:04:25 +0000] "GET /api/products/2933 HTTP/1.1" 200 16208 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.162
+10.0.2.35 - - [10/Oct/2026:07:04:26 +0000] "GET /api/products/2904 HTTP/1.1" 200 33215 "-" "curl/8.10.1" 0.278
+10.0.0.183 - - [10/Oct/2026:07:04:27 +0000] "GET /healthz HTTP/1.1" 200 33671 "-" "kube-probe/1.31" 0.144
+10.0.2.110 - - [10/Oct/2026:07:04:28 +0000] "POST /api/cart/items HTTP/1.1" 200 28574 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.333
+10.0.2.171 - - [10/Oct/2026:07:04:28 +0000] "GET /api/products?page=31 HTTP/1.1" 200 6233 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.767
+10.0.0.6 - - [10/Oct/2026:07:04:29 +0000] "GET /healthz HTTP/1.1" 200 381 "-" "kube-probe/1.31" 0.716
+10.0.3.153 - - [10/Oct/2026:07:04:31 +0000] "GET /api/products?page=22 HTTP/1.1" 200 36391 "-" "curl/8.10.1" 0.306
+10.0.1.160 - - [10/Oct/2026:07:04:32 +0000] "POST /api/cart/items HTTP/1.1" 200 33225 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.553
+10.0.2.35 - - [10/Oct/2026:07:04:33 +0000] "GET /api/orders/21c47375-9cfd-4719-aaef-8b60922aa29e HTTP/1.1" 200 41919 "-" "curl/8.10.1" 0.501
+10.0.2.146 - - [10/Oct/2026:07:04:34 +0000] "GET /api/products?page=31 HTTP/1.1" 200 13134 "-" "curl/8.10.1" 0.248
+10.0.0.183 - - [10/Oct/2026:07:04:35 +0000] "GET /healthz HTTP/1.1" 200 35485 "-" "kube-probe/1.31" 0.453
+10.0.2.170 - - [10/Oct/2026:07:04:36 +0000] "POST /api/cart/items HTTP/1.1" 200 26388 "-" "curl/8.10.1" 0.322
+10.0.1.138 - - [10/Oct/2026:07:04:38 +0000] "POST /api/orders HTTP/1.1" 200 35831 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.090
+10.0.3.93 - - [10/Oct/2026:07:04:38 +0000] "GET /api/products/474 HTTP/1.1" 200 39708 "-" "curl/8.10.1" 0.049
+203.0.113.7 - - [10/Oct/2026:07:04:39 +0000] "GET /api/products/4571 HTTP/1.1" 200 18317 "-" "curl/8.10.1" 0.284
+10.0.2.170 - - [10/Oct/2026:07:04:40 +0000] "GET /api/products?page=2 HTTP/1.1" 200 33798 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.094
+10.0.2.110 - - [10/Oct/2026:07:04:42 +0000] "GET /api/products/3512 HTTP/1.1" 200 36477 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.616
+10.0.3.93 - - [10/Oct/2026:07:04:43 +0000] "GET /api/orders/1f12b33b-69c0-41a1-afb5-566019ffc928 HTTP/1.1" 200 18528 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.435
+10.0.3.174 - - [10/Oct/2026:07:04:45 +0000] "GET /api/products/3657 HTTP/1.1" 200 23019 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.667
+203.0.113.7 - - [10/Oct/2026:07:04:46 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 38812 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.217
+10.0.1.160 - - [10/Oct/2026:07:04:47 +0000] "GET /api/products/1365 HTTP/1.1" 200 24092 "-" "curl/8.10.1" 0.207
+10.0.0.29 - - [10/Oct/2026:07:04:47 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 11833 "-" "Go-http-client/2.0" 0.580
+10.0.0.29 - - [10/Oct/2026:07:04:48 +0000] "GET /api/orders/f021d770-9b28-4bc7-a7b3-750b03396e39 HTTP/1.1" 200 26992 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.143
+10.0.2.148 - - [10/Oct/2026:07:04:48 +0000] "GET /api/products?page=29 HTTP/1.1" 200 1493 "-" "curl/8.10.1" 0.678
+10.0.1.70 - - [10/Oct/2026:07:04:49 +0000] "GET /api/products/3618 HTTP/1.1" 200 8764 "-" "Go-http-client/2.0" 0.564
+10.0.0.29 - - [10/Oct/2026:07:04:50 +0000] "POST /api/orders HTTP/1.1" 200 38192 "-" "Go-http-client/2.0" 0.244
+10.0.0.54 - - [10/Oct/2026:07:04:51 +0000] "GET /api/products?page=23 HTTP/1.1" 200 40256 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.163
+10.0.3.153 - - [10/Oct/2026:07:04:52 +0000] "GET /api/products/2857 HTTP/1.1" 200 41092 "-" "curl/8.10.1" 0.617
+10.0.0.133 - - [10/Oct/2026:07:04:53 +0000] "GET /api/products/4893 HTTP/1.1" 200 3809 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.295
+10.0.3.47 - - [10/Oct/2026:07:04:54 +0000] "GET /api/products/4112 HTTP/1.1" 200 33523 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.152
+10.0.3.93 - - [10/Oct/2026:07:04:55 +0000] "GET /api/products?page=3 HTTP/1.1" 200 13847 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.352
+10.0.0.29 - - [10/Oct/2026:07:04:56 +0000] "GET /api/products/3685 HTTP/1.1" 200 27839 "-" "curl/8.10.1" 0.079
+10.0.3.153 - - [10/Oct/2026:07:04:57 +0000] "GET /api/products/3631 HTTP/1.1" 200 26405 "-" "Go-http-client/2.0" 0.469
+10.0.2.110 - - [10/Oct/2026:07:04:58 +0000] "GET /api/products/4038 HTTP/1.1" 200 43486 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.339
+10.0.3.47 - - [10/Oct/2026:07:04:59 +0000] "GET /api/products/1945 HTTP/1.1" 200 38467 "-" "curl/8.10.1" 0.472
+10.0.2.249 - - [10/Oct/2026:07:05:00 +0000] "GET /api/products/2616 HTTP/1.1" 200 32421 "-" "Go-http-client/2.0" 0.720
+10.0.2.174 - - [10/Oct/2026:07:05:01 +0000] "GET /api/products?page=9 HTTP/1.1" 200 10461 "-" "Go-http-client/2.0" 0.554
+10.0.1.48 - - [10/Oct/2026:07:05:02 +0000] "GET /api/products?page=32 HTTP/1.1" 200 38688 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.849
+10.0.3.153 - - [10/Oct/2026:07:05:03 +0000] "GET /api/products/1900 HTTP/1.1" 200 4794 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.720
+10.0.1.138 - - [10/Oct/2026:07:05:04 +0000] "GET /api/products?page=3 HTTP/1.1" 200 24708 "-" "curl/8.10.1" 0.284
+10.0.0.183 - - [10/Oct/2026:07:05:05 +0000] "GET /api/products/4808 HTTP/1.1" 200 45778 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.742
+10.0.1.160 - - [10/Oct/2026:07:05:06 +0000] "GET /api/products/2235 HTTP/1.1" 200 25240 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.197
+10.0.3.47 - - [10/Oct/2026:07:05:07 +0000] "POST /api/orders HTTP/1.1" 200 3597 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.885
+10.0.0.210 - - [10/Oct/2026:07:05:08 +0000] "GET /healthz HTTP/1.1" 200 42827 "-" "kube-probe/1.31" 0.438
+10.0.1.70 - - [10/Oct/2026:07:05:09 +0000] "GET /api/products/2991 HTTP/1.1" 200 28296 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.646
+10.0.2.171 - - [10/Oct/2026:07:05:11 +0000] "GET /api/products?page=1 HTTP/1.1" 200 42366 "-" "Go-http-client/2.0" 0.733
+10.0.3.47 - - [10/Oct/2026:07:05:11 +0000] "POST /api/cart/items HTTP/1.1" 200 37965 "-" "curl/8.10.1" 0.528
+10.0.3.5 - - [10/Oct/2026:07:05:12 +0000] "GET /api/products?page=32 HTTP/1.1" 200 2548 "-" "Go-http-client/2.0" 0.594
+10.0.3.232 - - [10/Oct/2026:07:05:13 +0000] "GET /api/products?page=40 HTTP/1.1" 200 3323 "-" "Go-http-client/2.0" 0.094
+10.0.3.153 - - [10/Oct/2026:07:05:14 +0000] "POST /api/cart/items HTTP/1.1" 200 25139 "-" "curl/8.10.1" 0.882
+10.0.3.47 - - [10/Oct/2026:07:05:15 +0000] "GET /api/products/4248 HTTP/1.1" 404 118 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.464
+10.0.0.29 - - [10/Oct/2026:07:05:16 +0000] "GET /api/products/960 HTTP/1.1" 200 29046 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.262
+10.0.1.138 - - [10/Oct/2026:07:05:18 +0000] "GET /healthz HTTP/1.1" 200 18301 "-" "kube-probe/1.31" 0.379
+10.0.1.160 - - [10/Oct/2026:07:05:19 +0000] "GET /api/products/2607 HTTP/1.1" 200 20571 "-" "curl/8.10.1" 0.605
+10.0.0.29 - - [10/Oct/2026:07:05:20 +0000] "GET /api/products/1883 HTTP/1.1" 200 8934 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.649
+10.0.2.171 - - [10/Oct/2026:07:05:21 +0000] "GET /api/products/3308 HTTP/1.1" 200 936 "-" "curl/8.10.1" 0.535
+203.0.113.7 - - [10/Oct/2026:07:05:21 +0000] "GET /api/products?page=21 HTTP/1.1" 200 11265 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.887
+10.0.1.160 - - [10/Oct/2026:07:05:22 +0000] "GET /api/products/2337 HTTP/1.1" 200 44137 "-" "Go-http-client/2.0" 0.078
+203.0.113.7 - - [10/Oct/2026:07:05:23 +0000] "GET /api/products/4816 HTTP/1.1" 200 27636 "-" "Go-http-client/2.0" 0.810
+10.0.2.171 - - [10/Oct/2026:07:05:24 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 26835 "-" "Go-http-client/2.0" 0.507
+10.0.1.160 - - [10/Oct/2026:07:05:25 +0000] "POST /api/cart/items HTTP/1.1" 200 21284 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.709
+10.0.2.170 - - [10/Oct/2026:07:05:26 +0000] "POST /api/cart/items HTTP/1.1" 200 19495 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.801
+10.0.2.35 - - [10/Oct/2026:07:05:26 +0000] "GET /api/products/2024 HTTP/1.1" 200 40441 "-" "curl/8.10.1" 0.556
+10.0.0.210 - - [10/Oct/2026:07:05:27 +0000] "GET /api/products?page=13 HTTP/1.1" 200 16172 "-" "Go-http-client/2.0" 0.302
+10.0.1.48 - - [10/Oct/2026:07:05:27 +0000] "POST /api/orders HTTP/1.1" 200 30543 "-" "curl/8.10.1" 0.475
+10.0.0.29 - - [10/Oct/2026:07:05:29 +0000] "GET /api/products/2711 HTTP/1.1" 200 32808 "-" "Go-http-client/2.0" 0.794
+10.0.0.133 - - [10/Oct/2026:07:05:30 +0000] "POST /api/cart/items HTTP/1.1" 200 40094 "-" "Go-http-client/2.0" 0.521
+203.0.113.7 - - [10/Oct/2026:07:05:30 +0000] "GET /api/products?page=36 HTTP/1.1" 200 35295 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.426
+10.0.3.47 - - [10/Oct/2026:07:05:31 +0000] "GET /healthz HTTP/1.1" 200 11055 "-" "kube-probe/1.31" 0.295
+10.0.2.230 - - [10/Oct/2026:07:05:32 +0000] "GET /api/products/4365 HTTP/1.1" 200 31717 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.426
+10.0.0.6 - - [10/Oct/2026:07:05:32 +0000] "GET /api/products/1789 HTTP/1.1" 200 15364 "-" "Go-http-client/2.0" 0.160
+10.0.2.110 - - [10/Oct/2026:07:05:33 +0000] "GET /api/products/4440 HTTP/1.1" 200 15798 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.336
+10.0.1.160 - - [10/Oct/2026:07:05:33 +0000] "GET /api/orders/022bdbf1-b84f-4660-a832-2f58ed804e25 HTTP/1.1" 200 1224 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.031
+10.0.0.6 - - [10/Oct/2026:07:05:34 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 25415 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.441
+10.0.3.232 - - [10/Oct/2026:07:05:34 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 12936 "-" "curl/8.10.1" 0.457
+10.0.0.152 - - [10/Oct/2026:07:05:34 +0000] "GET /api/products?page=10 HTTP/1.1" 200 41289 "-" "Go-http-client/2.0" 0.615
+10.0.2.174 - - [10/Oct/2026:07:05:35 +0000] "GET /api/products/4598 HTTP/1.1" 200 27806 "-" "Go-http-client/2.0" 0.236
+10.0.0.6 - - [10/Oct/2026:07:05:36 +0000] "GET /api/products/3756 HTTP/1.1" 200 27141 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.123
+10.0.3.153 - - [10/Oct/2026:07:05:37 +0000] "GET /healthz HTTP/1.1" 200 31756 "-" "kube-probe/1.31" 0.447
+10.0.3.109 - - [10/Oct/2026:07:05:39 +0000] "GET /api/products?page=28 HTTP/1.1" 200 15093 "-" "Go-http-client/2.0" 0.466
+10.0.1.160 - - [10/Oct/2026:07:05:41 +0000] "GET /api/products/3291 HTTP/1.1" 200 20297 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.229
+10.0.2.148 - - [10/Oct/2026:07:05:42 +0000] "GET /healthz HTTP/1.1" 200 34386 "-" "kube-probe/1.31" 0.484
+10.0.3.93 - - [10/Oct/2026:07:05:42 +0000] "GET /api/products/601 HTTP/1.1" 200 21280 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.001
+10.0.0.54 - - [10/Oct/2026:07:05:43 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 39447 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.637
+10.0.0.183 - - [10/Oct/2026:07:05:44 +0000] "GET /api/products/3136 HTTP/1.1" 404 172 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.824
+10.0.0.152 - - [10/Oct/2026:07:05:45 +0000] "GET /api/products?page=12 HTTP/1.1" 200 36936 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.621
+10.0.0.133 - - [10/Oct/2026:07:05:45 +0000] "GET /api/orders/f6c28fc3-4e71-4290-acd2-e794da8d1f2d HTTP/1.1" 200 25085 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.523
+203.0.113.7 - - [10/Oct/2026:07:05:47 +0000] "GET /api/products/4656 HTTP/1.1" 200 45398 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.431
+203.0.113.7 - - [10/Oct/2026:07:05:48 +0000] "GET /api/products?page=2 HTTP/1.1" 200 38532 "-" "Go-http-client/2.0" 0.768
+10.0.0.133 - - [10/Oct/2026:07:05:49 +0000] "GET /api/products/2757 HTTP/1.1" 200 19194 "-" "Go-http-client/2.0" 0.864
+10.0.2.230 - - [10/Oct/2026:07:05:50 +0000] "GET /api/products?page=10 HTTP/1.1" 200 14217 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.882
+10.0.1.250 - - [10/Oct/2026:07:05:50 +0000] "GET /healthz HTTP/1.1" 200 45751 "-" "kube-probe/1.31" 0.230
+10.0.3.47 - - [10/Oct/2026:07:05:51 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 5902 "-" "curl/8.10.1" 0.068
+203.0.113.7 - - [10/Oct/2026:07:05:52 +0000] "GET /api/products/1937 HTTP/1.1" 200 19549 "-" "Go-http-client/2.0" 0.047
+10.0.2.170 - - [10/Oct/2026:07:05:53 +0000] "GET /api/products?page=38 HTTP/1.1" 200 36838 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.695
+10.0.1.70 - - [10/Oct/2026:07:05:54 +0000] "GET /api/products?page=12 HTTP/1.1" 200 16985 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.028
+10.0.1.160 - - [10/Oct/2026:07:05:54 +0000] "GET /api/products?page=24 HTTP/1.1" 200 40557 "-" "Go-http-client/2.0" 0.068
+10.0.1.250 - - [10/Oct/2026:07:05:55 +0000] "GET /healthz HTTP/1.1" 200 21702 "-" "kube-probe/1.31" 0.260
+10.0.0.210 - - [10/Oct/2026:07:05:55 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 3015 "-" "Go-http-client/2.0" 0.158
+10.0.2.110 - - [10/Oct/2026:07:05:56 +0000] "GET /api/products/59 HTTP/1.1" 200 27898 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.431
+10.0.3.47 - - [10/Oct/2026:07:05:56 +0000] "GET /api/products/3032 HTTP/1.1" 200 40177 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.229
+10.0.1.160 - - [10/Oct/2026:07:05:57 +0000] "POST /api/cart/items HTTP/1.1" 200 21921 "-" "curl/8.10.1" 0.643
+10.0.3.137 - - [10/Oct/2026:07:05:57 +0000] "GET /api/products?page=23 HTTP/1.1" 200 7649 "-" "Go-http-client/2.0" 0.844
+10.0.1.160 - - [10/Oct/2026:07:05:58 +0000] "GET /api/products/545 HTTP/1.1" 200 20103 "-" "curl/8.10.1" 0.251
+10.0.1.160 - - [10/Oct/2026:07:05:59 +0000] "GET /healthz HTTP/1.1" 200 31153 "-" "kube-probe/1.31" 0.536
+10.0.1.160 - - [10/Oct/2026:07:06:00 +0000] "GET /api/products/1140 HTTP/1.1" 200 45834 "-" "Go-http-client/2.0" 0.662
+10.0.0.152 - - [10/Oct/2026:07:06:01 +0000] "GET /healthz HTTP/1.1" 200 26684 "-" "kube-probe/1.31" 0.343
+10.0.3.109 - - [10/Oct/2026:07:06:02 +0000] "GET /api/products/3461 HTTP/1.1" 200 10314 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.139
+10.0.2.171 - - [10/Oct/2026:07:06:03 +0000] "GET /api/orders/61309bd9-ce72-45dc-adea-5bb83e882f6d HTTP/1.1" 200 36544 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.270
+10.0.2.110 - - [10/Oct/2026:07:06:04 +0000] "GET /api/products/2432 HTTP/1.1" 200 46938 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.748
+10.0.1.138 - - [10/Oct/2026:07:06:05 +0000] "GET /api/products/48 HTTP/1.1" 200 3281 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.769
+10.0.2.110 - - [10/Oct/2026:07:06:07 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 8960 "-" "curl/8.10.1" 0.060
+10.0.1.160 - - [10/Oct/2026:07:06:08 +0000] "GET /api/products/2688 HTTP/1.1" 200 27505 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.707
+10.0.2.171 - - [10/Oct/2026:07:06:08 +0000] "GET /healthz HTTP/1.1" 200 44700 "-" "kube-probe/1.31" 0.241
+10.0.2.148 - - [10/Oct/2026:07:06:10 +0000] "GET /api/products/601 HTTP/1.1" 200 39258 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.197
+10.0.2.171 - - [10/Oct/2026:07:06:11 +0000] "GET /api/products/1592 HTTP/1.1" 200 43569 "-" "curl/8.10.1" 0.571
+10.0.1.250 - - [10/Oct/2026:07:06:11 +0000] "GET /api/products/238 HTTP/1.1" 200 22094 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.756
+10.0.3.153 - - [10/Oct/2026:07:06:11 +0000] "POST /api/orders HTTP/1.1" 200 14456 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.128
+10.0.0.210 - - [10/Oct/2026:07:06:12 +0000] "GET /api/products/1127 HTTP/1.1" 200 33887 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.853
+10.0.0.133 - - [10/Oct/2026:07:06:13 +0000] "GET /api/products?page=24 HTTP/1.1" 200 19659 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.788
+10.0.2.170 - - [10/Oct/2026:07:06:14 +0000] "POST /api/cart/items HTTP/1.1" 200 32203 "-" "curl/8.10.1" 0.780
+10.0.0.6 - - [10/Oct/2026:07:06:15 +0000] "POST /api/orders HTTP/1.1" 200 44092 "-" "Go-http-client/2.0" 0.778
+10.0.3.137 - - [10/Oct/2026:07:06:16 +0000] "GET /api/products/1874 HTTP/1.1" 200 17103 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.703
+10.0.1.160 - - [10/Oct/2026:07:06:18 +0000] "GET /api/products/1577 HTTP/1.1" 200 22668 "-" "Go-http-client/2.0" 0.353
+10.0.2.35 - - [10/Oct/2026:07:06:18 +0000] "GET /api/products?page=29 HTTP/1.1" 200 24048 "-" "Go-http-client/2.0" 0.503
+10.0.1.138 - - [10/Oct/2026:07:06:18 +0000] "POST /api/cart/items HTTP/1.1" 200 2197 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.279
+10.0.0.152 - - [10/Oct/2026:07:06:20 +0000] "GET /api/products?page=29 HTTP/1.1" 200 39722 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.272
+10.0.1.160 - - [10/Oct/2026:07:06:21 +0000] "POST /api/cart/items HTTP/1.1" 200 1408 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.633
+10.0.3.93 - - [10/Oct/2026:07:06:22 +0000] "GET /api/products/791 HTTP/1.1" 200 12346 "-" "Go-http-client/2.0" 0.085
+10.0.2.148 - - [10/Oct/2026:07:06:23 +0000] "GET /api/products/543 HTTP/1.1" 200 35387 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.380
+203.0.113.7 - - [10/Oct/2026:07:06:24 +0000] "GET /api/products/2016 HTTP/1.1" 200 43654 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.271
+10.0.3.153 - - [10/Oct/2026:07:06:25 +0000] "GET /api/products?page=13 HTTP/1.1" 200 36689 "-" "Go-http-client/2.0" 0.191
+10.0.3.109 - - [10/Oct/2026:07:06:26 +0000] "GET /api/products/4796 HTTP/1.1" 404 16 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.155
+10.0.0.6 - - [10/Oct/2026:07:06:27 +0000] "GET /api/products/441 HTTP/1.1" 200 14202 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.299
+10.0.3.174 - - [10/Oct/2026:07:06:28 +0000] "GET /api/products/1368 HTTP/1.1" 200 41769 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.462
+10.0.3.137 - - [10/Oct/2026:07:06:28 +0000] "GET /api/products/3964 HTTP/1.1" 200 21014 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.765
+10.0.3.93 - - [10/Oct/2026:07:06:29 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 4074 "-" "Go-http-client/2.0" 0.039
+10.0.0.183 - - [10/Oct/2026:07:06:31 +0000] "GET /api/products/3615 HTTP/1.1" 200 4517 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.231
+10.0.0.54 - - [10/Oct/2026:07:06:31 +0000] "GET /api/products?page=19 HTTP/1.1" 200 1213 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.795
+10.0.1.160 - - [10/Oct/2026:07:06:32 +0000] "GET /api/products/561 HTTP/1.1" 200 8377 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.317
+10.0.3.232 - - [10/Oct/2026:07:06:33 +0000] "GET /api/products/1246 HTTP/1.1" 200 20351 "-" "curl/8.10.1" 0.064
+10.0.2.110 - - [10/Oct/2026:07:06:34 +0000] "GET /api/products/1354 HTTP/1.1" 200 43493 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.366
+10.0.0.183 - - [10/Oct/2026:07:06:35 +0000] "GET /api/products?page=12 HTTP/1.1" 200 4275 "-" "curl/8.10.1" 0.782
+10.0.3.5 - - [10/Oct/2026:07:06:35 +0000] "POST /api/cart/items HTTP/1.1" 200 26421 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.556
+10.0.2.230 - - [10/Oct/2026:07:06:36 +0000] "GET /api/products/355 HTTP/1.1" 200 30748 "-" "Go-http-client/2.0" 0.384
+10.0.1.160 - - [10/Oct/2026:07:06:37 +0000] "GET /api/products?page=25 HTTP/1.1" 200 6497 "-" "Go-http-client/2.0" 0.087
+203.0.113.7 - - [10/Oct/2026:07:06:38 +0000] "GET /api/orders/c3c3b1bb-a7c7-441c-aed1-e47554e53cdd HTTP/1.1" 200 35940 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.536
+203.0.113.7 - - [10/Oct/2026:07:06:39 +0000] "GET /api/products/4752 HTTP/1.1" 200 7933 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.296
+10.0.2.148 - - [10/Oct/2026:07:06:40 +0000] "GET /api/products/2284 HTTP/1.1" 200 38649 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.337
+10.0.3.137 - - [10/Oct/2026:07:06:40 +0000] "GET /healthz HTTP/1.1" 200 9322 "-" "kube-probe/1.31" 0.898
+203.0.113.7 - - [10/Oct/2026:07:06:41 +0000] "POST /api/cart/items HTTP/1.1" 200 40763 "-" "Go-http-client/2.0" 0.389
+10.0.1.160 - - [10/Oct/2026:07:06:43 +0000] "GET /healthz HTTP/1.1" 200 5989 "-" "kube-probe/1.31" 0.035
+10.0.1.48 - - [10/Oct/2026:07:06:43 +0000] "GET /api/products/1 HTTP/1.1" 200 46679 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.712
+10.0.2.230 - - [10/Oct/2026:07:06:44 +0000] "GET /api/products/4012 HTTP/1.1" 200 13449 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.128
+10.0.2.230 - - [10/Oct/2026:07:06:44 +0000] "GET /api/orders/5471d861-1c12-406f-a2aa-85c8a0a43c27 HTTP/1.1" 200 37864 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.643
+10.0.2.35 - - [10/Oct/2026:07:06:46 +0000] "GET /api/products/2339 HTTP/1.1" 200 41716 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.312
+10.0.1.160 - - [10/Oct/2026:07:06:47 +0000] "GET /api/orders/5d5d021a-4d4f-4417-a620-d00bb624d72e HTTP/1.1" 200 42296 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.799
+10.0.3.153 - - [10/Oct/2026:07:06:47 +0000] "GET /api/products/4226 HTTP/1.1" 200 42202 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.849
+10.0.2.171 - - [10/Oct/2026:07:06:48 +0000] "GET /healthz HTTP/1.1" 200 27509 "-" "kube-probe/1.31" 0.091
+10.0.0.133 - - [10/Oct/2026:07:06:49 +0000] "POST /api/cart/items HTTP/1.1" 422 173 "-" "Go-http-client/2.0" 0.326
+10.0.3.174 - - [10/Oct/2026:07:06:49 +0000] "GET /api/products/2501 HTTP/1.1" 200 34631 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.817
+10.0.1.250 - - [10/Oct/2026:07:06:50 +0000] "GET /api/products?page=34 HTTP/1.1" 200 20433 "-" "curl/8.10.1" 0.650
+10.0.0.152 - - [10/Oct/2026:07:06:51 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 33977 "-" "Go-http-client/2.0" 0.050
+10.0.0.133 - - [10/Oct/2026:07:06:52 +0000] "GET /healthz HTTP/1.1" 200 33031 "-" "kube-probe/1.31" 0.397
+10.0.3.5 - - [10/Oct/2026:07:06:53 +0000] "POST /api/orders HTTP/1.1" 200 42663 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.783
+10.0.0.152 - - [10/Oct/2026:07:06:54 +0000] "GET /api/products?page=3 HTTP/1.1" 200 21863 "-" "Go-http-client/2.0" 0.860
+203.0.113.7 - - [10/Oct/2026:07:06:56 +0000] "GET /api/products?page=5 HTTP/1.1" 200 40724 "-" "curl/8.10.1" 0.508
+203.0.113.7 - - [10/Oct/2026:07:06:57 +0000] "GET /api/products/2612 HTTP/1.1" 200 17626 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.516
+10.0.1.160 - - [10/Oct/2026:07:06:57 +0000] "GET /api/products/3452 HTTP/1.1" 200 24968 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.004
+10.0.3.174 - - [10/Oct/2026:07:06:59 +0000] "GET /api/products?page=13 HTTP/1.1" 200 16586 "-" "Go-http-client/2.0" 0.572
+10.0.0.6 - - [10/Oct/2026:07:07:00 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 36216 "-" "curl/8.10.1" 0.578
+10.0.2.35 - - [10/Oct/2026:07:07:01 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 20560 "-" "Go-http-client/2.0" 0.718
+10.0.1.250 - - [10/Oct/2026:07:07:02 +0000] "POST /api/cart/items HTTP/1.1" 200 32476 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.105
+10.0.0.6 - - [10/Oct/2026:07:07:03 +0000] "GET /api/products/3723 HTTP/1.1" 200 7141 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.445
+10.0.3.47 - - [10/Oct/2026:07:07:03 +0000] "GET /api/products/3834 HTTP/1.1" 200 38167 "-" "curl/8.10.1" 0.497
+10.0.2.230 - - [10/Oct/2026:07:07:05 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 7408 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.857
+10.0.0.6 - - [10/Oct/2026:07:07:06 +0000] "POST /api/cart/items HTTP/1.1" 200 21443 "-" "curl/8.10.1" 0.884
+10.0.3.232 - - [10/Oct/2026:07:07:07 +0000] "POST /api/orders HTTP/1.1" 502 277 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.851
+10.0.1.70 - - [10/Oct/2026:07:07:07 +0000] "GET /api/products/358 HTTP/1.1" 200 1072 "-" "curl/8.10.1" 0.313
+10.0.3.174 - - [10/Oct/2026:07:07:08 +0000] "GET /api/products?page=15 HTTP/1.1" 200 38016 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.435
+10.0.3.232 - - [10/Oct/2026:07:07:09 +0000] "GET /api/products?page=18 HTTP/1.1" 200 24385 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.200
+10.0.0.54 - - [10/Oct/2026:07:07:09 +0000] "POST /api/cart/items HTTP/1.1" 200 7753 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.038
+10.0.1.138 - - [10/Oct/2026:07:07:11 +0000] "GET /api/products/1320 HTTP/1.1" 200 33178 "-" "Go-http-client/2.0" 0.443
+10.0.3.153 - - [10/Oct/2026:07:07:11 +0000] "GET /api/products/3363 HTTP/1.1" 200 33216 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.624
+10.0.3.109 - - [10/Oct/2026:07:07:12 +0000] "GET /api/orders/885e2a7e-6c2c-409a-aa78-7dd58b828fed HTTP/1.1" 200 26569 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.443
+10.0.1.70 - - [10/Oct/2026:07:07:13 +0000] "GET /api/products/1331 HTTP/1.1" 200 14062 "-" "Go-http-client/2.0" 0.281
+10.0.1.250 - - [10/Oct/2026:07:07:14 +0000] "GET /api/products/465 HTTP/1.1" 200 24155 "-" "curl/8.10.1" 0.248
+10.0.3.153 - - [10/Oct/2026:07:07:15 +0000] "GET /api/products?page=2 HTTP/1.1" 200 18999 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.610
+10.0.2.146 - - [10/Oct/2026:07:07:16 +0000] "GET /api/products?page=17 HTTP/1.1" 200 26860 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.707
+10.0.2.230 - - [10/Oct/2026:07:07:17 +0000] "GET /api/products?page=36 HTTP/1.1" 200 33935 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.273
+10.0.3.93 - - [10/Oct/2026:07:07:18 +0000] "GET /api/products/378 HTTP/1.1" 200 4799 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.886
+10.0.0.133 - - [10/Oct/2026:07:07:19 +0000] "GET /api/products/3153 HTTP/1.1" 200 42979 "-" "Go-http-client/2.0" 0.235
+10.0.2.146 - - [10/Oct/2026:07:07:20 +0000] "GET /api/products/4984 HTTP/1.1" 404 250 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.131
+10.0.3.153 - - [10/Oct/2026:07:07:21 +0000] "GET /api/products/3216 HTTP/1.1" 200 6804 "-" "Go-http-client/2.0" 0.118
+10.0.0.54 - - [10/Oct/2026:07:07:22 +0000] "GET /healthz HTTP/1.1" 200 19330 "-" "kube-probe/1.31" 0.164
+10.0.2.148 - - [10/Oct/2026:07:07:23 +0000] "GET /healthz HTTP/1.1" 200 20162 "-" "kube-probe/1.31" 0.441
+10.0.3.47 - - [10/Oct/2026:07:07:24 +0000] "GET /api/products/671 HTTP/1.1" 200 30978 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.658
+10.0.1.160 - - [10/Oct/2026:07:07:25 +0000] "GET /api/orders/57c15947-483b-44f3-a4c0-c919a99bde45 HTTP/1.1" 200 36231 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.167
+10.0.2.171 - - [10/Oct/2026:07:07:26 +0000] "POST /api/orders HTTP/1.1" 502 19 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.800
+10.0.0.210 - - [10/Oct/2026:07:07:27 +0000] "GET /api/products/2494 HTTP/1.1" 404 214 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.750
+10.0.3.93 - - [10/Oct/2026:07:07:28 +0000] "GET /api/products/2812 HTTP/1.1" 200 3183 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.150
+10.0.3.153 - - [10/Oct/2026:07:07:30 +0000] "GET /api/products/3943 HTTP/1.1" 200 28704 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.519
+10.0.0.6 - - [10/Oct/2026:07:07:31 +0000] "GET /api/products?page=18 HTTP/1.1" 200 46612 "-" "curl/8.10.1" 0.454
+10.0.2.35 - - [10/Oct/2026:07:07:32 +0000] "GET /api/products/4925 HTTP/1.1" 200 41561 "-" "curl/8.10.1" 0.779
+203.0.113.7 - - [10/Oct/2026:07:07:34 +0000] "POST /api/orders HTTP/1.1" 504 71 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.510
+10.0.2.146 - - [10/Oct/2026:07:07:34 +0000] "GET /api/products/557 HTTP/1.1" 200 42284 "-" "curl/8.10.1" 0.271
+10.0.3.93 - - [10/Oct/2026:07:07:35 +0000] "GET /api/products/4604 HTTP/1.1" 200 16721 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.546
+10.0.1.70 - - [10/Oct/2026:07:07:36 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 27834 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.414
+10.0.3.174 - - [10/Oct/2026:07:07:37 +0000] "POST /api/cart/items HTTP/1.1" 200 14053 "-" "Go-http-client/2.0" 0.272
+10.0.0.183 - - [10/Oct/2026:07:07:38 +0000] "GET /api/products/549 HTTP/1.1" 200 2670 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.569
+10.0.0.29 - - [10/Oct/2026:07:07:40 +0000] "GET /api/orders/54e11bcb-157e-499b-a957-c3879c34626d HTTP/1.1" 200 30728 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.418
+10.0.0.133 - - [10/Oct/2026:07:07:40 +0000] "GET /healthz HTTP/1.1" 200 19477 "-" "kube-probe/1.31" 0.679
+10.0.0.210 - - [10/Oct/2026:07:07:41 +0000] "GET /healthz HTTP/1.1" 200 24166 "-" "kube-probe/1.31" 0.302
+10.0.1.70 - - [10/Oct/2026:07:07:42 +0000] "GET /api/products?page=7 HTTP/1.1" 200 17380 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.724
+10.0.2.110 - - [10/Oct/2026:07:07:42 +0000] "GET /api/products/3602 HTTP/1.1" 200 17383 "-" "curl/8.10.1" 0.359
+10.0.1.250 - - [10/Oct/2026:07:07:44 +0000] "GET /api/products/2387 HTTP/1.1" 200 2532 "-" "Go-http-client/2.0" 0.370
+10.0.1.48 - - [10/Oct/2026:07:07:45 +0000] "GET /api/products?page=24 HTTP/1.1" 200 7878 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.150
+10.0.3.232 - - [10/Oct/2026:07:07:45 +0000] "GET /api/products/2450 HTTP/1.1" 200 41049 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.007
+10.0.1.70 - - [10/Oct/2026:07:07:46 +0000] "GET /healthz HTTP/1.1" 200 645 "-" "kube-probe/1.31" 0.655
+10.0.2.148 - - [10/Oct/2026:07:07:47 +0000] "GET /api/products/501 HTTP/1.1" 200 42371 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.125
+10.0.2.170 - - [10/Oct/2026:07:07:48 +0000] "GET /api/products/3433 HTTP/1.1" 200 45569 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.699
+10.0.0.54 - - [10/Oct/2026:07:07:49 +0000] "GET /api/products/3881 HTTP/1.1" 200 27334 "-" "curl/8.10.1" 0.141
+10.0.2.174 - - [10/Oct/2026:07:07:50 +0000] "GET /healthz HTTP/1.1" 200 31006 "-" "kube-probe/1.31" 0.028
+10.0.0.133 - - [10/Oct/2026:07:07:51 +0000] "GET /healthz HTTP/1.1" 200 19645 "-" "kube-probe/1.31" 0.869
+10.0.3.109 - - [10/Oct/2026:07:07:51 +0000] "POST /api/cart/items HTTP/1.1" 200 16408 "-" "Go-http-client/2.0" 0.480
+10.0.3.109 - - [10/Oct/2026:07:07:51 +0000] "GET /api/products?page=13 HTTP/1.1" 200 36771 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.401
+10.0.2.146 - - [10/Oct/2026:07:07:52 +0000] "POST /api/cart/items HTTP/1.1" 200 6478 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.060
+10.0.1.48 - - [10/Oct/2026:07:07:53 +0000] "GET /api/products/266 HTTP/1.1" 200 34289 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.530
+10.0.0.29 - - [10/Oct/2026:07:07:54 +0000] "GET /api/products/1724 HTTP/1.1" 200 45436 "-" "Go-http-client/2.0" 0.501
+10.0.2.174 - - [10/Oct/2026:07:07:55 +0000] "GET /api/products?page=35 HTTP/1.1" 200 33449 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.286
+10.0.3.5 - - [10/Oct/2026:07:07:56 +0000] "GET /api/products?page=4 HTTP/1.1" 200 41233 "-" "curl/8.10.1" 0.416
+10.0.3.47 - - [10/Oct/2026:07:07:56 +0000] "POST /api/cart/items HTTP/1.1" 200 41114 "-" "Go-http-client/2.0" 0.030
+10.0.1.48 - - [10/Oct/2026:07:07:57 +0000] "POST /api/cart/items HTTP/1.1" 422 158 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.325
+10.0.2.171 - - [10/Oct/2026:07:07:58 +0000] "GET /api/products/3207 HTTP/1.1" 200 14378 "-" "Go-http-client/2.0" 0.566
+10.0.2.170 - - [10/Oct/2026:07:07:58 +0000] "GET /api/products/46 HTTP/1.1" 200 40174 "-" "Go-http-client/2.0" 0.137
+10.0.2.146 - - [10/Oct/2026:07:07:59 +0000] "GET /healthz HTTP/1.1" 200 26432 "-" "kube-probe/1.31" 0.347
+10.0.1.250 - - [10/Oct/2026:07:08:00 +0000] "GET /api/products/2538 HTTP/1.1" 200 15024 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.338
+203.0.113.7 - - [10/Oct/2026:07:08:00 +0000] "GET /api/products?page=19 HTTP/1.1" 200 45814 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.075
+10.0.0.6 - - [10/Oct/2026:07:08:01 +0000] "GET /api/products/881 HTTP/1.1" 200 34175 "-" "curl/8.10.1" 0.142
+10.0.2.35 - - [10/Oct/2026:07:08:02 +0000] "POST /api/cart/items HTTP/1.1" 200 3453 "-" "curl/8.10.1" 0.748
+10.0.0.133 - - [10/Oct/2026:07:08:03 +0000] "GET /api/products/911 HTTP/1.1" 200 35788 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.297
+203.0.113.7 - - [10/Oct/2026:07:08:04 +0000] "GET /api/products/1436 HTTP/1.1" 200 16857 "-" "curl/8.10.1" 0.831
+10.0.3.47 - - [10/Oct/2026:07:08:06 +0000] "GET /api/products/3771 HTTP/1.1" 200 16368 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.107
+10.0.3.109 - - [10/Oct/2026:07:08:06 +0000] "GET /api/products?page=22 HTTP/1.1" 200 32690 "-" "Go-http-client/2.0" 0.879
+10.0.0.29 - - [10/Oct/2026:07:08:08 +0000] "GET /api/products/3398 HTTP/1.1" 200 23609 "-" "Go-http-client/2.0" 0.398
+10.0.3.5 - - [10/Oct/2026:07:08:09 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 24018 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.091
+10.0.1.250 - - [10/Oct/2026:07:08:10 +0000] "GET /api/products/2003 HTTP/1.1" 200 41493 "-" "curl/8.10.1" 0.499
+10.0.2.148 - - [10/Oct/2026:07:08:10 +0000] "GET /api/products/1229 HTTP/1.1" 200 4347 "-" "curl/8.10.1" 0.694
+10.0.3.153 - - [10/Oct/2026:07:08:11 +0000] "GET /api/products?page=6 HTTP/1.1" 200 38782 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.127
+10.0.2.148 - - [10/Oct/2026:07:08:12 +0000] "GET /api/orders/29b0b2dd-e646-4a49-af07-6f33a29495f3 HTTP/1.1" 200 24777 "-" "curl/8.10.1" 0.143
+10.0.3.5 - - [10/Oct/2026:07:08:13 +0000] "GET /api/products/4373 HTTP/1.1" 200 8159 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.233
+10.0.0.29 - - [10/Oct/2026:07:08:14 +0000] "POST /api/cart/items HTTP/1.1" 200 40209 "-" "curl/8.10.1" 0.444
+10.0.2.230 - - [10/Oct/2026:07:08:14 +0000] "POST /api/orders HTTP/1.1" 502 130 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.834
+10.0.0.133 - - [10/Oct/2026:07:08:16 +0000] "POST /api/cart/items HTTP/1.1" 200 3898 "-" "Go-http-client/2.0" 0.144
+10.0.3.137 - - [10/Oct/2026:07:08:16 +0000] "GET /healthz HTTP/1.1" 200 3816 "-" "kube-probe/1.31" 0.820
+10.0.1.160 - - [10/Oct/2026:07:08:17 +0000] "POST /api/orders HTTP/1.1" 502 291 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.423
+10.0.3.109 - - [10/Oct/2026:07:08:18 +0000] "GET /api/products/4711 HTTP/1.1" 200 19926 "-" "Go-http-client/2.0" 0.156
+10.0.3.232 - - [10/Oct/2026:07:08:19 +0000] "POST /api/cart/items HTTP/1.1" 200 8528 "-" "curl/8.10.1" 0.195
+10.0.1.48 - - [10/Oct/2026:07:08:20 +0000] "POST /api/cart/items HTTP/1.1" 200 44320 "-" "curl/8.10.1" 0.025
+10.0.2.171 - - [10/Oct/2026:07:08:21 +0000] "GET /api/products/3180 HTTP/1.1" 200 37885 "-" "curl/8.10.1" 0.526
+10.0.0.29 - - [10/Oct/2026:07:08:22 +0000] "GET /api/products/672 HTTP/1.1" 200 1491 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.662
+10.0.2.146 - - [10/Oct/2026:07:08:23 +0000] "GET /api/products?page=6 HTTP/1.1" 200 2924 "-" "curl/8.10.1" 0.519
+10.0.0.183 - - [10/Oct/2026:07:08:25 +0000] "GET /api/products?page=4 HTTP/1.1" 200 25808 "-" "curl/8.10.1" 0.280
+10.0.3.174 - - [10/Oct/2026:07:08:25 +0000] "GET /api/products?page=26 HTTP/1.1" 200 40411 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.316
+10.0.2.35 - - [10/Oct/2026:07:08:26 +0000] "GET /api/products/2403 HTTP/1.1" 200 35068 "-" "Go-http-client/2.0" 0.714
+10.0.1.48 - - [10/Oct/2026:07:08:27 +0000] "POST /api/cart/items HTTP/1.1" 422 115 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.491
+10.0.1.250 - - [10/Oct/2026:07:08:27 +0000] "POST /api/orders HTTP/1.1" 502 260 "-" "curl/8.10.1" 0.880
+10.0.3.93 - - [10/Oct/2026:07:08:28 +0000] "GET /api/products/3510 HTTP/1.1" 200 13911 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.067
+10.0.1.138 - - [10/Oct/2026:07:08:29 +0000] "GET /api/products/34 HTTP/1.1" 200 8551 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.596
+10.0.0.29 - - [10/Oct/2026:07:08:30 +0000] "GET /api/products?page=30 HTTP/1.1" 200 23605 "-" "curl/8.10.1" 0.516
+10.0.3.109 - - [10/Oct/2026:07:08:31 +0000] "GET /api/products?page=25 HTTP/1.1" 200 38845 "-" "curl/8.10.1" 0.621
+10.0.2.171 - - [10/Oct/2026:07:08:31 +0000] "GET /api/products/285 HTTP/1.1" 200 2767 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.009
+10.0.3.137 - - [10/Oct/2026:07:08:33 +0000] "GET /api/products/1259 HTTP/1.1" 200 45341 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.167
+10.0.2.148 - - [10/Oct/2026:07:08:34 +0000] "GET /api/products/312 HTTP/1.1" 404 250 "-" "Go-http-client/2.0" 0.147
+10.0.2.35 - - [10/Oct/2026:07:08:35 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 42479 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.091
+10.0.0.6 - - [10/Oct/2026:07:08:36 +0000] "GET /api/products/1377 HTTP/1.1" 200 1640 "-" "Go-http-client/2.0" 0.387
+10.0.1.250 - - [10/Oct/2026:07:08:37 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 39703 "-" "Go-http-client/2.0" 0.391
+10.0.2.148 - - [10/Oct/2026:07:08:37 +0000] "POST /api/orders HTTP/1.1" 200 28113 "-" "Go-http-client/2.0" 0.511
+203.0.113.7 - - [10/Oct/2026:07:08:38 +0000] "GET /api/products/3901 HTTP/1.1" 200 34809 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.788
+10.0.0.152 - - [10/Oct/2026:07:08:39 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 44052 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.640
+10.0.2.170 - - [10/Oct/2026:07:08:41 +0000] "GET /api/products/3553 HTTP/1.1" 200 41685 "-" "curl/8.10.1" 0.337
+10.0.3.93 - - [10/Oct/2026:07:08:42 +0000] "GET /api/products/4500 HTTP/1.1" 200 34636 "-" "Go-http-client/2.0" 0.263
+10.0.0.133 - - [10/Oct/2026:07:08:43 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 15960 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.396
+10.0.3.153 - - [10/Oct/2026:07:08:44 +0000] "POST /api/cart/items HTTP/1.1" 200 35297 "-" "curl/8.10.1" 0.858
+10.0.2.249 - - [10/Oct/2026:07:08:45 +0000] "GET /api/products/213 HTTP/1.1" 200 39683 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.637
+10.0.1.160 - - [10/Oct/2026:07:08:46 +0000] "GET /healthz HTTP/1.1" 200 40780 "-" "kube-probe/1.31" 0.551
+10.0.3.153 - - [10/Oct/2026:07:08:47 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 20632 "-" "curl/8.10.1" 0.212
+10.0.3.153 - - [10/Oct/2026:07:08:48 +0000] "GET /api/products/4767 HTTP/1.1" 200 31313 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.247
+10.0.2.171 - - [10/Oct/2026:07:08:49 +0000] "GET /api/products?page=24 HTTP/1.1" 200 6414 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.754
+10.0.1.160 - - [10/Oct/2026:07:08:50 +0000] "GET /api/products/838 HTTP/1.1" 200 6511 "-" "Go-http-client/2.0" 0.253
+10.0.2.171 - - [10/Oct/2026:07:08:51 +0000] "GET /api/products/87 HTTP/1.1" 200 21998 "-" "Go-http-client/2.0" 0.854
+10.0.2.249 - - [10/Oct/2026:07:08:52 +0000] "GET /api/products?page=16 HTTP/1.1" 200 27860 "-" "Go-http-client/2.0" 0.605
+10.0.2.249 - - [10/Oct/2026:07:08:53 +0000] "POST /api/orders HTTP/1.1" 200 27965 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.157
+10.0.2.110 - - [10/Oct/2026:07:08:54 +0000] "POST /api/cart/items HTTP/1.1" 200 31283 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.097
+10.0.2.170 - - [10/Oct/2026:07:08:55 +0000] "GET /api/products/2464 HTTP/1.1" 200 27075 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.832
+10.0.2.110 - - [10/Oct/2026:07:08:56 +0000] "GET /api/products/2527 HTTP/1.1" 404 200 "-" "Go-http-client/2.0" 0.885
+10.0.1.48 - - [10/Oct/2026:07:08:57 +0000] "POST /api/cart/items HTTP/1.1" 422 211 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.826
+10.0.1.48 - - [10/Oct/2026:07:08:58 +0000] "POST /api/cart/items HTTP/1.1" 200 45663 "-" "Go-http-client/2.0" 0.075
+10.0.2.170 - - [10/Oct/2026:07:08:59 +0000] "GET /api/products/255 HTTP/1.1" 200 5045 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.640
+10.0.2.230 - - [10/Oct/2026:07:09:00 +0000] "GET /api/products/3356 HTTP/1.1" 200 29047 "-" "curl/8.10.1" 0.353
+10.0.1.70 - - [10/Oct/2026:07:09:01 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 13873 "-" "curl/8.10.1" 0.602
+10.0.1.250 - - [10/Oct/2026:07:09:02 +0000] "GET /api/products/96 HTTP/1.1" 200 2733 "-" "curl/8.10.1" 0.222
+10.0.3.109 - - [10/Oct/2026:07:09:03 +0000] "GET /healthz HTTP/1.1" 200 3922 "-" "kube-probe/1.31" 0.220
+10.0.1.250 - - [10/Oct/2026:07:09:04 +0000] "GET /healthz HTTP/1.1" 200 41089 "-" "kube-probe/1.31" 0.096
+10.0.0.133 - - [10/Oct/2026:07:09:05 +0000] "POST /api/cart/items HTTP/1.1" 200 35610 "-" "Go-http-client/2.0" 0.619
+10.0.2.35 - - [10/Oct/2026:07:09:06 +0000] "GET /api/products/284 HTTP/1.1" 200 14277 "-" "Go-http-client/2.0" 0.432
+10.0.3.174 - - [10/Oct/2026:07:09:06 +0000] "GET /api/products/1760 HTTP/1.1" 200 22278 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.492
+10.0.1.48 - - [10/Oct/2026:07:09:07 +0000] "GET /api/products/1942 HTTP/1.1" 200 41862 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.821
+10.0.2.230 - - [10/Oct/2026:07:09:09 +0000] "GET /api/products/2543 HTTP/1.1" 200 23624 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.108
+10.0.1.160 - - [10/Oct/2026:07:09:10 +0000] "GET /healthz HTTP/1.1" 200 44483 "-" "kube-probe/1.31" 0.208
+10.0.3.5 - - [10/Oct/2026:07:09:10 +0000] "GET /api/products?page=30 HTTP/1.1" 200 28975 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.257
+10.0.2.110 - - [10/Oct/2026:07:09:11 +0000] "GET /api/products/1678 HTTP/1.1" 200 37872 "-" "Go-http-client/2.0" 0.057
+10.0.3.93 - - [10/Oct/2026:07:09:12 +0000] "GET /api/products/730 HTTP/1.1" 200 37503 "-" "curl/8.10.1" 0.620
+10.0.3.93 - - [10/Oct/2026:07:09:13 +0000] "POST /api/cart/items HTTP/1.1" 200 38658 "-" "Go-http-client/2.0" 0.205
+10.0.3.153 - - [10/Oct/2026:07:09:14 +0000] "GET /api/products/2780 HTTP/1.1" 200 19163 "-" "Go-http-client/2.0" 0.251
+203.0.113.7 - - [10/Oct/2026:07:09:15 +0000] "GET /api/products/4604 HTTP/1.1" 200 3059 "-" "curl/8.10.1" 0.495
+10.0.3.232 - - [10/Oct/2026:07:09:15 +0000] "GET /api/products?page=5 HTTP/1.1" 200 16375 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.858
+10.0.1.70 - - [10/Oct/2026:07:09:16 +0000] "GET /api/products?page=28 HTTP/1.1" 200 26259 "-" "curl/8.10.1" 0.179
+10.0.3.137 - - [10/Oct/2026:07:09:17 +0000] "GET /api/products/4202 HTTP/1.1" 200 47040 "-" "Go-http-client/2.0" 0.772
+10.0.3.47 - - [10/Oct/2026:07:09:18 +0000] "GET /healthz HTTP/1.1" 200 10926 "-" "kube-probe/1.31" 0.762
+10.0.0.29 - - [10/Oct/2026:07:09:19 +0000] "GET /healthz HTTP/1.1" 200 12258 "-" "kube-probe/1.31" 0.673
+10.0.2.170 - - [10/Oct/2026:07:09:20 +0000] "GET /api/products?page=15 HTTP/1.1" 200 31501 "-" "Go-http-client/2.0" 0.184
+203.0.113.7 - - [10/Oct/2026:07:09:21 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 11851 "-" "curl/8.10.1" 0.533
+10.0.2.230 - - [10/Oct/2026:07:09:22 +0000] "GET /api/products/1063 HTTP/1.1" 404 225 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.633
+10.0.3.137 - - [10/Oct/2026:07:09:23 +0000] "GET /api/orders/13d9309e-d51a-440a-ace6-68d0e535225e HTTP/1.1" 200 34273 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.435
+10.0.1.138 - - [10/Oct/2026:07:09:23 +0000] "GET /api/products/3665 HTTP/1.1" 200 3824 "-" "curl/8.10.1" 0.121
+10.0.0.152 - - [10/Oct/2026:07:09:24 +0000] "GET /api/products?page=2 HTTP/1.1" 200 20983 "-" "Go-http-client/2.0" 0.482
+10.0.1.160 - - [10/Oct/2026:07:09:25 +0000] "GET /api/products?page=40 HTTP/1.1" 200 14092 "-" "Go-http-client/2.0" 0.133
+10.0.2.174 - - [10/Oct/2026:07:09:27 +0000] "GET /api/products/4154 HTTP/1.1" 200 44787 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.281
+10.0.1.70 - - [10/Oct/2026:07:09:28 +0000] "GET /healthz HTTP/1.1" 200 45488 "-" "kube-probe/1.31" 0.613
+10.0.3.232 - - [10/Oct/2026:07:09:29 +0000] "GET /healthz HTTP/1.1" 200 38754 "-" "kube-probe/1.31" 0.317
+10.0.1.160 - - [10/Oct/2026:07:09:30 +0000] "GET /api/products?page=12 HTTP/1.1" 200 27174 "-" "Go-http-client/2.0" 0.126
+10.0.2.230 - - [10/Oct/2026:07:09:31 +0000] "GET /healthz HTTP/1.1" 200 3941 "-" "kube-probe/1.31" 0.673
+10.0.2.35 - - [10/Oct/2026:07:09:31 +0000] "GET /api/products/2682 HTTP/1.1" 200 25905 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.656
+10.0.3.47 - - [10/Oct/2026:07:09:33 +0000] "GET /healthz HTTP/1.1" 200 3153 "-" "kube-probe/1.31" 0.574
+10.0.2.174 - - [10/Oct/2026:07:09:33 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 3450 "-" "curl/8.10.1" 0.288
+10.0.1.138 - - [10/Oct/2026:07:09:33 +0000] "GET /api/products/1891 HTTP/1.1" 200 44997 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.235
+10.0.1.250 - - [10/Oct/2026:07:09:34 +0000] "GET /healthz HTTP/1.1" 200 36813 "-" "kube-probe/1.31" 0.170
+10.0.1.48 - - [10/Oct/2026:07:09:35 +0000] "GET /api/products?page=18 HTTP/1.1" 200 28158 "-" "curl/8.10.1" 0.687
+10.0.2.170 - - [10/Oct/2026:07:09:36 +0000] "GET /api/products?page=25 HTTP/1.1" 200 4004 "-" "Go-http-client/2.0" 0.291
+10.0.1.160 - - [10/Oct/2026:07:09:37 +0000] "GET /api/products/502 HTTP/1.1" 200 38348 "-" "curl/8.10.1" 0.625
+10.0.0.133 - - [10/Oct/2026:07:09:38 +0000] "GET /healthz HTTP/1.1" 200 46014 "-" "kube-probe/1.31" 0.814
+10.0.0.133 - - [10/Oct/2026:07:09:39 +0000] "GET /api/products?page=5 HTTP/1.1" 200 28072 "-" "Go-http-client/2.0" 0.009
+10.0.0.183 - - [10/Oct/2026:07:09:39 +0000] "GET /api/products/4689 HTTP/1.1" 200 23591 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.161
+10.0.3.93 - - [10/Oct/2026:07:09:41 +0000] "GET /api/products?page=34 HTTP/1.1" 200 1813 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.233
+10.0.1.250 - - [10/Oct/2026:07:09:42 +0000] "GET /api/products?page=34 HTTP/1.1" 200 30895 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.058
+10.0.1.160 - - [10/Oct/2026:07:09:43 +0000] "GET /api/products?page=38 HTTP/1.1" 200 5281 "-" "Go-http-client/2.0" 0.389
+10.0.1.160 - - [10/Oct/2026:07:09:44 +0000] "GET /api/products?page=2 HTTP/1.1" 200 10862 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.386
+10.0.3.5 - - [10/Oct/2026:07:09:45 +0000] "GET /api/products/3781 HTTP/1.1" 200 7618 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.766
+10.0.0.29 - - [10/Oct/2026:07:09:47 +0000] "GET /api/products/199 HTTP/1.1" 200 19088 "-" "Go-http-client/2.0" 0.333
+10.0.0.133 - - [10/Oct/2026:07:09:47 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 31975 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.407
+10.0.3.174 - - [10/Oct/2026:07:09:48 +0000] "GET /healthz HTTP/1.1" 200 15507 "-" "kube-probe/1.31" 0.860
+203.0.113.7 - - [10/Oct/2026:07:09:50 +0000] "GET /api/products/721 HTTP/1.1" 200 44849 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.899
+10.0.2.35 - - [10/Oct/2026:07:09:50 +0000] "GET /healthz HTTP/1.1" 200 842 "-" "kube-probe/1.31" 0.062
+10.0.3.174 - - [10/Oct/2026:07:09:51 +0000] "GET /api/products/4657 HTTP/1.1" 200 39714 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.168
+10.0.0.152 - - [10/Oct/2026:07:09:52 +0000] "GET /healthz HTTP/1.1" 200 35101 "-" "kube-probe/1.31" 0.513
+10.0.2.171 - - [10/Oct/2026:07:09:53 +0000] "GET /api/products/2662 HTTP/1.1" 200 12545 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.493
+10.0.2.110 - - [10/Oct/2026:07:09:54 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 36946 "-" "Go-http-client/2.0" 0.655
+10.0.3.174 - - [10/Oct/2026:07:09:55 +0000] "GET /api/products?page=17 HTTP/1.1" 200 7003 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.037
+10.0.1.250 - - [10/Oct/2026:07:09:56 +0000] "GET /api/products?page=38 HTTP/1.1" 200 25123 "-" "curl/8.10.1" 0.855
+10.0.1.48 - - [10/Oct/2026:07:09:57 +0000] "GET /healthz HTTP/1.1" 200 32359 "-" "kube-probe/1.31" 0.195
+10.0.2.249 - - [10/Oct/2026:07:09:58 +0000] "GET /healthz HTTP/1.1" 200 5788 "-" "kube-probe/1.31" 0.859
+10.0.2.171 - - [10/Oct/2026:07:09:59 +0000] "GET /api/products?page=11 HTTP/1.1" 200 32854 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.524
+10.0.0.29 - - [10/Oct/2026:07:10:00 +0000] "GET /healthz HTTP/1.1" 200 36538 "-" "kube-probe/1.31" 0.458
+10.0.3.232 - - [10/Oct/2026:07:10:01 +0000] "GET /api/products/855 HTTP/1.1" 200 5333 "-" "curl/8.10.1" 0.572
+10.0.1.160 - - [10/Oct/2026:07:10:02 +0000] "POST /api/cart/items HTTP/1.1" 200 12379 "-" "curl/8.10.1" 0.470
+10.0.3.174 - - [10/Oct/2026:07:10:03 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 8998 "-" "Go-http-client/2.0" 0.150
+10.0.3.47 - - [10/Oct/2026:07:10:04 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 42754 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.129
+10.0.1.138 - - [10/Oct/2026:07:10:05 +0000] "GET /api/products/2788 HTTP/1.1" 200 42529 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.159
+10.0.1.70 - - [10/Oct/2026:07:10:05 +0000] "GET /api/products/839 HTTP/1.1" 200 5900 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.401
+10.0.0.6 - - [10/Oct/2026:07:10:06 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 20493 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.804
+10.0.2.249 - - [10/Oct/2026:07:10:07 +0000] "GET /api/products/3813 HTTP/1.1" 200 26486 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.045
+10.0.2.249 - - [10/Oct/2026:07:10:08 +0000] "GET /api/products?page=2 HTTP/1.1" 200 17319 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.774
+10.0.3.137 - - [10/Oct/2026:07:10:09 +0000] "GET /api/products?page=22 HTTP/1.1" 200 19336 "-" "curl/8.10.1" 0.835
+10.0.1.250 - - [10/Oct/2026:07:10:10 +0000] "GET /api/products?page=3 HTTP/1.1" 200 33521 "-" "curl/8.10.1" 0.290
+10.0.1.70 - - [10/Oct/2026:07:10:11 +0000] "GET /api/products/966 HTTP/1.1" 200 39792 "-" "Go-http-client/2.0" 0.411
+10.0.2.146 - - [10/Oct/2026:07:10:12 +0000] "GET /api/products/2759 HTTP/1.1" 200 23019 "-" "curl/8.10.1" 0.751
+10.0.3.137 - - [10/Oct/2026:07:10:13 +0000] "GET /api/products/4681 HTTP/1.1" 200 15980 "-" "Go-http-client/2.0" 0.513
+10.0.1.160 - - [10/Oct/2026:07:10:14 +0000] "GET /api/products?page=10 HTTP/1.1" 200 7141 "-" "Go-http-client/2.0" 0.365
+10.0.0.6 - - [10/Oct/2026:07:10:15 +0000] "GET /healthz HTTP/1.1" 200 14395 "-" "kube-probe/1.31" 0.294
+10.0.3.5 - - [10/Oct/2026:07:10:17 +0000] "GET /api/orders/c87f6bd2-1be1-419b-af5d-a2e91c766451 HTTP/1.1" 200 47567 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.213
+10.0.3.153 - - [10/Oct/2026:07:10:17 +0000] "GET /api/products/2798 HTTP/1.1" 200 13900 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.093
+10.0.2.170 - - [10/Oct/2026:07:10:18 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 23344 "-" "Go-http-client/2.0" 0.644
+10.0.0.152 - - [10/Oct/2026:07:10:19 +0000] "GET /api/products/3532 HTTP/1.1" 200 44341 "-" "curl/8.10.1" 0.759
+203.0.113.7 - - [10/Oct/2026:07:10:20 +0000] "GET /healthz HTTP/1.1" 200 1897 "-" "kube-probe/1.31" 0.162
+10.0.0.54 - - [10/Oct/2026:07:10:20 +0000] "GET /api/products/3192 HTTP/1.1" 200 45716 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.582
+10.0.2.146 - - [10/Oct/2026:07:10:21 +0000] "GET /api/products/2701 HTTP/1.1" 200 7490 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.095
+10.0.2.110 - - [10/Oct/2026:07:10:23 +0000] "GET /api/products/3042 HTTP/1.1" 200 27494 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.705
+10.0.0.29 - - [10/Oct/2026:07:10:24 +0000] "POST /api/cart/items HTTP/1.1" 200 1987 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.380
+203.0.113.7 - - [10/Oct/2026:07:10:26 +0000] "GET /api/products/1502 HTTP/1.1" 200 24015 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.163
+10.0.1.70 - - [10/Oct/2026:07:10:26 +0000] "GET /api/products/4219 HTTP/1.1" 200 25470 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.053
+10.0.1.160 - - [10/Oct/2026:07:10:27 +0000] "GET /api/products/3873 HTTP/1.1" 200 35242 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.134
+10.0.1.48 - - [10/Oct/2026:07:10:28 +0000] "POST /api/cart/items HTTP/1.1" 200 1143 "-" "Go-http-client/2.0" 0.184
+10.0.1.138 - - [10/Oct/2026:07:10:29 +0000] "GET /api/products/1235 HTTP/1.1" 200 14557 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.897
+10.0.1.138 - - [10/Oct/2026:07:10:31 +0000] "GET /api/products?page=30 HTTP/1.1" 200 27941 "-" "Go-http-client/2.0" 0.402
+10.0.2.170 - - [10/Oct/2026:07:10:32 +0000] "GET /api/products/1091 HTTP/1.1" 200 37392 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.398
+10.0.0.54 - - [10/Oct/2026:07:10:33 +0000] "GET /api/products/261 HTTP/1.1" 404 123 "-" "curl/8.10.1" 0.756
+10.0.3.137 - - [10/Oct/2026:07:10:33 +0000] "GET /api/products/653 HTTP/1.1" 200 33127 "-" "curl/8.10.1" 0.110
+10.0.2.174 - - [10/Oct/2026:07:10:34 +0000] "GET /api/products/4523 HTTP/1.1" 200 12319 "-" "curl/8.10.1" 0.348
+10.0.0.54 - - [10/Oct/2026:07:10:35 +0000] "POST /api/cart/items HTTP/1.1" 200 42012 "-" "curl/8.10.1" 0.086
+10.0.2.170 - - [10/Oct/2026:07:10:36 +0000] "GET /api/products?page=7 HTTP/1.1" 200 19355 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.155
+10.0.2.171 - - [10/Oct/2026:07:10:37 +0000] "GET /api/products?page=28 HTTP/1.1" 200 42734 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.206
+10.0.0.183 - - [10/Oct/2026:07:10:37 +0000] "GET /api/products?page=12 HTTP/1.1" 200 45285 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.042
+10.0.1.48 - - [10/Oct/2026:07:10:38 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 35552 "-" "curl/8.10.1" 0.436
+10.0.0.210 - - [10/Oct/2026:07:10:39 +0000] "GET /api/products/1167 HTTP/1.1" 404 71 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.681
+10.0.2.171 - - [10/Oct/2026:07:10:41 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 29918 "-" "Go-http-client/2.0" 0.185
+10.0.1.160 - - [10/Oct/2026:07:10:42 +0000] "GET /api/products?page=13 HTTP/1.1" 200 20942 "-" "curl/8.10.1" 0.201
+10.0.1.160 - - [10/Oct/2026:07:10:42 +0000] "GET /api/products?page=39 HTTP/1.1" 200 3948 "-" "Go-http-client/2.0" 0.788
+10.0.3.5 - - [10/Oct/2026:07:10:43 +0000] "GET /healthz HTTP/1.1" 200 22359 "-" "kube-probe/1.31" 0.381
+10.0.2.110 - - [10/Oct/2026:07:10:43 +0000] "GET /api/products?page=14 HTTP/1.1" 200 3928 "-" "Go-http-client/2.0" 0.058
+10.0.1.138 - - [10/Oct/2026:07:10:45 +0000] "GET /api/products?page=7 HTTP/1.1" 200 28969 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.113
+10.0.3.137 - - [10/Oct/2026:07:10:46 +0000] "POST /api/cart/items HTTP/1.1" 200 36274 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.319
+10.0.2.170 - - [10/Oct/2026:07:10:47 +0000] "POST /api/cart/items HTTP/1.1" 200 20351 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.775
+10.0.2.146 - - [10/Oct/2026:07:10:48 +0000] "POST /api/cart/items HTTP/1.1" 200 28194 "-" "Go-http-client/2.0" 0.825
+10.0.3.109 - - [10/Oct/2026:07:10:49 +0000] "GET /api/products?page=28 HTTP/1.1" 200 38597 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.150
+10.0.3.137 - - [10/Oct/2026:07:10:49 +0000] "GET /healthz HTTP/1.1" 200 25407 "-" "kube-probe/1.31" 0.531
+10.0.1.160 - - [10/Oct/2026:07:10:50 +0000] "GET /api/products?page=33 HTTP/1.1" 200 46541 "-" "Go-http-client/2.0" 0.617
+10.0.0.54 - - [10/Oct/2026:07:10:50 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 9276 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.329
+10.0.0.6 - - [10/Oct/2026:07:10:51 +0000] "GET /api/orders/9a8ecb18-e38b-4e0e-ab32-bc2b6daedaa1 HTTP/1.1" 200 33124 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.412
+10.0.2.170 - - [10/Oct/2026:07:10:52 +0000] "GET /api/products/3194 HTTP/1.1" 200 9094 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.672
+10.0.0.152 - - [10/Oct/2026:07:10:53 +0000] "GET /api/orders/b1a2c187-df61-4180-a1d8-1cc6bceb8498 HTTP/1.1" 200 16641 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.898
+10.0.1.250 - - [10/Oct/2026:07:10:54 +0000] "GET /healthz HTTP/1.1" 200 45379 "-" "kube-probe/1.31" 0.145
+10.0.3.93 - - [10/Oct/2026:07:10:55 +0000] "POST /api/orders HTTP/1.1" 200 8772 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.063
+10.0.0.210 - - [10/Oct/2026:07:10:56 +0000] "GET /healthz HTTP/1.1" 200 16874 "-" "kube-probe/1.31" 0.610
+10.0.1.250 - - [10/Oct/2026:07:10:57 +0000] "GET /api/products/1365 HTTP/1.1" 200 29302 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.010
+203.0.113.7 - - [10/Oct/2026:07:10:57 +0000] "GET /api/products/727 HTTP/1.1" 404 38 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.820
+203.0.113.7 - - [10/Oct/2026:07:10:59 +0000] "GET /api/products?page=20 HTTP/1.1" 200 11339 "-" "Go-http-client/2.0" 0.355
+10.0.0.133 - - [10/Oct/2026:07:11:00 +0000] "GET /api/products/2995 HTTP/1.1" 200 3060 "-" "Go-http-client/2.0" 0.110
+10.0.0.29 - - [10/Oct/2026:07:11:01 +0000] "GET /api/orders/fc332977-d999-47e4-af22-e2aa0d76481d HTTP/1.1" 200 3291 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.041
+10.0.0.29 - - [10/Oct/2026:07:11:02 +0000] "POST /api/cart/items HTTP/1.1" 200 10640 "-" "curl/8.10.1" 0.002
+10.0.0.210 - - [10/Oct/2026:07:11:04 +0000] "POST /api/orders HTTP/1.1" 200 11625 "-" "Go-http-client/2.0" 0.787
+10.0.2.110 - - [10/Oct/2026:07:11:05 +0000] "GET /api/products/1784 HTTP/1.1" 200 4451 "-" "Go-http-client/2.0" 0.517
+10.0.3.5 - - [10/Oct/2026:07:11:06 +0000] "POST /api/orders HTTP/1.1" 200 43048 "-" "Go-http-client/2.0" 0.647
+10.0.1.138 - - [10/Oct/2026:07:11:06 +0000] "GET /healthz HTTP/1.1" 200 34889 "-" "kube-probe/1.31" 0.513
+10.0.0.133 - - [10/Oct/2026:07:11:07 +0000] "GET /api/products/1637 HTTP/1.1" 200 47004 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.895
+10.0.2.249 - - [10/Oct/2026:07:11:08 +0000] "GET /api/products?page=38 HTTP/1.1" 200 10016 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.268
+10.0.1.48 - - [10/Oct/2026:07:11:09 +0000] "GET /api/products/3854 HTTP/1.1" 200 12983 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.622
+10.0.0.210 - - [10/Oct/2026:07:11:10 +0000] "GET /api/products?page=15 HTTP/1.1" 200 15854 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.246
+10.0.0.54 - - [10/Oct/2026:07:11:11 +0000] "GET /api/products/4503 HTTP/1.1" 200 21082 "-" "Go-http-client/2.0" 0.171
+10.0.2.146 - - [10/Oct/2026:07:11:12 +0000] "GET /api/products/4926 HTTP/1.1" 200 38562 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.665
+10.0.2.170 - - [10/Oct/2026:07:11:12 +0000] "GET /api/products/2223 HTTP/1.1" 200 29727 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.145
+10.0.3.174 - - [10/Oct/2026:07:11:13 +0000] "GET /healthz HTTP/1.1" 200 27854 "-" "kube-probe/1.31" 0.073
+10.0.2.35 - - [10/Oct/2026:07:11:13 +0000] "GET /api/products/3019 HTTP/1.1" 200 45109 "-" "curl/8.10.1" 0.738
+10.0.2.148 - - [10/Oct/2026:07:11:15 +0000] "GET /api/products/897 HTTP/1.1" 200 11317 "-" "Go-http-client/2.0" 0.527
+10.0.0.210 - - [10/Oct/2026:07:11:15 +0000] "GET /api/products/3525 HTTP/1.1" 200 7454 "-" "Go-http-client/2.0" 0.660
+10.0.3.109 - - [10/Oct/2026:07:11:16 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 13273 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.267
+10.0.1.138 - - [10/Oct/2026:07:11:17 +0000] "GET /api/products/2775 HTTP/1.1" 200 42400 "-" "curl/8.10.1" 0.650
+10.0.3.93 - - [10/Oct/2026:07:11:17 +0000] "GET /api/products/1083 HTTP/1.1" 200 22014 "-" "Go-http-client/2.0" 0.292
+10.0.1.160 - - [10/Oct/2026:07:11:18 +0000] "GET /api/products/4938 HTTP/1.1" 200 23713 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.567
+10.0.3.174 - - [10/Oct/2026:07:11:19 +0000] "GET /api/products/794 HTTP/1.1" 200 7589 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.568
+10.0.1.160 - - [10/Oct/2026:07:11:21 +0000] "GET /api/products/2098 HTTP/1.1" 200 26049 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.580
+10.0.1.160 - - [10/Oct/2026:07:11:22 +0000] "GET /api/products/3792 HTTP/1.1" 200 46459 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.218
+10.0.3.5 - - [10/Oct/2026:07:11:23 +0000] "POST /api/orders HTTP/1.1" 200 34847 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.866
+10.0.2.110 - - [10/Oct/2026:07:11:25 +0000] "GET /api/products/1666 HTTP/1.1" 200 13871 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.755
+10.0.3.137 - - [10/Oct/2026:07:11:26 +0000] "POST /api/cart/items HTTP/1.1" 200 36476 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.820
+10.0.0.6 - - [10/Oct/2026:07:11:27 +0000] "GET /healthz HTTP/1.1" 200 39314 "-" "kube-probe/1.31" 0.423
+10.0.0.210 - - [10/Oct/2026:07:11:28 +0000] "GET /api/products/975 HTTP/1.1" 200 45849 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.161
+10.0.1.48 - - [10/Oct/2026:07:11:28 +0000] "GET /api/products?page=29 HTTP/1.1" 200 31638 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.072
+10.0.3.93 - - [10/Oct/2026:07:11:30 +0000] "GET /api/products?page=4 HTTP/1.1" 200 33427 "-" "Go-http-client/2.0" 0.512
+10.0.3.153 - - [10/Oct/2026:07:11:30 +0000] "GET /api/products?page=40 HTTP/1.1" 200 40687 "-" "curl/8.10.1" 0.419
+10.0.3.93 - - [10/Oct/2026:07:11:32 +0000] "GET /api/products?page=35 HTTP/1.1" 200 40502 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.035
+203.0.113.7 - - [10/Oct/2026:07:11:32 +0000] "GET /api/products/4691 HTTP/1.1" 200 8353 "-" "Go-http-client/2.0" 0.634
+10.0.3.109 - - [10/Oct/2026:07:11:33 +0000] "GET /api/products/1964 HTTP/1.1" 200 43622 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.718
+203.0.113.7 - - [10/Oct/2026:07:11:34 +0000] "GET /api/products/1975 HTTP/1.1" 200 27589 "-" "Go-http-client/2.0" 0.839
+10.0.2.148 - - [10/Oct/2026:07:11:35 +0000] "GET /api/products?page=21 HTTP/1.1" 200 21472 "-" "Go-http-client/2.0" 0.824
+10.0.1.48 - - [10/Oct/2026:07:11:36 +0000] "GET /api/products?page=25 HTTP/1.1" 200 5547 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.731
+10.0.2.110 - - [10/Oct/2026:07:11:37 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 26229 "-" "Go-http-client/2.0" 0.319
+10.0.0.6 - - [10/Oct/2026:07:11:38 +0000] "GET /api/products/607 HTTP/1.1" 200 35447 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.470
+10.0.2.174 - - [10/Oct/2026:07:11:39 +0000] "GET /healthz HTTP/1.1" 200 13360 "-" "kube-probe/1.31" 0.852
+10.0.1.48 - - [10/Oct/2026:07:11:40 +0000] "GET /api/orders/414002f4-2249-47eb-a4ea-07d53d64276d HTTP/1.1" 200 32140 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.758
+10.0.2.230 - - [10/Oct/2026:07:11:41 +0000] "GET /healthz HTTP/1.1" 200 17003 "-" "kube-probe/1.31" 0.762
+10.0.2.148 - - [10/Oct/2026:07:11:42 +0000] "GET /api/products/3996 HTTP/1.1" 200 19870 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.308
+10.0.3.5 - - [10/Oct/2026:07:11:43 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 24846 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.895
+10.0.3.5 - - [10/Oct/2026:07:11:44 +0000] "POST /api/cart/items HTTP/1.1" 200 24783 "-" "Go-http-client/2.0" 0.191
+10.0.3.153 - - [10/Oct/2026:07:11:45 +0000] "GET /api/products/4285 HTTP/1.1" 200 12103 "-" "curl/8.10.1" 0.029
+10.0.2.171 - - [10/Oct/2026:07:11:46 +0000] "GET /api/products?page=13 HTTP/1.1" 200 36701 "-" "curl/8.10.1" 0.476
+10.0.1.160 - - [10/Oct/2026:07:11:46 +0000] "GET /healthz HTTP/1.1" 200 5224 "-" "kube-probe/1.31" 0.821
+10.0.2.174 - - [10/Oct/2026:07:11:47 +0000] "POST /api/cart/items HTTP/1.1" 200 41211 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.070
+10.0.2.171 - - [10/Oct/2026:07:11:49 +0000] "GET /healthz HTTP/1.1" 200 36799 "-" "kube-probe/1.31" 0.255
+10.0.3.109 - - [10/Oct/2026:07:11:49 +0000] "GET /api/products?page=18 HTTP/1.1" 200 35340 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.183
+10.0.1.250 - - [10/Oct/2026:07:11:50 +0000] "GET /api/products?page=13 HTTP/1.1" 200 38057 "-" "Go-http-client/2.0" 0.476
+10.0.3.232 - - [10/Oct/2026:07:11:51 +0000] "GET /api/products/279 HTTP/1.1" 200 40504 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.110
+10.0.3.5 - - [10/Oct/2026:07:11:51 +0000] "GET /api/products?page=15 HTTP/1.1" 200 37583 "-" "Go-http-client/2.0" 0.403
+10.0.2.35 - - [10/Oct/2026:07:11:52 +0000] "GET /api/orders/e9fbea2a-3f4c-481d-a64f-1f39e124b7da HTTP/1.1" 200 15876 "-" "Go-http-client/2.0" 0.792
+10.0.2.110 - - [10/Oct/2026:07:11:53 +0000] "GET /api/products/457 HTTP/1.1" 200 20332 "-" "curl/8.10.1" 0.345
+10.0.2.230 - - [10/Oct/2026:07:11:54 +0000] "GET /healthz HTTP/1.1" 200 32832 "-" "kube-probe/1.31" 0.350
+10.0.1.138 - - [10/Oct/2026:07:11:55 +0000] "POST /api/orders HTTP/1.1" 200 34758 "-" "curl/8.10.1" 0.126
+10.0.0.133 - - [10/Oct/2026:07:11:56 +0000] "GET /api/products?page=40 HTTP/1.1" 200 11206 "-" "curl/8.10.1" 0.659
+10.0.3.153 - - [10/Oct/2026:07:11:57 +0000] "GET /api/products?page=2 HTTP/1.1" 200 34791 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.325
+10.0.2.230 - - [10/Oct/2026:07:11:59 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 33099 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.314
+10.0.2.174 - - [10/Oct/2026:07:12:00 +0000] "GET /api/orders/d48e46b3-44b6-4558-ac19-a929ba048b04 HTTP/1.1" 200 6419 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.324
+203.0.113.7 - - [10/Oct/2026:07:12:00 +0000] "POST /api/orders HTTP/1.1" 200 22871 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.116
+10.0.1.70 - - [10/Oct/2026:07:12:01 +0000] "GET /api/products?page=8 HTTP/1.1" 200 6904 "-" "Go-http-client/2.0" 0.634
+10.0.0.152 - - [10/Oct/2026:07:12:02 +0000] "GET /api/products?page=13 HTTP/1.1" 200 1294 "-" "curl/8.10.1" 0.733
+10.0.2.249 - - [10/Oct/2026:07:12:03 +0000] "POST /api/orders HTTP/1.1" 200 33771 "-" "curl/8.10.1" 0.214
+10.0.2.171 - - [10/Oct/2026:07:12:04 +0000] "GET /healthz HTTP/1.1" 200 13830 "-" "kube-probe/1.31" 0.330
+10.0.0.133 - - [10/Oct/2026:07:12:05 +0000] "GET /api/products?page=9 HTTP/1.1" 200 39681 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.795
+10.0.3.93 - - [10/Oct/2026:07:12:06 +0000] "GET /api/products/3367 HTTP/1.1" 404 252 "-" "curl/8.10.1" 0.528
+10.0.3.174 - - [10/Oct/2026:07:12:06 +0000] "GET /healthz HTTP/1.1" 200 23765 "-" "kube-probe/1.31" 0.513
+10.0.3.174 - - [10/Oct/2026:07:12:07 +0000] "GET /api/products/2680 HTTP/1.1" 200 44078 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.435
+203.0.113.7 - - [10/Oct/2026:07:12:08 +0000] "GET /healthz HTTP/1.1" 200 10492 "-" "kube-probe/1.31" 0.068
+10.0.0.210 - - [10/Oct/2026:07:12:09 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 35601 "-" "Go-http-client/2.0" 0.194
+10.0.3.5 - - [10/Oct/2026:07:12:09 +0000] "GET /api/products/3729 HTTP/1.1" 200 19842 "-" "curl/8.10.1" 0.836
+10.0.0.29 - - [10/Oct/2026:07:12:10 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 20957 "-" "Go-http-client/2.0" 0.657
+10.0.1.250 - - [10/Oct/2026:07:12:11 +0000] "POST /api/cart/items HTTP/1.1" 200 43739 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.749
+10.0.1.250 - - [10/Oct/2026:07:12:11 +0000] "GET /api/products/4311 HTTP/1.1" 200 17359 "-" "Go-http-client/2.0" 0.090
+10.0.1.160 - - [10/Oct/2026:07:12:12 +0000] "POST /api/orders HTTP/1.1" 200 46274 "-" "curl/8.10.1" 0.028
+10.0.2.146 - - [10/Oct/2026:07:12:12 +0000] "GET /api/products/3159 HTTP/1.1" 200 17147 "-" "curl/8.10.1" 0.643
+10.0.2.249 - - [10/Oct/2026:07:12:13 +0000] "GET /api/products?page=31 HTTP/1.1" 200 41049 "-" "curl/8.10.1" 0.126
+10.0.0.183 - - [10/Oct/2026:07:12:13 +0000] "GET /api/products/176 HTTP/1.1" 200 27699 "-" "curl/8.10.1" 0.462
+10.0.1.250 - - [10/Oct/2026:07:12:15 +0000] "GET /api/products/1865 HTTP/1.1" 200 33104 "-" "Go-http-client/2.0" 0.302
+10.0.0.6 - - [10/Oct/2026:07:12:15 +0000] "GET /api/products/2761 HTTP/1.1" 200 36566 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.479
+10.0.0.133 - - [10/Oct/2026:07:12:16 +0000] "GET /api/products?page=30 HTTP/1.1" 200 8549 "-" "curl/8.10.1" 0.670
+10.0.2.110 - - [10/Oct/2026:07:12:16 +0000] "GET /api/products/368 HTTP/1.1" 200 19380 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.770
+10.0.0.6 - - [10/Oct/2026:07:12:18 +0000] "GET /api/products/1986 HTTP/1.1" 200 38489 "-" "curl/8.10.1" 0.164
+10.0.1.70 - - [10/Oct/2026:07:12:19 +0000] "GET /api/products?page=27 HTTP/1.1" 200 39924 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.196
+10.0.0.183 - - [10/Oct/2026:07:12:20 +0000] "GET /api/products/352 HTTP/1.1" 200 4424 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.290
+10.0.2.110 - - [10/Oct/2026:07:12:21 +0000] "GET /api/orders/d575ddf0-d0de-46d9-aefd-fa2004a6a6b5 HTTP/1.1" 200 46468 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.757
+10.0.1.160 - - [10/Oct/2026:07:12:22 +0000] "GET /healthz HTTP/1.1" 200 34607 "-" "kube-probe/1.31" 0.759
+10.0.2.35 - - [10/Oct/2026:07:12:23 +0000] "GET /api/products?page=29 HTTP/1.1" 200 17731 "-" "Go-http-client/2.0" 0.102
+10.0.0.6 - - [10/Oct/2026:07:12:24 +0000] "GET /api/products/4464 HTTP/1.1" 200 2663 "-" "curl/8.10.1" 0.485
+10.0.2.170 - - [10/Oct/2026:07:12:25 +0000] "GET /api/products/2234 HTTP/1.1" 200 22432 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.360
+10.0.3.93 - - [10/Oct/2026:07:12:25 +0000] "GET /api/products/4497 HTTP/1.1" 200 45005 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.236
+10.0.3.232 - - [10/Oct/2026:07:12:26 +0000] "GET /api/products/4738 HTTP/1.1" 200 40040 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.899
+10.0.3.5 - - [10/Oct/2026:07:12:27 +0000] "GET /api/products/1579 HTTP/1.1" 200 45355 "-" "Go-http-client/2.0" 0.826
+10.0.3.93 - - [10/Oct/2026:07:12:29 +0000] "GET /healthz HTTP/1.1" 200 23173 "-" "kube-probe/1.31" 0.768
+10.0.3.174 - - [10/Oct/2026:07:12:29 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 19838 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.345
+10.0.3.47 - - [10/Oct/2026:07:12:30 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 17516 "-" "curl/8.10.1" 0.372
+10.0.1.138 - - [10/Oct/2026:07:12:31 +0000] "GET /api/products/3463 HTTP/1.1" 200 11251 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.315
+10.0.0.29 - - [10/Oct/2026:07:12:33 +0000] "GET /healthz HTTP/1.1" 200 20314 "-" "kube-probe/1.31" 0.408
+10.0.1.138 - - [10/Oct/2026:07:12:34 +0000] "POST /api/cart/items HTTP/1.1" 200 27534 "-" "Go-http-client/2.0" 0.479
+10.0.0.29 - - [10/Oct/2026:07:12:34 +0000] "POST /api/cart/items HTTP/1.1" 200 16652 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.267
+203.0.113.7 - - [10/Oct/2026:07:12:36 +0000] "GET /api/products?page=16 HTTP/1.1" 200 32496 "-" "curl/8.10.1" 0.074
+10.0.1.160 - - [10/Oct/2026:07:12:37 +0000] "GET /healthz HTTP/1.1" 200 26853 "-" "kube-probe/1.31" 0.193
+10.0.1.250 - - [10/Oct/2026:07:12:38 +0000] "GET /api/products/1108 HTTP/1.1" 200 3446 "-" "Go-http-client/2.0" 0.897
+10.0.1.160 - - [10/Oct/2026:07:12:39 +0000] "GET /api/products/3118 HTTP/1.1" 200 22593 "-" "Go-http-client/2.0" 0.197
+10.0.2.148 - - [10/Oct/2026:07:12:40 +0000] "GET /healthz HTTP/1.1" 200 2913 "-" "kube-probe/1.31" 0.322
+203.0.113.7 - - [10/Oct/2026:07:12:41 +0000] "GET /healthz HTTP/1.1" 200 33885 "-" "kube-probe/1.31" 0.844
+10.0.2.35 - - [10/Oct/2026:07:12:42 +0000] "GET /api/products?page=20 HTTP/1.1" 200 2497 "-" "curl/8.10.1" 0.778
+10.0.0.152 - - [10/Oct/2026:07:12:43 +0000] "GET /api/products/3159 HTTP/1.1" 404 208 "-" "Go-http-client/2.0" 0.694
+10.0.2.171 - - [10/Oct/2026:07:12:45 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 33348 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.511
+10.0.3.109 - - [10/Oct/2026:07:12:45 +0000] "GET /api/products/1142 HTTP/1.1" 200 32800 "-" "curl/8.10.1" 0.307
+10.0.0.6 - - [10/Oct/2026:07:12:46 +0000] "GET /api/products/2802 HTTP/1.1" 200 41214 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.079
+10.0.1.250 - - [10/Oct/2026:07:12:47 +0000] "GET /api/products/1143 HTTP/1.1" 200 4855 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.636
+10.0.1.70 - - [10/Oct/2026:07:12:47 +0000] "GET /api/products?page=39 HTTP/1.1" 200 39001 "-" "Go-http-client/2.0" 0.738
+10.0.2.146 - - [10/Oct/2026:07:12:49 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 3885 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.799
+10.0.0.133 - - [10/Oct/2026:07:12:49 +0000] "GET /api/products?page=15 HTTP/1.1" 200 41579 "-" "Go-http-client/2.0" 0.728
+10.0.0.183 - - [10/Oct/2026:07:12:50 +0000] "GET /api/products?page=25 HTTP/1.1" 200 32672 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.532
+10.0.2.170 - - [10/Oct/2026:07:12:51 +0000] "GET /api/products/3976 HTTP/1.1" 200 38303 "-" "curl/8.10.1" 0.010
+10.0.0.210 - - [10/Oct/2026:07:12:53 +0000] "GET /healthz HTTP/1.1" 200 29110 "-" "kube-probe/1.31" 0.548
+10.0.0.133 - - [10/Oct/2026:07:12:54 +0000] "GET /api/products?page=2 HTTP/1.1" 200 2168 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.369
+10.0.2.148 - - [10/Oct/2026:07:12:54 +0000] "GET /api/products/2286 HTTP/1.1" 200 23359 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.649
+10.0.3.232 - - [10/Oct/2026:07:12:55 +0000] "GET /api/orders/1d328b62-ab40-4b28-a2d1-5c1add7dd5ce HTTP/1.1" 200 28644 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.245
+10.0.2.35 - - [10/Oct/2026:07:12:55 +0000] "GET /api/products/1857 HTTP/1.1" 200 36346 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.059
+10.0.0.29 - - [10/Oct/2026:07:12:56 +0000] "GET /api/products?page=35 HTTP/1.1" 200 21651 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.111
+10.0.0.54 - - [10/Oct/2026:07:12:57 +0000] "GET /healthz HTTP/1.1" 200 37274 "-" "kube-probe/1.31" 0.792
+10.0.2.171 - - [10/Oct/2026:07:12:57 +0000] "GET /api/orders/2b6e61de-7a24-4165-ae53-f685de08d1ac HTTP/1.1" 200 11568 "-" "Go-http-client/2.0" 0.254
+10.0.2.170 - - [10/Oct/2026:07:12:58 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 35573 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.029
+10.0.2.35 - - [10/Oct/2026:07:12:59 +0000] "GET /api/products/3699 HTTP/1.1" 200 35230 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.422
+10.0.0.133 - - [10/Oct/2026:07:12:59 +0000] "GET /api/orders/1549f7ac-6a0f-4830-a7c1-4a5322fbf3dc HTTP/1.1" 200 21129 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.168
+10.0.2.110 - - [10/Oct/2026:07:13:00 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 35553 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.020
+10.0.3.47 - - [10/Oct/2026:07:13:01 +0000] "GET /api/products/2861 HTTP/1.1" 200 31802 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.558
+10.0.3.137 - - [10/Oct/2026:07:13:02 +0000] "POST /api/orders HTTP/1.1" 200 45930 "-" "curl/8.10.1" 0.447
+10.0.2.35 - - [10/Oct/2026:07:13:03 +0000] "GET /healthz HTTP/1.1" 200 3290 "-" "kube-probe/1.31" 0.544
+203.0.113.7 - - [10/Oct/2026:07:13:03 +0000] "GET /api/products/1929 HTTP/1.1" 200 41743 "-" "Go-http-client/2.0" 0.278
+10.0.3.93 - - [10/Oct/2026:07:13:04 +0000] "GET /healthz HTTP/1.1" 200 43351 "-" "kube-probe/1.31" 0.482
+10.0.1.48 - - [10/Oct/2026:07:13:05 +0000] "GET /healthz HTTP/1.1" 200 22354 "-" "kube-probe/1.31" 0.093
+10.0.0.54 - - [10/Oct/2026:07:13:06 +0000] "POST /api/cart/items HTTP/1.1" 200 35037 "-" "curl/8.10.1" 0.194
+10.0.2.35 - - [10/Oct/2026:07:13:08 +0000] "GET /api/orders/f66ce3dc-8f01-49d4-aff5-369d870481d0 HTTP/1.1" 200 11914 "-" "curl/8.10.1" 0.793
+10.0.1.160 - - [10/Oct/2026:07:13:09 +0000] "GET /api/products/1371 HTTP/1.1" 200 12910 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.660
+10.0.0.152 - - [10/Oct/2026:07:13:10 +0000] "GET /api/products/147 HTTP/1.1" 200 6437 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.566
+10.0.1.160 - - [10/Oct/2026:07:13:11 +0000] "GET /api/products/3453 HTTP/1.1" 200 45124 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.367
+10.0.1.160 - - [10/Oct/2026:07:13:13 +0000] "GET /api/products?page=23 HTTP/1.1" 200 26876 "-" "curl/8.10.1" 0.541
+10.0.2.110 - - [10/Oct/2026:07:13:13 +0000] "GET /api/products/2644 HTTP/1.1" 200 26550 "-" "Go-http-client/2.0" 0.334
+203.0.113.7 - - [10/Oct/2026:07:13:14 +0000] "GET /api/products?page=24 HTTP/1.1" 200 8053 "-" "Go-http-client/2.0" 0.265
+10.0.3.5 - - [10/Oct/2026:07:13:16 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 41137 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.527
+10.0.1.160 - - [10/Oct/2026:07:13:17 +0000] "GET /api/products/2019 HTTP/1.1" 200 37282 "-" "curl/8.10.1" 0.012
+10.0.0.29 - - [10/Oct/2026:07:13:17 +0000] "GET /healthz HTTP/1.1" 200 33916 "-" "kube-probe/1.31" 0.020
+10.0.3.5 - - [10/Oct/2026:07:13:18 +0000] "GET /api/products/410 HTTP/1.1" 200 46252 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.617
+10.0.2.174 - - [10/Oct/2026:07:13:19 +0000] "GET /api/orders/acf6bf7e-d410-4989-abb0-1ce28a6859b1 HTTP/1.1" 200 3844 "-" "curl/8.10.1" 0.765
+10.0.1.250 - - [10/Oct/2026:07:13:20 +0000] "POST /api/cart/items HTTP/1.1" 200 19280 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.593
+10.0.1.160 - - [10/Oct/2026:07:13:21 +0000] "POST /api/cart/items HTTP/1.1" 200 6487 "-" "Go-http-client/2.0" 0.650
+10.0.2.148 - - [10/Oct/2026:07:13:22 +0000] "GET /api/products/1940 HTTP/1.1" 200 3592 "-" "Go-http-client/2.0" 0.821
+10.0.1.48 - - [10/Oct/2026:07:13:23 +0000] "GET /healthz HTTP/1.1" 200 7659 "-" "kube-probe/1.31" 0.120
+10.0.1.138 - - [10/Oct/2026:07:13:24 +0000] "GET /api/products?page=29 HTTP/1.1" 200 10138 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.677
+10.0.2.110 - - [10/Oct/2026:07:13:25 +0000] "POST /api/cart/items HTTP/1.1" 200 33125 "-" "Go-http-client/2.0" 0.721
+10.0.2.230 - - [10/Oct/2026:07:13:26 +0000] "GET /api/products?page=22 HTTP/1.1" 200 27557 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.066
+10.0.2.174 - - [10/Oct/2026:07:13:26 +0000] "GET /healthz HTTP/1.1" 200 22494 "-" "kube-probe/1.31" 0.795
+10.0.2.35 - - [10/Oct/2026:07:13:27 +0000] "GET /healthz HTTP/1.1" 200 30976 "-" "kube-probe/1.31" 0.406
+10.0.2.171 - - [10/Oct/2026:07:13:28 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 6472 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.274
+10.0.0.133 - - [10/Oct/2026:07:13:29 +0000] "GET /api/products/1286 HTTP/1.1" 200 14880 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.030
+10.0.2.174 - - [10/Oct/2026:07:13:30 +0000] "GET /api/products?page=25 HTTP/1.1" 200 37611 "-" "curl/8.10.1" 0.031
+10.0.1.48 - - [10/Oct/2026:07:13:31 +0000] "GET /static/js/app.88e0d1aa.js HTTP/1.1" 200 34058 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.177
+10.0.2.171 - - [10/Oct/2026:07:13:33 +0000] "GET /api/products?page=18 HTTP/1.1" 200 28612 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.460
+10.0.3.109 - - [10/Oct/2026:07:13:33 +0000] "GET /api/products?page=9 HTTP/1.1" 200 46701 "-" "curl/8.10.1" 0.580
+10.0.1.70 - - [10/Oct/2026:07:13:34 +0000] "GET /api/products/2965 HTTP/1.1" 200 33467 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.196
+10.0.2.170 - - [10/Oct/2026:07:13:35 +0000] "GET /api/products?page=14 HTTP/1.1" 200 25040 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.868
+203.0.113.7 - - [10/Oct/2026:07:13:36 +0000] "GET /api/products/1080 HTTP/1.1" 200 18286 "-" "Go-http-client/2.0" 0.017
+10.0.0.54 - - [10/Oct/2026:07:13:37 +0000] "GET /api/products/737 HTTP/1.1" 200 11684 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.588
+10.0.0.54 - - [10/Oct/2026:07:13:39 +0000] "GET /api/products/1617 HTTP/1.1" 200 30834 "-" "curl/8.10.1" 0.722
+10.0.1.70 - - [10/Oct/2026:07:13:39 +0000] "POST /api/cart/items HTTP/1.1" 200 3737 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.837
+10.0.2.148 - - [10/Oct/2026:07:13:40 +0000] "GET /api/products?page=29 HTTP/1.1" 200 30974 "-" "Go-http-client/2.0" 0.067
+10.0.2.249 - - [10/Oct/2026:07:13:41 +0000] "POST /api/cart/items HTTP/1.1" 200 17056 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.352
+10.0.2.146 - - [10/Oct/2026:07:13:42 +0000] "GET /healthz HTTP/1.1" 200 29269 "-" "kube-probe/1.31" 0.634
+10.0.1.160 - - [10/Oct/2026:07:13:43 +0000] "GET /api/products/4058 HTTP/1.1" 200 47245 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.710
+10.0.3.47 - - [10/Oct/2026:07:13:44 +0000] "GET /api/products/1973 HTTP/1.1" 200 8320 "-" "curl/8.10.1" 0.101
+10.0.1.70 - - [10/Oct/2026:07:13:45 +0000] "GET /api/products/4420 HTTP/1.1" 200 18071 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.344
+10.0.1.48 - - [10/Oct/2026:07:13:46 +0000] "GET /api/products/1379 HTTP/1.1" 200 30980 "-" "curl/8.10.1" 0.587
+10.0.0.210 - - [10/Oct/2026:07:13:48 +0000] "GET /api/products?page=32 HTTP/1.1" 200 11917 "-" "Go-http-client/2.0" 0.818
+10.0.3.153 - - [10/Oct/2026:07:13:49 +0000] "GET /healthz HTTP/1.1" 200 42518 "-" "kube-probe/1.31" 0.873
+10.0.3.137 - - [10/Oct/2026:07:13:50 +0000] "GET /healthz HTTP/1.1" 200 7585 "-" "kube-probe/1.31" 0.232
+203.0.113.7 - - [10/Oct/2026:07:13:52 +0000] "GET /api/products/3461 HTTP/1.1" 200 22113 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.412
+10.0.2.171 - - [10/Oct/2026:07:13:53 +0000] "POST /api/orders HTTP/1.1" 200 22804 "-" "Go-http-client/2.0" 0.638
+10.0.2.230 - - [10/Oct/2026:07:13:54 +0000] "GET /api/products/3499 HTTP/1.1" 200 22840 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.061
+10.0.1.160 - - [10/Oct/2026:07:13:54 +0000] "GET /api/products/974 HTTP/1.1" 200 6060 "-" "Go-http-client/2.0" 0.086
+10.0.1.70 - - [10/Oct/2026:07:13:55 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 13149 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.806
+10.0.0.210 - - [10/Oct/2026:07:13:56 +0000] "GET /healthz HTTP/1.1" 200 12567 "-" "kube-probe/1.31" 0.335
+10.0.3.137 - - [10/Oct/2026:07:13:57 +0000] "GET /static/js/app.3f9a1c2b.js HTTP/1.1" 200 42190 "-" "Go-http-client/2.0" 0.431
+10.0.3.47 - - [10/Oct/2026:07:13:58 +0000] "GET /healthz HTTP/1.1" 200 14030 "-" "kube-probe/1.31" 0.837
+10.0.1.70 - - [10/Oct/2026:07:14:00 +0000] "GET /healthz HTTP/1.1" 200 27211 "-" "kube-probe/1.31" 0.765
+10.0.3.5 - - [10/Oct/2026:07:14:01 +0000] "GET /api/products?page=8 HTTP/1.1" 200 45552 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.018
+10.0.3.93 - - [10/Oct/2026:07:14:02 +0000] "GET /api/products/3536 HTTP/1.1" 200 26796 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.728
+10.0.2.146 - - [10/Oct/2026:07:14:03 +0000] "GET /api/products/3364 HTTP/1.1" 200 5417 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36" 0.874

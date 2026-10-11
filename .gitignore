@@ -4,3 +4,5 @@ coverage.out
 .harness/logs/
 /gascoigne
 *.test
+# Eval fixtures are logs; a global *.log ignore must not drop them.
+!testdata/**/*.log
