@@ -763,7 +763,8 @@ async function refreshLists() {
   const sessions = await getJSON("/api/sessions");
   const sel = $("f-session"), keep = sel.value;
   sel.replaceChildren(el("option", { value: "" }, "All sessions"),
-    ...sessions.filter((s) => s.group).map((s) => el("option", { value: s.group }, `${s.group} · ${human(s.saved_tokens)} saved`)));
+    ...sessions.filter((s) => s.group).map((s) => el("option", { value: s.group, title: s.group === "-" ? "Runs recorded without a session: the LLM proxy cannot see one, and commands started without -session have none" : "" },
+      `${s.group === "-" ? "no session (proxy, manual runs)" : s.group} · ${human(s.saved_tokens)} saved`)));
   sel.value = keep;
   const o = await getJSON("/api/overview");
   const asel = $("f-agent"), akeep = asel.value;
