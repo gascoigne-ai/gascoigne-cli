@@ -2,6 +2,7 @@ package main
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -9,6 +10,7 @@ import (
 	"runtime"
 	"slices"
 	"strings"
+	"time"
 )
 
 // openBrowser opens url in the default browser. Never fails the command: the
@@ -29,8 +31,23 @@ func tryOpenBrowser(url string) bool {
 		env = append(env, extra...)
 	}
 	argv := browserCmd(runtime.GOOS, url)
-	cmd := exec.Command(argv[0], argv[1:]...)
-	cmd.Env = env
+	if runtime.GOOS == "linux" {
+		cmd := exec.Command(argv[0], argv[1:]...)
+		cmd.Env = env
+		return start(cmd) // xdg-open may stay until the browser exits
+	}
+	// open and rundll32 return at once, and with an error when there is no
+	// session to open the page in (a service, an ssh login): wait for that answer.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := exec.CommandContext(ctx, argv[0], argv[1:]...).Run(); err != nil {
+		fmt.Fprintln(os.Stderr, "gascoigne: cannot open browser:", err)
+		return false
+	}
+	return true
+}
+
+func start(cmd *exec.Cmd) bool {
 	if err := cmd.Start(); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne: cannot open browser:", err)
 		return false
