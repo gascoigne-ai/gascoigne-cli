@@ -62,7 +62,7 @@ on `PATH` without an install is only signaled, once, and set up if you say yes.
 flowchart TD
     ver[a new gascoigne is installed] --> auto{autosync on?}
     auto -- yes --> hooks["next session start: user-level hooks rewritten, agent told to restart"]
-    auto -- no --> ask["page asks once per version: Update gascoigne's hooks"]
+    auto -- no --> ask["page asks once per version: Update gascoigne's hooks now"]
     ask -- yes --> hooks
     ask -- "not now" --> later["asked again with the next version"]
     ver --> up["gascoigne upgrade, any time"]

@@ -68,7 +68,7 @@ func TestDiagnose(t *testing.T) {
 	sandbox(t)
 	t.Setenv("GASCOIGNE_SERVER_ADDR", "127.0.0.1:1")
 	got := levels(diagnose())
-	for _, want := range []string{"warn: gascoigne", "not on PATH", "background server: stopped", "usage text for agents: full", "choices waiting for you: Fewer approval prompts; Update hooks after an upgrade. Answer them with: gascoigne setup", "no coding agent found"} {
+	for _, want := range []string{"warn: gascoigne", "not on PATH", "background server: stopped", "usage text for agents: full", "choices waiting for you: Fewer approval prompts; Update hooks automatically after upgrades. Answer them with: gascoigne setup", "no coding agent found"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("report lacks %q:\n%s", want, got)
 		}

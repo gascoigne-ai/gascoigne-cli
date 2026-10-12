@@ -26,6 +26,10 @@ All notable changes to gascoigne. The format follows
 
 ### Changed
 
+- `gascoigne setup` opens the page in the browser (`-t` asks in the terminal).
+- Installs from before this version are found from the agents' config files, so the first session
+  after upgrading offers the hook update.
+
 - Documentation diagrams are Mermaid (README, architecture), with new flows for how a command is
   optimized and for upgrading.
 

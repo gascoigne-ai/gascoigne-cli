@@ -70,12 +70,13 @@ func init() {
 				"Agents: claude, codex, cursor, gemini, opencode, pi (default: those found on PATH).",
 			examples: []string{"gascoigne install", "gascoigne install -g", "gascoigne install claude codex"},
 			run:      cmdInstall},
-		{name: "setup", args: "[-y] [-all]", group: groupAgents,
-			summary: "answer the open questions about permissions and hook updates",
-			about: "install asks, in a browser page (or here), before gascoigne lets claude run its own tools\n" +
-				"without asking or updates installed hooks by itself. setup asks in the terminal; -y takes the\n" +
-				"suggested answers, -all asks the answered questions again.",
-			examples: []string{"gascoigne setup", "gascoigne setup -y"},
+		{name: "setup", args: "[-y] [-all] [-t]", group: groupAgents,
+			summary: "answer the open questions about permissions, hook updates and new agents",
+			about: "gascoigne asks before it lets claude run its own tools without asking, updates installed hooks\n" +
+				"by itself or sets up an agent it found. setup opens the page in your browser (dashboard /setup);\n" +
+				"where none can open (ssh, CI) or with -t it asks here. -y takes the suggested answers, -all asks\n" +
+				"the answered questions again.",
+			examples: []string{"gascoigne setup", "gascoigne setup -t", "gascoigne setup -y"},
 			run:      cmdSetup},
 		{name: "upgrade", args: "[-n]", group: groupAgents,
 			summary: "after installing a new version: update hooks, config and open choices",

@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -263,5 +264,36 @@ func TestNewAgentAnswers(t *testing.T) {
 	}
 	if got := readInstalls(); len(got) != 1 || got[0].Agent != "codex" || !got[0].Global {
 		t.Errorf("installs: %+v", got)
+	}
+}
+
+func TestSetupAsksWhereItCan(t *testing.T) {
+	t.Setenv("DISPLAY", ":0")
+	t.Setenv("WAYLAND_DISPLAY", "")
+	t.Setenv("CI", "")
+	t.Setenv("GASCOIGNE_SERVER", "")
+	if runtime.GOOS == "linux" && !useBrowser(false, false) {
+		t.Fatal("a display and no CI: the browser")
+	}
+	for name, set := range map[string]func(){
+		"defaults asked":   func() {},
+		"terminal chosen":  func() {},
+		"CI":               func() { t.Setenv("CI", "true") },
+		"server off":       func() { t.Setenv("GASCOIGNE_SERVER", "off") },
+		"no display (ssh)": func() { t.Setenv("DISPLAY", "") },
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Setenv("DISPLAY", ":0")
+			t.Setenv("CI", "")
+			t.Setenv("GASCOIGNE_SERVER", "")
+			set()
+			yes, term := name == "defaults asked", name == "terminal chosen"
+			if useBrowser(yes, term) && !(runtime.GOOS == "darwin" || runtime.GOOS == "windows") || useBrowser(yes, term) && name != "no display (ssh)" {
+				t.Errorf("%s: must ask in the terminal", name)
+			}
+		})
+	}
+	if hasDisplay("linux") != (os.Getenv("DISPLAY") != "" || os.Getenv("WAYLAND_DISPLAY") != "") || !hasDisplay("darwin") || !hasDisplay("windows") {
+		t.Error("hasDisplay")
 	}
 }

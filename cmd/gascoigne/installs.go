@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -36,12 +37,46 @@ type install struct {
 
 func installsFile() string { return filepath.Join(stateDir(), "installs.json") }
 
+// readInstalls are the recorded installs plus the legacy ones found in the
+// agents' own config files (legacyInstalls).
 func readInstalls() []install {
 	var list []install
 	if data, err := os.ReadFile(installsFile()); err == nil {
 		json.Unmarshal(data, &list) // unreadable: nothing recorded
 	}
-	return list
+	return append(list, legacyInstalls(list)...)
+}
+
+// legacyInstalls finds installs made before installs.json existed: the
+// agent's config holds gascoigne's hook but nothing records it. They count as
+// registration 0, so a gascoigne newer than the one that wrote them offers the
+// update. Only the user-level configs and this project's are looked at.
+func legacyInstalls(known []install) []install {
+	exe, err := os.Executable()
+	if err != nil {
+		return nil
+	}
+	cwd, _ := os.Getwd()
+	home, _ := os.UserHomeDir()
+	var out []install
+	for _, name := range slices.Sorted(maps.Keys(agents)) {
+		for _, e := range []install{
+			{Agent: name, Global: true},
+			{Agent: name, Dir: cwd},
+		} {
+			if !e.Global && (cwd == "" || cwd == home) {
+				continue // the user-level config is the same file
+			}
+			if slices.ContainsFunc(known, e.same) {
+				continue
+			}
+			if data, err := os.ReadFile(configOf(e)); err == nil && strings.Contains(string(data), "hook "+name) {
+				e.Exe = installedName(exe)
+				out = append(out, e)
+			}
+		}
+	}
+	return out
 }
 
 func writeInstalls(list []install) error {

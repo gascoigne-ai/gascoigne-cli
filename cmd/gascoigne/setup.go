@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
 	"time"
@@ -52,7 +53,7 @@ func decisions(p prefs) []decision {
 				{"none", "Keep asking"},
 			}},
 		{ID: "autosync", Current: p.Autosync, Default: "on",
-			Title: "Update hooks after an upgrade",
+			Title: "Update hooks automatically after upgrades",
 			Text: "When a new gascoigne adds or changes hooks, rewrite the ones gascoigne installed in your " +
 				"user-level agent configs (other keys stay, a backup is kept). Project files are never touched " +
 				"automatically.",
@@ -110,7 +111,7 @@ func updateDecision(p prefs) (decision, bool) {
 	if p.UpdateDeclined >= registrationVersion {
 		current = "no"
 	}
-	return decision{ID: "update", Title: "Update gascoigne's hooks", Text: text, Default: "yes", Current: current,
+	return decision{ID: "update", Title: "Update gascoigne's hooks now", Text: text, Default: "yes", Current: current,
 		Options: []option{{"yes", "Update them now"}, {"no", "Not now (asked again with the next version)"}}}, true
 }
 
@@ -400,12 +401,14 @@ func setupHandlers(mux *http.ServeMux) {
 	})
 }
 
-// cmdSetup asks the open questions in the terminal. -y takes the defaults;
-// -all asks the answered ones again too.
+// cmdSetup asks the open questions: in the browser when one can open here,
+// else in the terminal (-t forces the terminal). -y takes the defaults; -all
+// asks the answered questions again.
 func cmdSetup(_ context.Context, args []string) error {
 	fset := newFlags("setup")
 	yes := fset.Bool("y", false, "take the default answer to every question")
 	all := fset.Bool("all", false, "also ask the questions already answered")
+	term := fset.Bool("t", false, "ask in the terminal even where a browser can open")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
@@ -418,8 +421,17 @@ func cmdSetup(_ context.Context, args []string) error {
 		fmt.Println("nothing to decide; setup -all asks again")
 		return nil
 	}
+	if useBrowser(*yes, *term) {
+		link, err := setupLink()
+		if err == nil {
+			openBrowser(link)
+			fmt.Printf("answer in the browser: %s\n(gascoigne setup -t asks here instead)\n", link)
+			return nil
+		}
+		fmt.Fprintln(os.Stderr, "gascoigne:", err, "- asking here instead")
+	}
 	if !*yes && !isTerminal(os.Stdin) {
-		return errors.New("setup: needs a terminal to ask; -y takes the defaults")
+		return errors.New("setup: needs a browser or a terminal to ask; -y takes the defaults")
 	}
 	answers, err := ask(os.Stdin, os.Stdout, ds, *yes)
 	if err != nil {
@@ -430,6 +442,12 @@ func cmdSetup(_ context.Context, args []string) error {
 		fmt.Println(l)
 	}
 	return err
+}
+
+// useBrowser decides where setup asks: the page, unless defaults were asked
+// for, the terminal was chosen, or no browser can open here (ssh, CI, server off).
+func useBrowser(yes, term bool) bool {
+	return !yes && !term && hasDisplay(runtime.GOOS) && os.Getenv("CI") == "" && !serverOff()
 }
 
 // ask puts each question to w and reads the number of the chosen option from

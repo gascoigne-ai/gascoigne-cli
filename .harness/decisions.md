@@ -22,6 +22,10 @@ running Claude Code; writing it from a hook can lose data. Registration there st
 matchers, guide text, rules or commands change; `registrationNotes` says what changed. Installs
 record the number they were written with (`installs.json`), so "stale" is a comparison, not a guess.
 
+**Installs from before the manifest are found, not forgotten.** The first release recorded nothing,
+so "a new version was installed" cannot depend on `installs.json`. The agent's own config (hook
+present) is the evidence; such installs count as registration 0 and trigger the same question.
+
 **One upgrade command.** `gascoigne upgrade` gathers what a new version needs: hooks and rules, the
 user's `config.yaml` (via the existing `config -upgrade` code), open choices. `doctor` only reports.
 Removed before release: `install -sync`, `doctor -fix` (two ways to do one thing).

@@ -130,3 +130,42 @@ func TestSessionStartAnnouncesUpdatedHooks(t *testing.T) {
 		t.Errorf("context:\n%s", ctx)
 	}
 }
+
+func TestLegacyInstallsAreFound(t *testing.T) {
+	home := sandbox(t)
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	// An install made by a gascoigne from before installs.json: the hook is in
+	// the agent's config, nothing records it.
+	if _, err := addClaude("gascoigne", true); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(installsFile()); !os.IsNotExist(err) {
+		t.Fatal("the legacy state has no manifest")
+	}
+	got := readInstalls()
+	if len(got) != 1 || got[0].Agent != "claude" || !got[0].Global || got[0].Registration != 0 {
+		t.Fatalf("legacy install: %+v", got)
+	}
+	if len(staleInstalls()) != 1 {
+		t.Fatal("an install older than this version is stale")
+	}
+	// The session hook asks about it, as for any stale install.
+	if note := setupNudge(); !strings.Contains(note, "older than this version") {
+		t.Fatalf("no question for a legacy install: %q", note)
+	}
+	// Once recorded it is no longer legacy, and the file holds it once.
+	if err := recordInstall("claude", true, "gascoigne", false); err != nil {
+		t.Fatal(err)
+	}
+	if got := readInstalls(); len(got) != 1 || got[0].Registration != registrationVersion {
+		t.Fatalf("after recording: %+v", got)
+	}
+	// No hook in the config, no install.
+	os.Remove(filepath.Join(home, ".claude/settings.json"))
+	if err := os.Remove(installsFile()); err != nil {
+		t.Fatal(err)
+	}
+	if got := readInstalls(); len(got) != 0 {
+		t.Fatalf("nothing installed: %+v", got)
+	}
+}

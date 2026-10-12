@@ -432,6 +432,11 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   `~/.claude.json` which a running Claude Code rewrites), under `installs.lock`, never failing the
   hook; SessionStart tells the agent to restart. Project installs are never touched by hooks:
   `gascoigne upgrade` does this project's and the user's now. Not decided = nothing is synced.
+- **Legacy installs** (`installs.go` `legacyInstalls`): installs made before `installs.json` existed
+  (the first release) are found by their config: the user-level file, and this project's, holding
+  `hook <agent>` while nothing records it. `readInstalls` returns them as registration 0, so the
+  update question, `upgrade` and `doctor` treat them as stale; recording an install (or `upgrade`)
+  makes them regular entries.
 - **Decisions** (`setup.go`, `setup.html`): changes beyond gascoigne's own files wait for the
   user. Open questions = unset `allow` / `autosync` in `prefs.json`. `install` (end) and a claude
   SessionStart hook (once per `registrationVersion`, `prefs.asked_registration`; recorded installs
