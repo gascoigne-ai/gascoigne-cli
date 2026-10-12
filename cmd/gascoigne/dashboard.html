@@ -342,9 +342,10 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
         <button data-o="error">Failed</button>
       </span>
     </div>
+    <input type="search" id="feed-filter" class="tfilter" placeholder="Filter loaded runs" aria-label="Filter loaded runs">
     <div class="scroll" id="feed-scroll">
       <table>
-        <thead><tr><th>Time</th><th class="hide-sm">Agent</th><th>Command</th><th class="hide-sm">Content type</th><th class="num">Tokens</th><th>Saved</th><th>Outcome</th></tr></thead>
+        <thead><tr id="feed-head"></tr></thead>
         <tbody id="feed"><tr><td colspan="7" class="empty">No runs recorded yet.</td></tr></tbody>
       </table>
     </div>
@@ -410,7 +411,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 <script>
 "use strict";
 const $ = (id) => document.getElementById(id);
-const state = { events: new Map(), source: null, refresh: 0, outcome: "", oldest: 0, exhausted: false, loading: false };
+const state = { events: new Map(), source: null, refresh: 0, outcome: "", oldest: 0, exhausted: false, loading: false, feedSort: null, feedQ: "" };
 
 // Theme: auto follows the OS; an explicit choice is remembered per browser.
 function applyTheme(t) {
@@ -482,7 +483,7 @@ function sortKey(c, r) {
 // header makes a column title a sort control when the column has something
 // to sort by (a title; the bar columns have none). sort is {i, desc} or null.
 function header(c, i, sort, onSort) {
-  const th = el("th", { class: c.num ? "num" : "" }, c.title);
+  const th = el("th", { class: [c.num ? "num" : "", c.cls || ""].join(" ").trim() }, c.title);
   if (!onSort || !c.title) return th;
   th.classList.add("sortable");
   th.tabIndex = 0;
@@ -538,7 +539,7 @@ function nextSort(cols, sort, i) {
 // lazyTable fills the scroll box with a table whose rows render a chunk at a
 // time as the box scrolls. Re-rendering keeps the rows shown, the scroll
 // position, the sort and the filter, so live refreshes do not reset them. A
-// filter box appears above tables longer than a few rows.
+// filter box sits above every table.
 const CHUNK = 50;
 function lazyTable(box, cols, allRows, empty) {
   if (box._io) box._io.disconnect();
@@ -549,7 +550,6 @@ function lazyTable(box, cols, allRows, empty) {
     box.before(f);
     box._filter = f;
   }
-  box._filter.hidden = (allRows || []).length <= 10 && !box._q;
   const onSort = (i) => { box._sort = nextSort(cols, box._sort, i); box._shown = 0; box._redraw(); };
   const rows = sortRows(cols, filterRows(cols, allRows || [], box._q), box._sort);
   const top = box.scrollTop, shown = box._shown || CHUNK;
@@ -686,13 +686,13 @@ async function refreshOverview() {
   const o = await getJSON("/api/overview?" + filters());
   renderKPIs(o);
   renderDays(o.days || []);
-  $("outcomes").replaceChildren(table([
-    { title: "Outcome", get: (r) => badge(r.group) },
-    { title: "Runs", get: (r) => human(r.runs), num: true },
-    { title: "Input", get: (r) => human(r.raw_tokens), num: true },
-    { title: "Output", get: (r) => human(r.out_tokens), num: true },
-    { title: "Share of input", get: (r) => bar(pct(r.raw_tokens, o.total.raw_tokens)) },
-  ], o.outcomes));
+  lazyTable($("outcomes"), [
+    { title: "Outcome", get: (r) => badge(r.group), sort: (r) => r.group },
+    { title: "Runs", get: (r) => human(r.runs), sort: (r) => r.runs, num: true },
+    { title: "Input", get: (r) => human(r.raw_tokens), sort: (r) => r.raw_tokens, num: true },
+    { title: "Output", get: (r) => human(r.out_tokens), sort: (r) => r.out_tokens, num: true },
+    { title: "Share of input", get: (r) => bar(pct(r.raw_tokens, o.total.raw_tokens)), sort: (r) => r.raw_tokens },
+  ], o.outcomes);
   renderModels(o.cost || {});
   lazyTable($("commands"), savedCols("Command", (r) => r.group), o.commands);
   lazyTable($("optimizers"), savedCols("Optimizer", (r) => r.group + (r.family ? " · " + r.family : "")), o.optimizers);
@@ -738,9 +738,39 @@ function agentLabel(e) {
   return el("span", { class: "none", title: "Not run by an agent: a terminal or script, or recorded before runs were tagged with their agent" }, "No agent");
 }
 
+const dialectsOf = (e) => [...new Set(e.steps.map((s) => s.dialect).filter(Boolean))].join(", ");
+
+// feedCols describe the recent-runs table for sorting and filtering (the rows
+// themselves are built by feedRow): get is the text a filter searches.
+const feedCols = [
+  { title: "Time", get: (e) => ago(e.ts), sort: (e) => new Date(e.ts).getTime() },
+  { title: "Agent", get: (e) => e.agent || "No agent", cls: "hide-sm" },
+  { title: "Command", get: (e) => e.command || e.key || "—" },
+  { title: "Content type", get: (e) => dialectsOf(e) || (e.filter ? "skipped by " + e.filter : ""), cls: "hide-sm" },
+  { title: "Tokens", get: (e) => `${e.raw_tokens} ${e.out_tokens}`, sort: (e) => e.raw_tokens, num: true },
+  { title: "Saved", get: (e) => fmtPct(pct(e.raw_tokens - e.out_tokens, e.raw_tokens)), sort: (e) => pct(e.raw_tokens - e.out_tokens, e.raw_tokens) },
+  { title: "Outcome", get: (e) => e.outcome },
+];
+
+function renderFeedHead() {
+  const onSort = (i) => { state.feedSort = nextSort(feedCols, state.feedSort, i); renderFeedHead(); renderFeed(); };
+  $("feed-head").replaceChildren(...feedCols.map((c, i) => header(c, i, state.feedSort, onSort)));
+}
+
+// feedView is true while the user sorts or filters the runs: the table is
+// then rebuilt from every loaded run, else new runs are added in place.
+const feedView = () => !!(state.feedSort || state.feedQ);
+
+function renderFeed() {
+  const all = [...state.events.values()].sort((a, b) => b.id - a.id); // newest first
+  const rows = sortRows(feedCols, filterRows(feedCols, all, state.feedQ), state.feedSort);
+  const none = all.length ? "No loaded run matches the filter." : "No runs recorded yet.";
+  $("feed").replaceChildren(...(rows.length ? rows.map((e) => feedRow(e, false)) : [el("tr", {}, el("td", { colspan: 7, class: "empty" }, none))]));
+}
+
 function feedRow(e, fresh) {
   const saved = e.raw_tokens - e.out_tokens;
-  const dialects = [...new Set(e.steps.map((s) => s.dialect).filter(Boolean))].join(", ");
+  const dialects = dialectsOf(e);
   return el("tr", { class: fresh ? "fresh" : "", onclick: () => showDetail(e.id) },
     el("td", { class: "when", title: new Date(e.ts).toLocaleString(), "data-ts": e.ts }, ago(e.ts)),
     el("td", { class: "hide-sm" }, agentLabel(e)),
@@ -761,9 +791,11 @@ function addEvents(list, fresh, older) {
     if (state.events.has(e.id)) continue;
     state.events.set(e.id, e);
     state.oldest = Math.min(state.oldest || Infinity, e.id);
+    if (feedView()) continue;
     if (older) feed.append(feedRow(e, false));
     else feed.prepend(feedRow(e, fresh));
   }
+  if (feedView()) renderFeed();
   // #run-42 opens that run once it has arrived (links to a run).
   const m = /^#run-(\d+)$/.exec(location.hash);
   if (m && state.events.has(+m[1]) && !$("detail").open) showDetail(+m[1]);
@@ -807,6 +839,9 @@ $("feed-scroll").addEventListener("scroll", (ev) => {
   const s = ev.target;
   if (s.scrollTop + s.clientHeight > s.scrollHeight - 200) loadOlder().catch(console.error);
 });
+
+$("feed-filter").oninput = (ev) => { state.feedQ = ev.target.value; renderFeed(); fill().catch(console.error); };
+renderFeedHead();
 
 for (const b of $("f-outcome").children) {
   b.onclick = () => {

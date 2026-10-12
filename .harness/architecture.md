@@ -636,8 +636,10 @@ their pipeline's receivers and exporters (`service.Options.Remote`) and POST the
 
 One embedded `dashboard.html`, no build step, serving the ledger live.
 - Tables (`lazyTable`): click a header to sort (numbers by value through a column's `sort`
-  accessor; first click largest or A-Z, second reverses, third restores the server's order), a
-  filter box above tables longer than ten rows; both survive live refreshes. Not kept in the URL
+  accessor; first click largest or A-Z, second reverses, third restores the server's order) and a
+  filter box on every table; both survive live refreshes. The recent-runs feed does the same on
+  the runs loaded so far (`feedCols`; while sorting or filtering the body is rebuilt from all
+  loaded runs, and older pages keep loading so a rare match can appear). Not kept in the URL
   (its hash holds `#run-ID` links). `dashboard_js_test.go` runs the helpers under node.
 - Layout: version in the header, the logo moon's phase = savings rate; tables in equal-height
   boxes, rows rendered as they scroll; deleting data (reset, clear originals) asks twice.

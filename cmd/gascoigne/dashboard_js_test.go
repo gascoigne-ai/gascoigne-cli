@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -54,5 +55,25 @@ assert.deepStrictEqual(nextSort(cols, s, 0), { i: 0, desc: true });
 	}
 	if out, err := exec.Command(node, file).CombinedOutput(); err != nil {
 		t.Fatalf("%v\n%s", err, out)
+	}
+}
+
+// Every table of the page sorts and filters: summary tables go through
+// lazyTable (which adds both), the recent-runs feed has its own header and
+// filter box.
+func TestDashboardTablesSortAndFilter(t *testing.T) {
+	page := string(dashboardHTML)
+	if m := regexp.MustCompile(`\$\("[a-z-]+"\)\.replaceChildren\(table\(`).FindString(page); m != "" {
+		t.Errorf("a table is drawn without sorting and filtering: %s", m)
+	}
+	for _, id := range []string{"outcomes", "commands", "optimizers", "dialects", "reasons", "failures", "families", "models"} {
+		if !strings.Contains(page, `lazyTable($("`+id+`")`) {
+			t.Errorf("table %q is not drawn with lazyTable", id)
+		}
+	}
+	for _, want := range []string{`id="feed-filter"`, `id="feed-head"`, "renderFeedHead()", "feedCols"} {
+		if !strings.Contains(page, want) {
+			t.Errorf("the recent-runs table lost %s", want)
+		}
 	}
 }
