@@ -55,6 +55,17 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
     headless task runner [14]; plugin hook pricing [16] (also covered by the settings audit task).
 
 ## Measured
+- Replacing a Read result from the PostToolUse hook (2026-10-12, 456 Read results across all transcripts on one
+  machine, 1.1 MB): allowed (the hooks docs: `updatedToolOutput` works for every tool, but for built-in tools it
+  must match the tool's output shape or it is ignored). Read's shape is `{type: "text", file: {filePath,
+  content, numLines, startLine, totalLines}}` and Claude Code numbers the lines itself, sequentially from
+  `startLine`, so any change that removes a line misnumbers the result (the proxy keeps original numbers; a hook
+  cannot). What stays safe is line-preserving: cutting lines over 300 characters to head and tail saves 0.44% of
+  Read bytes; blanking comment-only lines would save about 6% but the agent would then copy edit anchors from
+  text with holes in it, and Edit fails when `old_string` does not match the file. Not built: the reads are
+  targeted (the agent asked for those lines). What is left is a size guard for whole-file reads of big files
+  (deferred above: it can break Edit flows) and, with the LLM proxy on, its `renumber`d Read path.
+
 - Subagents (`gascoigne context`, 2026-10-12, 90 days, one machine): 346 requests, about $6.5 of $485 (1.3%).
   Their hooks run like the main conversation's; there is little to gain from a guide line about them.
 - Text added to conversations (`gascoigne context`, 2026-10-12, 30 days, one machine, $485): instruction files

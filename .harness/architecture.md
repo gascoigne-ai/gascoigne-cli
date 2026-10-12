@@ -533,7 +533,7 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
 | shell | rewrite (PreToolUse) | PostToolUse replaces result | rewrite (BeforeTool), AfterTool replaces what the rewrite missed | rewrite before the call |
 | Grep, Glob | denied → `rg`/`find` through the shell | shell only | shell only | shell only |
 | WebFetch | denied → gascoigne `fetch` (MCP) | no hook | no hook | no hook |
-| Read | not replaced (Edit needs the line numbers); the LLM proxy shortens it when on | no hook | no hook | no hook |
+| Read | not replaced: the hooks accept a replaced result of the tool's shape, but Claude numbers the lines itself, so only line-preserving changes are safe, and they save under 1% (see backlog); the LLM proxy shortens it when on | no hook | no hook | no hook |
 | MCP tools | PostToolUse `mcp__*`, plus `mcp-proxy` | PostToolUse `mcp__*` | AfterTool `mcp_*` | `mcp-proxy` only |
 | Subagents | hooks run there too: gascoigne's own PreToolUse and PostToolUse show in subagent transcripts (13 files, 2026-10-12) | n/a | n/a | n/a |
 
