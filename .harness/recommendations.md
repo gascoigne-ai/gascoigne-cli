@@ -11,6 +11,10 @@ their record is git history.
 - Usage: split 1h vs 5-minute cache writes (Anthropic `cache_creation.ephemeral_1h_input_tokens`)
   so `gain` prices 1h writes right; compare measured input with tokens saved per agent.
 
+- Hooks: confirm on a real session that Claude subagent tool calls reach the PreToolUse/PostToolUse
+  hooks (`gain -by session` for the subagent's calls); check whether Cursor has a result-replacement
+  hook; the coverage table in `architecture.md` marks both as unverified.
+
 - Web pages: article benchmark (`.harness/scripts/html-bench.sh`, 181 pages) at recall 98.3%,
   precision 59%. Misses: mega-menus written as plain link lists (not `<nav>`) fill the doc
   budget before the story (forbes, gov.br pages); precision is lost to the same menus, share

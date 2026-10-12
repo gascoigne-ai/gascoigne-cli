@@ -114,6 +114,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		by       string
 		all      bool
 		asJSON   bool
+		oneline  bool
 		color    string
 		since    string
 		rereads  float64
@@ -124,6 +125,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		fs.BoolVar(&all, "all", false, "ignore session/agent/model from $GASCOIGNE_* (flags still filter)")
 		fs.StringVar(&since, "since", "", "only the last `period`: 24h, 7d, 4w, 6mo")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
+		fs.BoolVar(&oneline, "oneline", false, "print one line of totals, for a status line")
 		fs.StringVar(&color, "color", "auto", "`mode`: auto (terminal, no NO_COLOR), always or never")
 		fs.Float64Var(&rereads, "rereads", cost.AgentContext.Rereads, "later requests that read each tool result again, for the cost estimate (`n`; measured median 110)")
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
@@ -147,6 +149,9 @@ func cmdGain(ctx context.Context, args []string) error {
 			}
 			q.Since = time.Now().Add(-d)
 		}
+		if oneline {
+			return printOneline(ctx, os.Stdout, l, q, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss})
+		}
 		p, err := newPainter(color)
 		if err != nil {
 			return err
@@ -164,6 +169,25 @@ func cmdGain(ctx context.Context, args []string) error {
 		p.renderStats(os.Stdout, q, stats)
 		return nil
 	})
+}
+
+// printOneline prints the totals of q on one line, short enough for an
+// agent's status line.
+func printOneline(ctx context.Context, w io.Writer, l *ledger.Ledger, q component.StatsQuery, c cost.Context) error {
+	o, err := mcptool.BuildOverview(ctx, l, q)
+	if err != nil {
+		return err
+	}
+	costs, err := mcptool.BuildCosts(ctx, l, q, c)
+	if err != nil {
+		return err
+	}
+	line := fmt.Sprintf("gascoigne: %s tokens saved (%.0f%%)", human(o.Total.Saved), o.Total.SavedPct)
+	if costs.InContext > 0 {
+		line += fmt.Sprintf(" ~$%.2f", costs.InContext)
+	}
+	_, err = fmt.Fprintln(w, line)
+	return err
 }
 
 func printFailures(ctx context.Context, w io.Writer, l *ledger.Ledger) error {

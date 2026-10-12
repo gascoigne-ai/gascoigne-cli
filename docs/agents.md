@@ -77,6 +77,15 @@ cache and state dirs and a ledger kept elsewhere (`$GASCOIGNE_LEDGER`), then the
 all of it and asks first (`-y` skips that). Projects installed without `-g` elsewhere need
 `gascoigne unwrap` run in them first.
 
+## Savings in the status line
+
+Claude Code can show a command's output in its status line; `gascoigne gain -oneline` prints
+`gascoigne: 12.3k tokens saved (45%) ~$0.42` (filters work as for `gain`: `-since 1d`, `-agent`):
+
+```json
+{ "statusLine": { "type": "command", "command": "gascoigne gain -oneline -since 1d" } }
+```
+
 ## Per agent
 
 | Agent | `wrap` passes | How shell output is optimized |

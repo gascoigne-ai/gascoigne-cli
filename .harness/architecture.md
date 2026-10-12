@@ -447,6 +447,20 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks). `wrap` sets the env, so its
   commands stay short (`execPrefix` in `hook.go`).
 
+### Coverage (which tool results reach the optimizer)
+
+| Tool | claude | codex | gemini | opencode / pi / cursor |
+|---|---|---|---|---|
+| shell | rewrite (PreToolUse) | PostToolUse replaces result | rewrite (BeforeTool), AfterTool replaces what the rewrite missed | rewrite before the call |
+| Grep, Glob | denied → `rg`/`find` through the shell | shell only | shell only | shell only |
+| WebFetch | denied → gascoigne `fetch` (MCP) | no hook | no hook | no hook |
+| Read | not replaced (Edit needs the line numbers); the LLM proxy shortens it when on | no hook | no hook | no hook |
+| MCP tools | PostToolUse `mcp__*`, plus `mcp-proxy` | PostToolUse `mcp__*` | AfterTool `mcp_*` | `mcp-proxy` only |
+| Subagents | hooks run there too (Claude Code behavior; not measured here) | n/a | n/a | n/a |
+
+Cursor has the preToolUse hook only: no result replacement is known. A status line can show the
+savings: `gascoigne gain -oneline -since 1d` (`docs/agents.md`).
+
 ### Command rewriting rules (`hook.go`)
 
 - **Wrapped**: every command of a `&&`/`;` list, except builtins, quiet, interactive and REPL
