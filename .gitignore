@@ -6,3 +6,4 @@ coverage.out
 *.test
 # Eval fixtures are logs; a global *.log ignore must not drop them.
 !testdata/**/*.log
+/cmd/gascoigne/gascoigne
