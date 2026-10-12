@@ -123,6 +123,7 @@ func TestGuideLevels(t *testing.T) {
 		{"off", true, false, false},
 		{"typo", false, true, true}, // unknown: full, never silently off
 	}
+	batch := "Issue tool calls that do not depend on each other together"
 	for _, tt := range tests {
 		t.Run(tt.level, func(t *testing.T) {
 			t.Setenv("GASCOIGNE_GUIDE", tt.level)
@@ -135,6 +136,9 @@ func TestGuideLevels(t *testing.T) {
 			}
 			if got := strings.Contains(g, "gascoigne raw <id>"); got != tt.hint {
 				t.Errorf("hint explanation = %v", got)
+			}
+			if got := strings.Contains(g, batch); got != tt.wantShell { // advice comes with the full guide only
+				t.Errorf("batching advice = %v", got)
 			}
 		})
 	}

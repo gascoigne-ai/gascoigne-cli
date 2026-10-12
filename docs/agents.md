@@ -264,7 +264,9 @@ Agents are told how to get the most out of gascoigne: read and search with shell
 keep shell calls plain (`&&`/`;` lists, only `| head`/`| tail`), read the web with `fetch`, and
 use `gascoigne raw <id>` / `retrieve` (or only part: `-grep`, `-query`, `-lines`) instead of
 re-running a shortened command, read one function with `gascoigne show file:Name`, and keep
-their own text brief (in an A/B run that cut output tokens 16% at the same success rate).
+their own text brief (in an A/B run that cut output tokens 16% at the same success rate), and
+issue independent tool calls together in one turn, since every extra turn re-reads the whole context
+(not measured yet: compare requests per session before and after on your own ledger).
 
 | Agent | `wrap` | `install` | `install -g` |
 |---|---|---|---|

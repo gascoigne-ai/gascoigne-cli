@@ -60,6 +60,11 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
     headless task runner [14]; plugin hook pricing [16] (also covered by the settings audit task).
 
 ## Measured
+- Guide line "issue independent tool calls together in one turn" (2026-10-12, registration 3): added to the
+  full guide without an A/B. Observation to make after two weeks of real use: requests per session before and
+  after (needs the turn instrument, task 050; the LLM proxy has no session id, so use per-day request counts
+  per agent). Drop the line if nothing moves.
+
 - Marker audit with exact o200k counts (`tokenizer/`; Claude needs an API key, not yet measured):
   raw id 16→8 hex saves 7 tokens per hint (done); `(×60)`→`×60` and `[↑ …`→`[…` save 2 each but
   only ~0.1% of eval output; `… N lines omitted`, `§1`, `_cols/_rows`, `L12-30` have no cheaper
