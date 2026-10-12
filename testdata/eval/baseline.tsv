@@ -43,6 +43,7 @@ build/golangci	1018	6	0
 build/eslint	660	0	0
 build/maven-compile	165	0	24
 detect/tsc	722	36	0
+detect/yarn-tsc	722	36	0
 detect/gcc	537	12	0
 detect/javac	360	0	0
 detect/ruff	3284	0	0
