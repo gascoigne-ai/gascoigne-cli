@@ -61,8 +61,8 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 
 ## Measured
 - Guide line "issue independent tool calls together in one turn" (2026-10-12, registration 3): added to the
-  full guide without an A/B. Observation to make after two weeks of real use: requests per session before and
-  after (needs the turn instrument, task 050; the LLM proxy has no session id, so use per-day request counts
+  full guide without an A/B. Observation to make after two weeks of real use: requests per day per agent before and
+  after (the dashboard and `gain` show requests and context per day; the LLM proxy has no session id, so use per-day request counts
   per agent). Drop the line if nothing moves.
 
 - Marker audit with exact o200k counts (`tokenizer/`; Claude needs an API key, not yet measured):

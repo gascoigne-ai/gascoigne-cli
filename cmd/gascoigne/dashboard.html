@@ -371,6 +371,19 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 
   <div class="grid">
     <section class="panel">
+      <h2>API requests by day</h2>
+      <p class="hint">Measured by the LLM proxy. Each request re-reads the conversation, so requests times context is what drives the bill. (Not available when the agent uses a login the proxy stays out of.)</p>
+      <div class="scroll" id="usage-days"></div>
+    </section>
+    <section class="panel">
+      <h2>API requests by model</h2>
+      <p class="hint">Context: tokens one request carries (input, cache read and cache write), mean and peak</p>
+      <div class="scroll" id="usage-models"></div>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
       <h2>By command</h2>
       <p class="hint">Savings per command</p>
       <div class="scroll" id="commands"></div>
@@ -686,8 +699,31 @@ function renderReasons(o) {
   ], rows, "All runs in this period were optimized.");
 }
 
+async function refreshUsage() {
+  const u = await getJSON("/api/usage?" + filters());
+  const empty = "No proxied requests in this period.";
+  lazyTable($("usage-days"), [
+    { title: "Day (UTC)", get: (r) => r.day, mono: true },
+    { title: "Requests", get: (r) => human(r.requests), sort: (r) => r.requests, num: true },
+    { title: "Context", get: (r) => human(r.mean_context), sort: (r) => r.mean_context, num: true },
+    { title: "Peak", get: (r) => human(r.peak_context), sort: (r) => r.peak_context, num: true },
+    { title: "Cache read", get: (r) => human(r.cache_read), sort: (r) => r.cache_read, num: true },
+    { title: "Cache write", get: (r) => human(r.cache_write), sort: (r) => r.cache_write, num: true },
+  ], u.days, empty);
+  lazyTable($("usage-models"), [
+    { title: "Agent", get: (r) => r.agent || "—", mono: true },
+    { title: "Model", get: (r) => r.model || "—", mono: true },
+    { title: "Requests", get: (r) => human(r.requests), sort: (r) => r.requests, num: true },
+    { title: "Context", get: (r) => human(r.mean_context), sort: (r) => r.mean_context, num: true },
+    { title: "Peak", get: (r) => human(r.peak_context), sort: (r) => r.peak_context, num: true },
+    { title: "Cache read", get: (r) => human(r.cache_read), sort: (r) => r.cache_read, num: true },
+    { title: "Output", get: (r) => human(r.output), sort: (r) => r.output, num: true },
+  ], u.models, empty);
+}
+
 async function refreshOverview() {
   const o = await getJSON("/api/overview?" + filters());
+  refreshUsage().catch(() => {}); // a side panel: its failure never blanks the page
   renderKPIs(o);
   renderDays(o.days || []);
   lazyTable($("outcomes"), [

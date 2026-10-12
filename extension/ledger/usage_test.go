@@ -28,11 +28,11 @@ func TestUsageStats(t *testing.T) {
 		want []UsageStat
 	}{
 		{"all", component.StatsQuery{}, []UsageStat{
-			{"claude", "claude-opus-5-5", 2, 15, 18300, 340, 200},
-			{"codex", "gpt-5.3-codex", 1, 2000, 1000, 0, 50},
+			{"claude", "claude-opus-5-5", 2, 15, 18300, 340, 200, 9327, 9345},
+			{"codex", "gpt-5.3-codex", 1, 2000, 1000, 0, 50, 3000, 3000},
 		}},
-		{"since", component.StatsQuery{Since: now.Add(-time.Hour)}, []UsageStat{{"claude", "claude-opus-5-5", 2, 15, 18300, 340, 200}}},
-		{"agent", component.StatsQuery{Agent: "codex"}, []UsageStat{{"codex", "gpt-5.3-codex", 1, 2000, 1000, 0, 50}}},
+		{"since", component.StatsQuery{Since: now.Add(-time.Hour)}, []UsageStat{{"claude", "claude-opus-5-5", 2, 15, 18300, 340, 200, 9327, 9345}}},
+		{"agent", component.StatsQuery{Agent: "codex"}, []UsageStat{{"codex", "gpt-5.3-codex", 1, 2000, 1000, 0, 50, 3000, 3000}}},
 		{"session has none", component.StatsQuery{Session: "s1"}, nil},
 	}
 	for _, tt := range tests {
@@ -57,5 +57,38 @@ func TestUsageStats(t *testing.T) {
 	}
 	if got, _ := l.UsageStats(ctx, component.StatsQuery{}); len(got) != 1 || got[0].Agent != "claude" {
 		t.Fatalf("after reset: %+v", got)
+	}
+}
+
+func TestUsageDays(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RawTTL: time.Hour})
+	ctx := t.Context()
+	day := time.Date(2026, 10, 10, 15, 0, 0, 0, time.UTC)
+	for _, u := range []component.Usage{
+		{TS: day, Agent: "claude", Model: "m", Input: 10, CacheRead: 9000, CacheWrite: 300, Output: 100},
+		{TS: day.Add(time.Hour), Agent: "claude", Model: "m", Input: 5, CacheRead: 9300, CacheWrite: 40, Output: 80},
+		{TS: day.Add(time.Hour), Agent: "codex", Model: "g", Input: 2000, CacheRead: 1000, Output: 50},
+		{TS: day.AddDate(0, 0, 2), Agent: "claude", Model: "m", Input: 1, CacheRead: 20000, CacheWrite: 0, Output: 10},
+	} {
+		if err := l.RecordUsage(ctx, u); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := l.UsageDays(ctx, component.StatsQuery{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []UsageDay{
+		{"2026-10-10", 3, 19300, 340, 230, (9310 + 9345 + 3000) / 3, 9345},
+		{"2026-10-12", 1, 20000, 0, 10, 20001, 20001},
+	}
+	if len(got) != 2 || got[0] != want[0] || got[1] != want[1] {
+		t.Fatalf("got %+v\nwant %+v", got, want)
+	}
+	if got, _ := l.UsageDays(ctx, component.StatsQuery{Agent: "codex"}); len(got) != 1 || got[0].Requests != 1 {
+		t.Fatalf("agent filter: %+v", got)
+	}
+	if got, _ := l.UsageDays(ctx, component.StatsQuery{Session: "s1"}); len(got) != 0 {
+		t.Fatalf("a session filter matches nothing: %+v", got)
 	}
 }

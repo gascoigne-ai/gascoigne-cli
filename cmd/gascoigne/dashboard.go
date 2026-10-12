@@ -87,6 +87,20 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		o, err := mcptool.BuildOverview(r.Context(), l, q)
 		respond(w, o, err)
 	})
+	mux.HandleFunc("GET /api/usage", func(w http.ResponseWriter, r *http.Request) {
+		q, err := statsQuery(r.URL.Query())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		models, err := l.UsageStats(r.Context(), q)
+		if err != nil {
+			respond(w, nil, err)
+			return
+		}
+		days, err := l.UsageDays(r.Context(), q)
+		respond(w, map[string]any{"models": nonNil(models), "days": nonNil(days)}, err)
+	})
 	mux.HandleFunc("GET /api/sessions", func(w http.ResponseWriter, r *http.Request) {
 		stats, err := l.Stats(r.Context(), component.StatsQuery{By: component.BySession})
 		respond(w, mcptool.Report(component.StatsQuery{By: component.BySession}, stats).Groups, err)
@@ -314,3 +328,12 @@ func eventsJSON(entries []ledger.Entry) []eventJSON {
 const hiddenText = "instruction text is not shown in the dashboard; gascoigne raw <id> prints it"
 
 func hiddenKey(key string) bool { return strings.HasPrefix(key, "prompt:") }
+
+// nonNil turns a nil slice into an empty one, so JSON holds [] and a page can
+// read its length.
+func nonNil[T any](s []T) []T {
+	if s == nil {
+		return []T{}
+	}
+	return s
+}

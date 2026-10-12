@@ -37,7 +37,25 @@ type UsageStat struct {
 	CacheRead  int    `json:"cache_read"`
 	CacheWrite int    `json:"cache_write"`
 	Output     int    `json:"output"`
+	// MeanContext and PeakContext are the tokens one request carried (input,
+	// cache read and cache write): the size of the conversation it re-read.
+	MeanContext int `json:"mean_context"`
+	PeakContext int `json:"peak_context"`
 }
+
+// UsageDay sums the requests of one UTC day over all agents and models matching
+// the filters.
+type UsageDay struct {
+	Day         string `json:"day"`
+	Requests    int    `json:"requests"`
+	CacheRead   int    `json:"cache_read"`
+	CacheWrite  int    `json:"cache_write"`
+	Output      int    `json:"output"`
+	MeanContext int    `json:"mean_context"`
+	PeakContext int    `json:"peak_context"`
+}
+
+const contextSQL = "(input + cache_read + cache_write)"
 
 // UsageStats sums recorded API usage per agent and model, most requests
 // first. Usage carries no session: a session filter matches nothing.
@@ -48,7 +66,8 @@ func (l *Ledger) UsageStats(ctx context.Context, q component.StatsQuery) ([]Usag
 	}
 	err := usageFilter(l.db.WithContext(ctx).Model(&usage{}), q).
 		Select(`agent, model, count(*) AS requests, sum(input) AS input, sum(cache_read) AS cache_read,
-			sum(cache_write) AS cache_write, sum(output) AS output`).
+			sum(cache_write) AS cache_write, sum(output) AS output,
+			sum` + contextSQL + ` / count(*) AS mean_context, max` + contextSQL + ` AS peak_context`).
 		Group("agent, model").Order("requests DESC, agent, model").Scan(&out).Error
 	return out, err
 }
@@ -64,4 +83,19 @@ func usageFilter(tx *gorm.DB, q component.StatsQuery) *gorm.DB {
 		tx = tx.Where("ts >= ?", q.Since.UnixMilli())
 	}
 	return tx
+}
+
+// UsageDays sums recorded API usage per UTC day, oldest first. Usage carries no
+// session: a session filter matches nothing.
+func (l *Ledger) UsageDays(ctx context.Context, q component.StatsQuery) ([]UsageDay, error) {
+	var out []UsageDay
+	if q.Session != "" {
+		return out, nil
+	}
+	err := usageFilter(l.db.WithContext(ctx).Model(&usage{}), q).
+		Select(`strftime('%Y-%m-%d', ts / 1000, 'unixepoch') AS day, count(*) AS requests,
+			sum(cache_read) AS cache_read, sum(cache_write) AS cache_write, sum(output) AS output,
+			sum` + contextSQL + ` / count(*) AS mean_context, max` + contextSQL + ` AS peak_context`).
+		Group("day").Order("day").Scan(&out).Error
+	return out, err
 }

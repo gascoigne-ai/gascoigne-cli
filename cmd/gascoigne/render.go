@@ -141,7 +141,7 @@ func (p painter) section(w io.Writer, title string) {
 const barWidth = 20
 
 // renderOverview prints the gain overview for terminals.
-func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int, usage []ledger.UsageStat) {
+func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int, usage []ledger.UsageStat, days []ledger.UsageDay) {
 	t := o.Total
 	title := "gascoigne savings" + filterLabel(o.Filter)
 	fmt.Fprintln(w, p.paint(bold, title))
@@ -188,6 +188,7 @@ func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int, us
 	p.savingsTable(w, "models · share of savings", "model", mcptool.Named(o.Models), t.Saved, false)
 	p.costTable(w, o.Cost)
 	p.usageTable(w, usage)
+	p.usageDaysTable(w, days)
 	p.savingsTable(w, "commands · share of savings", "command", o.Commands, t.Saved, false)
 	p.savingsTable(w, "optimizers · share of savings", "optimizer", o.Optimizers, t.Saved, true)
 	p.savingsTable(w, "dialects · share of savings", "dialect", o.Dialects, t.Saved, false)
@@ -399,18 +400,37 @@ func (p painter) usageTable(w io.Writer, usage []ledger.UsageStat) {
 		rows = append(rows, []cell{
 			{text: cmp.Or(u.Agent, "-")}, {text: cmp.Or(u.Model, "-")},
 			{text: strconv.Itoa(u.Requests), right: true},
+			{text: human(u.MeanContext), right: true}, {text: human(u.PeakContext), right: true},
 			{text: human(u.Input), right: true}, {text: human(u.CacheRead), right: true},
 			{text: human(u.CacheWrite), right: true}, {text: human(u.Output), right: true}, price,
 		})
 	}
 	if len(usage) > 1 {
-		rows = append(rows, []cell{{text: "total", style: bold}, {}, {}, {}, {}, {}, {}, {text: dollars(total), right: true, style: bold}})
+		rows = append(rows, []cell{{text: "total", style: bold}, {}, {}, {}, {}, {}, {}, {}, {}, {text: dollars(total), right: true, style: bold}})
 	}
-	p.table(w, []string{"agent", "model", "requests", "input", "cache read", "cache write", "output", "cost"}, rows)
-	fmt.Fprintln(w, p.paint(dim, " cache writes at the 5-minute price (1h writes cost more)"))
+	p.table(w, []string{"agent", "model", "requests", "context", "peak", "input", "cache read", "cache write", "output", "cost"}, rows)
+	fmt.Fprintln(w, p.paint(dim, " context: tokens one request carries (input, cache read and write), mean and peak · cache writes at the 5-minute price (1h writes cost more)"))
 	if unpriced {
 		fmt.Fprintln(w, p.paint(dim, " ? no known price for the model"))
 	}
+}
+
+// usageDaysTable shows how many API requests a day the proxy saw and how big
+// the conversation each one re-read was: the numbers that drive the bill.
+func (p painter) usageDaysTable(w io.Writer, days []ledger.UsageDay) {
+	if len(days) < 2 {
+		return
+	}
+	p.section(w, "api requests by day · measured by the LLM proxy")
+	var rows [][]cell
+	for _, d := range days {
+		rows = append(rows, []cell{
+			{text: d.Day}, {text: strconv.Itoa(d.Requests), right: true},
+			{text: human(d.MeanContext), right: true}, {text: human(d.PeakContext), right: true},
+			{text: human(d.CacheRead), right: true}, {text: human(d.CacheWrite), right: true},
+		})
+	}
+	p.table(w, []string{"day (UTC)", "requests", "context", "peak", "cache read", "cache write"}, rows)
 }
 
 func dollars(v float64) string {

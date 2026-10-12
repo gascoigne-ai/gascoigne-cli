@@ -86,12 +86,12 @@ func TestParseSince(t *testing.T) {
 func TestUsageTable(t *testing.T) {
 	var b strings.Builder
 	painter{false}.usageTable(&b, []ledger.UsageStat{
-		{Agent: "claude", Model: "claude-opus-5-5", Requests: 2, Input: 1_000_000, CacheRead: 10_000_000, CacheWrite: 400_000, Output: 100_000},
+		{Agent: "claude", Model: "claude-opus-5-5", Requests: 2, Input: 1_000_000, CacheRead: 10_000_000, CacheWrite: 400_000, Output: 100_000, MeanContext: 5_700_000, PeakContext: 6_000_000},
 		{Agent: "pi", Model: "local-llm", Requests: 1, Input: 10},
 	})
 	out := b.String()
 	// 1M×$4 + 10M×$0.20 + 0.4M×$5 + 0.1M×$20 = $10
-	for _, want := range []string{"API USAGE", "claude-opus-5-5", "$10", "?", "no known price"} {
+	for _, want := range []string{"API USAGE", "claude-opus-5-5", "context", "peak", "5.7M", "$10", "?", "no known price"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("missing %q in\n%s", want, out)
 		}
@@ -100,5 +100,24 @@ func TestUsageTable(t *testing.T) {
 	painter{false}.usageTable(&b, nil)
 	if b.Len() != 0 {
 		t.Fatalf("empty usage printed: %q", b.String())
+	}
+}
+
+func TestUsageDaysTable(t *testing.T) {
+	var b strings.Builder
+	days := []ledger.UsageDay{
+		{Day: "2026-10-10", Requests: 120, MeanContext: 81_000, PeakContext: 150_000, CacheRead: 9_700_000, CacheWrite: 400_000},
+		{Day: "2026-10-11", Requests: 40, MeanContext: 52_000, PeakContext: 90_000, CacheRead: 2_000_000, CacheWrite: 90_000},
+	}
+	painter{false}.usageDaysTable(&b, days)
+	for _, want := range []string{"BY DAY", "2026-10-10", "120", "81k", "150k"} {
+		if !strings.Contains(b.String(), want) {
+			t.Fatalf("missing %q in\n%s", want, b.String())
+		}
+	}
+	b.Reset()
+	painter{false}.usageDaysTable(&b, days[:1]) // a single day says nothing about a trend
+	if b.Len() != 0 {
+		t.Fatalf("one day printed: %q", b.String())
 	}
 }

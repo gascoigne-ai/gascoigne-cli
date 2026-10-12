@@ -371,3 +371,46 @@ func TestDashboardMCPReview(t *testing.T) {
 		}
 	})
 }
+
+func TestDashboardUsage(t *testing.T) {
+	l, h := testDashboard(t)
+	t.Run("empty has lists, not null", func(t *testing.T) {
+		w := get(h, "GET", "/api/usage")
+		if w.Code != 200 || !strings.Contains(w.Body.String(), `"models":[]`) || !strings.Contains(w.Body.String(), `"days":[]`) {
+			t.Fatalf("%d: %s", w.Code, w.Body.String())
+		}
+	})
+	now := time.Now()
+	for _, u := range []component.Usage{
+		{TS: now, Agent: "claude", Model: "claude-opus-5-5", Input: 10, CacheRead: 9000, CacheWrite: 300, Output: 100},
+		{TS: now, Agent: "codex", Model: "gpt-5.3-codex", Input: 2000, CacheRead: 1000, Output: 50},
+	} {
+		if err := l.RecordUsage(t.Context(), u); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Run("models and days", func(t *testing.T) {
+		var got struct {
+			Models []ledger.UsageStat `json:"models"`
+			Days   []ledger.UsageDay  `json:"days"`
+		}
+		w := get(h, "GET", "/api/usage")
+		if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil || w.Code != 200 {
+			t.Fatalf("%d %v: %s", w.Code, err, w.Body.String())
+		}
+		if len(got.Models) != 2 || len(got.Days) != 1 || got.Days[0].Requests != 2 || got.Days[0].PeakContext != 9310 {
+			t.Fatalf("got %+v", got)
+		}
+	})
+	t.Run("agent filter", func(t *testing.T) {
+		w := get(h, "GET", "/api/usage?agent=codex")
+		if !strings.Contains(w.Body.String(), "gpt-5.3-codex") || strings.Contains(w.Body.String(), "claude-opus") {
+			t.Fatalf("%s", w.Body.String())
+		}
+	})
+	t.Run("bad since", func(t *testing.T) {
+		if w := get(h, "GET", "/api/usage?since=yesterday"); w.Code != 400 {
+			t.Fatalf("%d", w.Code)
+		}
+	})
+}
