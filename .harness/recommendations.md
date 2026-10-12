@@ -39,11 +39,6 @@ their record is git history.
   and `.harness/*.md`) removes only 1.3–2.4% (the files hold few articles/fillers) and moved
   nothing (12/12, $0.093): no runtime use. Tasks are easy (all arms 100%); rerun on harder ones.
 
-- Proxy `shape_output` (2026-10-12, OpenRouter, 4 tasks × 3, "on" arm with the guide's brevity line in
-  both): 12/12 pass each; output tokens 502 → 423 (−16%), cost $0.114 → $0.096, but per task
-  mixed (test-fix output +17%, others −5% to −32%) and cold-cache first runs dominate cost. Noisy:
-  stays experimental, off by default. Use `shape_holdout` on real use before turning it on.
-
 ## Tried and dropped
 Measured; don't retry without new data.
 - Generic multi-line repeat folding: the log engine already folds repeated traces; after the
@@ -68,6 +63,13 @@ Measured; don't retry without new data.
   runs cost the same ($0.027 / $0.046 per task, 2-3 turns); the mean gap ($0.105 vs $0.069) is one
   cold-cache first run in the base arm. Agents already answer these with one shell command.
   Retry on tasks that need reading dozens of files by hand.
+
+- Proxy `shape_output` (a "be terse" note ending the Anthropic system prompt, 2026-10-12, OpenRouter, 4
+  tasks × 3, brevity line of the guide in both arms): 12/12 pass each; output 502 → 423 tokens (−16%)
+  but mixed per task and noisy. Dropped: the guide's SessionStart line already asks for brevity (also
+  measured, −16%), and editing the system prompt in the proxy touches what the API and the login terms
+  treat as the client's own; session-start context does not. `ab.sh` keeps `AB_HTTPPROXY` for other
+  proxy settings.
 
 ## Practices
 - New tools of an existing family are dialects, not optimizers (skill `add-component`); shared

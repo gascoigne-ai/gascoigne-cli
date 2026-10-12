@@ -11,7 +11,7 @@ import (
 func anthropic(ctx context.Context, r *Receiver, doc map[string]any, m meta) bool {
 	msgs, _ := doc["messages"].([]any)
 	calls := map[string]call{}
-	changed := r.shapeSystem(doc)
+	changed := false
 	for _, mv := range msgs {
 		msg, _ := mv.(map[string]any)
 		blocks, _ := msg["content"].([]any)

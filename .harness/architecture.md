@@ -291,18 +291,6 @@ Read lines match by text, with a uniform line-number shift.
   above the cap are box-downscaled (deterministic, cached by hash). The original is saved (`raw`)
   and the event counted in image tokens (pixels/750, route `image`).
 
-### Output shaping (`shape.go`, experimental: `shape_output`)
-
-Anthropic requests only (`formats.go` `anthropic`), off by default. With `shape_output: true` the
-system prompt ends with `shapeNote` ("Be terse: …"): a string gets it appended, a block list gets
-a new text block after the last one (so cached blocks keep their bytes), no system gets it as the
-system. The prompt record (`recordPrompts`) runs before and still sees the original. Every request
-of a conversation carries the same bytes. `shape_holdout` (0-1) leaves that share of conversations
-unshaped; the arm is chosen from a hash of the conversation's first message, so it never flips
-mid-conversation. Measure with `AB_HTTPPROXY="shape_output: true" .harness/scripts/ab.sh`.
-Not done: lowering thinking effort after tool results; a changed thinking budget invalidates the
-cached message prefix, so alternating it per turn would cost more than it saves.
-
 ### Usage metering (`usage.go`)
 
 - 2xx response bodies pass through a meter: SSE `data:` lines mentioning usage are decoded, JSON

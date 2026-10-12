@@ -25,8 +25,6 @@ receivers:
     skill_code_lines: 30 # skill bodies: code blocks over this keep their head + a pointer to the rest; 0: off
     max_image_pixels: 0 # >0: downscale tool-result screenshots above this many pixels (e.g. 1024000)
     compact_tools: true # tool schemas: drop titles restating names and $schema markers (constraints stay)
-    shape_output: false # experimental: end the Anthropic system prompt with a short "be terse" note (output tokens cost more than input)
-    shape_holdout: 0 # share (0-1) of conversations left without the note, to measure it; a conversation keeps its arm
 
 filters:
   bypass: { env: GASCOIGNE_RAW }               # attr raw=true or this env set to 1

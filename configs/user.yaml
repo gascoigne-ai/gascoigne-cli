@@ -45,8 +45,6 @@
 #     compact_tools: true             ## tool schemas: drop titles restating names, $schema markers
 #     skill_code_lines: 30            ## skill bodies: longer code blocks keep head + pointer (raw -lines); 0: off
 #     max_image_pixels: 0             ## >0: downscale tool-result screenshots above this many pixels
-#     shape_output: false             ## experimental: end the Anthropic system prompt with a short "be terse" note
-#     shape_holdout: 0                ## share (0-1) of conversations left without the note, to measure it
 
 ## Continue or bypass optimization.
 # filters:
