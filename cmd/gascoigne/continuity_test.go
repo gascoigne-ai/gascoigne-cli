@@ -7,6 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 )
 
 // transcript is a Claude Code transcript in the shape the snapshot reads.
@@ -113,5 +117,53 @@ func TestSessionStartAddsSnapshotOnlyWhenEnabled(t *testing.T) {
 	}
 	if ctxOf("startup") != "" || ctxOf("clear") != "" {
 		t.Error("a fresh session or /clear starts clean")
+	}
+}
+
+// After a compaction the agent forgets which outputs gascoigne shortened. The
+// snapshot names them with their raw ids, from the ledger and never from output.
+func TestSnapshotNamesShortenedRuns(t *testing.T) {
+	sandbox(t)
+	db := filepath.Join(t.TempDir(), "l.db")
+	t.Setenv("GASCOIGNE_LEDGER", db)
+	t.Setenv("GASCOIGNE_GUIDE", "off")
+	t.Setenv("GASCOIGNE_EXPERIMENTAL", "continuity")
+	l := ledger.New(&ledger.Config{Path: db})
+	if err := l.Start(t.Context(), nil); err != nil {
+		t.Fatal(err)
+	}
+	rec := func(session, key, raw string, in, out int) {
+		t.Helper()
+		err := l.Record(t.Context(), component.Event{TS: time.Now(), Session: session, Agent: "claude", Key: key, Route: "default",
+			Command: "x", RawTokens: in, OutTokens: out, RawID: raw, Outcome: component.Optimized})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	rec("s1", "cmd:go test ./...", "aaaa1111", 5000, 400)
+	rec("s1", "cmd:go test ./...", "bbbb2222", 5200, 420) // the same command again: the latest id
+	rec("s1", "cmd:API_TOKEN=abc123 make build", "cccc3333", 3000, 300)
+	rec("s1", "cmd:ls", "dddd4444", 300, 200)       // saved too little to name
+	rec("s2", "cmd:git log", "eeee5555", 9000, 900) // another session
+	l.Shutdown(t.Context())
+
+	h := withGuide(func(context.Context, *common, hookInput, string) (any, error) { return nil, nil })
+	reply, err := h(t.Context(), &common{}, hookInput{HookEventName: "SessionStart", Source: "compact", SessionID: "s1", TranscriptPath: writeTranscript(t, transcript)}, "")
+	if err != nil || reply == nil {
+		t.Fatalf("%v %v", reply, err)
+	}
+	got := reply.(map[string]any)["hookSpecificOutput"].(map[string]any)["additionalContext"].(string)
+	for _, want := range []string{"shortened outputs you can read in full", "`go test ./...` → bbbb2222", "`API_TOKEN=… make build` → cccc3333"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("lacks %q:\n%s", want, got)
+		}
+	}
+	for _, leak := range []string{"aaaa1111", "dddd4444", "eeee5555", "abc123"} {
+		if strings.Contains(got, leak) {
+			t.Errorf("names %q:\n%s", leak, got)
+		}
+	}
+	if strings.Count(got, "→") != 2 {
+		t.Errorf("one entry per command:\n%s", got)
 	}
 }

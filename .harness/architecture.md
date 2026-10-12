@@ -533,7 +533,10 @@ savings: `gascoigne gain -oneline -since 1d` (`docs/agents.md`).
 Claude SessionStart with `source` compact or resume adds a snapshot of the transcript to the
 guide's context: last request, open TodoWrite items, files edited (newest first, 15), recent
 failed Bash commands (3, `NAME_KEY=` / bearer values cut). Only the agent's own calls are read,
-never tool output; subagent lines are skipped; capped near 2 KB and deterministic. Needs no new
+never tool output; subagent lines are skipped; capped near 2 KB and deterministic. It also names the
+outputs gascoigne shortened in this session (up to 6, one per command, latest raw id, at least 200 tokens
+saved; `ledger.RecentRuns` by the hook's session id, the default ledger path, command and id only) so that the
+agent reads them with `gascoigne raw <id> -grep` instead of running the command again. Needs no new
 registration (SessionStart is already installed). Gemini's `PreCompress` has no equivalent yet.
 
 ### Command rewriting rules (`hook.go`)

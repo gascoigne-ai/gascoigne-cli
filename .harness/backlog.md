@@ -84,6 +84,9 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 
 ## Tried and dropped
 Measured; don't retry without new data.
+- Rerun nudge in the hint (2026-10-12): `learn` finds no `rerun` habit on a month of one real ledger (two
+  session/command pairs with three or more shortened runs, none by `learn`'s rule), and the `rerun` optimizer
+  already folds the repeated lines. Retry if `learn` shows the habit on other ledgers.
 - Generic multi-line repeat folding: the log engine already folds repeated traces; after the
   engines +1.6 points on a repeated-trace fixture, before them it broke test/task/log goldens.
 - Replacing stale/superseded file reads in the proxy: reads are ~4% of context and the 1h

@@ -260,3 +260,36 @@ func (l *Ledger) Reset(ctx context.Context, q component.StatsQuery, all bool) (i
 	})
 	return n, err
 }
+
+// Run is one shortened run whose original can still be read.
+type Run struct {
+	Key       string `json:"key"`
+	RawID     string `json:"raw_id"`
+	RawTokens int    `json:"raw_tokens"`
+	OutTokens int    `json:"out_tokens"`
+}
+
+// RecentRuns lists the newest optimized runs of a session that kept an
+// original, one per source key (the latest), newest first, at most limit.
+func (l *Ledger) RecentRuns(ctx context.Context, session string, limit int) ([]Run, error) {
+	var rows []Run
+	err := l.db.WithContext(ctx).Model(&event{}).
+		Select("key, raw_id, raw_tokens, out_tokens").
+		Where("session = ? AND raw_id != '' AND outcome = ?", session, component.Optimized).
+		Order("id DESC").Limit(limit * 20).Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	var out []Run
+	seen := map[string]bool{}
+	for _, r := range rows {
+		if seen[r.Key] {
+			continue
+		}
+		seen[r.Key] = true
+		if out = append(out, r); len(out) == limit {
+			break
+		}
+	}
+	return out, nil
+}

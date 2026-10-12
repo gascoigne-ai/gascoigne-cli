@@ -137,3 +137,35 @@ func TestMCPCommands(t *testing.T) {
 		t.Fatalf("since: %+v", got)
 	}
 }
+
+func TestRecentRuns(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RawTTL: time.Hour})
+	ctx := t.Context()
+	rec := func(session, key, raw string, outcome component.Outcome) {
+		t.Helper()
+		err := l.Record(ctx, component.Event{TS: time.Now(), Session: session, Key: key, Route: "default", Command: "c",
+			RawTokens: 1000, OutTokens: 100, RawID: raw, Outcome: outcome})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	rec("s1", "cmd:a", "id1", component.Optimized)
+	rec("s1", "cmd:b", "id2", component.Optimized)
+	rec("s1", "cmd:a", "id3", component.Optimized) // the same key later: it wins
+	rec("s1", "cmd:c", "", component.Optimized)    // no original kept
+	rec("s1", "cmd:d", "id4", component.Unchanged) // not shortened
+	rec("s2", "cmd:e", "id5", component.Optimized) // another session
+	got, err := l.RecentRuns(ctx, "s1", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 || got[0].Key != "cmd:a" || got[0].RawID != "id3" || got[1].RawID != "id2" {
+		t.Fatalf("got %+v", got)
+	}
+	if got, _ := l.RecentRuns(ctx, "s1", 1); len(got) != 1 || got[0].RawID != "id3" {
+		t.Fatalf("limit: %+v", got)
+	}
+	if got, _ := l.RecentRuns(ctx, "none", 5); len(got) != 0 {
+		t.Fatalf("unknown session: %+v", got)
+	}
+}

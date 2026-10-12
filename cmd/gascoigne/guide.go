@@ -188,8 +188,12 @@ func resumeContext(in hookInput) string {
 	if in.Source != "compact" && in.Source != "resume" || !experimentalOn("continuity") {
 		return ""
 	}
-	if s := resumeSnapshot(in.TranscriptPath); s != "" {
-		return "\n" + s
+	s := resumeSnapshot(in.TranscriptPath)
+	if s == "" {
+		return ""
 	}
-	return ""
+	if runs := shortenedRuns(context.Background(), in.SessionID); len(runs) > 0 {
+		s += "- shortened outputs you can read in full instead of running the command again (gascoigne raw <id> -grep PATTERN): " + strings.Join(runs, ", ") + "\n"
+	}
+	return "\n" + s
 }

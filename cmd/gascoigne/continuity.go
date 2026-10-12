@@ -2,12 +2,14 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"slices"
 	"strings"
 
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
@@ -24,6 +26,10 @@ const (
 	snapshotMaxTasks    = 8
 	snapshotMaxFailures = 3
 	snapshotMaxCommand  = 100
+	snapshotMaxRuns     = 6
+	// snapshotMinSaved is how many tokens a shortened output must have saved
+	// to be worth naming: smaller ones are cheaper to run again.
+	snapshotMinSaved = 200
 	// transcriptScan caps how much of a transcript is read.
 	transcriptScan = 16 << 20
 )
@@ -157,6 +163,42 @@ func oneLine(s string, max int) string {
 		return string(r[:max]) + "…"
 	}
 	return s
+}
+
+// shortenedRuns names the outputs gascoigne shortened in this session and that
+// can still be read in full, so that after a compaction the agent reads them
+// (gascoigne raw <id> -grep PATTERN) instead of running the command again.
+// Only the command and the id are used, never the output. The ledger is the
+// default one: a custom path in the config is not followed.
+func shortenedRuns(ctx context.Context, session string) []string {
+	if session == "" {
+		return nil
+	}
+	l := ledger.New(&ledger.Config{})
+	if l.Start(ctx, nil) != nil {
+		return nil
+	}
+	defer l.Shutdown(ctx)
+	runs, err := l.RecentRuns(ctx, session, snapshotMaxRuns*3)
+	if err != nil {
+		return nil
+	}
+	var out []string
+	for _, r := range runs {
+		if r.RawTokens-r.OutTokens < snapshotMinSaved {
+			continue
+		}
+		key := r.Key
+		if i := strings.Index(key, ":"); i >= 0 && i < 6 {
+			key = key[i+1:] // cmd:, file:, url:, tool:
+		}
+		key = oneLine(secretAssign.Regexp().ReplaceAllString(key, "${1}${2}…"), snapshotMaxCommand)
+		out = append(out, fmt.Sprintf("`%s` → %s", key, r.RawID))
+		if len(out) == snapshotMaxRuns {
+			break
+		}
+	}
+	return out
 }
 
 func formatSnapshot(prompt string, todos, files, failed []string) string {
