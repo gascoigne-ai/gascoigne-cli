@@ -29,7 +29,21 @@ func Detect(text string, h Hints) string {
 			return refine(t, text)
 		}
 	}
-	return Sniff(text)
+	t := Sniff(text)
+	if t == HTML && h.Cmd != "" && !fetchesPage(h.Cmd) {
+		return Code // markup printed by a file read or a script is source, not a page
+	}
+	return t
+}
+
+// fetchers are the programs whose output is a page when it looks like one.
+var fetchers = map[string]bool{"curl": true, "wget": true, "http": true, "https": true, "xh": true, "lynx": true, "w3m": true, "links": true}
+
+// fetchesPage reports whether cmd fetches from the web: only then is HTML
+// output a page to convert to markdown.
+func fetchesPage(cmd string) bool {
+	args := Argv(firstStage(lastCommand(cmd)))
+	return len(args) > 0 && fetchers[args[0]]
 }
 
 // refine swaps a generic type for a spec refining it whose sniffer matches.
@@ -175,6 +189,31 @@ func lastCommand(line string) string {
 		}
 		line = strings.TrimLeft(line[i:], "&; ")
 	}
+}
+
+// firstStage is the command a line's output starts with: cut at the first
+// pipe, ; or & outside quotes. Later stages of a pipe only filter that output,
+// so they must not decide what it is (the last word of "sed -n 1,9p a.html |
+// cut -c1-80" is not a file).
+func firstStage(line string) string {
+	var quote byte
+	for i := 0; i < len(line); i++ {
+		switch c := line[i]; {
+		case quote != 0:
+			if c == quote {
+				quote = 0
+			} else if c == '\\' && quote == '"' {
+				i++
+			}
+		case c == '\'' || c == '"':
+			quote = c
+		case c == '\\':
+			i++
+		case c == '|' || c == ';' || c == '&' || c == '\n':
+			return line[:i]
+		}
+	}
+	return line
 }
 
 var setup = map[string]bool{"cd": true, "pushd": true, "export": true, "source": true, ".": true, "set": true}

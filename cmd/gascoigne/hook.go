@@ -205,29 +205,27 @@ func hinted(p *payload.Payload) string {
 // conditionals are left alone.
 func wrapCommand(line, prefix string) (string, bool) {
 	line = strings.TrimSpace(line)
-	if ownCommand(line) {
+	if ownCommand(line) || strings.Contains(line, "\n") {
 		return line, false
 	}
-	body, pipe := splitPipe(line)
-	body, merged := strings.CutSuffix(body, " 2>&1") // exec merges stderr anyway
-	if strings.ContainsAny(strings.NewReplacer("&&", "", ";", "").Replace(body), "|&<>`\n") || strings.Contains(body, "$(") {
-		return line, false
-	}
-	parts, seps := segments(body)
-	for _, p := range parts {
-		if f := strings.Fields(p); len(f) > 0 && shellKeywords[f[0]] {
-			return line, false // loops, conditionals, groups: wrapping a piece could change what runs
-		}
-	}
+	parts, seps := segments(line)
 	var out strings.Builder
 	wrapped := false
-	for i, p := range parts {
+	for i, part := range parts {
 		if i > 0 {
 			out.WriteString(map[string]string{";": "; ", "&&": " && "}[seps[i-1]])
 		}
-		env, cmd := splitEnv(p)
+		body, pipe := splitPipe(part)                    // this command's own trailing | head, | tail
+		body, merged := strings.CutSuffix(body, " 2>&1") // exec merges stderr anyway
+		if hasShellOperator(body) {
+			return line, false
+		}
+		if f := strings.Fields(body); len(f) > 0 && shellKeywords[f[0]] {
+			return line, false // loops, conditionals, groups: wrapping a piece could change what runs
+		}
+		env, cmd := splitEnv(body)
 		if passthrough(cmd) {
-			out.WriteString(p)
+			out.WriteString(part)
 			continue
 		}
 		wrapped = true
@@ -235,18 +233,53 @@ func wrapCommand(line, prefix string) (string, bool) {
 		if watched(cmd) {
 			run = prefix + " -watch -- "
 		}
-		if i == len(parts)-1 && slices.Contains(strings.Fields(pipe), "head") {
+		if slices.Contains(strings.Fields(pipe), "head") {
 			run = prefix + " -attr " + stdoutexporter.AttrHint + "=" + stdoutexporter.HintTop + " -- " // head would cut a hint at the end
 		}
 		out.WriteString(env + run + cmd)
+		if merged {
+			out.WriteString(" 2>&1")
+		}
+		out.WriteString(pipe)
 	}
 	if !wrapped {
 		return line, false
 	}
-	if merged {
-		out.WriteString(" 2>&1")
+	return out.String(), true
+}
+
+// hasShellOperator reports whether s holds something that makes a piece of a
+// line more than one plain command: a pipe, a redirect, a background &, a
+// backtick or $( substitution, or a quote that never closes. Characters inside
+// quotes are literal (grep 'a\|b'), except a substitution inside double quotes,
+// which still runs; a backslash escapes the next character.
+func hasShellOperator(s string) bool {
+	var quote byte
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case quote == '\'':
+			if c == '\'' {
+				quote = 0
+			}
+		case quote == '"':
+			switch {
+			case c == '"':
+				quote = 0
+			case c == '\\':
+				i++
+			case c == '`' || c == '$' && i+1 < len(s) && s[i+1] == '(':
+				return true
+			}
+		case c == '\'' || c == '"':
+			quote = c
+		case c == '\\':
+			i++
+		case strings.IndexByte("|&<>`\n", c) >= 0 || c == '$' && i+1 < len(s) && s[i+1] == '(':
+			return true
+		}
 	}
-	return out.String() + pipe, true
+	return quote != 0
 }
 
 // shellKeywords start compound commands, whose parts are not separate commands.
@@ -285,10 +318,11 @@ func segments(s string) (parts, seps []string) {
 	return parts, seps
 }
 
-// splitPipe cuts trailing "| head …" and "| tail …" stages off a line; pipe is
-// empty when there are none or another command follows a pipe.
+// splitPipe cuts trailing "| head …" and "| tail …" stages off a command; pipe is
+// empty when there are none or another command follows a pipe. Pipes inside
+// quotes are not stage separators.
 func splitPipe(line string) (body, pipe string) {
-	stages := strings.Split(line, "|")
+	stages := splitStages(line)
 	if len(stages) == 1 {
 		return line, ""
 	}
@@ -305,6 +339,31 @@ func splitPipe(line string) (body, pipe string) {
 	}
 	body = strings.TrimSpace(stages[0])
 	return body, strings.TrimPrefix(line, body)
+}
+
+// splitStages splits s at pipes outside quotes (and not escaped).
+func splitStages(s string) []string {
+	var stages []string
+	var quote byte
+	start := 0
+	for i := 0; i < len(s); i++ {
+		switch c := s[i]; {
+		case quote != 0:
+			if c == quote {
+				quote = 0
+			} else if c == '\\' && quote == '"' {
+				i++
+			}
+		case c == '\'' || c == '"':
+			quote = c
+		case c == '\\':
+			i++
+		case c == '|':
+			stages = append(stages, s[start:i])
+			start = i + 1
+		}
+	}
+	return append(stages, s[start:])
 }
 
 // ownCommand reports lines that run gascoigne itself or ask for raw output.

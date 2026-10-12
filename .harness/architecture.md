@@ -101,6 +101,10 @@ whose sniffer matches: `cat deploy.yaml` with manifests → `k8s/manifest`, a sa
   and a content example (an eval fixture) for every dialect with a sniffer.
 - `detect.Family` / `detect.Dialect` split a type.
 - `detect.Command` names commands for stats; leading `cd`/`export` steps of a list are skipped.
+- `detect.FromCmd` and `ReadsFile` look at the first stage of a pipeline (`firstStage`, after `cd`-style steps):
+  later stages only filter its output, and the last word of `sed -n 1,9p a.html | cut -c1-80` is not a file. HTML
+  that is not sniffed from a fetcher's output (curl, wget, http, xh, lynx, w3m, links) is typed `fs/code`, never a
+  page: before this, such source read through a pipe was converted to its title (6595 → 6 tokens on a real read).
 - `edit_safe` (detect filter): config-sized data/k8s/cloud/infra files read from disk
   (`detect.ReadsFile`: cat/head/tail/sed) are typed `fs/code`, so a config read to be edited
   keeps its syntax.
@@ -551,9 +555,12 @@ registration (SessionStart is already installed). Gemini's `PreCompress` has no 
 
 - **Wrapped**: every command of a `&&`/`;` list, except builtins, quiet, interactive and REPL
   commands (`passthrough`; unknown programs are detected by content).
-- **Kept pipes**: trailing `| head` / `| tail` stages (they then cut optimized text). Before
-  `head`, exec gets `-attr hint=top`: the stdout exporter prints the hint first so the cut keeps
-  it. Other pipes stay as they are, since other filters would search the optimized text.
+- **Kept pipes**: `| head` / `| tail` stages at the end of any command of a list (they then cut
+  optimized text). Before `head`, exec gets `-attr hint=top`: the stdout exporter prints the hint first so
+  the cut keeps it. Other pipes stay as they are, since other filters would search the optimized text; one
+  such command leaves the whole line alone. `| & < >` inside quotes are literal (`grep 'a\|b'`); a `$(` or
+  backtick inside double quotes still runs, and a quote that never closes leaves the line alone
+  (`hasShellOperator`). Replayed on 306 commands of one real session this wraps 93 instead of 56.
 - **Left as they are**:
   - lines with loops, conditionals or `{ }` groups
   - redirects (except `2>&1`), subshells, `||`, background runs

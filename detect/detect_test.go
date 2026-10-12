@@ -7,6 +7,14 @@ func TestFromCmd(t *testing.T) {
 		{"go test ./...", GoTest},
 		{"cat web/index.html", Code}, // a page when fetched, source when read from disk
 		{"sed -n 1,40p templates/base.html", Code},
+		// a pipe's later stages only filter the output: the first one says what it is
+		{"sed -n 1,243p cmd/x/dashboard.html | cut -c1-220", Code},
+		{"cat web/index.html | head -40", Code},
+		{"cd web && cat index.html | head", Code},
+		{"cat a.html; cat b.go", Code},
+		{"sed -n 10,20p main.go | head -5", Code},
+		{"go test ./... | tail -5", GoTest},
+		{`grep -n "a|b" x.go | head`, "search/grep"}, // a pipe inside quotes is not a stage
 		{"sed -n 10,20p main.go", Code},
 		{"go test -json ./...", GoTestJSON},
 		{"CGO_ENABLED=0 go build ./cmd/x", GoBuild},
@@ -132,6 +140,36 @@ func TestDetectPrecedence(t *testing.T) {
 	}
 	if got := Detect("<p>x</p>", Hints{MIME: "text/html"}); got != HTML {
 		t.Errorf("mime = %q", got)
+	}
+}
+
+// HTML read from disk, or printed by anything but a fetcher, is source: only a
+// fetched page is converted to markdown.
+func TestHTMLSourceIsNotAPage(t *testing.T) {
+	page := "<!doctype html>\n<html><head><title>T</title></head><body><p>x</p></body></html>"
+	tests := []struct {
+		name string
+		h    Hints
+		want string
+	}{
+		{"no command: stdin or a fetch tool", Hints{}, HTML},
+		{"a mime type says page", Hints{MIME: "text/html"}, HTML},
+		{"curl", Hints{Cmd: "curl -s https://x"}, HTML},
+		{"curl into head", Hints{Cmd: "curl -s https://x | head -c 4000"}, HTML},
+		{"wget to stdout", Hints{Cmd: "wget -qO- https://x"}, HTML},
+		{"file read through a pipe", Hints{Cmd: "sed -n 1,243p index.html | cut -c1-220"}, Code},
+		{"a script printing markup", Hints{Cmd: "python3 gen.py | cut -c1-220"}, Code},
+		{"an unknown program", Hints{Cmd: "./render --html"}, Code},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Detect(page, tt.h); got != tt.want {
+				t.Fatalf("got %q, want %q", got, tt.want)
+			}
+		})
+	}
+	if !ReadsFile("sed -n 1,243p index.html | cut -c1-220") || ReadsFile("go test ./... | tail -5") {
+		t.Error("ReadsFile must look at the first stage")
 	}
 }
 

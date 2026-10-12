@@ -61,6 +61,24 @@ func TestWrapCommand(t *testing.T) {
 		{"dev server", "npm run dev", ""},
 		{"compose up", "docker compose up", ""},
 		{"multiline", "go test ./...\ngo vet ./...", ""},
+
+		// Operators inside quotes are literal; a head or tail ends any stage of a list, not only the last.
+		{"quoted pipe of a grep pattern", `grep -n 'a\|b' x.go | head -20`, `gascoigne exec -attr hint=top -- grep -n 'a\|b' x.go | head -20`},
+		{"quoted arrow and angle brackets", `grep -n 'a->b' x.go; sed -n '/<h1>/p' index.html`, `gascoigne exec -- grep -n 'a->b' x.go; gascoigne exec -- sed -n '/<h1>/p' index.html`},
+		{"double-quoted ampersand", `grep -n "a & b" x.go`, `gascoigne exec -- grep -n "a & b" x.go`},
+		{"escaped pipe outside quotes", `grep a\|b x.go`, `gascoigne exec -- grep a\|b x.go`},
+		{"head before the end of a list", "sed -n 1,60p a.go | head -40; grep -n x b.go | head -5", "gascoigne exec -attr hint=top -- sed -n 1,60p a.go | head -40; gascoigne exec -attr hint=top -- grep -n x b.go | head -5"},
+		{"head in the first stage only", "git show HEAD:f | head -40; sed -n 1,60p g.sh", "gascoigne exec -attr hint=top -- git show HEAD:f | head -40; gascoigne exec -- sed -n 1,60p g.sh"},
+		{"tail in the middle of a && list", "go test ./... | tail -5 && git status", "gascoigne exec -- go test ./... | tail -5 && gascoigne exec -- git status"},
+		{"stderr merge before the end", "cat a.json 2>&1; ls docs", "gascoigne exec -- cat a.json 2>&1; gascoigne exec -- ls docs"},
+		{"one stage with a real pipe rejects the line", "ls | head -3; go test ./... | grep FAIL", ""},
+		{"real pipe after a quoted one", `grep 'a|b' x.go | wc -l`, ""},
+		{"substitution inside double quotes still runs", `grep "$(cat p)" x.go`, ""},
+		{"backtick inside double quotes", "grep \"`cat p`\" x.go", ""},
+		{"redirect after quotes", `grep 'a' x.go > out.txt`, ""},
+		{"background after quotes", `grep 'a' x.go &`, ""},
+		{"or list with quotes", `grep 'a' x.go || true`, ""},
+		{"unterminated quote", `grep 'a x.go | head`, ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

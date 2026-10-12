@@ -61,13 +61,13 @@ var sourceMarkup = map[string]bool{HTML: true}
 // ReadsFile reports whether cmd prints a file (cat, head, tail, sed -n, …),
 // which an agent usually reads in order to edit it.
 func ReadsFile(cmd string) bool {
-	args := Argv(cmd)
+	args := Argv(firstStage(lastCommand(cmd)))
 	return len(args) > 1 && fileReaders[args[0]]
 }
 
 // FromCmd maps a command line to a type; "" when unknown.
 func FromCmd(cmd string) string {
-	args := Argv(cmd)
+	args := Argv(firstStage(lastCommand(cmd)))
 	if len(args) == 0 {
 		return ""
 	}
