@@ -236,6 +236,13 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
   no type, so the args carry `-auto`: streamable HTTP, then SSE) into that command and `unwrap` restores
   them; `httpUrl`, OAuth and header helpers, and codex remote servers stay direct. The server id hashes the url (`remoteProxyArgs` in
   `cmd/gascoigne/proxy.go`), never the url or header values.
+- OAuth: a remote server that answers 401 + `WWW-Authenticate: Bearer` needs a login. `gascoigne mcp-login <url>`
+  (`mcpauth.Login`: PKCE, dynamic client registration, loopback redirect, browser) saves the tokens in
+  `<state dir>/mcp-auth.json` (0600, keyed by a hash of the url without query); `mcp-proxy -url` then sends
+  and refreshes them (`mcpauth.NewHandler`, streamable HTTP only) and never opens a browser itself. Without a
+  login a 401 ends the proxy with the command to run. `install`/`wrap` probe an entry without an
+  Authorization header (`mcpauth.NeedsOAuth`, 2 s, `GASCOIGNE_OAUTH_PROBE=off`) and leave it direct with the
+  command to run until a login exists, so a working server is never broken by the rewrite.
 - `compact_tools` drops redundant schema keys.
 - `max_tools` > 0 (off by default) hides more tools than that behind `search_tools` (BM25 over
   names and descriptions, top 5 with schemas) and `call_tool`, for agents without native tool

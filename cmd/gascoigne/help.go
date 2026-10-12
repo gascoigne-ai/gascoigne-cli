@@ -137,6 +137,13 @@ func init() {
 			about:    "Mirrors the downstream server's tools, optimizes their text results and adds\ngascoigne_retrieve. Non-text content passes untouched.\nA remote server (HTTP or SSE) is given with -url instead of a command.",
 			examples: []string{"gascoigne mcp-proxy -- npx -y @modelcontextprotocol/server-github", "gascoigne mcp-proxy -url https://mcp.example.com/mcp -header \"Authorization: Bearer $TOKEN\""},
 			run:      cmdMCPProxy},
+		{name: "mcp-login", args: "[-logout] <url>", group: groupOptimize,
+			summary: "log in to a remote MCP server that uses OAuth, for mcp-proxy",
+			about: "Opens the server's authorization page in a browser (the address is printed too) and saves the\n" +
+				"tokens (0600, state dir), so mcp-proxy -url can reach a server it could not before. Tokens are\n" +
+				"refreshed on use; -logout forgets them. Streamable HTTP servers only.",
+			examples: []string{"gascoigne mcp-login https://mcp.example.com/mcp", "gascoigne mcp-login -logout https://mcp.example.com/mcp"},
+			run:      cmdMCPLogin},
 
 		{name: "gain", args: "[flags]", group: groupSavings,
 			summary:  "token savings report",

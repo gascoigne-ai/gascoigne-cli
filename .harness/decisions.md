@@ -138,6 +138,13 @@ route on the background server with the upstream in a request header (a shared w
 network surface to guard against loops and SSRF, plus a session cache). The cost is one process per agent
 session, as for stdio servers. The id hashes the url (it can hold keys); header values live only in the agent's own config.
 
+**OAuth logins are gascoigne's own, the proxy never prompts.** The agent's own OAuth tokens (kept by the
+agent, in its keychain or files) are not readable by gascoigne, so a proxied OAuth server needs its own login:
+`mcp-login`, tokens in the state dir (0600, plain JSON like the agents' own credential files). The proxy cannot
+open a browser (an agent starts it with no user at hand), so an expired or refused login ends with the command
+to run. Install does not proxy an OAuth server without a login: that would break a server that works today.
+Static `Authorization` headers need none of this.
+
 **Switching a server off is shown, not done.** The review page says where the agent's config starts a server
 and gives the command that removes it (`claude mcp remove <key> --scope user|local|project`; for Cursor, delete
 the entry). Disabling would write another program's settings, which gascoigne does only after a question in

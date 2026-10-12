@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -15,11 +16,14 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"sync/atomic"
 
+	"github.com/modelcontextprotocol/go-sdk/auth"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/compress/schema"
+	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
 	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
@@ -49,6 +53,7 @@ type Remote struct {
 	SSE     bool // legacy SSE transport; streamable HTTP otherwise
 	Auto    bool // transport unknown (the agent config names none): streamable HTTP, then SSE
 	Headers map[string]string
+	OAuth   auth.OAuthHandler // the saved login (mcpauth), streamable HTTP only
 }
 
 type remoteKey struct{}
@@ -90,7 +95,8 @@ func (r *Receiver) Shutdown(context.Context) error { return nil }
 
 // Run proxies until the agent disconnects; without a downstream it does nothing.
 func (r *Receiver) Run(ctx context.Context) error {
-	down := r.downstream(ctx)
+	var unauthorized atomic.Bool
+	down := r.downstream(ctx, &unauthorized)
 	if down == nil {
 		return nil
 	}
@@ -99,10 +105,10 @@ func (r *Receiver) Run(ctx context.Context) error {
 	cs, err := client.Connect(ctx, down, nil)
 	if rm := r.remote(ctx); err != nil && rm.Auto && rm.URL != "" && !rm.SSE {
 		rm.SSE = true
-		cs, err = client.Connect(ctx, rm.transport(), nil)
+		cs, err = client.Connect(ctx, rm.transport(&unauthorized), nil)
 	}
 	if err != nil {
-		return fmt.Errorf("connect downstream: %w", err)
+		return fmt.Errorf("connect downstream: %w", r.explainAuth(ctx, err, unauthorized.Load()))
 	}
 	defer cs.Close()
 
@@ -243,12 +249,12 @@ func compactSchema(name string, in any) any {
 	return s
 }
 
-func (r *Receiver) downstream(ctx context.Context) mcp.Transport {
+func (r *Receiver) downstream(ctx context.Context, unauthorized *atomic.Bool) mcp.Transport {
 	if t, ok := ctx.Value(ctxKey{}).(mcp.Transport); ok {
 		return t
 	}
 	if rm := r.remote(ctx); rm.URL != "" {
-		return rm.transport()
+		return rm.transport(unauthorized)
 	}
 	if c := r.command(ctx); len(c) > 0 {
 		return &mcp.CommandTransport{Command: exec.Command(c[0], c[1:]...)}
@@ -264,17 +270,18 @@ func (r *Receiver) remote(ctx context.Context) Remote {
 	return Remote{URL: r.cfg.URL, SSE: r.cfg.SSE, Headers: r.cfg.Headers}
 }
 
-func (rm Remote) transport() mcp.Transport {
-	client := &http.Client{Transport: headerTripper{http.DefaultTransport, rm.Headers}}
+func (rm Remote) transport(unauthorized *atomic.Bool) mcp.Transport {
+	client := &http.Client{Transport: headerTripper{http.DefaultTransport, rm.Headers, unauthorized}}
 	if rm.SSE {
 		return &mcp.SSEClientTransport{Endpoint: rm.URL, HTTPClient: client}
 	}
-	return &mcp.StreamableClientTransport{Endpoint: rm.URL, HTTPClient: client}
+	return &mcp.StreamableClientTransport{Endpoint: rm.URL, HTTPClient: client, OAuthHandler: rm.OAuth}
 }
 
 type headerTripper struct {
-	next    http.RoundTripper
-	headers map[string]string
+	next         http.RoundTripper
+	headers      map[string]string
+	unauthorized *atomic.Bool // set when the server answers 401
 }
 
 func (t headerTripper) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -282,7 +289,35 @@ func (t headerTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	for k, v := range t.headers {
 		req.Header.Set(k, v)
 	}
-	return t.next.RoundTrip(req)
+	resp, err := t.next.RoundTrip(req)
+	if err == nil && resp.StatusCode == http.StatusUnauthorized {
+		t.unauthorized.Store(true)
+	}
+	return resp, err
+}
+
+// explainAuth names the fix when a remote server refused us: a 401 without
+// any login means OAuth, which the proxy cannot start itself.
+func (r *Receiver) explainAuth(ctx context.Context, err error, unauthorized bool) error {
+	rm := r.remote(ctx)
+	switch {
+	case !unauthorized || rm.URL == "" || errors.Is(err, mcpauth.ErrLoginNeeded):
+		return err
+	case rm.OAuth != nil:
+		return fmt.Errorf("the server refused the saved login, run: gascoigne mcp-login %s: %w", mcpauth.Display(rm.URL), err)
+	case hasAuthorization(rm.Headers):
+		return fmt.Errorf("the server refused the configured Authorization header: %w", err)
+	}
+	return fmt.Errorf("the server wants a login (OAuth), run: gascoigne mcp-login %s: %w", mcpauth.Display(rm.URL), err)
+}
+
+func hasAuthorization(headers map[string]string) bool {
+	for k := range headers {
+		if strings.EqualFold(k, "Authorization") {
+			return true
+		}
+	}
+	return false
 }
 
 // identity is what tells downstream servers apart for serverID: the command

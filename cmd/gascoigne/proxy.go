@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
 )
 
 // Other MCP servers reach agents through gascoigne mcp-proxy, so their tool
@@ -120,6 +123,9 @@ func proxyRemoteEntry(exe string, e *object, typ string) string {
 	if e.get("oauth") != nil || e.get("headersHelper") != nil {
 		return "remote: OAuth and header helpers are not supported"
 	}
+	if reason := oauthReason(url, headers); reason != "" {
+		return reason
+	}
 	if typ == "" && (e.get("command") != nil || e.get("httpUrl") != nil) {
 		return "remote: both url and command or httpUrl"
 	}
@@ -129,6 +135,21 @@ func proxyRemoteEntry(exe string, e *object, typ string) string {
 	e.set("command", exe)
 	e.set("args", anys(remoteProxyArgs(url, typ, headers)))
 	return ""
+}
+
+// oauthReason is why a remote server stays direct: it asks for an OAuth login
+// that neither the entry's headers nor mcp-login provide, so the proxy would
+// only break a server that works in the agent today.
+func oauthReason(url string, headers []string) string {
+	for _, h := range headers {
+		if name, _, _ := strings.Cut(h, ":"); strings.EqualFold(strings.TrimSpace(name), "Authorization") {
+			return ""
+		}
+	}
+	if _, ok := authStore().Get(url); ok || !mcpauth.NeedsOAuth(context.Background(), url) {
+		return ""
+	}
+	return "OAuth: run gascoigne mcp-login " + mcpauth.Display(url) + ", then install again"
 }
 
 // remoteProxyArgs is how gascoigne starts a remote server: mcp-proxy -url U [-sse|-auto] [-header "K: V"]...

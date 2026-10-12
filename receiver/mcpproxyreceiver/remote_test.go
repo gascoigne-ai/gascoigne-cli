@@ -89,3 +89,27 @@ func TestRemoteValidate(t *testing.T) {
 		})
 	}
 }
+
+func TestRemoteLoginNeeded(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("WWW-Authenticate", `Bearer resource_metadata="http://127.0.0.1/none"`)
+		http.Error(w, "no", http.StatusUnauthorized)
+	}))
+	defer srv.Close()
+	for _, tc := range []struct {
+		name    string
+		headers map[string]string
+		want    string
+	}{
+		{"no login", nil, "gascoigne mcp-login " + srv.URL},
+		{"header refused", map[string]string{"authorization": "Bearer x"}, "refused the configured Authorization header"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := &Receiver{cfg: &Config{Retrieve: "r"}, next: pipeline{}, log: slog.New(slog.DiscardHandler)}
+			err := r.Run(WithRemote(t.Context(), Remote{URL: srv.URL + "?key=secret", Headers: tc.headers}))
+			if err == nil || !strings.Contains(err.Error(), tc.want) || strings.Contains(err.Error(), "secret") {
+				t.Fatalf("err = %v, want %q", err, tc.want)
+			}
+		})
+	}
+}

@@ -1,13 +1,20 @@
 package main
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
+
+	"golang.org/x/oauth2"
+
+	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
 )
 
 func TestProxyServersRoundTrip(t *testing.T) {
+	t.Setenv("GASCOIGNE_OAUTH_PROBE", "off") // the example urls are not reachable
 	root := toObject(map[string]any{"mcpServers": map[string]any{
 		"github":    map[string]any{"command": "npx", "args": []string{"-y", "@modelcontextprotocol/server-github"}, "env": map[string]any{"TOKEN": "${GH}"}},
 		"bare":      map[string]any{"command": "srv"},
@@ -158,5 +165,35 @@ func TestInstallProxiesAndUnwrapRestores(t *testing.T) {
 	}
 	if got := read(t, ".codex/config.toml"); strings.Contains(got, "gascoigne") {
 		t.Errorf("codex after unwrap:\n%s", got)
+	}
+}
+
+func TestOAuthServersStayDirectUntilLogin(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_OAUTH_PROBE", "") // the sandbox turns the probe off
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("WWW-Authenticate", `Bearer resource_metadata="http://127.0.0.1/none"`)
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer srv.Close()
+	url := srv.URL + "/mcp?key=secret"
+	servers := func() *object {
+		return toObject(map[string]any{"mcpServers": map[string]any{
+			"oauth":  map[string]any{"type": "http", "url": url},
+			"static": map[string]any{"type": "http", "url": url, "headers": map[string]any{"authorization": "Bearer ${T}"}},
+		}}).get("mcpServers").(*object)
+	}
+
+	r := proxyServers("gascoigne", servers(), nil)
+	if !slices.Equal(r.proxied, []string{"static"}) || len(r.direct) != 1 ||
+		!strings.Contains(r.direct[0], "OAuth: run gascoigne mcp-login "+srv.URL+"/mcp,") || strings.Contains(r.direct[0], "secret") {
+		t.Fatalf("before login: %+v", r)
+	}
+
+	if err := authStore().Put(url, mcpauth.Creds{ClientID: "c", Token: &oauth2.Token{AccessToken: "t"}}); err != nil {
+		t.Fatal(err)
+	}
+	if r := proxyServers("gascoigne", servers(), nil); len(r.proxied) != 2 || len(r.direct) != 0 {
+		t.Fatalf("after login: %+v", r)
 	}
 }
