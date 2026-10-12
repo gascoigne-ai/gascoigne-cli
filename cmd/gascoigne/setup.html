@@ -6,94 +6,232 @@
 <title>gascoigne · Setup</title>
 <style>
 :root {
-  --bg: #f6f3f4; --surface: #ffffff; --border: #e6dfe2; --text: #22161b; --muted: #66545b;
-  --accent: #7a1f3d; --accent-text: #ffffff; --ok: #17804a; --err: #d1281b;
+  --bg: #f6f3f4; --surface: #ffffff; --surface-2: #f5f0f2; --border: #e6dfe2; --border-strong: #cfc3c8;
+  --text: #22161b; --muted: #66545b; --accent: #7a1f3d; --accent-soft: #f6e8ed; --accent-text: #ffffff;
+  --ok: #17804a; --ok-soft: #e5f5ec; --warn: #a8570c; --warn-soft: #fbf1e3; --err: #d1281b; --err-soft: #fdecea;
+  --neutral-soft: #ece5e8;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --shadow: 0 1px 2px rgba(34, 22, 27, .06), 0 2px 8px rgba(34, 22, 27, .05);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #140f12; --surface: #1c1519; --border: #33262d; --text: #f1e8eb; --muted: #bfaab2;
-    --accent: #e88aa6; --accent-text: #140f12; --ok: #5ed39a; --err: #ff6b5e;
+    --bg: #140f12; --surface: #1c1519; --surface-2: #241b20; --border: #33262d; --border-strong: #47353e;
+    --text: #f1e8eb; --muted: #bfaab2; --accent: #e88aa6; --accent-soft: #3a1a27; --accent-text: #140f12;
+    --ok: #5ed39a; --ok-soft: #112a20; --warn: #f0b05a; --warn-soft: #2c2214; --err: #ff6b5e; --err-soft: #3a1714;
+    --neutral-soft: #2d2228; --shadow: 0 1px 2px rgba(0, 0, 0, .45);
     color-scheme: dark;
   }
 }
 * { box-sizing: border-box; }
 html, body { background: var(--bg); }
-body { margin: 0; color: var(--text); font: 15px/1.5 var(--sans); }
-main { max-width: 640px; margin: 0 auto; padding: 32px 16px 48px; }
-h1 { font-size: 20px; margin: 0 0 4px; }
-h2 { font-size: 16px; margin: 0 0 4px; }
-p { margin: 0 0 12px; color: var(--muted); }
-fieldset { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 16px; margin: 0 0 16px; }
-legend { padding: 0 6px; }
-label { display: block; padding: 6px 0; cursor: pointer; }
-input[type=radio] { margin-right: 8px; accent-color: var(--accent); }
-.tag { font-size: 12px; color: var(--muted); margin-left: 6px; }
-button { background: var(--accent); color: var(--accent-text); border: 0; border-radius: 8px; padding: 10px 18px; font: inherit; font-weight: 600; cursor: pointer; }
+body { margin: 0; color: var(--text); font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+main { max-width: 760px; margin: 0 auto; padding: 28px 16px 120px; }
+code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+
+header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+h1 { font-size: 22px; line-height: 1.2; margin: 0; }
+.chip { font: 12px var(--mono); color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
+.lead { color: var(--muted); margin: 0 0 24px; max-width: 62ch; }
+
+h2 { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 28px 0 10px; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+
+/* Overview: what gascoigne found */
+.agents { list-style: none; margin: 0; padding: 0; }
+.agents li { display: grid; grid-template-columns: minmax(6em, 9em) 1fr auto; gap: 4px 12px; align-items: center; padding: 11px 16px; border-top: 1px solid var(--border); }
+.agents li:first-child { border-top: 0; }
+.agents .name { font-weight: 600; }
+.agents .scope { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.agents .empty { display: block; color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.connected { color: var(--ok); background: var(--ok-soft); }
+.pill.older { color: var(--warn); background: var(--warn-soft); }
+.pill.notconnected, .pill.declined { color: var(--muted); background: var(--neutral-soft); }
+
+/* Questions */
+.question { padding: 18px 18px 8px; margin-bottom: 14px; }
+.question h3 { font-size: 16px; margin: 0 0 4px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.question .text { color: var(--muted); margin: 0 0 12px; }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+legend { padding: 0; position: absolute; left: -9999px; }
+.choice { display: grid; grid-template-columns: 22px 1fr; gap: 2px 10px; padding: 11px 12px; margin: 0 -6px 8px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; background: var(--surface); }
+.choice:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.choice:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.choice:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.choice input { margin: 3px 0 0; accent-color: var(--accent); width: 16px; height: 16px; }
+.choice .label { font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.choice .detail { grid-column: 2; color: var(--muted); font-size: 13.5px; }
+.tag { font-size: 11.5px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 999px; padding: 0 8px; }
+.tag.saved { color: var(--muted); background: var(--neutral-soft); border-color: var(--border-strong); }
+.badge-new { font-size: 11.5px; font-weight: 700; color: var(--warn); background: var(--warn-soft); border-radius: 999px; padding: 1px 8px; }
+
+/* Save bar */
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -2px 10px rgba(0, 0, 0, .06); }
+.bar > div { max-width: 760px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.bar .summary { color: var(--muted); font-size: 14px; }
+button { background: var(--accent); color: var(--accent-text); border: 0; border-radius: 8px; padding: 10px 20px; font: inherit; font-weight: 700; cursor: pointer; }
+button:hover:not(:disabled) { filter: brightness(1.08); }
+button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 button:disabled { opacity: .5; cursor: default; }
-#msg { margin-top: 16px; }
-#msg.ok { color: var(--ok); }
-#msg.err { color: var(--err); }
-ul { margin: 8px 0 0; padding-left: 20px; color: var(--muted); }
+
+/* Result and errors */
+.notice { border-radius: 12px; padding: 16px 18px; margin: 0 0 20px; border: 1px solid; }
+.notice.err { color: var(--err); background: var(--err-soft); border-color: var(--err); }
+.notice.ok { color: var(--ok); background: var(--ok-soft); border-color: var(--ok); }
+.notice h3 { margin: 0 0 6px; font-size: 16px; }
+.notice ul { margin: 6px 0 0; padding-left: 20px; color: var(--text); }
+.notice p { margin: 0; color: var(--text); }
+[hidden] { display: none !important; }
+
+@media (max-width: 520px) {
+  .agents li { grid-template-columns: 1fr auto; }
+  .agents .scope { grid-column: 1 / -1; order: 3; }
+}
 </style>
 </head>
 <body>
 <main>
-  <h1>gascoigne setup</h1>
-  <p>Nothing below is changed until you press the button. Each answer is saved and applies to the agent configs gascoigne installed. You can change them later with <code>gascoigne setup -all</code>.</p>
-  <form id="form"></form>
-  <button id="save" type="button" hidden>Save choices</button>
-  <div id="msg" role="status"></div>
+  <header>
+    <h1>gascoigne setup</h1>
+    <span class="chip" id="version"></span>
+  </header>
+  <p class="lead">gascoigne shortens what your coding agents read. Below is what it found on this machine and a few choices that are yours to make. <strong>Nothing changes until you press Save.</strong></p>
+
+  <div id="problem" class="notice err" role="alert" hidden></div>
+
+  <section id="found" hidden>
+    <h2>On this machine</h2>
+    <div class="panel"><ul class="agents" id="agents"></ul></div>
+  </section>
+
+  <form id="form" hidden></form>
+
+  <section id="result" class="notice ok" role="status" hidden>
+    <h3>Saved</h3>
+    <p>Your choices are applied. You can close this tab.</p>
+    <ul id="done"></ul>
+  </section>
 </main>
+
+<div class="bar" id="bar" hidden>
+  <div>
+    <span class="summary" id="summary"></span>
+    <button id="save" type="button">Save choices</button>
+  </div>
+</div>
+
 <script>
 const token = new URLSearchParams(location.search).get("token") || "";
 const $ = (id) => document.getElementById(id);
-const say = (text, cls) => { const m = $("msg"); m.className = cls || ""; m.textContent = text; return m; };
 
 function el(tag, attrs, ...kids) {
   const n = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) n.setAttribute(k, v);
-  n.append(...kids);
+  n.append(...kids.flat().filter((k) => k !== null && k !== undefined && k !== false));
   return n;
 }
 
-function question(d) {
-  const choice = d.current || d.default;
-  const set = el("fieldset", {}, el("legend", {}, d.title), el("p", {}, d.text));
-  for (const o of d.options) {
-    const input = el("input", { type: "radio", name: d.id, value: o.value });
+const stateLabel = { connected: "Connected", older: "Older setup", "not connected": "Not connected", declined: "Not for this one" };
+const groupTitle = { permissions: "Permissions", updates: "Updates", agents: "Agents to connect" };
+
+function agentRow(a) {
+  const klass = a.state.replace(" ", "");
+  return el("li", {},
+    el("span", { class: "name" }, a.name),
+    el("span", { class: "scope" }, a.scope || (a.state === "declined" ? "you chose not to" : "found on PATH")),
+    el("span", { class: "pill " + klass }, stateLabel[a.state] || a.state));
+}
+
+function question(q) {
+  const choice = q.current || q.default;
+  const fs = el("fieldset", {}, el("legend", {}, q.title));
+  for (const o of q.options) {
+    const input = el("input", { type: "radio", name: q.id, value: o.value });
     input.checked = o.value === choice;
-    const tag = !d.current && o.value === d.default ? el("span", { class: "tag" }, "suggested") : "";
-    set.append(el("label", {}, input, o.label, tag));
+    input.onchange = refreshSummary;
+    const tags = [
+      o.value === q.default && !q.current ? el("span", { class: "tag" }, "suggested") : null,
+      o.value === q.current ? el("span", { class: "tag saved" }, "saved") : null,
+    ];
+    fs.append(el("label", { class: "choice" }, input, el("span", { class: "label" }, o.label, tags),
+      o.detail ? el("span", { class: "detail" }, o.detail) : null));
   }
-  return set;
+  return el("div", { class: "panel question" },
+    el("h3", {}, q.title, q.current ? null : el("span", { class: "badge-new" }, "needs your answer")),
+    el("p", { class: "text" }, q.text), fs);
+}
+
+function refreshSummary() {
+  const open = document.querySelectorAll(".question").length;
+  const changed = [...document.querySelectorAll(".question")].filter((box) => {
+    const input = box.querySelector("input:checked");
+    return input && input.value !== (box.dataset.current || "");
+  }).length;
+  $("summary").textContent = open === 1 ? "1 question" : open + " questions";
+  if (changed) $("summary").textContent += " · " + changed + " to save";
+}
+
+function problem(text) {
+  $("problem").replaceChildren(el("h3", {}, "This page cannot continue"), el("p", {}, text), el("p", {}, el("code", {}, "gascoigne setup"), " opens a fresh link."));
+  $("problem").hidden = false;
 }
 
 async function load() {
   const r = await fetch("/api/setup?token=" + encodeURIComponent(token));
-  if (!r.ok) { say(await r.text(), "err"); return; }
-  const ds = await r.json();
-  $("form").replaceChildren(...ds.map(question));
-  $("save").hidden = false;
+  if (!r.ok) { problem(await r.text()); return; }
+  const v = await r.json();
+  $("version").textContent = v.version;
+  $("agents").replaceChildren(...(v.agents.length ? v.agents.map(agentRow) : [el("li", {}, el("span", { class: "empty" }, "No coding agent found on this machine."))]));
+  $("found").hidden = false;
+
+  const form = $("form");
+  for (const g of ["permissions", "updates", "agents"]) {
+    const qs = v.questions.filter((q) => q.group === g);
+    if (!qs.length) continue;
+    form.append(el("h2", {}, groupTitle[g]));
+    for (const q of qs) {
+      const box = question(q);
+      box.dataset.current = q.current || "";
+      form.append(box);
+    }
+  }
+  if (!v.questions.length) form.append(el("div", { class: "panel question" }, el("p", { class: "text" }, "Nothing to decide right now.")));
+  form.hidden = false;
+  $("bar").hidden = !v.questions.length;
+  refreshSummary();
 }
 
 $("save").onclick = async () => {
   const answers = {};
   for (const input of document.querySelectorAll("input[type=radio]:checked")) answers[input.name] = input.value;
   $("save").disabled = true;
+  $("save").textContent = "Saving…";
   const r = await fetch("/api/setup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, answers }),
   });
-  if (!r.ok) { say(await r.text(), "err"); $("save").disabled = false; return; }
+  if (!r.ok) {
+    problem(await r.text());
+    $("save").disabled = false;
+    $("save").textContent = "Save choices";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
   const { done } = await r.json();
-  const m = say("Saved. You can close this tab.", "ok");
-  if (done && done.length) m.append(el("ul", {}, ...done.map((l) => el("li", {}, l))));
+  $("done").replaceChildren(...(done || []).map((l) => el("li", {}, l)));
+  $("form").hidden = true;
+  $("found").hidden = true;
+  $("problem").hidden = true;
+  $("bar").hidden = true;
+  $("result").hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-load().catch((e) => say(String(e), "err"));
+load().catch((e) => problem(String(e)));
 </script>
 </body>
 </html>

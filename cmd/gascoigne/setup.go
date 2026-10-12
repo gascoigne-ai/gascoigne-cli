@@ -18,6 +18,8 @@ import (
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/gascoigne-ai/gascoigne-cli/version"
 )
 
 //go:embed setup.html
@@ -28,6 +30,7 @@ var setupHTML []byte
 // (gascoigne setup). Nothing it covers is done until the user answers.
 type decision struct {
 	ID      string   `json:"id"`
+	Group   string   `json:"group"` // permissions, updates or agents: the page's sections
 	Title   string   `json:"title"`
 	Text    string   `json:"text"`
 	Options []option `json:"options"`
@@ -36,41 +39,42 @@ type decision struct {
 }
 
 type option struct {
-	Value string `json:"value"`
-	Label string `json:"label"`
+	Value  string `json:"value"`
+	Label  string `json:"label"`
+	Detail string `json:"detail,omitempty"` // what choosing it does, in a sentence
 }
 
 // decisions are the questions, with the saved answers filled in.
 func decisions(p prefs) []decision {
 	ds := []decision{
-		{ID: "allow", Current: p.Allow, Default: "local",
+		{ID: "allow", Group: "permissions", Current: p.Allow, Default: "local",
 			Title: "Fewer approval prompts",
-			Text: "Claude asks before each use of gascoigne's tools. Adds allow rules to claude's settings " +
-				"(unwrap removes exactly those). Only fetch reaches the network.",
+			Text:  "Claude asks before each use of gascoigne's own tools. Allowing them adds rules to claude's settings; gascoigne unwrap removes exactly those.",
 			Options: []option{
-				{"local", "Allow retrieve, show, stats and compress (read-only, local)"},
-				{"all", "Also allow fetch (reads web pages and APIs)"},
-				{"none", "Keep asking"},
+				{"local", "Allow the read-only tools", "retrieve, show, stats and compress only read what gascoigne already holds."},
+				{"all", "Also allow fetch", "fetch reads web pages and APIs, so it reaches the network."},
+				{"none", "Keep asking", "claude asks before every gascoigne tool call, as now."},
 			}},
-		{ID: "autosync", Current: p.Autosync, Default: "on",
+		{ID: "autosync", Group: "updates", Current: p.Autosync, Default: "on",
 			Title: "Update hooks automatically after upgrades",
-			Text: "When a new gascoigne adds or changes hooks, rewrite the ones gascoigne installed in your " +
-				"user-level agent configs (other keys stay, a backup is kept). Project files are never touched " +
-				"automatically.",
+			Text:  "A new gascoigne can add or change the hooks it installed in your agents.",
 			Options: []option{
-				{"on", "Keep my installed hooks up to date"},
-				{"off", "Only change my configs when I run gascoigne install"},
+				{"on", "Keep them up to date", "At the next session start after an upgrade, in your user-level configs. Other keys stay and a backup is kept. Project files are never touched automatically."},
+				{"off", "Only when I ask", "Nothing changes until you run gascoigne upgrade."},
 			}},
 	}
 	if q, ok := updateDecision(p); ok {
-		ds = append(ds, q)
+		ds = slices.Insert(ds, 1, q) // the immediate update before the standing one
 	}
 	for _, name := range newAgents(p) {
 		ds = append(ds, decision{ID: integratePrefix + name, Default: "yes", Current: declinedAs(p, name),
+			Group: "agents",
 			Title: "Use gascoigne with " + name,
-			Text: name + " is on PATH but gascoigne is not set up for it. Yes writes gascoigne's hooks and MCP server into " +
-				"your user-level " + name + " config (a backup is kept; unwrap removes them). Nothing is installed without your answer.",
-			Options: []option{{"yes", "Set it up for " + name}, {"no", "Not for " + name}}})
+			Text:  name + " is on this machine, but gascoigne is not connected to it, so its command output is not shortened.",
+			Options: []option{
+				{"yes", "Set it up for " + name, "Writes gascoigne's hooks and MCP server into your user-level " + name + " config. A backup is kept; gascoigne unwrap removes them."},
+				{"no", "Not for " + name, "Nothing is installed, and you are not asked again."},
+			}})
 	}
 	return ds
 }
@@ -106,13 +110,55 @@ func updateDecision(p prefs) (decision, bool) {
 	if len(news) > 0 {
 		text += " What changed: " + strings.Join(news, "; ") + "."
 	}
-	text += " Yes rewrites the user-level ones now (other keys stay, a backup is kept); project ones need gascoigne upgrade run in the project (it does the same as this answer)."
 	current := ""
 	if p.UpdateDeclined >= registrationVersion {
 		current = "no"
 	}
-	return decision{ID: "update", Title: "Update gascoigne's hooks now", Text: text, Default: "yes", Current: current,
-		Options: []option{{"yes", "Update them now"}, {"no", "Not now (asked again with the next version)"}}}, true
+	return decision{ID: "update", Group: "updates", Title: "Update gascoigne's hooks now", Text: text, Default: "yes", Current: current,
+		Options: []option{
+			{"yes", "Update them now", "Rewrites the user-level ones (other keys stay, a backup is kept). Project ones need gascoigne upgrade run in the project."},
+			{"no", "Not now", "Asked again with the next version."},
+		}}, true
+}
+
+// setupView is what the page shows: the machine as gascoigne found it, then
+// the questions.
+type setupView struct {
+	Version   string       `json:"version"`
+	Agents    []agentState `json:"agents"`
+	Questions []decision   `json:"questions"`
+}
+
+// agentState is one agent's line in the overview.
+type agentState struct {
+	Name  string `json:"name"`
+	Scope string `json:"scope,omitempty"` // all projects, or a project dir
+	State string `json:"state"`           // connected, older, not connected or declined
+}
+
+// buildSetupView lists the recorded installs (connected, or older than this
+// version) and the agents on PATH that have none.
+func buildSetupView(p prefs) setupView {
+	v := setupView{Version: version.String(), Agents: []agentState{}, Questions: decisions(p)}
+	installs := readInstalls()
+	for _, e := range installs {
+		state := "connected"
+		if e.Registration < registrationVersion {
+			state = "older"
+		}
+		v.Agents = append(v.Agents, agentState{Name: e.Agent, Scope: installScope(e), State: state})
+	}
+	for _, name := range foundAgents() {
+		if slices.ContainsFunc(installs, func(e install) bool { return e.Agent == name }) {
+			continue
+		}
+		state := "not connected"
+		if slices.Contains(p.Declined, name) {
+			state = "declined"
+		}
+		v.Agents = append(v.Agents, agentState{Name: name, State: state})
+	}
+	return v
 }
 
 // integratePrefix starts the id of a question about an agent found on PATH.
@@ -376,7 +422,7 @@ func setupHandlers(mux *http.ServeMux) {
 			http.Error(w, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
 			return
 		}
-		respond(w, decisions(readPrefs()), nil)
+		respond(w, buildSetupView(readPrefs()), nil)
 	})
 	mux.HandleFunc("POST /api/setup", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
@@ -467,6 +513,9 @@ func ask(r io.Reader, w io.Writer, ds []decision, defaults bool) (map[string]str
 				mark = "*"
 			}
 			fmt.Fprintf(w, " %s %d) %s\n", mark, i+1, o.Label)
+			if o.Detail != "" {
+				fmt.Fprintf(w, "       %s\n", o.Detail)
+			}
 		}
 		for {
 			fmt.Fprint(w, "choose [default *]: ")

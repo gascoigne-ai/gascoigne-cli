@@ -446,7 +446,11 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   deleted after one answer; constant-time compare); only the offered ids and values are accepted;
   the usual loopback-Host and cross-origin checks apply. An answer saves the prefs and writes
   user-scope installs again; project installs are listed ("run gascoigne install there").
-  `gascoigne setup [-y] [-all]` asks the same in the terminal.
+  `gascoigne setup [-y] [-all] [-t]` opens the page, or asks the same in the terminal. The page
+  (`setup.html`) first shows what was found (`buildSetupView`: each install connected or older, agents
+  on PATH not connected or declined, the version), then the questions in sections by `decision.Group`
+  (permissions, updates, agents), each option with a sentence saying what it does (`option.Detail`);
+  a save bar says how many answers will be saved, and the result lists what was done.
   New agents: an agent on PATH with no recorded install and not declined gets a question
   (`integrate:<agent>`, default yes). It is only signaled: a SessionStart note and the page, once per
   agent (`prefs.offered`); yes runs the user-level install and records it, no is remembered

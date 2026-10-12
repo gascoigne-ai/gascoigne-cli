@@ -297,3 +297,43 @@ func TestSetupAsksWhereItCan(t *testing.T) {
 		t.Error("hasDisplay")
 	}
 }
+
+func TestSetupViewTellsWhatWasFound(t *testing.T) {
+	sandbox(t)
+	fakeAgent(t, "codex")
+	if err := recordInstall("claude", true, "gascoigne", false); err != nil {
+		t.Fatal(err)
+	}
+	list := readInstalls()
+	list[0].Registration = registrationVersion - 1
+	if err := writeInstalls(list); err != nil {
+		t.Fatal(err)
+	}
+	v := buildSetupView(prefs{Declined: []string{"codex"}})
+	states := map[string]string{}
+	for _, a := range v.Agents {
+		states[a.Name+"/"+a.Scope] = a.State
+	}
+	if states["claude/all projects"] != "older" || states["codex/"] != "declined" || len(v.Agents) != 2 {
+		t.Errorf("agents: %+v", v.Agents)
+	}
+	if v.Version == "" {
+		t.Error("the page shows the version")
+	}
+	var ids []string
+	for _, q := range v.Questions {
+		ids = append(ids, q.Group+":"+q.ID)
+		if len(q.Options) < 2 || q.Text == "" {
+			t.Errorf("%s needs a sentence and options: %+v", q.ID, q)
+		}
+		for _, o := range q.Options {
+			if o.Detail == "" {
+				t.Errorf("%s/%s: say what choosing it does", q.ID, o.Value)
+			}
+		}
+	}
+	// The immediate update comes before the standing one; groups drive the sections.
+	if got := strings.Join(ids, " "); got != "permissions:allow updates:update updates:autosync agents:integrate:codex" {
+		t.Errorf("questions: %s", got)
+	}
+}
