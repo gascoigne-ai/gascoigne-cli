@@ -56,6 +56,7 @@ func TestDashboardPages(t *testing.T) {
 	}{
 		{"page", "/", "<title>gascoigne"},
 		{"page links to the MCP review", "/", `href="/mcp"`},
+		{"page marks itself in the shared nav", "/", `href="/" aria-current="page">Dashboard`},
 		{"buttons carry icons", "/", `data-icon="trash"`},
 		{"events", "/api/events", `"command":"go test"`},
 		{"events filtered", "/api/events?session=s1", `"command":"git log"`},
