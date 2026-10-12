@@ -29,6 +29,30 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   budget before the story (forbes, gov.br pages); precision is lost to the same menus, share
   bars and footers outside `<footer>`. Link-dense blocks could fold like `<nav>`.
 
+- Token-saving ideas from the 2026-10-12 ideation pass (score out of 25 in brackets; tasks 040-054
+  hold the top ones). Measure each with `ab.sh`, `replay` or `make eval` before keeping it:
+  - Cold-cache history diet [17]: shrink old tool results only on requests whose prefix is rewritten
+    anyway (after the TTL, compaction, or a changed system prompt or tool set); warm requests stay
+    byte-identical. Measure cold vs warm cost with `replay`.
+  - Tool description trimming [16]: cap long MCP tool descriptions with `compress/terse`; tool sets
+    are about 35k tokens per request, mostly descriptions.
+  - Stronger default truncation [16]: `truncate.max_tokens` 10000 to 4000 where the hint reads the rest.
+  - Read line numbers on every 5th line in the proxy [12]: risky for edits, needs an edit-task A/B.
+  - `max_image_pixels` on by default [17]: measure on sessions with browser tools.
+  - Cache lint for instruction files [16]: `prompts` flags volatile text early in the prefix.
+  - 1h vs 5m cache-write split in `gain` [17]: see the Usage item above.
+  - Subagent hook coverage [17]: see the Hooks item above; if hooks do not run there, a guide line.
+  - Gemini `PreCompress` resume snapshot [14].
+  - Deferred MCP tools in `mcp-proxy` [15]: one-line summaries plus a search tool, full schemas on demand.
+  - Session fetch cache [16]: the same URL again returns "unchanged since <id>" or a diff.
+  - Guide lines [17 each]: never restate tool output; delegate wide exploration to a subagent.
+  - Context-size nudge at prompt time [17]: needs the numbers from the compaction economics task first.
+  - Exit codes in events [15]: lets `learn` and the hint see repeated failures.
+  - Pasted logs, JSON and diffs in user prompts through the proxy pipeline [17].
+  - Resume vs fresh session price in `gain` [17]; waste report per session in `replay` [17].
+  - Instruction tiering in `prompts` [15]; session budget note [13]; test selection hint [14];
+    headless task runner [14]; plugin hook pricing [16] (also covered by the settings audit task).
+
 ## Measured
 - Marker audit with exact o200k counts (`tokenizer/`; Claude needs an API key, not yet measured):
   raw id 16→8 hex saves 7 tokens per hint (done); `(×60)`→`×60` and `[↑ …`→`[…` save 2 each but
