@@ -62,6 +62,9 @@ func cmdHook(ctx context.Context, args []string) error {
 	}
 	if in.HookEventName == "SessionStart" || in.HookEventName == "UserPromptSubmit" {
 		in.syncNote = syncNote()
+		if in.HookEventName == "SessionStart" { // a prompt event leaves asking to the session start
+			in.syncNote = strings.TrimSpace(in.syncNote + " " + setupNudge())
+		}
 	}
 	if in.HookEventName == "UserPromptSubmit" {
 		// The server exits when idle; a prompt is where an agent starts

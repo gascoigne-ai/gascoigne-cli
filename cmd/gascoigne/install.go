@@ -73,7 +73,11 @@ func cmdInstall(_ context.Context, args []string) error {
 			errs = append(errs, recordInstall(name, *global, cmd, *proxy && a.addProxy != nil))
 		}
 	}
-	return errors.Join(errs...)
+	if err := errors.Join(errs...); err != nil {
+		return err
+	}
+	offerSetup(os.Stdout)
+	return nil
 }
 
 // savePref stores the value of an install flag in the prefs before the

@@ -69,6 +69,13 @@ func init() {
 				"Agents: claude, codex, cursor, gemini, opencode, pi (default: those found on PATH).",
 			examples: []string{"gascoigne install", "gascoigne install -g", "gascoigne install claude codex"},
 			run:      cmdInstall},
+		{name: "setup", args: "[-y] [-all]", group: groupAgents,
+			summary: "answer the open questions about permissions and hook updates",
+			about: "install asks, in a browser page (or here), before gascoigne lets claude run its own tools\n" +
+				"without asking or updates installed hooks by itself. setup asks in the terminal; -y takes the\n" +
+				"suggested answers, -all asks the answered questions again.",
+			examples: []string{"gascoigne setup", "gascoigne setup -y"},
+			run:      cmdSetup},
 		{name: "unwrap", args: "[agent...]", group: groupAgents,
 			summary:  "remove gascoigne from agents' config files",
 			about:    "Removes exactly what install or wrap -print added, from user and project configs\n(default: every agent). Other settings keep their order; originals are backed up.",

@@ -427,6 +427,16 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   `~/.claude.json` which a running Claude Code rewrites), under `installs.lock`, never failing the
   hook; SessionStart tells the agent to restart. Project installs are never touched by hooks:
   `install -sync` does this project's and the user's now. Not decided = nothing is synced.
+- **Decisions** (`setup.go`, `setup.html`): changes beyond gascoigne's own files wait for the
+  user. Open questions = unset `allow` / `autosync` in `prefs.json`. `install` (end) and a claude
+  SessionStart hook (once per `registrationVersion`, `prefs.asked_registration`; recorded installs
+  only) open `http://<server>/setup?token=…` with `openBrowser` (not under `CI`, not without a
+  display; `GASCOIGNE_SERVER=off` falls back to the one-line notice). `GET /api/setup` and
+  `POST /api/setup {token, answers}` need the token from `setup.json` (random, 24h, mode 0600,
+  deleted after one answer; constant-time compare); only the offered ids and values are accepted;
+  the usual loopback-Host and cross-origin checks apply. An answer saves the prefs and writes
+  user-scope installs again; project installs are listed ("run gascoigne install there").
+  `gascoigne setup [-y] [-all]` asks the same in the terminal.
 - **Identity**: rewritten commands carry `-agent <name>` and `-session <hook session_id>` when
   `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks). `wrap` sets the env, so its
   commands stay short (`execPrefix` in `hook.go`).

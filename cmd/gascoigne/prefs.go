@@ -28,6 +28,9 @@ type prefs struct {
 	// Autosync (on or off) lets agent hooks bring user-scope installs made
 	// by an older gascoigne up to date; unset = not decided, nothing is synced.
 	Autosync string `json:"autosync,omitempty"`
+	// AskedRegistration is the registrationVersion for which the setup page
+	// was last opened by a hook: ask once per version, not every session.
+	AskedRegistration int `json:"asked_registration,omitempty"`
 }
 
 func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }

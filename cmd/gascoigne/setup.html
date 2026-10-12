@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gascoigne · Setup</title>
+<style>
+:root {
+  --bg: #f6f3f4; --surface: #ffffff; --border: #e6dfe2; --text: #22161b; --muted: #66545b;
+  --accent: #7a1f3d; --accent-text: #ffffff; --ok: #17804a; --err: #d1281b;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #140f12; --surface: #1c1519; --border: #33262d; --text: #f1e8eb; --muted: #bfaab2;
+    --accent: #e88aa6; --accent-text: #140f12; --ok: #5ed39a; --err: #ff6b5e;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); }
+body { margin: 0; color: var(--text); font: 15px/1.5 var(--sans); }
+main { max-width: 640px; margin: 0 auto; padding: 32px 16px 48px; }
+h1 { font-size: 20px; margin: 0 0 4px; }
+h2 { font-size: 16px; margin: 0 0 4px; }
+p { margin: 0 0 12px; color: var(--muted); }
+fieldset { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 16px; margin: 0 0 16px; }
+legend { padding: 0 6px; }
+label { display: block; padding: 6px 0; cursor: pointer; }
+input[type=radio] { margin-right: 8px; accent-color: var(--accent); }
+.tag { font-size: 12px; color: var(--muted); margin-left: 6px; }
+button { background: var(--accent); color: var(--accent-text); border: 0; border-radius: 8px; padding: 10px 18px; font: inherit; font-weight: 600; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+#msg { margin-top: 16px; }
+#msg.ok { color: var(--ok); }
+#msg.err { color: var(--err); }
+ul { margin: 8px 0 0; padding-left: 20px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>gascoigne setup</h1>
+  <p>Nothing below is changed until you press the button. Each answer is saved and applies to the agent configs gascoigne installed. You can change them later with <code>gascoigne setup -all</code>.</p>
+  <form id="form"></form>
+  <button id="save" type="button" hidden>Save choices</button>
+  <div id="msg" role="status"></div>
+</main>
+<script>
+const token = new URLSearchParams(location.search).get("token") || "";
+const $ = (id) => document.getElementById(id);
+const say = (text, cls) => { const m = $("msg"); m.className = cls || ""; m.textContent = text; return m; };
+
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) n.setAttribute(k, v);
+  n.append(...kids);
+  return n;
+}
+
+function question(d) {
+  const choice = d.current || d.default;
+  const set = el("fieldset", {}, el("legend", {}, d.title), el("p", {}, d.text));
+  for (const o of d.options) {
+    const input = el("input", { type: "radio", name: d.id, value: o.value });
+    input.checked = o.value === choice;
+    const tag = !d.current && o.value === d.default ? el("span", { class: "tag" }, "suggested") : "";
+    set.append(el("label", {}, input, o.label, tag));
+  }
+  return set;
+}
+
+async function load() {
+  const r = await fetch("/api/setup?token=" + encodeURIComponent(token));
+  if (!r.ok) { say(await r.text(), "err"); return; }
+  const ds = await r.json();
+  $("form").replaceChildren(...ds.map(question));
+  $("save").hidden = false;
+}
+
+$("save").onclick = async () => {
+  const answers = {};
+  for (const input of document.querySelectorAll("input[type=radio]:checked")) answers[input.name] = input.value;
+  $("save").disabled = true;
+  const r = await fetch("/api/setup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, answers }),
+  });
+  if (!r.ok) { say(await r.text(), "err"); $("save").disabled = false; return; }
+  const { done } = await r.json();
+  const m = say("Saved. You can close this tab.", "ok");
+  if (done && done.length) m.append(el("ul", {}, ...done.map((l) => el("li", {}, l))));
+};
+
+load().catch((e) => say(String(e), "err"));
+</script>
+</body>
+</html>
