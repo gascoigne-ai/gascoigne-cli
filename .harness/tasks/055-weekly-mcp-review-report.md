@@ -7,6 +7,13 @@ Show, once a week, what the user's MCP servers cost per request and which of the
 with numbers from task 041. Report only; acting on it is task 056.
 
 ## Scope
+- Data (task 041, done): table `tool_stats` (sizes and calls from `mcp-proxy`, keyed by the downstream
+  server's reported name) and the hook's events whose command is `mcp__server__tool` (calls to
+  servers that stay direct, no sizes). A tool a proxied server lists is counted once: when a tool
+  name is in `tool_stats`, ignore events with that tool name. Claude's cost per request also depends
+  on its own tool search: measured on one real request, MCP tools were about 7% of the tool-set
+  size, so show the share of the total when the LLM proxy's tools events can tell, and keep the
+  nudge threshold in tokens per request.
 - **Browser first.** The review is a page in the dashboard (`/mcp`, embedded HTML like
   `dashboard.html`, no build step, same loopback-Host and cross-origin checks): a sortable table
   (accessor-based sort, decisions.md), a bar for each server's share of per-request tool tokens,

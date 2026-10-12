@@ -226,6 +226,10 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
   names and descriptions, top 5 with schemas) and `call_tool`, for agents without native tool
   search.
 
+- Stats: when the agent lists tools, the proxy records each downstream tool's definition size
+  (as the agent receives it, schemas compacted) under the downstream server's own name, and counts
+  every call (`ledger` `tool_stats`; the server name is its reported name, not the agent's config key).
+
 MCP pipelines have no exporters: stdout is the protocol channel.
 
 ## LLM API proxy (`receiver/httpproxyreceiver`, `cmd/gascoigne/llmproxy.go`)
@@ -556,6 +560,7 @@ Lives in core (`service/pipeline.go`), not in optimizers:
 | `steps` | per event, each optimizer that changed tokens: optimizer, family, tokens before/after |
 | `raw` | originals, gzip-compressed (plain JSON rows from before still read); TTL-pruned. `gascoigne flush [-older]` / `POST /api/flush` delete and VACUUM |
 | `failures` | per-key failure count |
+| `tool_stats` | per day, agent, MCP server, tool: definition tokens (last listing that day) and calls. Written by `mcp-proxy` through the optional `mcptool.ToolStatRecorder` (not a `component/` contract); pruned at `stats_ttl` (14 d). Direct servers' calls are the hook's events whose command is the tool name |
 | `usage` | per proxied API request: agent, model, input, cache read/write and output tokens as the provider billed them |
 
 **Raw ids** are sha256 prefixes of the original's text, attrs aside: the same output from two

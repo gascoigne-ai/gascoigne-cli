@@ -33,6 +33,7 @@ type Ledger struct {
 	cfg  *Config
 	db   *gorm.DB
 	path string
+	now  func() time.Time // a field so tests can move the clock
 }
 
 // Path is the database file in use, after the env override and defaults.
@@ -41,7 +42,7 @@ func (l *Ledger) Path() string { return l.path }
 var _ component.Ledger = (*Ledger)(nil)
 
 func New(cfg *Config) *Ledger {
-	return &Ledger{cfg: cfg}
+	return &Ledger{cfg: cfg, now: time.Now}
 }
 
 func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
@@ -62,11 +63,14 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 	if err != nil {
 		return err
 	}
-	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &step{}, &raw{}, &failure{}, &usage{}); err != nil {
+	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &step{}, &raw{}, &failure{}, &usage{}, &toolStat{}); err != nil {
 		return fmt.Errorf("ledger migrate: %w", err)
 	}
 	if err := l.migrateKeys(ctx); err != nil {
 		return fmt.Errorf("ledger migrate keys: %w", err)
+	}
+	if err := l.pruneToolStats(ctx); err != nil {
+		return err
 	}
 	return l.prune(ctx)
 }

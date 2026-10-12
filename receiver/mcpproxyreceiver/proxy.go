@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os/exec"
+	"sync"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/compress/schema"
 	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 	"github.com/gascoigne-ai/gascoigne-cli/version"
 )
 
@@ -26,6 +28,7 @@ type Receiver struct {
 	ledger   component.Ledger
 	upstream mcp.Transport
 	sessions *mcptool.Sessions
+	server   string // the downstream server's own name, the key of its tool stats
 }
 
 type ctxKey struct{}
@@ -70,7 +73,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 	if info == nil {
 		info = &mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}
 	}
-	s := mcp.NewServer(info, &mcp.ServerOptions{Instructions: init.Instructions, Logger: r.log})
+	r.server = info.Name
 	var tools []*mcp.Tool
 	for tool, err := range cs.Tools(ctx, nil) {
 		if err != nil {
@@ -84,6 +87,17 @@ func (r *Receiver) Run(ctx context.Context) error {
 		}
 		tools = append(tools, tool)
 	}
+	sizes := toolSizes(tools)
+	s := mcp.NewServer(info, &mcp.ServerOptions{Instructions: init.Instructions, Logger: r.log})
+	var listed sync.Once
+	s.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
+		return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
+			if method == "tools/list" { // the agent pays for the definitions only when it lists them
+				listed.Do(func() { r.recordList(ctx, req.GetSession(), sizes) })
+			}
+			return next(ctx, method, req)
+		}
+	})
 	if r.cfg.MaxTools > 0 && len(tools) > r.cfg.MaxTools {
 		r.addLazy(s, cs, tools)
 	} else {
@@ -93,6 +107,49 @@ func (r *Receiver) Run(ctx context.Context) error {
 	}
 	mcptool.AddRetrieve(s, r.cfg.Retrieve, r.ledger)
 	return s.Run(ctx, r.upstream)
+}
+
+// toolSizes is what each downstream tool's definition costs in tokens, as the
+// agent would receive it.
+func toolSizes(tools []*mcp.Tool) map[string]int {
+	sizes := make(map[string]int, len(tools))
+	for _, t := range tools {
+		b, err := json.Marshal(t)
+		if err != nil {
+			continue
+		}
+		sizes[t.Name] = tokens.Estimate(string(b))
+	}
+	return sizes
+}
+
+// recordList stores the tool definition sizes when the agent lists the tools.
+// Stats are a side record: a failure is logged, never shown to the agent.
+func (r *Receiver) recordList(ctx context.Context, session mcp.Session, sizes map[string]int) {
+	rec, ok := r.ledger.(mcptool.ToolStatRecorder)
+	if !ok {
+		return
+	}
+	agent := r.sessions.Explicit().Agent
+	if ss, ok := session.(*mcp.ServerSession); ok && agent == "" {
+		if p := ss.InitializeParams(); p != nil && p.ClientInfo != nil {
+			agent = p.ClientInfo.Name
+		}
+	}
+	if err := rec.RecordToolList(ctx, agent, r.server, sizes); err != nil {
+		r.log.Warn("record tool list", "server", r.server, "err", err)
+	}
+}
+
+// recordCall counts one call of a downstream tool.
+func (r *Receiver) recordCall(ctx context.Context, req *mcp.CallToolRequest, tool string) {
+	rec, ok := r.ledger.(mcptool.ToolStatRecorder)
+	if !ok {
+		return
+	}
+	if err := rec.RecordToolCall(ctx, r.sessions.Agent(req), r.server, tool); err != nil {
+		r.log.Warn("record tool call", "server", r.server, "tool", tool, "err", err)
+	}
 }
 
 // compactSchema drops what a downstream tool's schema says twice (see
@@ -133,6 +190,7 @@ func (r *Receiver) forward(cs *mcp.ClientSession, name string) mcp.ToolHandler {
 
 // call runs a downstream tool and optimizes its text results.
 func (r *Receiver) call(ctx context.Context, cs *mcp.ClientSession, name string, args any, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	r.recordCall(ctx, req, name)
 	res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: name, Arguments: args})
 	if err != nil {
 		return nil, err

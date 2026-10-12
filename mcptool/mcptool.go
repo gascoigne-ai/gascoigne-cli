@@ -172,6 +172,9 @@ func (s *Sessions) Of(req *mcp.CallToolRequest) string {
 	return s.generated
 }
 
+// Explicit is the identity given with -session, -agent and -model.
+func (s *Sessions) Explicit() Identity { return s.explicit }
+
 // Agent is the explicit agent, else the MCP client's name.
 func (s *Sessions) Agent(req *mcp.CallToolRequest) string {
 	if s.explicit.Agent != "" || req == nil {

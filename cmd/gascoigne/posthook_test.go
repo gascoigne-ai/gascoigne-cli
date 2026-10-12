@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 )
 
 func TestPostToolUse(t *testing.T) {
@@ -102,5 +105,49 @@ func TestResultHooksOtherAgents(t *testing.T) {
 				t.Fatalf("not optimized: %.200s", got)
 			}
 		})
+	}
+}
+
+// The weekly MCP review counts calls to servers that stay direct from the
+// events their hooked results leave: every call, big or small, must show the
+// tool's name as its command.
+func TestHookedMCPCallsLeaveEvents(t *testing.T) {
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	db := filepath.Join(t.TempDir(), "l.db")
+	t.Setenv("GASCOIGNE_LEDGER", db)
+	cfg := filepath.Join(t.TempDir(), "c.yaml")
+	os.WriteFile(cfg, []byte("{}\n"), 0o644)
+	t.Setenv("GASCOIGNE_CONFIG", cfg)
+	data, _ := os.ReadFile("../../testdata/eval/go/test-panic-trace.txt")
+	text := func(s string) json.RawMessage {
+		b, _ := json.Marshal(map[string]any{"content": []any{map[string]any{"type": "text", "text": s}}})
+		return b
+	}
+	calls := []hookInput{
+		{HookEventName: "PostToolUse", ToolName: "mcp__db__query", ToolResponse: text(string(data))},
+		{HookEventName: "PostToolUse", ToolName: "mcp__db__query", ToolResponse: text("ok")},
+		{HookEventName: "PostToolUse", ToolName: "mcp__mail__search", ToolResponse: text("none")},
+	}
+	for _, in := range calls {
+		if _, err := agents["codex"].hook(t.Context(), &common{attrs: attrFlag{}}, in, "gascoigne exec"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	l := ledger.New(&ledger.Config{Path: db})
+	if err := l.Start(t.Context(), nil); err != nil {
+		t.Fatal(err)
+	}
+	defer l.Shutdown(t.Context())
+	entries, err := l.Recent(t.Context(), component.StatsQuery{}, 0, 50)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]int{}
+	for _, e := range entries {
+		got[e.Command]++
+	}
+	t.Logf("commands recorded: %v", got)
+	if got["mcp__db__query"] != 2 || got["mcp__mail__search"] != 1 {
+		t.Fatalf("commands recorded: %v", got)
 	}
 }

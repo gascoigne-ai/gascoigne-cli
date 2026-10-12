@@ -7,6 +7,13 @@ Make the review a habit with little effort: a once-a-week note, and two reversib
 can accept: disable an unused server, or hide tools of a used server that were never called.
 
 ## Scope
+- First: `mcp-proxy` must know the agent's config key for its server (stats are keyed by the server's
+  reported name today, which differs from `mcp__<key>__tool`). Pass it with the rewritten entry
+  (`mcp-proxy -name <key> -- cmd`), accept the old form, restore both with `unwrap`, bump
+  `registrationVersion`. Disabling a server needs the key.
+- Reuse the existing lazy mode (`max_tools`, `search_tools`, `call_tool`) for the lazy tools below:
+  add a per-server `lazy` list to `mcpproxyreceiver`'s config instead of a new meta tool, and list
+  the lazy tool names in the `search_tools` description.
 - **Browser first.** The review and its choices live on the page of task 055, not in the terminal.
   A claude SessionStart (startup or resume, like `releaseNudge` and the setup page) opens it with
   `openBrowser` at most once every 7 days (`prefs.last_mcp_review`), only when task 055 finds
