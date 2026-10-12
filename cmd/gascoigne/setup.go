@@ -148,7 +148,7 @@ type agentState struct {
 // buildSetupView lists the recorded installs (connected, or older than this
 // version) and the agents on PATH that have none.
 func buildSetupView(p prefs) setupView {
-	v := setupView{Version: version.String(), Agents: []agentState{}, Questions: decisions(p)}
+	v := setupView{Version: version.Number, Agents: []agentState{}, Questions: decisions(p)}
 	installs := readInstalls()
 	for _, e := range installs {
 		state := "connected"
