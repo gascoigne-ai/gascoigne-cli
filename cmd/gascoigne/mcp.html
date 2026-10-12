@@ -82,7 +82,7 @@ code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); 
     <span class="chip" id="days"></span>
     <a href="/">dashboard</a>
   </header>
-  <p class="lead">What each MCP server's tool definitions cost in every request, and whether the agent used them. Definitions are re-read by every request of a session, so an unused server is paid for all week. Click a server for its tools, and to load the ones it never uses on request instead of listing them.</p>
+  <p class="lead">What each MCP server's tool definitions cost when they are listed to the agent, and whether the agent used them. Most agents send the definitions with every request, so an unused server is paid for all week; an agent with its own tool search may send only the names, and then these numbers are an upper bound. Click a server for its tools, and to load the ones it never uses on request instead of listing them.</p>
   <div id="notes"></div>
   <div class="panel" id="panel"><p class="empty">Loading…</p></div>
 </main>
@@ -97,14 +97,14 @@ const el = (tag, attrs, ...kids) => {
   return e;
 };
 const num = (n) => n.toLocaleString("en-US");
-const label = { "used": "used", "unused": "unused", "rarely used": "rarely used", "learning": "learning" };
-const cls = { "used": "used", "unused": "unused", "rarely used": "rarely", "learning": "learning" };
+const label = { "used": "used", "unused": "unused", "rarely used": "rarely used", "learning": "learning", "not seen lately": "not seen lately" };
+const cls = { "used": "used", "unused": "unused", "rarely used": "rarely", "learning": "learning", "not seen lately": "learning" };
 
 // Columns sort by an accessor, never by the displayed text ("1,200" would sort as text).
 const columns = [
   { title: "Server", get: (s) => s.label.toLowerCase(), first: "asc" },
-  { title: "Verdict", get: (s) => ["unused", "rarely used", "learning", "used"].indexOf(s.verdict), first: "asc" },
-  { title: "Tokens per request", get: (s) => s.sized ? s.tokens : -1, num: true },
+  { title: "Verdict", get: (s) => ["unused", "rarely used", "learning", "not seen lately", "used"].indexOf(s.verdict), first: "asc" },
+  { title: "Definition tokens", get: (s) => s.sized ? s.tokens : -1, num: true },
   { title: "Idle tokens", get: (s) => s.sized ? s.idle_tokens : -1, num: true },
   { title: "Calls, 7 days", get: (s) => s.calls_7d, num: true },
   { title: "Before that", get: (s) => s.calls_prev_7d, num: true },
@@ -145,14 +145,14 @@ function actions(s) {
   const idleTokens = idle.reduce((n, t) => n + t.tokens, 0);
   const effective = new Set(s.tools.filter((t) => t.lazy).map((t) => t.name));
   if (idle.length) {
-    box.append(el("p", { text: `${idle.length} of its tools were not called in 14 days; their definitions cost ${num(idleTokens)} tokens in every request. Loaded on request, they are not listed: the agent is told they exist and asks for one by name when it needs it.` }));
+    box.append(el("p", { text: `${idle.length} of its tools were not called in 14 days; their definitions are ${num(idleTokens)} tokens of the tool list. Loaded on request, they are not listed: the agent is told they exist and asks for one by name when it needs it.` }));
     const b = el("button", { type: "button", class: "btn", text: "Load these on request" });
     if (busy) b.disabled = true;
     b.addEventListener("click", () => choose(s.id, [...new Set([...chosen, ...idle.map((t) => t.name)])]));
     box.append(b);
   }
   if (chosen.size) {
-    box.append(el("p", { text: `${chosen.size} tools load on request${s.lazy_tokens ? `, saving ${num(s.lazy_tokens)} tokens per request` : ""}.` }));
+    box.append(el("p", { text: `${chosen.size} tools load on request${s.lazy_tokens ? `, taking ${num(s.lazy_tokens)} tokens out of the tool list` : ""}.` }));
     const b = el("button", { type: "button", class: "btn", text: "List all tools again" });
     if (busy) b.disabled = true;
     b.addEventListener("click", () => choose(s.id, []));

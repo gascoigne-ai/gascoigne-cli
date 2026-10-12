@@ -91,7 +91,7 @@ with `GASCOIGNE_RELEASE_CHECK=off`, or `GASCOIGNE_SERVER=off` (no background ser
 
 ### Weekly MCP review
 
-MCP servers add their tool definitions to every request, used or not. At most once a week, a Claude
+MCP servers add their tool definitions to the agent's tool list, used or not, and most agents send that list with every request (one with its own tool search may send only names). At most once a week, a Claude
 session start asks the local background server for the [MCP review](cli.md#mcp-review) and, when
 tools nobody called in 14 days cost over 1,500 tokens per request, opens the review page and tells the
 agent. Only servers started through `mcp-proxy` count (the others have no sizes). Nothing leaves

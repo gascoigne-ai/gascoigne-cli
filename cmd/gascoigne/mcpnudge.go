@@ -27,7 +27,7 @@ func mcpReviewOn() bool {
 }
 
 // mcpNudge is what a session start does once a week when MCP tool definitions
-// that nobody used are sent with every request: open the review page and tell
+// that nobody used are listed to the agent: open the review page and tell
 // the agent. A compaction or /clear is not a new session, and a page another
 // notice just opened comes first (one page per session start; the week is
 // not used up, so the next start tries again).
@@ -59,7 +59,7 @@ func mcpNudge(source string, pageOpened bool) string {
 	if len(labels) > 3 {
 		shown += fmt.Sprintf(" and %d more", len(labels)-3)
 	}
-	return fmt.Sprintf("gascoigne: about %d tokens of MCP tool definitions (%s) were not used in the last 14 days and are sent with every request. Review them in the browser (%s), or run gascoigne mcp-review. Nothing changes without the user's choice.", tokens, shown, link)
+	return fmt.Sprintf("gascoigne: about %d tokens of MCP tool definitions (%s) were not used in the last 14 days and are listed to the agent. Review them in the browser (%s), or run gascoigne mcp-review. Nothing changes without the user's choice.", tokens, shown, link)
 }
 
 // fetchReview asks the running background server for the review; it never
@@ -81,10 +81,10 @@ func fetchReview() (mcpReview, error) {
 // reviewWorth adds up what the user can act on: the definitions of unused
 // servers and of idle tools not yet chosen to load on request, in tokens per
 // request, and the servers they belong to. Servers without sizes (direct) and
-// servers seen for less than a week are left out.
+// servers seen for less than a week and servers not listed lately (probably removed) are left out.
 func reviewWorth(r mcpReview) (tokens int, labels []string) {
 	for _, s := range r.Servers {
-		if !s.Sized || s.Verdict == verdictLearning {
+		if !s.Sized || s.Verdict == verdictLearning || s.Verdict == verdictStale {
 			continue
 		}
 		n := s.idleUnchosenTokens()
@@ -100,7 +100,7 @@ func reviewWorth(r mcpReview) (tokens int, labels []string) {
 }
 
 // idleUnchosenTokens: definitions of tools not called in unusedDays that still
-// cost tokens in every request (not lazy, not chosen to be).
+// are listed to the agent (not lazy, not chosen to be).
 func (s mcpServer) idleUnchosenTokens() int {
 	n := 0
 	for _, t := range s.Tools {
@@ -120,7 +120,7 @@ func mcpReviewDecision(p prefs) decision {
 	}
 	return decision{ID: "mcp_review", Group: "updates", Optional: true, Current: current, Default: "on",
 		Title: "Review my MCP servers once a week",
-		Text:  "MCP servers add their tool definitions to every request, used or not.",
+		Text:  "MCP servers add their tool definitions to the agent's tool list, used or not; most agents send that list with every request.",
 		Options: []option{
 			{"on", "Open the review when it finds something", "At most once a week, at a session start, and only when tools nobody called in 14 days cost over " + fmt.Sprint(mcpNudgeTokens) + " tokens per request. It opens a page on this machine; nothing leaves it, and nothing changes unless you choose something there."},
 			{"off", "Never open it", "You can still run gascoigne mcp-review whenever you like."},

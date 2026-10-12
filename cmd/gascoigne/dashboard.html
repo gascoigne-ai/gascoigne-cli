@@ -82,6 +82,9 @@ h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: .01em; }
 .subtitle { color: #d4b3bf; font-size: 13px; }
 .head-right { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
 .ver { font-size: 12px; color: #b58c9b; }
+.navlink { font-size: 13px; color: #e6c6d1; text-decoration: none; border-bottom: 1px solid #7a4a5c; }
+.navlink:hover { color: #fff; }
+.navlink:focus-visible { outline: 2px solid #e6c6d1; outline-offset: 3px; border-radius: 3px; }
 .live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #e3cbd4; }
 .live i { width: 8px; height: 8px; border-radius: 50%; background: #6f7799; }
 .live.on i { background: #5ed39a; box-shadow: 0 0 0 3px rgba(94, 211, 154, .2); }
@@ -284,6 +287,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
       </div>
     </div>
     <div class="head-right">
+      <a class="navlink" href="/mcp" title="What each MCP server's tool definitions cost, and which are used">MCP servers</a>
       <span id="version" class="ver" title="gascoigne version"></span>
       <div id="live" class="live"><i></i><span>Connecting…</span></div>
       <div class="theme" role="group" aria-label="Theme">

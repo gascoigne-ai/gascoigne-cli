@@ -703,7 +703,8 @@ their pipeline's receivers and exporters (`service.Options.Remote`) and POST the
 sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MCPCommands, now)`:
 - Per server: definition tokens (last listing), tokens of tools not called in 14 days, calls in the
   last 7 days and the 7 before, last use, and a verdict. `learning` below `observeDays` (7) of
-  observation, `unused` with no call in `unusedDays` (14), `rarely used` for at most `rarelyCalls`
+  observation, `not seen lately` when a proxied server was last listed `staleDays` (7) or more days ago (probably
+  removed: never unused, never in the nudge), `unused` with no call in `unusedDays` (14), `rarely used` for at most `rarelyCalls`
   calls a week at `rarelyTokens` or more per request, else `used`. The constants are named in the
   file; days are UTC.
 - Calls to servers that stay direct come from the hook's runs named `mcp__server__tool`

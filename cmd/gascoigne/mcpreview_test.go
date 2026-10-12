@@ -308,3 +308,31 @@ func TestSetLazy(t *testing.T) {
 		}
 	})
 }
+
+// A server the user removed stays in the stats until the prune. It must not be
+// called unused, and must not push the nudge over its threshold.
+func TestBuildReviewRemovedServer(t *testing.T) {
+	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
+	day := func(n int) string { return now.AddDate(0, 0, -n).Format("2006-01-02") }
+	var stats []ledger.ToolStat
+	for d := 13; d >= 10; d-- { // listed on days 13 to 10 only, nothing since
+		stats = append(stats, ledger.ToolStat{Day: day(d), Agent: "claude", Server: "old#aaaa1111", Tool: "a", Tokens: 3000})
+	}
+	for d := 13; d >= 0; d-- {
+		stats = append(stats, ledger.ToolStat{Day: day(d), Agent: "claude", Server: "live#bbbb2222", Tool: "b", Tokens: 600, Calls: 1})
+	}
+	r := buildReview(stats, nil, now)
+	got := map[string]mcpServer{}
+	for _, s := range r.Servers {
+		got[s.Name] = s
+	}
+	if got["old"].Verdict != verdictStale || got["old"].Listed != 10 {
+		t.Fatalf("old: %+v", got["old"])
+	}
+	if got["live"].Verdict != verdictUsed || got["live"].Listed != 0 {
+		t.Fatalf("live: %+v", got["live"])
+	}
+	if tokens, labels := reviewWorth(r); tokens != 0 || len(labels) != 0 {
+		t.Fatalf("a removed server counts: %d %v", tokens, labels)
+	}
+}

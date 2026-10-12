@@ -18,7 +18,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 )
 
-// The weekly MCP review: which MCP servers cost tokens in every request and
+// The weekly MCP review: which MCP servers add tokens to the agent's tool list and
 // which of them earn it. It reads two things the ledger keeps for two weeks:
 // the table mcp-proxy fills (definition sizes and calls) and the hook's runs
 // named mcp__server__tool (calls to servers that stay direct, no sizes).
@@ -27,17 +27,21 @@ const (
 	// observeDays is how long a server must have been seen before the review
 	// calls it unused: a week of silence on a server seen for a day says nothing.
 	observeDays = 7
+	// staleDays: a proxied server not listed for this long is probably removed
+	// or its agent unused; it must not be called unused, nor trigger a nudge.
+	staleDays = 7
 	// unusedDays is the silence that makes a server unused.
 	unusedDays = 14
 	// rarelyCalls and rarelyTokens: a server with at most this many calls in
-	// a week whose definitions cost at least this much in every request.
+	// a week whose definitions are at least this many tokens of the tool list.
 	rarelyCalls  = 2
 	rarelyTokens = 1500
 )
 
 // Verdicts of a server.
 const (
-	verdictLearning = "learning" // seen for less than observeDays
+	verdictStale    = "not seen lately" // listed last more than staleDays ago: probably no longer configured
+	verdictLearning = "learning"        // seen for less than observeDays
 	verdictUnused   = "unused"
 	verdictRarely   = "rarely used"
 	verdictUsed     = "used"
@@ -59,13 +63,14 @@ type mcpServer struct {
 	Label     string    `json:"label"` // Name, with the id's hash when two servers share it
 	Verdict   string    `json:"verdict"`
 	Sized     bool      `json:"sized"`       // false: only calls are known (the server stays direct)
-	Tokens    int       `json:"tokens"`      // what its definitions cost in every request
+	Tokens    int       `json:"tokens"`      // what its definitions add to the tool list
 	IdleToks  int       `json:"idle_tokens"` // of those, tools not called in unusedDays
 	LazyToks  int       `json:"lazy_tokens"` // what the tools offered on request only would cost if listed
 	Calls7    int       `json:"calls_7d"`
 	CallsPrev int       `json:"calls_prev_7d"` // the 7 days before
 	LastUsed  string    `json:"last_used,omitempty"`
 	Seen      int       `json:"seen_days"`
+	Listed    int       `json:"listed_days_ago"` // days since a proxy last listed its tools; -1 when none did
 	Agents    []string  `json:"agents"`
 	Chosen    []string  `json:"lazy_chosen"` // tools the user chose to load on request: they take effect from the next session
 	Tools     []mcpTool `json:"tools"`
@@ -92,6 +97,7 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 	servers := map[string]*mcpServer{}
 	tools := map[key]*mcpTool{}
 	oldest := map[string]int{}               // server -> age of its first row
+	listedAt := map[string]int{}             // server -> age of its newest listing
 	latest := map[key]string{}               // tool -> day of the size kept
 	listedBy := map[string]map[string]bool{} // proxied server -> the tools it lists
 	var dataOldest int
@@ -140,6 +146,9 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 		s := touch(r.Server, r.Agent, r.Day)
 		t := tool(r.Server, r.Tool)
 		if r.Tokens > 0 {
+			if a, ok := listedAt[r.Server]; !ok || age(r.Day) < a {
+				listedAt[r.Server] = age(r.Day)
+			}
 			k := key{r.Server, r.Tool}
 			if r.Day >= latest[k] { // the last listing's size
 				t.Tokens, t.Lazy, latest[k] = r.Tokens, r.Lazy, r.Day
@@ -171,6 +180,10 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 		slices.SortFunc(s.Tools, func(a, b mcpTool) int { return cmp.Or(cmp.Compare(b.Tokens, a.Tokens), cmp.Compare(a.Name, b.Name)) })
 		slices.Sort(s.Agents)
 		s.Seen = oldest[s.ID] + 1
+		s.Listed = -1
+		if a, ok := listedAt[s.ID]; ok {
+			s.Listed = a
+		}
 		for _, t := range s.Tools {
 			if t.Lazy {
 				s.LazyToks += t.Tokens
@@ -195,6 +208,8 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 func verdict(s *mcpServer) string {
 	calls := s.Calls7 + s.CallsPrev
 	switch {
+	case s.Sized && s.Listed >= staleDays:
+		return verdictStale
 	case s.Seen < observeDays:
 		return verdictLearning
 	case calls == 0:

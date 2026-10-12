@@ -55,6 +55,7 @@ func TestDashboardPages(t *testing.T) {
 		name, url, want string
 	}{
 		{"page", "/", "<title>gascoigne"},
+		{"page links to the MCP review", "/", `href="/mcp"`},
 		{"events", "/api/events", `"command":"go test"`},
 		{"events filtered", "/api/events?session=s1", `"command":"git log"`},
 		{"overview", "/api/overview?since=7d", `"saved_tokens":1800`},
