@@ -51,6 +51,10 @@ builds `-trimpath` binaries for linux/darwin/windows × amd64/arm64 and publishe
 `checksums.txt` as a GitHub release whose notes are that version's `CHANGELOG.md` section. To
 release: add the section, bump `version.Number`, commit, then
 tag `v<number>` and push the tag to GitHub.
+The website (`gascoigne-webpage`) tells users about the release: add `releases/<number>/index.html`
+and its changelog entry, deploy, and only then change `latest.json` to the new id (a later commit):
+gascoigne reads that file once a day and opens the page of a newer release once, so it must not
+name a page that is not live yet.
 
 ## Dependencies
 
