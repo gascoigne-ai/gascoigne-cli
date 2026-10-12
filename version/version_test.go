@@ -24,3 +24,31 @@ func TestCommit(t *testing.T) {
 		})
 	}
 }
+
+func TestNewer(t *testing.T) {
+	tests := []struct {
+		a, b string
+		want bool
+	}{
+		{"0.3.0", "0.2.2", true},
+		{"0.2.2", "0.2.2-dev", true}, // the release is after its dev builds
+		{"0.2.2-dev", "0.2.2", false},
+		{"0.2.2", "0.2.2", false},
+		{"0.2.10", "0.2.9", true}, // numbers, not text
+		{"1.0.0", "0.99.99", true},
+		{"0.3.0", "0.3.0-dev", true},
+		{"0.2.1", "0.3.0", false},
+		{"", "0.2.1", false},
+		{"latest", "0.2.1", false},
+		{"0.3", "0.2.1", false},
+		{"0.3.0", "dev", false},
+		{"0.3.x", "0.2.1", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.a+" vs "+tt.b, func(t *testing.T) {
+			if got := Newer(tt.a, tt.b); got != tt.want {
+				t.Errorf("Newer(%q, %q) = %v, want %v", tt.a, tt.b, got, tt.want)
+			}
+		})
+	}
+}

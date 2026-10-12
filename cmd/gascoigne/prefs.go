@@ -36,6 +36,11 @@ type prefs struct {
 	// setup (config.yaml's experimental list and $GASCOIGNE_EXPERIMENTAL
 	// still count).
 	Experimental []string `json:"experimental,omitempty"`
+	// ReleaseCheck (on or off; unset = on) lets the background server read the
+	// website's latest.json once a day; SeenRelease is the release whose page
+	// was already opened.
+	ReleaseCheck string `json:"release_check,omitempty"`
+	SeenRelease  string `json:"seen_release,omitempty"`
 	// Declined are agents found on PATH that the user chose not to integrate.
 	Declined []string `json:"declined,omitempty"`
 	// UpdateDeclined is the registrationVersion whose hook update the user

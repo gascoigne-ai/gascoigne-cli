@@ -145,6 +145,10 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 | `GASCOIGNE_SERVER_IDLE` | How long the background server waits without a request before it exits (default `30m`, `0` never). |
 | `GASCOIGNE_SERVER_ADDR` | Server address (default `127.0.0.1:7878`). |
 | `GASCOIGNE_PROXY` | `off`: agents never use the LLM proxy. `on`: Claude uses it even with a claude.ai login (see [agents](agents.md#the-llm-proxy-and-a-claudeai-login)). Unset: Claude only with an API key or gateway token. |
+| `GASCOIGNE_RELEASE_CHECK=off` | Never read the website for a newer release (see [agents](agents.md#release-notice)). |
+| `GASCOIGNE_RELEASE_URL` | Another site address to read `latest.json` from (a mirror, a test). |
+| `GASCOIGNE_GUIDE` | Usage text for agents: `off`, `short` or `full` (overrides `install -guide`). |
+| `GASCOIGNE_AUTOSYNC=off` | Never let agent hooks update installs after an upgrade. |
 | `GASCOIGNE_EXPERIMENTAL` | Enable experimental features (`prompts`, `learn`, `continuity`, or `all`). |
 | `NO_COLOR` | No colors in `gain`. |
 

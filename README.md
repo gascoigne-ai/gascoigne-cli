@@ -289,7 +289,9 @@ build re-run in the same session points at the failures you already saw instead 
 - **Edit-safe source** — source files only lose whole lines (comments, outlined bodies); kept
   lines are byte-exact and every gap names its original lines (`// … comments L12-30`).
 - **Self-correcting** — sources whose originals agents keep fetching get bypassed next time.
-- **Local** — the ledger and dashboard stay on your machine; nothing is sent anywhere.
+- **Local** — the ledger and dashboard stay on your machine; nothing is sent anywhere. The one
+  exception is a once-a-day read of a small release file from the project website, which you can
+  turn off ([release notice](docs/agents.md#release-notice)).
 
 ## How it works
 

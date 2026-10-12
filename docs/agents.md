@@ -78,6 +78,17 @@ part happens by itself at the next session start; if you did not choose, the pag
 new session (at most every ten minutes) until you answer; closing it without saving answers nothing. Claude also gets two commands, `/gascoigne-stats` and `/gascoigne-doctor`, removed by
 `unwrap`.
 
+### Release notice
+
+gascoigne's background server reads one small file, `latest.json`, from the project website
+(`https://gascoigne-ai.github.io/gascoigne-webpage/`) once a day. When it names a release newer
+than the one you run, the next session start opens that release's page once and tells the agent.
+The request is a plain GET with no query, cookie or version: nothing about you or this machine is
+sent, but the site's host sees your IP address, as for any web page. Hooks never touch the network;
+they read the file the server saved. Turn it off in `gascoigne setup` ("Tell me about new releases"),
+with `GASCOIGNE_RELEASE_CHECK=off`, or `GASCOIGNE_SERVER=off` (no background server, no check).
+`gascoigne doctor` shows the state and the latest release it knows.
+
 To remove it again:
 
 ```sh

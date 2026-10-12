@@ -15,7 +15,8 @@ func sandbox(t *testing.T) string {
 	t.Setenv("CODEX_HOME", "")
 	t.Setenv("XDG_STATE_HOME", filepath.Join(home, ".local", "state"))
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
-	t.Setenv("GASCOIGNE_PROXY", "off") // never spawn the test binary as a proxy
+	t.Setenv("GASCOIGNE_PROXY", "off")         // never spawn the test binary as a proxy
+	t.Setenv("GASCOIGNE_RELEASE_CHECK", "off") // never reach the website from a test
 	t.Setenv("PATH", "")
 	t.Chdir(t.TempDir())
 	return home

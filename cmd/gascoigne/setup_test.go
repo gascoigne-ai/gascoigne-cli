@@ -357,7 +357,7 @@ func TestSetupViewTellsWhatWasFound(t *testing.T) {
 		}
 	}
 	// The immediate update comes before the standing one; groups drive the sections.
-	if got := strings.Join(ids, " "); !strings.HasPrefix(got, "permissions:allow updates:update updates:autosync agents:integrate:codex experimental:experimental:") {
+	if got := strings.Join(ids, " "); !strings.HasPrefix(got, "permissions:allow updates:update updates:autosync updates:release agents:integrate:codex experimental:experimental:") {
 		t.Errorf("questions: %s", got)
 	}
 }

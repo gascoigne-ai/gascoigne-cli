@@ -70,6 +70,7 @@ func cmdServer(ctx context.Context, args []string) error {
 	switch sub {
 	case "run":
 		err := withLedger(ctx, "server run", args, 0, flags, func(l *ledger.Ledger, _ *common, _ []string) error {
+			go watchRelease(ctx)
 			return runServer(ctx, l, addr, idle)
 		})
 		if errors.Is(err, errNewBuild) {

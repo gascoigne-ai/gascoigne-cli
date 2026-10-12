@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"os"
@@ -64,6 +65,14 @@ func diagnose() []finding {
 
 	p := readPrefs()
 	add("ok", "usage text for agents: %s", guideLevel())
+	switch r := readRelease(); {
+	case !releaseCheckOn():
+		add("ok", "release notice: off")
+	case r.newer():
+		add("warn", "gascoigne %s is out (you run %s): %s. After installing it, run gascoigne upgrade.", r.ID, version.Number, r.URL)
+	default:
+		add("ok", "release notice: on, once a day (%s); latest known: %s", releaseBase(), cmp.Or(r.ID, "not checked yet"))
+	}
 	var waiting []string
 	for _, q := range pendingDecisions(p) {
 		if !strings.HasPrefix(q.ID, integratePrefix) { // new agents are listed below

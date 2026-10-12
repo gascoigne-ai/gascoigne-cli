@@ -46,6 +46,19 @@ output), an unauthenticated page.
 change in `internal/config` (core, needs approval), and these are answers to questions, not tuning.
 Env vars override where useful (`GASCOIGNE_GUIDE`, `GASCOIGNE_AUTOSYNC`).
 
+## Release notice
+
+**On by default, minimal, and visible.** The website's `latest.json` (id and page) is read once a day
+by the background server; the next session opens the page once. Chosen over asking first because a
+notice nobody turned on is never seen. The cost is one request that shows the host the user's IP, so:
+plain GET (no query, cookie, version or id), a 4 KB cap, a page that may not leave the site, hooks
+never touch the network, one switch in setup and one env var, and the README says so. Rejected:
+reading GitHub's releases API (rate limits, more data) and checking in every hook (latency, a request
+per session).
+
+**The website owns the release id.** `latest.json` changes when the page for a release is ready, not
+when a tag is pushed, so a user is never sent to a page that does not exist yet.
+
 ## Permissions
 
 **Levels `none | local | all`.** `local` = retrieve, show, stats, compress (read-only, local).

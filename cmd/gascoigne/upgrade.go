@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/gascoigne-ai/gascoigne-cli/version"
 )
 
 // cmdUpgrade gathers what a new gascoigne needs done in one place, so there
@@ -25,6 +27,10 @@ func cmdUpgrade(_ context.Context, args []string) error {
 	did := upgradeHooks(*dry)
 	if upgradeConfigFile(*dry) {
 		did = true
+	}
+	if r := readRelease(); releaseCheckOn() && r.newer() {
+		did = true
+		fmt.Printf("release: gascoigne %s is out (you run %s): %s\n  Install it, then run gascoigne upgrade again.\n", r.ID, version.Number, r.URL)
 	}
 	if open := pendingDecisions(readPrefs()); len(open) > 0 {
 		did = true

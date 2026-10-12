@@ -432,6 +432,16 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   `~/.claude.json` which a running Claude Code rewrites), under `installs.lock`, never failing the
   hook; SessionStart tells the agent to restart. Project installs are never touched by hooks:
   `gascoigne upgrade` does this project's and the user's now. Not decided = nothing is synced.
+- **Release notice** (`release.go`): the background server (`watchRelease`, started by `server run`)
+  reads `<site>latest.json` (`{"id":"0.3.0","released":"…","page":"releases/0.3.0/"}`) once a day
+  (`checkRelease`; a failure is retried in an hour, the last good answer stays) and saves it as
+  `release.json` in the state dir. A claude SessionStart hook (`releaseNudge`: startup or resume,
+  not compact or clear) opens the page once per release when `version.Newer(id, version.Number)`
+  (`prefs.seen_release`) and adds a note. Hooks never use the network. The id must be a plain
+  `X.Y.Z`; the page must stay on the site's host and path; the body is cut at 4 KB; the request has
+  no query, cookie or version. Off: `GASCOIGNE_RELEASE_CHECK=off`, `prefs.release_check`, or no server.
+  The setup question is optional (`on` until answered off). `doctor` and `upgrade` show a newer
+  release. The website side is the `gascoigne-webpage` repo: `latest.json` plus `releases/<id>/`.
 - **Legacy installs** (`installs.go` `legacyInstalls`): installs made before `installs.json` existed
   (the first release) are found by their config: the user-level file, and this project's, holding
   `hook <agent>` while nothing records it. `readInstalls` returns them as registration 0, so the
