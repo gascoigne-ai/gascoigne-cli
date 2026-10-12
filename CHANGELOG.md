@@ -4,6 +4,12 @@ All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Dashboard: savings by model family and by model, in the model's own tokens and dollars, with the official list prices they are estimated from.
+
 ## [0.2.1] - 2026-10-12
 
 First release. gascoigne shrinks command output, tool results and web pages before they reach

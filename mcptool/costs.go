@@ -18,14 +18,28 @@ type Costs struct {
 	FirstRead float64 `json:"first_read_usd"`
 	InContext float64 `json:"in_context_usd"`
 	Rereads   float64 `json:"rereads"`
+	// Pricing says the dollar figures are estimates from the providers'
+	// official list prices, not what an invoice shows.
+	Pricing Pricing `json:"pricing"`
 	// Unpriced are models (or agents without a model) with no known price.
 	Unpriced []string `json:"unpriced,omitempty"`
+}
+
+// Pricing is where the prices behind Costs come from.
+type Pricing struct {
+	Basis   string   `json:"basis"`
+	Checked string   `json:"checked"`
+	Sources []string `json:"sources"`
 }
 
 // BuildCosts prices the savings of the runs matching filter, per agent and
 // model; runs without a model are priced as the agent's default model.
 func BuildCosts(ctx context.Context, l component.Ledger, filter component.StatsQuery, c cost.Context) (Costs, error) {
-	out := Costs{Savings: []cost.Saving{}, Rereads: c.Rereads}
+	out := Costs{Savings: []cost.Saving{}, Rereads: c.Rereads, Pricing: Pricing{
+		Basis:   "estimate from the providers' official list prices (standard tier, short context); discounts, batch and priority tiers, and your plan are not applied",
+		Checked: cost.PricesChecked,
+		Sources: cost.PriceSources,
+	}}
 	q := filter
 	q.By = component.ByAgent
 	agents, err := l.Stats(ctx, q)

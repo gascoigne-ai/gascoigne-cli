@@ -345,6 +345,20 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 
   <div class="grid">
     <section class="panel">
+      <h2>By model family</h2>
+      <p class="hint">Estimated savings in each model's own tokens and in dollars, with rereads (models recorded per run; runs without one use the agent's default, marked assumed)</p>
+      <div class="scroll" id="families"></div>
+    </section>
+    <section class="panel">
+      <h2>By model</h2>
+      <p class="hint">The same per model, by tokenizer</p>
+      <div class="scroll" id="models"></div>
+    </section>
+  </div>
+  <p class="hint" id="pricing"></p>
+
+  <div class="grid">
+    <section class="panel">
       <h2>By command</h2>
       <p class="hint">Savings per command</p>
       <div class="scroll" id="commands"></div>
@@ -540,6 +554,43 @@ function renderDays(days) {
   if (days.length === 0) $("days").replaceChildren(el("div", { class: "empty" }, "No data for this period."));
 }
 
+const usd = (n) => "$" + (n >= 100 ? n.toFixed(0) : n.toFixed(2));
+
+// renderModels totals the priced savings per model family (Claude, GPT,
+// Gemini) and lists them per model; unpriced models are named below.
+function renderModels(c) {
+  const rows = c.savings || [];
+  const byFamily = new Map();
+  for (const s of rows) {
+    const f = byFamily.get(s.family) || { family: s.family, models: 0, model_tokens: 0, first_read_usd: 0, in_context_usd: 0 };
+    f.models++;
+    f.model_tokens += s.model_tokens;
+    f.first_read_usd += s.first_read_usd;
+    f.in_context_usd += s.in_context_usd;
+    byFamily.set(s.family, f);
+  }
+  const money = [
+    { title: "Saved", get: (r) => human(r.model_tokens), num: true },
+    { title: "First read", get: (r) => usd(r.first_read_usd), num: true },
+    { title: "In context", get: (r) => usd(r.in_context_usd), num: true },
+    { title: "", get: (r) => bar(pct(r.in_context_usd, c.in_context_usd)) },
+  ];
+  const p = c.pricing;
+  $("pricing").replaceChildren(...(p ? [`Dollar figures are ${p.basis}; prices checked ${p.checked}. Sources: `,
+    ...p.sources.flatMap((u, i) => [i ? ", " : "", el("a", { href: u, target: "_blank", rel: "noopener" }, new URL(u).hostname)])] : []));
+  const empty = "No priced savings in this period.";
+  lazyTable($("families"), [
+    { title: "Family", get: (r) => r.family, mono: true },
+    { title: "Models", get: (r) => r.models, num: true },
+    ...money,
+  ], [...byFamily.values()].sort((a, b) => b.in_context_usd - a.in_context_usd), empty);
+  lazyTable($("models"), [
+    { title: "Model", get: (r) => r.model + (r.assumed ? " (assumed)" : ""), mono: true },
+    { title: "Tokenizer", get: (r) => r.tokenizer, mono: true },
+    ...money,
+  ], rows, empty);
+}
+
 function renderReasons(o) {
   const rows = [
     ...o.skipped.map((r) => ({ ...r, kind: "bypassed" })),
@@ -567,6 +618,7 @@ async function refreshOverview() {
     { title: "Output", get: (r) => human(r.out_tokens), num: true },
     { title: "Share of input", get: (r) => bar(pct(r.raw_tokens, o.total.raw_tokens)) },
   ], o.outcomes));
+  renderModels(o.cost || {});
   lazyTable($("commands"), savedCols("Command", (r) => r.group), o.commands);
   lazyTable($("optimizers"), savedCols("Optimizer", (r) => r.group + (r.family ? " · " + r.family : "")), o.optimizers);
   lazyTable($("dialects"), savedCols("Content type", (r) => r.group), o.dialects);

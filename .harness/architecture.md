@@ -500,6 +500,8 @@ saved tokens × tokenizer factor × (first read + rereads), per agent and model:
 - first read: cache write or input price; then `rereads` (measured median 110 later requests in
   context) × cache read price; 0.8% misses at write price
 - runs without a model use `cost.AgentModels` (marked assumed)
+- prices are the providers' official list prices (`cost.PriceSources`, `cost.PricesChecked`);
+  `Costs.Pricing` carries that basis into the overview JSON, `estimates` and the dashboard
 
 ### Skip reasons
 
@@ -564,7 +566,9 @@ their pipeline's receivers and exporters (`service.Options.Remote`) and POST the
 One embedded `dashboard.html`, no build step, serving the ledger live.
 - Layout: version in the header, the logo moon's phase = savings rate; tables in equal-height
   boxes, rows rendered as they scroll; deleting data (reset, clear originals) asks twice.
-- Content: totals, days, outcomes, commands, optimizers, dialects, skip/fail/unchanged reasons,
+- Content: totals, days, outcomes, model families and models (estimated savings in the model's
+  tokens and dollars from `overview.cost`; `cost.Model.Family` = claude/gpt/gemini/other, summed
+  in the page), commands, optimizers, dialects, skip/fail/unchanged reasons,
   failing sources (forget button), and a feed of runs over server-sent events (`/api/stream`,
   polls the ledger since other processes write it; `ledger.Recent`).
 - Run details compare original and optimized side by side (`/api/raw/{id}`, `/api/out/{id}`; the

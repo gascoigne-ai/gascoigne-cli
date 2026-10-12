@@ -58,4 +58,25 @@ func TestEstimate(t *testing.T) {
 	}
 }
 
+func TestFamily(t *testing.T) {
+	tests := []struct{ id, want string }{
+		{"claude-opus-5-5", "claude"},
+		{"claude-opus-4-6", "claude"}, // legacy tokenizer, same family
+		{"gpt-5.3-codex", "gpt"},
+		{"gemini-3.1-pro", "gemini"},
+		{"llama-4", "other"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.id, func(t *testing.T) {
+			if got := (Model{ID: tt.id}).Family(); got != tt.want {
+				t.Fatalf("Family(%q) = %q, want %q", tt.id, got, tt.want)
+			}
+		})
+	}
+	m, _ := Lookup("claude-opus-4-6")
+	if s := Estimate(m, 1000, Context{}); s.Family != "claude" || s.Tokenizer != "claude-legacy" {
+		t.Fatalf("got %+v", s)
+	}
+}
+
 func near(a, b float64) bool { return math.Abs(a-b) < 1e-9 }

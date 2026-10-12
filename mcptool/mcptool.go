@@ -387,7 +387,7 @@ func estimates(o Overview) []string {
 	}
 	if len(o.Cost.Savings) > 0 {
 		notes = append(notes,
-			"cost: saved tokens × the model's tokenizer factor × list prices; in context assumes each result is reread "+
+			"cost: saved tokens × the model's tokenizer factor × the providers' official list prices (checked "+cost.PricesChecked+"; no discounts or plan terms); in context assumes each result is reread "+
 				strconv.FormatFloat(o.Cost.Rereads, 'f', 0, 64)+" times from the prompt cache (measured median), 0.8% of reads missing it")
 	}
 	for _, r := range o.Optimizers {

@@ -58,6 +58,8 @@ func TestDashboardPages(t *testing.T) {
 		{"events", "/api/events", `"command":"go test"`},
 		{"events filtered", "/api/events?session=s1", `"command":"git log"`},
 		{"overview", "/api/overview?since=7d", `"saved_tokens":1800`},
+		{"model families", "/api/overview", `"family":"claude"`},
+		{"pricing basis", "/api/overview", `official list prices`},
 		{"sessions", "/api/sessions", `"group":"s1"`},
 	}
 	for _, tt := range tests {

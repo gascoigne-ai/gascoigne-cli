@@ -68,10 +68,18 @@ func written(id, tok string, in, out, read float64) Model {
 	return Model{ID: id, Tokenizer: tok, Input: in, Output: out, CacheWrite: in * 1.25, CacheRead: read}
 }
 
-// Models are list prices, standard tier, short context, checked 2026-10-11:
-//   - https://platform.claude.com/docs/en/about-claude/pricing
-//   - https://developers.openai.com/api/docs/pricing
-//   - https://ai.google.dev/gemini-api/docs/pricing
+// PricesChecked is the day Models was last compared with PriceSources.
+const PricesChecked = "2026-10-11"
+
+// PriceSources are the providers' official pricing pages Models is read from.
+var PriceSources = []string{
+	"https://platform.claude.com/docs/en/about-claude/pricing",
+	"https://developers.openai.com/api/docs/pricing",
+	"https://ai.google.dev/gemini-api/docs/pricing",
+}
+
+// Models are list prices, standard tier, short context (see PriceSources,
+// PricesChecked).
 //
 // Tiers by prompt length (Haiku 5.5 over 100k, gpt-5.x over 272k, Gemini Pro
 // over 200k) take the short-context price. Promotions in force: gpt-5.6-sol
@@ -166,9 +174,22 @@ type Context struct {
 // 17-335), 0.8% of gaps between requests over five minutes.
 var AgentContext = Context{Rereads: 110, Miss: 0.008}
 
+// Family names the vendor line a model belongs to (claude, gpt, gemini), so
+// reports can total Opus and Sonnet together; "other" for the rest. It
+// differs from the tokenizer: legacy and current Claude counts share one.
+func (m Model) Family() string {
+	for _, f := range []string{"claude", "gpt", "gemini"} {
+		if strings.HasPrefix(m.ID, f) {
+			return f
+		}
+	}
+	return "other"
+}
+
 // Saving is what a number of tokens saved is worth with one model.
 type Saving struct {
 	Model       string  `json:"model"`
+	Family      string  `json:"family"`
 	Assumed     bool    `json:"assumed,omitempty"` // no model recorded: the agent's default
 	Tokenizer   string  `json:"tokenizer"`
 	Tokens      int     `json:"tokens"`       // saved, tokens.Estimate units
@@ -185,7 +206,7 @@ func Estimate(m Model, saved int, c Context) Saving {
 	n := float64(saved) * t.Factor
 	first := n * m.CacheWrite / 1e6
 	reread := n * ((1-c.Miss)*m.CacheRead + c.Miss*m.CacheWrite) / 1e6
-	return Saving{Model: m.ID, Tokenizer: t.Name, Tokens: saved, ModelTokens: int(n + 0.5),
+	return Saving{Model: m.ID, Family: m.Family(), Tokenizer: t.Name, Tokens: saved, ModelTokens: int(n + 0.5),
 		FirstRead: first, InContext: first + c.Rereads*reread}
 }
 
