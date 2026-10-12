@@ -26,6 +26,7 @@ func TestOverviewListsCommands(t *testing.T) {
 }
 
 func TestExperimentalCommands(t *testing.T) {
+	sandbox(t) // the saved setup choices (prefs.json) count too: not the real ones
 	for _, tc := range []struct {
 		name, env, config string
 		want              bool

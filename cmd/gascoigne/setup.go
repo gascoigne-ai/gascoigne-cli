@@ -197,7 +197,7 @@ var experiments = []struct{ name, title, text, example, how, impact string }{
 		"$ gascoigne prompts\nclaude sends 7.5k tokens of instructions with every request\n" +
 			"source             tokens  via\nCLAUDE.md             2.7k  project\n" +
 			".harness/rules.md      978  @import from CLAUDE.md\n\n" +
-			"findings\n  large-import  .harness/recommendations.md  2.5k  sent with every request",
+			"findings\n  large-import  docs/notes.md  2.5k  sent with every request",
 		"Finds the instruction files an agent loads (CLAUDE.md and its imports, memory, skill and agent descriptions, AGENTS.md), counts and prices them, and flags large imports and duplicates. With -terse it can drop articles and fillers from instruction files in place (a .bak is kept).",
 		"Listing changes nothing. The point is to show instruction text that you pay for on every request; -terse edits your files, so review the result."},
 }

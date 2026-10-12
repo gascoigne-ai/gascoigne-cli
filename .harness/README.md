@@ -8,7 +8,8 @@ Everything an agent needs to work on gascoigne consistently. `CLAUDE.md` imports
 | `rules.md` | hard rules (deps, verification, architecture, hygiene) |
 | `code-style.md` | how code should read |
 | `architecture.md` | flow, contracts, detection, families and dialects, source files, agents (wrap/unwrap/hook), full-payload guarantee, ledger, gain |
-| `recommendations.md` | open backlog, dropped ideas with numbers, practices |
+| `recommendations.md` | practices every change follows (loaded) |
+| `backlog.md` | open ideas, measured results, dropped ideas with numbers (not loaded) |
 | `skills/` | `verify`, `add-component`, `eval` |
 | `tasks/` | work queue for the autonomous loop (empty when idle) |
 | `scripts/loop.sh` | autonomous agent loop |
@@ -18,7 +19,7 @@ Everything an agent needs to work on gascoigne consistently. `CLAUDE.md` imports
 ## Tasks
 One file per task: `tasks/NNN-slug.md`, first line `status: todo`. Body = goal,
 scope, acceptance criteria. Keep each task one commit's worth of work. Delete a task once
-done (git keeps it); open ideas not yet worth a task live in `recommendations.md`.
+done (git keeps it); open ideas not yet worth a task live in `backlog.md`.
 
 ## Autonomous loop
 ```sh
