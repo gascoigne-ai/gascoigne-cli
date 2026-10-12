@@ -57,7 +57,7 @@ func (r *Receiver) runLogin(ctx context.Context, client *mcp.Client, rm Remote) 
 	// Start now, as the agent's own login would: the browser opens without waiting for
 	// the model to call the tool, which stays for the address and for a retry.
 	r.beginLogin(ctx, f, client, s, rm)
-	r.log.Warn("remote server needs an OAuth login; opening the browser", "server", mcpauth.Display(rm.URL))
+	r.log.Warn("remote server needs an OAuth login; starting the login", "server", mcpauth.Display(rm.URL))
 	return s.Run(ctx, r.upstream)
 }
 
@@ -98,15 +98,17 @@ func (r *Receiver) beginLogin(ctx context.Context, f *loginFlow, client *mcp.Cli
 func (r *Receiver) login(ctx context.Context, f *loginFlow, ready chan struct{}, client *mcp.Client, s *mcp.Server, rm Remote) {
 	var once sync.Once
 	signal := func() { once.Do(func() { close(ready) }) }
-	err := mcpauth.Login(ctx, rm.Store, rm.URL, func(authURL string) error {
+	login := rm.Login
+	if login == nil {
+		login = func(ctx context.Context, serverURL string, shown func(string)) error {
+			return mcpauth.Login(ctx, rm.Store, serverURL, func(authURL string) error { shown(authURL); return nil })
+		}
+	}
+	err := login(ctx, rm.URL, func(authURL string) {
 		f.mu.Lock()
 		f.authURL = authURL
 		f.mu.Unlock()
 		signal()
-		if rm.Open != nil {
-			rm.Open(authURL)
-		}
-		return nil
 	})
 	if err == nil {
 		err = r.finishLogin(ctx, client, s, rm)

@@ -279,7 +279,7 @@ func cmdMCPProxy(ctx context.Context, args []string) error {
 	}
 	return serve(ctx, "mcp-proxy", args, register, func(ctx context.Context, command []string) context.Context {
 		if remote.URL != "" {
-			remote.Store, remote.Open = authStore(), openBrowser
+			remote.Store, remote.Login = authStore(), remoteLogin
 			ctx = mcpproxyreceiver.WithRemote(ctx, remote)
 		} else {
 			ctx = mcpproxyreceiver.With(ctx, command)

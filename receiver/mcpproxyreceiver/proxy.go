@@ -53,10 +53,17 @@ type Remote struct {
 	Auto    bool // transport unknown (the agent config names none): streamable HTTP, then SSE
 	Headers map[string]string
 	// Store holds OAuth logins (streamable HTTP only). With it, a server that wants
-	// a login gets the gascoigne_login tool; Open shows the authorization page.
+	// a login gets one: Login runs the flow and shows the authorization page,
+	// by default in this process without opening anything.
 	Store *mcpauth.Store
-	Open  func(authURL string)
+	Login LoginFunc
 }
+
+// LoginFunc runs an OAuth login for a server and returns when it is done. It
+// calls shown with the authorization address as soon as it knows it; opening
+// the page in a browser is its business, not the proxy's: an agent starts the
+// proxy, often without a display or a long life.
+type LoginFunc func(ctx context.Context, serverURL string, shown func(authURL string)) error
 
 type remoteKey struct{}
 

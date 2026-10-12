@@ -239,8 +239,10 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
 - OAuth: a remote server that answers 401 needs a login, and the proxy handles it itself. It starts
   anyway and serves a stand-in: `Instructions` plus one tool, `gascoigne_login`. At once it runs the
   authorization flow in the background (`mcpauth.Login`: PKCE, dynamic client registration, loopback
-  redirect) and opens the browser (`Remote.Open`); the tool returns the address and restarts a failed
-  flow (a login nobody completes times out after 5 minutes and is not retried by itself). When the user is done the proxy
+  redirect) and shows the authorization page; the tool returns the address and restarts a failed
+  flow. The flow runs in the background server (`POST /api/mcp/login`, `loginFlows`), which opens the
+  browser itself: the proxy is started by an agent, often with no display, in a sandbox, and stopped when
+  the agent likes; without a server the proxy runs the flow in-process (`remoteLogin`). (A login nobody completes times out after 5 minutes and is not retried by itself). When the user is done the proxy
   connects, adds the server's tools and removes the login tool (tools/list_changed). Tokens are kept in
   `<state dir>/mcp-auth.json` (0600, by a hash of the url without query), sent and refreshed by
   `mcpauth.NewHandler` on later starts; a refused login brings the login tool back. Streamable HTTP only,
