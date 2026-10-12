@@ -90,6 +90,11 @@ function render() {
         el("td", { class: "num", text: usd(w.saved_usd) + " (" + Math.round(w.saved_pct) + "%)" })))),
     el("div", { class: "alert-box" }, el("p", { text: "Compacting saves tokens, not detail: the summary forgets what it leaves out. This is an upper bound on what is worth giving up, not advice to compact everywhere." })));
 
+  const injected = panel("Text added besides your prompts", "Instruction files, the skill listing and what hooks and plugins print. It is written to the cache once and read again by every later request of the session",
+    r.injected.length ? table(el("tr", {}, th("Source"), th("Times", true), th("Per time", true), th("Cost", true), th("Share of cost", true)),
+      r.injected.slice(0, 12).map((x) => el("tr", {}, el("td", { text: x.source }), el("td", { class: "num", text: num(x.times) }), el("td", { class: "num", text: human(x.per_time) + " tokens" }),
+        el("td", { class: "num", text: usd(x.cost_usd) }), el("td", { class: "num", text: (100 * x.share).toFixed(1) + "%" })))) : el("p", { class: "empty", text: "Nothing recorded in this period." }));
+
   const c = cols[sort.col];
   const sessions = [...r.sessions].sort((a, b) => { const x = c.get(a), y = c.get(b); const v = x < y ? -1 : x > y ? 1 : 0; return sort.dir === "asc" ? v : -v; }).slice(0, 60);
   const head = el("tr");
@@ -106,7 +111,7 @@ function render() {
   const how = panel("How this is computed", "", el("ul", { class: "plain" }, ...r.assumptions.map((a) => el("li", { text: a }))),
     r.unpriced_sessions ? el("p", { class: "hint", text: r.unpriced_sessions + " sessions use a model without a known price and are left out of the dollars." }) : null);
 
-  root.replaceChildren(kpis, el("div", { class: "grid" }, buckets, rewrites), whatIf, sessionsPanel, how);
+  root.replaceChildren(kpis, el("div", { class: "grid" }, buckets, rewrites), whatIf, injected, sessionsPanel, how);
 }
 
 async function load() {

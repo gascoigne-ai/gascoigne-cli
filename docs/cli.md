@@ -115,7 +115,8 @@ not the size of any one tool result. `context` reads Claude Code's own transcrip
 (`~/.claude/projects`, which hold the usage of every request with a session id; the LLM proxy sees
 no sessions) and shows, at API list prices: the cost by the size of the conversation each request
 re-read, how much of it was written to the cache again instead of read (after a pause longer than
-the cache lives, after a compaction, or when the cached start of the conversation changed), your largest
+the cache lives, after a compaction, or when the cached start of the conversation changed), the text added to conversations besides your prompts (instruction files, the skill listing and what hooks and
+plugins print, named by the command they ran, with its cost), your largest
 sessions with the context over time, and what compacting at 150k, 250k or
 400k tokens would have saved. On one real machine 42% of a month's cost came from requests above 400k
 tokens of context.

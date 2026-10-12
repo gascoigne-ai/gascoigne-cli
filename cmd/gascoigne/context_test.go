@@ -356,3 +356,60 @@ func TestSharedPageAssets(t *testing.T) {
 		}
 	}
 }
+
+func TestInjectedText(t *testing.T) {
+	tests := []struct {
+		name, raw, label string
+		want             bool
+	}{
+		{"a SessionStart hook is named by what it runs", `{"type":"hook_success","hookEvent":"SessionStart","command":"bash /home/u/plugins/caveman/hooks/activate.sh","content":"CAVEMAN MODE ACTIVE: respond terse"}`, "hook SessionStart: hooks/activate.sh", true},
+		{"a hook that said nothing adds nothing", `{"type":"hook_success","hookEvent":"PreToolUse","command":"x","content":""}`, "", false},
+		{"a prompt hook's context", `{"type":"hook_additional_context","hookEvent":"UserPromptSubmit","content":["Keep answers short."]}`, "hook UserPromptSubmit (context added, hook not named)", true},
+		{"the same SessionStart text is not counted twice", `{"type":"hook_additional_context","hookEvent":"SessionStart","content":["CAVEMAN MODE ACTIVE"]}`, "", false},
+		{"instruction files", `{"type":"instructions","files":[{"path":"CLAUDE.md","content":"Use tabs. Run make check."}]}`, "instruction files (CLAUDE.md, rules, memory)", true},
+		{"skill listing", `{"type":"skill_listing","content":"- verify: run the checks","skillCount":1}`, "skill listing", true},
+		{"bookkeeping adds nothing", `{"type":"total_tokens_reminder","content":"x"}`, "", false},
+		{"not json", `nope`, "", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			label, n := injectedText(json.RawMessage(tt.raw))
+			if (n > 0) != tt.want || label != tt.label {
+				t.Fatalf("got %q, %d tokens", label, n)
+			}
+		})
+	}
+}
+
+func TestInjectedCost(t *testing.T) {
+	var lines []string
+	lines = append(lines, `{"type":"attachment","timestamp":"2026-10-10T10:00:00Z","attachment":{"type":"skill_listing","content":"`+strings.Repeat("skill ", 500)+`"}}`)
+	for i := range 10 {
+		lines = append(lines, line(fmt.Sprint("m", i), "claude-opus-5-5", 0, 40_000, 1_000, 100, ""))
+		if i == 4 { // injected after five requests: five more read it
+			lines = append(lines, `{"type":"attachment","timestamp":"2026-10-10T10:00:00Z","attachment":{"type":"hook_additional_context","hookEvent":"UserPromptSubmit","content":["`+strings.Repeat("be brief ", 100)+`"]}}`)
+		}
+	}
+	s, _ := readSession(strings.NewReader(strings.Join(lines, "\n")), "x.jsonl", time.Time{})
+	if len(s.inj) != 2 || s.inj[0].before != 0 || s.inj[1].before != 5 {
+		t.Fatalf("injections %+v", s.inj)
+	}
+	r := buildContext([]sessionCost{s}, 24*time.Hour)
+	m, _ := cost.Lookup("claude-opus-5-5")
+	bySource := map[string]injectedSource{}
+	for _, x := range r.Injected {
+		bySource[x.Source] = x
+	}
+	skill := bySource["skill listing"]
+	want := float64(skill.Tokens) * (m.CacheWrite + 10*m.CacheRead) / 1e6 // read by all ten requests
+	if d := skill.CostUSD - want; d > 1e-9 || d < -1e-9 || skill.Times != 1 || skill.Sessions != 1 || skill.Rereads != skill.Tokens*10 {
+		t.Fatalf("%+v, want cost %.6f", skill, want)
+	}
+	hook := bySource["hook UserPromptSubmit (context added, hook not named)"]
+	if hook.Rereads != hook.Tokens*5 {
+		t.Fatalf("a late injection is read by fewer requests: %+v", hook)
+	}
+	if len(r.Injected) != 2 || r.Injected[0].CostUSD < r.Injected[1].CostUSD {
+		t.Fatalf("most expensive first: %+v", r.Injected)
+	}
+}

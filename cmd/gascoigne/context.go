@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
 // Context economics: every model request re-reads the whole conversation, so
@@ -65,7 +66,29 @@ type sessionCost struct {
 	Priced      bool      `json:"priced"`
 	Series      []int     `json:"series"` // the context over the session, downsampled
 	turns       []turn
+	inj         []injection
 	floor       int // the smallest context of the whole session, also before the period: what a restart begins at
+}
+
+// injection is text added to a conversation besides the user's prompts: what a
+// hook printed, the instruction files, the skill listing. Every later request
+// re-reads it.
+type injection struct {
+	label  string
+	tokens int
+	before int // requests of the session before it came in
+}
+
+// injectedSource is one source of such text, over all sessions.
+type injectedSource struct {
+	Source   string  `json:"source"`
+	Times    int     `json:"times"`
+	Sessions int     `json:"sessions"`
+	Tokens   int     `json:"tokens"`        // injected in all
+	PerTime  int     `json:"per_time"`      // mean size of one injection
+	Rereads  int     `json:"reread_tokens"` // tokens re-read by the requests that followed
+	CostUSD  float64 `json:"cost_usd"`      // written once, then read by every later request
+	Share    float64 `json:"share"`         // of all the cost
 }
 
 // contextBucket is the share of the cost spent at one conversation size.
@@ -107,25 +130,27 @@ type whatIf struct {
 
 // contextReport is the whole analysis.
 type contextReport struct {
-	Hours       int             `json:"hours"` // the period the report covers
-	Sessions    []sessionCost   `json:"sessions"`
-	Turns       int             `json:"turns"`
-	CostUSD     float64         `json:"cost_usd"`
-	ModelUSD    float64         `json:"model_usd"` // the baseline of the what-if, by the same simple model
-	Buckets     []contextBucket `json:"buckets"`
-	WhatIf      []whatIf        `json:"what_if"`
-	Rewrites    []cacheRewrite  `json:"cache_rewrites"`
-	Unpriced    int             `json:"unpriced_sessions"`
-	Assumptions []string        `json:"assumptions"`
+	Hours       int              `json:"hours"` // the period the report covers
+	Sessions    []sessionCost    `json:"sessions"`
+	Turns       int              `json:"turns"`
+	CostUSD     float64          `json:"cost_usd"`
+	ModelUSD    float64          `json:"model_usd"` // the baseline of the what-if, by the same simple model
+	Buckets     []contextBucket  `json:"buckets"`
+	WhatIf      []whatIf         `json:"what_if"`
+	Rewrites    []cacheRewrite   `json:"cache_rewrites"`
+	Injected    []injectedSource `json:"injected"`
+	Unpriced    int              `json:"unpriced_sessions"`
+	Assumptions []string         `json:"assumptions"`
 }
 
 // usageLine is the part of a transcript line this needs.
 type usageLine struct {
-	Type        string `json:"type"`
-	SessionID   string `json:"sessionId"`
-	Cwd         string `json:"cwd"`
-	Timestamp   string `json:"timestamp"`
-	IsSidechain bool   `json:"isSidechain"`
+	Type        string          `json:"type"`
+	SessionID   string          `json:"sessionId"`
+	Cwd         string          `json:"cwd"`
+	Timestamp   string          `json:"timestamp"`
+	IsSidechain bool            `json:"isSidechain"`
+	Attachment  json.RawMessage `json:"attachment"`
 	Message     struct {
 		ID    string `json:"id"`
 		Model string `json:"model"`
@@ -149,7 +174,16 @@ func readSession(r io.Reader, name string, since time.Time) (sessionCost, error)
 		line, err := br.ReadBytes('\n')
 		if len(bytes.TrimSpace(line)) > 0 {
 			var t usageLine
-			if json.Unmarshal(line, &t) == nil && t.Type == "assistant" && !t.IsSidechain {
+			ok := json.Unmarshal(line, &t) == nil && !t.IsSidechain
+			if ok && t.Type == "attachment" {
+				ts, _ := time.Parse(time.RFC3339, t.Timestamp)
+				if since.IsZero() || ts.IsZero() || !ts.Before(since) {
+					if label, n := injectedText(t.Attachment); n > 0 {
+						s.inj = append(s.inj, injection{label: label, tokens: n, before: len(s.turns)})
+					}
+				}
+			}
+			if ok && t.Type == "assistant" {
 				u := t.Message.Usage
 				ctx := u.Input + u.CacheRead + u.CacheCreate
 				if ctx > 0 && !strings.HasPrefix(t.Message.Model, "<") {
@@ -261,6 +295,68 @@ func rewrites(turns []turn) map[int]struct {
 	return out
 }
 
+// injectedText says which source an attachment is and how many tokens of text it
+// put into the conversation; none for the kinds that put nothing there.
+func injectedText(raw json.RawMessage) (string, int) {
+	var a struct {
+		Type      string          `json:"type"`
+		HookName  string          `json:"hookName"`
+		HookEvent string          `json:"hookEvent"`
+		Command   string          `json:"command"`
+		Content   json.RawMessage `json:"content"`
+		Files     json.RawMessage `json:"files"`
+		Lines     json.RawMessage `json:"addedLines"`
+		Blocks    json.RawMessage `json:"addedBlocks"`
+	}
+	if json.Unmarshal(raw, &a) != nil {
+		return "", 0
+	}
+	var label string
+	var body json.RawMessage
+	switch a.Type {
+	case "hook_success":
+		var text string
+		if json.Unmarshal(a.Content, &text) != nil || strings.TrimSpace(text) == "" {
+			return "", 0 // the hook said nothing to the model
+		}
+		return "hook " + a.HookEvent + ": " + shortCommand(a.Command), tokens.Estimate(text)
+	case "hook_additional_context":
+		if a.HookEvent == "SessionStart" { // already counted, by command, from the hook's own record
+			return "", 0
+		}
+		if len(a.Content) == 0 {
+			return "", 0
+		}
+		return "hook " + a.HookEvent + " (context added, hook not named)", tokens.Estimate(string(a.Content))
+	case "instructions":
+		label, body = "instruction files (CLAUDE.md, rules, memory)", a.Files
+	case "skill_listing":
+		label, body = "skill listing", a.Content
+	case "agent_listing_delta":
+		label, body = "agent listing", a.Lines
+	case "mcp_instructions_delta":
+		label, body = "MCP server instructions", a.Blocks
+	default:
+		return "", 0
+	}
+	if len(body) == 0 {
+		return "", 0
+	}
+	return label, tokens.Estimate(string(body))
+}
+
+// shortCommand names a hook by what it runs, not by its whole command line:
+// the last two parts of the first path in it, else its first words.
+func shortCommand(cmd string) string {
+	for _, f := range strings.Fields(cmd) {
+		if strings.Contains(f, "/") && !strings.HasPrefix(f, "-") {
+			parts := strings.Split(strings.Trim(f, `"'`), "/")
+			return strings.Join(parts[max(len(parts)-2, 0):], "/")
+		}
+	}
+	return oneLine(secretAssign.Regexp().ReplaceAllString(cmd, "${1}${2}…"), 40)
+}
+
 // priceOf looks a model up as transcripts name it: gateways add a provider
 // prefix ("anthropic/claude-sonnet-5.5") and write versions with a dot.
 func priceOf(model string) (cost.Model, bool) {
@@ -355,6 +451,8 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 	}
 	slices.SortFunc(r.Sessions, func(a, b sessionCost) int { return b.End.Compare(a.End) })
 	byCause := map[string]*cacheRewrite{}
+	bySource := map[string]*injectedSource{}
+	sessionsOf := map[string]map[string]bool{}
 	wi := make([]whatIf, len(thresholds))
 	for i, t := range thresholds {
 		wi[i].Threshold = t
@@ -378,6 +476,20 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 				wi[i].Sessions++
 			}
 		}
+		for _, in := range s.inj {
+			src := bySource[in.label]
+			if src == nil {
+				src = &injectedSource{Source: in.label}
+				bySource[in.label] = src
+				sessionsOf[in.label] = map[string]bool{}
+			}
+			later := max(s.Turns-in.before, 0)
+			src.Times++
+			src.Tokens += in.tokens
+			src.Rereads += in.tokens * later
+			src.CostUSD += float64(in.tokens) * (m.CacheWrite + float64(later)*m.CacheRead) / 1e6
+			sessionsOf[in.label][s.ID] = true
+		}
 		for _, w := range rewrites(s.turns) {
 			rw := rewriteOf(byCause, w.cause)
 			rw.Turns++
@@ -394,6 +506,20 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		if r.CostUSD > 0 {
 			r.Buckets[i].Share = r.Buckets[i].CostUSD / r.CostUSD
 		}
+	}
+	for label, src := range bySource {
+		src.Sessions = len(sessionsOf[label])
+		src.PerTime = src.Tokens / max(src.Times, 1)
+		if r.CostUSD > 0 {
+			src.Share = src.CostUSD / r.CostUSD
+		}
+		r.Injected = append(r.Injected, *src)
+	}
+	slices.SortFunc(r.Injected, func(a, b injectedSource) int {
+		return cmp.Or(cmp.Compare(b.CostUSD, a.CostUSD), cmp.Compare(a.Source, b.Source))
+	})
+	if r.Injected == nil {
+		r.Injected = []injectedSource{}
 	}
 	for _, cause := range []string{causeFive, causeHour, causeChanged, causeCompaction} {
 		rw := rewriteOf(byCause, cause)
@@ -413,6 +539,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		fmt.Sprintf("A compaction is assumed to cost one request over the whole context plus a %dk-token summary; later turns grow as they did.", summaryTokens/1000),
 		"Compacting saves tokens, not detail: the summary forgets what it leaves out. Treat the saving as an upper bound on what is worth giving up.",
 		"Only main conversations are counted; subagents run in conversations of their own.",
+		"Added text is priced as written once to the cache and read by every later request of the session; what a hook printed is named by the command it ran, as the transcript records it.",
 		"A cache rewrite is context that the previous request carried but this one did not read from the cache; the cost shown is the extra over a read. The causes are read from the pauses between requests, so \"changed within the cache lifetime\" means the cached start of the conversation changed while it was warm (an edited instruction file, a changed tool set, another model); a transcript cannot say which.",
 	}
 	return r
@@ -558,6 +685,15 @@ func printContext(w io.Writer, r contextReport) {
 		fmt.Fprintf(tw, "%s\t%d\t%s\t%s\t%.1f%%\n", x.Cause, x.Turns, human(x.Tokens), dollars(x.CostUSD), 100*x.Share)
 	}
 	tw.Flush()
+	if len(r.Injected) > 0 {
+		fmt.Fprintln(w, "\nText added to conversations besides your prompts (every later request re-reads it):")
+		tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+		fmt.Fprintln(tw, "SOURCE\tTIMES\tPER TIME\tCOST\tSHARE")
+		for _, x := range r.Injected[:min(len(r.Injected), 8)] {
+			fmt.Fprintf(tw, "%s\t%d\t%s\t%s\t%.1f%%\n", x.Source, x.Times, human(x.PerTime), dollars(x.CostUSD), 100*x.Share)
+		}
+		tw.Flush()
+	}
 	fmt.Fprintln(w, "\nIf conversations had been compacted when they reached:")
 	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "CONTEXT\tSESSIONS AFFECTED\tCOMPACTIONS\tSAVED")

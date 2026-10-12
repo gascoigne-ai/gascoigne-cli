@@ -728,6 +728,11 @@ session id and per-turn usage (the LLM proxy has no session).
   (and 2k tokens) rewrote the difference, priced at write minus read. Cause from the transcript's timestamps:
   compaction, a pause over an hour, a pause of 5 to 60 minutes, else "changed within the cache lifetime"
   (instruction file, tool set or model changed while warm; a transcript cannot say which, request bodies would).
+- Injected text (`injectedText`): from `attachment` lines. A hook's `content` (SessionStart, named by the command it ran:
+  the last two parts of its first path), a prompt or tool hook's `additional context` (the event only: the
+  transcript does not name the hook), instruction files, the skill listing, agent listing and MCP instructions.
+  Priced as written once and read by every later request of the session (`before` = requests already made).
+  The settings audit: a plugin hook's cost per month is in the table.
 - Everything local and read-only; the page says compacting saves tokens, not detail.
 
 ### MCP review (`mcpreview.go`, `mcp.html`)
