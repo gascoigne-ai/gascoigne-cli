@@ -164,20 +164,44 @@ func TestAskTerminal(t *testing.T) {
 	}
 }
 
-func TestSetupNudgeOncePerRegistration(t *testing.T) {
+func TestSetupNudgeComesBackUntilAnswered(t *testing.T) {
 	sandbox(t)
 	t.Setenv("GASCOIGNE_SERVER", "off") // never start a server here
-	if setupNudge() != "" {
+	if setupNudge("startup") != "" {
 		t.Fatal("no installs: nothing to ask about")
 	}
 	if err := recordInstall("claude", true, "gascoigne", false); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(setupNudge(), "gascoigne setup") {
+	if !strings.Contains(setupNudge("startup"), "gascoigne setup") {
 		t.Fatal("open questions after an install are announced")
 	}
-	if setupNudge() != "" {
-		t.Fatal("asked once per registration version")
+	if setupNudge("startup") != "" {
+		t.Fatal("quick restarts do not open a window each time")
+	}
+	// The page was closed without an answer: the next session asks again.
+	p := readPrefs()
+	p.AskedAt = time.Now().Add(-askInterval - time.Minute)
+	if err := p.save(); err != nil {
+		t.Fatal(err)
+	}
+	if setupNudge("compact") != "" || setupNudge("clear") != "" {
+		t.Fatal("a compaction or /clear is not a new session")
+	}
+	if !strings.Contains(setupNudge("resume"), "gascoigne setup") {
+		t.Fatal("not answered: the page comes back with the next session")
+	}
+	// Answered: it stays away.
+	if _, err := applyAnswers(map[string]string{"allow": "none", "autosync": "off"}); err != nil {
+		t.Fatal(err)
+	}
+	p = readPrefs()
+	p.AskedAt = time.Now().Add(-24 * time.Hour)
+	if err := p.save(); err != nil {
+		t.Fatal(err)
+	}
+	if got := setupNudge("startup"); got != "" {
+		t.Fatalf("everything answered, got %q", got)
 	}
 }
 
@@ -214,7 +238,7 @@ func TestNewAgentIsOnlySignaled(t *testing.T) {
 	}
 
 	// Signaled once: the session context says so, nothing is installed.
-	note := setupNudge()
+	note := setupNudge("startup")
 	if !strings.Contains(note, "codex") || !strings.Contains(note, "installs nothing by itself") {
 		t.Fatalf("note: %q", note)
 	}
@@ -224,8 +248,8 @@ func TestNewAgentIsOnlySignaled(t *testing.T) {
 	if got := readInstalls(); len(got) != 1 {
 		t.Fatalf("no install recorded for codex: %+v", got)
 	}
-	if again := setupNudge(); strings.Contains(again, "codex") {
-		t.Errorf("the same agent is not announced twice: %q", again)
+	if again := setupNudge("startup"); again != "" {
+		t.Errorf("within the interval it is not announced again: %q", again)
 	}
 }
 

@@ -30,6 +30,11 @@ present) is the evidence; such installs count as registration 0 and trigger the 
 user's `config.yaml` (via the existing `config -upgrade` code), open choices. `doctor` only reports.
 Removed before release: `install -sync`, `doctor -fix` (two ways to do one thing).
 
+**An unanswered page comes back.** Closing the page without saving answers nothing, so the next
+session start opens it again (not on compact or /clear; at most every ten minutes, so quick restarts do
+not open a window each time). Answering, even "not now" or "no", ends it. Rejected: asking once per
+version (a closed tab would mean the update never happens).
+
 **The setup page** writes agent settings, so it is guarded: a random one-time token on disk
 (`setup.json`, mode 0600, 24 h, deleted after one answer), constant-time compare, only the offered
 question ids and option values accepted, the dashboard's loopback-Host and cross-origin checks.

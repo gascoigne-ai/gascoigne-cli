@@ -439,7 +439,8 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   makes them regular entries.
 - **Decisions** (`setup.go`, `setup.html`): changes beyond gascoigne's own files wait for the
   user. Open questions = unset `allow` / `autosync` in `prefs.json`. `install` (end) and a claude
-  SessionStart hook (once per `registrationVersion`, `prefs.asked_registration`; recorded installs
+  SessionStart hook (source startup or resume, not compact or clear; at most every ten minutes,
+  `prefs.asked_at`; again at each new session until every question is answered; recorded installs
   only) open `http://<server>/setup?token=…` with `openBrowser` (not under `CI`, not without a
   display; `GASCOIGNE_SERVER=off` falls back to the one-line notice). `GET /api/setup` and
   `POST /api/setup {token, answers}` need the token from `setup.json` (random, 24h, mode 0600,
@@ -452,8 +453,7 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   (permissions, updates, agents), each option with a sentence saying what it does (`option.Detail`);
   a save bar says how many answers will be saved, and the result lists what was done.
   New agents: an agent on PATH with no recorded install and not declined gets a question
-  (`integrate:<agent>`, default yes). It is only signaled: a SessionStart note and the page, once per
-  agent (`prefs.offered`); yes runs the user-level install and records it, no is remembered
+  (`integrate:<agent>`, default yes). It is only signaled: a SessionStart note and the page (until answered, like any question); yes runs the user-level install and records it, no is remembered
   (`prefs.declined`; `setup -all` can reverse it). Nothing is installed without the answer.
 - **Doctor, upgrade and skills** (`doctor.go`, `upgrade.go`, `claudeskills.go`): `doctor` only
   reports: binary on PATH, server, guide level, open questions and, per recorded install, whether

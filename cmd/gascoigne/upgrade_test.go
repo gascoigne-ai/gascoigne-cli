@@ -129,7 +129,7 @@ func TestUpdateQuestion(t *testing.T) {
 	if q == nil || q.Current != "" || !strings.Contains(q.Text, "claude (all projects)") || !strings.Contains(q.Text, registrationNotes[registrationVersion]) {
 		t.Fatalf("question: %+v", q)
 	}
-	if note := setupNudge(); !strings.Contains(note, "older than this version") {
+	if note := setupNudge("startup"); !strings.Contains(note, "older than this version") {
 		t.Errorf("session note: %q", note)
 	}
 

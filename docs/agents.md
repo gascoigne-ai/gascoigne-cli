@@ -62,7 +62,7 @@ on `PATH` without an install is only signaled, once, and set up if you say yes.
 flowchart TD
     ver[a new gascoigne is installed] --> auto{autosync on?}
     auto -- yes --> hooks["next session start: user-level hooks rewritten, agent told to restart"]
-    auto -- no --> ask["page asks once per version: Update gascoigne's hooks now"]
+    auto -- no --> ask["page opens at each new session until answered: Update gascoigne's hooks now"]
     ask -- yes --> hooks
     ask -- "not now" --> later["asked again with the next version"]
     ver --> up["gascoigne upgrade, any time"]
@@ -74,8 +74,8 @@ and commands of your installs again (all projects, and this project; other proje
 moves your `config.yaml` onto the new template keeping your settings (the old file stays as `.bak`),
 and opens the page for any choice still waiting. `upgrade -n` only lists what would change.
 `gascoigne doctor` reports the state without changing anything. With `-autosync on` the user-level
-part happens by itself at the next session start; if you did not choose, the page asks once per
-new version. Claude also gets two commands, `/gascoigne-stats` and `/gascoigne-doctor`, removed by
+part happens by itself at the next session start; if you did not choose, the page opens at each
+new session (at most every ten minutes) until you answer; closing it without saving answers nothing. Claude also gets two commands, `/gascoigne-stats` and `/gascoigne-doctor`, removed by
 `unwrap`.
 
 To remove it again:

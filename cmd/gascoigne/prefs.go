@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // stateDir is where gascoigne keeps what it records about its own installs
@@ -28,16 +29,14 @@ type prefs struct {
 	// Autosync (on or off) lets agent hooks bring user-scope installs made
 	// by an older gascoigne up to date; unset = not decided, nothing is synced.
 	Autosync string `json:"autosync,omitempty"`
-	// AskedRegistration is the registrationVersion for which the setup page
-	// was last opened by a hook: ask once per version, not every session.
-	AskedRegistration int `json:"asked_registration,omitempty"`
-	// Declined are agents found on PATH that the user chose not to integrate;
-	// Offered are those the setup question was already shown for.
+	// AskedAt is when the setup page was last opened by install or a session
+	// start: it comes back with a new session while questions stay open.
+	AskedAt time.Time `json:"asked_at,omitzero"`
+	// Declined are agents found on PATH that the user chose not to integrate.
 	Declined []string `json:"declined,omitempty"`
 	// UpdateDeclined is the registrationVersion whose hook update the user
 	// declined: asked again with the next one.
-	UpdateDeclined int      `json:"update_declined,omitempty"`
-	Offered        []string `json:"offered,omitempty"`
+	UpdateDeclined int `json:"update_declined,omitempty"`
 }
 
 func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }

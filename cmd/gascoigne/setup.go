@@ -366,8 +366,7 @@ func offerSetup(w io.Writer) {
 	if len(pendingDecisions(p)) == 0 {
 		return
 	}
-	p.AskedRegistration = registrationVersion
-	p.Offered = append(p.Offered, newAgents(p)...)
+	p.AskedAt = time.Now()
 	if err := p.save(); err != nil {
 		fmt.Fprintln(w, "gascoigne:", err)
 	}
@@ -379,33 +378,40 @@ func offerSetup(w io.Writer) {
 	fmt.Fprintf(w, "settings await your decision: %s (or run gascoigne setup)\n", link)
 }
 
-// setupNudge is what a SessionStart hook does when installs exist and
-// questions are open: ask in the browser, once per registration version, and
-// tell the agent how to answer if it cannot.
-func setupNudge() string {
+// askInterval is how soon a session start may open the page again: a page
+// closed without an answer comes back with the next session, but restarts in
+// quick succession do not open a window each time.
+const askInterval = 10 * time.Minute
+
+// setupNudge is what a SessionStart hook does while installs exist and
+// questions are open: open the page, again at every new session until the
+// questions are answered, and tell the agent how to answer if it cannot.
+// source is the SessionStart source: a compaction or /clear is not a new
+// session for the user.
+func setupNudge(source string) string {
 	p := readPrefs()
-	if len(readInstalls()) == 0 {
+	pending := pendingDecisions(p)
+	if len(pending) == 0 || len(readInstalls()) == 0 || source == "compact" || source == "clear" ||
+		time.Since(p.AskedAt) < askInterval {
 		return ""
 	}
-	fresh := slices.DeleteFunc(newAgents(p), func(n string) bool {
-		return slices.Contains(p.Offered, n) || slices.Contains(p.Declined, n)
-	})
-	own := slices.DeleteFunc(pendingDecisions(p), func(d decision) bool { return strings.HasPrefix(d.ID, integratePrefix) })
-	if len(fresh) == 0 && (len(own) == 0 || p.AskedRegistration >= registrationVersion) {
-		return ""
-	}
-	p.AskedRegistration = registrationVersion
-	p.Offered = append(p.Offered, fresh...)
+	p.AskedAt = time.Now()
 	if p.save() != nil {
 		return ""
 	}
 	if _, err := askInBrowser(); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne:", err)
 	}
-	if len(fresh) > 0 {
-		return "gascoigne found " + strings.Join(fresh, ", ") + " on PATH without a gascoigne install; it asks the user (browser, or gascoigne setup) and installs nothing by itself."
+	var agentsNew []string
+	for _, d := range pending {
+		if name, ok := strings.CutPrefix(d.ID, integratePrefix); ok {
+			agentsNew = append(agentsNew, name)
+		}
 	}
-	if len(staleInstalls()) > 0 && p.UpdateDeclined < registrationVersion && p.Autosync != "on" {
+	switch {
+	case len(agentsNew) > 0:
+		return "gascoigne found " + strings.Join(agentsNew, ", ") + " on PATH without a gascoigne install; it asks the user (browser, or gascoigne setup) and installs nothing by itself."
+	case slices.ContainsFunc(pending, func(d decision) bool { return d.ID == "update" }):
 		return "gascoigne was upgraded and its hooks installed for some agents are older than this version; it asks the user (browser, or gascoigne setup) and changes nothing by itself."
 	}
 	return "gascoigne has settings that await the user's decision (opened in a browser); the terminal form is: gascoigne setup."

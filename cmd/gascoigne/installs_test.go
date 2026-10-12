@@ -150,7 +150,7 @@ func TestLegacyInstallsAreFound(t *testing.T) {
 		t.Fatal("an install older than this version is stale")
 	}
 	// The session hook asks about it, as for any stale install.
-	if note := setupNudge(); !strings.Contains(note, "older than this version") {
+	if note := setupNudge("startup"); !strings.Contains(note, "older than this version") {
 		t.Fatalf("no question for a legacy install: %q", note)
 	}
 	// Once recorded it is no longer legacy, and the file holds it once.
