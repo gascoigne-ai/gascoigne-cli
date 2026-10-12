@@ -34,6 +34,7 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `forget <key>` | Clear a source's failure history so it is optimized again. |
 | `eval [flags]` | Measure savings on the fixtures in `testdata/eval` (see [Development](development.md)). |
 | `prompts [-agent claude\|codex] [dir]` | Experimental (`experimental: [prompts]`). List the instruction text an agent sends with every request and price it; `-terse 0.1 <files>` drops articles and fillers from instruction files in place (`.bak` kept). |
+| `learn [-since 30d] [-apply\|-remove] [-target FILE]` | Experimental (`experimental: [learn]`). Propose instruction lines from habits seen in at least two sessions: commands run again for output that was already shortened, and commands whose large output nothing can shorten. Prints them; `-apply` writes a marked block to `CLAUDE.local.md` (or `-target`), `-remove` takes it out. |
 | `components` | List the built-in components and their families. |
 | `config [flags]` | Print the effective config after `-set`, `-only`, `-disable` and environment. |
 
@@ -141,7 +142,7 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 | `GASCOIGNE_SERVER_IDLE` | How long the background server waits without a request before it exits (default `30m`, `0` never). |
 | `GASCOIGNE_SERVER_ADDR` | Server address (default `127.0.0.1:7878`). |
 | `GASCOIGNE_PROXY` | `off`: agents never use the LLM proxy. `on`: Claude uses it even with a claude.ai login (see [agents](agents.md#the-llm-proxy-and-a-claudeai-login)). Unset: Claude only with an API key or gateway token. |
-| `GASCOIGNE_EXPERIMENTAL` | Enable experimental features (`prompts`, `continuity`, or `all`). |
+| `GASCOIGNE_EXPERIMENTAL` | Enable experimental features (`prompts`, `learn`, `continuity`, or `all`). |
 | `NO_COLOR` | No colors in `gain`. |
 
 ## Exit codes

@@ -95,13 +95,17 @@ func guideBlock(rewrites, mcp bool) string {
 }
 
 // cutGuide removes the marked block from text.
-func cutGuide(text string) (string, bool) {
-	start := strings.Index(text, guideStart)
-	end := strings.Index(text, guideEnd)
+func cutGuide(text string) (string, bool) { return cutBlock(text, guideStart, guideEnd) }
+
+// cutBlock removes the block between the start and end markers, and the blank
+// line it leaves.
+func cutBlock(text, startMark, endMark string) (string, bool) {
+	start := strings.Index(text, startMark)
+	end := strings.Index(text, endMark)
 	if start < 0 || end < start {
 		return text, false
 	}
-	end += len(guideEnd)
+	end += len(endMark)
 	if end < len(text) && text[end] == '\n' {
 		end++
 	}

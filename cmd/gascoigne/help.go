@@ -153,6 +153,14 @@ func init() {
 			about:    "Deletes stored originals and vacuums the ledger. Runs and savings stay.",
 			examples: []string{"gascoigne flush", "gascoigne flush -older 2h"},
 			run:      cmdFlush},
+		{name: "learn", args: "[-since 30d] [-apply|-remove] [-target FILE]", group: groupSavings, experimental: true,
+			summary: "propose instruction lines from habits that cost context",
+			about: "Looks for commands an agent runs again for output gascoigne already shortened (the rest is one\n" +
+				"gascoigne raw away) and commands whose large output nothing can shorten, in at least two\n" +
+				"sessions. Prints the lines; -apply writes them as a marked block to CLAUDE.local.md (or\n" +
+				"-target), -remove takes the block out again. Nothing is written without -apply.",
+			examples: []string{"gascoigne learn", "gascoigne learn -apply", "gascoigne learn -apply -target AGENTS.md"},
+			run:      cmdLearn},
 		{name: "probe", args: "[flags]", group: groupSavings,
 			summary: "check recorded runs for error lines and artifacts their output lost",
 			about: "Compares stored originals with their optimized output: error lines, artifacts (paths,\n" +

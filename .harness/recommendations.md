@@ -14,6 +14,10 @@ their record is git history.
 - Continuity snapshot (`experimental: [continuity]`): A/B on a task that forces a compaction (tokens
   added at each compaction vs rework avoided) is not run; keep it experimental until it is.
 
+- `learn` (experimental): the two habits are the ones the ledger can show; value on real ledgers is
+  unmeasured (do the proposed lines change agent behavior?). Failed-command repeats need the exit code,
+  which events do not record.
+
 - Hooks: confirm on a real session that Claude subagent tool calls reach the PreToolUse/PostToolUse
   hooks (`gain -by session` for the subagent's calls); check whether Cursor has a result-replacement
   hook; the coverage table in `architecture.md` marks both as unverified.

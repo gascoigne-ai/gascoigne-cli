@@ -534,6 +534,16 @@ once (`PRAGMA user_version` 1) and vacuumed: 22 MB → 6 MB on a real one, mostl
   rewrite).
 - `events.command` is normalized via `detect.Command`, else MCP tool + URL host.
 
+### Lessons: `gascoigne learn` (`learn.go`, experimental)
+
+Reads the newest runs (default 30 days, 5000) and finds two habits, each in at least two
+sessions: `rerun` (the same key shortened with a hint three or more times in a session: the agent
+runs the command again instead of `gascoigne raw <id> -grep`) and `big` (output of 1500+ tokens
+that no optimizer shortened). Proposed lines are deterministic, at most 10, printed by default;
+`-apply` writes a marked block (`<!-- gascoigne:learned:start/end -->`) to `CLAUDE.local.md` or
+`-target`, `-remove` takes it out (the file goes if nothing else is in it). Proxy folds do not
+count. Nothing is written otherwise.
+
 ### Reports: `gascoigne gain`
 
 | Command | Shows |
