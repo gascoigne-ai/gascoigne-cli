@@ -1,0 +1,1 @@
+How many non-test Go files in the repository call lazyre.New? Reply with the number only.

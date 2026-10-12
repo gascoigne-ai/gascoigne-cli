@@ -1,0 +1,1 @@
+How many Go test files (names ending in _test.go) are under the optimizer/ directory, at any depth? Reply with the number only.
