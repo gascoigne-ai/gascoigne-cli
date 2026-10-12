@@ -36,6 +36,9 @@ func proxiedConfigs(home string, dirs []string) map[string][]mcpConfigEntry {
 	}, agent, file, scope, dir string) {
 		for key, e := range servers {
 			orig, ok := proxiedArgs(e.Command, e.Args)
+			if url, _, _, remote := remoteOf(e.Command, e.Args); remote {
+				orig, ok = []string{url}, true // the receiver hashes a remote server's url
+			}
 			if !ok || len(orig) == 0 {
 				continue
 			}

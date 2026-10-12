@@ -230,6 +230,12 @@ Used by `optimizer/data/jsonoptimizer`, cloud, data and web.
 
 **`gascoigne mcp-proxy -- <server cmd>`** mirrors a downstream server's tools, optimizes their text
 results and adds `gascoigne_retrieve`. Non-text content passes untouched.
+- Remote servers: `mcp-proxy -url <url> [-sse|-auto] [-header "Name: value"]...` (or config `url`/`sse`/`headers`)
+  connects downstream over streamable HTTP (SSE with `-sse`) instead of starting a command; the agent
+  still speaks stdio to the proxy. `install`/`wrap` rewrite entries with a `url` (Claude `type: http|sse`; Cursor and Gemini name
+  no type, so the args carry `-auto`: streamable HTTP, then SSE) into that command and `unwrap` restores
+  them; `httpUrl`, OAuth and header helpers, and codex remote servers stay direct. The server id hashes the url (`remoteProxyArgs` in
+  `cmd/gascoigne/proxy.go`), never the url or header values.
 - `compact_tools` drops redundant schema keys.
 - `max_tools` > 0 (off by default) hides more tools than that behind `search_tools` (BM25 over
   names and descriptions, top 5 with schemas) and `call_tool`, for agents without native tool

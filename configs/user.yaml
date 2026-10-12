@@ -29,6 +29,9 @@
 #     fetch_max_bytes: 5242880        ## response bytes read by fetch
 #   mcp_proxy:                        ## gascoigne mcp-proxy -- <server cmd>
 #     command: []                     ## downstream server; the CLI passes it after -- instead
+#     url: ""                         ## remote server (http/https) instead of command; the CLI passes -url
+#     sse: false                      ## url speaks legacy SSE instead of streamable HTTP
+#     headers: {}                     ## sent with every request to url, e.g. Authorization
 #     ledger: ledger
 #     retrieve: gascoigne_retrieve    ## added tool; must not clash with downstream tools
 #     compact_tools: true             ## tool schemas: drop titles restating names, $schema markers

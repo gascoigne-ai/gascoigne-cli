@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os/exec"
 	"slices"
 	"strings"
@@ -40,6 +41,21 @@ type ctxKey struct{}
 // With sets the downstream server command for this run, overriding config.
 func With(ctx context.Context, command []string) context.Context {
 	return context.WithValue(ctx, ctxKey{}, command)
+}
+
+// Remote is a downstream MCP server reached over HTTP instead of a command.
+type Remote struct {
+	URL     string
+	SSE     bool // legacy SSE transport; streamable HTTP otherwise
+	Auto    bool // transport unknown (the agent config names none): streamable HTTP, then SSE
+	Headers map[string]string
+}
+
+type remoteKey struct{}
+
+// WithRemote sets the downstream remote server for this run, overriding config.
+func WithRemote(ctx context.Context, r Remote) context.Context {
+	return context.WithValue(ctx, remoteKey{}, r)
 }
 
 type lazyKey struct{}
@@ -81,6 +97,10 @@ func (r *Receiver) Run(ctx context.Context) error {
 	r.sessions = mcptool.NewSessions(ctx)
 	client := mcp.NewClient(&mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}, nil)
 	cs, err := client.Connect(ctx, down, nil)
+	if rm := r.remote(ctx); err != nil && rm.Auto && rm.URL != "" && !rm.SSE {
+		rm.SSE = true
+		cs, err = client.Connect(ctx, rm.transport(), nil)
+	}
 	if err != nil {
 		return fmt.Errorf("connect downstream: %w", err)
 	}
@@ -91,7 +111,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 	if info == nil {
 		info = &mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}
 	}
-	r.server = serverID(info.Name, r.command(ctx))
+	r.server = serverID(info.Name, r.identity(ctx))
 	var tools []*mcp.Tool
 	for tool, err := range cs.Tools(ctx, nil) {
 		if err != nil {
@@ -227,10 +247,51 @@ func (r *Receiver) downstream(ctx context.Context) mcp.Transport {
 	if t, ok := ctx.Value(ctxKey{}).(mcp.Transport); ok {
 		return t
 	}
+	if rm := r.remote(ctx); rm.URL != "" {
+		return rm.transport()
+	}
 	if c := r.command(ctx); len(c) > 0 {
 		return &mcp.CommandTransport{Command: exec.Command(c[0], c[1:]...)}
 	}
 	return nil
+}
+
+// remote is the downstream remote server: the one passed for this run, else the configured one.
+func (r *Receiver) remote(ctx context.Context) Remote {
+	if rm, ok := ctx.Value(remoteKey{}).(Remote); ok {
+		return rm
+	}
+	return Remote{URL: r.cfg.URL, SSE: r.cfg.SSE, Headers: r.cfg.Headers}
+}
+
+func (rm Remote) transport() mcp.Transport {
+	client := &http.Client{Transport: headerTripper{http.DefaultTransport, rm.Headers}}
+	if rm.SSE {
+		return &mcp.SSEClientTransport{Endpoint: rm.URL, HTTPClient: client}
+	}
+	return &mcp.StreamableClientTransport{Endpoint: rm.URL, HTTPClient: client}
+}
+
+type headerTripper struct {
+	next    http.RoundTripper
+	headers map[string]string
+}
+
+func (t headerTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	req = req.Clone(req.Context())
+	for k, v := range t.headers {
+		req.Header.Set(k, v)
+	}
+	return t.next.RoundTrip(req)
+}
+
+// identity is what tells downstream servers apart for serverID: the command
+// line, or the URL of a remote server (it can hold keys, so only its hash is kept).
+func (r *Receiver) identity(ctx context.Context) []string {
+	if rm := r.remote(ctx); rm.URL != "" {
+		return []string{rm.URL}
+	}
+	return r.command(ctx)
 }
 
 // command is the downstream server's command line: the one passed for this

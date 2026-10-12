@@ -72,8 +72,12 @@ func proxyServers(exe string, servers *object, skip func(name string) bool) prox
 
 // proxyEntry rewrites one server entry in place; a reason when it cannot.
 func proxyEntry(exe string, e *object) string {
-	if typ, _ := e.get("type").(string); typ != "" && typ != "stdio" || e.get("url") != nil || e.get("httpUrl") != nil {
-		return "remote: only stdio servers can be proxied"
+	typ, _ := e.get("type").(string)
+	if e.get("url") != nil && (typ == "http" || typ == "sse" || typ == "") {
+		return proxyRemoteEntry(exe, e, typ)
+	}
+	if typ != "" && typ != "stdio" || e.get("url") != nil || e.get("httpUrl") != nil {
+		return "remote: only stdio servers and typed http/sse servers can be proxied"
 	}
 	cmd, _ := e.get("command").(string)
 	if cmd == "" {
@@ -86,10 +90,82 @@ func proxyEntry(exe string, e *object) string {
 	if _, done := proxiedArgs(cmd, args); done {
 		return ""
 	}
+	if _, _, _, done := remoteOf(cmd, args); done {
+		return ""
+	}
 	newCmd, newArgs := proxyCommand(exe, cmd, args)
 	e.set("command", newCmd)
 	e.set("args", anys(newArgs))
 	return ""
+}
+
+// proxyRemoteEntry turns a typed http/sse entry into a stdio one running the
+// proxy with -url; unproxyServers turns it back.
+func proxyRemoteEntry(exe string, e *object, typ string) string {
+	url, _ := e.get("url").(string)
+	var headers []string
+	if h := e.get("headers"); h != nil {
+		ho, ok := h.(*object)
+		if !ok {
+			return "headers are not an object"
+		}
+		for _, k := range ho.keys {
+			v, ok := ho.get(k).(string)
+			if !ok {
+				return "headers are not strings"
+			}
+			headers = append(headers, k+": "+v)
+		}
+	}
+	if e.get("oauth") != nil || e.get("headersHelper") != nil {
+		return "remote: OAuth and header helpers are not supported"
+	}
+	if typ == "" && (e.get("command") != nil || e.get("httpUrl") != nil) {
+		return "remote: both url and command or httpUrl"
+	}
+	for _, k := range []string{"type", "url", "headers"} {
+		e.del(k)
+	}
+	e.set("command", exe)
+	e.set("args", anys(remoteProxyArgs(url, typ, headers)))
+	return ""
+}
+
+// remoteProxyArgs is how gascoigne starts a remote server: mcp-proxy -url U [-sse|-auto] [-header "K: V"]...
+func remoteProxyArgs(url, typ string, headers []string) []string {
+	args := []string{"mcp-proxy", "-url", url}
+	switch typ {
+	case "sse":
+		args = append(args, "-sse")
+	case "":
+		args = append(args, "-auto")
+	}
+	for _, h := range headers {
+		args = append(args, "-header", h)
+	}
+	return args
+}
+
+// remoteOf parses remoteProxyArgs back; false for any other command.
+func remoteOf(cmd string, args []string) (url, typ string, headers []string, ok bool) {
+	if !strings.Contains(cmd, "gascoigne") || len(args) < 3 || args[0] != "mcp-proxy" || args[1] != "-url" {
+		return
+	}
+	url, rest := args[2], args[3:]
+	typ = "http"
+	for len(rest) > 0 {
+		switch {
+		case rest[0] == "-sse":
+			typ, rest = "sse", rest[1:]
+		case rest[0] == "-auto":
+			typ, rest = "", rest[1:]
+		case rest[0] == "-header" && len(rest) > 1:
+			headers, rest = append(headers, rest[1]), rest[2:]
+		default:
+			return "", "", nil, false
+		}
+	}
+	return url, typ, headers, true
 }
 
 // unproxyServers restores proxied servers of an mcpServers object.
@@ -105,6 +181,11 @@ func unproxyServers(servers *object) []string {
 		}
 		cmd, _ := e.get("command").(string)
 		args, _ := stringsOf(e.get("args"))
+		if url, typ, headers, ok := remoteOf(cmd, args); ok {
+			unproxyRemoteEntry(e, url, typ, headers)
+			names = append(names, name)
+			continue
+		}
 		orig, ok := proxiedArgs(cmd, args)
 		if !ok {
 			continue
@@ -118,6 +199,24 @@ func unproxyServers(servers *object) []string {
 		names = append(names, name)
 	}
 	return names
+}
+
+func unproxyRemoteEntry(e *object, url, typ string, headers []string) {
+	e.del("command")
+	e.del("args")
+	if typ != "" {
+		e.set("type", typ)
+	}
+	e.set("url", url)
+	if len(headers) == 0 {
+		return
+	}
+	h := &object{vals: map[string]any{}}
+	for _, kv := range headers {
+		k, v, _ := strings.Cut(kv, ":")
+		h.set(strings.TrimSpace(k), strings.TrimSpace(v))
+	}
+	e.set("headers", h)
 }
 
 func stringsOf(v any) ([]string, bool) {

@@ -11,25 +11,38 @@ func TestProxyServersRoundTrip(t *testing.T) {
 	root := toObject(map[string]any{"mcpServers": map[string]any{
 		"github":    map[string]any{"command": "npx", "args": []string{"-y", "@modelcontextprotocol/server-github"}, "env": map[string]any{"TOKEN": "${GH}"}},
 		"bare":      map[string]any{"command": "srv"},
-		"remote":    map[string]any{"type": "http", "url": "https://mcp.example.com"},
+		"remote":    map[string]any{"type": "http", "url": "https://mcp.example.com", "headers": map[string]any{"Authorization": "Bearer ${TOKEN}"}},
+		"legacy":    map[string]any{"type": "sse", "url": "https://mcp.example.com/sse"},
+		"untyped":   map[string]any{"url": "https://mcp.example.com/any", "headers": map[string]any{"X-Key": "${env:KEY}"}},
+		"gemini":    map[string]any{"httpUrl": "https://mcp.example.com"},
 		"gascoigne": map[string]any{"command": "gascoigne", "args": []string{"mcp"}},
 	}})
-	before, _ := formatJSON(root)
+	before := compactJSON(toMaps(root)) // restored remote entries may list their keys in another order
 	r := proxyServers("gascoigne", obj(root.get("mcpServers")), nil)
 	slices.Sort(r.proxied)
-	if !slices.Equal(r.proxied, []string{"bare", "github"}) || len(r.direct) != 1 || !strings.HasPrefix(r.direct[0], "remote (") {
+	slices.Sort(r.direct)
+	if !slices.Equal(r.proxied, []string{"bare", "github", "legacy", "remote", "untyped"}) || len(r.direct) != 1 || !strings.HasPrefix(r.direct[0], "gemini (") {
 		t.Fatalf("result %+v", r)
+	}
+	if got := compactJSON(toMaps(path(root, "mcpServers", "remote"))); got != `{"args":["mcp-proxy","-url","https://mcp.example.com","-header","Authorization: Bearer ${TOKEN}"],"command":"gascoigne"}` {
+		t.Errorf("remote: %s", got)
+	}
+	if got := compactJSON(toMaps(path(root, "mcpServers", "untyped"))); got != `{"args":["mcp-proxy","-url","https://mcp.example.com/any","-auto","-header","X-Key: ${env:KEY}"],"command":"gascoigne"}` {
+		t.Errorf("untyped: %s", got)
+	}
+	if got := compactJSON(toMaps(path(root, "mcpServers", "legacy"))); got != `{"args":["mcp-proxy","-url","https://mcp.example.com/sse","-sse"],"command":"gascoigne"}` {
+		t.Errorf("legacy: %s", got)
 	}
 	gh := toMaps(path(root, "mcpServers", "github"))
 	if got := compactJSON(gh); got != `{"args":["mcp-proxy","--","npx","-y","@modelcontextprotocol/server-github"],"command":"gascoigne","env":{"TOKEN":"${GH}"}}` {
 		t.Errorf("github: %s", got)
 	}
 	again := proxyServers("gascoigne", obj(root.get("mcpServers")), nil)
-	if len(again.proxied) != 2 || compactJSON(toMaps(path(root, "mcpServers", "github"))) != compactJSON(gh) {
+	if len(again.proxied) != 5 || compactJSON(toMaps(path(root, "mcpServers", "github"))) != compactJSON(gh) {
 		t.Errorf("second run proxied twice: %s", compactJSON(toMaps(path(root, "mcpServers", "github"))))
 	}
 	unproxyServers(obj(root.get("mcpServers")))
-	if after, _ := formatJSON(root); string(after) != string(before) {
+	if after := compactJSON(toMaps(root)); after != before {
 		t.Errorf("unproxy did not restore:\n%s\nwant\n%s", after, before)
 	}
 }
@@ -45,7 +58,7 @@ func TestClaudeProxies(t *testing.T) {
     "disabledMcpServers": ["off"]
   }}
 }`)
-	write(t, ".mcp.json", `{"mcpServers": {"approved": {"command": "a"}, "pending": {"command": "p"}, "web": {"type": "sse", "url": "https://x"}}}`)
+	write(t, ".mcp.json", `{"mcpServers": {"approved": {"command": "a"}, "pending": {"command": "p"}, "web": {"type": "sse", "url": "https://x"}, "plain": {"url": "https://y"}}}`)
 	servers, r := claudeProxies("gascoigne")
 	var names []string
 	for n := range servers {

@@ -8,7 +8,7 @@ receivers:
   exec: { kind: cmd_output } # gascoigne exec -- <cmd>
   hook: { kind: cmd_output } # gascoigne hook codex: output an agent already captured
   mcp: { ledger: ledger, retrieve: retrieve, fetch_timeout: 20s, fetch_max_bytes: 5242880 } # gascoigne mcp
-  mcp_proxy: { command: [], ledger: ledger, retrieve: gascoigne_retrieve, compact_tools: true, max_tools: 0 } # gascoigne mcp-proxy -- <server cmd>
+  mcp_proxy: { command: [], url: "", sse: false, headers: {}, ledger: ledger, retrieve: gascoigne_retrieve, compact_tools: true, max_tools: 0 } # gascoigne mcp-proxy -- <server cmd>
   # LLM API proxy, served by the background server under /v1/ (base URL http://127.0.0.1:7878)
   httpproxy:
     anthropic: https://api.anthropic.com

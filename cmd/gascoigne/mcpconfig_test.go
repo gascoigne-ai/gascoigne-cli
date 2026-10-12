@@ -29,7 +29,8 @@ func TestProxiedConfigs(t *testing.T) {
 	  "mcpServers": {
 	    "github": {"command": "/usr/bin/gascoigne", "args": ["mcp-proxy", "--", "npx", "-y", "github-mcp"]},
 	    "plain": {"command": "npx", "args": ["-y", "not-proxied"]},
-	    "remote": {"type": "http", "url": "https://x"}
+	    "remote": {"type": "http", "url": "https://x"},
+	    "web": {"command": "gascoigne", "args": ["mcp-proxy", "-url", "https://mcp.test/mcp?key=secret", "-header", "Authorization: Bearer secret"]}
 	  },
 	  "projects": {"`+proj+`": {"mcpServers": {"db": {"command": "gascoigne", "args": ["mcp-proxy", "--", "npx", "-y", "pg-mcp", "postgres://u:secret@h/prod"]}}}}
 	}`)
@@ -63,10 +64,13 @@ func TestProxiedConfigs(t *testing.T) {
 	if len(d) != 1 || d[0].Scope != "local" || d[0].Key != "db" || !strings.Contains(d[0].Remove, "--scope local") {
 		t.Errorf("local entry: %+v", d)
 	}
+	if w := got[mcpproxyreceiver.CommandHash([]string{"https://mcp.test/mcp?key=secret"})]; len(w) != 1 || w[0].Key != "web" {
+		t.Errorf("remote entry: %+v", w)
+	}
 	if _, ok := got[mcpproxyreceiver.CommandHash([]string{"npx", "-y", "not-proxied"})]; ok {
 		t.Error("a server that does not go through the proxy was found")
 	}
-	if len(got) != 2 {
+	if len(got) != 3 {
 		t.Errorf("hashes found: %d", len(got))
 	}
 	for _, entries := range got {

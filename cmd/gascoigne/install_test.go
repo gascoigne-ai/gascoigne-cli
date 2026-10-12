@@ -389,3 +389,28 @@ func TestInstallAllowRules(t *testing.T) {
 		t.Error("an unknown level must be refused")
 	}
 }
+
+func TestCursorRemoteServerRoundTrip(t *testing.T) {
+	sandbox(t)
+	exe := "/opt/bin/gascoigne"
+	orig := `{"mcpServers": {"docs": {"url": "https://mcp.example.com/mcp", "headers": {"Authorization": "Bearer ${env:DOCS_KEY}"}}, "db": {"command": "pg-mcp"}}}`
+	write(t, ".cursor/mcp.json", orig)
+	if _, err := addCursor(exe, false); err != nil {
+		t.Fatal(err)
+	}
+	got := read(t, ".cursor/mcp.json")
+	for _, want := range []string{`"-url"`, `"https://mcp.example.com/mcp"`, `"-auto"`, `"Authorization: Bearer ${env:DOCS_KEY}"`} {
+		if !strings.Contains(got, want) {
+			t.Errorf("mcp.json lacks %s:\n%s", want, got)
+		}
+	}
+	if strings.Contains(got, `"url"`) {
+		t.Errorf("url left in the entry:\n%s", got)
+	}
+	if _, err := removeCursor(); err != nil {
+		t.Fatal(err)
+	}
+	if after := read(t, ".cursor/mcp.json"); !strings.Contains(after, `"url": "https://mcp.example.com/mcp"`) || strings.Contains(after, "gascoigne") || strings.Contains(after, `"type"`) {
+		t.Errorf("not restored:\n%s", after)
+	}
+}

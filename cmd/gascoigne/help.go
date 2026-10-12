@@ -134,8 +134,8 @@ func init() {
 			run:      cmdMCP},
 		{name: "mcp-proxy", args: "[flags] -- <server cmd>", short: "-- <server>", group: groupOptimize,
 			summary:  "MCP proxy optimizing another server's tool results",
-			about:    "Mirrors the downstream server's tools, optimizes their text results and adds\ngascoigne_retrieve. Non-text content passes untouched.",
-			examples: []string{"gascoigne mcp-proxy -- npx -y @modelcontextprotocol/server-github"},
+			about:    "Mirrors the downstream server's tools, optimizes their text results and adds\ngascoigne_retrieve. Non-text content passes untouched.\nA remote server (HTTP or SSE) is given with -url instead of a command.",
+			examples: []string{"gascoigne mcp-proxy -- npx -y @modelcontextprotocol/server-github", "gascoigne mcp-proxy -url https://mcp.example.com/mcp -header \"Authorization: Bearer $TOKEN\""},
 			run:      cmdMCPProxy},
 
 		{name: "gain", args: "[flags]", group: groupSavings,

@@ -256,12 +256,34 @@ func cmdExec(ctx context.Context, args []string) error {
 }
 
 func cmdMCP(ctx context.Context, args []string) error {
-	return serve(ctx, "mcp", args, func(ctx context.Context, _ []string) context.Context { return ctx })
+	return serve(ctx, "mcp", args, nil, func(ctx context.Context, _ []string) context.Context { return ctx })
 }
 
 func cmdMCPProxy(ctx context.Context, args []string) error {
-	return serve(ctx, "mcp-proxy", args, func(ctx context.Context, command []string) context.Context {
-		return mcpproxyreceiver.WithLazy(mcpproxyreceiver.With(ctx, command), lazyChoices())
+	var remote mcpproxyreceiver.Remote
+	register := func(fs *flag.FlagSet) {
+		fs.StringVar(&remote.URL, "url", "", "proxy the remote MCP server at this `url` (streamable HTTP) instead of a command")
+		fs.BoolVar(&remote.SSE, "sse", false, "with -url: the server speaks legacy SSE")
+		fs.BoolVar(&remote.Auto, "auto", false, "with -url: try streamable HTTP, then SSE (the agent config named no transport)")
+		fs.Func("header", "with -url: send `\"Name: value\"` with every request (repeatable)", func(h string) error {
+			name, value, ok := strings.Cut(h, ":")
+			if !ok {
+				return fmt.Errorf("header %q is not \"Name: value\"", h)
+			}
+			if remote.Headers == nil {
+				remote.Headers = map[string]string{}
+			}
+			remote.Headers[strings.TrimSpace(name)] = strings.TrimSpace(value)
+			return nil
+		})
+	}
+	return serve(ctx, "mcp-proxy", args, register, func(ctx context.Context, command []string) context.Context {
+		if remote.URL != "" {
+			ctx = mcpproxyreceiver.WithRemote(ctx, remote)
+		} else {
+			ctx = mcpproxyreceiver.With(ctx, command)
+		}
+		return mcpproxyreceiver.WithLazy(ctx, lazyChoices())
 	})
 }
 
@@ -275,10 +297,13 @@ func lazyChoices() map[string][]string {
 }
 
 // serve runs one long-lived pipeline; with sets per-run receiver input from positional args.
-func serve(ctx context.Context, pipeline string, args []string, with func(context.Context, []string) context.Context) error {
+func serve(ctx context.Context, pipeline string, args []string, register func(*flag.FlagSet), with func(context.Context, []string) context.Context) error {
 	var c common
 	fs := newFlags(pipeline)
 	c.register(fs)
+	if register != nil {
+		register(fs)
+	}
 	name := fs.String("pipeline", pipeline, "`pipeline` to run")
 	if err := fs.Parse(args); err != nil {
 		return err
