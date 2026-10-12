@@ -8,7 +8,7 @@ import (
 )
 
 // Number is the release.
-const Number = "0.2.1"
+const Number = "0.2.2-dev"
 
 // Commit is the short git hash the binary was built from, with "-dirty"
 // when the work tree had uncommitted changes, or "unknown" when the build
