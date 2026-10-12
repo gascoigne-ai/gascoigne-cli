@@ -41,8 +41,11 @@ func (c *crusher) table(items []any) (map[string]any, bool) {
 func (c *crusher) plainTable(items []any) (map[string]any, bool) {
 	var objs []map[string]any
 	for _, it := range items {
-		if obj, ok := it.(map[string]any); ok {
-			objs = append(objs, obj)
+		switch v := it.(type) {
+		case map[string]any:
+			objs = append(objs, v)
+		case []any:
+			return nil, false // would read as a row, and hoist indexes it by column
 		}
 	}
 	cols, ok := c.columns(objs)

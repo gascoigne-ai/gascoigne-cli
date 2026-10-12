@@ -47,3 +47,15 @@ func TestTableKeepsNestedWhenFlatIsLarger(t *testing.T) {
 		t.Fatalf("picked the larger table: %d > %d", size(tbl), size(plain))
 	}
 }
+
+func TestTableLeavesArrayItemsAlone(t *testing.T) {
+	var items []any
+	for i := range 40 {
+		items = append(items, map[string]any{"id": json.Number(strings.Repeat("1", i%5+1)), "name": "item-" + strings.Repeat("x", 10) + string(rune('a'+i%26))})
+	}
+	items = append(items, []any{"a", "b"})
+	c := &crusher{cfg: Default()}
+	if tbl, ok := c.table(items); ok {
+		t.Fatalf("an array item would read as a row: %v", tbl)
+	}
+}
