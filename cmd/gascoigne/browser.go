@@ -1,25 +1,80 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
+	"slices"
+	"strings"
 )
 
 // openBrowser opens url in the default browser. Never fails the command: the
-// address is already printed. Without a display (ssh) it does nothing.
-func openBrowser(url string) {
+// URL is printed anyway, a missing browser only costs a click.
+func openBrowser(url string) { tryOpenBrowser(url) }
+
+// tryOpenBrowser reports whether a browser was started. An agent starts mcp-proxy
+// and the background server with its own environment, which often lacks the
+// desktop session (no DISPLAY, no bus); sessionEnv finds it so the page still
+// opens, from a process gascoigne owns, as dashboard does.
+func tryOpenBrowser(url string) bool {
+	env := os.Environ()
 	if !hasDisplay(runtime.GOOS) {
-		return
+		extra := sessionEnv(runtime.GOOS, runtimeDir())
+		if len(extra) == 0 {
+			return false
+		}
+		env = append(env, extra...)
 	}
 	argv := browserCmd(runtime.GOOS, url)
 	cmd := exec.Command(argv[0], argv[1:]...)
+	cmd.Env = env
 	if err := cmd.Start(); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne: cannot open browser:", err)
-		return
+		return false
 	}
 	cmd.Process.Release()
+	return true
+}
+
+func runtimeDir() string {
+	return cmp.Or(os.Getenv("XDG_RUNTIME_DIR"), fmt.Sprintf("/run/user/%d", os.Getuid()))
+}
+
+// sessionEnv is the desktop session of the user on Linux, found from its
+// sockets when the environment names none: a Wayland socket or the X server in
+// runtime, plus the session bus. Nil when there is no session to open a page in.
+func sessionEnv(goos, dir string) []string {
+	if goos != "linux" {
+		return nil
+	}
+	var env []string
+	if socks, _ := filepath.Glob(filepath.Join(dir, "wayland-*")); len(socks) > 0 {
+		slices.Sort(socks)
+		for _, s := range socks {
+			if !strings.HasSuffix(s, ".lock") {
+				env = append(env, "WAYLAND_DISPLAY="+filepath.Base(s))
+				break
+			}
+		}
+	}
+	if len(env) == 0 {
+		if _, err := os.Stat("/tmp/.X11-unix/X0"); err == nil {
+			env = append(env, "DISPLAY=:0")
+		}
+	}
+	if len(env) == 0 {
+		return nil
+	}
+	env = append(env, "XDG_RUNTIME_DIR="+dir)
+	if os.Getenv("DBUS_SESSION_BUS_ADDRESS") == "" {
+		if _, err := os.Stat(filepath.Join(dir, "bus")); err == nil {
+			env = append(env, "DBUS_SESSION_BUS_ADDRESS=unix:path="+filepath.Join(dir, "bus"))
+		}
+	}
+	return env
 }
 
 // hasDisplay reports whether a browser can open here: macOS and Windows

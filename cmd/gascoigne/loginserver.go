@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -24,18 +25,19 @@ import (
 type loginState struct {
 	State   string `json:"state"` // running, done or failed
 	AuthURL string `json:"auth_url,omitempty"`
+	Opened  bool   `json:"opened,omitempty"` // a browser was started for AuthURL
 	Error   string `json:"error,omitempty"`
 }
 
 // loginFlows are the logins the server runs, by server url.
 type loginFlows struct {
-	open  func(authURL string)
+	open  func(authURL string) bool
 	store *mcpauth.Store
 	mu    sync.Mutex
 	byURL map[string]*loginState
 }
 
-func newLoginFlows(store *mcpauth.Store, open func(string)) *loginFlows {
+func newLoginFlows(store *mcpauth.Store, open func(string) bool) *loginFlows {
 	return &loginFlows{open: open, store: store, byURL: map[string]*loginState{}}
 }
 
@@ -50,10 +52,10 @@ func (f *loginFlows) start(serverURL string) loginState {
 	f.byURL[serverURL] = st
 	go func() {
 		err := mcpauth.Login(context.Background(), f.store, serverURL, func(authURL string) error {
+			opened := f.open(authURL)
 			f.mu.Lock()
-			st.AuthURL = authURL
+			st.AuthURL, st.Opened = authURL, opened
 			f.mu.Unlock()
-			f.open(authURL)
 			return nil
 		})
 		f.mu.Lock()
@@ -108,10 +110,18 @@ func remoteLogin(ctx context.Context, serverURL string, shown func(authURL strin
 		return err
 	}
 	return mcpauth.Login(ctx, authStore(), serverURL, func(authURL string) error {
+		if !tryOpenBrowser(authURL) {
+			noBrowser(authURL)
+		}
 		shown(authURL)
-		openBrowser(authURL)
 		return nil
 	})
+}
+
+// noBrowser tells the user where to go when no browser could be started; an
+// agent shows the proxy's stderr in its MCP log.
+func noBrowser(authURL string) {
+	fmt.Fprintln(os.Stderr, "gascoigne: no browser could be opened; open this address to log in:", authURL)
 }
 
 // loginViaServer asks the server at addr to run the login and waits for it.
@@ -131,6 +141,9 @@ func loginViaServer(ctx context.Context, addr, serverURL string, shown func(stri
 	sentURL := false
 	for {
 		if st.AuthURL != "" && !sentURL {
+			if !st.Opened {
+				noBrowser(st.AuthURL)
+			}
 			shown(st.AuthURL)
 			sentURL = true
 		}

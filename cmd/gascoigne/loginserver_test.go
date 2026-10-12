@@ -16,7 +16,7 @@ func TestLoginRunsInTheServer(t *testing.T) {
 	url, _ := authtest.Server(t)
 	var mu sync.Mutex
 	var opened []string
-	flows := newLoginFlows(authStore(), func(authURL string) {
+	flows := newLoginFlows(authStore(), func(authURL string) bool {
 		mu.Lock()
 		opened = append(opened, authURL)
 		mu.Unlock()
@@ -25,6 +25,7 @@ func TestLoginRunsInTheServer(t *testing.T) {
 				resp.Body.Close()
 			}
 		}()
+		return true
 	})
 	mux := http.NewServeMux()
 	flows.handlers(mux)
@@ -56,7 +57,7 @@ func TestLoginWithoutServerIsUnavailable(t *testing.T) {
 
 func TestLoginRejectsOtherSchemes(t *testing.T) {
 	mux := http.NewServeMux()
-	newLoginFlows(authStore(), func(string) {}).handlers(mux)
+	newLoginFlows(authStore(), func(string) bool { return false }).handlers(mux)
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 	resp, err := http.Post(srv.URL+"/api/mcp/login", "application/json", strings.NewReader(`{"url":"file:///etc/passwd"}`))
