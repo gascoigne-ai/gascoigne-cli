@@ -4,6 +4,37 @@ All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] - 2026-10-12
+
+Where context costs money, and a weekly look at MCP servers. `gascoigne context` and its page show what
+conversation size and cache rewrites cost, and a browser page reviews MCP servers.
+
+### Added
+
+- `gascoigne context` and a page in the dashboard: where conversation size costs money, what compacting
+  saves, cache written again instead of read (by cause), 1-hour and 5-minute cache writes priced apart,
+  what hooks, plugins and instructions add, and subagent requests counted apart.
+- A weekly MCP review page: per-server use from daily per-tool stats (kept 14 days), where a server is
+  configured and how to switch it off, a session-start nudge, and unused tools offered on request only
+  (`mcp-proxy`).
+- Requests and context size per day in `gain` and the dashboard; hour-long cache writes priced apart
+  in the proxy's usage rows.
+- The resume snapshot names outputs gascoigne shortened, so agents read them with `gascoigne raw`.
+- The guide asks agents to batch independent tool calls.
+- Web pages: link-dense blocks such as navigation are dropped.
+
+### Changed
+
+- Command rewriting handles `| head` / `| tail` per command of a list and quoted pipes; multi-line
+  commands stay as they are.
+- The context and MCP pages follow the dashboard's look, with icon buttons and copyable session ids.
+
+### Fixed
+
+- HTML source read through a pipe stays source instead of becoming a page title.
+- The release notice opt-out reaches the background server; the setup page shows the release number.
+- The local API and state files are hardened.
+
 ## [0.3.0] - 2026-10-12
 
 Setting up and keeping up to date. gascoigne asks, in a browser page or the terminal, before it
