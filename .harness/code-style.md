@@ -32,4 +32,7 @@ consistency with bad code. If a reader has to pause, rewrite it.
 - Same package (`package foo`), table-driven, `t.Run` for named cases.
 - Fakes over mocks: tiny structs implementing the contract (see `service_test.go`).
 - Temp dirs via `t.TempDir()`, ledger via `ledger.EnvPath` / `Config.Path`.
+- Tests that touch configs or state use `sandbox(t)` (`cmd/gascoigne`): it redirects `HOME` and the
+  `XDG_*` dirs. Setting only `HOME` is not enough when `XDG_CONFIG_HOME` is set: a test once overwrote
+  the real user config.
 - Test behavior, not implementation details.
