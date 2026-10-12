@@ -129,6 +129,13 @@ table { width: 100%; border-collapse: collapse; }
 th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); padding: 7px 8px; white-space: nowrap; position: sticky; top: 0; z-index: 2; background: var(--surface); box-shadow: 0 1px 0 var(--border); }
 td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
 tr:last-child td { border-bottom: 0; }
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { color: var(--text); }
+th[aria-sort="ascending"]::after { content: " \25B2"; }
+th[aria-sort="descending"]::after { content: " \25BC"; }
+.tfilter { display: block; width: 100%; margin: 0 0 8px; font: 13px var(--sans); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 10px; }
+.tfilter[hidden] { display: none; }
+.tfilter:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-word; }
 /* Every table box has one height, so panels side by side line up; rows load as it scrolls. */
@@ -465,25 +472,93 @@ async function getJSON(url) {
   return r.json();
 }
 
-function table(cols, rows, empty) {
+// sortKey is what a column sorts by: its sort accessor, else its text or
+// number; null for cells that are elements.
+function sortKey(c, r) {
+  const v = c.sort ? c.sort(r) : c.get(r);
+  return v instanceof Node ? null : v;
+}
+
+// header makes a column title a sort control when the column has something
+// to sort by (a title; the bar columns have none). sort is {i, desc} or null.
+function header(c, i, sort, onSort) {
+  const th = el("th", { class: c.num ? "num" : "" }, c.title);
+  if (!onSort || !c.title) return th;
+  th.classList.add("sortable");
+  th.tabIndex = 0;
+  th.onclick = () => onSort(i);
+  th.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSort(i); } };
+  if (sort && sort.i === i) th.setAttribute("aria-sort", sort.desc ? "descending" : "ascending");
+  return th;
+}
+
+function table(cols, rows, empty, sort, onSort) {
   if (!rows || rows.length === 0) return el("div", { class: "empty" }, empty || "No data for this period.");
   return el("table", {},
-    el("thead", {}, el("tr", {}, cols.map((c) => el("th", { class: c.num ? "num" : "" }, c.title)))),
+    el("thead", {}, el("tr", {}, cols.map((c, i) => header(c, i, sort, onSort)))),
     el("tbody", {}, rows.map((r) => el("tr", {}, cols.map((c) => {
       const v = c.get(r);
       return el("td", { class: (c.num ? "num " : "") + (c.mono ? "mono" : "") }, v);
     })))));
 }
 
+// filterRows keeps the rows whose text cells contain q (case-insensitive).
+function filterRows(cols, rows, q) {
+  q = (q || "").trim().toLowerCase();
+  if (!q) return rows;
+  return rows.filter((r) => cols.some((c) => {
+    const v = c.get(r);
+    return !(v instanceof Node) && String(v).toLowerCase().includes(q);
+  }));
+}
+
+// sortRows orders rows by the column in sort ({i, desc}); null keeps the
+// server's order. Numbers compare as numbers, text by locale.
+function sortRows(cols, rows, sort) {
+  if (!sort) return rows;
+  const c = cols[sort.i], dir = sort.desc ? -1 : 1;
+  const cmp = (a, b) => {
+    const x = sortKey(c, a), y = sortKey(c, b);
+    if (x === y) return 0;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    return (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y))) * dir;
+  };
+  return rows.map((r, i) => [r, i]).sort((a, b) => cmp(a[0], b[0]) || a[1] - b[1]).map(([r]) => r);
+}
+
+// nextSort is the header click cycle: numbers start with the largest, text
+// with A-Z; a second click reverses, a third restores the server's order.
+function nextSort(cols, sort, i) {
+  const first = !!cols[i].num;
+  if (!sort || sort.i !== i) return { i, desc: first };
+  return sort.desc === first ? { i, desc: !first } : null;
+}
+
 // lazyTable fills the scroll box with a table whose rows render a chunk at a
-// time as the box scrolls. Re-rendering keeps the rows shown and the scroll
-// position, so live refreshes do not jump back to the top.
+// time as the box scrolls. Re-rendering keeps the rows shown, the scroll
+// position, the sort and the filter, so live refreshes do not reset them. A
+// filter box appears above tables longer than a few rows.
 const CHUNK = 50;
-function lazyTable(box, cols, rows, empty) {
+function lazyTable(box, cols, allRows, empty) {
   if (box._io) box._io.disconnect();
+  box._redraw = () => lazyTable(box, cols, allRows, empty);
+  if (!box._filter) {
+    const f = el("input", { type: "search", class: "tfilter", placeholder: "Filter rows", "aria-label": "Filter rows" });
+    f.oninput = () => { box._q = f.value; box._shown = 0; box._redraw(); };
+    box.before(f);
+    box._filter = f;
+  }
+  box._filter.hidden = (allRows || []).length <= 10 && !box._q;
+  const onSort = (i) => { box._sort = nextSort(cols, box._sort, i); box._shown = 0; box._redraw(); };
+  const rows = sortRows(cols, filterRows(cols, allRows || [], box._q), box._sort);
   const top = box.scrollTop, shown = box._shown || CHUNK;
-  if (!rows || rows.length === 0) { box._shown = 0; box.replaceChildren(table(cols, rows, empty)); return; }
-  const t = table(cols, rows.slice(0, shown), empty), body = t.tBodies[0];
+  if (rows.length === 0) {
+    box._shown = 0;
+    box.replaceChildren(table(cols, rows, allRows && allRows.length ? "No rows match the filter." : empty));
+    return;
+  }
+  const t = table(cols, rows.slice(0, shown), empty, box._sort, onSort), body = t.tBodies[0];
   let n = Math.min(shown, rows.length);
   const more = () => {
     const next = rows.slice(n, n + CHUNK);
@@ -503,12 +578,12 @@ function lazyTable(box, cols, rows, empty) {
 
 const savedCols = (title, get) => [
   { title, get, mono: true },
-  { title: "Runs", get: (r) => human(r.runs), num: true },
-  { title: "Input", get: (r) => human(r.raw_tokens), num: true },
-  { title: "Output", get: (r) => human(r.out_tokens), num: true },
-  { title: "Saved", get: (r) => human(r.saved_tokens), num: true },
+  { title: "Runs", get: (r) => human(r.runs), sort: (r) => r.runs, num: true },
+  { title: "Input", get: (r) => human(r.raw_tokens), sort: (r) => r.raw_tokens, num: true },
+  { title: "Output", get: (r) => human(r.out_tokens), sort: (r) => r.out_tokens, num: true },
+  { title: "Saved", get: (r) => human(r.saved_tokens), sort: (r) => r.saved_tokens, num: true },
   { title: "", get: (r) => bar(r.saved_pct) },
-  { title: "%", get: (r) => fmtPct(r.saved_pct), num: true },
+  { title: "%", get: (r) => fmtPct(r.saved_pct), sort: (r) => r.saved_pct, num: true },
 ];
 
 const outcomeLabel = { optimized: "Optimized", unchanged: "Unchanged", bypassed: "Bypassed", error: "Error" };
@@ -570,9 +645,9 @@ function renderModels(c) {
     byFamily.set(s.family, f);
   }
   const money = [
-    { title: "Saved", get: (r) => human(r.model_tokens), num: true },
-    { title: "First read", get: (r) => usd(r.first_read_usd), num: true },
-    { title: "In context", get: (r) => usd(r.in_context_usd), num: true },
+    { title: "Saved", get: (r) => human(r.model_tokens), sort: (r) => r.model_tokens, num: true },
+    { title: "First read", get: (r) => usd(r.first_read_usd), sort: (r) => r.first_read_usd, num: true },
+    { title: "In context", get: (r) => usd(r.in_context_usd), sort: (r) => r.in_context_usd, num: true },
     { title: "", get: (r) => bar(pct(r.in_context_usd, c.in_context_usd)) },
   ];
   const p = c.pricing;
@@ -598,11 +673,11 @@ function renderReasons(o) {
     ...o.unchanged.map((r) => ({ ...r, kind: "unchanged" })),
   ];
   lazyTable($("reasons"), [
-    { title: "Outcome", get: (r) => badge(r.kind) },
+    { title: "Outcome", get: (r) => badge(r.kind), sort: (r) => r.kind },
     { title: "Stopped by", get: (r) => r.group, mono: true },
     { title: "Command", get: (r) => r.command || "—", mono: true },
-    { title: "Runs", get: (r) => human(r.runs), num: true },
-    { title: "Tokens", get: (r) => human(r.raw_tokens), num: true },
+    { title: "Runs", get: (r) => human(r.runs), sort: (r) => r.runs, num: true },
+    { title: "Tokens", get: (r) => human(r.raw_tokens), sort: (r) => r.raw_tokens, num: true },
     { title: "Most recent reason", get: (r) => r.reason || "—", mono: true },
   ], rows, "All runs in this period were optimized.");
 }
@@ -631,7 +706,7 @@ async function refreshFailures() {
   lazyTable($("failures"), [
     { title: "Source", get: (f) => f.key, mono: true },
     { title: "Count", get: (f) => f.count, num: true },
-    { title: "Last", get: (f) => ago(f.last) },
+    { title: "Last", get: (f) => ago(f.last), sort: (f) => new Date(f.last).getTime() },
     { title: "Reason", get: (f) => f.reason, mono: true },
     { title: "", get: (f) => el("button", { onclick: () => forget(f.key) }, "Re-enable") },
   ], fs, "No excluded sources.");

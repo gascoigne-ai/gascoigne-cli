@@ -17,6 +17,7 @@ All notable changes to gascoigne. The format follows
   once, in the browser (or the terminal), before anything is changed.
 - `gascoigne doctor [-fix]`, and `/gascoigne-stats` and `/gascoigne-doctor` commands in claude.
 - `gain -oneline`: totals on one line, for a status line.
+- Dashboard: sort tables by clicking a header, filter long ones.
 - Dashboard: savings by model family and by model, in the model's own tokens and dollars, with the official list prices they are estimated from.
 
 ### Fixed
