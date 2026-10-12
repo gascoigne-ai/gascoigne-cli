@@ -7,8 +7,14 @@ Show, once a week, what the user's MCP servers cost per request and which of the
 with numbers from task 041. Report only; acting on it is task 056.
 
 ## Scope
-- `gascoigne mcp-review [-since 14d] [-json]` and a `gain` section "mcp servers", MCP `stats`
-  follows. One row per server: tools, schema tokens per request, calls in the last 7 days, calls in
+- **Browser first.** The review is a page in the dashboard (`/mcp`, embedded HTML like
+  `dashboard.html`, no build step, same loopback-Host and cross-origin checks): a sortable table
+  (accessor-based sort, decisions.md), a bar for each server's share of per-request tool tokens,
+  the 7 days against the 7 before as a small trend, and per-tool detail folded under each server.
+  `gascoigne mcp-review` opens it (`openBrowser`; `-open=false` only prints the URL). Without a
+  display, under `CI` or with `GASCOIGNE_SERVER=off` it prints the same table in the terminal
+  (`-json` for scripts), plus `gain` section "mcp servers" and MCP `stats` (plain text).
+- One row per server: tools, schema tokens per request, calls in the last 7 days, calls in
   the 7 days before, last used. Verdict per server: `unused` (no calls in 14 days), `rarely used`
   (calls, but cost per call far above the median), `used`. A tool-level list for used servers:
   tools never called in 14 days and their tokens.

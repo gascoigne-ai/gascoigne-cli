@@ -13,6 +13,8 @@ instruction files.
   prompt. Report only, one suggested fix per line.
 - Flag settings known to cost tokens (list kept short, each with its effect and source).
 - `prompts` shows the same hook-context rows next to CLAUDE.md and memory.
+- Browser first: the same rows appear as a section of the dashboard page; `doctor` and `prompts`
+  print them in the terminal as the fallback.
 - Nothing is changed (decisions.md: found things are signaled, never acted on).
 
 ## Acceptance
