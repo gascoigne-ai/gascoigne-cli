@@ -39,6 +39,11 @@ their record is git history.
   and `.harness/*.md`) removes only 1.3–2.4% (the files hold few articles/fillers) and moved
   nothing (12/12, $0.093): no runtime use. Tasks are easy (all arms 100%); rerun on harder ones.
 
+- Proxy `shape_output` (2026-10-12, OpenRouter, 4 tasks × 3, "on" arm with the guide's brevity line in
+  both): 12/12 pass each; output tokens 502 → 423 (−16%), cost $0.114 → $0.096, but per task
+  mixed (test-fix output +17%, others −5% to −32%) and cold-cache first runs dominate cost. Noisy:
+  stays experimental, off by default. Use `shape_holdout` on real use before turning it on.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Generic multi-line repeat folding: the log engine already folds repeated traces; after the

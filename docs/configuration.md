@@ -176,6 +176,8 @@ Routes you add replace the `routes` list as a whole, like any list.
 | `httpproxy.compact_tools` | true | The same for the tools of proxied API requests. |
 | `httpproxy.skill_code_lines` | 30 | Code blocks of invoked skill bodies longer than this keep their head and a pointer; 0 off. |
 | `httpproxy.max_image_pixels` | 0 | Downscale tool-result screenshots above this many pixels (e.g. 1024000); 0 off. |
+| `httpproxy.shape_output` | false | Experimental. End the system prompt of Anthropic requests with a short "be terse" note: output tokens cost several times input. The note is added after the cached system blocks and is the same bytes in every request of a conversation. |
+| `httpproxy.shape_holdout` | 0 | Share (0-1) of conversations that get no note, so its effect can be measured; a conversation keeps its arm (chosen from its first message). |
 
 ### Filters
 

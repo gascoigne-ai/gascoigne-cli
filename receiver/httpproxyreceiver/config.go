@@ -40,6 +40,12 @@ type Config struct {
 	// <id> -lines); HTML comments go too. Skill bodies are recorded either
 	// way; 0 leaves them as sent.
 	SkillCodeLines int `yaml:"skill_code_lines"`
+	// ShapeOutput ends the system prompt of Anthropic requests with a short
+	// note asking for terse answers: output tokens cost several times input.
+	ShapeOutput bool `yaml:"shape_output"`
+	// ShapeHoldout is the share (0-1) of conversations left without the
+	// note, so its effect can be measured against them.
+	ShapeHoldout float64 `yaml:"shape_holdout"`
 }
 
 func (c *Config) Validate() error {
@@ -56,6 +62,9 @@ func (c *Config) Validate() error {
 	}
 	if c.MaxImagePixels < 0 {
 		return errors.New("max_image_pixels must not be negative")
+	}
+	if c.ShapeHoldout < 0 || c.ShapeHoldout > 1 {
+		return errors.New("shape_holdout must be between 0 and 1")
 	}
 	if c.CacheEntries < 100 {
 		return errors.New("cache_entries must be >= 100")

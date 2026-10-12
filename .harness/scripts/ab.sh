@@ -12,6 +12,7 @@
 # that line is read, never printed); both arms then go to OpenRouter, "on"
 # through gascoigne's proxy on its own server (port 7879, ledger in the
 # cache dir) so a running gascoigne server and its stats stay untouched.
+# AB_HTTPPROXY adds settings to the "on" arm's httpproxy (e.g. "shape_output: true").
 # Variants: -a picks arms ("on" alone to compare builds), AB_TAG labels the
 # rows (arm "on-<tag>"), so a change to gascoigne itself can be A/B tested
 # by running once per build, or a change to the worktree with AB_PREPARE.
@@ -57,7 +58,7 @@ if [ -n "$key" ]; then
 extensions:
   ledger: { path: $out/ab-ledger.db }
 receivers:
-  httpproxy: { anthropic: $openrouter }
+  httpproxy: { anthropic: $openrouter${AB_HTTPPROXY:+, $AB_HTTPPROXY} }
 YAML
 	trap 'GASCOIGNE_SERVER_ADDR=$abaddr "$gascoigne" server stop >/dev/null 2>&1 || true; git worktree prune; rm -rf "$tmp"' EXIT
 fi

@@ -19,6 +19,7 @@ All notable changes to gascoigne. The format follows
 - `gain -oneline`: totals on one line, for a status line.
 - Experimental `continuity`: after a compaction or resume, claude gets a short snapshot of its last request, open tasks, edited files and failed commands.
 - Experimental `learn`: propose instruction lines from habits that cost context (reruns of shortened output, large unshortened output).
+- Experimental `httpproxy.shape_output` (and `shape_holdout`): end the Anthropic system prompt with a short "be terse" note.
 - Dashboard: sort tables by clicking a header, filter long ones.
 - Dashboard: savings by model family and by model, in the model's own tokens and dollars, with the official list prices they are estimated from.
 
