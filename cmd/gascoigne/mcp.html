@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gascoigne · MCP servers</title>
+<style>
+:root {
+  --bg: #f6f3f4; --surface: #ffffff; --surface-2: #f5f0f2; --border: #e6dfe2; --border-strong: #cfc3c8;
+  --text: #22161b; --muted: #66545b; --accent: #7a1f3d; --accent-soft: #f6e8ed;
+  --ok: #17804a; --ok-soft: #e5f5ec; --warn: #a8570c; --warn-soft: #fbf1e3; --err: #d1281b; --err-soft: #fdecea;
+  --neutral-soft: #ece5e8; --bar: #c9a0b0;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --shadow: 0 1px 2px rgba(34, 22, 27, .06), 0 2px 8px rgba(34, 22, 27, .05);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #140f12; --surface: #1c1519; --surface-2: #241b20; --border: #33262d; --border-strong: #47353e;
+    --text: #f1e8eb; --muted: #bfaab2; --accent: #e88aa6; --accent-soft: #3a1a27;
+    --ok: #5ed39a; --ok-soft: #112a20; --warn: #f0b05a; --warn-soft: #2c2214; --err: #ff6b5e; --err-soft: #3a1714;
+    --neutral-soft: #2d2228; --bar: #7c4a5e; --shadow: 0 1px 2px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); }
+body { margin: 0; color: var(--text); font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+main { max-width: 960px; margin: 0 auto; padding: 28px 16px 80px; }
+header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+h1 { font-size: 22px; line-height: 1.2; margin: 0; }
+a { color: var(--accent); }
+.chip { font: 12px var(--mono); color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
+.lead { color: var(--muted); margin: 0 0 20px; max-width: 70ch; }
+.notes { margin: 0 0 18px; padding: 10px 14px; background: var(--warn-soft); border-left: 3px solid var(--warn); border-radius: 6px; font-size: 14px; }
+.notes p { margin: 0; } .notes p + p { margin-top: 6px; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--border); white-space: nowrap; }
+thead th { border-top: 0; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); }
+th button { all: unset; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; }
+th button:hover { color: var(--text); }
+th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+th[aria-sort="ascending"] button::after { content: " \25B2"; } th[aria-sort="descending"] button::after { content: " \25BC"; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.server > td:first-child { font-weight: 600; }
+tr.server { cursor: pointer; }
+tr.server:hover { background: var(--surface-2); }
+tr.server:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.caret { display: inline-block; width: 1em; color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 2px 10px; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.used { color: var(--ok); background: var(--ok-soft); }
+.pill.unused { color: var(--err); background: var(--err-soft); }
+.pill.rarely { color: var(--warn); background: var(--warn-soft); }
+.pill.learning { color: var(--muted); background: var(--neutral-soft); }
+.meter { display: inline-block; vertical-align: middle; width: 90px; height: 8px; margin-left: 8px; background: var(--neutral-soft); border-radius: 4px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--bar); }
+.trend.up { color: var(--ok); } .trend.down { color: var(--warn); }
+tr.detail > td { padding: 0 12px 12px 36px; background: var(--surface-2); }
+tr.detail table { font-size: 13px; }
+tr.detail th { background: transparent; }
+.muted { color: var(--muted); }
+.empty { padding: 28px 16px; color: var(--muted); }
+code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+@media (max-width: 640px) { main { padding: 20px 12px 60px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>MCP servers</h1>
+    <span class="chip" id="days"></span>
+    <a href="/">dashboard</a>
+  </header>
+  <p class="lead">What each MCP server's tool definitions cost in every request, and whether the agent used them. Definitions are re-read by every request of a session, so an unused server is paid for all week. Click a server for its tools.</p>
+  <div id="notes"></div>
+  <div class="panel" id="panel"><p class="empty">Loading…</p></div>
+</main>
+<script>
+"use strict";
+const el = (tag, attrs, ...kids) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "text") e.textContent = v; else e.setAttribute(k, v);
+  }
+  for (const kid of kids) if (kid) e.append(kid);
+  return e;
+};
+const num = (n) => n.toLocaleString("en-US");
+const label = { "used": "used", "unused": "unused", "rarely used": "rarely used", "learning": "learning" };
+const cls = { "used": "used", "unused": "unused", "rarely used": "rarely", "learning": "learning" };
+
+// Columns sort by an accessor, never by the displayed text ("1,200" would sort as text).
+const columns = [
+  { title: "Server", get: (s) => s.name.toLowerCase(), first: "asc" },
+  { title: "Verdict", get: (s) => ["unused", "rarely used", "learning", "used"].indexOf(s.verdict), first: "asc" },
+  { title: "Tokens per request", get: (s) => s.sized ? s.tokens : -1, num: true },
+  { title: "Idle tokens", get: (s) => s.sized ? s.idle_tokens : -1, num: true },
+  { title: "Calls, 7 days", get: (s) => s.calls_7d, num: true },
+  { title: "Before that", get: (s) => s.calls_prev_7d, num: true },
+  { title: "Last used", get: (s) => s.last_used || "", first: "desc" },
+];
+let data = { servers: [], notes: [], days: 0 };
+let sort = { col: 2, dir: "desc" };
+const open = new Set();
+
+function trend(s) {
+  if (s.calls_7d === s.calls_prev_7d) return null;
+  const up = s.calls_7d > s.calls_prev_7d;
+  return el("span", { class: "trend " + (up ? "up" : "down"), text: up ? " ▲" : " ▼" });
+}
+
+function serverRows(s, max) {
+  const main = el("tr", { class: "server", tabindex: "0", "aria-expanded": String(open.has(s.name)) });
+  const toggle = () => { open.has(s.name) ? open.delete(s.name) : open.add(s.name); render(); };
+  main.addEventListener("click", toggle);
+  main.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+  const tokens = el("td", { class: "num" });
+  if (s.sized) {
+    tokens.append(num(s.tokens));
+    tokens.append(el("span", { class: "meter", title: "share of the largest server" }, el("i", { style: "width:" + Math.round(100 * s.tokens / max) + "%" })));
+  } else tokens.append(el("span", { class: "muted", title: "this server does not go through mcp-proxy", text: "unknown" }));
+  const calls = el("td", { class: "num", text: num(s.calls_7d) });
+  const t = trend(s); if (t) calls.append(t);
+  main.append(
+    el("td", {}, el("span", { class: "caret", text: open.has(s.name) ? "▾" : "▸" }), s.name),
+    el("td", {}, el("span", { class: "pill " + cls[s.verdict], text: label[s.verdict] })),
+    tokens,
+    el("td", { class: "num", text: s.sized ? num(s.idle_tokens) : "–" }),
+    calls,
+    el("td", { class: "num", text: num(s.calls_prev_7d) }),
+    el("td", { text: s.last_used || "–" }),
+  );
+  const rows = [main];
+  if (open.has(s.name)) {
+    const inner = el("table", {}, el("thead", {}, el("tr", {},
+      el("th", { text: "Tool" }), el("th", { class: "num", text: "Tokens" }), el("th", { class: "num", text: "Calls, 7 days" }), el("th", { class: "num", text: "Calls, 14 days" }))));
+    const body = el("tbody");
+    for (const t of s.tools) {
+      body.append(el("tr", {},
+        el("td", {}, t.name, t.calls_14d === 0 && s.sized ? el("span", { class: "muted", text: "  not called" }) : null),
+        el("td", { class: "num", text: t.tokens ? num(t.tokens) : "–" }),
+        el("td", { class: "num", text: num(t.calls_7d) }), el("td", { class: "num", text: num(t.calls_14d) })));
+    }
+    inner.append(body);
+    rows.push(el("tr", { class: "detail" }, el("td", { colspan: String(columns.length) }, inner)));
+  }
+  return rows;
+}
+
+function render() {
+  document.getElementById("days").textContent = data.days + (data.days === 1 ? " day" : " days") + " of data";
+  const notes = document.getElementById("notes");
+  notes.replaceChildren(...(data.notes.length ? [el("div", { class: "notes" }, ...data.notes.map((n) => el("p", { text: n })))] : []));
+  const panel = document.getElementById("panel");
+  if (!data.servers.length) { panel.replaceChildren(el("p", { class: "empty", text: "No MCP servers recorded yet." })); return; }
+  const c = columns[sort.col];
+  const servers = [...data.servers].sort((a, b) => {
+    const x = c.get(a), y = c.get(b);
+    const r = x < y ? -1 : x > y ? 1 : a.name.localeCompare(b.name);
+    return sort.dir === "asc" ? r : -r;
+  });
+  const max = Math.max(1, ...data.servers.map((s) => s.tokens));
+  const head = el("tr");
+  columns.forEach((col, i) => {
+    const th = el("th", { class: col.num ? "num" : "", scope: "col" });
+    if (i === sort.col) th.setAttribute("aria-sort", sort.dir === "asc" ? "ascending" : "descending");
+    const b = el("button", { type: "button", text: col.title });
+    b.addEventListener("click", () => { sort = { col: i, dir: sort.col === i ? (sort.dir === "asc" ? "desc" : "asc") : (col.first || "desc") }; render(); });
+    th.append(b); head.append(th);
+  });
+  const body = el("tbody");
+  for (const s of servers) body.append(...serverRows(s, max));
+  panel.replaceChildren(el("table", {}, el("thead", {}, head), body));
+}
+
+fetch("/api/mcp").then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
+  .then((d) => { data = d; render(); })
+  .catch((e) => document.getElementById("panel").replaceChildren(el("p", { class: "empty", text: "Could not load the review: " + e.message })));
+</script>
+</body>
+</html>

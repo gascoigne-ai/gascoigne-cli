@@ -172,6 +172,16 @@ func init() {
 				"-target), -remove takes the block out again. Nothing is written without -apply.",
 			examples: []string{"gascoigne learn", "gascoigne learn -apply", "gascoigne learn -apply -target AGENTS.md"},
 			run:      cmdLearn},
+		{name: "mcp-review", args: "[-text] [-json] [-open=false]", group: groupSavings,
+			summary: "which MCP servers cost tokens in every request and which are used",
+			about: "Opens a page in the dashboard (the browser is the first choice) with each MCP server's tool\n" +
+				"definition cost per request, calls this week and the week before, and a verdict: used, rarely\n" +
+				"used, unused, or learning (seen for less than a week). -text prints the same table; -json\n" +
+				"prints it for scripts; -open=false only prints the page's address. Without a display, under\n" +
+				"CI or with GASCOIGNE_SERVER=off the table is printed. Data: the daily per-tool stats\n" +
+				"mcp-proxy records, kept two weeks (ledger stats_ttl).",
+			examples: []string{"gascoigne mcp-review", "gascoigne mcp-review -text", "gascoigne mcp-review -json"},
+			run:      cmdMCPReview},
 		{name: "probe", args: "[flags]", group: groupSavings,
 			summary: "check recorded runs for error lines and artifacts their output lost",
 			about: "Compares stored originals with their optimized output: error lines, artifacts (paths,\n" +

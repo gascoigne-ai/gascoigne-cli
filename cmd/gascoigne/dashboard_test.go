@@ -327,3 +327,46 @@ func TestLocalOnlySecurityHeaders(t *testing.T) {
 		}
 	}
 }
+
+func TestDashboardMCPReview(t *testing.T) {
+	l, h := testDashboard(t)
+	t.Run("empty review has lists, not null", func(t *testing.T) {
+		w := get(h, "GET", "/api/mcp")
+		if w.Code != 200 || !strings.Contains(w.Body.String(), `"servers":[]`) || strings.Contains(w.Body.String(), "null") {
+			t.Fatalf("%d: %s", w.Code, w.Body.String())
+		}
+	})
+	if err := l.RecordToolList(t.Context(), "claude", "github", map[string]int{"search": 300, "create": 500}); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.RecordToolCall(t.Context(), "claude", "github", "search"); err != nil {
+		t.Fatal(err)
+	}
+	t.Run("review", func(t *testing.T) {
+		w := get(h, "GET", "/api/mcp")
+		var r mcpReview
+		if err := json.Unmarshal(w.Body.Bytes(), &r); err != nil || w.Code != 200 {
+			t.Fatalf("%d %v: %s", w.Code, err, w.Body.String())
+		}
+		if len(r.Servers) != 1 || r.Servers[0].Name != "github" || r.Servers[0].Tokens != 800 || r.Servers[0].Calls7 != 1 {
+			t.Fatalf("got %+v", r.Servers)
+		}
+	})
+	t.Run("page", func(t *testing.T) {
+		w := get(h, "GET", "/mcp")
+		if w.Code != 200 || !strings.Contains(w.Body.String(), "<title>gascoigne · MCP servers") {
+			t.Fatalf("%d: %.200s", w.Code, w.Body.String())
+		}
+	})
+	t.Run("page is local only", func(t *testing.T) {
+		for _, url := range []string{"/mcp", "/api/mcp"} {
+			r := httptest.NewRequest("GET", url, nil)
+			r.Host = "attacker.example:7878" // DNS rebinding
+			w := httptest.NewRecorder()
+			h.ServeHTTP(w, r)
+			if w.Code != 403 {
+				t.Fatalf("%s with a foreign Host: %d", url, w.Code)
+			}
+		}
+	})
+}

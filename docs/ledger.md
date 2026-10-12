@@ -248,6 +248,7 @@ The page is built on a small JSON API you can also script against:
 |---|---|
 | `GET /api/overview?session=&agent=&model=&since=` | the same data as `gain -json` |
 | `GET /api/sessions` | sessions with their savings |
+| `GET /api/mcp` | the MCP review behind the `/mcp` page and `gascoigne mcp-review -json` |
 | `GET /api/events?after=<id>&session=&agent=&model=&since=` | up to 200 runs newer than `after`, newest first, with steps |
 | `GET /api/stream?…` | server-sent events: the latest 100 runs, then each new batch |
 | `GET /api/raw/<id>` | an original as text (does not mark the source) |

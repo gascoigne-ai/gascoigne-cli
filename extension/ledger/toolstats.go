@@ -78,3 +78,29 @@ func (l *Ledger) pruneToolStats(ctx context.Context) error {
 	cutoff := l.now().UTC().Add(-l.cfg.StatsTTL).Format(dayLayout)
 	return l.db.WithContext(ctx).Where("day < ?", cutoff).Delete(&toolStat{}).Error
 }
+
+// CommandDay is how many runs of one command were recorded on a day.
+type CommandDay struct {
+	Day     string `json:"day"`
+	Agent   string `json:"agent"`
+	Command string `json:"command"`
+	Runs    int    `json:"runs"`
+}
+
+// MCPCommands counts, per day and agent, the runs recorded for tools named
+// mcp__server__tool: the hook's record of calls to MCP servers (Claude and
+// Codex naming) that do not go through mcp-proxy. Everything from the day of
+// since on.
+func (l *Ledger) MCPCommands(ctx context.Context, since time.Time) ([]CommandDay, error) {
+	var out []CommandDay
+	tx := l.db.WithContext(ctx).Model(&event{}).
+		Select(`strftime('%Y-%m-%d', ts / 1000, 'unixepoch') AS day, agent,
+			CASE WHEN instr(command, ' ') > 0 THEN substr(command, 1, instr(command, ' ') - 1) ELSE command END AS command,
+			count(*) AS runs`).
+		Where(`command LIKE 'mcp\_\_%' ESCAPE '\'`)
+	if !since.IsZero() {
+		tx = tx.Where("ts >= ?", time.Date(since.Year(), since.Month(), since.Day(), 0, 0, 0, 0, time.UTC).UnixMilli())
+	}
+	err := tx.Group("day, agent, 3").Order("day, agent, command").Scan(&out).Error
+	return out, err
+}

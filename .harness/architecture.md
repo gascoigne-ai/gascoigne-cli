@@ -679,6 +679,22 @@ their pipeline's receivers and exporters (`service.Options.Remote`) and POST the
 **Reset**: `gascoigne reset` / `POST /api/reset` → `ledger.Reset`: events + steps by filters
 (flags only, never env); `-all` also raw and failures, with no filters.
 
+### MCP review (`mcpreview.go`, `mcp.html`)
+
+`GET /mcp` (one embedded page, same design tokens as `setup.html`, DOM built without `innerHTML`,
+sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MCPCommands, now)`:
+- Per server: definition tokens (last listing), tokens of tools not called in 14 days, calls in the
+  last 7 days and the 7 before, last use, and a verdict. `learning` below `observeDays` (7) of
+  observation, `unused` with no call in `unusedDays` (14), `rarely used` for at most `rarelyCalls`
+  calls a week at `rarelyTokens` or more per request, else `used`. The constants are named in the
+  file; days are UTC.
+- Calls to servers that stay direct come from the hook's runs named `mcp__server__tool`
+  (`MCPCommands`); a tool that a proxied server lists is counted once (the proxy's count wins);
+  gascoigne's own server is left out; Gemini's `mcp_server_tool` naming cannot be split and is skipped.
+- A direct server that was never called is invisible (no list, no calls): the page says so.
+- `gascoigne mcp-review` prints the page address and opens it (`canBrowse`: display, no `CI`, server
+  up); otherwise, or with `-text`/`-json`, it prints from the ledger. It changes nothing.
+
 ### Dashboard (`dashboard.go`)
 
 One embedded `dashboard.html`, no build step, serving the ledger live.

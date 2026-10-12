@@ -21,6 +21,7 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `server run\|start\|stop\|status` | The background server hosting the dashboard: one per user, started automatically. |
 | `tokens [-model list] [-exact=false] [file]` | Count text with each tokenizer family and price one read and its cost in an agent's context (see [cost](cost.md)); also exact counts: o200k locally, Claude via `count_tokens` when a key is configured. |
 | `flush [-older 7d]` | Delete stored originals (the cache behind `raw <id>`) and vacuum the ledger. |
+| `mcp-review [-text] [-json]` | Open the MCP review page: what each server's tool definitions cost per request, calls this week and last, and a verdict (see [below](#mcp-review)). |
 | `reset [flags]` | Clear savings stats; `-all` also clears stored originals and failure history. |
 | `wrap <agent> [agent args]` | Start `claude`, `codex`, `gemini`, `opencode` or `pi` with gascoigne registered for that run. |
 | `install [-g] [agent...]` | Register gascoigne for good in this project's agent configs, or with `-g` in the user's (default: agents found on `PATH`). |
@@ -99,6 +100,26 @@ gascoigne server run           # run in the foreground (what the background proc
 All take `-addr host:port` (default `$GASCOIGNE_SERVER_ADDR` or `127.0.0.1:7878`). `exec`,
 `hook`, `mcp`, `mcp-proxy` and `wrap` start the server when it is not answering, so the
 dashboard is up whenever gascoigne is used. See [Ledger, retrieval and gain](ledger.md#dashboard).
+
+## `mcp-review`
+
+```sh
+gascoigne mcp-review          # opens the page in the dashboard
+gascoigne mcp-review -text    # the same table in the terminal
+gascoigne mcp-review -json
+```
+
+Every request re-sends the definitions of all tools an agent has, so an MCP server that is never
+called is paid for all week. The page lists each server with its definition tokens per request,
+the tokens of tools not called in 14 days, calls in the last 7 days and the 7 before, and a verdict:
+`used`, `rarely used` (at most two calls a week for a server costing 1,500 tokens or more per
+request), `unused` (no call in 14 days) or `learning` (seen for less than a week, so no verdict).
+Click a server for its tools. Without a display, under `CI`, or with `GASCOIGNE_SERVER=off` the
+table is printed instead; `-open=false` only prints the page's address.
+
+The data is what `mcp-proxy` records when the agent lists tools and calls them (names, sizes and
+counts only), kept two weeks (`ledger.stats_ttl`). Servers that stay direct have no sizes and show
+only once the agent has called them. It changes nothing: acting on the review is up to you.
 
 ## `reset`
 
