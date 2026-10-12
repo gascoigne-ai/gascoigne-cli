@@ -461,6 +461,14 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
 Cursor has the preToolUse hook only: no result replacement is known. A status line can show the
 savings: `gascoigne gain -oneline -since 1d` (`docs/agents.md`).
 
+### Resume snapshot (`continuity.go`, experimental: `continuity`)
+
+Claude SessionStart with `source` compact or resume adds a snapshot of the transcript to the
+guide's context: last request, open TodoWrite items, files edited (newest first, 15), recent
+failed Bash commands (3, `NAME_KEY=` / bearer values cut). Only the agent's own calls are read,
+never tool output; subagent lines are skipped; capped near 2 KB and deterministic. Needs no new
+registration (SessionStart is already installed). Gemini's `PreCompress` has no equivalent yet.
+
 ### Command rewriting rules (`hook.go`)
 
 - **Wrapped**: every command of a `&&`/`;` list, except builtins, quiet, interactive and REPL

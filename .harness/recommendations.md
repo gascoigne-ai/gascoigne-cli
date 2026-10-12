@@ -11,6 +11,9 @@ their record is git history.
 - Usage: split 1h vs 5-minute cache writes (Anthropic `cache_creation.ephemeral_1h_input_tokens`)
   so `gain` prices 1h writes right; compare measured input with tokens saved per agent.
 
+- Continuity snapshot (`experimental: [continuity]`): A/B on a task that forces a compaction (tokens
+  added at each compaction vs rework avoided) is not run; keep it experimental until it is.
+
 - Hooks: confirm on a real session that Claude subagent tool calls reach the PreToolUse/PostToolUse
   hooks (`gain -by session` for the subagent's calls); check whether Cursor has a result-replacement
   hook; the coverage table in `architecture.md` marks both as unverified.

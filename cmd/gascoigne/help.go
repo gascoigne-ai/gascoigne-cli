@@ -28,12 +28,13 @@ type command struct {
 }
 
 // available reports whether c can run: stable, or experimental and enabled.
-func available(c command) bool {
-	if !c.experimental {
-		return true
-	}
+func available(c command) bool { return !c.experimental || experimentalOn(c.name) }
+
+// experimentalOn reports whether an experimental feature is enabled: named
+// (or "all") in $GASCOIGNE_EXPERIMENTAL or the config's experimental list.
+func experimentalOn(name string) bool {
 	on := append(splitList(os.Getenv("GASCOIGNE_EXPERIMENTAL"), ","), configExperimental()...)
-	return slices.Contains(on, "all") || slices.Contains(on, c.name)
+	return slices.Contains(on, "all") || slices.Contains(on, name)
 }
 
 const (

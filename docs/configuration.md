@@ -98,7 +98,7 @@ router:
   routes:  [ … ]                       # optional overrides per command/content
 optimizers:   { <type>: {…} }          # one entry per optimizer used
 exporters:    { <type>: {…} }          # where results go
-experimental: [ … ]                    # CLI commands not stable yet: prompts, or all
+experimental: [ … ]                    # not stable yet: prompts, continuity, or all
 pipelines:
   <name>:
     receivers: [ … ]

@@ -28,6 +28,7 @@ type hookInput struct {
 	HookEventName  string          `json:"hook_event_name"`
 	ToolName       string          `json:"tool_name"`
 	TranscriptPath string          `json:"transcript_path"`
+	Source         string          `json:"source"` // SessionStart: startup, resume, clear or compact
 	ToolInput      map[string]any  `json:"tool_input"`
 	ToolResponse   json.RawMessage `json:"tool_response"`
 

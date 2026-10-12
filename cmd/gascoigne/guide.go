@@ -74,7 +74,7 @@ func withGuide(h hookFunc) hookFunc {
 		}
 		ensureProxyFor()
 		// Level off keeps only the news of an update.
-		text := strings.TrimSpace(in.syncNote + "\n" + guide(true, true))
+		text := strings.TrimSpace(in.syncNote + "\n" + guide(true, true) + resumeContext(in))
 		if text == "" {
 			return nil, nil
 		}
@@ -175,4 +175,16 @@ func codexHome() string {
 	}
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".codex")
+}
+
+// resumeContext is the snapshot a session start after compaction or resume
+// carries, when the continuity experiment is on.
+func resumeContext(in hookInput) string {
+	if in.Source != "compact" && in.Source != "resume" || !experimentalOn("continuity") {
+		return ""
+	}
+	if s := resumeSnapshot(in.TranscriptPath); s != "" {
+		return "\n" + s
+	}
+	return ""
 }
