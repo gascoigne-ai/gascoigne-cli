@@ -218,3 +218,50 @@ func TestPrintContext(t *testing.T) {
 		t.Fatalf("empty: %q", b.String())
 	}
 }
+
+func TestRewrites(t *testing.T) {
+	at := time.Date(2026, 10, 10, 10, 0, 0, 0, time.UTC)
+	mk := func(ctx, read int, after time.Duration) turn {
+		return turn{ctx: ctx, read: read, write: ctx - read, ts: at.Add(after)}
+	}
+	ts := []turn{
+		mk(100_000, 0, 0),
+		mk(105_000, 100_000, time.Minute),     // warm: only growth is written
+		mk(110_000, 0, 3*time.Minute),         // read nothing within the lifetime: something changed
+		mk(115_000, 0, 20*time.Minute),        // paused past 5 minutes, the cache is gone
+		mk(120_000, 0, 120*time.Minute),       // paused over an hour
+		mk(125_000, 119_000, 121*time.Minute), // a read 1% short is not a miss
+		mk(40_000, 0, 122*time.Minute),        // the context fell to a third: a compaction
+	}
+	got := rewrites(ts)
+	want := map[int]string{2: causeChanged, 3: causeFive, 4: causeHour, 6: causeCompaction}
+	if len(got) != len(want) {
+		t.Fatalf("got %v", got)
+	}
+	for i, cause := range want {
+		if got[i].cause != cause {
+			t.Errorf("turn %d: %q, want %q", i, got[i].cause, cause)
+		}
+	}
+	if got[2].tokens != 105_000 || got[4].tokens != 115_000 {
+		t.Fatalf("tokens %+v", got)
+	}
+	if len(rewrites(nil)) != 0 || len(rewrites(ts[:1])) != 0 {
+		t.Fatal("a session of one request rewrote something")
+	}
+
+	s := sessionCost{ID: "x", Model: "claude-opus-5-5", Priced: true, turns: ts, End: at}
+	s.finish()
+	r := buildContext([]sessionCost{s}, 14)
+	m, _ := cost.Lookup("claude-opus-5-5")
+	byCause := map[string]cacheRewrite{}
+	for _, w := range r.Rewrites {
+		byCause[w.Cause] = w
+	}
+	if len(r.Rewrites) != 4 || byCause[causeHour].Turns != 1 {
+		t.Fatalf("rewrites %+v", r.Rewrites)
+	}
+	if d := byCause[causeHour].CostUSD - float64(115_000)*(m.CacheWrite-m.CacheRead)/1e6; d > 1e-9 || d < -1e-9 {
+		t.Fatalf("extra cost %.6f", byCause[causeHour].CostUSD)
+	}
+}

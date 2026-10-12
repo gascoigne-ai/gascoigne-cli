@@ -60,6 +60,12 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
     headless task runner [14]; plugin hook pricing [16] (also covered by the settings audit task).
 
 ## Measured
+- Cache rewrites from transcripts (`gascoigne context`, 2026-10-12, 30 days, one machine, $437 at list prices):
+  rewrites cost about $48 extra (11%): pauses over an hour $15, "changed within the cache lifetime" $17 in
+  19 requests of roughly 190k tokens each, compactions $12, pauses of 5-60 minutes $4. The 19 changes are
+  the thing to explain (model switches and edited instruction files are the likely ones); which one needs
+  request bodies, see task 042. Requests above 400k tokens of context were 42% of the cost.
+
 - Guide line "issue independent tool calls together in one turn" (2026-10-12, registration 3): added to the
   full guide without an A/B. Observation to make after two weeks of real use: requests per day per agent before and
   after (the dashboard and `gain` show requests and context per day; the LLM proxy has no session id, so use per-day request counts

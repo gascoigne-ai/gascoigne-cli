@@ -715,6 +715,10 @@ session id and per-turn usage (the LLM proxy has no session).
   12k summary per compaction, growth as it was; a real reset is followed, not compacted twice. The same model
   prices the baseline, so thresholds compare with each other (within 5% of the actual cost on a real
   month). More compactions are not always cheaper.
+- Cache rewrites (`rewrites`): a turn whose cache read fell short of the previous request's context by over 5%
+  (and 2k tokens) rewrote the difference, priced at write minus read. Cause from the transcript's timestamps:
+  compaction, a pause over an hour, a pause of 5 to 60 minutes, else "changed within the cache lifetime"
+  (instruction file, tool set or model changed while warm; a transcript cannot say which, request bodies would).
 - Everything local and read-only; the page says compacting saves tokens, not detail.
 
 ### MCP review (`mcpreview.go`, `mcp.html`)

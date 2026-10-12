@@ -145,8 +145,15 @@ function render() {
   });
   const sessionRows = sessions.map((s) => el("tr", {}, ...cols.map((col) => el("td", { class: col.num ? "num" : "" }, col.show(s)))));
 
+  const rwRows = r.cache_rewrites.map((w) => el("tr", {},
+    el("td", { text: w.cause }), el("td", { class: "num", text: w.turns.toLocaleString("en-US") }), el("td", { class: "num", text: human(w.tokens) }),
+    el("td", { class: "num", text: usd(w.cost_usd) }), el("td", { class: "num", text: (100 * w.share).toFixed(1) + "%" })));
+  const rewrites = table(el("tr", {}, el("th", { text: "Cause" }), el("th", { class: "num", text: "Requests" }), el("th", { class: "num", text: "Tokens" }), el("th", { class: "num", text: "Extra cost" }), el("th", { class: "num", text: "Share of cost" })), rwRows);
+
   const parts = [kpis,
     el("h2", { text: "Where the money goes" }), el("div", { class: "panel" }, buckets),
+    el("h2", { text: "Context written to the cache again instead of read" }), el("div", { class: "panel" }, rewrites),
+    el("p", { class: "note", text: "Reading cached context is cheap; writing it again is not. A long pause lets the cache expire, and a change to the cached start of the conversation (an edited instruction file, a changed tool set, another model) rewrites it all. The extra is what the rewrite cost over a read." }),
     el("h2", { text: "What compacting earlier would have saved" }), el("div", { class: "panel" }, whatIf),
     el("p", { class: "warn", text: "Compacting saves tokens, not detail: the summary forgets what it leaves out. This is an upper bound on what is worth giving up, not advice to compact everywhere." }),
     el("h2", { text: "Sessions" }), el("div", { class: "panel" }, table(head, sessionRows)),

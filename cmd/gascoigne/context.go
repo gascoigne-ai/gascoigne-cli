@@ -48,6 +48,7 @@ var thresholds = []int{150_000, 250_000, 400_000}
 // turn is one model request of a session.
 type turn struct {
 	ctx, read, write, input, output int
+	ts                              time.Time
 }
 
 // sessionCost is one conversation.
@@ -74,6 +75,25 @@ type contextBucket struct {
 	Share   float64 `json:"share"`
 }
 
+// cacheRewrite is the cache written again for a cause: tokens that were part of
+// the previous request's context but were not read from the cache this time, so
+// they were paid for at the cache-write price instead of the read price.
+type cacheRewrite struct {
+	Cause   string  `json:"cause"`
+	Turns   int     `json:"turns"`
+	Tokens  int     `json:"tokens"`
+	CostUSD float64 `json:"cost_usd"` // the extra paid: write price minus read price
+	Share   float64 `json:"share"`    // of all the cost
+}
+
+// Causes of a cache rewrite, told apart by what the transcript shows.
+const (
+	causeCompaction = "compaction or /clear"
+	causeHour       = "idle for over an hour"
+	causeFive       = "idle for 5 to 60 minutes"
+	causeChanged    = "changed within the cache lifetime"
+)
+
 // whatIf is the cost of compacting whenever a conversation reaches a size.
 type whatIf struct {
 	Threshold   int     `json:"threshold"`
@@ -93,6 +113,7 @@ type contextReport struct {
 	ModelUSD    float64         `json:"model_usd"` // the baseline of the what-if, by the same simple model
 	Buckets     []contextBucket `json:"buckets"`
 	WhatIf      []whatIf        `json:"what_if"`
+	Rewrites    []cacheRewrite  `json:"cache_rewrites"`
 	Unpriced    int             `json:"unpriced_sessions"`
 	Assumptions []string        `json:"assumptions"`
 }
@@ -132,6 +153,7 @@ func readSession(r io.Reader, name string) (sessionCost, error) {
 				ctx := u.Input + u.CacheRead + u.CacheCreate
 				if ctx > 0 && !strings.HasPrefix(t.Message.Model, "<") {
 					tn := turn{ctx: ctx, read: u.CacheRead, write: u.CacheCreate, input: u.Input, output: u.Output}
+					tn.ts, _ = time.Parse(time.RFC3339, t.Timestamp)
 					if i, ok := index[t.Message.ID]; ok && t.Message.ID != "" {
 						s.turns[i] = tn
 					} else {
@@ -193,6 +215,43 @@ func (s *sessionCost) finish() {
 		}
 	}
 	s.Series = downsample(s.turns, sparkPoints)
+}
+
+// rewrites finds the turns whose cache read fell short of the previous
+// request's context and says why: a compaction, a pause longer than the cache
+// lives (5 minutes, or an hour for those who have it), or something that
+// changed the cached start of the conversation while it was warm (an edited
+// instruction file, a changed tool set, another model). Returns tokens and the
+// cause by turn index.
+func rewrites(turns []turn) map[int]struct {
+	cause  string
+	tokens int
+} {
+	out := map[int]struct {
+		cause  string
+		tokens int
+	}{}
+	for i := 1; i < len(turns); i++ {
+		prev, t := turns[i-1], turns[i]
+		missed := prev.ctx - t.read
+		if missed < max(2_000, prev.ctx/20) { // under 5%: not a miss
+			continue
+		}
+		cause := causeChanged
+		switch gap := t.ts.Sub(prev.ts); {
+		case compacted(prev.ctx, t.ctx):
+			cause = causeCompaction
+		case gap > time.Hour:
+			cause = causeHour
+		case gap > 5*time.Minute:
+			cause = causeFive
+		}
+		out[i] = struct {
+			cause  string
+			tokens int
+		}{cause, missed}
+	}
+	return out
 }
 
 // priceOf looks a model up as transcripts name it: gateways add a provider
@@ -279,6 +338,7 @@ func buildContext(sessions []sessionCost, days int) contextReport {
 		r.Sessions = []sessionCost{}
 	}
 	slices.SortFunc(r.Sessions, func(a, b sessionCost) int { return b.End.Compare(a.End) })
+	byCause := map[string]*cacheRewrite{}
 	wi := make([]whatIf, len(thresholds))
 	for i, t := range thresholds {
 		wi[i].Threshold = t
@@ -302,6 +362,12 @@ func buildContext(sessions []sessionCost, days int) contextReport {
 				wi[i].Sessions++
 			}
 		}
+		for _, w := range rewrites(s.turns) {
+			rw := rewriteOf(byCause, w.cause)
+			rw.Turns++
+			rw.Tokens += w.tokens
+			rw.CostUSD += float64(w.tokens) * (m.CacheWrite - m.CacheRead) / 1e6
+		}
 		for _, t := range s.turns {
 			b := &r.Buckets[bucketOf(t.ctx)]
 			b.Turns++
@@ -312,6 +378,13 @@ func buildContext(sessions []sessionCost, days int) contextReport {
 		if r.CostUSD > 0 {
 			r.Buckets[i].Share = r.Buckets[i].CostUSD / r.CostUSD
 		}
+	}
+	for _, cause := range []string{causeFive, causeHour, causeChanged, causeCompaction} {
+		rw := rewriteOf(byCause, cause)
+		if r.CostUSD > 0 {
+			rw.Share = rw.CostUSD / r.CostUSD
+		}
+		r.Rewrites = append(r.Rewrites, *rw)
 	}
 	for i := range wi {
 		if r.ModelUSD > 0 {
@@ -324,8 +397,16 @@ func buildContext(sessions []sessionCost, days int) contextReport {
 		fmt.Sprintf("A compaction is assumed to cost one request over the whole context plus a %dk-token summary; later turns grow as they did.", summaryTokens/1000),
 		"Compacting saves tokens, not detail: the summary forgets what it leaves out. Treat the saving as an upper bound on what is worth giving up.",
 		"Only main conversations are counted; subagents run in conversations of their own.",
+		"A cache rewrite is context that the previous request carried but this one did not read from the cache; the cost shown is the extra over a read. The causes are read from the pauses between requests, so \"changed within the cache lifetime\" means the cached start of the conversation changed while it was warm (an edited instruction file, a changed tool set, another model); a transcript cannot say which.",
 	}
 	return r
+}
+
+func rewriteOf(m map[string]*cacheRewrite, cause string) *cacheRewrite {
+	if m[cause] == nil {
+		m[cause] = &cacheRewrite{Cause: cause}
+	}
+	return m[cause]
 }
 
 func bucketOf(ctx int) int {
@@ -445,6 +526,13 @@ func printContext(w io.Writer, r contextReport) {
 	fmt.Fprintln(tw, "CONTEXT OF A REQUEST\tREQUESTS\tCOST\tSHARE")
 	for _, b := range r.Buckets {
 		fmt.Fprintf(tw, "%s\t%d\t%s\t%.0f%%\n", b.Label, b.Turns, dollars(b.CostUSD), 100*b.Share)
+	}
+	tw.Flush()
+	fmt.Fprintln(w, "\nContext written to the cache again instead of read:")
+	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(tw, "CAUSE\tREQUESTS\tTOKENS\tEXTRA COST\tSHARE")
+	for _, x := range r.Rewrites {
+		fmt.Fprintf(tw, "%s\t%d\t%s\t%s\t%.1f%%\n", x.Cause, x.Turns, human(x.Tokens), dollars(x.CostUSD), 100*x.Share)
 	}
 	tw.Flush()
 	fmt.Fprintln(w, "\nIf conversations had been compacted when they reached:")
