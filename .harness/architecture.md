@@ -842,6 +842,7 @@ Then one line in `internal/registry/registry.go`.
 
 The context and MCP pages are served with the dashboard's look from `/assets/pages.css` (the same tokens, night
 header band, panels, KPI strip, tables, badges and dark mode) and `/assets/pages.js` (`G.header` builds the band with
-the nav and the theme switch, which shares the dashboard's saved choice; `G.el`, `human`, `usd`, `num`). The dashboard
+the nav and the theme switch, which shares the dashboard's saved choice; `G.el`, `human`, `usd`, `num`; `G.button(icon, text)` and `G.setButton` put an outline icon (copy, check, load, undo, sun, moon, auto, built as SVG
+elements) in front of a button's text). The dashboard
 keeps its own inline copy; a change to the look is made in both. Pages build their DOM with `textContent`, never `innerHTML`
 (the one exception is the fixed moon literal in `pages.js`).

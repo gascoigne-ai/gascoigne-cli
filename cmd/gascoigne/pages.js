@@ -13,6 +13,31 @@
   const usd = (n) => "$" + (n >= 100 ? n.toFixed(0) : n.toFixed(2));
   const num = (n) => n.toLocaleString("en-US");
 
+  // Icons: 24-pixel outline shapes, drawn with the text's colour. Built as SVG elements, never parsed from strings.
+  const shapes = {
+    copy: [["rect", { x: 9, y: 9, width: 13, height: 13, rx: 2 }], ["path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" }]],
+    check: [["path", { d: "M20 6 9 17l-5-5" }]],
+    load: [["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }], ["path", { d: "m7 10 5 5 5-5" }], ["path", { d: "M12 15V3" }]],
+    undo: [["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }], ["path", { d: "M3 3v5h5" }]],
+    sun: [["circle", { cx: 12, cy: 12, r: 4 }], ["path", { d: "M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" }]],
+    moon: [["path", { d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" }]],
+    auto: [["rect", { x: 2, y: 3, width: 20, height: 14, rx: 2 }], ["path", { d: "M8 21h8M12 17v4" }]],
+  };
+  const NS = "http://www.w3.org/2000/svg";
+  const icon = (name) => {
+    const svg = document.createElementNS(NS, "svg");
+    for (const [k, v] of Object.entries({ class: "icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" })) svg.setAttribute(k, v);
+    for (const [tag, attrs] of shapes[name] || []) {
+      const e = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+      svg.append(e);
+    }
+    return svg;
+  };
+  // button is a text button with an icon in front; setButton changes both (a copy button says "Copied").
+  const setButton = (b, name, text) => { b.replaceChildren(icon(name), el("span", { text })); return b; };
+  const button = (name, text, attrs) => setButton(el("button", { type: "button", ...(attrs || {}) }), name, text);
+
   const moon = `<svg viewBox="0 0 48 48" aria-hidden="true"><defs>
     <radialGradient id="pg-lit" cx="38%" cy="32%" r="72%"><stop offset="0" stop-color="#fffdfb"/><stop offset=".6" stop-color="#ece4e2"/><stop offset="1" stop-color="#c9bcbf"/></radialGradient>
     <radialGradient id="pg-crater" cx="38%" cy="38%" r="62%"><stop offset="0" stop-color="#9c8b8f"/><stop offset=".75" stop-color="#c4b6b8"/><stop offset="1" stop-color="#fffaf8"/></radialGradient>
@@ -27,7 +52,7 @@
     const theme = el("div", { class: "theme", role: "group", "aria-label": "Theme" });
     const saved = (() => { try { return localStorage.getItem("gascoigne-theme") || "auto"; } catch { return "auto"; } })();
     for (const name of ["auto", "light", "dark"]) {
-      const b = el("button", { type: "button", "aria-pressed": String(saved === name), text: name[0].toUpperCase() + name.slice(1) });
+      const b = button({ auto: "auto", light: "sun", dark: "moon" }[name], name[0].toUpperCase() + name.slice(1), { "aria-pressed": String(saved === name) });
       b.addEventListener("click", () => {
         try { name === "auto" ? localStorage.removeItem("gascoigne-theme") : localStorage.setItem("gascoigne-theme", name); } catch {}
         if (name === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = name;
@@ -41,5 +66,5 @@
       ...links.map(([href, text, id]) => el("a", { class: "navlink", href, text, ...(id === current ? { "aria-current": "page" } : {}) })), theme)));
   };
 
-  window.G = { el, human, usd, num, header };
+  window.G = { el, human, usd, num, header, icon, button, setButton };
 })();

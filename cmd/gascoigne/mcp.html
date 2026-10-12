@@ -76,9 +76,10 @@ async function choose(id, tools) {
 // not write other programs' settings, so the command is shown, not run.
 function configLines(s) {
   return s.config.flatMap((c) => {
-    const copy = el("button", { type: "button", text: "Copy" });
+    const copy = G.button("copy", "Copy", { title: "Copy the command" });
     copy.addEventListener("click", async () => {
-      try { await navigator.clipboard.writeText(c.remove); copy.textContent = "Copied"; } catch { copy.textContent = "Select and copy"; }
+      try { await navigator.clipboard.writeText(c.remove); G.setButton(copy, "check", "Copied"); } catch { G.setButton(copy, "copy", "Select and copy"); }
+      setTimeout(() => G.setButton(copy, "copy", "Copy"), 1500);
     });
     return [el("p", { text: `Configured as ${c.key} in ${c.file} (${c.agent}, ${c.scope}). To switch it off:` }),
       el("div", { class: "cmdline" }, el("code", { text: c.remove }), copy)];
@@ -100,14 +101,14 @@ function actions(s) {
   const effective = new Set(s.tools.filter((t) => t.lazy).map((t) => t.name));
   if (idle.length) {
     box.append(el("p", { text: `${idle.length} of its tools were not called in 14 days; their definitions are ${num(idleTokens)} tokens of the tool list. Loaded on request, they are not listed: the agent is told they exist and asks for one by name when it needs it.` }));
-    const b = el("button", { type: "button", class: "primary", text: "Load these on request" });
+    const b = G.button("load", "Load these on request", { class: "primary" });
     b.disabled = busy;
     b.addEventListener("click", () => choose(s.id, [...new Set([...chosen, ...idle.map((t) => t.name)])]));
     box.append(b);
   }
   if (chosen.size) {
     box.append(el("p", { text: `${chosen.size} tools load on request${s.lazy_tokens ? `, taking ${num(s.lazy_tokens)} tokens out of the tool list` : ""}.` }));
-    const b = el("button", { type: "button", text: "List all tools again" });
+    const b = G.button("undo", "List all tools again");
     b.disabled = busy;
     b.addEventListener("click", () => choose(s.id, []));
     box.append(b);

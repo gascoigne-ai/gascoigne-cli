@@ -354,6 +354,9 @@ func TestSharedPageAssets(t *testing.T) {
 			t.Fatalf("%s: %d %q (%d bytes)", url, w.Code, w.Header().Get("Content-Type"), w.Body.Len())
 		}
 	}
+	if body := get(h, "GET", "/assets/pages.js").Body.String(); !strings.Contains(body, "const button =") || !strings.Contains(body, "createElementNS") || strings.Contains(body, ".innerHTML = icon") {
+		t.Error("pages.js lacks the icon helpers")
+	}
 	for _, page := range []string{"/context", "/mcp"} {
 		w := get(h, "GET", page)
 		body := w.Body.String()
