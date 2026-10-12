@@ -2,6 +2,7 @@ package ledger
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"gorm.io/gorm/clause"
@@ -17,6 +18,7 @@ type toolStat struct {
 	Tool   string `gorm:"primaryKey"`
 	Tokens int    `gorm:"not null"` // definition size at the last listing that day; 0 when never listed
 	Calls  int    `gorm:"not null"`
+	Lazy   bool   `gorm:"not null;default:false"` // offered on request only: Tokens is what it would cost if listed
 }
 
 func (toolStat) TableName() string { return "tool_stats" }
@@ -29,26 +31,31 @@ type ToolStat struct {
 	Tool   string `json:"tool"`
 	Tokens int    `json:"tokens"`
 	Calls  int    `json:"calls"`
+	Lazy   bool   `json:"lazy"`
 }
 
 const dayLayout = "2006-01-02"
 
 func (l *Ledger) today() string { return l.now().UTC().Format(dayLayout) }
 
-// RecordToolList stores the definition size of each tool a server lists
-// (tokens by tool name). Calls already counted today are kept.
-func (l *Ledger) RecordToolList(ctx context.Context, agent, server string, tokens map[string]int) error {
+// RecordToolList stores the definition size of each tool a server listed
+// (tokens by tool name) and, flagged lazy, of those it offered on request
+// only. Calls already counted today are kept.
+func (l *Ledger) RecordToolList(ctx context.Context, agent, server string, tokens, lazy map[string]int) error {
 	day := l.today()
-	for tool, n := range tokens {
-		err := l.db.WithContext(ctx).Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "day"}, {Name: "agent"}, {Name: "server"}, {Name: "tool"}},
-			DoUpdates: clause.AssignmentColumns([]string{"tokens"}),
-		}).Create(&toolStat{Day: day, Agent: agent, Server: server, Tool: tool, Tokens: n}).Error
-		if err != nil {
-			return err
+	put := func(sizes map[string]int, isLazy bool) error {
+		for tool, n := range sizes {
+			err := l.db.WithContext(ctx).Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "day"}, {Name: "agent"}, {Name: "server"}, {Name: "tool"}},
+				DoUpdates: clause.AssignmentColumns([]string{"tokens", "lazy"}),
+			}).Create(&toolStat{Day: day, Agent: agent, Server: server, Tool: tool, Tokens: n, Lazy: isLazy}).Error
+			if err != nil {
+				return err
+			}
 		}
+		return nil
 	}
-	return nil
+	return errors.Join(put(tokens, false), put(lazy, true))
 }
 
 // RecordToolCall counts one call of a tool.

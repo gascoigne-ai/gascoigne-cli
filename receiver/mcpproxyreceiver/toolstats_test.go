@@ -23,13 +23,14 @@ type statLedger struct {
 	agent  string
 	server string
 	sizes  map[string]int
+	lazy   map[string]int
 	calls  map[string]int
 	listed chan struct{}
 }
 
-func (s *statLedger) RecordToolList(_ context.Context, agent, server string, sizes map[string]int) error {
+func (s *statLedger) RecordToolList(_ context.Context, agent, server string, sizes, lazy map[string]int) error {
 	s.mu.Lock()
-	s.agent, s.server, s.sizes = agent, server, sizes
+	s.agent, s.server, s.sizes, s.lazy = agent, server, sizes, lazy
 	s.mu.Unlock()
 	close(s.listed)
 	return nil
@@ -135,7 +136,7 @@ func TestToolStatsRecorded(t *testing.T) {
 func TestNoStatsLedgerIsFine(t *testing.T) {
 	r := &Receiver{ledger: ledger{}, log: slog.New(slog.DiscardHandler)}
 	r.recordCall(t.Context(), nil, "x") // would panic on a nil session if it tried to record
-	r.recordList(t.Context(), nil, map[string]int{"x": 1})
+	r.recordList(t.Context(), nil, []*mcp.Tool{{Name: "x"}}, nil)
 }
 
 func TestServerID(t *testing.T) {

@@ -336,7 +336,7 @@ func TestDashboardMCPReview(t *testing.T) {
 			t.Fatalf("%d: %s", w.Code, w.Body.String())
 		}
 	})
-	if err := l.RecordToolList(t.Context(), "claude", "github", map[string]int{"search": 300, "create": 500}); err != nil {
+	if err := l.RecordToolList(t.Context(), "claude", "github", map[string]int{"search": 300, "create": 500}, nil); err != nil {
 		t.Fatal(err)
 	}
 	if err := l.RecordToolCall(t.Context(), "claude", "github", "search"); err != nil {

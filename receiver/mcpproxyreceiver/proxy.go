@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os/exec"
+	"slices"
 	"strings"
 	"sync"
 
@@ -39,6 +40,20 @@ type ctxKey struct{}
 // With sets the downstream server command for this run, overriding config.
 func With(ctx context.Context, command []string) context.Context {
 	return context.WithValue(ctx, ctxKey{}, command)
+}
+
+type lazyKey struct{}
+
+// WithLazy sets which tools each proxied server offers on request only: tool
+// names by server id (see serverID). Read when the proxy starts, so a change
+// reaches the next session and a session's tool list never changes.
+func WithLazy(ctx context.Context, choices map[string][]string) context.Context {
+	return context.WithValue(ctx, lazyKey{}, choices)
+}
+
+func lazyChoices(ctx context.Context) map[string][]string {
+	c, _ := ctx.Value(lazyKey{}).(map[string][]string)
+	return c
 }
 
 // WithTransport sets the downstream transport directly (tests, in-process servers).
@@ -90,20 +105,30 @@ func (r *Receiver) Run(ctx context.Context) error {
 		}
 		tools = append(tools, tool)
 	}
-	sizes := toolSizes(tools)
+	direct, lazy := r.splitLazy(ctx, tools)
 	s := mcp.NewServer(info, &mcp.ServerOptions{Instructions: init.Instructions, Logger: r.log})
 	var listed sync.Once
 	s.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
 		return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
-			if method == "tools/list" { // the agent pays for the definitions only when it lists them
-				listed.Do(func() { r.recordList(ctx, req.GetSession(), sizes) })
+			res, err := next(ctx, method, req)
+			if lr, ok := res.(*mcp.ListToolsResult); ok && err == nil && method == "tools/list" {
+				// The agent pays for the definitions only when it lists them, and for the
+				// ones it is shown: record exactly those, and what the lazy tools would cost.
+				listed.Do(func() { r.recordList(ctx, req.GetSession(), lr.Tools, lazy) })
 			}
-			return next(ctx, method, req)
+			return res, err
 		}
 	})
-	if r.cfg.MaxTools > 0 && len(tools) > r.cfg.MaxTools {
-		r.addLazy(s, cs, tools)
-	} else {
+	switch {
+	case r.cfg.MaxTools > 0 && len(tools) > r.cfg.MaxTools: // max_tools hides everything; it wins over a choice of tools
+		lazy = tools
+		r.addLazy(s, cs, tools, true)
+	case len(lazy) > 0:
+		for _, tool := range direct {
+			s.AddTool(tool, r.forward(cs, tool.Name))
+		}
+		r.addLazy(s, cs, lazy, false)
+	default:
 		for _, tool := range tools {
 			s.AddTool(tool, r.forward(cs, tool.Name))
 		}
@@ -112,23 +137,43 @@ func (r *Receiver) Run(ctx context.Context) error {
 	return s.Run(ctx, r.upstream)
 }
 
-// toolSizes is what each downstream tool's definition costs in tokens, as the
-// agent would receive it.
-func toolSizes(tools []*mcp.Tool) map[string]int {
-	sizes := make(map[string]int, len(tools))
-	for _, t := range tools {
-		b, err := json.Marshal(t)
-		if err != nil {
-			continue
-		}
-		sizes[t.Name] = tokens.Estimate(string(b))
+// splitLazy separates the tools the user chose to load on request from the
+// rest. Nothing is lazy when the server has a tool named like one of the two
+// tools that reach lazy ones.
+func (r *Receiver) splitLazy(ctx context.Context, tools []*mcp.Tool) (direct, lazy []*mcp.Tool) {
+	chosen := lazyChoices(ctx)[r.server]
+	if len(chosen) == 0 {
+		return tools, nil
 	}
-	return sizes
+	for _, t := range tools {
+		if t.Name == searchToolName || t.Name == callToolName {
+			r.log.Warn("server has a tool named like a lazy-mode tool: no tool is lazy", "server", r.server, "tool", t.Name)
+			return tools, nil
+		}
+	}
+	for _, t := range tools {
+		if slices.Contains(chosen, t.Name) {
+			lazy = append(lazy, t)
+		} else {
+			direct = append(direct, t)
+		}
+	}
+	return direct, lazy
 }
 
-// recordList stores the tool definition sizes when the agent lists the tools.
+// toolSize is what one definition costs in tokens, as the agent receives it.
+func toolSize(t *mcp.Tool) int {
+	b, err := json.Marshal(t)
+	if err != nil {
+		return 0
+	}
+	return tokens.Estimate(string(b))
+}
+
+// recordList stores what the agent was shown (tokens by tool name; our own
+// retrieve tool is not the server's) and what the lazy tools would have cost.
 // Stats are a side record: a failure is logged, never shown to the agent.
-func (r *Receiver) recordList(ctx context.Context, session mcp.Session, sizes map[string]int) {
+func (r *Receiver) recordList(ctx context.Context, session mcp.Session, shown, lazy []*mcp.Tool) {
 	rec, ok := r.ledger.(mcptool.ToolStatRecorder)
 	if !ok {
 		return
@@ -139,7 +184,16 @@ func (r *Receiver) recordList(ctx context.Context, session mcp.Session, sizes ma
 			agent = p.ClientInfo.Name
 		}
 	}
-	if err := rec.RecordToolList(ctx, agent, r.server, sizes); err != nil {
+	sizes, hidden := map[string]int{}, map[string]int{}
+	for _, t := range shown {
+		if t.Name != r.cfg.Retrieve {
+			sizes[t.Name] = toolSize(t)
+		}
+	}
+	for _, t := range lazy {
+		hidden[t.Name] = toolSize(t)
+	}
+	if err := rec.RecordToolList(ctx, agent, r.server, sizes, hidden); err != nil {
 		r.log.Warn("record tool list", "server", r.server, "err", err)
 	}
 }

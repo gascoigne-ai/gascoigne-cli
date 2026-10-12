@@ -226,8 +226,15 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
   names and descriptions, top 5 with schemas) and `call_tool`, for agents without native tool
   search.
 
-- Stats: when the agent lists tools, the proxy records each downstream tool's definition size
-  (as the agent receives it, schemas compacted) under the downstream server's id and counts every call
+- Lazy tools: the proxy can offer chosen tools of a server on request only (`WithLazy`, tool names by
+  server id, read at start: a session's tool list never changes, so the prompt cache holds). The rest
+  stay listed; `search_tools` and `call_tool` reach the lazy ones, and the description of `search_tools`
+  names them (sorted, at most 40, then "and N more"), so the agent knows they exist and asks for them.
+  No tool is lazy when the server has a tool of those names; `max_tools` (everything lazy) wins over a
+  choice; names the server lacks change nothing. On a 30-tool fixture with 25 lazy, the list falls from
+  about 5.2k to 1.2k tokens (`TestLazyToolsEval`).
+- Stats: when the agent lists tools, the proxy records the definition size of each tool it
+  showed (as the agent receives it, schemas compacted; rows flagged lazy hold what the lazy tools would cost) under the downstream server's id and counts every call
   (`ledger` `tool_stats`). The id is the name the server reports plus a short hash of its command line
   (`serverID`), so two configurations of one server binary stay apart; only the hash is kept, since
   arguments can hold keys. It is not the agent's config key.

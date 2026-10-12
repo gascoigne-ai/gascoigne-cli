@@ -20,7 +20,7 @@ func TestToolStats(t *testing.T) {
 	record := func(d time.Time, calls map[string]int, sizes map[string]int) {
 		t.Helper()
 		l.now = func() time.Time { return d }
-		if err := l.RecordToolList(ctx, "claude", "github", sizes); err != nil {
+		if err := l.RecordToolList(ctx, "claude", "github", sizes, nil); err != nil {
 			t.Fatal(err)
 		}
 		for tool, n := range calls {
@@ -41,10 +41,10 @@ func TestToolStats(t *testing.T) {
 			t.Fatal(err)
 		}
 		want := []ToolStat{
-			{"2026-10-01", "claude", "github", "create_issue", 340, 0},
-			{"2026-10-01", "claude", "github", "search", 125, 5}, // size of the last listing, both calls kept
-			{"2026-10-02", "claude", "github", "create_issue", 340, 0},
-			{"2026-10-02", "claude", "github", "search", 125, 0},
+			{"2026-10-01", "claude", "github", "create_issue", 340, 0, false},
+			{"2026-10-01", "claude", "github", "search", 125, 5, false}, // size of the last listing, both calls kept
+			{"2026-10-02", "claude", "github", "create_issue", 340, 0, false},
+			{"2026-10-02", "claude", "github", "search", 125, 0, false},
 		}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("got %+v\nwant %+v", got, want)

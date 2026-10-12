@@ -17,6 +17,35 @@ import (
 // searchResults is how many tools search_tools returns with their schemas.
 const searchResults = 5
 
+// Names of the two tools that reach lazy tools.
+const (
+	searchToolName = "search_tools"
+	callToolName   = "call_tool"
+)
+
+// maxListed is how many tool names the description of search_tools spells out.
+const maxListed = 40
+
+// lazyDescription says what search_tools finds. When only some tools are
+// lazy it names them (sorted, capped: the same choices give the same bytes,
+// which keeps the agent's prompt cache), so the agent knows they exist
+// and asks for them explicitly.
+func lazyDescription(tools []*mcp.Tool, all bool) string {
+	if all {
+		return fmt.Sprintf("Find tools of this server (%d tools) by what they do; returns the best matches with their input schemas. Run one with call_tool.", len(tools))
+	}
+	names := make([]string, len(tools))
+	for i, t := range tools {
+		names[i] = t.Name
+	}
+	slices.Sort(names)
+	list := strings.Join(names[:min(len(names), maxListed)], ", ")
+	if len(names) > maxListed {
+		list += fmt.Sprintf(", and %d more", len(names)-maxListed)
+	}
+	return fmt.Sprintf("%d more tools of this server are not listed: %s. Find one by what it does; returns the best matches with their input schemas. Run one with call_tool.", len(tools), list)
+}
+
 type SearchToolsInput struct {
 	Query string `json:"query,omitempty" jsonschema:"what the tool should do; empty lists every tool's name"`
 }
@@ -29,7 +58,7 @@ type CallToolInput struct {
 // addLazy exposes the downstream tools through two tools instead of one
 // each: search_tools finds tools and returns their schemas, call_tool runs
 // one. Requests then carry two schemas, not hundreds.
-func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.Tool) {
+func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.Tool, all bool) {
 	byName := map[string]*mcp.Tool{}
 	names := make([]string, len(tools))
 	docs := make([][]string, len(tools))
@@ -39,8 +68,8 @@ func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.To
 		docs[i] = rows.Terms(t.Name + " " + strings.ReplaceAll(t.Name, "_", " ") + " " + t.Description)
 	}
 	mcp.AddTool(s, &mcp.Tool{
-		Name:        "search_tools",
-		Description: fmt.Sprintf("Find tools of this server (%d tools) by what they do; returns the best matches with their input schemas. Run one with call_tool.", len(tools)),
+		Name:        searchToolName,
+		Description: lazyDescription(tools, all),
 	}, func(_ context.Context, _ *mcp.CallToolRequest, in SearchToolsInput) (*mcp.CallToolResult, any, error) {
 		if strings.TrimSpace(in.Query) == "" {
 			return mcptool.Result(strings.Join(names, "\n")), nil, nil
@@ -67,7 +96,7 @@ func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.To
 		return mcptool.Result(string(b)), nil, nil
 	})
 	mcp.AddTool(s, &mcp.Tool{
-		Name:        "call_tool",
+		Name:        callToolName,
 		Description: "Run a tool of this server found with search_tools.",
 	}, func(ctx context.Context, req *mcp.CallToolRequest, in CallToolInput) (*mcp.CallToolResult, any, error) {
 		if byName[in.Name] == nil {

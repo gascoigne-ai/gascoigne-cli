@@ -46,6 +46,7 @@ const (
 type mcpTool struct {
 	Name   string `json:"name"`
 	Tokens int    `json:"tokens"` // definition size, 0 when unknown
+	Lazy   bool   `json:"lazy"`   // offered on request only: Tokens is what listing it would cost
 	Calls7 int    `json:"calls_7d"`
 	Calls  int    `json:"calls_14d"`
 }
@@ -59,6 +60,7 @@ type mcpServer struct {
 	Sized     bool      `json:"sized"`       // false: only calls are known (the server stays direct)
 	Tokens    int       `json:"tokens"`      // what its definitions cost in every request
 	IdleToks  int       `json:"idle_tokens"` // of those, tools not called in unusedDays
+	LazyToks  int       `json:"lazy_tokens"` // what the tools offered on request only would cost if listed
 	Calls7    int       `json:"calls_7d"`
 	CallsPrev int       `json:"calls_prev_7d"` // the 7 days before
 	LastUsed  string    `json:"last_used,omitempty"`
@@ -138,7 +140,7 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 		if r.Tokens > 0 {
 			k := key{r.Server, r.Tool}
 			if r.Day >= latest[k] { // the last listing's size
-				t.Tokens, latest[k] = r.Tokens, r.Day
+				t.Tokens, t.Lazy, latest[k] = r.Tokens, r.Lazy, r.Day
 			}
 			s.Sized = true
 		}
@@ -166,10 +168,14 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 	for _, s := range servers {
 		slices.SortFunc(s.Tools, func(a, b mcpTool) int { return cmp.Or(cmp.Compare(b.Tokens, a.Tokens), cmp.Compare(a.Name, b.Name)) })
 		slices.Sort(s.Agents)
-		s.Seen = oldest[s.Name] + 1
+		s.Seen = oldest[s.ID] + 1
 		for _, t := range s.Tools {
+			if t.Lazy {
+				s.LazyToks += t.Tokens
+				continue
+			}
 			s.Tokens += t.Tokens
-			if t.Calls == 0 {
+			if t.Calls == 0 && !lazyModeTool(t.Name) { // the lazy-mode tools are the price of lazy tools, never idle
 				s.IdleToks += t.Tokens
 			}
 		}
@@ -232,6 +238,9 @@ func allIn(sub, set map[string]bool) bool {
 	return true
 }
 
+// lazyModeTool is one of the two tools mcp-proxy adds to reach lazy tools.
+func lazyModeTool(name string) bool { return name == "search_tools" || name == "call_tool" }
+
 // splitMCPName splits mcp__server__tool (Claude and Codex naming).
 func splitMCPName(name string) (server, tool string, ok bool) {
 	rest, ok := strings.CutPrefix(name, "mcp__")
@@ -242,7 +251,7 @@ func splitMCPName(name string) (server, tool string, ok bool) {
 	if !ok || server == "" || tool == "" || server == "gascoigne" {
 		return "", "", false
 	}
-	if tool == "call_tool" || tool == "search_tools" { // mcp-proxy's lazy tools: the real call is counted there
+	if lazyModeTool(tool) { // mcp-proxy's lazy tools: the real call is counted there
 		return "", "", false
 	}
 	return server, tool, true

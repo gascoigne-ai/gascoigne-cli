@@ -191,3 +191,32 @@ func TestBuildReviewDuplicateNames(t *testing.T) {
 		t.Fatalf("labels %v", labels)
 	}
 }
+
+// Lazy tools are not a cost: their tokens are what was saved, and the two
+// tools that reach them are the price, never idle.
+func TestBuildReviewLazy(t *testing.T) {
+	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
+	day := func(n int) string { return now.AddDate(0, 0, -n).Format("2006-01-02") }
+	var stats []ledger.ToolStat
+	for d := 9; d >= 0; d-- {
+		stats = append(stats,
+			ledger.ToolStat{Day: day(d), Agent: "claude", Server: "kube#aaaa1111", Tool: "get", Tokens: 200, Calls: 1},
+			ledger.ToolStat{Day: day(d), Agent: "claude", Server: "kube#aaaa1111", Tool: "search_tools", Tokens: 150},
+			ledger.ToolStat{Day: day(d), Agent: "claude", Server: "kube#aaaa1111", Tool: "call_tool", Tokens: 120},
+			ledger.ToolStat{Day: day(d), Agent: "claude", Server: "kube#aaaa1111", Tool: "drain", Tokens: 400, Lazy: true},
+			ledger.ToolStat{Day: day(d), Agent: "claude", Server: "kube#aaaa1111", Tool: "cordon", Tokens: 300, Lazy: true},
+		)
+	}
+	cmds := []ledger.CommandDay{{Day: day(1), Agent: "claude", Command: "mcp__kube__call_tool", Runs: 3}} // the proxy counts the real tool
+	r := buildReview(stats, cmds, now)
+	if len(r.Servers) != 1 {
+		t.Fatalf("servers %+v", r.Servers)
+	}
+	s := r.Servers[0]
+	if s.Tokens != 470 || s.LazyToks != 700 || s.IdleToks != 0 {
+		t.Fatalf("tokens %d, lazy %d, idle %d", s.Tokens, s.LazyToks, s.IdleToks)
+	}
+	if s.Verdict != verdictUsed {
+		t.Fatalf("verdict %s", s.Verdict)
+	}
+}
