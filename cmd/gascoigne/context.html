@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="/assets/pages.css">
 <script src="/assets/pages.js"></script>
 <style>
+td.wrap { white-space: normal; min-width: 14em; vertical-align: middle; line-height: 1.35; }
 svg.spark { vertical-align: middle; }
 svg.spark polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; }
 </style>
@@ -55,10 +56,21 @@ const th = (text, num) => el("th", { class: num ? "num" : "", scope: "col", text
 const share = (frac) => el("div", { class: "share" }, el("span", { text: Math.round(100 * frac) + "%" }), el("div", { class: "bar" }, el("span", { style: "width:" + Math.round(100 * frac) + "%" })));
 const kpi = (name, value, plain, accent) => el("div", { class: "kpi" + (accent ? " accent" : "") }, el("div", { class: "name", text: name }), el("div", { class: "value", text: value }), el("div", { class: "plain", text: plain || "" }));
 
-let report = null, sort = { col: 5, dir: "desc" };
+// The session id is the transcript's file name: `claude --resume <id>` opens it, and it names the file under ~/.claude/projects.
+function idCell(id) {
+  const copy = el("button", { type: "button", title: "Copy the full session id: " + id, text: "Copy" });
+  copy.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(id); copy.textContent = "Copied"; } catch { copy.textContent = "Select it"; }
+    setTimeout(() => { copy.textContent = "Copy"; }, 1500);
+  });
+  return el("span", { class: "share" }, el("code", { title: id, text: id.slice(0, 8) }), copy);
+}
+
+let report = null, sort = { col: 6, dir: "desc" };
 // Columns sort by an accessor, never by the displayed text.
 const cols = [
   { title: "Project", get: (s) => (s.project || "").toLowerCase(), show: (s) => s.project || "–", first: "asc" },
+  { title: "Session", get: (s) => s.id, show: (s) => idCell(s.id), first: "asc" },
   { title: "Started", get: (s) => s.start, show: (s) => when(s.start), first: "desc" },
   { title: "Requests", get: (s) => s.turns, show: (s) => num(s.turns), num: true },
   { title: "Peak context", get: (s) => s.peak_context, show: (s) => human(s.peak_context), num: true },
@@ -82,7 +94,7 @@ function render() {
       r.buckets.map((b) => el("tr", {}, el("td", { text: b.label }), el("td", { class: "num", text: num(b.turns) }), el("td", { class: "num", text: usd(b.cost_usd) }), el("td", {}, share(b.share))))));
   const rewrites = panel("Cache written again", "Context the previous request carried that this one did not read from the cache: the extra is what a rewrite cost over a read",
     table(el("tr", {}, th("Cause"), th("Requests", true), th("Tokens", true), th("Extra cost", true), th("Share", true)),
-      r.cache_rewrites.map((w) => el("tr", {}, el("td", { text: w.cause }), el("td", { class: "num", text: num(w.turns) }), el("td", { class: "num", text: human(w.tokens) }),
+      r.cache_rewrites.map((w) => el("tr", {}, el("td", { class: "wrap", text: w.cause }), el("td", { class: "num", text: num(w.turns) }), el("td", { class: "num", text: human(w.tokens) }),
         el("td", { class: "num", text: usd(w.cost_usd) }), el("td", { class: "num", text: (100 * w.share).toFixed(1) + "%" })))));
 
   const whatIf = panel("What compacting earlier would have saved", "Re-priced as if each conversation had been compacted when it reached the size",
@@ -106,7 +118,7 @@ function render() {
     b.addEventListener("click", () => { sort = { col: i, dir: sort.col === i ? (sort.dir === "asc" ? "desc" : "asc") : (col.first || "desc") }; render(); });
     h.append(b); head.append(h);
   });
-  const sessionsPanel = panel("Sessions", r.sessions.length > 60 ? "The 60 matching the sort are shown. Click a heading to sort." : "Click a heading to sort.",
+  const sessionsPanel = panel("Sessions", r.sessions.length > 60 ? "The 60 matching the sort are shown. Click a heading to sort. The session id is the transcript's name: claude --resume <id> opens it." : "Click a heading to sort. The session id is the transcript's name: claude --resume <id> opens it.",
     table(head, sessions.map((s) => el("tr", {}, ...cols.map((col) => el("td", { class: col.num ? "num" : "" }, col.show(s)))))));
 
   const how = panel("How this is computed", "", el("ul", { class: "plain" }, ...r.assumptions.map((a) => el("li", { text: a }))),

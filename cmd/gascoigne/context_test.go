@@ -202,6 +202,9 @@ func TestContextEndpoint(t *testing.T) {
 		if w.Code != 200 || !strings.Contains(w.Body.String(), "<title>gascoigne · Context") {
 			t.Fatalf("%d", w.Code)
 		}
+		if !strings.Contains(w.Body.String(), "Copy the full session id") {
+			t.Fatal("the sessions table has no session id to copy")
+		}
 	})
 }
 

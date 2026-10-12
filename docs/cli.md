@@ -117,7 +117,8 @@ no sessions) and shows, at API list prices: the cost by the size of the conversa
 re-read, how much of it was written to the cache again instead of read (after a pause longer than
 the cache lives, after a compaction, or when the cached start of the conversation changed), the text added to conversations besides your prompts (instruction files, the skill listing and what hooks and
 plugins print, named by the command they ran, with its cost), your largest
-sessions with the context over time, and what compacting at 150k, 250k or
+sessions with their session id (copy it to check a session: `claude --resume <id>` opens it, and the id
+names the transcript under `~/.claude/projects`) and the context over time, and what compacting at 150k, 250k or
 400k tokens would have saved. On one real machine 42% of a month's cost came from requests above 400k
 tokens of context.
 
