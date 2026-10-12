@@ -293,10 +293,10 @@ build re-run in the same session points at the failures you already saw instead 
 
 ## How it works
 
-```
-input ─▶ receiver ─▶ filters ─▶ router ─▶ optimizers ─▶ exporters ─▶ output
-                                                │
-                                   ledger: original · gains · failures
+```mermaid
+flowchart LR
+    src([input]) --> rx[receiver] --> f[filters] --> rt[router] --> o[optimizers] --> ex[exporters] --> dst([output])
+    o --> l[("ledger: original · gains · failures")]
 ```
 
 Pipeline modeled on the OpenTelemetry Collector: typed components built by factories, wired

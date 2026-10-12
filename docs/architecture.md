@@ -6,16 +6,21 @@ explicit registry.
 
 ## Flow
 
-```
-           ┌──────────────── pipeline (sync, request → response) ────────────────┐
-input ─▶ receiver ─▶ filter* ─▶ router ─▶ optimizer chain ─▶ exporter* ─▶ output
-                   (bypass, detect,          (each optimizer touches only
-                    minsize, history)         blocks of its content types)
-                        │ bypass                    ▲
-                        └───────────────────────────┘ (skip optimizers)
-
-core: snapshot original ─▶ ledger (raw + event + steps) ─▶ raw_id + hint
-history filter ◀── ledger failures (source optimized badly → bypass next time)
+```mermaid
+flowchart LR
+    src([input]) --> rx[receiver]
+    subgraph pipeline["pipeline (sync, request → response)"]
+        rx --> f["filter*<br/>bypass, detect, minsize, history"]
+        f --> rt[router]
+        rt --> opt["optimizer chain<br/>each touches only blocks of its content types"]
+        opt --> ex["exporter*"]
+        f -. "bypass: skip optimizers" .-> ex
+    end
+    ex --> dst([output])
+    opt --> core["core: snapshot original"]
+    core --> ledger[("ledger: raw + event + steps")]
+    ledger --> hint["raw_id + hint"]
+    ledger -. "failures: source optimized badly, bypass next time" .-> f
 ```
 
 1. A **receiver** turns input (stdin, a command's output, an agent hook event, an MCP call)

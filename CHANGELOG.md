@@ -24,6 +24,11 @@ All notable changes to gascoigne. The format follows
 - Dashboard: every table, the recent runs included, sorts by clicking a header and has a filter box.
 - Dashboard: savings by model family and by model, in the model's own tokens and dollars, with the official list prices they are estimated from.
 
+### Changed
+
+- Documentation diagrams are Mermaid (README, architecture), with new flows for how a command is
+  optimized and for upgrading.
+
 ### Fixed
 
 - The usage guide no longer tells codex how to write commands for a rewrite hook it lacks, nor

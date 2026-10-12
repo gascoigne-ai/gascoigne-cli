@@ -28,6 +28,13 @@ consistency with bad code. If a reader has to pause, rewrite it.
 - No commented-out code, no TODO without a task file in `.harness/tasks/` or an Open item in
   `recommendations.md`.
 
+## Docs
+- Diagrams and flows are Mermaid (a fenced `mermaid` block in the Markdown), not ASCII art or
+  images: they render on GitHub, diff as text and need no tool to regenerate. Short labels, quoted
+  when they hold punctuation, node ids that are not Mermaid keywords (`end`, `graph`, `in`).
+  Check a new diagram with Mermaid's parser (`mermaid.parse`, under jsdom in node) before committing.
+- Screenshots stay images (`docs/images/`); tables stay tables.
+
 ## Tests
 - Same package (`package foo`), table-driven, `t.Run` for named cases.
 - Fakes over mocks: tiny structs implementing the contract (see `service_test.go`).

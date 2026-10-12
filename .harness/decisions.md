@@ -88,6 +88,9 @@ every request; the project counts instruction tokens.
 
 ## Process
 
+- Diagrams are Mermaid in the Markdown (README, `docs/`, `.harness/`): renders on GitHub, diffs as
+  text, nothing to regenerate. Rejected: ASCII art (breaks on edit, hard to read) and image files.
+
 - Tasks live in `.harness/tasks/`; a finished task is deleted in the commit that does it.
 - A build artifact (`cmd/gascoigne/gascoigne`) was committed by mistake and is now ignored; the
   history was not rewritten (unpushed commits, rewrite declined).

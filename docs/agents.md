@@ -58,6 +58,17 @@ before you decide: `install` opens a page in the dashboard (`/setup`) with those
 under `CI`, not without a display; `gascoigne setup` asks in the terminal). A coding agent found
 on `PATH` without an install is only signaled, once, and set up if you say yes.
 
+```mermaid
+flowchart TD
+    ver[a new gascoigne is installed] --> auto{autosync on?}
+    auto -- yes --> hooks["next session start: user-level hooks rewritten, agent told to restart"]
+    auto -- no --> ask["page asks once per version: Update gascoigne's hooks"]
+    ask -- yes --> hooks
+    ask -- "not now" --> later["asked again with the next version"]
+    ver --> up["gascoigne upgrade, any time"]
+    up --> all["hooks, rules, commands of all projects and this project<br/>config.yaml onto the new template<br/>open choices"]
+```
+
 **After installing a new gascoigne**, run `gascoigne upgrade`: it writes stale or lost hooks, rules
 and commands of your installs again (all projects, and this project; other projects are named),
 moves your `config.yaml` onto the new template keeping your settings (the old file stays as `.bak`),
@@ -257,6 +268,22 @@ Remote servers (`http`, `sse`, `ws`, `url`) are listed as *left direct*: their a
 headers) belongs to the agent. Plugin servers and claude.ai connectors cannot be proxied.
 Claude Code keeps `~/.claude.json` in memory and writes it back, so run `install` for claude
 with no Claude session open.
+
+## How a command is optimized
+
+```mermaid
+sequenceDiagram
+    participant A as agent
+    participant H as gascoigne hook
+    participant X as gascoigne exec
+    participant L as ledger
+    A->>H: about to run "git log"
+    H-->>A: run "gascoigne exec -- git log" instead
+    A->>X: runs the rewritten command
+    X->>L: saves the original
+    X-->>A: short output + "[gascoigne: … full: gascoigne raw id]"
+    A->>L: gascoigne raw id, only if a detail is missing
+```
 
 ## Which commands get rewritten
 
