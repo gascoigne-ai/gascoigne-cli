@@ -26,8 +26,8 @@ func Markdown(page string, links bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	w := &writer{links: links}
 	root := mainContent(doc)
+	w := &writer{links: links, dense: denseBlocks(root)}
 	title := ""
 	if t := find(doc, atom.Title); t != nil {
 		title = strings.TrimSpace(text(t))
@@ -70,6 +70,9 @@ func mainContent(doc *html.Node) *html.Node {
 	}
 	return best
 }
+
+// trimmed is s without surrounding space.
+func trimmed(s string) string { return strings.TrimSpace(s) }
 
 func isComment(n *html.Node) bool {
 	return strings.Contains(strings.ToLower(attr(n, "class")+" "+attr(n, "id")), "comment")

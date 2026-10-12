@@ -160,6 +160,11 @@ lives in public libs so engines and composite families can reuse it. Families ar
 **web (html)**
 - The root is the `<main>`/`<article>` with the most visible text, when that is ≥ half the page's
   and it neither holds articles nor is named a comment; else the whole page.
+- Link-dense blocks (`dense.go`): mega-menus, tag clouds and "popular" lists written as plain lists of links are
+  dropped like `<nav>`: a `ul`/`ol`/`div`/`section`/`dl`/`p`/`span` with at least 6 links, 85% of its text inside
+  links and labels of 50 bytes on average, and only when the page keeps 1,500 bytes of text outside such blocks
+  (a page that is itself a list of links, or whose links are long titles, keeps them). Benchmark
+  (`html-bench.sh`, 181 articles): recall 98.3% → 98.8%, precision 59.3% → 64.5%.
 
 ### Core optimizers (in default chain order)
 

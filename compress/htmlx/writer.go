@@ -16,6 +16,7 @@ type writer struct {
 	quote  int
 	inPre  bool
 	inLink bool
+	dense  map[*html.Node]bool // link-dense blocks to leave out
 }
 
 type list struct {
@@ -35,7 +36,7 @@ func (w *writer) node(n *html.Node) {
 		w.children(n)
 		return
 	}
-	if skip[n.DataAtom] || attr(n, "hidden") != "" || attr(n, "aria-hidden") == "true" {
+	if skip[n.DataAtom] || w.dense[n] || attr(n, "hidden") != "" || attr(n, "aria-hidden") == "true" {
 		return
 	}
 	switch a := n.DataAtom; {

@@ -24,10 +24,9 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   hooks (`gain -by session` for the subagent's calls); check whether Cursor has a result-replacement
   hook; the coverage table in `architecture.md` marks both as unverified.
 
-- Web pages: article benchmark (`.harness/scripts/html-bench.sh`, 181 pages) at recall 98.3%,
-  precision 59%. Misses: mega-menus written as plain link lists (not `<nav>`) fill the doc
-  budget before the story (forbes, gov.br pages); precision is lost to the same menus, share
-  bars and footers outside `<footer>`. Link-dense blocks could fold like `<nav>`.
+- Web pages: article benchmark (`.harness/scripts/html-bench.sh`, 181 pages) at recall 98.8%, precision 64.5% after
+  link-dense blocks are dropped. Remaining misses: share bars and footers outside `<footer>`, and link lists of
+  long titles that are chrome; the thresholds are in `compress/htmlx/dense.go`.
 
 - Token-saving ideas from the 2026-10-12 ideation pass (score out of 25 in brackets; tasks 040-054
   hold the top ones). Measure each with `ab.sh`, `replay` or `make eval` before keeping it:
