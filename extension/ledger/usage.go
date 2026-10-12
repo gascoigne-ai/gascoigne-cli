@@ -9,14 +9,15 @@ import (
 
 // usage is one LLM API request's billed tokens, from the proxied response.
 type usage struct {
-	ID         uint   `gorm:"primaryKey"`
-	TS         int64  `gorm:"not null;index"`
-	Agent      string `gorm:"not null;default:'';index"`
-	Model      string `gorm:"not null;default:'';index"`
-	Input      int    `gorm:"not null"`
-	CacheRead  int    `gorm:"not null"`
-	CacheWrite int    `gorm:"not null"`
-	Output     int    `gorm:"not null"`
+	ID           uint   `gorm:"primaryKey"`
+	TS           int64  `gorm:"not null;index"`
+	Agent        string `gorm:"not null;default:'';index"`
+	Model        string `gorm:"not null;default:'';index"`
+	Input        int    `gorm:"not null"`
+	CacheRead    int    `gorm:"not null"`
+	CacheWrite   int    `gorm:"not null"`
+	CacheWrite1h int    `gorm:"not null;default:0"`
+	Output       int    `gorm:"not null"`
 }
 
 func (usage) TableName() string { return "usage" }
@@ -24,7 +25,7 @@ func (usage) TableName() string { return "usage" }
 func (l *Ledger) RecordUsage(ctx context.Context, u component.Usage) error {
 	return l.db.WithContext(ctx).Create(&usage{
 		TS: u.TS.UnixMilli(), Agent: u.Agent, Model: u.Model,
-		Input: u.Input, CacheRead: u.CacheRead, CacheWrite: u.CacheWrite, Output: u.Output,
+		Input: u.Input, CacheRead: u.CacheRead, CacheWrite: u.CacheWrite, CacheWrite1h: u.CacheWrite1h, Output: u.Output,
 	}).Error
 }
 
@@ -36,7 +37,9 @@ type UsageStat struct {
 	Input      int    `json:"input"`
 	CacheRead  int    `json:"cache_read"`
 	CacheWrite int    `json:"cache_write"`
-	Output     int    `json:"output"`
+	// CacheWrite1h is the part of CacheWrite kept for an hour (dearer).
+	CacheWrite1h int `json:"cache_write_1h"`
+	Output       int `json:"output"`
 	// MeanContext and PeakContext are the tokens one request carried (input,
 	// cache read and cache write): the size of the conversation it re-read.
 	MeanContext int `json:"mean_context"`
@@ -46,13 +49,14 @@ type UsageStat struct {
 // UsageDay sums the requests of one UTC day over all agents and models matching
 // the filters.
 type UsageDay struct {
-	Day         string `json:"day"`
-	Requests    int    `json:"requests"`
-	CacheRead   int    `json:"cache_read"`
-	CacheWrite  int    `json:"cache_write"`
-	Output      int    `json:"output"`
-	MeanContext int    `json:"mean_context"`
-	PeakContext int    `json:"peak_context"`
+	Day          string `json:"day"`
+	Requests     int    `json:"requests"`
+	CacheRead    int    `json:"cache_read"`
+	CacheWrite   int    `json:"cache_write"`
+	CacheWrite1h int    `json:"cache_write_1h"`
+	Output       int    `json:"output"`
+	MeanContext  int    `json:"mean_context"`
+	PeakContext  int    `json:"peak_context"`
 }
 
 const contextSQL = "(input + cache_read + cache_write)"
@@ -66,7 +70,7 @@ func (l *Ledger) UsageStats(ctx context.Context, q component.StatsQuery) ([]Usag
 	}
 	err := usageFilter(l.db.WithContext(ctx).Model(&usage{}), q).
 		Select(`agent, model, count(*) AS requests, sum(input) AS input, sum(cache_read) AS cache_read,
-			sum(cache_write) AS cache_write, sum(output) AS output,
+			sum(cache_write) AS cache_write, sum(cache_write1h) AS cache_write1h, sum(output) AS output,
 			sum` + contextSQL + ` / count(*) AS mean_context, max` + contextSQL + ` AS peak_context`).
 		Group("agent, model").Order("requests DESC, agent, model").Scan(&out).Error
 	return out, err
@@ -94,7 +98,7 @@ func (l *Ledger) UsageDays(ctx context.Context, q component.StatsQuery) ([]Usage
 	}
 	err := usageFilter(l.db.WithContext(ctx).Model(&usage{}), q).
 		Select(`strftime('%Y-%m-%d', ts / 1000, 'unixepoch') AS day, count(*) AS requests,
-			sum(cache_read) AS cache_read, sum(cache_write) AS cache_write, sum(output) AS output,
+			sum(cache_read) AS cache_read, sum(cache_write) AS cache_write, sum(cache_write1h) AS cache_write1h, sum(output) AS output,
 			sum` + contextSQL + ` / count(*) AS mean_context, max` + contextSQL + ` AS peak_context`).
 		Group("day").Order("day").Scan(&out).Error
 	return out, err

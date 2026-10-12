@@ -392,7 +392,7 @@ func (p painter) usageTable(w io.Writer, usage []ledger.UsageStat) {
 		price := cell{text: "?", right: true, style: dim}
 		if m, ok := cost.Lookup(u.Model); ok {
 			usd := (float64(u.Input)*m.Input + float64(u.CacheRead)*m.CacheRead +
-				float64(u.CacheWrite)*m.CacheWrite + float64(u.Output)*m.Output) / 1e6
+				float64(u.CacheWrite-u.CacheWrite1h)*m.CacheWrite + float64(u.CacheWrite1h)*oneHourWrite*m.Input + float64(u.Output)*m.Output) / 1e6
 			price, total = cell{text: dollars(usd), right: true}, total+usd
 		} else {
 			unpriced = true
@@ -409,7 +409,7 @@ func (p painter) usageTable(w io.Writer, usage []ledger.UsageStat) {
 		rows = append(rows, []cell{{text: "total", style: bold}, {}, {}, {}, {}, {}, {}, {}, {}, {text: dollars(total), right: true, style: bold}})
 	}
 	p.table(w, []string{"agent", "model", "requests", "context", "peak", "input", "cache read", "cache write", "output", "cost"}, rows)
-	fmt.Fprintln(w, p.paint(dim, " context: tokens one request carries (input, cache read and write), mean and peak · cache writes at the 5-minute price (1h writes cost more)"))
+	fmt.Fprintln(w, p.paint(dim, " context: tokens one request carries (input, cache read and write), mean and peak · cache writes at the 5-minute or 1-hour price as reported, where the provider reports the split"))
 	if unpriced {
 		fmt.Fprintln(w, p.paint(dim, " ? no known price for the model"))
 	}

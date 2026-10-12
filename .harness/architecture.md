@@ -324,7 +324,10 @@ Read lines match by text, with a uniform line-number shift.
 - 2xx response bodies pass through a meter: SSE `data:` lines mentioning usage are decoded, JSON
   bodies ≤ 8 MB at the end.
 - Per API reader, fields are max-merged across events; cached input is split out (OpenAI and
-  Gemini count it in input).
+  Gemini count it in input). Anthropic's `cache_creation.ephemeral_1h_input_tokens` becomes
+  `component.Usage.CacheWrite1h` (a part of `CacheWrite`; the one change to `component/` for this, approved
+  2026-10-12), stored in `usage.cache_write1h` and priced at twice the input price by `gain` and the context report;
+  the other providers leave it 0.
 - On close, one `component.Usage` goes to the ledger's optional `component.UsageRecorder`
   (table `usage`, no session).
 - `gain` section "api usage", priced by `cost.Lookup`; JSON `api_usage`; `reset` filters apply. Each row also

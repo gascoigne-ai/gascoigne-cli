@@ -65,6 +65,13 @@ func TestUsageFromResponses(t *testing.T) {
 			component.Usage{Agent: "claude", Model: "claude-opus-5-5", Input: 12, CacheRead: 9000, CacheWrite: 300, Output: 240},
 		},
 		{
+			"anthropic stream with hour-long cache writes", "/v1/messages", "text/event-stream",
+			"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"model\":\"claude-opus-5-5\",\"usage\":{\"input_tokens\":3,\"cache_read_input_tokens\":9000,\"cache_creation_input_tokens\":800,\"cache_creation\":{\"ephemeral_5m_input_tokens\":200,\"ephemeral_1h_input_tokens\":600},\"output_tokens\":1}}}\n\n" +
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"usage\":{\"output_tokens\":50}}\n\n",
+			map[string]string{"anthropic-version": "2023-06-01"},
+			component.Usage{Agent: "claude", Model: "claude-opus-5-5", Input: 3, CacheRead: 9000, CacheWrite: 800, CacheWrite1h: 600, Output: 50},
+		},
+		{
 			"anthropic json", "/v1/messages", "application/json",
 			`{"model":"claude-sonnet-5-5","usage":{"input_tokens":40,"cache_read_input_tokens":0,"cache_creation_input_tokens":0,"output_tokens":7}}`,
 			map[string]string{"anthropic-version": "2023-06-01"},

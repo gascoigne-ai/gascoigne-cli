@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gascoigne-ai/gascoigne-cli/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 	"regexp"
 	"strings"
@@ -119,5 +120,18 @@ func TestUsageDaysTable(t *testing.T) {
 	painter{false}.usageDaysTable(&b, days[:1]) // a single day says nothing about a trend
 	if b.Len() != 0 {
 		t.Fatalf("one day printed: %q", b.String())
+	}
+}
+
+func TestUsageTablePricesHourWrites(t *testing.T) {
+	m, _ := cost.Lookup("claude-opus-5-5")
+	var b strings.Builder
+	painter{false}.usageTable(&b, []ledger.UsageStat{{Agent: "claude", Model: "claude-opus-5-5", Requests: 1, CacheWrite: 1_000_000, CacheWrite1h: 1_000_000}})
+	// 1M tokens written for an hour: twice the input price, not 1.25 times
+	if want := dollars(2 * m.Input); !strings.Contains(b.String(), want) {
+		t.Fatalf("want %s in\n%s", want, b.String())
+	}
+	if strings.Contains(b.String(), dollars(m.CacheWrite)+" ") && dollars(m.CacheWrite) != dollars(2*m.Input) {
+		t.Fatalf("priced as a 5-minute write:\n%s", b.String())
 	}
 }

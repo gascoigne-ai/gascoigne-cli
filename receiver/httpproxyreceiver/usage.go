@@ -20,6 +20,7 @@ import (
 type tally struct {
 	model                    string
 	input, cached, written   int
+	written1h                int // of written, the hour-long cache writes
 	output                   int
 	inputHasCached, reported bool
 }
@@ -144,7 +145,7 @@ func (m *metered) record() {
 		return
 	}
 	u := component.Usage{TS: time.Now(), Agent: m.agent, Model: m.t.model,
-		Input: m.t.input, CacheRead: m.t.cached, CacheWrite: m.t.written, Output: m.t.output}
+		Input: m.t.input, CacheRead: m.t.cached, CacheWrite: m.t.written, CacheWrite1h: min(m.t.written1h, m.t.written), Output: m.t.output}
 	if m.t.inputHasCached {
 		u.Input = max(0, m.t.input-m.t.cached)
 	}
@@ -185,6 +186,9 @@ func anthropicUsage(obj map[string]any, t *tally) {
 		t.add(u, "input_tokens", &t.input)
 		t.add(u, "cache_read_input_tokens", &t.cached)
 		t.add(u, "cache_creation_input_tokens", &t.written)
+		if c, ok := u["cache_creation"].(map[string]any); ok {
+			t.add(c, "ephemeral_1h_input_tokens", &t.written1h)
+		}
 		t.add(u, "output_tokens", &t.output)
 	}
 }

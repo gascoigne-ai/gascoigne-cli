@@ -10,9 +10,7 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 - Real fixtures to replace synthetic ones once tools are at hand: terraform/tofu, pulumi, cdk,
   helm diff, kubectl, aws/gcloud/az, mysql, gh (authenticated). Per change: case savings up,
   `keep` strings intact, goldens reviewed.
-- Usage: split 1h vs 5-minute cache writes in `gain`'s api usage (the proxy's `usage` rows). The context report
-  already prices them apart from transcripts; the proxy path needs a field on `component.Usage` (core: needs
-  approval). Compare measured input with tokens saved per agent.
+- Usage: compare measured input with tokens saved per agent (the 1h vs 5-minute cache-write split is done).
 
 - Continuity snapshot (`experimental: [continuity]`): A/B on a task that forces a compaction (tokens
   added at each compaction vs rework avoided) is not run; keep it experimental until it is.
@@ -45,7 +43,6 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   - Read line numbers on every 5th line in the proxy [12]: risky for edits, needs an edit-task A/B.
   - `max_image_pixels` on by default [17]: measure on sessions with browser tools.
   - Cache lint for instruction files [16]: `prompts` flags volatile text early in the prefix.
-  - 1h vs 5m cache-write split in `gain` [17]: see the Usage item above.
   - Gemini `PreCompress` resume snapshot [14].
   - Deferred MCP tools in `mcp-proxy` [15]: one-line summaries plus a search tool, full schemas on demand.
   - Session fetch cache [16]: the same URL again returns "unchanged since <id>" or a diff.

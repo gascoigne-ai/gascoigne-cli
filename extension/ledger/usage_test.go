@@ -28,11 +28,11 @@ func TestUsageStats(t *testing.T) {
 		want []UsageStat
 	}{
 		{"all", component.StatsQuery{}, []UsageStat{
-			{"claude", "claude-opus-5-5", 2, 15, 18300, 340, 200, 9327, 9345},
-			{"codex", "gpt-5.3-codex", 1, 2000, 1000, 0, 50, 3000, 3000},
+			{"claude", "claude-opus-5-5", 2, 15, 18300, 340, 0, 200, 9327, 9345},
+			{"codex", "gpt-5.3-codex", 1, 2000, 1000, 0, 0, 50, 3000, 3000},
 		}},
-		{"since", component.StatsQuery{Since: now.Add(-time.Hour)}, []UsageStat{{"claude", "claude-opus-5-5", 2, 15, 18300, 340, 200, 9327, 9345}}},
-		{"agent", component.StatsQuery{Agent: "codex"}, []UsageStat{{"codex", "gpt-5.3-codex", 1, 2000, 1000, 0, 50, 3000, 3000}}},
+		{"since", component.StatsQuery{Since: now.Add(-time.Hour)}, []UsageStat{{"claude", "claude-opus-5-5", 2, 15, 18300, 340, 0, 200, 9327, 9345}}},
+		{"agent", component.StatsQuery{Agent: "codex"}, []UsageStat{{"codex", "gpt-5.3-codex", 1, 2000, 1000, 0, 0, 50, 3000, 3000}}},
 		{"session has none", component.StatsQuery{Session: "s1"}, nil},
 	}
 	for _, tt := range tests {
@@ -79,8 +79,8 @@ func TestUsageDays(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []UsageDay{
-		{"2026-10-10", 3, 19300, 340, 230, (9310 + 9345 + 3000) / 3, 9345},
-		{"2026-10-12", 1, 20000, 0, 10, 20001, 20001},
+		{"2026-10-10", 3, 19300, 340, 0, 230, (9310 + 9345 + 3000) / 3, 9345},
+		{"2026-10-12", 1, 20000, 0, 0, 10, 20001, 20001},
 	}
 	if len(got) != 2 || got[0] != want[0] || got[1] != want[1] {
 		t.Fatalf("got %+v\nwant %+v", got, want)
@@ -90,5 +90,27 @@ func TestUsageDays(t *testing.T) {
 	}
 	if got, _ := l.UsageDays(ctx, component.StatsQuery{Session: "s1"}); len(got) != 0 {
 		t.Fatalf("a session filter matches nothing: %+v", got)
+	}
+}
+
+func TestUsageKeepsTheHourWrites(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RawTTL: time.Hour})
+	ctx := t.Context()
+	now := time.Now()
+	for _, u := range []component.Usage{
+		{TS: now, Agent: "claude", Model: "m", CacheWrite: 1000, CacheWrite1h: 600},
+		{TS: now, Agent: "claude", Model: "m", CacheWrite: 500},
+	} {
+		if err := l.RecordUsage(ctx, u); err != nil {
+			t.Fatal(err)
+		}
+	}
+	stats, err := l.UsageStats(ctx, component.StatsQuery{})
+	if err != nil || len(stats) != 1 || stats[0].CacheWrite != 1500 || stats[0].CacheWrite1h != 600 {
+		t.Fatalf("%+v %v", stats, err)
+	}
+	days, err := l.UsageDays(ctx, component.StatsQuery{})
+	if err != nil || len(days) != 1 || days[0].CacheWrite1h != 600 {
+		t.Fatalf("%+v %v", days, err)
 	}
 }
