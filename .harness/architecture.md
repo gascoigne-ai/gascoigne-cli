@@ -700,6 +700,23 @@ their pipeline's receivers and exporters (`service.Options.Remote`) and POST the
 **Reset**: `gascoigne reset` / `POST /api/reset` → `ledger.Reset`: events + steps by filters
 (flags only, never env); `-all` also raw and failures, with no filters.
 
+### Context report (`context.go`, `context.html`)
+
+`GET /context` over `GET /api/context?days=` = `loadContext(~/.claude/projects, days)`: the newest transcripts
+(at most 300) written within the period, read once each. Not the ledger: only transcripts carry a
+session id and per-turn usage (the LLM proxy has no session).
+- `readSession`: assistant lines of the main conversation (sidechains and synthetic messages skipped; a message
+  streamed twice counts once, the last usage wins); context = input + cache read + cache write; a drop below
+  `compactDrop` (60%) of the previous turn, from `minContext` (60k) up, is a compaction or `/clear`.
+  Model names are normalized (`anthropic/claude-sonnet-5.5` → `claude-sonnet-5-5`) before `cost.Lookup`.
+- Cost at list prices, 5-minute cache writes. Buckets split the cost by the context of the request.
+- `simulate(turns, limit, model)` re-prices a session as if compacted when its context passed `limit`
+  (150k, 250k, 400k): reads for what was cached, writes for what is new, one full-context request plus a
+  12k summary per compaction, growth as it was; a real reset is followed, not compacted twice. The same model
+  prices the baseline, so thresholds compare with each other (within 5% of the actual cost on a real
+  month). More compactions are not always cheaper.
+- Everything local and read-only; the page says compacting saves tokens, not detail.
+
 ### MCP review (`mcpreview.go`, `mcp.html`)
 
 `GET /mcp` (one embedded page, same design tokens as `setup.html`, DOM built without `innerHTML`,

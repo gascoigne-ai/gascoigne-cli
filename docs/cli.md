@@ -21,6 +21,7 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `server run\|start\|stop\|status` | The background server hosting the dashboard: one per user, started automatically. |
 | `tokens [-model list] [-exact=false] [file]` | Count text with each tokenizer family and price one read and its cost in an agent's context (see [cost](cost.md)); also exact counts: o200k locally, Claude via `count_tokens` when a key is configured. |
 | `flush [-older 7d]` | Delete stored originals (the cache behind `raw <id>`) and vacuum the ledger. |
+| `context [-since 14d] [-text] [-json]` | Open the context page: how big conversations get, where the money goes, and what compacting earlier would have saved (see [below](#context)). |
 | `mcp-review [-text] [-json]` | Open the MCP review page: what each server's tool definitions add to the tool list, calls this week and last, and a verdict (see [below](#mcp-review)). |
 | `reset [flags]` | Clear savings stats; `-all` also clears stored originals and failure history. |
 | `wrap <agent> [agent args]` | Start `claude`, `codex`, `gemini`, `opencode` or `pi` with gascoigne registered for that run. |
@@ -100,6 +101,32 @@ gascoigne server run           # run in the foreground (what the background proc
 All take `-addr host:port` (default `$GASCOIGNE_SERVER_ADDR` or `127.0.0.1:7878`). `exec`,
 `hook`, `mcp`, `mcp-proxy` and `wrap` start the server when it is not answering, so the
 dashboard is up whenever gascoigne is used. See [Ledger, retrieval and gain](ledger.md#dashboard).
+
+## `context`
+
+```sh
+gascoigne context             # opens the page in the dashboard
+gascoigne context -since 30d -text
+gascoigne context -json
+```
+
+Every request re-reads the whole conversation, so a session costs mostly requests times context,
+not the size of any one tool result. `context` reads Claude Code's own transcripts
+(`~/.claude/projects`, which hold the usage of every request with a session id; the LLM proxy sees
+no sessions) and shows, at API list prices: the cost by the size of the conversation each request
+re-read, your largest sessions with the context over time, and what compacting at 150k, 250k or
+400k tokens would have saved. On one real machine 42% of a month's cost came from requests above 400k
+tokens of context.
+
+The what-if uses one simple model for every threshold (cache reads for what was cached, writes for what
+is new, one request over the whole context plus a 12k-token summary per compaction), so the numbers
+compare with each other; its baseline came within 5% of the actual cost there. Dollars are list prices
+with 5-minute cache writes: a subscription does not bill per token, and 1-hour writes cost more.
+**Compacting saves tokens, not detail**: the saving is an upper bound on what is worth giving up, not
+advice to compact everywhere. Only main conversations count, subagents have conversations of their own.
+Nothing leaves the machine and nothing is changed. Without a display, under `CI` or with
+`GASCOIGNE_SERVER=off` the table is printed; `-open=false` only prints the page's address. Claude Code
+only: other agents keep no transcripts of this shape.
 
 ## `mcp-review`
 
