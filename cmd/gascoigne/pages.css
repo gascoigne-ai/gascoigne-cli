@@ -73,6 +73,7 @@ button:hover, select:hover { border-color: var(--accent); }
 button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 button:disabled { opacity: .55; cursor: default; }
 button:has(.icon) { display: inline-flex; align-items: center; gap: 6px; }
+.icon-only { padding: 6px 8px; }
 .icon { width: 14px; height: 14px; flex: none; }
 .theme button .icon { width: 13px; height: 13px; }
 button.primary { color: var(--accent); border-color: var(--accent); font-weight: 600; }

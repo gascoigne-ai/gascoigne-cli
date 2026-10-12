@@ -76,10 +76,12 @@ async function choose(id, tools) {
 // not write other programs' settings, so the command is shown, not run.
 function configLines(s) {
   return s.config.flatMap((c) => {
-    const copy = G.button("copy", "Copy", { title: "Copy the command" });
+    const copy = G.button("copy", "", { title: "Copy the command" });
     copy.addEventListener("click", async () => {
-      try { await navigator.clipboard.writeText(c.remove); G.setButton(copy, "check", "Copied"); } catch { G.setButton(copy, "copy", "Select and copy"); }
-      setTimeout(() => G.setButton(copy, "copy", "Copy"), 1500);
+      let done = true;
+      try { await navigator.clipboard.writeText(c.remove); } catch { done = false; }
+      G.setButton(copy, done ? "check" : "copy", ""); copy.title = done ? "Copied" : "Could not copy: select the command and copy it";
+      setTimeout(() => { G.setButton(copy, "copy", ""); copy.title = "Copy the command"; }, 1500);
     });
     return [el("p", { text: `Configured as ${c.key} in ${c.file} (${c.agent}, ${c.scope}). To switch it off:` }),
       el("div", { class: "cmdline" }, el("code", { text: c.remove }), copy)];

@@ -58,10 +58,13 @@ const kpi = (name, value, plain, accent) => el("div", { class: "kpi" + (accent ?
 
 // The session id is the transcript's file name: `claude --resume <id>` opens it, and it names the file under ~/.claude/projects.
 function idCell(id) {
-  const copy = G.button("copy", "Copy", { title: "Copy the full session id: " + id });
+  const title = "Copy the full session id: " + id;
+  const copy = G.button("copy", "", { title });
   copy.addEventListener("click", async () => {
-    try { await navigator.clipboard.writeText(id); G.setButton(copy, "check", "Copied"); } catch { G.setButton(copy, "copy", "Select it"); }
-    setTimeout(() => G.setButton(copy, "copy", "Copy"), 1500);
+    let done = true;
+    try { await navigator.clipboard.writeText(id); } catch { done = false; }
+    G.setButton(copy, done ? "check" : "copy", ""); copy.title = done ? "Copied" : "Could not copy: select the id and copy it";
+    setTimeout(() => { G.setButton(copy, "copy", ""); copy.title = title; }, 1500);
   });
   return el("span", { class: "share" }, el("code", { title: id, text: id.slice(0, 8) }), copy);
 }

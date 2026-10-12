@@ -35,8 +35,17 @@
     return svg;
   };
   // button is a text button with an icon in front; setButton changes both (a copy button says "Copied").
-  const setButton = (b, name, text) => { b.replaceChildren(icon(name), el("span", { text })); return b; };
-  const button = (name, text, attrs) => setButton(el("button", { type: "button", ...(attrs || {}) }), name, text);
+  // Without text it is an icon-only button, named for screen readers by its title.
+  const setButton = (b, name, text) => {
+    b.classList.toggle("icon-only", !text);
+    if (text) b.replaceChildren(icon(name), el("span", { text })); else b.replaceChildren(icon(name));
+    return b;
+  };
+  const button = (name, text, attrs) => {
+    const b = setButton(el("button", { type: "button", ...(attrs || {}) }), name, text);
+    if (!text && attrs && attrs.title) b.setAttribute("aria-label", attrs.title);
+    return b;
+  };
 
   const moon = `<svg viewBox="0 0 48 48" aria-hidden="true"><defs>
     <radialGradient id="pg-lit" cx="38%" cy="32%" r="72%"><stop offset="0" stop-color="#fffdfb"/><stop offset=".6" stop-color="#ece4e2"/><stop offset="1" stop-color="#c9bcbf"/></radialGradient>

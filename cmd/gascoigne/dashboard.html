@@ -109,6 +109,11 @@ button.danger { color: var(--err); border-color: color-mix(in srgb, var(--err) 4
 button.danger:hover { border-color: var(--err); background: var(--err); color: #fff; }
 button:disabled { opacity: .55; cursor: default; }
 
+/* Icons in front of button captions */
+button:has(.icon) { display: inline-flex; align-items: center; gap: 6px; }
+.icon { width: 14px; height: 14px; flex: none; }
+.theme button .icon { width: 13px; height: 13px; }
+
 /* Cards */
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-top: 16px; box-shadow: var(--shadow); }
 h2 { margin: 0; font-size: 15px; font-weight: 650; }
@@ -292,9 +297,9 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
       <span id="version" class="ver" title="gascoigne version"></span>
       <div id="live" class="live"><i></i><span>Connecting…</span></div>
       <div class="theme" role="group" aria-label="Theme">
-        <button data-theme="auto" aria-pressed="true">Auto</button>
-        <button data-theme="light" aria-pressed="false">Light</button>
-        <button data-theme="dark" aria-pressed="false">Dark</button>
+        <button data-theme="auto" data-icon="auto" aria-pressed="true">Auto</button>
+        <button data-theme="light" data-icon="sun" aria-pressed="false">Light</button>
+        <button data-theme="dark" data-icon="moon" aria-pressed="false">Dark</button>
       </div>
     </div>
   </header>
@@ -312,10 +317,10 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     </label>
     <div class="spacer"></div>
     <div class="actions">
-      <button id="stop" title="Stop the background server">Stop server</button>
+      <button id="stop" data-icon="power" title="Stop the background server">Stop server</button>
       <span class="delete-zone" role="group" aria-label="Delete data">
-        <button id="flush" class="danger" title="Delete stored originals (the cache behind gascoigne raw)">Clear originals</button>
-        <button id="reset" class="danger" title="Delete recorded runs matching the current filters">Reset statistics</button>
+        <button id="flush" class="danger" data-icon="trash" title="Delete stored originals (the cache behind gascoigne raw)">Clear originals</button>
+        <button id="reset" class="danger" data-icon="undo" title="Delete recorded runs matching the current filters">Reset statistics</button>
       </span>
     </div>
   </div>
@@ -340,11 +345,11 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     <div class="feed-head">
       <p class="hint">Live feed, newest first; older runs load as you scroll. Select a run to compare its original with what the agent read.</p>
       <span class="seg" id="f-outcome" role="group" aria-label="Filter by outcome">
-        <button data-o="" aria-pressed="true">All</button>
-        <button data-o="optimized">Optimized</button>
-        <button data-o="unchanged">Unchanged</button>
-        <button data-o="bypassed">Skipped</button>
-        <button data-o="error">Failed</button>
+        <button data-o="" data-icon="list" aria-pressed="true">All</button>
+        <button data-o="optimized" data-icon="check">Optimized</button>
+        <button data-o="unchanged" data-icon="minus">Unchanged</button>
+        <button data-o="bypassed" data-icon="skip">Skipped</button>
+        <button data-o="error" data-icon="alert">Failed</button>
       </span>
     </div>
     <input type="search" id="feed-filter" class="tfilter" placeholder="Filter loaded runs" aria-label="Filter loaded runs">
@@ -420,7 +425,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 </div>
 
 <dialog id="detail" aria-labelledby="d-title">
-  <div class="dlg-head"><div><h3 id="d-title"></h3><div class="dlg-sum" id="d-sum"></div></div><button id="d-close">Close</button></div>
+  <div class="dlg-head"><div><h3 id="d-title"></h3><div class="dlg-sum" id="d-sum"></div></div><button id="d-close" data-icon="x">Close</button></div>
   <div id="d-alert"></div>
   <div class="tabs" role="tablist" id="d-tabs"></div>
   <div class="dlg-body" id="d-body"></div>
@@ -451,6 +456,35 @@ function el(tag, attrs, ...kids) {
   for (const k of kids.flat()) n.append(k instanceof Node ? k : document.createTextNode(k ?? ""));
   return n;
 }
+
+// Icons: 24-pixel outline shapes in the text's colour, built as SVG elements. Buttons with a
+// data-icon get theirs in front of the caption at load.
+const ICON_SHAPES = {
+  auto: [["rect", { x: 2, y: 3, width: 20, height: 14, rx: 2 }], ["path", { d: "M8 21h8M12 17v4" }]],
+  sun: [["circle", { cx: 12, cy: 12, r: 4 }], ["path", { d: "M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" }]],
+  moon: [["path", { d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" }]],
+  power: [["path", { d: "M18.36 6.64a9 9 0 1 1-12.73 0" }], ["path", { d: "M12 2v10" }]],
+  trash: [["path", { d: "M3 6h18" }], ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" }], ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" }]],
+  undo: [["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }], ["path", { d: "M3 3v5h5" }]],
+  list: [["path", { d: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" }]],
+  check: [["path", { d: "M20 6 9 17l-5-5" }]],
+  minus: [["path", { d: "M5 12h14" }]],
+  skip: [["polygon", { points: "5 4 15 12 5 20 5 4" }], ["path", { d: "M19 5v14" }]],
+  alert: [["path", { d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" }], ["path", { d: "M12 9v4M12 17h.01" }]],
+  x: [["path", { d: "M18 6 6 18M6 6l12 12" }]],
+  down: [["path", { d: "m7 6 5 5 5-5" }], ["path", { d: "m7 13 5 5 5-5" }]],
+};
+function icon(name) {
+  const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg");
+  for (const [k, v] of Object.entries({ class: "icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" })) svg.setAttribute(k, v);
+  for (const [tag, attrs] of ICON_SHAPES[name] || []) {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    svg.append(e);
+  }
+  return svg;
+}
+for (const b of document.querySelectorAll("button[data-icon]")) b.prepend(icon(b.dataset.icon));
 
 function human(n) {
   n = n || 0;
@@ -749,7 +783,7 @@ async function refreshFailures() {
     { title: "Count", get: (f) => f.count, num: true },
     { title: "Last", get: (f) => ago(f.last), sort: (f) => new Date(f.last).getTime() },
     { title: "Reason", get: (f) => f.reason, mono: true },
-    { title: "", get: (f) => el("button", { onclick: () => forget(f.key) }, "Re-enable") },
+    { title: "", get: (f) => el("button", { onclick: () => forget(f.key) }, icon("undo"), "Re-enable") },
   ], fs, "No excluded sources.");
 }
 
@@ -1046,7 +1080,7 @@ function pane(title, meta, lines, mark) {
       frag.append(el("div", { class: "ln" + (cls ? " " + cls : "") }, el("span", { class: "no" }, String(i + 1)), el("span", { class: "tx" }, l || " ")));
     });
     if (n < lines.length) frag.append(el("div", { class: "more" },
-      el("button", { onclick: () => { code.replaceChildren(); render(lines.length); } }, `Show all ${lines.length} lines`)));
+      el("button", { onclick: () => { code.replaceChildren(); render(lines.length); } }, icon("down"), `Show all ${lines.length} lines`)));
     code.append(frag);
   };
   render(PANE_LINES);
@@ -1090,7 +1124,7 @@ function bytes(n) {
 
 async function refreshOriginals() {
   const u = await getJSON("/api/originals");
-  $("flush").textContent = `Clear originals (${u.count} · ${bytes(u.bytes)})`;
+  $("flush").replaceChildren(icon("trash"), `Clear originals (${u.count} · ${bytes(u.bytes)})`); // keeps its icon
 }
 
 $("flush").onclick = async () => {
