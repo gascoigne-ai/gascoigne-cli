@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"strings"
 	"testing"
@@ -179,5 +180,15 @@ func TestGuideOffInstallsNoGuide(t *testing.T) {
 	}
 	if _, err := os.Stat("AGENTS.md"); !os.IsNotExist(err) {
 		t.Errorf("AGENTS.md held only the guide, it should be gone: %v", err)
+	}
+}
+
+func TestSessionStartGuideOffAddsNothing(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_GUIDE", "off")
+	h := withGuide(func(context.Context, *common, hookInput, string) (any, error) { return nil, nil })
+	reply, err := h(t.Context(), &common{}, hookInput{HookEventName: "SessionStart"}, "")
+	if err != nil || reply != nil {
+		t.Fatalf("level off must not add context: %v, %v", reply, err)
 	}
 }

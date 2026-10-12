@@ -21,12 +21,24 @@ func cmdInstall(_ context.Context, args []string) error {
 	global := fset.Bool("g", false, "register for every project (user config) instead of this one")
 	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through the background server's LLM proxy (claude); a stopped server stops the agent until its SessionStart hook starts it")
 	allow := fset.String("permissions", "", "which gascoigne tools claude runs without asking: none, local (retrieve, show, stats, compress) or all (adds fetch, which reaches the network) (saved; default none)")
+	auto := fset.String("autosync", "", "let agent hooks update user-scope installs after a gascoigne upgrade: "+strings.Join(autosyncChoices, ", ")+" (saved; default: not decided, nothing is updated)")
+	doSync := fset.Bool("sync", false, "bring installs made by an older gascoigne up to date now (user scope and this project) and stop")
 	level := fset.String("guide", "", "how much usage text agents get: "+strings.Join(guideLevels, ", ")+" (saved; default full)")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
-	if err := errors.Join(saveGuideLevel(*level), saveAllowLevel(*allow)); err != nil {
+	if err := errors.Join(saveGuideLevel(*level), saveAllowLevel(*allow), saveAutosync(*auto)); err != nil {
 		return err
+	}
+	if *doSync {
+		lines := syncInstalls(true)
+		for _, l := range lines {
+			fmt.Println(l)
+		}
+		if len(lines) == 0 {
+			fmt.Println("every recorded install is current")
+		}
+		return nil
 	}
 	names := fset.Args()
 	if len(names) == 0 {
@@ -57,6 +69,9 @@ func cmdInstall(_ context.Context, args []string) error {
 		for _, d := range done {
 			fmt.Printf("%s: %s\n", name, d)
 		}
+		if err == nil {
+			errs = append(errs, recordInstall(name, *global, cmd, *proxy && a.addProxy != nil))
+		}
 	}
 	return errors.Join(errs...)
 }
@@ -79,9 +94,16 @@ func saveGuideLevel(v string) error {
 	return savePref("guide", v, guideLevels, func(p *prefs, v string) { p.Guide = v })
 }
 
+func saveAutosync(v string) error {
+	return savePref("autosync", v, autosyncChoices, func(p *prefs, v string) { p.Autosync = v })
+}
+
 func saveAllowLevel(v string) error {
 	return savePref("permissions", v, allowLevels, func(p *prefs, v string) { p.Allow = v })
 }
+
+// autosyncChoices are the answers to "update installed hooks after an upgrade".
+var autosyncChoices = []string{"on", "off"}
 
 // foundAgents are the agents whose program PATH finds.
 func foundAgents() []string {
@@ -123,7 +145,38 @@ func scoped(global bool, user, project string) (string, error) {
 	return filepath.Join(home, user), nil
 }
 
+// addClaude writes gascoigne's claude registration: settings, MCP server.
 func addClaude(exe string, global bool) ([]string, error) {
+	done, err := syncClaude(exe, global)
+	if err != nil {
+		return nil, err
+	}
+	if d, err := proxyClaudeState(exe, global); err != nil {
+		return done, err
+	} else if d != "" {
+		done = append(done, d)
+	}
+	if !global {
+		d, err := addJSON(".mcp.json", mcpEdit, mcpServers(exe), "MCP server gascoigne (approve it in claude on first use)", proxyMCP(exe))
+		return append(done, d), err
+	}
+	// User MCP servers live in ~/.claude.json, which Claude Code rewrites
+	// while it runs: let its CLI do the edit when there is one.
+	if _, err := exec.LookPath("claude"); err != nil {
+		d, err := addJSON(claudeJSON(), mcpEdit, mcpServers(exe), "MCP server gascoigne", nil)
+		return append(done, d), err
+	}
+	_ = exec.Command("claude", "mcp", "remove", "--scope", "user", "gascoigne").Run() // absent is fine
+	if out, err := exec.Command("claude", "mcp", "add", "--scope", "user", "gascoigne", "--", exe, "mcp").CombinedOutput(); err != nil {
+		return done, fmt.Errorf("claude mcp add: %v: %s", err, strings.TrimSpace(string(out)))
+	}
+	return append(done, "claude mcp: added MCP server gascoigne (user scope)"), nil
+}
+
+// syncClaude writes the settings file part of the registration: hooks, env,
+// deny and allow rules. It is what an automatic update runs, since Claude
+// Code reads settings at start but rewrites ~/.claude.json while it runs.
+func syncClaude(exe string, global bool) ([]string, error) {
 	settings, err := scoped(global, ".claude/settings.json", ".claude/settings.json")
 	if err != nil {
 		return nil, err
@@ -154,27 +207,7 @@ func addClaude(exe string, global bool) ([]string, error) {
 	if err := allowRules.record(settings, allowed); err != nil {
 		return nil, err
 	}
-	done = append(done, d)
-	if d, err := proxyClaudeState(exe, global); err != nil {
-		return done, err
-	} else if d != "" {
-		done = append(done, d)
-	}
-	if !global {
-		d, err := addJSON(".mcp.json", mcpEdit, mcpServers(exe), "MCP server gascoigne (approve it in claude on first use)", proxyMCP(exe))
-		return append(done, d), err
-	}
-	// User MCP servers live in ~/.claude.json, which Claude Code rewrites
-	// while it runs: let its CLI do the edit when there is one.
-	if _, err := exec.LookPath("claude"); err != nil {
-		d, err := addJSON(claudeJSON(), mcpEdit, mcpServers(exe), "MCP server gascoigne", nil)
-		return append(done, d), err
-	}
-	_ = exec.Command("claude", "mcp", "remove", "--scope", "user", "gascoigne").Run() // absent is fine
-	if out, err := exec.Command("claude", "mcp", "add", "--scope", "user", "gascoigne", "--", exe, "mcp").CombinedOutput(); err != nil {
-		return done, fmt.Errorf("claude mcp add: %v: %s", err, strings.TrimSpace(string(out)))
-	}
-	return append(done, "claude mcp: added MCP server gascoigne (user scope)"), nil
+	return append(done, d), nil
 }
 
 func addCursor(exe string, global bool) ([]string, error) {

@@ -25,6 +25,9 @@ type prefs struct {
 	// Allow is which gascoigne MCP tools run without an approval prompt:
 	// none (default), local (read-only ones) or all (adds fetch).
 	Allow string `json:"allow,omitempty"`
+	// Autosync (on or off) lets agent hooks bring user-scope installs made
+	// by an older gascoigne up to date; unset = not decided, nothing is synced.
+	Autosync string `json:"autosync,omitempty"`
 }
 
 func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }

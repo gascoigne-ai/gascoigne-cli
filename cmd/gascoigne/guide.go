@@ -73,7 +73,12 @@ func withGuide(h hookFunc) hookFunc {
 			return h(ctx, c, in, prefix)
 		}
 		ensureProxyFor()
-		return map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "SessionStart", "additionalContext": guide(true, true)}}, nil
+		// Level off keeps only the news of an update.
+		text := strings.TrimSpace(in.syncNote + "\n" + guide(true, true))
+		if text == "" {
+			return nil, nil
+		}
+		return map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "SessionStart", "additionalContext": text}}, nil
 	}
 }
 

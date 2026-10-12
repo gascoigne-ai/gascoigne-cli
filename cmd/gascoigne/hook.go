@@ -30,6 +30,10 @@ type hookInput struct {
 	TranscriptPath string          `json:"transcript_path"`
 	ToolInput      map[string]any  `json:"tool_input"`
 	ToolResponse   json.RawMessage `json:"tool_response"`
+
+	// syncNote tells the agent its gascoigne hooks were just updated; set by
+	// cmdHook, not part of the event.
+	syncNote string
 }
 
 // hookFunc answers one hook event; nil means "leave the tool call alone".
@@ -55,6 +59,9 @@ func cmdHook(ctx context.Context, args []string) error {
 	if err := json.NewDecoder(os.Stdin).Decode(&in); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne hook: read event:", err)
 		return nil
+	}
+	if in.HookEventName == "SessionStart" || in.HookEventName == "UserPromptSubmit" {
+		in.syncNote = syncNote()
 	}
 	if in.HookEventName == "UserPromptSubmit" {
 		// The server exits when idle; a prompt is where an agent starts

@@ -23,6 +23,9 @@ type agent struct {
 	env     func(exe string) ([]string, error)              // per-run config env (NAME=value); neither: the agent has no per-run config
 	install func(exe string) string                         // config to register gascoigne for good (wrap -print)
 	add     func(exe string, global bool) ([]string, error) // writes that config: user files, else project ones
+	// sync is what an automatic update writes when it differs from add: the
+	// parts of the install that are safe while the agent runs.
+	sync func(exe string, global bool) ([]string, error)
 	// addProxy points the agent at the LLM API proxy for good (install -proxy).
 	addProxy func(global bool) ([]string, error)
 	remove   func() ([]string, error) // undoes install: what it removed
@@ -31,7 +34,7 @@ type agent struct {
 
 var agents = map[string]agent{
 	"claude": {bin: "claude", launch: claudeArgs, env: func(string) ([]string, error) { return proxyForClaude(), nil },
-		install: claudeInstall, add: addClaude, addProxy: addClaudeProxy, remove: removeClaude,
+		install: claudeInstall, add: addClaude, sync: syncClaude, addProxy: addClaudeProxy, remove: removeClaude,
 		hook: withResults(withGuide(rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil

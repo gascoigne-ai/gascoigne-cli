@@ -8,7 +8,17 @@ All notable changes to gascoigne. The format follows
 
 ### Added
 
+- `install -guide off|short|full` (or `$GASCOIGNE_GUIDE`): how much usage text agents get.
+- `install -permissions none|local|all`: allow rules for gascoigne's own tools in claude, removed
+  exactly by `unwrap`.
+- `install -autosync on` / `-sync`: installs made by an older gascoigne get new hooks and rules
+  after an upgrade (user scope; project installs with `-sync` in the project).
 - Dashboard: savings by model family and by model, in the model's own tokens and dollars, with the official list prices they are estimated from.
+
+### Fixed
+
+- The usage guide no longer tells codex how to write commands for a rewrite hook it lacks, nor
+  names MCP tools pi does not have.
 
 ## [0.2.1] - 2026-10-12
 

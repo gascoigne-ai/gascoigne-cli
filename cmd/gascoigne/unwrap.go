@@ -38,6 +38,7 @@ func cmdUnwrap(_ context.Context, args []string) error {
 			changed = true
 		}
 	}
+	errs = append(errs, forgetInstalls(names))
 	err := errors.Join(errs...)
 	if !changed && err == nil {
 		fmt.Printf("gascoigne is not registered with %s\n", strings.Join(names, ", "))

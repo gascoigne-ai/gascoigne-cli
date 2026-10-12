@@ -418,6 +418,15 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   per settings file in `$XDG_STATE_HOME/gascoigne/denies.json` / `allows.json`; unwrap removes only
   recorded ones, a changed level drops the old ones first, a rule the user already had is never
   taken.
+- **Install manifest and sync** (`installs.go`): `install` records each agent, scope, project dir,
+  how the config calls gascoigne, `-proxy` and a `registration` number in `installs.json` (state
+  dir); `unwrap` drops them. `registrationVersion` is bumped whenever what install writes (hooks,
+  matchers, guide, rules) changes. On SessionStart/UserPromptSubmit hooks, when `prefs.autosync`
+  is `on` (`install -autosync on`) and `$GASCOIGNE_AUTOSYNC` is not `off`, user-scope installs with
+  an older number are written again (`agent.sync`, else `add`; claude: settings only, never
+  `~/.claude.json` which a running Claude Code rewrites), under `installs.lock`, never failing the
+  hook; SessionStart tells the agent to restart. Project installs are never touched by hooks:
+  `install -sync` does this project's and the user's now. Not decided = nothing is synced.
 - **Identity**: rewritten commands carry `-agent <name>` and `-session <hook session_id>` when
   `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks). `wrap` sets the env, so its
   commands stay short (`execPrefix` in `hook.go`).
