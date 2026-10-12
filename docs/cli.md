@@ -106,7 +106,7 @@ dashboard is up whenever gascoigne is used. See [Ledger, retrieval and gain](led
 
 ```sh
 gascoigne context             # opens the page in the dashboard
-gascoigne context -since 30d -text
+gascoigne context -since 24h -text     # also 7d, 4w, ...
 gascoigne context -json
 ```
 
@@ -125,7 +125,8 @@ is new, one request over the whole context plus a 12k-token summary per compacti
 compare with each other; its baseline came within 5% of the actual cost there. Dollars are list prices
 with 5-minute cache writes: a subscription does not bill per token, and 1-hour writes cost more.
 **Compacting saves tokens, not detail**: the saving is an upper bound on what is worth giving up, not
-advice to compact everywhere. Only main conversations count, subagents have conversations of their own.
+advice to compact everywhere. Only main conversations count, subagents have conversations of their own. A session that spans the
+period counts only the requests inside it (the page offers 24 hours to 90 days).
 Nothing leaves the machine and nothing is changed. Without a display, under `CI` or with
 `GASCOIGNE_SERVER=off` the table is printed; `-open=false` only prints the page's address. Claude Code
 only: other agents keep no transcripts of this shape.

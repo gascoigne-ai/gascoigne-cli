@@ -4,106 +4,49 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>gascoigne · MCP servers</title>
+<link rel="stylesheet" href="/assets/pages.css">
+<script src="/assets/pages.js"></script>
 <style>
-:root {
-  --bg: #f6f3f4; --surface: #ffffff; --surface-2: #f5f0f2; --border: #e6dfe2; --border-strong: #cfc3c8;
-  --text: #22161b; --muted: #66545b; --accent: #7a1f3d; --accent-soft: #f6e8ed;
-  --ok: #17804a; --ok-soft: #e5f5ec; --warn: #a8570c; --warn-soft: #fbf1e3; --err: #d1281b; --err-soft: #fdecea;
-  --neutral-soft: #ece5e8; --bar: #c9a0b0;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --shadow: 0 1px 2px rgba(34, 22, 27, .06), 0 2px 8px rgba(34, 22, 27, .05);
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #140f12; --surface: #1c1519; --surface-2: #241b20; --border: #33262d; --border-strong: #47353e;
-    --text: #f1e8eb; --muted: #bfaab2; --accent: #e88aa6; --accent-soft: #3a1a27;
-    --ok: #5ed39a; --ok-soft: #112a20; --warn: #f0b05a; --warn-soft: #2c2214; --err: #ff6b5e; --err-soft: #3a1714;
-    --neutral-soft: #2d2228; --bar: #7c4a5e; --shadow: 0 1px 2px rgba(0, 0, 0, .45);
-    color-scheme: dark;
-  }
-}
-* { box-sizing: border-box; }
-html, body { background: var(--bg); }
-body { margin: 0; color: var(--text); font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
-main { max-width: 960px; margin: 0 auto; padding: 28px 16px 80px; }
-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
-h1 { font-size: 22px; line-height: 1.2; margin: 0; }
-a { color: var(--accent); }
-.chip { font: 12px var(--mono); color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
-.lead { color: var(--muted); margin: 0 0 20px; max-width: 70ch; }
-.notes { margin: 0 0 18px; padding: 10px 14px; background: var(--warn-soft); border-left: 3px solid var(--warn); border-radius: 6px; font-size: 14px; }
-.notes p { margin: 0; } .notes p + p { margin-top: 6px; }
-.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 14px; }
-th, td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--border); white-space: nowrap; }
-thead th { border-top: 0; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); }
-th button { all: unset; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; }
-th button:hover { color: var(--text); }
-th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
-th[aria-sort="ascending"] button::after { content: " \25B2"; } th[aria-sort="descending"] button::after { content: " \25BC"; }
-td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-tr.server > td:first-child { font-weight: 600; }
 tr.server { cursor: pointer; }
-tr.server:hover { background: var(--surface-2); }
+tr.server:hover td { background: var(--surface-2); }
 tr.server:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+tr.server td:first-child { font-weight: 600; }
 .caret { display: inline-block; width: 1em; color: var(--muted); }
-.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 2px 10px; }
-.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-.pill.used { color: var(--ok); background: var(--ok-soft); }
-.pill.unused { color: var(--err); background: var(--err-soft); }
-.pill.rarely { color: var(--warn); background: var(--warn-soft); }
-.pill.learning { color: var(--muted); background: var(--neutral-soft); }
-.meter { display: inline-block; vertical-align: middle; width: 90px; height: 8px; margin-left: 8px; background: var(--neutral-soft); border-radius: 4px; overflow: hidden; }
-.meter i { display: block; height: 100%; background: var(--bar); }
-.trend.up { color: var(--ok); } .trend.down { color: var(--warn); }
-tr.detail > td { padding: 0 12px 12px 36px; background: var(--surface-2); }
-tr.detail table { font-size: 13px; }
-tr.detail th { background: transparent; }
-.muted { color: var(--muted); }
-.actions { padding: 12px 0 6px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
-.actions p { margin: 0; max-width: 70ch; white-space: normal; }
-.btn { font: inherit; font-weight: 600; font-size: 13.5px; color: var(--accent); background: var(--surface); border: 1px solid var(--accent); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
-.btn:hover { background: var(--accent-soft); }
-.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.btn[disabled] { opacity: .6; cursor: default; }
-.err { color: var(--err); }
+tr.detail > td { padding: 4px 8px 14px 32px; background: var(--surface-2); white-space: normal; }
+tr.detail table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 8px 0 12px; }
+.actions p { margin: 0; max-width: 72ch; }
 .note { color: var(--warn); }
-.empty { padding: 28px 16px; color: var(--muted); }
-code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
-@media (max-width: 640px) { main { padding: 20px 12px 60px; } }
+.err { color: var(--err); }
+.trend.up { color: var(--ok); } .trend.down { color: var(--warn); }
 </style>
 </head>
 <body>
-<main>
-  <header>
-    <h1>MCP servers</h1>
-    <span class="chip" id="days"></span>
-    <a href="/">dashboard</a>
-  </header>
-  <p class="lead">What each MCP server's tool definitions cost when they are listed to the agent, and whether the agent used them. Most agents send the definitions with every request, so an unused server is paid for all week; an agent with its own tool search may send only the names, and then these numbers are an upper bound. Click a server for its tools, and to load the ones it never uses on request instead of listing them.</p>
-  <div id="notes"></div>
-  <div class="panel" id="panel"><p class="empty">Loading…</p></div>
-</main>
+<div class="wrap">
+  <div id="top"></div>
+  <div class="toolbar">
+    <span class="hint" id="days"></span>
+    <div class="spacer"></div>
+    <p class="hint">Most agents send tool definitions with every request, so an unused server is paid for all week. An agent with its own tool search may send only names, and then these numbers are an upper bound.</p>
+  </div>
+  <div id="body"><p class="empty">Loading…</p></div>
+  <footer>Click a server for its tools, and to load the ones it never uses on request instead of listing them. Nothing is removed: the agent is told they exist and asks for one by name.</footer>
+</div>
 <script>
 "use strict";
-const el = (tag, attrs, ...kids) => {
-  const e = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs || {})) {
-    if (k === "text") e.textContent = v; else e.setAttribute(k, v);
-  }
-  for (const kid of kids) if (kid) e.append(kid);
-  return e;
-};
-const num = (n) => n.toLocaleString("en-US");
-const label = { "used": "used", "unused": "unused", "rarely used": "rarely used", "learning": "learning", "not seen lately": "not seen lately" };
-const cls = { "used": "used", "unused": "unused", "rarely used": "rarely", "learning": "learning", "not seen lately": "learning" };
+const { el, human, num } = G;
+G.header(document.getElementById("top"), "MCP servers", "What their tool definitions cost, and which are used", "mcp");
+
+const badge = { "used": "ok", "unused": "err", "rarely used": "warn", "learning": "neutral", "not seen lately": "neutral" };
+const order = ["unused", "rarely used", "learning", "not seen lately", "used"];
+const meta = (t) => t.name === "search_tools" || t.name === "call_tool"; // the price of lazy tools, never idle
+const panel = (title, hint, ...kids) => el("section", { class: "panel" }, el("h2", { text: title }), hint ? el("p", { class: "hint", text: hint }) : null, ...kids);
+const kpi = (name, value, plain, accent) => el("div", { class: "kpi" + (accent ? " accent" : "") }, el("div", { class: "name", text: name }), el("div", { class: "value", text: value }), el("div", { class: "plain", text: plain || "" }));
 
 // Columns sort by an accessor, never by the displayed text ("1,200" would sort as text).
 const columns = [
   { title: "Server", get: (s) => s.label.toLowerCase(), first: "asc" },
-  { title: "Verdict", get: (s) => ["unused", "rarely used", "learning", "not seen lately", "used"].indexOf(s.verdict), first: "asc" },
+  { title: "Verdict", get: (s) => order.indexOf(s.verdict), first: "asc" },
   { title: "Definition tokens", get: (s) => s.sized ? s.tokens : -1, num: true },
   { title: "Idle tokens", get: (s) => s.sized ? s.idle_tokens : -1, num: true },
   { title: "Calls, 7 days", get: (s) => s.calls_7d, num: true },
@@ -113,14 +56,6 @@ const columns = [
 let data = { servers: [], notes: [], days: 0 };
 let sort = { col: 2, dir: "desc" };
 const open = new Set();
-
-function trend(s) {
-  if (s.calls_7d === s.calls_prev_7d) return null;
-  const up = s.calls_7d > s.calls_prev_7d;
-  return el("span", { class: "trend " + (up ? "up" : "down"), text: up ? " ▲" : " ▼" });
-}
-
-const meta = (t) => t.name === "search_tools" || t.name === "call_tool"; // the price of lazy tools, never idle
 let busy = false, problem = "";
 
 // Saving a choice: the proxy reads it when a session starts, so it reaches the next session.
@@ -146,23 +81,28 @@ function actions(s) {
   const effective = new Set(s.tools.filter((t) => t.lazy).map((t) => t.name));
   if (idle.length) {
     box.append(el("p", { text: `${idle.length} of its tools were not called in 14 days; their definitions are ${num(idleTokens)} tokens of the tool list. Loaded on request, they are not listed: the agent is told they exist and asks for one by name when it needs it.` }));
-    const b = el("button", { type: "button", class: "btn", text: "Load these on request" });
-    if (busy) b.disabled = true;
+    const b = el("button", { type: "button", class: "primary", text: "Load these on request" });
+    b.disabled = busy;
     b.addEventListener("click", () => choose(s.id, [...new Set([...chosen, ...idle.map((t) => t.name)])]));
     box.append(b);
   }
   if (chosen.size) {
     box.append(el("p", { text: `${chosen.size} tools load on request${s.lazy_tokens ? `, taking ${num(s.lazy_tokens)} tokens out of the tool list` : ""}.` }));
-    const b = el("button", { type: "button", class: "btn", text: "List all tools again" });
-    if (busy) b.disabled = true;
+    const b = el("button", { type: "button", text: "List all tools again" });
+    b.disabled = busy;
     b.addEventListener("click", () => choose(s.id, []));
     box.append(b);
   }
-  const pending = chosen.size !== effective.size || [...chosen].some((n) => !effective.has(n));
-  if (pending) box.append(el("p", { class: "note", text: "Applies from the next session of your agent." }));
+  if (chosen.size !== effective.size || [...chosen].some((n) => !effective.has(n))) box.append(el("p", { class: "note", text: "Applies from the next session of your agent." }));
   if (!idle.length && !chosen.size) box.append(el("p", { class: "muted", text: "Every tool was called in the last 14 days." }));
   if (problem) box.append(el("p", { class: "err", role: "alert", text: problem }));
   return box;
+}
+
+function trend(s) {
+  if (s.calls_7d === s.calls_prev_7d) return null;
+  const up = s.calls_7d > s.calls_prev_7d;
+  return el("span", { class: "trend " + (up ? "up" : "down"), text: up ? " ▲" : " ▼" });
 }
 
 function serverRows(s, max) {
@@ -172,14 +112,14 @@ function serverRows(s, max) {
   main.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
   const tokens = el("td", { class: "num" });
   if (s.sized) {
-    tokens.append(num(s.tokens));
-    tokens.append(el("span", { class: "meter", title: "share of the largest server" }, el("i", { style: "width:" + Math.round(100 * s.tokens / max) + "%" })));
+    tokens.append(el("div", { class: "share", style: "justify-content:flex-end" }, el("span", { text: num(s.tokens) }),
+      el("div", { class: "bar", title: "share of the largest server", style: "width:90px" }, el("span", { style: "width:" + Math.round(100 * s.tokens / max) + "%" }))));
   } else tokens.append(el("span", { class: "muted", title: "this server does not go through mcp-proxy", text: "unknown" }));
   const calls = el("td", { class: "num", text: num(s.calls_7d) });
   const t = trend(s); if (t) calls.append(t);
   main.append(
     el("td", {}, el("span", { class: "caret", text: open.has(s.id) ? "▾" : "▸" }), s.label),
-    el("td", {}, el("span", { class: "pill " + cls[s.verdict], text: label[s.verdict] })),
+    el("td", {}, el("span", { class: "badge " + badge[s.verdict], text: s.verdict })),
     tokens,
     el("td", { class: "num", text: s.sized ? num(s.idle_tokens) : "–" }),
     calls,
@@ -189,15 +129,11 @@ function serverRows(s, max) {
   const rows = [main];
   if (open.has(s.id)) {
     const inner = el("table", {}, el("thead", {}, el("tr", {},
-      el("th", { text: "Tool" }), el("th", { class: "num", text: "Tokens" }), el("th", { class: "num", text: "Calls, 7 days" }), el("th", { class: "num", text: "Calls, 14 days" }))));
-    const body = el("tbody");
-    for (const t of s.tools) {
-      body.append(el("tr", {},
+      el("th", { text: "Tool" }), el("th", { class: "num", text: "Tokens" }), el("th", { class: "num", text: "Calls, 7 days" }), el("th", { class: "num", text: "Calls, 14 days" }))),
+      el("tbody", {}, ...s.tools.map((t) => el("tr", {},
         el("td", {}, t.name, t.lazy ? el("span", { class: "muted", text: "  loads on request" }) : t.calls_14d === 0 && s.sized && !meta(t) ? el("span", { class: "muted", text: "  not called" }) : null),
         el("td", { class: "num", title: t.lazy ? "what it would cost if listed" : "", text: t.tokens ? num(t.tokens) : "–" }),
-        el("td", { class: "num", text: num(t.calls_7d) }), el("td", { class: "num", text: num(t.calls_14d) })));
-    }
-    inner.append(body);
+        el("td", { class: "num", text: num(t.calls_7d) }), el("td", { class: "num", text: num(t.calls_14d) })))));
     rows.push(el("tr", { class: "detail" }, el("td", { colspan: String(columns.length) }, actions(s), inner)));
   }
   return rows;
@@ -205,10 +141,15 @@ function serverRows(s, max) {
 
 function render() {
   document.getElementById("days").textContent = data.days + (data.days === 1 ? " day" : " days") + " of data";
-  const notes = document.getElementById("notes");
-  notes.replaceChildren(...(data.notes.length ? [el("div", { class: "notes" }, ...data.notes.map((n) => el("p", { text: n })))] : []));
-  const panel = document.getElementById("panel");
-  if (!data.servers.length) { panel.replaceChildren(el("p", { class: "empty", text: "No MCP servers recorded yet." })); return; }
+  const root = document.getElementById("body");
+  const notes = data.notes.length ? el("div", { class: "alert-box" }, ...data.notes.map((n) => el("p", { text: n }))) : null;
+  if (!data.servers.length) { root.replaceChildren(el("p", { class: "empty", text: "No MCP servers recorded yet." }), ...(notes ? [notes] : [])); return; }
+  const sized = data.servers.filter((s) => s.sized);
+  const listed = sized.reduce((n, s) => n + s.tokens, 0), idle = sized.reduce((n, s) => n + s.idle_tokens, 0), lazy = sized.reduce((n, s) => n + s.lazy_tokens, 0);
+  const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
+    kpi("Servers", String(data.servers.length), sized.length + " through mcp-proxy"), kpi("Definition tokens", human(listed), "listed to the agent"),
+    kpi("Idle tokens", human(idle), "tools not called in 14 days", idle > 0), kpi("Loaded on request", human(lazy), "kept out of the tool list"));
+
   const c = columns[sort.col];
   const servers = [...data.servers].sort((a, b) => {
     const x = c.get(a), y = c.get(b);
@@ -218,20 +159,20 @@ function render() {
   const max = Math.max(1, ...data.servers.map((s) => s.tokens));
   const head = el("tr");
   columns.forEach((col, i) => {
-    const th = el("th", { class: col.num ? "num" : "", scope: "col" });
-    if (i === sort.col) th.setAttribute("aria-sort", sort.dir === "asc" ? "ascending" : "descending");
+    const h = el("th", { class: col.num ? "num" : "", scope: "col" });
+    if (i === sort.col) h.setAttribute("aria-sort", sort.dir === "asc" ? "ascending" : "descending");
     const b = el("button", { type: "button", text: col.title });
     b.addEventListener("click", () => { sort = { col: i, dir: sort.col === i ? (sort.dir === "asc" ? "desc" : "asc") : (col.first || "desc") }; render(); });
-    th.append(b); head.append(th);
+    h.append(b); head.append(h);
   });
   const body = el("tbody");
   for (const s of servers) body.append(...serverRows(s, max));
-  panel.replaceChildren(el("table", {}, el("thead", {}, head), body));
+  root.replaceChildren(kpis, ...(notes ? [notes] : []), panel("Servers", "Click a heading to sort and a server for its tools.", el("div", { class: "scroll" }, el("table", {}, el("thead", {}, head), body))));
 }
 
 fetch("/api/mcp").then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
   .then((d) => { data = d; render(); })
-  .catch((e) => document.getElementById("panel").replaceChildren(el("p", { class: "empty", text: "Could not load the review: " + e.message })));
+  .catch((e) => document.getElementById("body").replaceChildren(el("p", { class: "empty", text: "Could not load the review: " + e.message })));
 </script>
 </body>
 </html>

@@ -702,16 +702,17 @@ their pipeline's receivers and exporters (`service.Options.Remote`) and POST the
 
 ### Context report (`context.go`, `context.html`)
 
-`GET /context` over `GET /api/context?days=` = `loadContext(~/.claude/projects, days)`: the newest transcripts
-(at most 300) written within the period, read once each. Not the ledger: only transcripts carry a
+`GET /context` over `GET /api/context?since=24h|7d|…` (default 14d, 1 hour to 90 days) = `loadContext(~/.claude/projects, period)`:
+the newest transcripts (at most 300) written within the period, read once each, each cut to the turns inside it. Not the ledger: only transcripts carry a
 session id and per-turn usage (the LLM proxy has no session).
 - `readSession`: assistant lines of the main conversation (sidechains and synthetic messages skipped; a message
   streamed twice counts once, the last usage wins); context = input + cache read + cache write; a drop below
   `compactDrop` (60%) of the previous turn, from `minContext` (60k) up, is a compaction or `/clear`.
   Model names are normalized (`anthropic/claude-sonnet-5.5` → `claude-sonnet-5-5`) before `cost.Lookup`.
 - Cost at list prices, 5-minute cache writes. Buckets split the cost by the context of the request.
-- `simulate(turns, limit, model)` re-prices a session as if compacted when its context passed `limit`
-  (150k, 250k, 400k): reads for what was cached, writes for what is new, one full-context request plus a
+- `simulate(turns, limit, floor, model)` re-prices a session as if compacted when its context passed `limit`
+  (150k, 250k, 400k; a conversation restarts at `floor`, the smallest context of the whole session even before the
+  period, and a limit it could not shrink below is skipped): reads for what was cached, writes for what is new, one full-context request plus a
   12k summary per compaction, growth as it was; a real reset is followed, not compacted twice. The same model
   prices the baseline, so thresholds compare with each other (within 5% of the actual cost on a real
   month). More compactions are not always cheaper.
@@ -811,3 +812,11 @@ See skill `add-component`. Package shape:
 ```
 
 Then one line in `internal/registry/registry.go`.
+
+### Shared page assets (`pages.css`, `pages.js`)
+
+The context and MCP pages are served with the dashboard's look from `/assets/pages.css` (the same tokens, night
+header band, panels, KPI strip, tables, badges and dark mode) and `/assets/pages.js` (`G.header` builds the band with
+the nav and the theme switch, which shares the dashboard's saved choice; `G.el`, `human`, `usd`, `num`). The dashboard
+keeps its own inline copy; a change to the look is made in both. Pages build their DOM with `textContent`, never `innerHTML`
+(the one exception is the fixed moon literal in `pages.js`).

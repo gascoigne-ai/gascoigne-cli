@@ -4,86 +4,38 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>gascoigne · Context</title>
+<link rel="stylesheet" href="/assets/pages.css">
+<script src="/assets/pages.js"></script>
 <style>
-:root {
-  --bg: #f6f3f4; --surface: #ffffff; --surface-2: #f5f0f2; --border: #e6dfe2; --border-strong: #cfc3c8;
-  --text: #22161b; --muted: #66545b; --accent: #7a1f3d; --accent-soft: #f6e8ed;
-  --ok: #17804a; --warn: #a8570c; --warn-soft: #fbf1e3; --neutral-soft: #ece5e8; --bar: #c9a0b0;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --shadow: 0 1px 2px rgba(34, 22, 27, .06), 0 2px 8px rgba(34, 22, 27, .05);
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #140f12; --surface: #1c1519; --surface-2: #241b20; --border: #33262d; --border-strong: #47353e;
-    --text: #f1e8eb; --muted: #bfaab2; --accent: #e88aa6; --accent-soft: #3a1a27;
-    --ok: #5ed39a; --warn: #f0b05a; --warn-soft: #2c2214; --neutral-soft: #2d2228; --bar: #7c4a5e;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .45);
-    color-scheme: dark;
-  }
-}
-* { box-sizing: border-box; }
-html, body { background: var(--bg); }
-body { margin: 0; color: var(--text); font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
-main { max-width: 960px; margin: 0 auto; padding: 28px 16px 80px; }
-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
-h1 { font-size: 22px; line-height: 1.2; margin: 0; }
-h2 { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 28px 0 10px; }
-a { color: var(--accent); }
-.chip { font: 12px var(--mono); color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
-select { font: inherit; font-size: 13px; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px; padding: 3px 8px; }
-.lead { color: var(--muted); margin: 0 0 20px; max-width: 72ch; }
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 8px; }
-.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 16px; }
-.kpi b { display: block; font-size: 24px; line-height: 1.2; }
-.kpi span { color: var(--muted); font-size: 13px; }
-.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 14px; }
-th, td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--border); white-space: nowrap; }
-thead th { border-top: 0; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); }
-th button { all: unset; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; }
-th button:hover { color: var(--text); }
-th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
-th[aria-sort="ascending"] button::after { content: " \25B2"; } th[aria-sort="descending"] button::after { content: " \25BC"; }
-td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-.meter { display: inline-block; vertical-align: middle; width: 140px; height: 9px; margin-left: 10px; background: var(--neutral-soft); border-radius: 5px; overflow: hidden; }
-.meter i { display: block; height: 100%; background: var(--bar); }
 svg.spark { vertical-align: middle; }
 svg.spark polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; }
-svg.spark line { stroke: var(--border-strong); stroke-dasharray: 2 2; }
-.note { margin: 10px 2px 0; color: var(--muted); font-size: 13.5px; max-width: 80ch; }
-.warn { margin: 16px 0 0; padding: 10px 14px; background: var(--warn-soft); border-left: 3px solid var(--warn); border-radius: 6px; font-size: 14px; }
-.empty { padding: 28px 16px; color: var(--muted); }
-ul.assume { margin: 8px 0 0; padding-left: 20px; color: var(--muted); font-size: 13.5px; max-width: 80ch; }
-@media (max-width: 640px) { main { padding: 20px 12px 60px; } }
 </style>
 </head>
 <body>
-<main>
-  <header>
-    <h1>Context</h1>
-    <span class="chip" id="chip"></span>
-    <label class="chip">Period
-      <select id="days"><option value="7">7 days</option><option value="14" selected>14 days</option><option value="30">30 days</option><option value="90">90 days</option></select>
+<div class="wrap">
+  <div id="top"></div>
+  <div class="toolbar">
+    <label>Period
+      <select id="since">
+        <option value="24h">Last 24 hours</option>
+        <option value="7d">Last 7 days</option>
+        <option value="14d" selected>Last 14 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="90d">Last 90 days</option>
+      </select>
     </label>
-    <a href="/">dashboard</a>
-  </header>
-  <p class="lead">Every request re-reads the whole conversation, so what a session costs is mostly requests times context, not the size of any one tool result. This is read from Claude Code's own transcripts on this machine, at API list prices. Nothing leaves it and nothing is changed.</p>
+    <div class="spacer"></div>
+    <p class="hint">Read from Claude Code's own transcripts on this machine, at API list prices. Nothing leaves it and nothing is changed.</p>
+  </div>
   <div id="body"><p class="empty">Reading transcripts…</p></div>
-</main>
+  <footer>Every request re-reads the whole conversation, so a session costs mostly requests times context, not the size of any one tool result.</footer>
+</div>
 <script>
 "use strict";
-const el = (tag, attrs, ...kids) => {
-  const e = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs || {})) { if (k === "text") e.textContent = v; else e.setAttribute(k, v); }
-  for (const kid of kids) if (kid) e.append(kid);
-  return e;
-};
-const human = (n) => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + "k" : String(n);
-const usd = (n) => "$" + (n >= 100 ? n.toFixed(0) : n.toFixed(2));
-const day = (s) => s ? new Date(s).toISOString().slice(0, 10) : "–";
+const { el, human, usd, num } = G;
+G.header(document.getElementById("top"), "Context", "How big conversations get, and what that costs", "context");
 const NS = "http://www.w3.org/2000/svg";
+const when = (s) => s ? new Date(s).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "–";
 
 function spark(series, peak) {
   const w = 120, h = 26, svg = document.createElementNS(NS, "svg");
@@ -97,85 +49,79 @@ function spark(series, peak) {
   return svg;
 }
 
+const panel = (title, hint, ...kids) => el("section", { class: "panel" }, el("h2", { text: title }), hint ? el("p", { class: "hint", text: hint }) : null, ...kids);
+const table = (head, rows) => el("div", { class: "scroll" }, el("table", {}, el("thead", {}, head), el("tbody", {}, ...rows)));
+const th = (text, num) => el("th", { class: num ? "num" : "", scope: "col", text });
+const share = (frac) => el("div", { class: "share" }, el("span", { text: Math.round(100 * frac) + "%" }), el("div", { class: "bar" }, el("span", { style: "width:" + Math.round(100 * frac) + "%" })));
+const kpi = (name, value, plain, accent) => el("div", { class: "kpi" + (accent ? " accent" : "") }, el("div", { class: "name", text: name }), el("div", { class: "value", text: value }), el("div", { class: "plain", text: plain || "" }));
+
 let report = null, sort = { col: 5, dir: "desc" };
+// Columns sort by an accessor, never by the displayed text.
 const cols = [
   { title: "Project", get: (s) => (s.project || "").toLowerCase(), show: (s) => s.project || "–", first: "asc" },
-  { title: "Start", get: (s) => s.start, show: (s) => day(s.start), first: "desc" },
-  { title: "Requests", get: (s) => s.turns, show: (s) => s.turns.toLocaleString("en-US"), num: true },
+  { title: "Started", get: (s) => s.start, show: (s) => when(s.start), first: "desc" },
+  { title: "Requests", get: (s) => s.turns, show: (s) => num(s.turns), num: true },
   { title: "Peak context", get: (s) => s.peak_context, show: (s) => human(s.peak_context), num: true },
   { title: "Compactions", get: (s) => s.compactions, show: (s) => String(s.compactions), num: true },
   { title: "Cost", get: (s) => s.priced ? s.cost_usd : -1, show: (s) => s.priced ? usd(s.cost_usd) : "?", num: true },
   { title: "Context over time", get: (s) => s.peak_context, show: (s) => spark(s.series, s.peak_context) },
 ];
 
-function table(head, rows, empty) {
-  const body = el("tbody");
-  for (const r of rows) body.append(r);
-  return el("table", {}, el("thead", {}, head), body);
-}
-
 function render() {
   const r = report, root = document.getElementById("body");
-  document.getElementById("chip").textContent = r.sessions.length + " sessions";
-  if (!r.sessions.length) { root.replaceChildren(el("p", { class: "empty", text: "No Claude Code transcripts with usage in this period." })); return; }
+  const label = r.hours < 48 ? r.hours + " hours" : Math.round(r.hours / 24) + " days";
+  if (!r.sessions.length) { root.replaceChildren(el("p", { class: "empty", text: "No Claude Code transcripts with usage in the last " + label + "." })); return; }
   const over200 = r.buckets.slice(2).reduce((n, b) => n + b.share, 0);
-  const kpis = el("div", { class: "kpis" },
-    ...[[r.sessions.length.toLocaleString("en-US"), "sessions"], [r.turns.toLocaleString("en-US"), "requests"], [usd(r.cost_usd), "at API list prices"], [Math.round(100 * over200) + "%", "of it above 200k context"]]
-      .map(([b, s]) => el("div", { class: "kpi" }, el("b", { text: b }), el("span", { text: s }))));
+  const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
+    kpi("Sessions", num(r.sessions.length), "last " + label), kpi("Requests", num(r.turns), "model calls"),
+    kpi("Cost", usd(r.cost_usd), "at API list prices", true), kpi("Above 200k context", Math.round(100 * over200) + "%", "of the cost"));
 
-  const bucketRows = r.buckets.map((b) => el("tr", {},
-    el("td", { text: b.label }), el("td", { class: "num", text: b.turns.toLocaleString("en-US") }), el("td", { class: "num", text: usd(b.cost_usd) }),
-    el("td", {}, Math.round(100 * b.share) + "%", el("span", { class: "meter" }, el("i", { style: "width:" + Math.round(100 * b.share) + "%" })))));
-  const buckets = table(el("tr", {}, el("th", { text: "Context of a request" }), el("th", { class: "num", text: "Requests" }), el("th", { class: "num", text: "Cost" }), el("th", { text: "Share of cost" })), bucketRows);
+  const buckets = panel("Where the money goes", "Cost by the size of the conversation each request re-read",
+    table(el("tr", {}, th("Context of a request"), th("Requests", true), th("Cost", true), th("Share of cost")),
+      r.buckets.map((b) => el("tr", {}, el("td", { text: b.label }), el("td", { class: "num", text: num(b.turns) }), el("td", { class: "num", text: usd(b.cost_usd) }), el("td", {}, share(b.share))))));
+  const rewrites = panel("Cache written again", "Context the previous request carried that this one did not read from the cache: the extra is what a rewrite cost over a read",
+    table(el("tr", {}, th("Cause"), th("Requests", true), th("Tokens", true), th("Extra cost", true), th("Share", true)),
+      r.cache_rewrites.map((w) => el("tr", {}, el("td", { text: w.cause }), el("td", { class: "num", text: num(w.turns) }), el("td", { class: "num", text: human(w.tokens) }),
+        el("td", { class: "num", text: usd(w.cost_usd) }), el("td", { class: "num", text: (100 * w.share).toFixed(1) + "%" })))));
 
-  const wiRows = r.what_if.map((w) => el("tr", {},
-    el("td", { text: "at " + human(w.threshold) }), el("td", { class: "num", text: w.sessions }), el("td", { class: "num", text: w.compactions }),
-    el("td", { class: "num", text: usd(w.saved_usd) + " (" + Math.round(w.saved_pct) + "%)" })));
-  const whatIf = table(el("tr", {}, el("th", { text: "Compact when context reaches" }), el("th", { class: "num", text: "Sessions affected" }), el("th", { class: "num", text: "Compactions" }), el("th", { class: "num", text: "Would have saved" })), wiRows);
+  const whatIf = panel("What compacting earlier would have saved", "Re-priced as if each conversation had been compacted when it reached the size",
+    table(el("tr", {}, th("Compact when context reaches"), th("Sessions affected", true), th("Compactions", true), th("Would have saved", true)),
+      r.what_if.map((w) => el("tr", {}, el("td", { text: "at " + human(w.threshold) }), el("td", { class: "num", text: String(w.sessions) }), el("td", { class: "num", text: String(w.compactions) }),
+        el("td", { class: "num", text: usd(w.saved_usd) + " (" + Math.round(w.saved_pct) + "%)" })))),
+    el("div", { class: "alert-box" }, el("p", { text: "Compacting saves tokens, not detail: the summary forgets what it leaves out. This is an upper bound on what is worth giving up, not advice to compact everywhere." })));
 
   const c = cols[sort.col];
   const sessions = [...r.sessions].sort((a, b) => { const x = c.get(a), y = c.get(b); const v = x < y ? -1 : x > y ? 1 : 0; return sort.dir === "asc" ? v : -v; }).slice(0, 60);
   const head = el("tr");
   cols.forEach((col, i) => {
-    const th = el("th", { class: col.num ? "num" : "", scope: "col" });
-    if (i === sort.col) th.setAttribute("aria-sort", sort.dir === "asc" ? "ascending" : "descending");
+    const h = el("th", { class: col.num ? "num" : "", scope: "col" });
+    if (i === sort.col) h.setAttribute("aria-sort", sort.dir === "asc" ? "ascending" : "descending");
     const b = el("button", { type: "button", text: col.title });
     b.addEventListener("click", () => { sort = { col: i, dir: sort.col === i ? (sort.dir === "asc" ? "desc" : "asc") : (col.first || "desc") }; render(); });
-    th.append(b); head.append(th);
+    h.append(b); head.append(h);
   });
-  const sessionRows = sessions.map((s) => el("tr", {}, ...cols.map((col) => el("td", { class: col.num ? "num" : "" }, col.show(s)))));
+  const sessionsPanel = panel("Sessions", r.sessions.length > 60 ? "The 60 matching the sort are shown. Click a heading to sort." : "Click a heading to sort.",
+    table(head, sessions.map((s) => el("tr", {}, ...cols.map((col) => el("td", { class: col.num ? "num" : "" }, col.show(s)))))));
 
-  const rwRows = r.cache_rewrites.map((w) => el("tr", {},
-    el("td", { text: w.cause }), el("td", { class: "num", text: w.turns.toLocaleString("en-US") }), el("td", { class: "num", text: human(w.tokens) }),
-    el("td", { class: "num", text: usd(w.cost_usd) }), el("td", { class: "num", text: (100 * w.share).toFixed(1) + "%" })));
-  const rewrites = table(el("tr", {}, el("th", { text: "Cause" }), el("th", { class: "num", text: "Requests" }), el("th", { class: "num", text: "Tokens" }), el("th", { class: "num", text: "Extra cost" }), el("th", { class: "num", text: "Share of cost" })), rwRows);
+  const how = panel("How this is computed", "", el("ul", { class: "plain" }, ...r.assumptions.map((a) => el("li", { text: a }))),
+    r.unpriced_sessions ? el("p", { class: "hint", text: r.unpriced_sessions + " sessions use a model without a known price and are left out of the dollars." }) : null);
 
-  const parts = [kpis,
-    el("h2", { text: "Where the money goes" }), el("div", { class: "panel" }, buckets),
-    el("h2", { text: "Context written to the cache again instead of read" }), el("div", { class: "panel" }, rewrites),
-    el("p", { class: "note", text: "Reading cached context is cheap; writing it again is not. A long pause lets the cache expire, and a change to the cached start of the conversation (an edited instruction file, a changed tool set, another model) rewrites it all. The extra is what the rewrite cost over a read." }),
-    el("h2", { text: "What compacting earlier would have saved" }), el("div", { class: "panel" }, whatIf),
-    el("p", { class: "warn", text: "Compacting saves tokens, not detail: the summary forgets what it leaves out. This is an upper bound on what is worth giving up, not advice to compact everywhere." }),
-    el("h2", { text: "Sessions" }), el("div", { class: "panel" }, table(head, sessionRows)),
-    r.sessions.length > 60 ? el("p", { class: "note", text: "The 60 matching the sort are shown." }) : null,
-    el("h2", { text: "How this is computed" }), el("ul", { class: "assume" }, ...r.assumptions.map((a) => el("li", { text: a }))),
-    r.unpriced_sessions ? el("p", { class: "note", text: r.unpriced_sessions + " sessions use a model without a known price and are left out of the dollars." }) : null,
-  ];
-  root.replaceChildren(...parts.filter(Boolean));
+  root.replaceChildren(kpis, el("div", { class: "grid" }, buckets, rewrites), whatIf, sessionsPanel, how);
 }
 
 async function load() {
-  const days = document.getElementById("days").value;
+  const since = document.getElementById("since").value;
+  history.replaceState(null, "", "?since=" + since);
   try {
-    const res = await fetch("/api/context?days=" + days);
+    const res = await fetch("/api/context?since=" + since);
     if (!res.ok) throw new Error((await res.text()).trim() || res.statusText);
     report = await res.json();
     render();
   } catch (e) { document.getElementById("body").replaceChildren(el("p", { class: "empty", text: "Could not read transcripts: " + e.message })); }
 }
-const q = new URLSearchParams(location.search).get("days");
-if (q && [...document.getElementById("days").options].some((o) => o.value === q)) document.getElementById("days").value = q;
-document.getElementById("days").addEventListener("change", load);
+const q = new URLSearchParams(location.search).get("since");
+if (q && [...document.getElementById("since").options].some((o) => o.value === q)) document.getElementById("since").value = q;
+document.getElementById("since").addEventListener("change", load);
 load();
 </script>
 </body>

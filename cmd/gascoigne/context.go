@@ -65,6 +65,7 @@ type sessionCost struct {
 	Priced      bool      `json:"priced"`
 	Series      []int     `json:"series"` // the context over the session, downsampled
 	turns       []turn
+	floor       int // the smallest context of the whole session, also before the period: what a restart begins at
 }
 
 // contextBucket is the share of the cost spent at one conversation size.
@@ -106,7 +107,7 @@ type whatIf struct {
 
 // contextReport is the whole analysis.
 type contextReport struct {
-	Days        int             `json:"days"`
+	Hours       int             `json:"hours"` // the period the report covers
 	Sessions    []sessionCost   `json:"sessions"`
 	Turns       int             `json:"turns"`
 	CostUSD     float64         `json:"cost_usd"`
@@ -139,7 +140,7 @@ type usageLine struct {
 
 // readSession reads one transcript: its main-conversation turns (subagents run
 // in conversations of their own and are left out), once per message.
-func readSession(r io.Reader, name string) (sessionCost, error) {
+func readSession(r io.Reader, name string, since time.Time) (sessionCost, error) {
 	s := sessionCost{ID: strings.TrimSuffix(name, ".jsonl"), Priced: true}
 	br := bufio.NewReaderSize(r, 1<<20)
 	index := map[string]int{} // message id -> its place in turns: streamed lines repeat it
@@ -154,6 +155,12 @@ func readSession(r io.Reader, name string) (sessionCost, error) {
 				if ctx > 0 && !strings.HasPrefix(t.Message.Model, "<") {
 					tn := turn{ctx: ctx, read: u.CacheRead, write: u.CacheCreate, input: u.Input, output: u.Output}
 					tn.ts, _ = time.Parse(time.RFC3339, t.Timestamp)
+					if s.floor == 0 || ctx < s.floor {
+						s.floor = ctx
+					}
+					if !since.IsZero() && !tn.ts.IsZero() && tn.ts.Before(since) {
+						continue // before the period: the session is cut to the part inside it
+					}
 					if i, ok := index[t.Message.ID]; ok && t.Message.ID != "" {
 						s.turns[i] = tn
 					} else {
@@ -302,18 +309,27 @@ func downsample(turns []turn, n int) []int {
 // is one request over the full context that writes the summary; the next
 // request writes the new, short conversation. It returns the cost and how many
 // compactions that took.
-func simulate(turns []turn, limit int, m cost.Model) (usd float64, compactions int) {
+func simulate(turns []turn, limit, base int, m cost.Model) (usd float64, compactions int) {
 	if len(turns) == 0 {
 		return 0, 0
 	}
-	base := turns[0].ctx // system prompt, tools and instructions: what every conversation starts with
-	cur, cached := 0, 0
+	if base == 0 { // what every conversation starts with: system prompt, tools, instructions
+		base = turns[0].ctx
+		for _, t := range turns {
+			base = min(base, t.ctx)
+		}
+	}
+	if base+summaryTokens >= limit {
+		limit = 0 // compacting could not make it smaller: nothing to simulate
+	}
+	cur, cached := 0, turns[0].read // a conversation cut at the start of the period begins with what was already cached
 	prevOrig := 0
 	for i, t := range turns {
 		switch {
-		case i == 0 || compacted(prevOrig, t.ctx):
-			cur = t.ctx // the real conversation started over here
-			cached = 0
+		case i == 0:
+			cur = t.ctx
+		case compacted(prevOrig, t.ctx):
+			cur, cached = t.ctx, 0 // the real conversation started over here
 		default:
 			cur += max(t.ctx-prevOrig, 0)
 		}
@@ -330,8 +346,8 @@ func simulate(turns []turn, limit int, m cost.Model) (usd float64, compactions i
 }
 
 // buildContext assembles the report from sessions already read.
-func buildContext(sessions []sessionCost, days int) contextReport {
-	r := contextReport{Days: days, Sessions: sessions, Buckets: []contextBucket{
+func buildContext(sessions []sessionCost, period time.Duration) contextReport {
+	r := contextReport{Hours: int(period.Hours()), Sessions: sessions, Buckets: []contextBucket{
 		{Label: "under 100k"}, {Label: "100k to 200k"}, {Label: "200k to 400k"}, {Label: "over 400k"},
 	}}
 	if r.Sessions == nil {
@@ -351,10 +367,10 @@ func buildContext(sessions []sessionCost, days int) contextReport {
 		}
 		r.CostUSD += s.CostUSD
 		m, _ := priceOf(s.Model)
-		base, _ := simulate(s.turns, 0, m)
+		base, _ := simulate(s.turns, 0, s.floor, m)
 		r.ModelUSD += base
 		for i, t := range thresholds {
-			usd, n := simulate(s.turns, t, m)
+			usd, n := simulate(s.turns, t, s.floor, m)
 			wi[i].CostUSD += usd
 			wi[i].SavedUSD += base - usd
 			wi[i].Compactions += n
@@ -421,15 +437,15 @@ func bucketOf(ctx int) int {
 	return 3
 }
 
-// loadContext reads the newest transcripts under dir whose last write is
-// within the last days days.
-func loadContext(dir string, days int, now time.Time) (contextReport, error) {
+// loadContext reads the newest transcripts under dir written within period,
+// and from each the turns inside it.
+func loadContext(dir string, period time.Duration, now time.Time) (contextReport, error) {
 	type file struct {
 		path string
 		mod  time.Time
 	}
 	var files []file
-	cutoff := now.AddDate(0, 0, -days)
+	cutoff := now.Add(-period)
 	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			if p == dir {
@@ -447,7 +463,7 @@ func loadContext(dir string, days int, now time.Time) (contextReport, error) {
 		return nil
 	})
 	if errors.Is(err, fs.ErrNotExist) { // no Claude Code here: an empty report, not an error
-		return buildContext(nil, days), nil
+		return buildContext(nil, period), nil
 	}
 	if err != nil {
 		return contextReport{}, err
@@ -459,13 +475,13 @@ func loadContext(dir string, days int, now time.Time) (contextReport, error) {
 		if err != nil {
 			continue
 		}
-		s, err := readSession(fh, filepath.Base(f.path))
+		s, err := readSession(fh, filepath.Base(f.path), cutoff)
 		fh.Close()
 		if err == nil && s.Turns > 0 {
 			sessions = append(sessions, s)
 		}
 	}
-	return buildContext(sessions, days), nil
+	return buildContext(sessions, period), nil
 }
 
 // claudeProjects is where Claude Code keeps its transcripts.
@@ -482,7 +498,7 @@ func cmdContext(ctx context.Context, args []string) error {
 		asJSON, text bool
 		dir          string
 	)
-	since := flags.String("since", "14d", "how far back to read transcripts: `7d`, 4w, ...")
+	since := flags.String("since", "14d", "how far back to read transcripts: `24h`, 7d, 4w, ...")
 	open := true
 	flags.BoolVar(&asJSON, "json", false, "print the report as JSON")
 	flags.BoolVar(&text, "text", false, "print the table instead of opening the page")
@@ -495,16 +511,15 @@ func cmdContext(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	days := max(int(d.Hours()/24), 1)
 	if !asJSON && !text && dir == claudeProjects() && canBrowse() {
-		link := fmt.Sprintf("http://%s/context?days=%d", serverAddr(), days)
+		link := fmt.Sprintf("http://%s/context?since=%s", serverAddr(), *since)
 		fmt.Println(link)
 		if open {
 			openBrowser(link)
 		}
 		return nil
 	}
-	report, err := loadContext(dir, days, time.Now())
+	report, err := loadContext(dir, d, time.Now())
 	if err != nil {
 		return err
 	}
@@ -515,13 +530,21 @@ func cmdContext(ctx context.Context, args []string) error {
 	return nil
 }
 
+// periodLabel says a number of hours the way a person would: "24 hours", "14 days".
+func periodLabel(hours int) string {
+	if hours < 48 {
+		return fmt.Sprintf("%d hours", hours)
+	}
+	return fmt.Sprintf("%d days", hours/24)
+}
+
 // printContext writes the report as text, the terminal form of the page.
 func printContext(w io.Writer, r contextReport) {
 	if len(r.Sessions) == 0 {
-		fmt.Fprintf(w, "No Claude Code transcripts with usage in the last %d days (looked in %s).\n", r.Days, claudeProjects())
+		fmt.Fprintf(w, "No Claude Code transcripts with usage in the last %s (looked in %s).\n", periodLabel(r.Hours), claudeProjects())
 		return
 	}
-	fmt.Fprintf(w, "%d sessions, %d requests, about %s at API list prices, last %d days\n\n", len(r.Sessions), r.Turns, dollars(r.CostUSD), r.Days)
+	fmt.Fprintf(w, "%d sessions, %d requests, about %s at API list prices, last %s\n\n", len(r.Sessions), r.Turns, dollars(r.CostUSD), periodLabel(r.Hours))
 	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "CONTEXT OF A REQUEST\tREQUESTS\tCOST\tSHARE")
 	for _, b := range r.Buckets {

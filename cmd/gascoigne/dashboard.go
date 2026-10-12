@@ -28,6 +28,12 @@ var mcpHTML []byte
 //go:embed context.html
 var contextHTML []byte
 
+//go:embed pages.css
+var pagesCSS []byte
+
+//go:embed pages.js
+var pagesJS []byte
+
 // cmdDashboard makes sure the background server runs, prints its address and
 // opens it in a browser.
 func cmdDashboard(ctx context.Context, args []string) error {
@@ -72,13 +78,27 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write(mcpHTML)
 	})
+	mux.HandleFunc("GET /assets/pages.css", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Write(pagesCSS)
+	})
+	mux.HandleFunc("GET /assets/pages.js", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Write(pagesJS)
+	})
 	mux.HandleFunc("GET /context", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write(contextHTML)
 	})
 	mux.HandleFunc("GET /api/context", func(w http.ResponseWriter, r *http.Request) {
-		days, _ := strconv.Atoi(r.URL.Query().Get("days"))
-		report, err := loadContext(claudeProjects(), min(max(days, 1), 90), time.Now())
+		period, err := parseSince(cmp.Or(r.URL.Query().Get("since"), "14d"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		report, err := loadContext(claudeProjects(), min(max(period, time.Hour), 90*24*time.Hour), time.Now())
 		respond(w, report, err)
 	})
 	mux.HandleFunc("GET /api/mcp", func(w http.ResponseWriter, r *http.Request) {
