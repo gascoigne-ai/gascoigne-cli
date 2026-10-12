@@ -351,7 +351,7 @@ func TestSetupViewTellsWhatWasFound(t *testing.T) {
 			t.Errorf("%s needs a sentence and options: %+v", q.ID, q)
 		}
 		for _, o := range q.Options {
-			if o.Detail == "" {
+			if o.Detail == "" && !q.Optional {
 				t.Errorf("%s/%s: say what choosing it does", q.ID, o.Value)
 			}
 		}
@@ -418,6 +418,33 @@ func TestEveryExperimentalCommandCanBeTurnedOnInSetup(t *testing.T) {
 	for _, c := range commandList {
 		if c.experimental && !listed[c.name] {
 			t.Errorf("experimental command %q has no question in setup (experiments in setup.go)", c.name)
+		}
+	}
+}
+
+func TestExperimentsExplainThemselves(t *testing.T) {
+	ds := experimentDecisions(prefs{})
+	if len(ds) != len(experiments) || len(ds) == 0 {
+		t.Fatalf("one question per feature: %d", len(ds))
+	}
+	for _, d := range ds {
+		if !d.Optional || d.Group != "experimental" {
+			t.Errorf("%s: optional, in the experimental section: %+v", d.ID, d)
+		}
+		for name, text := range map[string]string{"text": d.Text, "example": d.Example, "how it works": d.How, "impact": d.Impact} {
+			if len(strings.TrimSpace(text)) < 20 {
+				t.Errorf("%s: say more under %q: %q", d.ID, name, text)
+			}
+		}
+	}
+	// The terminal prints the three parts before asking.
+	var out strings.Builder
+	if _, err := ask(strings.NewReader("\n\n\n"), &out, ds, false); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"Example:", "How it works:", "Impact:", "gascoigne: your state before"} {
+		if !strings.Contains(out.String(), want) {
+			t.Errorf("terminal question lacks %q", want)
 		}
 	}
 }

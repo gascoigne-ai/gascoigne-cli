@@ -68,6 +68,22 @@ legend { padding: 0; position: absolute; left: -9999px; }
 .tag.saved { color: var(--muted); background: var(--neutral-soft); border-color: var(--border-strong); }
 .badge-new { font-size: 11.5px; font-weight: 700; color: var(--warn); background: var(--warn-soft); border-radius: 999px; padding: 1px 8px; }
 
+/* Experimental features: folded, each with example, how it works, impact */
+details.fold { margin: 28px 0 14px; }
+details.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding: 10px 2px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary h2 { margin: 0; }
+details.fold > summary::before { content: "\25B8"; color: var(--muted); font-size: 13px; width: 1em; }
+details.fold[open] > summary::before { content: "\25BE"; }
+details.fold > summary:hover h2 { color: var(--text); }
+details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.fold-note { color: var(--muted); font-size: 13.5px; }
+.explain { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 0 0 14px; }
+.explain h4 { margin: 0 0 3px; font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.explain p { margin: 0; font-size: 14px; }
+.explain pre { margin: 0; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; font: 12.5px/1.5 var(--mono); overflow-x: auto; white-space: pre; }
+.explain .impact { border-left: 3px solid var(--accent); padding-left: 10px; }
+
 /* Save bar */
 .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -2px 10px rgba(0, 0, 0, .06); }
 .bar > div { max-width: 760px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
@@ -145,6 +161,14 @@ function agentRow(a) {
     el("span", { class: "pill " + klass }, stateLabel[a.state] || a.state));
 }
 
+function explain(q) {
+  if (!q.example && !q.how && !q.impact) return null;
+  return el("div", { class: "explain" },
+    q.example ? el("div", {}, el("h4", {}, "Example"), el("pre", {}, q.example)) : null,
+    q.how ? el("div", {}, el("h4", {}, "How it works"), el("p", {}, q.how)) : null,
+    q.impact ? el("div", { class: "impact" }, el("h4", {}, "Impact"), el("p", {}, q.impact)) : null);
+}
+
 function question(q) {
   const choice = q.current || q.default;
   const fs = el("fieldset", {}, el("legend", {}, q.title));
@@ -161,11 +185,11 @@ function question(q) {
   }
   return el("div", { class: "panel question" },
     el("h3", {}, q.title, q.current ? null : el("span", { class: "badge-new" }, "needs your answer")),
-    el("p", { class: "text" }, q.text), fs);
+    el("p", { class: "text" }, q.text), explain(q), fs);
 }
 
 function refreshSummary() {
-  const open = document.querySelectorAll(".question").length;
+  const open = document.querySelectorAll(".question:not([data-optional])").length;
   const changed = [...document.querySelectorAll(".question")].filter((box) => {
     const input = box.querySelector("input:checked");
     return input && input.value !== (box.dataset.current || "");
@@ -191,11 +215,20 @@ async function load() {
   for (const g of ["permissions", "updates", "agents", "experimental"]) {
     const qs = v.questions.filter((q) => q.group === g);
     if (!qs.length) continue;
-    form.append(el("h2", {}, groupTitle[g]));
-    for (const q of qs) {
+    const boxes = qs.map((q) => {
       const box = question(q);
       box.dataset.current = q.current || "";
-      form.append(box);
+      if (q.optional) box.dataset.optional = "1";
+      return box;
+    });
+    if (g === "experimental") {
+      // Folded: optional features are not part of finishing the setup.
+      const on = qs.filter((q) => q.current === "on").length;
+      form.append(el("details", { class: "fold" },
+        el("summary", {}, el("h2", {}, groupTitle[g]), el("span", { class: "fold-note" }, `${qs.length} features, ${on} on · open to read what each does`)),
+        boxes));
+    } else {
+      form.append(el("h2", {}, groupTitle[g]), ...boxes);
     }
   }
   if (!v.questions.length) form.append(el("div", { class: "panel question" }, el("p", { class: "text" }, "Nothing to decide right now.")));

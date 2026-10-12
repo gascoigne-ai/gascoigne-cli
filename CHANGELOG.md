@@ -27,7 +27,7 @@ All notable changes to gascoigne. The format follows
 ### Changed
 
 - The setup page shows what gascoigne found (agents and their state), groups the questions, and says under each option what it does.
-- `gascoigne setup -experimental` (and the setup page) turn the experimental features on or off.
+- `gascoigne setup -experimental` (and the setup page, in a folded section) turn the experimental features on or off, each with an example, how it works and its impact.
 - `gascoigne setup` opens the page in the browser (`-t` asks in the terminal).
 - Installs from before this version are found from the agents' config files, so the first session
   after upgrading offers the hook update.

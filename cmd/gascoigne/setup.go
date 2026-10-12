@@ -39,6 +39,11 @@ type decision struct {
 	// Optional questions always have a current answer and never count as
 	// open: turning an experimental feature on is up to the user.
 	Optional bool `json:"optional,omitempty"`
+	// Example, How and Impact explain a feature before it is turned on: what
+	// it looks like, how it works, what it changes for the user.
+	Example string `json:"example,omitempty"`
+	How     string `json:"how,omitempty"`
+	Impact  string `json:"impact,omitempty"`
 }
 
 type option struct {
@@ -170,16 +175,31 @@ const experimentPrefix = "experimental:"
 // experiments are the opt-in features setup can turn on. Each is named as
 // experimentalOn asks for it; the experimental commands in help.go are listed
 // here too (a test keeps both in step).
-var experiments = []struct{ name, title, text, detail string }{
+var experiments = []struct{ name, title, text, example, how, impact string }{
 	{"continuity", "Resume snapshot after compaction",
-		"After claude compacts its conversation or resumes a session, it gets a short summary of its last request, open tasks, edited files and failed commands, built from the transcript.",
-		"Adds up to about 500 tokens at each compaction or resume. Not yet measured against the rework it saves."},
-	{"learn", "Learn from your sessions (gascoigne learn)",
-		"Adds the learn command: it proposes instruction lines from habits that cost context, such as running a command again for output that was already shortened.",
-		"It prints proposals; nothing is written without -apply."},
-	{"prompts", "Instruction text report (gascoigne prompts)",
-		"Adds the prompts command: it lists and prices the instruction text agents send with every request.",
-		"Listing changes nothing; -terse rewrites instruction files in place (a .bak is kept)."},
+		"Keeps claude oriented after it compacts its conversation or resumes a session.",
+		"gascoigne: your state before the conversation was compacted or resumed, from the transcript:\n" +
+			"- last request: add a settings page\n" +
+			"- open tasks:\n  - [in_progress] write tests\n" +
+			"- files edited, newest first: /p/a.go, /p/b.go\n" +
+			"- recent failed commands: `go test ./...`",
+		"A session-start hook reads the session's transcript when claude compacts or resumes, and adds a summary to the session context. It uses only the agent's own calls (never tool output) and cuts secrets from command lines.",
+		"Adds up to about 500 tokens at each compaction or resume, so the agent keeps its place instead of rediscovering it. Not yet measured against the rework it saves."},
+	{"learn", "Learn from your sessions",
+		"Adds the learn command: it proposes instruction lines from habits that cost context.",
+		"$ gascoigne learn\nhabit  command   sessions  runs\nrerun  go test   3         7\n\n" +
+			"lines for CLAUDE.local.md (-apply writes them):\n" +
+			"- `go test` output arrives shortened with a hint: read the rest with\n  `gascoigne raw <id> -grep PATTERN` instead of running it again.",
+		"Reads your recent runs in the ledger and finds commands run again for output that was already shortened, and large output nothing could shorten, seen in at least two sessions. -apply writes the lines to CLAUDE.local.md as a marked block; -remove takes it out.",
+		"Nothing changes in your sessions until you apply lines. Then agents see a few extra instruction lines (about 30 tokens each) meant to prevent repeated reads. Its value on real ledgers is not measured yet."},
+	{"prompts", "Instruction text report",
+		"Adds the prompts command: what your agents are told, and what it costs.",
+		"$ gascoigne prompts\nclaude sends 7.5k tokens of instructions with every request\n" +
+			"source             tokens  via\nCLAUDE.md             2.7k  project\n" +
+			".harness/rules.md      978  @import from CLAUDE.md\n\n" +
+			"findings\n  large-import  .harness/recommendations.md  2.5k  sent with every request",
+		"Finds the instruction files an agent loads (CLAUDE.md and its imports, memory, skill and agent descriptions, AGENTS.md), counts and prices them, and flags large imports and duplicates. With -terse it can drop articles and fillers from instruction files in place (a .bak is kept).",
+		"Listing changes nothing. The point is to show instruction text that you pay for on every request; -terse edits your files, so review the result."},
 }
 
 // experimentDecisions are one on/off question per experimental feature. They
@@ -192,8 +212,8 @@ func experimentDecisions(p prefs) []decision {
 			current = "on"
 		}
 		ds = append(ds, decision{ID: experimentPrefix + x.name, Group: "experimental", Current: current, Default: "off", Optional: true,
-			Title: x.title, Text: x.text,
-			Options: []option{{"on", "Turn on", x.detail}, {"off", "Leave off", "The feature stays unavailable."}}})
+			Title: x.title, Text: x.text, Example: x.example, How: x.how, Impact: x.impact,
+			Options: []option{{"on", "Turn on", ""}, {"off", "Leave off", "The feature stays unavailable."}}})
 	}
 	return ds
 }
@@ -563,6 +583,11 @@ func ask(r io.Reader, w io.Writer, ds []decision, defaults bool) (map[string]str
 			continue
 		}
 		fmt.Fprintf(w, "\n%s\n%s\n", d.Title, d.Text)
+		for _, part := range []struct{ name, text string }{{"Example", d.Example}, {"How it works", d.How}, {"Impact", d.Impact}} {
+			if part.text != "" {
+				fmt.Fprintf(w, "  %s:\n    %s\n", part.name, strings.ReplaceAll(part.text, "\n", "\n    "))
+			}
+		}
 		for i, o := range d.Options {
 			mark := " "
 			if o.Value == d.Default {

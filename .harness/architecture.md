@@ -451,7 +451,9 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   (`setup.html`) first shows what was found (`buildSetupView`: each install connected or older, agents
   on PATH not connected or declined, the version), then the questions in sections by `decision.Group`
   (permissions, updates, agents), each option with a sentence saying what it does (`option.Detail`);
-  experimental features are optional questions (`decision.Optional`, always answered, never nag): the
+  experimental features are optional questions (`decision.Optional`, always answered, never nag), folded
+  on the page, each with an example, how it works and its impact (`decision.Example/How/Impact`,
+  also printed by the terminal form): the
   choice is `prefs.experimental`, which `experimentalOn` reads next to `$GASCOIGNE_EXPERIMENTAL` and
   the config's list; `setup -experimental` asks only those, and a test keeps `experiments` in step with
   the commands marked experimental in `help.go`;
