@@ -17,5 +17,5 @@ snapshot, so it retrieves instead of re-running.
 
 ## Acceptance
 - Fixture transcript and ledger test: cap, determinism, order, secrets cut, session isolation.
-- A/B that forces a compaction (the open backlog item): tokens added by the snapshot vs reruns
-  avoided. Record the result in `backlog.md`.
+- Stays behind `experimental: [continuity]`, so no paid A/B now: the compaction-forcing A/B stays an
+  open backlog item. Count reruns after a compaction with `learn` on real ledgers instead.

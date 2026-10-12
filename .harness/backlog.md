@@ -31,6 +31,12 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 
 - Token-saving ideas from the 2026-10-12 ideation pass (score out of 25 in brackets; tasks 040-054
   hold the top ones). Measure each with `ab.sh`, `replay` or `make eval` before keeping it:
+  - Deferred on 2026-10-12 because they need paid A/B runs or can break a flow; each had a task that
+    was removed (see git history of `.harness/tasks/`): Read size guard [20] (a deny can break Edit
+    flows); Read result replacement [18] (first check whether Claude Code accepts replaced Read
+    output); cheaper-model exploration agent [19]; repo map at SessionStart [18]; intent-aware query
+    for tool results [18]; page outline first for `fetch` [18] (the agent gets less than the page).
+    Retry when an A/B budget exists, cheapest first.
   - Cold-cache history diet [17]: shrink old tool results only on requests whose prefix is rewritten
     anyway (after the TTL, compaction, or a changed system prompt or tool set); warm requests stay
     byte-identical. Measure cold vs warm cost with `replay`.

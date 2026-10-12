@@ -17,5 +17,5 @@ reading the original with `gascoigne raw <id> -grep`. Say it at the moment it ha
 ## Acceptance
 - Table tests: first run no nudge, second run nudge with the right id, other session none.
 - `make eval`: savings do not regress, `raw ok` never `NO`.
-- `learn` counts `rerun` habits before and after on a fixture ledger; the A/B on a task that reruns
-  tests shows fewer repeated runs.
+- `learn` counts `rerun` habits on a fixture ledger. No paid A/B: compare the rerun count in real
+  ledgers one week before and after, noted in `backlog.md`.

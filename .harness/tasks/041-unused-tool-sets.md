@@ -1,22 +1,33 @@
 status: todo
 
-# Report MCP servers and tools that cost tokens and are never used
+# Record MCP tool use and tool-set size (14 days)
 
 ## Goal
-Tool schemas and descriptions are re-sent with every request (~35k tokens, cached but re-read each
-turn). Users often keep MCP servers installed that no call used in a month. Show the cost per
-server and let the user act.
+First step of the weekly MCP review (tasks 055 and 056). Tool schemas and descriptions are re-sent
+with every request, and nobody knows which servers and tools earn that cost. Record who uses what,
+cheaply, and keep two weeks so a week can be compared with the one before.
 
 ## Scope
-- Ledger side: route `tools` events hold the tool set size; MCP call events hold the tool used.
-  Join them per server: tools, tokens per request, calls in the window (`-since`, default 30d).
-- `gain` section "tool sets" (or `gain -by tools`), JSON field, MCP `stats`; `doctor` lists servers
-  with 0 calls and their per-request cost.
-- Setup question (`decision` in `setup.go`, optional group) offering to disable a server per
-  project. Nothing changes without an answer (decisions.md).
-- No core change; if the ledger needs a column, ask first (AutoMigrate rules in architecture.md).
+- Two sources, both already on the path, none needing the LLM proxy:
+  - `mcp-proxy` (`receiver/mcpproxyreceiver`) sees `tools/list` and every `tools/call` of the stdio
+    servers it wraps: per tool, schema tokens and calls. This is the exact source.
+  - The PostToolUse / AfterTool hooks (`mcp__*`, `mcp_*`) see calls to servers that stay direct
+    (remote ones) for claude, codex and gemini: calls only, no sizes. Counting happens in the
+    background server, not in the hook (no ledger open in the hot path); the hook never fails.
+- Two small daily tables in the ledger (additive, `AutoMigrate`): `tool_use` (day, agent, server,
+  tool, calls) and `tool_set` (day, agent, server, tools, schema tokens, tool names with sizes).
+  Rows are aggregated per day, so a year is a few thousand rows.
+- Retention: a new ledger config key `stats_ttl`, default 14 days (336h), pruned next to `raw`.
+  `raw_ttl` stays 24h: originals are the bulk of the disk and the review does not need them.
+  Events and usage rows are not pruned today and stay so.
+- `reset` and `flush` handle the new tables; `docs/ledger.md` and the `architecture.md` Ledger
+  section list them.
+- Server and tool names only. Never arguments, results or paths.
 
 ## Acceptance
-- Fixture ledger test: server with calls vs without, window filter, per-request token figure
-  matches `gain -by route` for route `tools`.
-- Terminal output follows `render.go` conventions; estimates note updated.
+- Fixture tests: counts per day, aggregation of repeated calls, prune at the TTL, a hook call with
+  no matching list (calls kept, size unknown), concurrent writers.
+- The per-server schema tokens match what `gain -by route` reports for route `tools` on the same
+  fixture, within the tokenizer's estimate error.
+- No new dependency; no change to `component/`, `payload/` or `internal/` core (ask first if one
+  is needed).
