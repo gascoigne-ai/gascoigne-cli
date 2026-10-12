@@ -64,7 +64,8 @@ func cmdHook(ctx context.Context, args []string) error {
 	if in.HookEventName == "SessionStart" || in.HookEventName == "UserPromptSubmit" {
 		in.syncNote = syncNote()
 		if in.HookEventName == "SessionStart" { // a prompt event leaves asking to the session start
-			notes := []string{in.syncNote, setupNudge(in.Source), releaseNudge(in.Source)}
+			setup, release := setupNudge(in.Source), releaseNudge(in.Source)
+			notes := []string{in.syncNote, setup, release, mcpNudge(in.Source, setup != "" || release != "")}
 			in.syncNote = strings.Join(slices.DeleteFunc(notes, func(n string) bool { return n == "" }), " ")
 		}
 	}

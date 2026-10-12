@@ -50,6 +50,10 @@ type prefs struct {
 	// server id (name#hash, see mcpreview.go): mcp-proxy lists the others and
 	// reaches these through search_tools and call_tool. Set on the review page.
 	LazyTools map[string][]string `json:"lazy_tools,omitempty"`
+	// MCPReview (on or off; unset = on) lets a session start open the MCP review
+	// page; LastMCPReview is when it last did, at most once a week.
+	MCPReview     string    `json:"mcp_review,omitempty"`
+	LastMCPReview time.Time `json:"last_mcp_review,omitzero"`
 }
 
 func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }

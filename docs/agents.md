@@ -89,6 +89,18 @@ they read the file the server saved. Turn it off in `gascoigne setup` ("Tell me 
 with `GASCOIGNE_RELEASE_CHECK=off`, or `GASCOIGNE_SERVER=off` (no background server, no check).
 `gascoigne doctor` shows the state and the latest release it knows.
 
+### Weekly MCP review
+
+MCP servers add their tool definitions to every request, used or not. At most once a week, a Claude
+session start asks the local background server for the [MCP review](cli.md#mcp-review) and, when
+tools nobody called in 14 days cost over 1,500 tokens per request, opens the review page and tells the
+agent. Only servers started through `mcp-proxy` count (the others have no sizes). Nothing leaves
+your machine and nothing changes unless you choose something on the page: loading the unused tools on
+request instead of listing them. A session start opens at most one page: the setup page and the release page
+come first, and the review waits for the next start. A compaction or `/clear` is not a session start.
+Turn it off in `gascoigne setup` ("Review my MCP servers once a week"), with `GASCOIGNE_MCP_REVIEW=off`, or
+`GASCOIGNE_SERVER=off`. `gascoigne mcp-review` shows it whenever you like.
+
 To remove it again:
 
 ```sh

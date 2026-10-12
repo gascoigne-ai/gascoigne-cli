@@ -74,7 +74,7 @@ func decisions(p prefs) []decision {
 	if q, ok := updateDecision(p); ok {
 		ds = slices.Insert(ds, 1, q) // the immediate update before the standing one
 	}
-	ds = append(ds, releaseDecision(p))
+	ds = append(ds, releaseDecision(p), mcpReviewDecision(p))
 	for _, name := range newAgents(p) {
 		ds = append(ds, decision{ID: integratePrefix + name, Default: "yes", Current: declinedAs(p, name),
 			Group: "agents",
@@ -291,6 +291,9 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 	slices.Sort(p.Experimental)
 	if v, ok := answers["release"]; ok {
 		p.ReleaseCheck = v
+	}
+	if v, ok := answers["mcp_review"]; ok {
+		p.MCPReview = v
 	}
 	rewrite := len(out) > 0
 	if v, ok := answers["update"]; ok {

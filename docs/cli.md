@@ -169,6 +169,7 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 | `GASCOIGNE_SERVER_ADDR` | Server address (default `127.0.0.1:7878`). |
 | `GASCOIGNE_MCP_LAZY` | `off`: `mcp-proxy` ignores the tools chosen to load on request (see [mcp](mcp.md#proxy-gascoigne-mcp-proxy)); the saved choice stays. |
 | `GASCOIGNE_PROXY` | `off`: agents never use the LLM proxy. `on`: Claude uses it even with a claude.ai login (see [agents](agents.md#the-llm-proxy-and-a-claudeai-login)). Unset: Claude only with an API key or gateway token. |
+| `GASCOIGNE_MCP_REVIEW=off` | A session start never opens the weekly MCP review page (see [agents](agents.md#weekly-mcp-review)). |
 | `GASCOIGNE_RELEASE_CHECK=off` | Never read the website for a newer release (see [agents](agents.md#release-notice)). |
 | `GASCOIGNE_RELEASE_URL` | Another site address to read `latest.json` from (a mirror, a test). |
 | `GASCOIGNE_GUIDE` | Usage text for agents: `off`, `short` or `full` (overrides `install -guide`). |
