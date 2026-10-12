@@ -437,6 +437,10 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   the usual loopback-Host and cross-origin checks apply. An answer saves the prefs and writes
   user-scope installs again; project installs are listed ("run gascoigne install there").
   `gascoigne setup [-y] [-all]` asks the same in the terminal.
+  New agents: an agent on PATH with no recorded install and not declined gets a question
+  (`integrate:<agent>`, default yes). It is only signaled: a SessionStart note and the page, once per
+  agent (`prefs.offered`); yes runs the user-level install and records it, no is remembered
+  (`prefs.declined`; `setup -all` can reverse it). Nothing is installed without the answer.
 - **Doctor and skills** (`doctor.go`, `claudeskills.go`): `doctor [-fix]` reports the binary on
   PATH, the server, guide level, open questions and, per recorded install, whether the agent's
   config (`configOf`) still holds `hook <agent>` and the registration is current; `-fix` writes

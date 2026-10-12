@@ -15,6 +15,7 @@ All notable changes to gascoigne. The format follows
   after an upgrade (user scope; project installs with `-sync` in the project).
 - `gascoigne setup` and a `/setup` page in the dashboard: permissions and hook updates are asked
   once, in the browser (or the terminal), before anything is changed.
+- A coding agent found on PATH without a gascoigne install is signaled once (session note and the setup page) and installed only on a yes.
 - `gascoigne doctor [-fix]`, and `/gascoigne-stats` and `/gascoigne-doctor` commands in claude.
 - `gain -oneline`: totals on one line, for a status line.
 - Experimental `continuity`: after a compaction or resume, claude gets a short snapshot of its last request, open tasks, edited files and failed commands.

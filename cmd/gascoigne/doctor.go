@@ -62,25 +62,27 @@ func diagnose() []finding {
 	if p, err := exec.LookPath("gascoigne"); err == nil && sameFile(p, exe) {
 		add("ok", "gascoigne %s is on PATH", version.String())
 	} else {
-		add("warn", "gascoigne %s is not on PATH as gascoigne: installed configs call %s", version.String(), exe)
+		add("warn", "gascoigne %s is not on PATH, so agent configs call the full path %s (project files cannot be shared)", version.String(), exe)
 	}
 	switch info, err := health(serverAddr()); {
 	case serverOff():
-		add("warn", "background server is off (GASCOIGNE_SERVER=off): no dashboard, no LLM proxy")
+		add("warn", "background server is switched off (GASCOIGNE_SERVER=off): no dashboard, no LLM proxy")
 	case err != nil:
-		add("ok", "background server is not running; the next command or agent prompt starts it")
+		add("ok", "background server: stopped; it starts by itself with the next command or agent prompt")
 	default:
-		add("ok", "background server running (pid %d, http://%s)", info.PID, info.Addr)
+		add("ok", "background server: running at http://%s (pid %d)", info.Addr, info.PID)
 	}
 
 	p := readPrefs()
-	add("ok", "guide level %s", guideLevel())
-	if open := pendingDecisions(p); len(open) > 0 {
-		var ids []string
-		for _, d := range open {
-			ids = append(ids, d.ID)
+	add("ok", "usage text for agents: %s", guideLevel())
+	var waiting []string
+	for _, q := range pendingDecisions(p) {
+		if !strings.HasPrefix(q.ID, integratePrefix) { // new agents are listed below
+			waiting = append(waiting, q.Title)
 		}
-		add("warn", "undecided: %s; gascoigne setup asks", strings.Join(ids, ", "))
+	}
+	if len(waiting) > 0 {
+		add("warn", "choices waiting for you: %s. Answer them with: gascoigne setup", strings.Join(waiting, "; "))
 	}
 
 	installs := readInstalls()
@@ -89,11 +91,11 @@ func diagnose() []finding {
 	}
 	for _, name := range foundAgents() {
 		if !slices.ContainsFunc(installs, func(e install) bool { return e.Agent == name }) {
-			add("warn", "%s is on PATH but no install is recorded: gascoigne install %s (wrap %s works per run)", name, name, name)
+			add("warn", "%s: found on this machine, but gascoigne is not connected to it yet (connect it for all projects: gascoigne install -g %s)", name, name)
 		}
 	}
 	if len(installs) == 0 && len(foundAgents()) == 0 {
-		add("warn", "no agent found on PATH and no install recorded")
+		add("warn", "no coding agent found on this machine, and none connected to gascoigne")
 	}
 	return out
 }
@@ -101,7 +103,7 @@ func diagnose() []finding {
 // checkInstall looks at one recorded install: its config file still holds
 // the hook, and the registration is current.
 func checkInstall(e install) finding {
-	scope := "user"
+	scope := "all projects"
 	if !e.Global {
 		scope = e.Dir
 	}
@@ -113,18 +115,18 @@ func checkInstall(e install) finding {
 	f := finding{level: "problem"}
 	switch {
 	case lost:
-		f.text = fmt.Sprintf("%s: no gascoigne hook in %s", label, display(file))
+		f.text = fmt.Sprintf("%s: gascoigne's hook is missing from %s", label, display(file))
 	case stale:
-		f.text = fmt.Sprintf("%s: registered by an older gascoigne (%d, now %d): new hooks and rules are missing", label, e.Registration, registrationVersion)
+		f.text = fmt.Sprintf("%s: set up by an older gascoigne, so newer hooks and rules are missing", label)
 	default:
-		return finding{level: "ok", text: label + ": registered"}
+		return finding{level: "ok", text: label + ": connected"}
 	}
 	cwd, _ := os.Getwd()
 	if !e.Global && e.Dir != cwd {
-		f.text += "; run gascoigne install " + e.Agent + " in " + e.Dir
+		f.text += ". Fix it by running gascoigne install " + e.Agent + " in " + e.Dir
 		return f
 	}
-	f.text += "; gascoigne doctor -fix writes it again"
+	f.text += ". Fix it with: gascoigne doctor -fix"
 	f.fix = func() error {
 		a, ok := agents[e.Agent]
 		if !ok {

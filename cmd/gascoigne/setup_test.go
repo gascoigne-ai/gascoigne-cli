@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -18,6 +19,7 @@ func postSetup(h http.Handler, body string) *httptest.ResponseRecorder {
 }
 
 func TestPendingDecisions(t *testing.T) {
+	sandbox(t) // no agents on PATH: only the two own questions
 	if got := pendingDecisions(prefs{}); len(got) != 2 {
 		t.Fatalf("a fresh install has both questions open: %+v", got)
 	}
@@ -139,6 +141,7 @@ func TestSetupPage(t *testing.T) {
 }
 
 func TestAskTerminal(t *testing.T) {
+	sandbox(t)
 	ds := decisions(prefs{})
 	var out strings.Builder
 	got, err := ask(strings.NewReader("\n2\n"), &out, ds, false)
@@ -174,5 +177,91 @@ func TestSetupNudgeOncePerRegistration(t *testing.T) {
 	}
 	if setupNudge() != "" {
 		t.Fatal("asked once per registration version")
+	}
+}
+
+// fakeAgent puts an executable named like an agent on PATH, so it counts as
+// found.
+func fakeAgent(t *testing.T, name string) {
+	t.Helper()
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, name), []byte("#!/bin/sh\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir)
+}
+
+func TestNewAgentIsOnlySignaled(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	fakeAgent(t, "codex")
+	if err := recordInstall("claude", true, "gascoigne", false); err != nil {
+		t.Fatal(err)
+	}
+	p := readPrefs()
+	if got := newAgents(p); len(got) != 1 || got[0] != "codex" {
+		t.Fatalf("new agents: %v", got)
+	}
+	var q *decision
+	for _, d := range pendingDecisions(p) {
+		if d.ID == "integrate:codex" {
+			q = &d
+		}
+	}
+	if q == nil || q.Default != "yes" {
+		t.Fatalf("a question for codex is open: %+v", pendingDecisions(p))
+	}
+
+	// Signaled once: the session context says so, nothing is installed.
+	note := setupNudge()
+	if !strings.Contains(note, "codex") || !strings.Contains(note, "installs nothing by itself") {
+		t.Fatalf("note: %q", note)
+	}
+	if _, err := os.Stat(filepath.Join(os.Getenv("HOME"), ".codex/config.toml")); !os.IsNotExist(err) {
+		t.Fatal("found an agent must not install it")
+	}
+	if got := readInstalls(); len(got) != 1 {
+		t.Fatalf("no install recorded for codex: %+v", got)
+	}
+	if again := setupNudge(); strings.Contains(again, "codex") {
+		t.Errorf("the same agent is not announced twice: %q", again)
+	}
+}
+
+func TestNewAgentAnswers(t *testing.T) {
+	home := sandbox(t)
+	fakeAgent(t, "codex")
+	if _, err := applyAnswers(map[string]string{"integrate:gemini": "yes"}); err == nil {
+		t.Fatal("only agents on PATH can be asked about")
+	}
+	if _, err := applyAnswers(map[string]string{"integrate:codex": "no"}); err != nil {
+		t.Fatal(err)
+	}
+	if got := readPrefs().Declined; len(got) != 1 || got[0] != "codex" {
+		t.Fatalf("declined: %v", got)
+	}
+	if got := newAgents(readPrefs()); len(got) != 1 {
+		t.Fatal("a declined agent still shows (as answered no), the question is not pending")
+	}
+	for _, d := range pendingDecisions(readPrefs()) {
+		if d.ID == "integrate:codex" {
+			t.Error("a declined agent is not asked again")
+		}
+	}
+	lines, err := applyAnswers(map[string]string{"integrate:codex": "yes"}) // changed mind: setup -all
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Join(lines, "\n"); !strings.Contains(got, "codex: set up") {
+		t.Fatalf("report: %s", got)
+	}
+	if len(readPrefs().Declined) != 0 {
+		t.Error("yes clears the decline")
+	}
+	if got := read(t, filepath.Join(home, ".codex/config.toml")); !strings.Contains(got, "gascoigne") {
+		t.Errorf("codex config:\n%s", got)
+	}
+	if got := readInstalls(); len(got) != 1 || got[0].Agent != "codex" || !got[0].Global {
+		t.Errorf("installs: %+v", got)
 	}
 }

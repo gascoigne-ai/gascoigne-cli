@@ -33,7 +33,7 @@ func TestCheckInstall(t *testing.T) {
 	// Lost: someone removed the hook.
 	os.Remove(filepath.Join(home, ".claude/settings.json"))
 	lost := checkInstall(e)
-	if lost.level != "problem" || !strings.Contains(lost.text, "no gascoigne hook") || lost.fix == nil {
+	if lost.level != "problem" || !strings.Contains(lost.text, "hook is missing") || lost.fix == nil {
 		t.Fatalf("lost hook: %+v", lost)
 	}
 	if err := lost.fix(); err != nil {
@@ -59,7 +59,7 @@ func TestCheckInstall(t *testing.T) {
 
 	// A project elsewhere cannot be written from here.
 	elsewhere := install{Agent: "claude", Dir: t.TempDir(), Exe: "gascoigne", Registration: registrationVersion}
-	if f := checkInstall(elsewhere); f.level != "problem" || f.fix != nil || !strings.Contains(f.text, "in "+elsewhere.Dir) {
+	if f := checkInstall(elsewhere); f.level != "problem" || f.fix != nil || !strings.Contains(f.text, elsewhere.Dir) {
 		t.Fatalf("project elsewhere: %+v", f)
 	}
 }
@@ -68,7 +68,7 @@ func TestDiagnose(t *testing.T) {
 	sandbox(t)
 	t.Setenv("GASCOIGNE_SERVER_ADDR", "127.0.0.1:1")
 	got := levels(diagnose())
-	for _, want := range []string{"warn: gascoigne", "not on PATH", "background server is not running", "guide level full", "undecided: allow, autosync", "no agent found"} {
+	for _, want := range []string{"warn: gascoigne", "not on PATH", "background server: stopped", "usage text for agents: full", "choices waiting for you: Fewer approval prompts; Update hooks after an upgrade. Answer them with: gascoigne setup", "no coding agent found"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("report lacks %q:\n%s", want, got)
 		}

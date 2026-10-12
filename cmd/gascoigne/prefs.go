@@ -31,6 +31,10 @@ type prefs struct {
 	// AskedRegistration is the registrationVersion for which the setup page
 	// was last opened by a hook: ask once per version, not every session.
 	AskedRegistration int `json:"asked_registration,omitempty"`
+	// Declined are agents found on PATH that the user chose not to integrate;
+	// Offered are those the setup question was already shown for.
+	Declined []string `json:"declined,omitempty"`
+	Offered  []string `json:"offered,omitempty"`
 }
 
 func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }

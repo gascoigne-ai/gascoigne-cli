@@ -41,7 +41,7 @@ type option struct {
 
 // decisions are the questions, with the saved answers filled in.
 func decisions(p prefs) []decision {
-	return []decision{
+	ds := []decision{
 		{ID: "allow", Current: p.Allow, Default: "local",
 			Title: "Fewer approval prompts",
 			Text: "Claude asks before each use of gascoigne's tools. Adds allow rules to claude's settings " +
@@ -61,6 +61,38 @@ func decisions(p prefs) []decision {
 				{"off", "Only change my configs when I run gascoigne install"},
 			}},
 	}
+	for _, name := range newAgents(p) {
+		ds = append(ds, decision{ID: integratePrefix + name, Default: "yes", Current: declinedAs(p, name),
+			Title: "Use gascoigne with " + name,
+			Text: name + " is on PATH but gascoigne is not set up for it. Yes writes gascoigne's hooks and MCP server into " +
+				"your user-level " + name + " config (a backup is kept; unwrap removes them). Nothing is installed without your answer.",
+			Options: []option{{"yes", "Set it up for " + name}, {"no", "Not for " + name}}})
+	}
+	return ds
+}
+
+// integratePrefix starts the id of a question about an agent found on PATH.
+const integratePrefix = "integrate:"
+
+// newAgents are agents on PATH that have no recorded install and were not
+// declined; the setup page asks about each. gascoigne only signals them.
+func newAgents(p prefs) []string {
+	var out []string
+	installs := readInstalls()
+	for _, name := range foundAgents() {
+		if !slices.ContainsFunc(installs, func(e install) bool { return e.Agent == name }) {
+			out = append(out, name)
+		}
+	}
+	return out
+}
+
+// declinedAs is the saved answer for an agent question: "no" once declined.
+func declinedAs(p prefs, name string) string {
+	if slices.Contains(p.Declined, name) {
+		return "no"
+	}
+	return ""
 }
 
 func pendingDecisions(p prefs) []decision {
@@ -86,6 +118,20 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 			return nil, fmt.Errorf("unknown question %q", id)
 		}
 	}
+	var out []string
+	for id, v := range answers {
+		name, ok := strings.CutPrefix(id, integratePrefix)
+		if !ok {
+			continue
+		}
+		p.Declined = slices.DeleteFunc(p.Declined, func(x string) bool { return x == name })
+		if v == "no" {
+			p.Declined = append(p.Declined, name)
+			continue
+		}
+		out = append(out, integrate(name))
+	}
+	slices.Sort(p.Declined)
 	if v, ok := answers["allow"]; ok {
 		p.Allow = v
 	}
@@ -95,7 +141,25 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 	if err := p.save(); err != nil {
 		return nil, err
 	}
-	return rewriteInstalls(), nil
+	return append(out, rewriteInstalls()...), nil
+}
+
+// integrate sets gascoigne up for an agent the user said yes to: the same
+// user-level install as gascoigne install -g <agent>.
+func integrate(name string) string {
+	a, ok := agents[name]
+	exe, err := os.Executable()
+	if !ok || err != nil {
+		return name + ": could not be set up, run gascoigne install -g " + name
+	}
+	cmd := installedName(exe)
+	if _, err := a.add(cmd, true); err != nil {
+		return fmt.Sprintf("%s: could not be set up (%v), run gascoigne install -g %s", name, err, name)
+	}
+	if err := recordInstall(name, true, cmd, false); err != nil {
+		return name + ": set up, but not recorded: " + err.Error()
+	}
+	return name + ": set up"
 }
 
 // rewriteInstalls writes every user-scope install again, and says which
@@ -197,6 +261,7 @@ func offerSetup(w io.Writer) {
 		return
 	}
 	p.AskedRegistration = registrationVersion
+	p.Offered = append(p.Offered, newAgents(p)...)
 	if err := p.save(); err != nil {
 		fmt.Fprintln(w, "gascoigne:", err)
 	}
@@ -213,15 +278,26 @@ func offerSetup(w io.Writer) {
 // tell the agent how to answer if it cannot.
 func setupNudge() string {
 	p := readPrefs()
-	if len(pendingDecisions(p)) == 0 || p.AskedRegistration >= registrationVersion || len(readInstalls()) == 0 {
+	if len(readInstalls()) == 0 {
+		return ""
+	}
+	fresh := slices.DeleteFunc(newAgents(p), func(n string) bool {
+		return slices.Contains(p.Offered, n) || slices.Contains(p.Declined, n)
+	})
+	own := slices.DeleteFunc(pendingDecisions(p), func(d decision) bool { return strings.HasPrefix(d.ID, integratePrefix) })
+	if len(fresh) == 0 && (len(own) == 0 || p.AskedRegistration >= registrationVersion) {
 		return ""
 	}
 	p.AskedRegistration = registrationVersion
+	p.Offered = append(p.Offered, fresh...)
 	if p.save() != nil {
 		return ""
 	}
 	if _, err := askInBrowser(); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne:", err)
+	}
+	if len(fresh) > 0 {
+		return "gascoigne found " + strings.Join(fresh, ", ") + " on PATH without a gascoigne install; it asks the user (browser, or gascoigne setup) and installs nothing by itself."
 	}
 	return "gascoigne has settings that await the user's decision (opened in a browser); the terminal form is: gascoigne setup."
 }
