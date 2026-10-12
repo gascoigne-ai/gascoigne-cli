@@ -44,6 +44,6 @@ func cmdMCPLogin(ctx context.Context, args []string) error {
 	if err := mcpauth.Login(ctx, store, url, open); err != nil {
 		return err
 	}
-	fmt.Println("logged in to", mcpauth.Display(url), "- run gascoigne install (or upgrade) so agents use it through mcp-proxy")
+	fmt.Println("logged in to", mcpauth.Display(url))
 	return nil
 }
