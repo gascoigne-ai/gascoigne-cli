@@ -289,12 +289,13 @@ func spawnServer(addr string) error {
 // serverEnv is the environment of a spawned server: GASCOIGNE_* variables
 // of the command that spawns it (raw mode, overrides, agent identity) would
 // otherwise apply to every later run it optimizes. Only those naming its
-// ledger, config and address stay.
+// ledger, config and address stay, and the release notice settings, which
+// are the server's own (the opt-out must reach the process that makes the request).
 func serverEnv(env []string) []string {
 	return slices.DeleteFunc(slices.Clone(env), func(kv string) bool {
 		k, _, _ := strings.Cut(kv, "=")
 		return strings.HasPrefix(k, "GASCOIGNE_") &&
-			!slices.Contains([]string{ledger.EnvPath, "GASCOIGNE_CONFIG", "GASCOIGNE_SERVER_ADDR", "GASCOIGNE_SERVER_IDLE"}, k)
+			!slices.Contains([]string{ledger.EnvPath, "GASCOIGNE_CONFIG", "GASCOIGNE_SERVER_ADDR", "GASCOIGNE_SERVER_IDLE", "GASCOIGNE_RELEASE_CHECK", "GASCOIGNE_RELEASE_URL"}, k)
 	})
 }
 

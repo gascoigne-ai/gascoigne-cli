@@ -37,8 +37,12 @@ func TestProcessEnv(t *testing.T) {
 
 func TestServerEnv(t *testing.T) {
 	got := serverEnv([]string{"HOME=/home/user", "GASCOIGNE_RAW=1", "GASCOIGNE_AGENT=claude",
-		"GASCOIGNE_LEDGER=/tmp/l.db", "GASCOIGNE_SERVER_ADDR=127.0.0.1:1"})
-	want := []string{"HOME=/home/user", "GASCOIGNE_LEDGER=/tmp/l.db", "GASCOIGNE_SERVER_ADDR=127.0.0.1:1"}
+		"GASCOIGNE_LEDGER=/tmp/l.db", "GASCOIGNE_SERVER_ADDR=127.0.0.1:1",
+		"GASCOIGNE_RELEASE_CHECK=off", "GASCOIGNE_RELEASE_URL=http://mirror/"})
+	// The release notice settings belong to the server: an opt-out in the
+	// user's shell must reach the process that makes the request.
+	want := []string{"HOME=/home/user", "GASCOIGNE_LEDGER=/tmp/l.db", "GASCOIGNE_SERVER_ADDR=127.0.0.1:1",
+		"GASCOIGNE_RELEASE_CHECK=off", "GASCOIGNE_RELEASE_URL=http://mirror/"}
 	if !slices.Equal(got, want) {
 		t.Fatalf("serverEnv = %q, want %q", got, want)
 	}
