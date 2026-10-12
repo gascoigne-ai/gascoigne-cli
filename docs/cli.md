@@ -124,7 +124,8 @@ tokens of context.
 The what-if uses one simple model for every threshold (cache reads for what was cached, writes for what
 is new, one request over the whole context plus a 12k-token summary per compaction), so the numbers
 compare with each other; its baseline came within 5% of the actual cost there. Dollars are list prices
-with 5-minute cache writes: a subscription does not bill per token, and 1-hour writes cost more.
+with cache writes at the 5-minute or 1-hour rate the transcript records (the 1-hour write costs 1.6 times
+more): a subscription does not bill per token.
 **Compacting saves tokens, not detail**: the saving is an upper bound on what is worth giving up, not
 advice to compact everywhere. Only main conversations count, subagents have conversations of their own. A session that spans the
 period counts only the requests inside it (the page offers 24 hours to 90 days).

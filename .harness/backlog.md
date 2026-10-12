@@ -10,8 +10,9 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 - Real fixtures to replace synthetic ones once tools are at hand: terraform/tofu, pulumi, cdk,
   helm diff, kubectl, aws/gcloud/az, mysql, gh (authenticated). Per change: case savings up,
   `keep` strings intact, goldens reviewed.
-- Usage: split 1h vs 5-minute cache writes (Anthropic `cache_creation.ephemeral_1h_input_tokens`)
-  so `gain` prices 1h writes right; compare measured input with tokens saved per agent.
+- Usage: split 1h vs 5-minute cache writes in `gain`'s api usage (the proxy's `usage` rows). The context report
+  already prices them apart from transcripts; the proxy path needs a field on `component.Usage` (core: needs
+  approval). Compare measured input with tokens saved per agent.
 
 - Continuity snapshot (`experimental: [continuity]`): A/B on a task that forces a compaction (tokens
   added at each compaction vs rework avoided) is not run; keep it experimental until it is.
@@ -59,16 +60,16 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
     headless task runner [14]; plugin hook pricing [16] (also covered by the settings audit task).
 
 ## Measured
-- Text added to conversations (`gascoigne context`, 2026-10-12, 30 days, one machine, $437): instruction files
-  $18 (4%), the skill listing $8 (1.9%), agent listing $1.5, MCP instructions $0.9, a SessionStart plugin hook
-  $0.5. Per-prompt hook context is named by event only. Nothing here is large: the lever is context size
+- Text added to conversations (`gascoigne context`, 2026-10-12, 30 days, one machine, $485): instruction files
+  about $20 (4%), the skill listing about $9 (1.9%), agent listing $1.7, MCP instructions $1, a SessionStart plugin
+  hook $0.6. Per-prompt hook context is named by event only. Nothing here is large: the lever is context size
   and cache rewrites, not these.
 
-- Cache rewrites from transcripts (`gascoigne context`, 2026-10-12, 30 days, one machine, $437 at list prices):
-  rewrites cost about $48 extra (11%): pauses over an hour $15, "changed within the cache lifetime" $17 in
-  19 requests of roughly 190k tokens each, compactions $12, pauses of 5-60 minutes $4. Told apart further from
+- Cache rewrites from transcripts (`gascoigne context`, 2026-10-12, 30 days, one machine, $485 at list prices with 1-hour cache writes priced
+  as such): rewrites cost about $77 extra (16%): pauses over an hour $24, compactions $20, shrinking context
+  $20, other changes within the cache lifetime $8, pauses of 5-60 minutes $5. Told apart further from
   the transcript: 9 requests where the context shrank slightly and nothing was read ($12: older content removed
-  or rewritten, which looks like Claude Code's own context management), 1 model switch, the rest unexplained.
+  or rewritten, which looks like Claude Code's own context management; $20 of the above), 1 model switch, the rest unexplained.
   Requests above 400k tokens of context were 42% of the cost. Naming a system prompt or tool-set divergence needs
   request bodies: record the first differing part per proxied request in the LLM proxy (open idea).
 

@@ -49,6 +49,7 @@ var thresholds = []int{150_000, 250_000, 400_000}
 // turn is one model request of a session.
 type turn struct {
 	ctx, read, write, input, output int
+	write1h                         int // of write, what was cached for an hour (the dearer write)
 	ts                              time.Time
 	model                           string
 	marks                           []string // changes the transcript records between the previous request and this one
@@ -164,7 +165,10 @@ type usageLine struct {
 			Input       int `json:"input_tokens"`
 			CacheRead   int `json:"cache_read_input_tokens"`
 			CacheCreate int `json:"cache_creation_input_tokens"`
-			Output      int `json:"output_tokens"`
+			Creation    struct {
+				Hour int `json:"ephemeral_1h_input_tokens"`
+			} `json:"cache_creation"`
+			Output int `json:"output_tokens"`
 		} `json:"usage"`
 	} `json:"message"`
 }
@@ -197,7 +201,7 @@ func readSession(r io.Reader, name string, since time.Time) (sessionCost, error)
 				u := t.Message.Usage
 				ctx := u.Input + u.CacheRead + u.CacheCreate
 				if ctx > 0 && !strings.HasPrefix(t.Message.Model, "<") {
-					tn := turn{ctx: ctx, read: u.CacheRead, write: u.CacheCreate, input: u.Input, output: u.Output}
+					tn := turn{ctx: ctx, read: u.CacheRead, write: u.CacheCreate, write1h: min(u.Creation.Hour, u.CacheCreate), input: u.Input, output: u.Output}
 					tn.ts, _ = time.Parse(time.RFC3339, t.Timestamp)
 					tn.model = t.Message.Model
 					if s.floor == 0 || ctx < s.floor {
@@ -264,7 +268,7 @@ func (s *sessionCost) finish() {
 	s.Priced = ok
 	if ok {
 		for _, t := range s.turns {
-			s.CostUSD += turnCost(m, t.input, t.read, t.write, t.output)
+			s.CostUSD += t.cost(m)
 		}
 	}
 	s.Series = downsample(s.turns, sparkPoints)
@@ -417,6 +421,30 @@ func compacted(prev, ctx int) bool {
 	return prev >= minContext && float64(ctx) < compactDrop*float64(prev)
 }
 
+// cost prices the request as the transcript recorded it: cache writes at the
+// 5-minute or the 1-hour rate it was made with.
+func (t turn) cost(m cost.Model) float64 {
+	return (float64(t.input)*m.Input + float64(t.read)*m.CacheRead + float64(t.write-t.write1h)*m.CacheWrite +
+		float64(t.write1h)*oneHourWrite*m.Input + float64(t.output)*m.Output) / 1e6
+}
+
+// oneHourWrite is what a 1-hour cache write costs, in times the input price
+// (a 5-minute write is 1.25 times).
+const oneHourWrite = 2
+
+// effectiveModel is m with the cache write price of what the session actually
+// wrote: the what-ifs write context that never was, and price it as the session did.
+func effectiveModel(m cost.Model, turns []turn) cost.Model {
+	var all, hour int
+	for _, t := range turns {
+		all, hour = all+t.write, hour+t.write1h
+	}
+	if all > 0 && hour > 0 {
+		m.CacheWrite = (float64(all-hour)*m.CacheWrite + float64(hour)*oneHourWrite*m.Input) / float64(all)
+	}
+	return m
+}
+
 // turnCost prices one request at list prices; cache writes at the 5-minute
 // price. Tokens are priced per million.
 func turnCost(m cost.Model, input, read, write, output int) float64 {
@@ -511,7 +539,8 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 			continue
 		}
 		r.CostUSD += s.CostUSD
-		m, _ := priceOf(s.Model)
+		exact, _ := priceOf(s.Model)
+		m := effectiveModel(exact, s.turns)
 		base, _ := simulate(s.turns, 0, s.floor, m)
 		r.ModelUSD += base
 		for i, t := range thresholds {
@@ -546,7 +575,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		for _, t := range s.turns {
 			b := &r.Buckets[bucketOf(t.ctx)]
 			b.Turns++
-			b.CostUSD += turnCost(m, t.input, t.read, t.write, t.output)
+			b.CostUSD += t.cost(exact)
 		}
 	}
 	for i := range r.Buckets {
@@ -587,7 +616,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 	}
 	r.WhatIf = wi
 	r.Assumptions = []string{
-		"Dollars are what the tokens would cost at API list prices (5-minute cache writes); a subscription does not bill per token, and 1-hour cache writes cost more.",
+		"Dollars are what the tokens would cost at API list prices, cache writes at the 5-minute or 1-hour rate the transcript records; a subscription does not bill per token.",
 		fmt.Sprintf("A compaction is assumed to cost one request over the whole context plus a %dk-token summary; later turns grow as they did.", summaryTokens/1000),
 		"Compacting saves tokens, not detail: the summary forgets what it leaves out. Treat the saving as an upper bound on what is worth giving up.",
 		"Only main conversations are counted; subagents run in conversations of their own.",

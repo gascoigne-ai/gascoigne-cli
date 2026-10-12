@@ -438,3 +438,30 @@ func TestRewriteEvidence(t *testing.T) {
 		t.Error("bookkeeping is a mark")
 	}
 }
+
+func TestOneHourCacheWrites(t *testing.T) {
+	opus, _ := cost.Lookup("claude-opus-5-5")
+	five := turn{ctx: 100_000, write: 100_000}
+	hour := turn{ctx: 100_000, write: 100_000, write1h: 100_000}
+	half := turn{ctx: 100_000, write: 100_000, write1h: 50_000}
+	if d := five.cost(opus) - float64(100_000)*opus.CacheWrite/1e6; d > 1e-9 || d < -1e-9 {
+		t.Fatalf("5-minute write %.6f", five.cost(opus))
+	}
+	if d := hour.cost(opus) - float64(100_000)*2*opus.Input/1e6; d > 1e-9 || d < -1e-9 || hour.cost(opus) <= five.cost(opus) {
+		t.Fatalf("1-hour write %.6f vs %.6f", hour.cost(opus), five.cost(opus))
+	}
+	if d := half.cost(opus) - (five.cost(opus)+hour.cost(opus))/2; d > 1e-9 || d < -1e-9 {
+		t.Fatalf("a mix is the mean: %.6f", half.cost(opus))
+	}
+	if e := effectiveModel(opus, []turn{half}); e.CacheWrite <= opus.CacheWrite || e.CacheWrite >= 2*opus.Input {
+		t.Fatalf("effective write price %.2f", e.CacheWrite)
+	}
+	if e := effectiveModel(opus, []turn{five}); e.CacheWrite != opus.CacheWrite {
+		t.Fatal("no 1-hour writes: the model is unchanged")
+	}
+	line := `{"type":"assistant","timestamp":"2026-10-10T10:00:00Z","message":{"id":"a","model":"claude-opus-5-5","usage":{"input_tokens":1,"cache_read_input_tokens":0,"cache_creation_input_tokens":1000,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":1000},"output_tokens":5}}}`
+	s, _ := readSession(strings.NewReader(line), "x.jsonl", time.Time{})
+	if s.turns[0].write1h != 1000 {
+		t.Fatalf("the 1-hour split was not read: %+v", s.turns[0])
+	}
+}
