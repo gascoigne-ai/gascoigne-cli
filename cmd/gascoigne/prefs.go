@@ -46,6 +46,10 @@ type prefs struct {
 	// UpdateDeclined is the registrationVersion whose hook update the user
 	// declined: asked again with the next one.
 	UpdateDeclined int `json:"update_declined,omitempty"`
+	// LazyTools are the MCP tools the user chose to load on request only, by
+	// server id (name#hash, see mcpreview.go): mcp-proxy lists the others and
+	// reaches these through search_tools and call_tool. Set on the review page.
+	LazyTools map[string][]string `json:"lazy_tools,omitempty"`
 }
 
 func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }

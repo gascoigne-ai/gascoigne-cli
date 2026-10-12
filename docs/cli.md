@@ -114,12 +114,14 @@ called is paid for all week. The page lists each server with its definition toke
 the tokens of tools not called in 14 days, calls in the last 7 days and the 7 before, and a verdict:
 `used`, `rarely used` (at most two calls a week for a server costing 1,500 tokens or more per
 request), `unused` (no call in 14 days) or `learning` (seen for less than a week, so no verdict).
-Click a server for its tools. Without a display, under `CI`, or with `GASCOIGNE_SERVER=off` the
+Click a server for its tools and for the one action the page offers: loading the tools it never uses on
+request instead of listing them (see [mcp](mcp.md#proxy-gascoigne-mcp-proxy)). Without a display, under `CI`, or with `GASCOIGNE_SERVER=off` the
 table is printed instead; `-open=false` only prints the page's address.
 
 The data is what `mcp-proxy` records when the agent lists tools and calls them (names, sizes and
 counts only), kept two weeks (`ledger.stats_ttl`). Servers that stay direct have no sizes and show
-only once the agent has called them. It changes nothing: acting on the review is up to you.
+only once the agent has called them. Looking changes nothing; the page's one action, loading unused
+tools on request, is saved only when you press its button.
 
 ## `reset`
 
@@ -165,6 +167,7 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 | `GASCOIGNE_SERVER=off` | Never start or use the background server: every command builds its own pipeline. |
 | `GASCOIGNE_SERVER_IDLE` | How long the background server waits without a request before it exits (default `30m`, `0` never). |
 | `GASCOIGNE_SERVER_ADDR` | Server address (default `127.0.0.1:7878`). |
+| `GASCOIGNE_MCP_LAZY` | `off`: `mcp-proxy` ignores the tools chosen to load on request (see [mcp](mcp.md#proxy-gascoigne-mcp-proxy)); the saved choice stays. |
 | `GASCOIGNE_PROXY` | `off`: agents never use the LLM proxy. `on`: Claude uses it even with a claude.ai login (see [agents](agents.md#the-llm-proxy-and-a-claudeai-login)). Unset: Claude only with an API key or gateway token. |
 | `GASCOIGNE_RELEASE_CHECK=off` | Never read the website for a newer release (see [agents](agents.md#release-notice)). |
 | `GASCOIGNE_RELEASE_URL` | Another site address to read `latest.json` from (a mirror, a test). |

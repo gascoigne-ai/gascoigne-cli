@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"runtime"
 	"slices"
@@ -66,6 +67,7 @@ type mcpServer struct {
 	LastUsed  string    `json:"last_used,omitempty"`
 	Seen      int       `json:"seen_days"`
 	Agents    []string  `json:"agents"`
+	Chosen    []string  `json:"lazy_chosen"` // tools the user chose to load on request: they take effect from the next session
 	Tools     []mcpTool `json:"tools"`
 }
 
@@ -297,7 +299,7 @@ func printReview(w io.Writer, r mcpReview) {
 }
 
 // loadReview reads the last two weeks from the ledger.
-func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time) (mcpReview, error) {
+func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map[string][]string) (mcpReview, error) {
 	since := now.AddDate(0, 0, -2*7)
 	stats, err := l.ToolStats(ctx, since)
 	if err != nil {
@@ -307,7 +309,14 @@ func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time) (mcpReview
 	if err != nil {
 		return mcpReview{}, err
 	}
-	return buildReview(stats, cmds, now), nil
+	review := buildReview(stats, cmds, now)
+	for i, s := range review.Servers {
+		review.Servers[i].Chosen = []string{}
+		if c := chosen[s.ID]; len(c) > 0 {
+			review.Servers[i].Chosen = c
+		}
+	}
+	return review, nil
 }
 
 // cmdMCPReview opens the review page; the table is the fallback for a
@@ -328,7 +337,7 @@ func cmdMCPReview(ctx context.Context, args []string) error {
 			}
 			return nil
 		}
-		review, err := loadReview(ctx, l, time.Now())
+		review, err := loadReview(ctx, l, time.Now(), lazyChoices())
 		if err != nil {
 			return err
 		}
@@ -358,5 +367,57 @@ func labelDuplicates(servers []mcpServer) {
 		if _, hash, ok := strings.Cut(s.ID, "#"); ok && count[s.Name] > 1 {
 			servers[i].Label = s.Name + " (" + hash + ")"
 		}
+	}
+}
+
+// setLazy saves which tools of one server load on request. It accepts only a
+// proxied server and tool names the review already shows for it, so the
+// endpoint cannot be made to write anything else into the prefs.
+func setLazy(l *ledger.Ledger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			ID    string   `json:"id"`
+			Tools []string `json:"tools"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&in); err != nil {
+			http.Error(w, "want {id, tools}: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		review, err := loadReview(r.Context(), l, time.Now(), nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		i := slices.IndexFunc(review.Servers, func(s mcpServer) bool { return s.ID == in.ID && s.Sized })
+		if i < 0 {
+			http.Error(w, "unknown server: only servers started through mcp-proxy can load tools on request", http.StatusBadRequest)
+			return
+		}
+		known := map[string]bool{}
+		for _, t := range review.Servers[i].Tools {
+			known[t.Name] = !lazyModeTool(t.Name)
+		}
+		for _, t := range in.Tools {
+			if !known[t] {
+				http.Error(w, "unknown tool "+t+" for this server", http.StatusBadRequest)
+				return
+			}
+		}
+		p := readPrefs()
+		tools := slices.Compact(slices.Sorted(slices.Values(in.Tools)))
+		if len(tools) == 0 {
+			delete(p.LazyTools, in.ID)
+		} else {
+			if p.LazyTools == nil {
+				p.LazyTools = map[string][]string{}
+			}
+			p.LazyTools[in.ID] = tools
+		}
+		if err := p.save(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		review, err = loadReview(r.Context(), l, time.Now(), p.LazyTools)
+		respond(w, review, err)
 	}
 }

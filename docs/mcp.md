@@ -73,6 +73,17 @@ Tool schemas are compacted on the way (`compact_tools`): titles that restate a p
 two (`max_tools: 40`): `search_tools` finds tools by what they do and returns their schemas,
 `call_tool` runs one. Use it for agents without native tool search; Claude Code has its own.
 
+**Load tools on request.** Instead of hiding a whole server, you can list only the tools you use and
+keep the rest on request: on the [MCP review page](cli.md#mcp-review) (`gascoigne mcp-review`) open a
+server and choose "Load these on request" for the tools it never called in 14 days. The proxy then
+lists the others as usual and adds `search_tools` and `call_tool`; the description of `search_tools`
+names the tools left out (names only), so the agent knows they exist and asks for one when the task
+needs it. Nothing is removed. The choice is read when the agent starts the proxy, so it applies from
+the next session and a session's tool list never changes (the prompt cache holds). On a 30-tool
+server with 25 tools left out, the listed definitions fell from about 5,200 to 1,200 tokens. "List
+all tools again" undoes it; `GASCOIGNE_MCP_LAZY=off` ignores the choice for one run. A server that has a
+tool named `search_tools` or `call_tool` gets no lazy tools, and `max_tools` wins over a choice.
+
 Register the proxy in place of the original server:
 
 ```json

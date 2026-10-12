@@ -260,7 +260,18 @@ func cmdMCP(ctx context.Context, args []string) error {
 }
 
 func cmdMCPProxy(ctx context.Context, args []string) error {
-	return serve(ctx, "mcp-proxy", args, mcpproxyreceiver.With)
+	return serve(ctx, "mcp-proxy", args, func(ctx context.Context, command []string) context.Context {
+		return mcpproxyreceiver.WithLazy(mcpproxyreceiver.With(ctx, command), lazyChoices())
+	})
+}
+
+// lazyChoices are the tools to load on request, by server id. GASCOIGNE_MCP_LAZY=off
+// ignores them for a run, without touching the saved choices.
+func lazyChoices() map[string][]string {
+	if os.Getenv("GASCOIGNE_MCP_LAZY") == "off" {
+		return nil
+	}
+	return readPrefs().LazyTools
 }
 
 // serve runs one long-lived pipeline; with sets per-run receiver input from positional args.

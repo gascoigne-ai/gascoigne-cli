@@ -2,7 +2,10 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"net/http/httptest"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -219,4 +222,89 @@ func TestBuildReviewLazy(t *testing.T) {
 	if s.Verdict != verdictUsed {
 		t.Fatalf("verdict %s", s.Verdict)
 	}
+}
+
+func TestSetLazy(t *testing.T) {
+	sandbox(t)
+	l, h := testDashboard(t)
+	ctx := t.Context()
+	const kube = "kube#aaaa1111"
+	if err := l.RecordToolList(ctx, "claude", kube, map[string]int{"get": 200, "search_tools": 150, "call_tool": 120}, map[string]int{"drain": 400, "cordon": 300}); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.RecordToolCall(ctx, "claude", "direct-db", "query"); err != nil { // a server with no sizes
+		t.Fatal(err)
+	}
+	post := func(body string, header ...string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest("POST", "/api/mcp/lazy", strings.NewReader(body))
+		r.Host = "127.0.0.1:7878"
+		for i := 0; i+1 < len(header); i += 2 {
+			r.Header.Set(header[i], header[i+1])
+		}
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+
+	t.Run("saves a sorted, unique choice and reports it", func(t *testing.T) {
+		w := post(`{"id":"` + kube + `","tools":["drain","cordon","drain"]}`)
+		if w.Code != 200 {
+			t.Fatalf("%d: %s", w.Code, w.Body.String())
+		}
+		if got := readPrefs().LazyTools[kube]; !slices.Equal(got, []string{"cordon", "drain"}) {
+			t.Fatalf("prefs hold %v", got)
+		}
+		var r mcpReview
+		json.Unmarshal(w.Body.Bytes(), &r)
+		found := false
+		for _, srv := range r.Servers {
+			found = found || srv.ID == kube && slices.Equal(srv.Chosen, []string{"cordon", "drain"})
+		}
+		if !found {
+			t.Fatalf("review does not report the choice: %+v", r.Servers)
+		}
+		if got := lazyChoices()[kube]; len(got) != 2 {
+			t.Fatalf("mcp-proxy would read %v", got)
+		}
+	})
+	t.Run("GASCOIGNE_MCP_LAZY=off ignores the saved choice for a run", func(t *testing.T) {
+		t.Setenv("GASCOIGNE_MCP_LAZY", "off")
+		if got := lazyChoices(); got != nil {
+			t.Fatalf("got %v", got)
+		}
+		if len(readPrefs().LazyTools[kube]) != 2 {
+			t.Fatal("the saved choice was touched")
+		}
+	})
+	t.Run("an empty list clears it", func(t *testing.T) {
+		if w := post(`{"id":"` + kube + `","tools":[]}`); w.Code != 200 {
+			t.Fatalf("%d: %s", w.Code, w.Body.String())
+		}
+		if _, ok := readPrefs().LazyTools[kube]; ok {
+			t.Fatal("choice kept")
+		}
+	})
+	bad := map[string]string{
+		"unknown server":         `{"id":"other#00000000","tools":["get"]}`,
+		"a server with no sizes": `{"id":"direct-db","tools":["query"]}`,
+		"unknown tool":           `{"id":"` + kube + `","tools":["rm_rf"]}`,
+		"a lazy-mode tool":       `{"id":"` + kube + `","tools":["call_tool"]}`,
+		"not json":               `lazy please`,
+		"wrong type":             `{"id":"` + kube + `","tools":"drain"}`,
+	}
+	for name, body := range bad {
+		t.Run("refuses "+name, func(t *testing.T) {
+			if w := post(body); w.Code != 400 {
+				t.Fatalf("%d: %s", w.Code, w.Body.String())
+			}
+			if len(readPrefs().LazyTools) != 0 {
+				t.Fatalf("prefs written: %v", readPrefs().LazyTools)
+			}
+		})
+	}
+	t.Run("refuses another origin", func(t *testing.T) {
+		if w := post(`{"id":"`+kube+`","tools":["drain"]}`, "Origin", "http://evil.example"); w.Code != 403 {
+			t.Fatalf("%d", w.Code)
+		}
+	})
 }

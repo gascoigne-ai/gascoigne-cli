@@ -62,6 +62,14 @@ tr.detail > td { padding: 0 12px 12px 36px; background: var(--surface-2); }
 tr.detail table { font-size: 13px; }
 tr.detail th { background: transparent; }
 .muted { color: var(--muted); }
+.actions { padding: 12px 0 6px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.actions p { margin: 0; max-width: 70ch; white-space: normal; }
+.btn { font: inherit; font-weight: 600; font-size: 13.5px; color: var(--accent); background: var(--surface); border: 1px solid var(--accent); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.btn:hover { background: var(--accent-soft); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn[disabled] { opacity: .6; cursor: default; }
+.err { color: var(--err); }
+.note { color: var(--warn); }
 .empty { padding: 28px 16px; color: var(--muted); }
 code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
 @media (max-width: 640px) { main { padding: 20px 12px 60px; } }
@@ -74,7 +82,7 @@ code { font-family: var(--mono); font-size: .9em; background: var(--surface-2); 
     <span class="chip" id="days"></span>
     <a href="/">dashboard</a>
   </header>
-  <p class="lead">What each MCP server's tool definitions cost in every request, and whether the agent used them. Definitions are re-read by every request of a session, so an unused server is paid for all week. Click a server for its tools.</p>
+  <p class="lead">What each MCP server's tool definitions cost in every request, and whether the agent used them. Definitions are re-read by every request of a session, so an unused server is paid for all week. Click a server for its tools, and to load the ones it never uses on request instead of listing them.</p>
   <div id="notes"></div>
   <div class="panel" id="panel"><p class="empty">Loading…</p></div>
 </main>
@@ -112,6 +120,51 @@ function trend(s) {
   return el("span", { class: "trend " + (up ? "up" : "down"), text: up ? " ▲" : " ▼" });
 }
 
+const meta = (t) => t.name === "search_tools" || t.name === "call_tool"; // the price of lazy tools, never idle
+let busy = false, problem = "";
+
+// Saving a choice: the proxy reads it when a session starts, so it reaches the next session.
+async function choose(id, tools) {
+  busy = true; problem = ""; render();
+  try {
+    const r = await fetch("/api/mcp/lazy", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, tools }) });
+    if (!r.ok) throw new Error((await r.text()).trim() || r.statusText);
+    data = await r.json();
+  } catch (e) { problem = "Could not save: " + e.message; }
+  busy = false; render();
+}
+
+function actions(s) {
+  const box = el("div", { class: "actions" });
+  if (!s.sized) {
+    box.append(el("p", { class: "muted", text: "This server does not go through mcp-proxy, so its tools cannot be loaded on request." }));
+    return box;
+  }
+  const chosen = new Set(s.lazy_chosen);
+  const idle = s.tools.filter((t) => !t.lazy && !meta(t) && t.calls_14d === 0 && !chosen.has(t.name));
+  const idleTokens = idle.reduce((n, t) => n + t.tokens, 0);
+  const effective = new Set(s.tools.filter((t) => t.lazy).map((t) => t.name));
+  if (idle.length) {
+    box.append(el("p", { text: `${idle.length} of its tools were not called in 14 days; their definitions cost ${num(idleTokens)} tokens in every request. Loaded on request, they are not listed: the agent is told they exist and asks for one by name when it needs it.` }));
+    const b = el("button", { type: "button", class: "btn", text: "Load these on request" });
+    if (busy) b.disabled = true;
+    b.addEventListener("click", () => choose(s.id, [...new Set([...chosen, ...idle.map((t) => t.name)])]));
+    box.append(b);
+  }
+  if (chosen.size) {
+    box.append(el("p", { text: `${chosen.size} tools load on request${s.lazy_tokens ? `, saving ${num(s.lazy_tokens)} tokens per request` : ""}.` }));
+    const b = el("button", { type: "button", class: "btn", text: "List all tools again" });
+    if (busy) b.disabled = true;
+    b.addEventListener("click", () => choose(s.id, []));
+    box.append(b);
+  }
+  const pending = chosen.size !== effective.size || [...chosen].some((n) => !effective.has(n));
+  if (pending) box.append(el("p", { class: "note", text: "Applies from the next session of your agent." }));
+  if (!idle.length && !chosen.size) box.append(el("p", { class: "muted", text: "Every tool was called in the last 14 days." }));
+  if (problem) box.append(el("p", { class: "err", role: "alert", text: problem }));
+  return box;
+}
+
 function serverRows(s, max) {
   const main = el("tr", { class: "server", tabindex: "0", "aria-expanded": String(open.has(s.id)) });
   const toggle = () => { open.has(s.id) ? open.delete(s.id) : open.add(s.id); render(); };
@@ -140,12 +193,12 @@ function serverRows(s, max) {
     const body = el("tbody");
     for (const t of s.tools) {
       body.append(el("tr", {},
-        el("td", {}, t.name, t.calls_14d === 0 && s.sized ? el("span", { class: "muted", text: "  not called" }) : null),
-        el("td", { class: "num", text: t.tokens ? num(t.tokens) : "–" }),
+        el("td", {}, t.name, t.lazy ? el("span", { class: "muted", text: "  loads on request" }) : t.calls_14d === 0 && s.sized && !meta(t) ? el("span", { class: "muted", text: "  not called" }) : null),
+        el("td", { class: "num", title: t.lazy ? "what it would cost if listed" : "", text: t.tokens ? num(t.tokens) : "–" }),
         el("td", { class: "num", text: num(t.calls_7d) }), el("td", { class: "num", text: num(t.calls_14d) })));
     }
     inner.append(body);
-    rows.push(el("tr", { class: "detail" }, el("td", { colspan: String(columns.length) }, inner)));
+    rows.push(el("tr", { class: "detail" }, el("td", { colspan: String(columns.length) }, actions(s), inner)));
   }
   return rows;
 }

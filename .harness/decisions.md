@@ -112,6 +112,25 @@ user's choice, so it must not bring the page back.
   Sort and filter are not in the URL hash: it holds `#run-ID` links.
 - **Savings are estimates, never billing**; every report that shows dollars says so.
 
+## MCP review
+
+**Lazy tools, not hidden tools.** An unused tool is not removed from the agent: `mcp-proxy` stops listing
+it and says in `search_tools`'s description that it exists, so the agent asks for it by name when the task
+needs it. Rejected: hiding for good (an agent that is never told cannot ask) and a `list_changed`
+notification when the agent asks (a changed tool set busts the prompt cache); the lazy set is read at
+start and never changes inside a session.
+
+**The choice needs no setup token.** It is saved from the review page with the dashboard's own guards
+(loopback Host, same-origin writes) and no one-time token, unlike the setup page. The setup page changes
+other programs' settings; this changes gascoigne's own `prefs.json` and is reversible in one click.
+The endpoint accepts only a proxied server and tool names the review already shows for it.
+
+**Server ids are name plus a command hash.** A server's reported name collides when one binary is
+configured twice (two databases, two roots), so stats and choices are keyed by the name and a short hash of
+the command line. Only the hash is stored: arguments can hold keys. The agent's config key is not known to
+`mcp-proxy`; passing it would change what `install` writes for every agent, so disabling a server (which
+needs it) is left to a later task.
+
 ## Process
 
 - Diagrams are Mermaid in the Markdown (README, `docs/`, `.harness/`): renders on GitHub, diffs as

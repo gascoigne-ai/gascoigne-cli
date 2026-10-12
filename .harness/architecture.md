@@ -703,7 +703,12 @@ sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MC
   server and the proxy's lazy tools (`call_tool`, `search_tools`) are left out; Gemini's `mcp_server_tool` naming cannot be split and is skipped.
 - A direct server that was never called is invisible (no list, no calls): the page says so.
 - `gascoigne mcp-review` prints the page address and opens it (`canBrowse`: display, no `CI`, server
-  up); otherwise, or with `-text`/`-json`, it prints from the ledger. It changes nothing.
+  up); otherwise, or with `-text`/`-json`, it prints from the ledger.
+- The one action: `POST /api/mcp/lazy {id, tools}` (`setLazy`) saves `prefs.lazy_tools[id]`, which
+  `cmdMCPProxy` passes to the proxy (`lazyChoices`; `GASCOIGNE_MCP_LAZY=off` ignores it). It accepts only a
+  server with sizes (started through `mcp-proxy`) and tool names the review shows for it; an empty list
+  clears. The page offers it for tools not called in 14 days and says it applies from the next session
+  (the recorded lazy flags lag the choice until then). Reasons and rejected options: `decisions.md`.
 
 ### Dashboard (`dashboard.go`)
 
