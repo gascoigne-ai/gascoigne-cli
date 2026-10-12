@@ -52,7 +52,9 @@ type mcpTool struct {
 
 // mcpServer is one server in the review.
 type mcpServer struct {
-	Name      string    `json:"name"`
+	ID        string    `json:"id"`    // name#hash of the command line for proxied servers: the key of its stats
+	Name      string    `json:"name"`  // what the server reports (a proxied one) or the agent's key for it (a direct one)
+	Label     string    `json:"label"` // Name, with the id's hash when two servers share it
 	Verdict   string    `json:"verdict"`
 	Sized     bool      `json:"sized"`       // false: only calls are known (the server stays direct)
 	Tokens    int       `json:"tokens"`      // what its definitions cost in every request
@@ -85,15 +87,16 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 	type key struct{ server, tool string }
 	servers := map[string]*mcpServer{}
 	tools := map[key]*mcpTool{}
-	oldest := map[string]int{}  // server -> age of its first row
-	latest := map[key]string{}  // tool -> day of the size kept
-	listed := map[string]bool{} // tool names a proxied server lists
+	oldest := map[string]int{}               // server -> age of its first row
+	latest := map[key]string{}               // tool -> day of the size kept
+	listedBy := map[string]map[string]bool{} // proxied server -> the tools it lists
 	var dataOldest int
 
 	touch := func(server, agent, day string) *mcpServer {
 		s := servers[server]
 		if s == nil {
-			s = &mcpServer{Name: server, Agents: []string{}, Tools: []mcpTool{}}
+			name, _, _ := strings.Cut(server, "#")
+			s = &mcpServer{ID: server, Name: name, Label: name, Agents: []string{}, Tools: []mcpTool{}}
 			servers[server] = s
 		}
 		if agent != "" && !slices.Contains(s.Agents, agent) {
@@ -139,12 +142,16 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 			}
 			s.Sized = true
 		}
-		listed[r.Tool] = true
+		if listedBy[r.Server] == nil {
+			listedBy[r.Server] = map[string]bool{}
+		}
+		listedBy[r.Server][r.Tool] = true
 		count(s, t, r.Day, r.Calls)
 	}
+	covered := coveredByProxy(cmds, listedBy)
 	for _, c := range cmds {
 		server, name, ok := splitMCPName(c.Command)
-		if !ok || listed[name] { // counted by mcp-proxy already
+		if !ok || covered[server] {
 			continue
 		}
 		s := touch(server, c.Agent, c.Day)
@@ -169,6 +176,7 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 		s.Verdict = verdict(s)
 		review.Servers = append(review.Servers, *s)
 	}
+	labelDuplicates(review.Servers)
 	slices.SortFunc(review.Servers, func(a, b mcpServer) int {
 		return cmp.Or(cmp.Compare(b.Tokens, a.Tokens), cmp.Compare(b.Calls7, a.Calls7), cmp.Compare(a.Name, b.Name))
 	})
@@ -189,6 +197,41 @@ func verdict(s *mcpServer) string {
 	return verdictUsed
 }
 
+// coveredByProxy names the servers (by the agent's key, as the hook sees them)
+// whose calls mcp-proxy already counted: every tool the hook saw them call is a
+// tool one proxied server lists. A direct server that shares a common tool name
+// (search, query) with a proxied one is not covered unless all of its tools are.
+func coveredByProxy(cmds []ledger.CommandDay, listedBy map[string]map[string]bool) map[string]bool {
+	seen := map[string]map[string]bool{}
+	for _, c := range cmds {
+		if server, name, ok := splitMCPName(c.Command); ok {
+			if seen[server] == nil {
+				seen[server] = map[string]bool{}
+			}
+			seen[server][name] = true
+		}
+	}
+	covered := map[string]bool{}
+	for server, tools := range seen {
+		for _, listed := range listedBy {
+			if allIn(tools, listed) {
+				covered[server] = true
+				break
+			}
+		}
+	}
+	return covered
+}
+
+func allIn(sub, set map[string]bool) bool {
+	for k := range sub {
+		if !set[k] {
+			return false
+		}
+	}
+	return true
+}
+
 // splitMCPName splits mcp__server__tool (Claude and Codex naming).
 func splitMCPName(name string) (server, tool string, ok bool) {
 	rest, ok := strings.CutPrefix(name, "mcp__")
@@ -197,6 +240,9 @@ func splitMCPName(name string) (server, tool string, ok bool) {
 	}
 	server, tool, ok = strings.Cut(rest, "__")
 	if !ok || server == "" || tool == "" || server == "gascoigne" {
+		return "", "", false
+	}
+	if tool == "call_tool" || tool == "search_tools" { // mcp-proxy's lazy tools: the real call is counted there
 		return "", "", false
 	}
 	return server, tool, true
@@ -291,4 +337,17 @@ func cmdMCPReview(ctx context.Context, args []string) error {
 // and the background server answering.
 func canBrowse() bool {
 	return !serverOff() && os.Getenv("CI") == "" && hasDisplay(runtime.GOOS) && serverUp() == nil
+}
+
+// labelDuplicates adds the command hash to servers that share a name.
+func labelDuplicates(servers []mcpServer) {
+	count := map[string]int{}
+	for _, s := range servers {
+		count[s.Name]++
+	}
+	for i, s := range servers {
+		if _, hash, ok := strings.Cut(s.ID, "#"); ok && count[s.Name] > 1 {
+			servers[i].Label = s.Name + " (" + hash + ")"
+		}
+	}
 }

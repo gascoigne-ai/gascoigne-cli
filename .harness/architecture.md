@@ -227,8 +227,10 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
   search.
 
 - Stats: when the agent lists tools, the proxy records each downstream tool's definition size
-  (as the agent receives it, schemas compacted) under the downstream server's own name, and counts
-  every call (`ledger` `tool_stats`; the server name is its reported name, not the agent's config key).
+  (as the agent receives it, schemas compacted) under the downstream server's id and counts every call
+  (`ledger` `tool_stats`). The id is the name the server reports plus a short hash of its command line
+  (`serverID`), so two configurations of one server binary stay apart; only the hash is kept, since
+  arguments can hold keys. It is not the agent's config key.
 
 MCP pipelines have no exporters: stdout is the protocol channel.
 
@@ -689,8 +691,9 @@ sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MC
   calls a week at `rarelyTokens` or more per request, else `used`. The constants are named in the
   file; days are UTC.
 - Calls to servers that stay direct come from the hook's runs named `mcp__server__tool`
-  (`MCPCommands`); a tool that a proxied server lists is counted once (the proxy's count wins);
-  gascoigne's own server is left out; Gemini's `mcp_server_tool` naming cannot be split and is skipped.
+  (`MCPCommands`); a direct server is dropped only when every tool the hook saw it call is a tool one
+  proxied server lists (`coveredByProxy`: the proxy already counted those calls); gascoigne's own
+  server and the proxy's lazy tools (`call_tool`, `search_tools`) are left out; Gemini's `mcp_server_tool` naming cannot be split and is skipped.
 - A direct server that was never called is invisible (no list, no calls): the page says so.
 - `gascoigne mcp-review` prints the page address and opens it (`canBrowse`: display, no `CI`, server
   up); otherwise, or with `-text`/`-json`, it prints from the ledger. It changes nothing.

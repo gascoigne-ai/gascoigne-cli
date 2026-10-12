@@ -5,10 +5,13 @@ package mcpproxyreceiver
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os/exec"
+	"strings"
 	"sync"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -28,7 +31,7 @@ type Receiver struct {
 	ledger   component.Ledger
 	upstream mcp.Transport
 	sessions *mcptool.Sessions
-	server   string // the downstream server's own name, the key of its tool stats
+	server   string // serverID of the downstream server, the key of its tool stats
 }
 
 type ctxKey struct{}
@@ -73,7 +76,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 	if info == nil {
 		info = &mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}
 	}
-	r.server = info.Name
+	r.server = serverID(info.Name, r.command(ctx))
 	var tools []*mcp.Tool
 	for tool, err := range cs.Tools(ctx, nil) {
 		if err != nil {
@@ -167,18 +170,34 @@ func compactSchema(name string, in any) any {
 }
 
 func (r *Receiver) downstream(ctx context.Context) mcp.Transport {
-	switch v := ctx.Value(ctxKey{}).(type) {
-	case mcp.Transport:
-		return v
-	case []string:
-		if len(v) > 0 {
-			return &mcp.CommandTransport{Command: exec.Command(v[0], v[1:]...)}
-		}
+	if t, ok := ctx.Value(ctxKey{}).(mcp.Transport); ok {
+		return t
 	}
-	if c := r.cfg.Command; len(c) > 0 {
+	if c := r.command(ctx); len(c) > 0 {
 		return &mcp.CommandTransport{Command: exec.Command(c[0], c[1:]...)}
 	}
 	return nil
+}
+
+// command is the downstream server's command line: the one passed for this
+// run, else the configured one.
+func (r *Receiver) command(ctx context.Context) []string {
+	if c, ok := ctx.Value(ctxKey{}).([]string); ok && len(c) > 0 {
+		return c
+	}
+	return r.cfg.Command
+}
+
+// serverID names a downstream server in the stats and the lazy choices: the
+// name it reports plus a short hash of its command line, so two
+// configurations of one server binary stay apart. Only the hash is kept,
+// never the command: arguments can hold keys.
+func serverID(name string, command []string) string {
+	if len(command) == 0 {
+		return name
+	}
+	sum := sha256.Sum256([]byte(strings.Join(command, "\x00")))
+	return name + "#" + hex.EncodeToString(sum[:4])
 }
 
 // forward calls the downstream tool and optimizes its text results.

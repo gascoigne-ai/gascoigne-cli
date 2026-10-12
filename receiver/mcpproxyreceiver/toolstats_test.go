@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -135,4 +136,21 @@ func TestNoStatsLedgerIsFine(t *testing.T) {
 	r := &Receiver{ledger: ledger{}, log: slog.New(slog.DiscardHandler)}
 	r.recordCall(t.Context(), nil, "x") // would panic on a nil session if it tried to record
 	r.recordList(t.Context(), nil, map[string]int{"x": 1})
+}
+
+func TestServerID(t *testing.T) {
+	a := serverID("postgres", []string{"npx", "pg-mcp", "postgres://u:secret@host/prod"})
+	b := serverID("postgres", []string{"npx", "pg-mcp", "postgres://u:secret@host/staging"})
+	if a == b || len(a) != len("postgres#")+8 || a[:9] != "postgres#" {
+		t.Fatalf("ids %q %q", a, b)
+	}
+	if again := serverID("postgres", []string{"npx", "pg-mcp", "postgres://u:secret@host/prod"}); again != a {
+		t.Fatal("id is not stable")
+	}
+	if strings.Contains(a, "secret") || strings.Contains(a, "prod") {
+		t.Fatalf("id holds the command: %q", a)
+	}
+	if got := serverID("fixture", nil); got != "fixture" {
+		t.Fatalf("no command: %q", got)
+	}
 }

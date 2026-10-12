@@ -134,11 +134,60 @@ func TestSplitMCPName(t *testing.T) {
 		"mcp__claude_ai_Gmail__x_y": "claude_ai_Gmail/x_y",
 		"mcp__gascoigne__fetch":     "",
 		"mcp__db":                   "",
+		"mcp__db__call_tool":        "", // the proxy's lazy tools are not servers' tools
+		"mcp__db__search_tools":     "",
 		"query":                     "",
 	} {
 		server, tool, ok := splitMCPName(name)
 		if got := server + "/" + tool; ok != (want != "") || (ok && got != want) {
 			t.Errorf("%s: %q %v, want %q", name, got, ok, want)
 		}
+	}
+}
+
+// A direct server that shares common tool names with a proxied one keeps its calls.
+func TestBuildReviewCommonToolNames(t *testing.T) {
+	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
+	today := now.Format("2006-01-02")
+	stats := []ledger.ToolStat{
+		{Day: today, Agent: "claude", Server: "github#aaaa1111", Tool: "search", Tokens: 300, Calls: 4},
+		{Day: today, Agent: "claude", Server: "github#aaaa1111", Tool: "create", Tokens: 500},
+	}
+	cmds := []ledger.CommandDay{
+		{Day: today, Agent: "claude", Command: "mcp__github__search", Runs: 4}, // the hook saw the proxied call too
+		{Day: today, Agent: "claude", Command: "mcp__db__search", Runs: 3},
+		{Day: today, Agent: "claude", Command: "mcp__db__query", Runs: 2},
+	}
+	got := map[string]mcpServer{}
+	for _, s := range buildReview(stats, cmds, now).Servers {
+		got[s.ID] = s
+	}
+	if len(got) != 2 {
+		t.Fatalf("servers %v", got)
+	}
+	if s := got["github#aaaa1111"]; s.Calls7 != 4 {
+		t.Fatalf("github counted %d calls, want the proxy's 4 once", s.Calls7)
+	}
+	if s := got["db"]; s.Calls7 != 5 || s.Sized {
+		t.Fatalf("db %+v: its search and query calls are its own", s)
+	}
+}
+
+// Two configurations of one server binary stay apart, and say how.
+func TestBuildReviewDuplicateNames(t *testing.T) {
+	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
+	today := now.Format("2006-01-02")
+	stats := []ledger.ToolStat{
+		{Day: today, Agent: "claude", Server: "postgres#aaaa1111", Tool: "query", Tokens: 400, Calls: 5},
+		{Day: today, Agent: "claude", Server: "postgres#bbbb2222", Tool: "query", Tokens: 400},
+		{Day: today, Agent: "claude", Server: "github#cccc3333", Tool: "search", Tokens: 300},
+	}
+	labels := map[string]string{}
+	for _, s := range buildReview(stats, nil, now).Servers {
+		labels[s.ID] = s.Label
+	}
+	want := map[string]string{"postgres#aaaa1111": "postgres (aaaa1111)", "postgres#bbbb2222": "postgres (bbbb2222)", "github#cccc3333": "github"}
+	if len(labels) != 3 || labels["postgres#aaaa1111"] != want["postgres#aaaa1111"] || labels["postgres#bbbb2222"] != want["postgres#bbbb2222"] || labels["github#cccc3333"] != "github" {
+		t.Fatalf("labels %v", labels)
 	}
 }

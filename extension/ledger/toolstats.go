@@ -99,7 +99,7 @@ func (l *Ledger) MCPCommands(ctx context.Context, since time.Time) ([]CommandDay
 			count(*) AS runs`).
 		Where(`command LIKE 'mcp\_\_%' ESCAPE '\'`)
 	if !since.IsZero() {
-		tx = tx.Where("ts >= ?", time.Date(since.Year(), since.Month(), since.Day(), 0, 0, 0, 0, time.UTC).UnixMilli())
+		tx = tx.Where("ts >= ?", since.UTC().Truncate(24*time.Hour).UnixMilli())
 	}
 	err := tx.Group("day, agent, 3").Order("day, agent, command").Scan(&out).Error
 	return out, err

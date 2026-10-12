@@ -94,7 +94,7 @@ const cls = { "used": "used", "unused": "unused", "rarely used": "rarely", "lear
 
 // Columns sort by an accessor, never by the displayed text ("1,200" would sort as text).
 const columns = [
-  { title: "Server", get: (s) => s.name.toLowerCase(), first: "asc" },
+  { title: "Server", get: (s) => s.label.toLowerCase(), first: "asc" },
   { title: "Verdict", get: (s) => ["unused", "rarely used", "learning", "used"].indexOf(s.verdict), first: "asc" },
   { title: "Tokens per request", get: (s) => s.sized ? s.tokens : -1, num: true },
   { title: "Idle tokens", get: (s) => s.sized ? s.idle_tokens : -1, num: true },
@@ -113,8 +113,8 @@ function trend(s) {
 }
 
 function serverRows(s, max) {
-  const main = el("tr", { class: "server", tabindex: "0", "aria-expanded": String(open.has(s.name)) });
-  const toggle = () => { open.has(s.name) ? open.delete(s.name) : open.add(s.name); render(); };
+  const main = el("tr", { class: "server", tabindex: "0", "aria-expanded": String(open.has(s.id)) });
+  const toggle = () => { open.has(s.id) ? open.delete(s.id) : open.add(s.id); render(); };
   main.addEventListener("click", toggle);
   main.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
   const tokens = el("td", { class: "num" });
@@ -125,7 +125,7 @@ function serverRows(s, max) {
   const calls = el("td", { class: "num", text: num(s.calls_7d) });
   const t = trend(s); if (t) calls.append(t);
   main.append(
-    el("td", {}, el("span", { class: "caret", text: open.has(s.name) ? "▾" : "▸" }), s.name),
+    el("td", {}, el("span", { class: "caret", text: open.has(s.id) ? "▾" : "▸" }), s.label),
     el("td", {}, el("span", { class: "pill " + cls[s.verdict], text: label[s.verdict] })),
     tokens,
     el("td", { class: "num", text: s.sized ? num(s.idle_tokens) : "–" }),
@@ -134,7 +134,7 @@ function serverRows(s, max) {
     el("td", { text: s.last_used || "–" }),
   );
   const rows = [main];
-  if (open.has(s.name)) {
+  if (open.has(s.id)) {
     const inner = el("table", {}, el("thead", {}, el("tr", {},
       el("th", { text: "Tool" }), el("th", { class: "num", text: "Tokens" }), el("th", { class: "num", text: "Calls, 7 days" }), el("th", { class: "num", text: "Calls, 14 days" }))));
     const body = el("tbody");
@@ -159,7 +159,7 @@ function render() {
   const c = columns[sort.col];
   const servers = [...data.servers].sort((a, b) => {
     const x = c.get(a), y = c.get(b);
-    const r = x < y ? -1 : x > y ? 1 : a.name.localeCompare(b.name);
+    const r = x < y ? -1 : x > y ? 1 : a.label.localeCompare(b.label);
     return sort.dir === "asc" ? r : -r;
   });
   const max = Math.max(1, ...data.servers.map((s) => s.tokens));
