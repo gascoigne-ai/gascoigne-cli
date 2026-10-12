@@ -154,7 +154,9 @@ table is printed instead; `-open=false` only prints the page's address.
 
 The data is what `mcp-proxy` records when the agent lists tools and calls them (names, sizes and
 counts only), kept two weeks (`ledger.stats_ttl`). Servers that stay direct have no sizes and show
-only once the agent has called them. Looking changes nothing; the page's one action, loading unused
+only once the agent has called them. For a server started through `mcp-proxy` the page also finds the
+config entry that starts it (Claude's user, local and project files, Cursor's `mcp.json`; matched by the hash
+of its command) and shows the command that switches it off; gascoigne does not run it. Looking changes nothing; the page's one action, loading unused
 tools on request, is saved only when you press its button.
 
 ## `reset`

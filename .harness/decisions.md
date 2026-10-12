@@ -128,8 +128,15 @@ The endpoint accepts only a proxied server and tool names the review already sho
 **Server ids are name plus a command hash.** A server's reported name collides when one binary is
 configured twice (two databases, two roots), so stats and choices are keyed by the name and a short hash of
 the command line. Only the hash is stored: arguments can hold keys. The agent's config key is not known to
-`mcp-proxy`; passing it would change what `install` writes for every agent, so disabling a server (which
-needs it) is left to a later task.
+`mcp-proxy`, and passing it would change what `install` writes for every agent; it is found the other way
+round instead: the config entry that runs `gascoigne mcp-proxy -- <command>` holds the command, so hashing it
+gives the same id (`proxiedConfigs`).
+
+**Switching a server off is shown, not done.** The review page says where the agent's config starts a server
+and gives the command that removes it (`claude mcp remove <key> --scope user|local|project`; for Cursor, delete
+the entry). Disabling would write another program's settings, which gascoigne does only after a question in
+the setup page, and Claude's own file (`~/.claude.json`) is rewritten by a running Claude Code, so a write there
+can lose data. The one-click action stays what is gascoigne's own: loading tools on request.
 
 ## Process
 

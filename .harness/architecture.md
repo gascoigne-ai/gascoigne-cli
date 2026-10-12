@@ -755,6 +755,10 @@ sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MC
 - A direct server that was never called is invisible (no list, no calls): the page says so.
 - `gascoigne mcp-review` prints the page address and opens it (`canBrowse`: display, no `CI`, server
   up); otherwise, or with `-text`/`-json`, it prints from the ledger.
+- Where a server is configured (`mcpconfig.go`): `proxiedConfigs` reads `~/.claude.json` (user and local servers),
+  project `.mcp.json` and Cursor's `mcp.json` (project dirs from `installs.json` and the working directory),
+  finds the entries that run `mcp-proxy -- <command>` and indexes them by `mcpproxyreceiver.CommandHash(command)`,
+  which is the suffix of the server's id. The page shows each entry and the removal command; nothing is written.
 - The one action: `POST /api/mcp/lazy {id, tools}` (`setLazy`) saves `prefs.lazy_tools[id]`, which
   `cmdMCPProxy` passes to the proxy (`lazyChoices`; `GASCOIGNE_MCP_LAZY=off` ignores it). It accepts only a
   server with sizes (started through `mcp-proxy`) and tool names the review shows for it; an empty list

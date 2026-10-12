@@ -17,6 +17,8 @@ tr.detail table { background: var(--surface); border: 1px solid var(--border); b
 .actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 8px 0 12px; }
 .actions p { margin: 0; max-width: 72ch; }
 .note { color: var(--warn); }
+.cmdline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cmdline code { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; user-select: all; }
 .err { color: var(--err); }
 .trend.up { color: var(--ok); } .trend.down { color: var(--warn); }
 </style>
@@ -56,6 +58,7 @@ const columns = [
 let data = { servers: [], notes: [], days: 0 };
 let sort = { col: 2, dir: "desc" };
 const open = new Set();
+{ const id = decodeURIComponent(location.hash.slice(1)); if (id) open.add(id); } // #<server id> opens that server
 let busy = false, problem = "";
 
 // Saving a choice: the proxy reads it when a session starts, so it reaches the next session.
@@ -69,8 +72,24 @@ async function choose(id, tools) {
   busy = false; render();
 }
 
+// Where the agent's config starts the server, and how to switch it off: gascoigne does
+// not write other programs' settings, so the command is shown, not run.
+function configLines(s) {
+  return s.config.flatMap((c) => {
+    const copy = el("button", { type: "button", text: "Copy" });
+    copy.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(c.remove); copy.textContent = "Copied"; } catch { copy.textContent = "Select and copy"; }
+    });
+    return [el("p", { text: `Configured as ${c.key} in ${c.file} (${c.agent}, ${c.scope}). To switch it off:` }),
+      el("div", { class: "cmdline" }, el("code", { text: c.remove }), copy)];
+  });
+}
+
 function actions(s) {
   const box = el("div", { class: "actions" });
+  if (s.verdict === "unused") box.append(el("p", { text: "Nothing called this server in 14 days, so its definitions are listed for nothing. Switching it off saves them." }));
+  box.append(...configLines(s));
+  if (s.sized && s.config.length === 0 && s.verdict === "unused") box.append(el("p", { class: "muted", text: "Its configuration was not found in the places gascoigne looks (Claude's user and project files, Cursor's mcp.json); remove it where you set it up." }));
   if (!s.sized) {
     box.append(el("p", { class: "muted", text: "This server does not go through mcp-proxy, so its tools cannot be loaded on request." }));
     return box;

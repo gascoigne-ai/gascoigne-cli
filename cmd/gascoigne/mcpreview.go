@@ -58,22 +58,23 @@ type mcpTool struct {
 
 // mcpServer is one server in the review.
 type mcpServer struct {
-	ID        string    `json:"id"`    // name#hash of the command line for proxied servers: the key of its stats
-	Name      string    `json:"name"`  // what the server reports (a proxied one) or the agent's key for it (a direct one)
-	Label     string    `json:"label"` // Name, with the id's hash when two servers share it
-	Verdict   string    `json:"verdict"`
-	Sized     bool      `json:"sized"`       // false: only calls are known (the server stays direct)
-	Tokens    int       `json:"tokens"`      // what its definitions add to the tool list
-	IdleToks  int       `json:"idle_tokens"` // of those, tools not called in unusedDays
-	LazyToks  int       `json:"lazy_tokens"` // what the tools offered on request only would cost if listed
-	Calls7    int       `json:"calls_7d"`
-	CallsPrev int       `json:"calls_prev_7d"` // the 7 days before
-	LastUsed  string    `json:"last_used,omitempty"`
-	Seen      int       `json:"seen_days"`
-	Listed    int       `json:"listed_days_ago"` // days since a proxy last listed its tools; -1 when none did
-	Agents    []string  `json:"agents"`
-	Chosen    []string  `json:"lazy_chosen"` // tools the user chose to load on request: they take effect from the next session
-	Tools     []mcpTool `json:"tools"`
+	ID        string           `json:"id"`    // name#hash of the command line for proxied servers: the key of its stats
+	Name      string           `json:"name"`  // what the server reports (a proxied one) or the agent's key for it (a direct one)
+	Label     string           `json:"label"` // Name, with the id's hash when two servers share it
+	Verdict   string           `json:"verdict"`
+	Sized     bool             `json:"sized"`       // false: only calls are known (the server stays direct)
+	Tokens    int              `json:"tokens"`      // what its definitions add to the tool list
+	IdleToks  int              `json:"idle_tokens"` // of those, tools not called in unusedDays
+	LazyToks  int              `json:"lazy_tokens"` // what the tools offered on request only would cost if listed
+	Calls7    int              `json:"calls_7d"`
+	CallsPrev int              `json:"calls_prev_7d"` // the 7 days before
+	LastUsed  string           `json:"last_used,omitempty"`
+	Seen      int              `json:"seen_days"`
+	Listed    int              `json:"listed_days_ago"` // days since a proxy last listed its tools; -1 when none did
+	Agents    []string         `json:"agents"`
+	Config    []mcpConfigEntry `json:"config"`      // where the agent's config starts it, found by the command hash
+	Chosen    []string         `json:"lazy_chosen"` // tools the user chose to load on request: they take effect from the next session
+	Tools     []mcpTool        `json:"tools"`
 }
 
 // mcpReview is the whole review.
@@ -325,7 +326,13 @@ func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map
 		return mcpReview{}, err
 	}
 	review := buildReview(stats, cmds, now)
+	home, _ := os.UserHomeDir()
+	configs := proxiedConfigs(home, projectDirs())
 	for i, s := range review.Servers {
+		review.Servers[i].Config = []mcpConfigEntry{}
+		if _, hash, ok := strings.Cut(s.ID, "#"); ok {
+			review.Servers[i].Config = append(review.Servers[i].Config, configs[hash]...)
+		}
 		review.Servers[i].Chosen = []string{}
 		if c := chosen[s.ID]; len(c) > 0 {
 			review.Servers[i].Chosen = c

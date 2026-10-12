@@ -250,8 +250,15 @@ func serverID(name string, command []string) string {
 	if len(command) == 0 {
 		return name
 	}
+	return name + "#" + CommandHash(command)
+}
+
+// CommandHash is the short hash of a downstream command line that tells two
+// configurations of one server binary apart. Callers outside the proxy use it
+// to find the config entry a server in the stats comes from.
+func CommandHash(command []string) string {
 	sum := sha256.Sum256([]byte(strings.Join(command, "\x00")))
-	return name + "#" + hex.EncodeToString(sum[:4])
+	return hex.EncodeToString(sum[:4])
 }
 
 // forward calls the downstream tool and optimizes its text results.
