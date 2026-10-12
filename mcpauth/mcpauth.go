@@ -5,20 +5,15 @@
 package mcpauth
 
 import (
-	"bytes"
-	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
-	"time"
 
 	"golang.org/x/oauth2"
 )
@@ -105,29 +100,4 @@ func (s *Store) update(edit func(map[string]Creds)) error {
 		return fmt.Errorf("save login: %w", err)
 	}
 	return os.Rename(tmp, s.Path)
-}
-
-// NeedsOAuth asks a server for its tools without credentials, quickly: true
-// when it answers 401 with a Bearer challenge. Unreachable servers and any
-// other answer are false, so a flaky network never turns a server away.
-// GASCOIGNE_OAUTH_PROBE=off skips the request.
-func NeedsOAuth(ctx context.Context, serverURL string) bool {
-	if os.Getenv("GASCOIGNE_OAUTH_PROBE") == "off" {
-		return false
-	}
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
-	body := `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"gascoigne-probe","version":"0"}}}`
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, serverURL, bytes.NewReader([]byte(body)))
-	if err != nil {
-		return false
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json, text/event-stream")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return false
-	}
-	defer resp.Body.Close()
-	return resp.StatusCode == http.StatusUnauthorized && strings.Contains(strings.ToLower(strings.Join(resp.Header.Values("WWW-Authenticate"), " ")), "bearer")
 }

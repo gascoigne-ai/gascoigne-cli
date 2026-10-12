@@ -20,7 +20,6 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/registry"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/service"
-	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
 	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/execreceiver"
@@ -280,9 +279,7 @@ func cmdMCPProxy(ctx context.Context, args []string) error {
 	}
 	return serve(ctx, "mcp-proxy", args, register, func(ctx context.Context, command []string) context.Context {
 		if remote.URL != "" {
-			if h := mcpauth.NewHandler(authStore(), remote.URL); h != nil {
-				remote.OAuth = h
-			}
+			remote.Store, remote.Open = authStore(), openBrowser
 			ctx = mcpproxyreceiver.WithRemote(ctx, remote)
 		} else {
 			ctx = mcpproxyreceiver.With(ctx, command)

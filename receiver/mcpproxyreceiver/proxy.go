@@ -18,7 +18,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/modelcontextprotocol/go-sdk/auth"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
@@ -53,7 +52,10 @@ type Remote struct {
 	SSE     bool // legacy SSE transport; streamable HTTP otherwise
 	Auto    bool // transport unknown (the agent config names none): streamable HTTP, then SSE
 	Headers map[string]string
-	OAuth   auth.OAuthHandler // the saved login (mcpauth), streamable HTTP only
+	// Store holds OAuth logins (streamable HTTP only). With it, a server that wants
+	// a login gets the gascoigne_login tool; Open shows the authorization page.
+	Store *mcpauth.Store
+	Open  func(authURL string)
 }
 
 type remoteKey struct{}
@@ -108,6 +110,9 @@ func (r *Receiver) Run(ctx context.Context) error {
 		cs, err = client.Connect(ctx, rm.transport(&unauthorized), nil)
 	}
 	if err != nil {
+		if rm := r.remote(ctx); unauthorized.Load() && canLogin(rm) {
+			return r.runLogin(ctx, client, rm)
+		}
 		return fmt.Errorf("connect downstream: %w", r.explainAuth(ctx, err, unauthorized.Load()))
 	}
 	defer cs.Close()
@@ -117,6 +122,17 @@ func (r *Receiver) Run(ctx context.Context) error {
 	if info == nil {
 		info = &mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}
 	}
+	s := mcp.NewServer(info, &mcp.ServerOptions{Instructions: init.Instructions, Logger: r.log})
+	if err := r.populate(ctx, s, cs, info, true); err != nil {
+		return err
+	}
+	return s.Run(ctx, r.upstream)
+}
+
+// populate mirrors the downstream server's tools onto s and adds the retrieve
+// tool. Stats (the middleware) only before the server runs: middleware cannot
+// be added to a running server, so a late login goes without.
+func (r *Receiver) populate(ctx context.Context, s *mcp.Server, cs *mcp.ClientSession, info *mcp.Implementation, stats bool) error {
 	r.server = serverID(info.Name, r.identity(ctx))
 	var tools []*mcp.Tool
 	for tool, err := range cs.Tools(ctx, nil) {
@@ -132,19 +148,20 @@ func (r *Receiver) Run(ctx context.Context) error {
 		tools = append(tools, tool)
 	}
 	direct, lazy := r.splitLazy(ctx, tools)
-	s := mcp.NewServer(info, &mcp.ServerOptions{Instructions: init.Instructions, Logger: r.log})
-	var listed sync.Once
-	s.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
-		return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
-			res, err := next(ctx, method, req)
-			if lr, ok := res.(*mcp.ListToolsResult); ok && err == nil && method == "tools/list" {
-				// The agent pays for the definitions only when it lists them, and for the
-				// ones it is shown: record exactly those, and what the lazy tools would cost.
-				listed.Do(func() { r.recordList(ctx, req.GetSession(), lr.Tools, lazy) })
+	if stats {
+		var listed sync.Once
+		s.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
+			return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
+				res, err := next(ctx, method, req)
+				if lr, ok := res.(*mcp.ListToolsResult); ok && err == nil && method == "tools/list" {
+					// The agent pays for the definitions only when it lists them, and for the
+					// ones it is shown: record exactly those, and what the lazy tools would cost.
+					listed.Do(func() { r.recordList(ctx, req.GetSession(), lr.Tools, lazy) })
+				}
+				return res, err
 			}
-			return res, err
-		}
-	})
+		})
+	}
 	switch {
 	case r.cfg.MaxTools > 0 && len(tools) > r.cfg.MaxTools: // max_tools hides everything; it wins over a choice of tools
 		lazy = tools
@@ -160,7 +177,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 		}
 	}
 	mcptool.AddRetrieve(s, r.cfg.Retrieve, r.ledger)
-	return s.Run(ctx, r.upstream)
+	return nil
 }
 
 // splitLazy separates the tools the user chose to load on request from the
@@ -275,7 +292,11 @@ func (rm Remote) transport(unauthorized *atomic.Bool) mcp.Transport {
 	if rm.SSE {
 		return &mcp.SSEClientTransport{Endpoint: rm.URL, HTTPClient: client}
 	}
-	return &mcp.StreamableClientTransport{Endpoint: rm.URL, HTTPClient: client, OAuthHandler: rm.OAuth}
+	t := &mcp.StreamableClientTransport{Endpoint: rm.URL, HTTPClient: client}
+	if h := mcpauth.NewHandler(rm.Store, rm.URL); h != nil {
+		t.OAuthHandler = h
+	}
+	return t
 }
 
 type headerTripper struct {
@@ -303,8 +324,6 @@ func (r *Receiver) explainAuth(ctx context.Context, err error, unauthorized bool
 	switch {
 	case !unauthorized || rm.URL == "" || errors.Is(err, mcpauth.ErrLoginNeeded):
 		return err
-	case rm.OAuth != nil:
-		return fmt.Errorf("the server refused the saved login, run: gascoigne mcp-login %s: %w", mcpauth.Display(rm.URL), err)
 	case hasAuthorization(rm.Headers):
 		return fmt.Errorf("the server refused the configured Authorization header: %w", err)
 	}

@@ -5,10 +5,15 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+
+	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
+	"github.com/gascoigne-ai/gascoigne-cli/mcpauth/authtest"
 )
 
 func TestRemote(t *testing.T) {
@@ -111,5 +116,56 @@ func TestRemoteLoginNeeded(t *testing.T) {
 				t.Fatalf("err = %v, want %q", err, tc.want)
 			}
 		})
+	}
+}
+
+func TestRemoteLoginInProxy(t *testing.T) {
+	url, _ := authtest.Server(t)
+	store := &mcpauth.Store{Path: filepath.Join(t.TempDir(), "mcp-auth.json")}
+	open := func(authURL string) {
+		go func() { // the "browser": follows the redirect to the login callback
+			if resp, err := http.Get(authURL); err == nil {
+				resp.Body.Close()
+			}
+		}()
+	}
+	upServerT, upClientT := mcp.NewInMemoryTransports()
+	r := &Receiver{cfg: &Config{Retrieve: "gascoigne_retrieve"}, next: pipeline{}, log: slog.New(slog.DiscardHandler), ledger: ledger{}, upstream: upServerT}
+	go r.Run(WithRemote(t.Context(), Remote{URL: url, Store: store, Open: open}))
+
+	cs, err := mcp.NewClient(&mcp.Implementation{Name: "agent", Version: "0"}, nil).Connect(t.Context(), upClientT, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cs.Close()
+	toolNames := func() string {
+		var names []string
+		for tool, err := range cs.Tools(t.Context(), nil) {
+			if err != nil {
+				t.Fatal(err)
+			}
+			names = append(names, tool.Name)
+		}
+		return strings.Join(names, ",")
+	}
+	if got := toolNames(); got != "gascoigne_login" || !strings.Contains(cs.InitializeResult().Instructions, "OAuth login") {
+		t.Fatalf("before login: tools %q, instructions %q", got, cs.InitializeResult().Instructions)
+	}
+	res, err := cs.CallTool(t.Context(), &mcp.CallToolParams{Name: "gascoigne_login"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := res.Content[0].(*mcp.TextContent).Text; !strings.Contains(got, "/authorize?") {
+		t.Fatalf("login result %q", got)
+	}
+	deadline := time.Now().Add(5 * time.Second)
+	for toolNames() != "gascoigne_retrieve" {
+		if time.Now().After(deadline) {
+			t.Fatalf("tools after login: %q", toolNames())
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	if _, ok := store.Get(url); !ok {
+		t.Fatal("login not saved")
 	}
 }

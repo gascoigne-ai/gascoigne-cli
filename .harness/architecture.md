@@ -236,13 +236,16 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
   no type, so the args carry `-auto`: streamable HTTP, then SSE) into that command and `unwrap` restores
   them; `httpUrl`, OAuth and header helpers, and codex remote servers stay direct. The server id hashes the url (`remoteProxyArgs` in
   `cmd/gascoigne/proxy.go`), never the url or header values.
-- OAuth: a remote server that answers 401 + `WWW-Authenticate: Bearer` needs a login. `gascoigne mcp-login <url>`
-  (`mcpauth.Login`: PKCE, dynamic client registration, loopback redirect, browser) saves the tokens in
-  `<state dir>/mcp-auth.json` (0600, keyed by a hash of the url without query); `mcp-proxy -url` then sends
-  and refreshes them (`mcpauth.NewHandler`, streamable HTTP only) and never opens a browser itself. Without a
-  login a 401 ends the proxy with the command to run. `install`/`wrap` probe an entry without an
-  Authorization header (`mcpauth.NeedsOAuth`, 2 s, `GASCOIGNE_OAUTH_PROBE=off`) and leave it direct with the
-  command to run until a login exists, so a working server is never broken by the rewrite.
+- OAuth: a remote server that answers 401 needs a login, and the proxy handles it itself. It starts
+  anyway and serves a stand-in: `Instructions` plus one tool, `gascoigne_login`. Calling it runs the
+  authorization flow in the background (`mcpauth.Login`: PKCE, dynamic client registration, loopback
+  redirect), opens the browser (`Remote.Open`) and returns the address; when the user is done the proxy
+  connects, adds the server's tools and removes the login tool (tools/list_changed). Tokens are kept in
+  `<state dir>/mcp-auth.json` (0600, by a hash of the url without query), sent and refreshed by
+  `mcpauth.NewHandler` on later starts; a refused login brings the login tool back. Streamable HTTP only,
+  and not with a static Authorization header (a 401 then names the header). A login made after start
+  records no tool stats for that session. `gascoigne mcp-login <url>` does the same ahead of time, for
+  headless machines, and `-logout` forgets it. `install`/`wrap` need no probe: OAuth servers are proxied like any other.
 - `compact_tools` drops redundant schema keys.
 - `max_tools` > 0 (off by default) hides more tools than that behind `search_tools` (BM25 over
   names and descriptions, top 5 with schemas) and `call_tool`, for agents without native tool

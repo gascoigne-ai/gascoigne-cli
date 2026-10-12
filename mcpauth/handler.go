@@ -17,6 +17,9 @@ type Handler struct {
 
 // NewHandler returns the handler for a server with a stored login, nil without one.
 func NewHandler(s *Store, serverURL string) *Handler {
+	if s == nil {
+		return nil
+	}
 	c, ok := s.Get(serverURL)
 	if !ok {
 		return nil

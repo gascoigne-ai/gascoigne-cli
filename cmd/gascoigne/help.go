@@ -138,10 +138,10 @@ func init() {
 			examples: []string{"gascoigne mcp-proxy -- npx -y @modelcontextprotocol/server-github", "gascoigne mcp-proxy -url https://mcp.example.com/mcp -header \"Authorization: Bearer $TOKEN\""},
 			run:      cmdMCPProxy},
 		{name: "mcp-login", args: "[-logout] <url>", group: groupOptimize,
-			summary: "log in to a remote MCP server that uses OAuth, for mcp-proxy",
-			about: "Opens the server's authorization page in a browser (the address is printed too) and saves the\n" +
-				"tokens (0600, state dir), so mcp-proxy -url can reach a server it could not before. Tokens are\n" +
-				"refreshed on use; -logout forgets them. Streamable HTTP servers only.",
+			summary: "log in to a remote MCP server that uses OAuth ahead of time, or forget the login",
+			about: "mcp-proxy -url asks for a login itself (its gascoigne_login tool); this does it from the terminal,\n" +
+				"e.g. on a headless machine. Opens the authorization page in a browser (the address is printed too)\n" +
+				"and saves the tokens (0600, state dir); they are refreshed on use. -logout forgets them.",
 			examples: []string{"gascoigne mcp-login https://mcp.example.com/mcp", "gascoigne mcp-login -logout https://mcp.example.com/mcp"},
 			run:      cmdMCPLogin},
 
