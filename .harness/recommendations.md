@@ -50,6 +50,13 @@ Measured; don't retry without new data.
 - SIMD JSON parsing: decode is ~30% of jsonx time (35–70 MB/s) and Go values must still be
   built; revisit only if decode dominates real workloads.
 
+- Guide line "to count or aggregate across many files, write a short script and print only the
+  result" (2026-10-12, OpenRouter `~anthropic/claude-sonnet-latest`, tasks `count-optimizer-tests`
+  and `count-lazyre-files`, 3 repeats each, "on" arm): 6/6 pass with and without the line. Warm-cache
+  runs cost the same ($0.027 / $0.046 per task, 2-3 turns); the mean gap ($0.105 vs $0.069) is one
+  cold-cache first run in the base arm. Agents already answer these with one shell command.
+  Retry on tasks that need reading dozens of files by hand.
+
 ## Practices
 - New tools of an existing family are dialects, not optimizers (skill `add-component`); shared
   primitives go to `compress/`.
