@@ -22,6 +22,9 @@ func stateDir() string {
 type prefs struct {
 	// Guide is how much usage text agents get: off, short or full (default).
 	Guide string `json:"guide,omitempty"`
+	// Allow is which gascoigne MCP tools run without an approval prompt:
+	// none (default), local (read-only ones) or all (adds fetch).
+	Allow string `json:"allow,omitempty"`
 }
 
 func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }

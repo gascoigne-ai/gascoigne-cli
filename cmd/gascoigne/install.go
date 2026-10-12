@@ -20,11 +20,12 @@ func cmdInstall(_ context.Context, args []string) error {
 	fset := newFlags("install")
 	global := fset.Bool("g", false, "register for every project (user config) instead of this one")
 	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through the background server's LLM proxy (claude); a stopped server stops the agent until its SessionStart hook starts it")
+	allow := fset.String("permissions", "", "which gascoigne tools claude runs without asking: none, local (retrieve, show, stats, compress) or all (adds fetch, which reaches the network) (saved; default none)")
 	level := fset.String("guide", "", "how much usage text agents get: "+strings.Join(guideLevels, ", ")+" (saved; default full)")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
-	if err := saveGuideLevel(*level); err != nil {
+	if err := errors.Join(saveGuideLevel(*level), saveAllowLevel(*allow)); err != nil {
 		return err
 	}
 	names := fset.Args()
@@ -60,18 +61,26 @@ func cmdInstall(_ context.Context, args []string) error {
 	return errors.Join(errs...)
 }
 
-// saveGuideLevel stores the guide level chosen with install -guide before
-// the configs that carry the guide are written; "" keeps the saved one.
-func saveGuideLevel(level string) error {
-	if level == "" {
+// savePref stores the value of an install flag in the prefs before the
+// configs that depend on it are written; "" keeps the saved one.
+func savePref(flag, value string, valid []string, set func(p *prefs, v string)) error {
+	if value == "" {
 		return nil
 	}
-	if !slices.Contains(guideLevels, level) {
-		return fmt.Errorf("install: -guide wants one of %s", strings.Join(guideLevels, ", "))
+	if !slices.Contains(valid, value) {
+		return fmt.Errorf("install: -%s wants one of %s", flag, strings.Join(valid, ", "))
 	}
 	p := readPrefs()
-	p.Guide = level
+	set(&p, value)
 	return p.save()
+}
+
+func saveGuideLevel(v string) error {
+	return savePref("guide", v, guideLevels, func(p *prefs, v string) { p.Guide = v })
+}
+
+func saveAllowLevel(v string) error {
+	return savePref("permissions", v, allowLevels, func(p *prefs, v string) { p.Allow = v })
 }
 
 // foundAgents are the agents whose program PATH finds.
@@ -120,19 +129,29 @@ func addClaude(exe string, global bool) ([]string, error) {
 		return nil, err
 	}
 	var done []string
-	var denied []string
-	deny := func(root *object) proxyResult {
-		denied = addDenies(root, claudeDenies)
+	var denied, allowed []string
+	rules := func(root *object) proxyResult {
+		denied = denyRules.add(root, claudeDenies)
+		// The allow level may have changed since the last install: drop what
+		// was recorded, then add what the level has now.
+		allowRules.remove(settings, root)
+		allowed = allowRules.add(root, claudeAllows(readPrefs().Allow))
 		return proxyResult{}
 	}
-	d, err := addJSON(settings, removeClaudeSettings, claudeSettings(exe), "PreToolUse, PostToolUse and SessionStart hooks, GASCOIGNE_AGENT env", deny)
+	d, err := addJSON(settings, removeClaudeSettings, claudeSettings(exe), "PreToolUse, PostToolUse and SessionStart hooks, GASCOIGNE_AGENT env", rules)
 	if err != nil {
 		return nil, err
 	}
 	if len(denied) > 0 {
 		d += "; denied " + strings.Join(denied, ", ") + " (searches through Bash, pages through gascoigne fetch)"
 	}
-	if err := recordDenies(settings, denied); err != nil {
+	if len(allowed) > 0 {
+		d += "; allowed " + strings.Join(allowed, ", ") + " without asking"
+	}
+	if err := denyRules.record(settings, denied); err != nil {
+		return nil, err
+	}
+	if err := allowRules.record(settings, allowed); err != nil {
 		return nil, err
 	}
 	done = append(done, d)

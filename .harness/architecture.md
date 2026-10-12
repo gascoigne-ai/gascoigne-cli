@@ -411,9 +411,13 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   - gemini AfterTool `decision: deny` + `reason` (shell, `mcp_*`)
   - skipped: hinted output (`hintRe`) and gascoigne's own MCP tools. Read is never replaced
     (Claude numbers its lines).
-- **Deny rules**: `install claude` adds the same deny rules as wrap (Grep, Glob, WebFetch) and
-  records them in `$XDG_STATE_HOME/gascoigne/denies.json`; unwrap removes only recorded ones
-  (`denies.go`).
+- **Permission rules** (`rules.go`): `install claude` adds deny rules like wrap (Grep, Glob,
+  WebFetch) and, by the saved level (`install -permissions none|local|all`, `prefs.json`), allow
+  rules for gascoigne's own tools: `local` = retrieve, show, stats, compress (read-only);
+  `all` adds fetch (reaches the network); `none` (default) adds nothing. Added rules are recorded
+  per settings file in `$XDG_STATE_HOME/gascoigne/denies.json` / `allows.json`; unwrap removes only
+  recorded ones, a changed level drops the old ones first, a rule the user already had is never
+  taken.
 - **Identity**: rewritten commands carry `-agent <name>` and `-session <hook session_id>` when
   `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks). `wrap` sets the env, so its
   commands stay short (`execPrefix` in `hook.go`).

@@ -66,7 +66,7 @@ func removeClaude() ([]string, error) {
 	var errs []error
 	for _, f := range configFiles(".claude/settings.json", ".claude/settings.json", ".claude/settings.local.json") {
 		d, err := editJSON(f, func(root *object) []string {
-			return append(removeClaudeSettings(root), removeDenies(f, root)...)
+			return append(removeClaudeSettings(root), removeRules(f, root)...)
 		})
 		done, errs = append(done, d...), append(errs, err)
 	}

@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -327,5 +328,64 @@ func TestServerHostsLLMProxy(t *testing.T) {
 	proxy.ServeHTTP(httptest.NewRecorder(), req)
 	if got != `/v1/messages {"model":"m","messages":[]}` {
 		t.Fatalf("upstream got %q", got)
+	}
+}
+
+func TestInstallAllowRules(t *testing.T) {
+	sandbox(t)
+	const settings = ".claude/settings.json"
+	allows := func() []string {
+		root, err := parseJSON([]byte(read(t, settings)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return allowRules.rules(root.(*object))
+	}
+	install := func(level string) {
+		t.Helper()
+		if err := saveAllowLevel(level); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := addClaude("gascoigne", false); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write(t, settings, `{"permissions": {"allow": ["Bash(go test:*)", "mcp__gascoigne__show"]}}`)
+
+	install("none")
+	if got := allows(); !slices.Equal(got, []string{"Bash(go test:*)", "mcp__gascoigne__show"}) {
+		t.Fatalf("level none must not touch allow rules: %v", got)
+	}
+	install("local")
+	want := []string{"Bash(go test:*)", "mcp__gascoigne__show", "mcp__gascoigne__retrieve", "mcp__gascoigne__stats", "mcp__gascoigne__compress"}
+	if got := allows(); !slices.Equal(got, want) {
+		t.Fatalf("local:\n got %v\nwant %v", got, want)
+	}
+	before := read(t, settings)
+	install("local") // idempotent
+	if read(t, settings) != before {
+		t.Errorf("second install changed the file:\n%s", read(t, settings))
+	}
+	install("all")
+	if got := allows(); !slices.Contains(got, "mcp__gascoigne__fetch") || len(got) != len(want)+1 {
+		t.Fatalf("all adds fetch: %v", got)
+	}
+	install("local") // a lower level takes fetch back
+	if got := allows(); slices.Contains(got, "mcp__gascoigne__fetch") {
+		t.Fatalf("fetch stays after lowering the level: %v", got)
+	}
+	install("none")
+	if got := allows(); !slices.Equal(got, []string{"Bash(go test:*)", "mcp__gascoigne__show"}) {
+		t.Fatalf("none removes gascoigne's rules, keeps the user's (show was theirs): %v", got)
+	}
+	install("all")
+	if _, err := removeClaude(); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, settings); !strings.Contains(got, `"Bash(go test:*)"`) || strings.Contains(got, "retrieve") || strings.Contains(got, "fetch") || !strings.Contains(got, "mcp__gascoigne__show") {
+		t.Errorf("unwrap removes exactly the recorded rules:\n%s", got)
+	}
+	if err := saveAllowLevel("some"); err == nil {
+		t.Error("an unknown level must be refused")
 	}
 }
