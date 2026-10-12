@@ -122,7 +122,9 @@ func TestRemoteLoginNeeded(t *testing.T) {
 func TestRemoteLoginInProxy(t *testing.T) {
 	url, _ := authtest.Server(t)
 	store := &mcpauth.Store{Path: filepath.Join(t.TempDir(), "mcp-auth.json")}
+	opened := make(chan string, 1)
 	open := func(authURL string) {
+		opened <- authURL
 		go func() { // the "browser": follows the redirect to the login callback
 			if resp, err := http.Get(authURL); err == nil {
 				resp.Body.Close()
@@ -148,15 +150,16 @@ func TestRemoteLoginInProxy(t *testing.T) {
 		}
 		return strings.Join(names, ",")
 	}
-	if got := toolNames(); got != "gascoigne_login" || !strings.Contains(cs.InitializeResult().Instructions, "OAuth login") {
-		t.Fatalf("before login: tools %q, instructions %q", got, cs.InitializeResult().Instructions)
+	if !strings.Contains(cs.InitializeResult().Instructions, "OAuth login") {
+		t.Fatalf("instructions %q", cs.InitializeResult().Instructions)
 	}
-	res, err := cs.CallTool(t.Context(), &mcp.CallToolParams{Name: "gascoigne_login"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := res.Content[0].(*mcp.TextContent).Text; !strings.Contains(got, "/authorize?") {
-		t.Fatalf("login result %q", got)
+	select { // no tool call needed: the browser opens as soon as the 401 is seen
+	case u := <-opened:
+		if !strings.Contains(u, "/authorize?") {
+			t.Fatalf("opened %q", u)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("browser not opened")
 	}
 	deadline := time.Now().Add(5 * time.Second)
 	for toolNames() != "gascoigne_retrieve" {
@@ -167,5 +170,26 @@ func TestRemoteLoginInProxy(t *testing.T) {
 	}
 	if _, ok := store.Get(url); !ok {
 		t.Fatal("login not saved")
+	}
+}
+
+func TestLoginToolReturnsAddress(t *testing.T) {
+	url, _ := authtest.Server(t)
+	store := &mcpauth.Store{Path: filepath.Join(t.TempDir(), "mcp-auth.json")}
+	upServerT, upClientT := mcp.NewInMemoryTransports()
+	r := &Receiver{cfg: &Config{Retrieve: "gascoigne_retrieve"}, next: pipeline{}, log: slog.New(slog.DiscardHandler), ledger: ledger{}, upstream: upServerT}
+	go r.Run(WithRemote(t.Context(), Remote{URL: url, Store: store})) // nobody completes the login
+
+	cs, err := mcp.NewClient(&mcp.Implementation{Name: "agent", Version: "0"}, nil).Connect(t.Context(), upClientT, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cs.Close()
+	res, err := cs.CallTool(t.Context(), &mcp.CallToolParams{Name: "gascoigne_login"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := res.Content[0].(*mcp.TextContent).Text; !strings.Contains(got, "/authorize?") {
+		t.Fatalf("login result %q", got)
 	}
 }

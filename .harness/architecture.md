@@ -237,9 +237,10 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
   them; `httpUrl`, OAuth and header helpers, and codex remote servers stay direct. The server id hashes the url (`remoteProxyArgs` in
   `cmd/gascoigne/proxy.go`), never the url or header values.
 - OAuth: a remote server that answers 401 needs a login, and the proxy handles it itself. It starts
-  anyway and serves a stand-in: `Instructions` plus one tool, `gascoigne_login`. Calling it runs the
+  anyway and serves a stand-in: `Instructions` plus one tool, `gascoigne_login`. At once it runs the
   authorization flow in the background (`mcpauth.Login`: PKCE, dynamic client registration, loopback
-  redirect), opens the browser (`Remote.Open`) and returns the address; when the user is done the proxy
+  redirect) and opens the browser (`Remote.Open`); the tool returns the address and restarts a failed
+  flow (a login nobody completes times out after 5 minutes and is not retried by itself). When the user is done the proxy
   connects, adds the server's tools and removes the login tool (tools/list_changed). Tokens are kept in
   `<state dir>/mcp-auth.json` (0600, by a hash of the url without query), sent and refreshed by
   `mcpauth.NewHandler` on later starts; a refused login brings the login tool back. Streamable HTTP only,
