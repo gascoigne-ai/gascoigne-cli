@@ -4,10 +4,18 @@ All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.3.0] - 2026-10-12
+
+Setting up and keeping up to date. gascoigne asks, in a browser page or the terminal, before it
+changes how your agents are set up, `gascoigne upgrade` brings everything current after a new
+version, and `gascoigne doctor` says what is wrong in plain words. The dashboard shows savings by
+model and sorts and filters every table.
 
 ### Added
 
+- A release notice: once a day the background server reads `latest.json` from the project website;
+  when a newer release is out, the next session opens its page once. A plain request with nothing
+  about you in it; off with `GASCOIGNE_RELEASE_CHECK=off` or in `gascoigne setup`.
 - `install -guide off|short|full` (or `$GASCOIGNE_GUIDE`): how much usage text agents get.
 - `install -permissions none|local|all`: allow rules for gascoigne's own tools in claude, removed
   exactly by `unwrap`.
