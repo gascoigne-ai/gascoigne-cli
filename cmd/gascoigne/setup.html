@@ -135,7 +135,7 @@ function el(tag, attrs, ...kids) {
 }
 
 const stateLabel = { connected: "Connected", older: "Older setup", "not connected": "Not connected", declined: "Not for this one" };
-const groupTitle = { permissions: "Permissions", updates: "Updates", agents: "Agents to connect" };
+const groupTitle = { permissions: "Permissions", updates: "Updates", agents: "Agents to connect", experimental: "Experimental features" };
 
 function agentRow(a) {
   const klass = a.state.replace(" ", "");
@@ -154,7 +154,7 @@ function question(q) {
     input.onchange = refreshSummary;
     const tags = [
       o.value === q.default && !q.current ? el("span", { class: "tag" }, "suggested") : null,
-      o.value === q.current ? el("span", { class: "tag saved" }, "saved") : null,
+      o.value === q.current ? el("span", { class: "tag saved" }, q.optional ? "current" : "saved") : null,
     ];
     fs.append(el("label", { class: "choice" }, input, el("span", { class: "label" }, o.label, tags),
       o.detail ? el("span", { class: "detail" }, o.detail) : null));
@@ -188,7 +188,7 @@ async function load() {
   $("found").hidden = false;
 
   const form = $("form");
-  for (const g of ["permissions", "updates", "agents"]) {
+  for (const g of ["permissions", "updates", "agents", "experimental"]) {
     const qs = v.questions.filter((q) => q.group === g);
     if (!qs.length) continue;
     form.append(el("h2", {}, groupTitle[g]));

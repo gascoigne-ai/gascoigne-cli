@@ -36,6 +36,9 @@ type decision struct {
 	Options []option `json:"options"`
 	Default string   `json:"default"`
 	Current string   `json:"current"` // the saved answer, "" = not decided
+	// Optional questions always have a current answer and never count as
+	// open: turning an experimental feature on is up to the user.
+	Optional bool `json:"optional,omitempty"`
 }
 
 type option struct {
@@ -76,7 +79,7 @@ func decisions(p prefs) []decision {
 				{"no", "Not for " + name, "Nothing is installed, and you are not asked again."},
 			}})
 	}
-	return ds
+	return append(ds, experimentDecisions(p)...)
 }
 
 // staleInstalls are the recorded installs written by an older registration.
@@ -161,6 +164,40 @@ func buildSetupView(p prefs) setupView {
 	return v
 }
 
+// experimentPrefix starts the id of a question about an experimental feature.
+const experimentPrefix = "experimental:"
+
+// experiments are the opt-in features setup can turn on. Each is named as
+// experimentalOn asks for it; the experimental commands in help.go are listed
+// here too (a test keeps both in step).
+var experiments = []struct{ name, title, text, detail string }{
+	{"continuity", "Resume snapshot after compaction",
+		"After claude compacts its conversation or resumes a session, it gets a short summary of its last request, open tasks, edited files and failed commands, built from the transcript.",
+		"Adds up to about 500 tokens at each compaction or resume. Not yet measured against the rework it saves."},
+	{"learn", "Learn from your sessions (gascoigne learn)",
+		"Adds the learn command: it proposes instruction lines from habits that cost context, such as running a command again for output that was already shortened.",
+		"It prints proposals; nothing is written without -apply."},
+	{"prompts", "Instruction text report (gascoigne prompts)",
+		"Adds the prompts command: it lists and prices the instruction text agents send with every request.",
+		"Listing changes nothing; -terse rewrites instruction files in place (a .bak is kept)."},
+}
+
+// experimentDecisions are one on/off question per experimental feature. They
+// always have an answer (off until turned on), so they never nag.
+func experimentDecisions(p prefs) []decision {
+	var ds []decision
+	for _, x := range experiments {
+		current := "off"
+		if slices.Contains(p.Experimental, x.name) {
+			current = "on"
+		}
+		ds = append(ds, decision{ID: experimentPrefix + x.name, Group: "experimental", Current: current, Default: "off", Optional: true,
+			Title: x.title, Text: x.text,
+			Options: []option{{"on", "Turn on", x.detail}, {"off", "Leave off", "The feature stays unavailable."}}})
+	}
+	return ds
+}
+
 // integratePrefix starts the id of a question about an agent found on PATH.
 const integratePrefix = "integrate:"
 
@@ -222,6 +259,15 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 		out = append(out, integrate(name))
 	}
 	slices.Sort(p.Declined)
+	for id, v := range answers {
+		if name, ok := strings.CutPrefix(id, experimentPrefix); ok {
+			p.Experimental = slices.DeleteFunc(p.Experimental, func(x string) bool { return x == name })
+			if v == "on" {
+				p.Experimental = append(p.Experimental, name)
+			}
+		}
+	}
+	slices.Sort(p.Experimental)
 	rewrite := len(out) > 0
 	if v, ok := answers["update"]; ok {
 		if v == "no" {
@@ -461,6 +507,7 @@ func cmdSetup(_ context.Context, args []string) error {
 	yes := fset.Bool("y", false, "take the default answer to every question")
 	all := fset.Bool("all", false, "also ask the questions already answered")
 	term := fset.Bool("t", false, "ask in the terminal even where a browser can open")
+	experimental := fset.Bool("experimental", false, "ask only about the experimental features")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
@@ -468,6 +515,9 @@ func cmdSetup(_ context.Context, args []string) error {
 	ds := pendingDecisions(p)
 	if *all {
 		ds = decisions(p)
+	}
+	if *experimental {
+		ds = experimentDecisions(p)
 	}
 	if len(ds) == 0 {
 		fmt.Println("nothing to decide; setup -all asks again")

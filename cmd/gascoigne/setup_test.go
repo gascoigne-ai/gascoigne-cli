@@ -143,7 +143,7 @@ func TestSetupPage(t *testing.T) {
 
 func TestAskTerminal(t *testing.T) {
 	sandbox(t)
-	ds := decisions(prefs{})
+	ds := pendingDecisions(prefs{})
 	var out strings.Builder
 	got, err := ask(strings.NewReader("\n2\n"), &out, ds, false)
 	if err != nil {
@@ -357,7 +357,67 @@ func TestSetupViewTellsWhatWasFound(t *testing.T) {
 		}
 	}
 	// The immediate update comes before the standing one; groups drive the sections.
-	if got := strings.Join(ids, " "); got != "permissions:allow updates:update updates:autosync agents:integrate:codex" {
+	if got := strings.Join(ids, " "); !strings.HasPrefix(got, "permissions:allow updates:update updates:autosync agents:integrate:codex experimental:experimental:") {
 		t.Errorf("questions: %s", got)
+	}
+}
+
+func TestExperimentalSetup(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_EXPERIMENTAL", "")
+
+	// Experimental features never count as open questions.
+	for _, d := range pendingDecisions(prefs{}) {
+		if strings.HasPrefix(d.ID, experimentPrefix) {
+			t.Fatalf("an optional feature is not a pending question: %+v", d)
+		}
+	}
+	if experimentalOn("learn") {
+		t.Fatal("off until turned on")
+	}
+	lines, err := applyAnswers(map[string]string{"experimental:learn": "on", "experimental:continuity": "on"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(lines) != 0 {
+		t.Errorf("no installs to rewrite for a feature switch: %v", lines)
+	}
+	if got := readPrefs().Experimental; len(got) != 2 || got[0] != "continuity" || got[1] != "learn" {
+		t.Fatalf("saved: %v", got)
+	}
+	if !experimentalOn("learn") || !experimentalOn("continuity") || experimentalOn("prompts") {
+		t.Fatal("the saved choice turns the feature on")
+	}
+	if !available(command{name: "learn", experimental: true}) || available(command{name: "prompts", experimental: true}) {
+		t.Error("an experimental command is available once turned on, not before")
+	}
+	for _, d := range decisions(readPrefs()) {
+		if d.ID == "experimental:learn" && d.Current != "on" {
+			t.Errorf("the page shows the saved answer: %+v", d)
+		}
+	}
+	if _, err := applyAnswers(map[string]string{"experimental:learn": "off"}); err != nil {
+		t.Fatal(err)
+	}
+	if experimentalOn("learn") || len(readPrefs().Experimental) != 1 {
+		t.Errorf("off turns it off again: %v", readPrefs().Experimental)
+	}
+	if _, err := applyAnswers(map[string]string{"experimental:nonsense": "on"}); err == nil {
+		t.Error("only listed features can be turned on")
+	}
+	if _, err := applyAnswers(map[string]string{"experimental:learn": "maybe"}); err == nil {
+		t.Error("only on or off")
+	}
+}
+
+func TestEveryExperimentalCommandCanBeTurnedOnInSetup(t *testing.T) {
+	listed := map[string]bool{}
+	for _, x := range experiments {
+		listed[x.name] = true
+	}
+	for _, c := range commandList {
+		if c.experimental && !listed[c.name] {
+			t.Errorf("experimental command %q has no question in setup (experiments in setup.go)", c.name)
+		}
 	}
 }

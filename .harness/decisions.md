@@ -79,6 +79,10 @@ every request; the project counts instruction tokens.
 
 ## Features kept experimental
 
+Turning one on is a question in `gascoigne setup` (`setup -experimental`, or the page's last section),
+stored in `prefs.json`, not an edit of `config.yaml`. It never counts as an open question: it is the
+user's choice, so it must not bring the page back.
+
 - **`continuity`** (resume snapshot): built from the transcript at SessionStart after compaction or
   resume, so it needs no new hook registration; reads the agent's own calls, never tool output.
   Unmeasured (needs a compaction-forcing A/B).

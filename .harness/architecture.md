@@ -451,6 +451,10 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   (`setup.html`) first shows what was found (`buildSetupView`: each install connected or older, agents
   on PATH not connected or declined, the version), then the questions in sections by `decision.Group`
   (permissions, updates, agents), each option with a sentence saying what it does (`option.Detail`);
+  experimental features are optional questions (`decision.Optional`, always answered, never nag): the
+  choice is `prefs.experimental`, which `experimentalOn` reads next to `$GASCOIGNE_EXPERIMENTAL` and
+  the config's list; `setup -experimental` asks only those, and a test keeps `experiments` in step with
+  the commands marked experimental in `help.go`;
   a save bar says how many answers will be saved, and the result lists what was done.
   New agents: an agent on PATH with no recorded install and not declined gets a question
   (`integrate:<agent>`, default yes). It is only signaled: a SessionStart note and the page (until answered, like any question); yes runs the user-level install and records it, no is remembered

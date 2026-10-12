@@ -31,9 +31,11 @@ type command struct {
 func available(c command) bool { return !c.experimental || experimentalOn(c.name) }
 
 // experimentalOn reports whether an experimental feature is enabled: named
-// (or "all") in $GASCOIGNE_EXPERIMENTAL or the config's experimental list.
+// (or "all") in $GASCOIGNE_EXPERIMENTAL, the config's experimental list or
+// the choices saved by gascoigne setup.
 func experimentalOn(name string) bool {
 	on := append(splitList(os.Getenv("GASCOIGNE_EXPERIMENTAL"), ","), configExperimental()...)
+	on = append(on, readPrefs().Experimental...)
 	return slices.Contains(on, "all") || slices.Contains(on, name)
 }
 
@@ -70,13 +72,13 @@ func init() {
 				"Agents: claude, codex, cursor, gemini, opencode, pi (default: those found on PATH).",
 			examples: []string{"gascoigne install", "gascoigne install -g", "gascoigne install claude codex"},
 			run:      cmdInstall},
-		{name: "setup", args: "[-y] [-all] [-t]", group: groupAgents,
+		{name: "setup", args: "[-y] [-all] [-t] [-experimental]", group: groupAgents,
 			summary: "answer the open questions about permissions, hook updates and new agents",
 			about: "gascoigne asks before it lets claude run its own tools without asking, updates installed hooks\n" +
 				"by itself or sets up an agent it found. setup opens the page in your browser (dashboard /setup);\n" +
 				"where none can open (ssh, CI) or with -t it asks here. -y takes the suggested answers, -all asks\n" +
-				"the answered questions again.",
-			examples: []string{"gascoigne setup", "gascoigne setup -t", "gascoigne setup -y"},
+				"the answered questions again, -experimental asks only about the experimental features.",
+			examples: []string{"gascoigne setup", "gascoigne setup -t", "gascoigne setup -experimental"},
 			run:      cmdSetup},
 		{name: "upgrade", args: "[-n]", group: groupAgents,
 			summary: "after installing a new version: update hooks, config and open choices",
@@ -264,7 +266,7 @@ func cmdHelp(_ context.Context, args []string) error {
 
 func unknownCommand(name string) error {
 	if i := slices.IndexFunc(commandList, func(c command) bool { return c.name == name }); i >= 0 {
-		return fmt.Errorf("%q is experimental: add it to experimental in the config, or set GASCOIGNE_EXPERIMENTAL=%s", name, name)
+		return fmt.Errorf("%q is experimental: turn it on with gascoigne setup -experimental, add it to experimental in the config, or set GASCOIGNE_EXPERIMENTAL=%s", name, name)
 	}
 	msg := fmt.Sprintf("unknown command %q", name)
 	if s := suggest(name); s != "" {

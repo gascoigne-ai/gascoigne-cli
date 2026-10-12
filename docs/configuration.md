@@ -98,7 +98,7 @@ router:
   routes:  [ … ]                       # optional overrides per command/content
 optimizers:   { <type>: {…} }          # one entry per optimizer used
 exporters:    { <type>: {…} }          # where results go
-experimental: [ … ]                    # not stable yet: prompts, learn, continuity, or all
+experimental: [ … ]                    # not stable yet: prompts, learn, continuity, or all (gascoigne setup -experimental turns them on too)
 pipelines:
   <name>:
     receivers: [ … ]

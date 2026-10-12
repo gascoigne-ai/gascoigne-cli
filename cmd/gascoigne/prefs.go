@@ -32,6 +32,10 @@ type prefs struct {
 	// AskedAt is when the setup page was last opened by install or a session
 	// start: it comes back with a new session while questions stay open.
 	AskedAt time.Time `json:"asked_at,omitzero"`
+	// Experimental lists the experimental features the user turned on in
+	// setup (config.yaml's experimental list and $GASCOIGNE_EXPERIMENTAL
+	// still count).
+	Experimental []string `json:"experimental,omitempty"`
 	// Declined are agents found on PATH that the user chose not to integrate.
 	Declined []string `json:"declined,omitempty"`
 	// UpdateDeclined is the registrationVersion whose hook update the user
