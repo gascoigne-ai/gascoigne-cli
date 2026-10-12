@@ -76,6 +76,14 @@ func init() {
 				"suggested answers, -all asks the answered questions again.",
 			examples: []string{"gascoigne setup", "gascoigne setup -y"},
 			run:      cmdSetup},
+		{name: "doctor", args: "[-fix]", group: groupAgents,
+			summary: "check installs, hooks, server and saved answers",
+			about: "Reports, per recorded install, whether the agent's config still holds gascoigne's hook and\n" +
+				"whether a newer gascoigne changed what install writes; also the background server, the guide\n" +
+				"level and open questions. -fix writes the stale or lost installs again (this project's and the\n" +
+				"user's). Exits 1 when a problem is left.",
+			examples: []string{"gascoigne doctor", "gascoigne doctor -fix"},
+			run:      cmdDoctor},
 		{name: "unwrap", args: "[agent...]", group: groupAgents,
 			summary:  "remove gascoigne from agents' config files",
 			about:    "Removes exactly what install or wrap -print added, from user and project configs\n(default: every agent). Other settings keep their order; originals are backed up.",

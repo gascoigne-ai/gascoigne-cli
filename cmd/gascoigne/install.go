@@ -211,7 +211,8 @@ func syncClaude(exe string, global bool) ([]string, error) {
 	if err := allowRules.record(settings, allowed); err != nil {
 		return nil, err
 	}
-	return append(done, d), nil
+	skills, err := addClaudeSkills(global)
+	return append(append(done, d), skills...), err
 }
 
 func addCursor(exe string, global bool) ([]string, error) {

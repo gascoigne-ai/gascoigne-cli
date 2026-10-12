@@ -14,7 +14,7 @@ import (
 // registrationVersion numbers what install writes into agent configs: hooks,
 // matchers, guide text, rules. Bump it whenever that set changes, so installs
 // made by an older gascoigne are re-registered (syncInstalls).
-const registrationVersion = 1
+const registrationVersion = 2
 
 // An install is one agent registered for good (gascoigne install), recorded
 // so a later gascoigne can bring its config up to date. Hooks call the binary

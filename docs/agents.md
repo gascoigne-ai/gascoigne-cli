@@ -43,6 +43,22 @@ Earlier gascoigne entries are replaced, so running `install` again after moving 
 refreshes them, and an up-to-date file is left untouched. Configs call plain `gascoigne` when
 `PATH` finds this binary (project files can then be committed), else its full path. Claude asks
 to approve a project `.mcp.json` server on first use; Codex asks to trust the hook (`/hooks`).
+Options saved for later installs:
+
+```sh
+gascoigne install -permissions local   # claude runs retrieve, show, stats, compress without asking
+gascoigne install -guide short         # less usage text for agents (off removes it)
+gascoigne install -autosync on         # hooks update installs after a gascoigne upgrade
+gascoigne install -sync                # do that update now
+gascoigne setup                        # the same questions, asked in the terminal
+```
+
+Nothing that changes how an agent asks for approval, or that updates configs by itself, happens
+before you decide: `install` opens a page in the dashboard (`/setup`) with those questions (not
+under `CI`, not without a display; `gascoigne setup` asks in the terminal). `gascoigne doctor`
+checks the installs; `doctor -fix` writes stale ones again. Claude also gets two commands,
+`/gascoigne-stats` and `/gascoigne-doctor`, removed by `unwrap`.
+
 To remove it again:
 
 ```sh
@@ -182,8 +198,8 @@ API usage is not metered on Bedrock (its responses are a binary event stream).
 with `rg` and `find` through Bash, where the rewrite optimizes them fully, and reads pages with
 gascoigne's `fetch`, whole and compressed, where WebFetch hands back a small model's retelling of
 the page. **Read** stays: Edit refuses to change a file Read has not loaded. `install` records the
-rules it added (`$XDG_STATE_HOME/gascoigne/denies.json`), so `unwrap` removes those and keeps
-deny rules you wrote yourself.
+rules it added (`$XDG_STATE_HOME/gascoigne/denies.json`, and `allows.json` for `-permissions`), so
+`unwrap` removes those and keeps rules you wrote yourself.
 
 ## Usage guide for the agent
 

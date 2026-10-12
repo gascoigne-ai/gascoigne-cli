@@ -71,7 +71,9 @@ func removeClaude() ([]string, error) {
 		})
 		done, errs = append(done, d...), append(errs, err)
 	}
-	d, err := editJSON(".mcp.json", mcpEdit)
+	d, err := removeClaudeSkills()
+	done, errs = append(done, d...), append(errs, err)
+	d, err = editJSON(".mcp.json", mcpEdit)
 	done, errs = append(done, d...), append(errs, err)
 	d, err = editJSON(claudeJSON(), unproxyClaudeState)
 	done, errs = append(done, d...), append(errs, err)

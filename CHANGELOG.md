@@ -15,6 +15,7 @@ All notable changes to gascoigne. The format follows
   after an upgrade (user scope; project installs with `-sync` in the project).
 - `gascoigne setup` and a `/setup` page in the dashboard: permissions and hook updates are asked
   once, in the browser (or the terminal), before anything is changed.
+- `gascoigne doctor [-fix]`, and `/gascoigne-stats` and `/gascoigne-doctor` commands in claude.
 - Dashboard: savings by model family and by model, in the model's own tokens and dollars, with the official list prices they are estimated from.
 
 ### Fixed

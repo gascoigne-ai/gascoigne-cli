@@ -437,6 +437,12 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   the usual loopback-Host and cross-origin checks apply. An answer saves the prefs and writes
   user-scope installs again; project installs are listed ("run gascoigne install there").
   `gascoigne setup [-y] [-all]` asks the same in the terminal.
+- **Doctor and skills** (`doctor.go`, `claudeskills.go`): `doctor [-fix]` reports the binary on
+  PATH, the server, guide level, open questions and, per recorded install, whether the agent's
+  config (`configOf`) still holds `hook <agent>` and the registration is current; `-fix` writes
+  those installs again (this project's and the user's). `install claude` also writes the skills
+  `gascoigne-stats` and `gascoigne-doctor` (`disable-model-invocation`, so their descriptions are
+  not sent with requests; marked with `skillMarker`, so `unwrap` removes only ours).
 - **Identity**: rewritten commands carry `-agent <name>` and `-session <hook session_id>` when
   `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks). `wrap` sets the env, so its
   commands stay short (`execPrefix` in `hook.go`).
