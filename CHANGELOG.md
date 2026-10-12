@@ -7,8 +7,9 @@ All notable changes to gascoigne. The format follows
 ## [0.2.1] - 2026-10-12
 
 First release. gascoigne shrinks command output, tool results and web pages before they reach
-a coding agent, and keeps every original one command away. About 82% fewer tokens across the
-eval fixtures (`make eval`).
+a coding agent, and keeps every original one command away. Verbose output (installs, test runs,
+logs, cloud and Kubernetes JSON/YAML) shrinks 70–99%; across the 268 eval cases the median output
+shrinks 69%; in the author's own coding sessions tool output was 4–27% smaller (median 10%).
 
 ```sh
 go install github.com/gascoigne-ai/gascoigne-cli/cmd/gascoigne@latest && gascoigne wrap claude
@@ -36,7 +37,7 @@ go install github.com/gascoigne-ai/gascoigne-cli/cmd/gascoigne@latest && gascoig
   `unwrap` removes it from agent configs, `uninstall` removes gascoigne entirely (configs,
   server, ledger, caches and the binary, after asking).
 - Agents get a short usage guide and are asked to keep their own text brief (about 16% fewer
-  output tokens in A/B runs).
+  output tokens in A/B runs: 4 tasks × 3 runs on Claude Sonnet).
 
 ### MCP and the LLM API proxy
 

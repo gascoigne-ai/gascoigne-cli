@@ -7,7 +7,7 @@
 A token optimizer for coding agents. It shrinks command output, tool results and web pages
 before they reach the model, and keeps every original one command away.
 
-`~80% fewer tokens` · `16 families` · `110+ tools & formats` · `claude · codex · gemini · opencode · pi · cursor` · `pure Go, no cgo`
+`70–99% off verbose output` · `16 families` · `110+ tools & formats` · `claude · codex · gemini · opencode · pi · cursor` · `pure Go, no cgo`
 
 </div>
 
@@ -94,28 +94,43 @@ optimizer, every run as it happens, and any run's original side by side with wha
 
 ### What it saves
 
-Agents burn context on progress bars, passing tests, `managedFields`, pagination tokens and
-license boilerplate. gascoigne knows what each kind of output is for, keeps what an agent acts
-on (failures, diffs, errors, anomalies, summaries) and folds the rest.
+It depends on what your agent runs. gascoigne keeps what an agent acts on (failures, diffs,
+errors, anomalies, summaries) and folds the rest, so the more noise an output carries, the more
+it removes. Progress bars, passing tests, `managedFields` and pagination tokens go almost
+entirely; a source diff or a short search result has little to cut.
 
 | Output | Before | After | Saved |
 |---|--:|--:|--:|
 | `npm install --verbose` | 24,655 | 76 | **99.7%** |
 | nginx access log | 73,148 | 436 | **99.4%** |
+| Python `RecursionError` trace | 25,543 | 218 | **99.1%** |
 | `go test -json ./...` | 16,208 | 175 | **98.9%** |
+| `go test` timeout (goroutine dump) | 7,478 | 388 | **94.8%** |
 | `kubectl logs` (JSON) | 23,171 | 2,156 | **90.7%** |
 | `aws ec2 describe-instances` | 33,835 | 4,301 | **87.3%** |
 | `terraform plan` | 10,663 | 1,697 | **84.1%** |
-| `kubectl get pods -o yaml` | 37,330 | 9,609 | **74.3%** |
 | `git log` | 4,173 | 1,151 | **72.4%** |
 | `cat lib/benchmark.rb` (comments) | 6,390 | 2,800 | **56.2%** |
-| Python `RecursionError` trace | 25,543 | 218 | **99.1%** |
-| `go test` timeout (goroutine dump) | 7,478 | 388 | **94.8%** |
-| `cat churn.ipynb` (notebook) | 20,144 | 896 | **95.6%** |
-| CodeQL SARIF report | 15,590 | 1,065 | **93.2%** |
-| browser snapshot (accessibility tree) | 6,569 | 2,601 | **60.4%** |
+| `git diff` of source edits | 3,430 | 2,386 | **30.4%** |
+| `pytest` with one failure | 899 | 652 | **27.5%** |
+| `rg` search | 3,161 | 2,655 | **16.0%** |
+| `kubectl get pods` | 675 | 611 | **9.5%** |
+| `cat` of a small Go file | 854 | 854 | **0%** |
 
-<sub>Tokens (BPE-style estimate, within ~10% of a real tokenizer) on the eval fixtures in <code>testdata/eval</code> · <code>make eval</code> · what they are worth per model: <a href="docs/cost.md">cost</a></sub>
+Across all 268 eval cases the median output shrinks by 69%, and 82% of all tokens go, because
+the largest outputs are also the noisiest; 9 cases are left as they are. Outputs under 200 tokens
+are passed through untouched. The fixtures are real-shaped samples of the tools gascoigne knows,
+so treat them as an upper bound for those tools, not a forecast for your sessions.
+
+**In real use.** Over three days of developing gascoigne itself with Claude Code (over 8,000 tool
+results), web pages and API responses read with `fetch` came out 93–99% smaller than the raw
+response, `git show` 80%, `go test` 69% and `cat` of source files 38%, while targeted reads such
+as `sed -n` ranges and `rg` saved 1–3%. Per coding session, tool output was 4–27% smaller
+(median 10%): most of the work was reading and editing code. Tool output is only part of
+what the model reads on every turn (system prompt, conversation, your code), so your bill drops
+by less than that. `gascoigne gain` shows your own numbers.
+
+<sub>Tokens are a BPE-style estimate, within ~10% of a real tokenizer · fixtures in <code>testdata/eval</code>, <code>make eval</code> · what saved tokens are worth per model: <a href="docs/cost.md">cost</a></sub>
 
 ## Install
 
