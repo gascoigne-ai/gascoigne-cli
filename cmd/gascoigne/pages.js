@@ -55,7 +55,8 @@
     <g fill="#b3a2a7" opacity=".5"><path d="M10 18c3-5 10-6 14-3 3 3 0 7-4 8-4 1-7 4-10 1-2-2-2-4 0-6z"/><path d="M25 26c4-3 10-2 12 2 2 3-1 7-5 7-5 1-9-1-9-5 0-2 1-3 2-4z"/></g>
     <g fill="url(#pg-crater)"><circle cx="31" cy="17" r="3"/><circle cx="35" cy="28" r="2"/><circle cx="21" cy="29" r="2.4"/><circle cx="15" cy="15" r="1.6"/></g></svg>`;
 
-  // header builds the same night band as the dashboard; current is the page's own link.
+  // header builds the dashboard's night band, identical on every page: the same brand and links, the page's own link
+  // marked. The page's title and subtitle go in a line below it.
   const header = (target, title, subtitle, current) => {
     const links = [["/", "Dashboard", "dashboard"], ["/context", "Context", "context"], ["/mcp", "MCP servers", "mcp"]];
     const theme = el("div", { class: "theme", role: "group", "aria-label": "Theme" });
@@ -69,10 +70,13 @@
       });
       theme.append(b);
     }
-    const brand = el("div", { class: "brand" }, el("div", { class: "moon" }), el("div", {}, el("h1", { text: title }), el("div", { class: "subtitle", text: subtitle })));
+    const brand = el("div", { class: "brand" }, el("div", { class: "moon" }), el("div", {}, el("h1", { text: "Gascoigne" }), el("div", { class: "subtitle", text: "Token savings for coding agents" })));
     brand.querySelector(".moon").innerHTML = moon; // a fixed literal, no data
+    const ver = el("span", { class: "ver", title: "gascoigne version" });
+    fetch("/api/health").then((r) => r.json()).then((h) => { ver.textContent = h.version ? "v" + h.version : ""; }).catch(() => {});
     target.replaceWith(el("header", {}, brand, el("div", { class: "head-right" },
-      ...links.map(([href, text, id]) => el("a", { class: "navlink", href, text, ...(id === current ? { "aria-current": "page" } : {}) })), theme)));
+      ...links.map(([href, text, id]) => el("a", { class: "navlink", href, text, ...(id === current ? { "aria-current": "page" } : {}) })), ver, theme)),
+      el("div", { class: "pagehead" }, el("h2", { text: title }), el("span", { class: "hint", text: subtitle })));
   };
 
   window.G = { el, human, usd, num, header, icon, button, setButton };
