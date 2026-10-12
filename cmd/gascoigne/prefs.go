@@ -34,7 +34,10 @@ type prefs struct {
 	// Declined are agents found on PATH that the user chose not to integrate;
 	// Offered are those the setup question was already shown for.
 	Declined []string `json:"declined,omitempty"`
-	Offered  []string `json:"offered,omitempty"`
+	// UpdateDeclined is the registrationVersion whose hook update the user
+	// declined: asked again with the next one.
+	UpdateDeclined int      `json:"update_declined,omitempty"`
+	Offered        []string `json:"offered,omitempty"`
 }
 
 func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }

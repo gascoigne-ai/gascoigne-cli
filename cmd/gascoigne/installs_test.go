@@ -54,15 +54,13 @@ func TestSyncInstalls(t *testing.T) {
 		prefs    string
 		env      string
 		global   bool
-		all      bool
 		wantSync bool
 	}{
-		{"not decided: nothing", "", "", true, false, false},
-		{"autosync off", "off", "", true, false, false},
-		{"autosync on", "on", "", true, false, true},
-		{"env turns it off", "on", "off", true, false, false},
-		{"project install is left alone by hooks", "on", "", false, false, false},
-		{"install -sync takes this project's install, ignoring the choice", "", "", false, true, true},
+		{"not decided: nothing", "", "", true, false},
+		{"autosync off", "off", "", true, false},
+		{"autosync on", "on", "", true, true},
+		{"env turns it off", "on", "off", true, false},
+		{"project install is left alone by hooks", "on", "", false, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -72,7 +70,7 @@ func TestSyncInstalls(t *testing.T) {
 				t.Fatal(err)
 			}
 			staleClaude(t, tt.global)
-			lines := syncInstalls(tt.all)
+			lines := syncInstalls()
 			file := userSettings
 			if tt.global {
 				file = filepath.Join(home, userSettings)
@@ -102,20 +100,20 @@ func TestSyncInstallsKeepsProxyAndTakesLocks(t *testing.T) {
 	if err := os.WriteFile(lock, nil, 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if lines := syncInstalls(false); len(lines) != 0 {
+	if lines := syncInstalls(); len(lines) != 0 {
 		t.Fatalf("another process holds the lock: %v", lines)
 	}
 	old := time.Now().Add(-time.Hour)
 	if err := os.Chtimes(lock, old, old); err != nil {
 		t.Fatal(err)
 	}
-	if lines := syncInstalls(false); len(lines) != 1 {
+	if lines := syncInstalls(); len(lines) != 1 {
 		t.Fatalf("a stale lock is taken over: %v", lines)
 	}
 	if _, err := os.Stat(lock); !os.IsNotExist(err) {
 		t.Error("lock left behind")
 	}
-	if lines := syncInstalls(false); len(lines) != 0 {
+	if lines := syncInstalls(); len(lines) != 0 {
 		t.Errorf("a current install is not synced again: %v", lines)
 	}
 }

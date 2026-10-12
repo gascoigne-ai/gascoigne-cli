@@ -13,8 +13,14 @@ import (
 
 // registrationVersion numbers what install writes into agent configs: hooks,
 // matchers, guide text, rules. Bump it whenever that set changes, so installs
-// made by an older gascoigne are re-registered (syncInstalls).
+// made by an older gascoigne are re-registered (syncInstalls, gascoigne upgrade).
 const registrationVersion = 2
+
+// registrationNotes say what a registration version changed, for the
+// question that offers the update.
+var registrationNotes = map[int]string{
+	2: "claude commands /gascoigne-stats and /gascoigne-doctor, and allow rules for gascoigne's own tools when chosen",
+}
 
 // An install is one agent registered for good (gascoigne install), recorded
 // so a later gascoigne can bring its config up to date. Hooks call the binary
@@ -78,20 +84,16 @@ func forgetInstalls(names []string) error {
 	return writeInstalls(kept)
 }
 
-// syncInstalls registers again the installs older than registrationVersion.
-// Automatic runs (agent hooks) touch user-scope installs only, and only when
-// the user chose autosync and $GASCOIGNE_AUTOSYNC is not off: project files
-// sit in repositories and are edited by install in that project. all (install
-// -sync) also takes this project's install and ignores the choice. It returns
-// what it did, one line per install, and never fails the caller.
-func syncInstalls(all bool) []string {
-	if !all && (os.Getenv("GASCOIGNE_AUTOSYNC") == "off" || readPrefs().Autosync != "on") {
+// syncInstalls registers again the user-scope installs older than
+// registrationVersion, for agent hooks: only when the user chose autosync and
+// $GASCOIGNE_AUTOSYNC is not off. Project files sit in repositories, so they
+// are left to gascoigne upgrade, run in the project. It returns what it did,
+// one line per install, and never fails the caller.
+func syncInstalls() []string {
+	if os.Getenv("GASCOIGNE_AUTOSYNC") == "off" || readPrefs().Autosync != "on" {
 		return nil
 	}
-	cwd, _ := os.Getwd()
-	stale := func(e install) bool {
-		return e.Registration < registrationVersion && (e.Global || all && e.Dir == cwd)
-	}
+	stale := func(e install) bool { return e.Registration < registrationVersion && e.Global }
 	if !slices.ContainsFunc(readInstalls(), stale) {
 		return nil
 	}
@@ -162,7 +164,7 @@ func lockInstalls() (unlock func(), ok bool) {
 // syncNote runs the automatic update and words what it did for the agent,
 // which reads its settings at start: new hooks work after a restart.
 func syncNote() string {
-	lines := syncInstalls(false)
+	lines := syncInstalls()
 	if len(lines) == 0 {
 		return ""
 	}

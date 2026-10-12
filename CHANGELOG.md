@@ -11,12 +11,13 @@ All notable changes to gascoigne. The format follows
 - `install -guide off|short|full` (or `$GASCOIGNE_GUIDE`): how much usage text agents get.
 - `install -permissions none|local|all`: allow rules for gascoigne's own tools in claude, removed
   exactly by `unwrap`.
-- `install -autosync on` / `-sync`: installs made by an older gascoigne get new hooks and rules
-  after an upgrade (user scope; project installs with `-sync` in the project).
+- `gascoigne upgrade [-n]`: after installing a new version, one command writes stale or lost hooks,
+  rules and commands again, moves `config.yaml` onto the new template (settings kept) and opens the
+  page for choices still waiting. `install -autosync on` does the user-level part by itself.
 - `gascoigne setup` and a `/setup` page in the dashboard: permissions and hook updates are asked
   once, in the browser (or the terminal), before anything is changed.
 - A coding agent found on PATH without a gascoigne install is signaled once (session note and the setup page) and installed only on a yes.
-- `gascoigne doctor [-fix]`, and `/gascoigne-stats` and `/gascoigne-doctor` commands in claude.
+- `gascoigne doctor` (a plain-language report), and `/gascoigne-stats` and `/gascoigne-doctor` commands in claude.
 - `gain -oneline`: totals on one line, for a status line.
 - Experimental `continuity`: after a compaction or resume, claude gets a short snapshot of its last request, open tasks, edited files and failed commands.
 - Experimental `learn`: propose instruction lines from habits that cost context (reruns of shortened output, large unshortened output).

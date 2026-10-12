@@ -426,7 +426,7 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   an older number are written again (`agent.sync`, else `add`; claude: settings only, never
   `~/.claude.json` which a running Claude Code rewrites), under `installs.lock`, never failing the
   hook; SessionStart tells the agent to restart. Project installs are never touched by hooks:
-  `install -sync` does this project's and the user's now. Not decided = nothing is synced.
+  `gascoigne upgrade` does this project's and the user's now. Not decided = nothing is synced.
 - **Decisions** (`setup.go`, `setup.html`): changes beyond gascoigne's own files wait for the
   user. Open questions = unset `allow` / `autosync` in `prefs.json`. `install` (end) and a claude
   SessionStart hook (once per `registrationVersion`, `prefs.asked_registration`; recorded installs
@@ -441,12 +441,15 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   (`integrate:<agent>`, default yes). It is only signaled: a SessionStart note and the page, once per
   agent (`prefs.offered`); yes runs the user-level install and records it, no is remembered
   (`prefs.declined`; `setup -all` can reverse it). Nothing is installed without the answer.
-- **Doctor and skills** (`doctor.go`, `claudeskills.go`): `doctor [-fix]` reports the binary on
-  PATH, the server, guide level, open questions and, per recorded install, whether the agent's
-  config (`configOf`) still holds `hook <agent>` and the registration is current; `-fix` writes
-  those installs again (this project's and the user's). `install claude` also writes the skills
-  `gascoigne-stats` and `gascoigne-doctor` (`disable-model-invocation`, so their descriptions are
-  not sent with requests; marked with `skillMarker`, so `unwrap` removes only ours).
+- **Doctor, upgrade and skills** (`doctor.go`, `upgrade.go`, `claudeskills.go`): `doctor` only
+  reports: binary on PATH, server, guide level, open questions and, per recorded install, whether
+  the agent's config (`configOf`) still holds `hook <agent>` and the registration is current. Each
+  problem carries a `fix`, which `gascoigne upgrade [-n]` runs: it is the one place for what a new
+  version needs (stale or lost hooks, rules and commands of user installs and this project's; other
+  projects are named; `config.yaml` moved onto the template via `writeUpgrade`, `.bak` kept; open
+  choices handed to `offerSetup`). `install claude` also writes the skills `gascoigne-stats` and
+  `gascoigne-doctor` (`disable-model-invocation`, so their descriptions are not sent with requests;
+  marked with `skillMarker`, so `unwrap` removes only ours).
 - **Identity**: rewritten commands carry `-agent <name>` and `-session <hook session_id>` when
   `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks). `wrap` sets the env, so its
   commands stay short (`execPrefix` in `hook.go`).

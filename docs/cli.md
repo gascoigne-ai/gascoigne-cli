@@ -34,6 +34,9 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `forget <key>` | Clear a source's failure history so it is optimized again. |
 | `eval [flags]` | Measure savings on the fixtures in `testdata/eval` (see [Development](development.md)). |
 | `prompts [-agent claude\|codex] [dir]` | Experimental (`experimental: [prompts]`). List the instruction text an agent sends with every request and price it; `-terse 0.1 <files>` drops articles and fillers from instruction files in place (`.bak` kept). |
+| `upgrade [-n]` | After installing a new version: write stale or lost hooks, rules and commands of your installs again, move `config.yaml` onto the new template (settings kept, `.bak` left), open the page for choices still waiting. `-n` lists without changing. |
+| `doctor` | Report the binary, server, saved answers and each install (hook present, registration current), in plain language. Changes nothing; `upgrade` repairs. |
+| `setup [-y] [-all]` | Answer the open questions (permissions, hook updates, new agents) in the terminal; the same questions are a page in the dashboard. |
 | `learn [-since 30d] [-apply\|-remove] [-target FILE]` | Experimental (`experimental: [learn]`). Propose instruction lines from habits seen in at least two sessions: commands run again for output that was already shortened, and commands whose large output nothing can shorten. Prints them; `-apply` writes a marked block to `CLAUDE.local.md` (or `-target`), `-remove` takes it out. |
 | `components` | List the built-in components and their families. |
 | `config [flags]` | Print the effective config after `-set`, `-only`, `-disable` and environment. |

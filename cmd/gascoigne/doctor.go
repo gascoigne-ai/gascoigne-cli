@@ -12,40 +12,29 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/version"
 )
 
-// A finding is one line of the doctor's report. fix, when set, repairs it.
+// A finding is one line of the doctor's report. fix, when set, repairs it
+// (gascoigne upgrade runs it).
 type finding struct {
 	level string // ok, warn or problem
 	text  string
 	fix   func() error
 }
 
-// cmdDoctor reports whether gascoigne is set up the way its records say, and
-// with -fix repairs what it can without asking (writes the installed configs
-// again, as install does).
+// cmdDoctor reports whether gascoigne is set up the way its records say.
+// gascoigne upgrade repairs what it finds.
 func cmdDoctor(_ context.Context, args []string) error {
-	fset := newFlags("doctor")
-	fix := fset.Bool("fix", false, "write again the installs that are stale or lost their hook")
-	if err := fset.Parse(args); err != nil {
+	if err := newFlags("doctor").Parse(args); err != nil {
 		return err
 	}
 	problems := 0
 	for _, f := range diagnose() {
 		fmt.Printf("%-7s %s\n", f.level, f.text)
-		if f.level != "problem" {
-			continue
-		}
-		problems++
-		if *fix && f.fix != nil {
-			if err := f.fix(); err != nil {
-				fmt.Printf("%-7s could not fix: %v\n", "", err)
-				continue
-			}
-			fmt.Printf("%-7s fixed\n", "")
-			problems--
+		if f.level == "problem" {
+			problems++
 		}
 	}
 	if problems > 0 {
-		return fmt.Errorf("%d problem(s) left", problems)
+		return fmt.Errorf("%d problem(s); gascoigne upgrade repairs them", problems)
 	}
 	return nil
 }
@@ -126,7 +115,7 @@ func checkInstall(e install) finding {
 		f.text += ". Fix it by running gascoigne install " + e.Agent + " in " + e.Dir
 		return f
 	}
-	f.text += ". Fix it with: gascoigne doctor -fix"
+	f.text += ". Fix it with: gascoigne upgrade"
 	f.fix = func() error {
 		a, ok := agents[e.Agent]
 		if !ok {

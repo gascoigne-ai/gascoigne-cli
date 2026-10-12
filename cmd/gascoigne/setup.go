@@ -61,6 +61,9 @@ func decisions(p prefs) []decision {
 				{"off", "Only change my configs when I run gascoigne install"},
 			}},
 	}
+	if q, ok := updateDecision(p); ok {
+		ds = append(ds, q)
+	}
 	for _, name := range newAgents(p) {
 		ds = append(ds, decision{ID: integratePrefix + name, Default: "yes", Current: declinedAs(p, name),
 			Title: "Use gascoigne with " + name,
@@ -69,6 +72,46 @@ func decisions(p prefs) []decision {
 			Options: []option{{"yes", "Set it up for " + name}, {"no", "Not for " + name}}})
 	}
 	return ds
+}
+
+// staleInstalls are the recorded installs written by an older registration.
+func staleInstalls() []install {
+	return slices.DeleteFunc(readInstalls(), func(e install) bool { return e.Registration >= registrationVersion })
+}
+
+// updateDecision asks whether to bring older installs up to this version,
+// unless autosync does it by itself.
+func updateDecision(p prefs) (decision, bool) {
+	stale := staleInstalls()
+	if len(stale) == 0 || p.Autosync == "on" {
+		return decision{}, false
+	}
+	var which, news []string
+	oldest := registrationVersion
+	for _, e := range stale {
+		scope := "all projects"
+		if !e.Global {
+			scope = e.Dir
+		}
+		which = append(which, e.Agent+" ("+scope+")")
+		oldest = min(oldest, e.Registration)
+	}
+	for v := oldest + 1; v <= registrationVersion; v++ {
+		if n := registrationNotes[v]; n != "" {
+			news = append(news, n)
+		}
+	}
+	text := "This gascoigne is newer than what set up " + strings.Join(which, ", ") + "."
+	if len(news) > 0 {
+		text += " What changed: " + strings.Join(news, "; ") + "."
+	}
+	text += " Yes rewrites the user-level ones now (other keys stay, a backup is kept); project ones need gascoigne upgrade run in the project (it does the same as this answer)."
+	current := ""
+	if p.UpdateDeclined >= registrationVersion {
+		current = "no"
+	}
+	return decision{ID: "update", Title: "Update gascoigne's hooks", Text: text, Default: "yes", Current: current,
+		Options: []option{{"yes", "Update them now"}, {"no", "Not now (asked again with the next version)"}}}, true
 }
 
 // integratePrefix starts the id of a question about an agent found on PATH.
@@ -132,6 +175,19 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 		out = append(out, integrate(name))
 	}
 	slices.Sort(p.Declined)
+	rewrite := len(out) > 0
+	if v, ok := answers["update"]; ok {
+		if v == "no" {
+			p.UpdateDeclined = registrationVersion
+		} else {
+			rewrite = true
+		}
+	}
+	for _, id := range []string{"allow", "autosync"} {
+		if _, ok := answers[id]; ok {
+			rewrite = true // a changed choice reaches the installed configs
+		}
+	}
 	if v, ok := answers["allow"]; ok {
 		p.Allow = v
 	}
@@ -140,6 +196,9 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 	}
 	if err := p.save(); err != nil {
 		return nil, err
+	}
+	if !rewrite {
+		return out, nil
 	}
 	return append(out, rewriteInstalls()...), nil
 }
@@ -167,7 +226,7 @@ func integrate(name string) string {
 func rewriteInstalls() []string {
 	unlock, ok := lockInstalls()
 	if !ok {
-		return []string{"another gascoigne is updating the installs; run gascoigne install -sync later"}
+		return []string{"another gascoigne is updating the installs; run gascoigne upgrade later"}
 	}
 	defer unlock()
 	var out []string
@@ -298,6 +357,9 @@ func setupNudge() string {
 	}
 	if len(fresh) > 0 {
 		return "gascoigne found " + strings.Join(fresh, ", ") + " on PATH without a gascoigne install; it asks the user (browser, or gascoigne setup) and installs nothing by itself."
+	}
+	if len(staleInstalls()) > 0 && p.UpdateDeclined < registrationVersion && p.Autosync != "on" {
+		return "gascoigne was upgraded and its hooks installed for some agents are older than this version; it asks the user (browser, or gascoigne setup) and changes nothing by itself."
 	}
 	return "gascoigne has settings that await the user's decision (opened in a browser); the terminal form is: gascoigne setup."
 }

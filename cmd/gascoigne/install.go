@@ -22,23 +22,12 @@ func cmdInstall(_ context.Context, args []string) error {
 	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through the background server's LLM proxy (claude); a stopped server stops the agent until its SessionStart hook starts it")
 	allow := fset.String("permissions", "", "which gascoigne tools claude runs without asking: none, local (retrieve, show, stats, compress) or all (adds fetch, which reaches the network) (saved; default none)")
 	auto := fset.String("autosync", "", "let agent hooks update user-scope installs after a gascoigne upgrade: "+strings.Join(autosyncChoices, ", ")+" (saved; default: not decided, nothing is updated)")
-	doSync := fset.Bool("sync", false, "bring installs made by an older gascoigne up to date now (user scope and this project) and stop")
 	level := fset.String("guide", "", "how much usage text agents get: "+strings.Join(guideLevels, ", ")+" (saved; default full)")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
 	if err := errors.Join(saveGuideLevel(*level), saveAllowLevel(*allow), saveAutosync(*auto)); err != nil {
 		return err
-	}
-	if *doSync {
-		lines := syncInstalls(true)
-		for _, l := range lines {
-			fmt.Println(l)
-		}
-		if len(lines) == 0 {
-			fmt.Println("every recorded install is current")
-		}
-		return nil
 	}
 	names := fset.Args()
 	if len(names) == 0 {

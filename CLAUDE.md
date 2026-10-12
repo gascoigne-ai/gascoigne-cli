@@ -29,6 +29,7 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 @.harness/code-style.md
 @.harness/recommendations.md
 
+Why things are as they are: `.harness/decisions.md` (not loaded).
 Architecture reference: `.harness/architecture.md` (not loaded; ~17k tokens). Read the section
 for the area you touch before changing it (`sed -n '/^## Ledger/,/^## /p' .harness/architecture.md`):
 | Section | Read when touching |

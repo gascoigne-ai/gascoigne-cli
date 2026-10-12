@@ -1,6 +1,7 @@
 # Recommendations
 
-Direction, backlog and lessons. Rules are in `rules.md`; this is advice. Work for the
+Direction, backlog and lessons. Rules are in `rules.md`, the reasons behind design choices in
+`decisions.md`; this is advice. Work for the
 autonomous loop goes in `tasks/` (one file per task, `status: todo`); finished tasks are deleted,
 their record is git history.
 

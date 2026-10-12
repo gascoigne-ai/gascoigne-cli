@@ -59,14 +59,14 @@ func init() {
 				"(also for cursor) instead.",
 			examples: []string{"gascoigne wrap claude", "gascoigne wrap codex --model o3", "gascoigne wrap -print cursor"},
 			run:      cmdWrap},
-		{name: "install", args: "[-g] [-guide off|short|full] [-permissions none|local|all] [-autosync on|off] [-sync] [agent...]", group: groupAgents,
+		{name: "install", args: "[-g] [-guide off|short|full] [-permissions none|local|all] [-autosync on|off] [agent...]", group: groupAgents,
 			summary: "register with agents for good: this project, -g every project",
 			about: "Writes gascoigne's hook and MCP server into the agents' config files: the project's\n" +
 				"(.claude/, .mcp.json, .codex/, .cursor/, .pi/), or with -g the user's. Earlier gascoigne\n" +
 				"entries are replaced and changed files backed up as <file>.gascoigne-bak.\n" +
 				"-guide sets how much usage text agents get (saved; $GASCOIGNE_GUIDE overrides it).\n" +
 				"-permissions lets claude run gascoigne's own tools without asking (saved; unwrap removes the rules).\n" +
-				"-autosync on lets agent hooks update user-scope installs after a gascoigne upgrade; -sync does it now.\n" +
+				"-autosync on lets agent hooks update user-scope installs after a gascoigne upgrade; gascoigne upgrade does it now.\n" +
 				"Agents: claude, codex, cursor, gemini, opencode, pi (default: those found on PATH).",
 			examples: []string{"gascoigne install", "gascoigne install -g", "gascoigne install claude codex"},
 			run:      cmdInstall},
@@ -77,13 +77,21 @@ func init() {
 				"suggested answers, -all asks the answered questions again.",
 			examples: []string{"gascoigne setup", "gascoigne setup -y"},
 			run:      cmdSetup},
-		{name: "doctor", args: "[-fix]", group: groupAgents,
+		{name: "upgrade", args: "[-n]", group: groupAgents,
+			summary: "after installing a new version: update hooks, config and open choices",
+			about: "One place for what a new gascoigne needs done: writes stale or lost hooks, rules and commands of\n" +
+				"your installs again (all projects, and this project; others are named), moves your config.yaml\n" +
+				"onto this version's template keeping your settings (previous file kept as .bak), and opens the\n" +
+				"browser page for choices still waiting. -n only lists what would change.",
+			examples: []string{"gascoigne upgrade", "gascoigne upgrade -n"},
+			run:      cmdUpgrade},
+		{name: "doctor", args: "", group: groupAgents,
 			summary: "check installs, hooks, server and saved answers",
 			about: "Reports, per recorded install, whether the agent's config still holds gascoigne's hook and\n" +
 				"whether a newer gascoigne changed what install writes; also the background server, the guide\n" +
-				"level and open questions. -fix writes the stale or lost installs again (this project's and the\n" +
-				"user's). Exits 1 when a problem is left.",
-			examples: []string{"gascoigne doctor", "gascoigne doctor -fix"},
+				"level and open questions. It changes nothing; gascoigne upgrade repairs what it finds. Exits 1\n" +
+				"when there is a problem.",
+			examples: []string{"gascoigne doctor"},
 			run:      cmdDoctor},
 		{name: "unwrap", args: "[agent...]", group: groupAgents,
 			summary:  "remove gascoigne from agents' config files",

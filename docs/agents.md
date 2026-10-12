@@ -49,15 +49,23 @@ Options saved for later installs:
 gascoigne install -permissions local   # claude runs retrieve, show, stats, compress without asking
 gascoigne install -guide short         # less usage text for agents (off removes it)
 gascoigne install -autosync on         # hooks update installs after a gascoigne upgrade
-gascoigne install -sync                # do that update now
+gascoigne upgrade                      # after installing a new version: hooks, config, open choices
 gascoigne setup                        # the same questions, asked in the terminal
 ```
 
 Nothing that changes how an agent asks for approval, or that updates configs by itself, happens
 before you decide: `install` opens a page in the dashboard (`/setup`) with those questions (not
-under `CI`, not without a display; `gascoigne setup` asks in the terminal). `gascoigne doctor`
-checks the installs; `doctor -fix` writes stale ones again. Claude also gets two commands,
-`/gascoigne-stats` and `/gascoigne-doctor`, removed by `unwrap`.
+under `CI`, not without a display; `gascoigne setup` asks in the terminal). A coding agent found
+on `PATH` without an install is only signaled, once, and set up if you say yes.
+
+**After installing a new gascoigne**, run `gascoigne upgrade`: it writes stale or lost hooks, rules
+and commands of your installs again (all projects, and this project; other projects are named),
+moves your `config.yaml` onto the new template keeping your settings (the old file stays as `.bak`),
+and opens the page for any choice still waiting. `upgrade -n` only lists what would change.
+`gascoigne doctor` reports the state without changing anything. With `-autosync on` the user-level
+part happens by itself at the next session start; if you did not choose, the page asks once per
+new version. Claude also gets two commands, `/gascoigne-stats` and `/gascoigne-doctor`, removed by
+`unwrap`.
 
 To remove it again:
 
