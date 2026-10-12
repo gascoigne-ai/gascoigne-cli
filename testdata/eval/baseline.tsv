@@ -155,10 +155,10 @@ detect/help	1786	0	6
 doc/vdf-README	1084	0	17
 detect/rst	3630	0	0
 web/curl-i-github.json	2017	0	91
-web/curl-v-go-dev	3322	3	55
+web/curl-v-go-dev	3160	3	55
 web/curl-il-redirect-429	155	0	1
 detect/http	2017	0	91
-detect/http-verbose	3322	3	55
+detect/http-verbose	3160	3	55
 git/status	128	0	0
 git/status-big	149	0	0
 git/log	1151	2	8

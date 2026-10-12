@@ -241,14 +241,6 @@ Guided tours of Go programs.
 
 ### Language
 
-- [JSON-RPC: a tale of interfaces](/blog/json-rpc-tale-of-interfaces)
-- [Go's Declaration Syntax](/blog/gos-declaration-syntax)
-- [Defer, Panic, and Recover](/blog/defer-panic-and-recover)
-- [Go Concurrency Patterns: Timing out, moving on](/blog/go-concurrency-patterns-timing-out-and)
-- [Go Slices: usage and internals](/blog/go-slices-usage-and-internals)
-- [A GIF decoder: an exercise in Go interfaces](/blog/gif-decoder-exercise-in-go-interfaces)
-- [Error Handling and Go](/blog/error-handling-and-go)
-
 ### Packages
 
 - [Working with JSON](/doc/tutorial/json) - using the [json](/pkg/encoding/json/v2) package.
