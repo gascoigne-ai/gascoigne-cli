@@ -130,6 +130,14 @@ combine with any view.
 Inside a wrapped agent `GASCOIGNE_SESSION` is set, so `gain` shows that session only; add
 `-all` to see everything.
 
+**Runs without a session.** Three sources record no session id: the LLM proxy (an HTTP request does
+not say which agent session sent it), `gascoigne exec` and the other command-line runs started
+without `-session` or `GASCOIGNE_SESSION`, and API usage rows. They form the "-" group in the
+dashboard's session list. Per-session views (`gain -session`, the dashboard's session filter) therefore
+undercount what the proxy saved in that session, and the "-" group mixes proxy runs with manual
+runs. Use `-agent`, `-model` and `-since` to include them; usage rows have no session at all, so a
+session filter shows none.
+
 ### Why a run was not optimized
 
 Every run that was not optimized records a factual reason:

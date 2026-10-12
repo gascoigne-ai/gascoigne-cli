@@ -157,6 +157,12 @@ dashboard):
 | opencode | `provider.anthropic.options.baseURL` with an Anthropic key, `provider.openai…` with `OPENAI_API_KEY`; subscription logins stay direct | — |
 | gemini | with `GEMINI_API_KEY`: `GOOGLE_GEMINI_BASE_URL`, unless you set one; a Google login stays direct | — |
 
+- **No session.** The proxy sees HTTP requests, and none of the APIs it serves carries the agent's
+  session id, so its runs are recorded without one. They show as the "-" group in the dashboard's
+  session list and are missing from `gain -session <id>`. The agent and model are still recorded
+  (from the user agent and the request body), so `-agent` and `-model` filters and `gain -by agent|model`
+  include them, and so does the API usage section. Hook and MCP runs of the same agent do carry the
+  session. To read one session's savings in full, add the proxy's runs by agent and time window.
 - Only the base URL changes; every header goes through as sent.
 - Read results keep their real line numbers: lines are dropped like `cat` output, never
   renumbered, and each gap is a marker naming the lines to read back.

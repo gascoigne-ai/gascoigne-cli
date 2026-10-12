@@ -248,6 +248,11 @@ MCP pipelines have no exporters: stdout is the protocol channel.
 | OpenAI `/chat/completions`, `/responses` | path | |
 | Gemini `/v1beta/models/<m>:generateContent\|:streamGenerateContent` | path (also mounted at `/v1beta/`), or `x-goog-api-key` | `functionResponse.response.output\|content` answers the call with its id, else the oldest open call of its name; model from the path |
 
+- **No session id.** None of the APIs carries the agent's session, so proxy events and `usage` rows
+  have an empty `session` (agent from the User-Agent, model from the body). Per-session reports
+  (`gain -session`, the dashboard session filter) leave the proxy's runs out; they show as the "-"
+  group, mixed with command-line runs started without `-session`. Fixing it needs an id from the
+  agent (a header it can be told to send); none is known today.
 - Other paths and every header pass through. `anthropic-beta` carries the OAuth capability, so a
   claude.ai login keeps working.
 - Responses stream through (`FlushInterval -1`).
