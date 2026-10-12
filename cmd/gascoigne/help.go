@@ -58,11 +58,12 @@ func init() {
 				"(also for cursor) instead.",
 			examples: []string{"gascoigne wrap claude", "gascoigne wrap codex --model o3", "gascoigne wrap -print cursor"},
 			run:      cmdWrap},
-		{name: "install", args: "[-g] [agent...]", group: groupAgents,
+		{name: "install", args: "[-g] [-guide off|short|full] [agent...]", group: groupAgents,
 			summary: "register with agents for good: this project, -g every project",
 			about: "Writes gascoigne's hook and MCP server into the agents' config files: the project's\n" +
 				"(.claude/, .mcp.json, .codex/, .cursor/, .pi/), or with -g the user's. Earlier gascoigne\n" +
 				"entries are replaced and changed files backed up as <file>.gascoigne-bak.\n" +
+				"-guide sets how much usage text agents get (saved; $GASCOIGNE_GUIDE overrides it).\n" +
 				"Agents: claude, codex, cursor, gemini, opencode, pi (default: those found on PATH).",
 			examples: []string{"gascoigne install", "gascoigne install -g", "gascoigne install claude codex"},
 			run:      cmdInstall},

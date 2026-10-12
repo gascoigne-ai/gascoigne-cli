@@ -108,3 +108,76 @@ func TestInstallGuideBlocksPerAgent(t *testing.T) {
 		t.Errorf("pi has no MCP tools but rewrites commands:\n%s", got)
 	}
 }
+
+func TestGuideLevels(t *testing.T) {
+	sandbox(t)
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	tests := []struct {
+		level           string
+		wantEmpty       bool
+		wantShell, hint bool
+	}{
+		{"full", false, true, true},
+		{"short", false, false, true},
+		{"off", true, false, false},
+		{"typo", false, true, true}, // unknown: full, never silently off
+	}
+	for _, tt := range tests {
+		t.Run(tt.level, func(t *testing.T) {
+			t.Setenv("GASCOIGNE_GUIDE", tt.level)
+			g := guide(true, true)
+			if (g == "") != tt.wantEmpty {
+				t.Fatalf("empty = %v:\n%s", g == "", g)
+			}
+			if got := strings.Contains(g, "Read and search with shell commands"); got != tt.wantShell {
+				t.Errorf("shell advice = %v", got)
+			}
+			if got := strings.Contains(g, "gascoigne raw <id>"); got != tt.hint {
+				t.Errorf("hint explanation = %v", got)
+			}
+		})
+	}
+}
+
+func TestGuideLevelFromPrefsAndEnv(t *testing.T) {
+	sandbox(t)
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	if err := saveGuideLevel("short"); err != nil {
+		t.Fatal(err)
+	}
+	if got := guideLevel(); got != "short" {
+		t.Errorf("saved level = %q", got)
+	}
+	t.Setenv("GASCOIGNE_GUIDE", "off")
+	if got := guideLevel(); got != "off" {
+		t.Errorf("env must beat the saved level, got %q", got)
+	}
+	if err := saveGuideLevel("loud"); err == nil {
+		t.Error("an unknown level must be refused")
+	}
+}
+
+func TestGuideOffInstallsNoGuide(t *testing.T) {
+	sandbox(t)
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	for _, name := range []string{"codex", "cursor"} {
+		if _, err := agents[name].add("gascoigne", false); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if !strings.Contains(read(t, "AGENTS.md"), guideStart) || !strings.Contains(read(t, cursorRuleFile), "alwaysApply") {
+		t.Fatal("full level writes the guide")
+	}
+	t.Setenv("GASCOIGNE_GUIDE", "off")
+	for _, name := range []string{"codex", "cursor"} {
+		if _, err := agents[name].add("gascoigne", false); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := os.Stat(cursorRuleFile); !os.IsNotExist(err) {
+		t.Error("cursor rule stays after level off")
+	}
+	if _, err := os.Stat("AGENTS.md"); !os.IsNotExist(err) {
+		t.Errorf("AGENTS.md held only the guide, it should be gone: %v", err)
+	}
+}

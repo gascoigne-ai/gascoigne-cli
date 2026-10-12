@@ -388,6 +388,11 @@ an `AGENTS.md` marked block. cursor: a project rule. pi: an `AGENTS.md` block. U
 (not pi; it gets the `gascoigne show` / `gascoigne raw` CLI forms). Codex and pi share the project
 `AGENTS.md` block: the one installed last stays.
 
+Level: `$GASCOIGNE_GUIDE`, else `guide` in `prefs.json` (state dir, `prefs.go`; set with
+`install -guide`), else `full`. `short` keeps the path-id and hint lines; `off` injects nothing
+and the next `install` removes the AGENTS.md block and cursor rule. Unknown values mean full.
+The file is not `config.yaml`: a key there needs a change in `internal/config`.
+
 ### Other MCP servers (`proxy.go`)
 
 Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay direct.

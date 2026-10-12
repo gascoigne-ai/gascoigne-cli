@@ -97,9 +97,9 @@ func opencodeEnv(exe string) ([]string, error) {
 	if providers := proxyForOpencode(); providers != nil {
 		cfg.set("provider", toObject(providers))
 	}
-	if !hasInstructions { // a list given here would replace the user's for the run
+	if g := guide(true, true); !hasInstructions && g != "" { // a list given here would replace the user's for the run
 		guideFile := filepath.Join(dir, "gascoigne.md")
-		if err := os.WriteFile(guideFile, []byte(guide(true, true)), 0o644); err != nil {
+		if err := os.WriteFile(guideFile, []byte(g), 0o644); err != nil {
 			return nil, err
 		}
 		cfg.set("instructions", []any{guideFile})

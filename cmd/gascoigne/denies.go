@@ -16,14 +16,7 @@ var claudeDenies = []string{"Grep", "Glob", "WebFetch"}
 
 // A deny rule looks the same whoever wrote it, so install records the rules
 // it added per settings file, and unwrap removes only those.
-func deniesFile() string {
-	dir := os.Getenv("XDG_STATE_HOME")
-	if dir == "" {
-		home, _ := os.UserHomeDir()
-		dir = filepath.Join(home, ".local", "state")
-	}
-	return filepath.Join(dir, "gascoigne", "denies.json")
-}
+func deniesFile() string { return filepath.Join(stateDir(), "denies.json") }
 
 func readDenies() map[string][]string {
 	m := map[string][]string{}

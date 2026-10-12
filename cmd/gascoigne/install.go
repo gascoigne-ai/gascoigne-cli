@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -19,7 +20,11 @@ func cmdInstall(_ context.Context, args []string) error {
 	fset := newFlags("install")
 	global := fset.Bool("g", false, "register for every project (user config) instead of this one")
 	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through the background server's LLM proxy (claude); a stopped server stops the agent until its SessionStart hook starts it")
+	level := fset.String("guide", "", "how much usage text agents get: "+strings.Join(guideLevels, ", ")+" (saved; default full)")
 	if err := fset.Parse(args); err != nil {
+		return err
+	}
+	if err := saveGuideLevel(*level); err != nil {
 		return err
 	}
 	names := fset.Args()
@@ -53,6 +58,20 @@ func cmdInstall(_ context.Context, args []string) error {
 		}
 	}
 	return errors.Join(errs...)
+}
+
+// saveGuideLevel stores the guide level chosen with install -guide before
+// the configs that carry the guide are written; "" keeps the saved one.
+func saveGuideLevel(level string) error {
+	if level == "" {
+		return nil
+	}
+	if !slices.Contains(guideLevels, level) {
+		return fmt.Errorf("install: -guide wants one of %s", strings.Join(guideLevels, ", "))
+	}
+	p := readPrefs()
+	p.Guide = level
+	return p.save()
 }
 
 // foundAgents are the agents whose program PATH finds.
@@ -159,6 +178,10 @@ func addCursor(exe string, global bool) ([]string, error) {
 	if global {
 		// Cursor keeps user rules in its settings, not in a file.
 		return append(done, "usage guide: add it under Cursor Settings → Rules, or run gascoigne install cursor in a project"), nil
+	}
+	if guide(true, true) == "" { // level off: no rule, and none left from an earlier install
+		d, err := removeCursorRule()
+		return append(done, d...), err
 	}
 	_, err = writeConfig(cursorRuleFile, func(text string) (string, error) {
 		if text != "" && !strings.HasPrefix(text, cursorRuleHeader) {

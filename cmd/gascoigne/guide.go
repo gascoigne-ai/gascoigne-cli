@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -14,26 +15,54 @@ import (
 // mcp: the agent has gascoigne's MCP tools (pi does not), so the guide names
 // only what the agent can call.
 func guide(rewrites, mcp bool) string {
-	var b strings.Builder
-	b.WriteString("gascoigne shrinks shell output and MCP tool results in this session to save context. To get the most from it:\n")
-	b.WriteString("- Read and search with shell commands (rg, grep, find, ls, cat, head, tail, git, build and test tools): their output is optimized.\n")
-	if rewrites {
-		b.WriteString("- Keep each shell call a plain command or a && / ; list, piping only into head or tail. Loops, $( ), redirects, subshells and other pipes run unoptimized.\n")
+	level := guideLevel()
+	if level == "off" {
+		return ""
 	}
-	if mcp {
-		b.WriteString("- Read web pages and HTTP APIs with the gascoigne fetch tool (pass query to focus long pages); for large text you already have, use compress.\n")
-		b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name> (or the show tool); gascoigne show <file> lists its definitions with line ranges.\n")
-	} else {
-		b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name>; gascoigne show <file> lists its definitions with line ranges.\n")
+	full := level == "full"
+	var b strings.Builder
+	b.WriteString("gascoigne shrinks shell output and MCP tool results in this session to save context.")
+	if full {
+		b.WriteString(" To get the most from it:")
+	}
+	b.WriteString("\n")
+	if full {
+		b.WriteString("- Read and search with shell commands (rg, grep, find, ls, cat, head, tail, git, build and test tools): their output is optimized.\n")
+		if rewrites {
+			b.WriteString("- Keep each shell call a plain command or a && / ; list, piping only into head or tail. Loops, $( ), redirects, subshells and other pipes run unoptimized.\n")
+		}
+		if mcp {
+			b.WriteString("- Read web pages and HTTP APIs with the gascoigne fetch tool (pass query to focus long pages); for large text you already have, use compress.\n")
+			b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name> (or the show tool); gascoigne show <file> lists its definitions with line ranges.\n")
+		} else {
+			b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name>; gascoigne show <file> lists its definitions with line ranges.\n")
+		}
 	}
 	b.WriteString("- Ids like §1 in output stand for the path given in the [paths: §1=…] line above them.\n")
-	b.WriteString("- Keep your own text brief: report findings and results, not the steps you are about to take.\n")
+	if full {
+		b.WriteString("- Keep your own text brief: report findings and results, not the steps you are about to take.\n")
+	}
 	b.WriteString("- Output ending in [gascoigne: … full: gascoigne raw <id>] was shortened. If a detail is missing, run gascoigne raw <id> (add -grep PATTERN, -query WORDS or -lines A-B to read only part)")
 	if mcp {
 		b.WriteString(" or call retrieve with the id")
 	}
 	b.WriteString(" instead of re-running the command.\n")
 	return b.String()
+}
+
+// guideLevels are how much usage text agents get: none, only what an agent
+// cannot guess (the hint and path ids), or everything.
+var guideLevels = []string{"off", "short", "full"}
+
+// guideLevel is $GASCOIGNE_GUIDE, else the saved pref, else full. Unknown
+// values mean full: a typo must not silently remove the hint explanation.
+func guideLevel() string {
+	for _, v := range []string{os.Getenv("GASCOIGNE_GUIDE"), readPrefs().Guide} {
+		if slices.Contains(guideLevels, v) {
+			return v
+		}
+	}
+	return "full"
 }
 
 // withGuide answers Claude's SessionStart event with the guide; other events
@@ -84,6 +113,10 @@ func cutGuide(text string) (string, bool) {
 // addGuide puts the guide block into an instruction file, replacing an
 // earlier one; the rest of the file stays.
 func addGuide(file string, rewrites, mcp bool) (string, error) {
+	if guide(rewrites, mcp) == "" { // level off: no block, and none left from an earlier install
+		d, err := removeGuide(file)
+		return strings.Join(d, "; "), err
+	}
 	backup, err := writeConfig(file, func(text string) (string, error) {
 		text, _ = cutGuide(text)
 		if text = strings.TrimRight(text, "\n"); text != "" {

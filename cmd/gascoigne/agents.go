@@ -198,8 +198,8 @@ func codexArgs(exe string) ([]string, error) {
 	fmt.Fprintln(os.Stderr, "gascoigne: on first run, trust the gascoigne hook in codex with /hooks")
 	proxies, r := codexProxyArgs(exe, codexConfigured())
 	reportProxies(r)
-	if !codexHasInstructions() {
-		proxies = append(proxies, "-c", "developer_instructions="+tomlQuote(guide(false, true)))
+	if g := guide(false, true); !codexHasInstructions() && g != "" {
+		proxies = append(proxies, "-c", "developer_instructions="+tomlQuote(g))
 	}
 	proxies = append(proxies, proxyForCodex()...)
 	return append([]string{

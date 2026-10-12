@@ -128,14 +128,21 @@ func removeCursor() ([]string, error) {
 		d, err := editJSON(f, mcpEdit)
 		done, errs = append(done, d...), append(errs, err)
 	}
-	if data, err := os.ReadFile(cursorRuleFile); err == nil && string(data) == cursorRule() || err == nil && strings.HasPrefix(string(data), cursorRuleHeader) {
-		if err := os.Remove(cursorRuleFile); err != nil {
-			errs = append(errs, err)
-		} else {
-			done = append(done, cursorRuleFile+": deleted rule")
-		}
-	}
+	d, err := removeCursorRule()
+	done, errs = append(done, d...), append(errs, err)
 	return done, errors.Join(errs...)
+}
+
+// removeCursorRule deletes the project rule if gascoigne wrote it.
+func removeCursorRule() ([]string, error) {
+	data, err := os.ReadFile(cursorRuleFile)
+	if err != nil || !strings.HasPrefix(string(data), cursorRuleHeader) {
+		return nil, nil
+	}
+	if err := os.Remove(cursorRuleFile); err != nil {
+		return nil, err
+	}
+	return []string{cursorRuleFile + ": deleted rule"}, nil
 }
 
 func mcpEdit(root *object) []string {
