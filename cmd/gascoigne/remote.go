@@ -220,6 +220,10 @@ func (w *warm) service(req optimizeRequest) (*service.Service, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Before Start: opening the ledger creates its directories and file.
+	if path, ok := ledgerFile(cfg); !ok || path != w.ledger {
+		return nil, errors.New("config opens another ledger")
+	}
 	svc, err := optimizerService(w.ctx, cfg, w.ledger)
 	if err != nil {
 		return nil, err

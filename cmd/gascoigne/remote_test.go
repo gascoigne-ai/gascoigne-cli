@@ -12,7 +12,9 @@ import (
 	"testing"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/configs"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/hookreceiver"
 )
@@ -146,4 +148,18 @@ func countEvents(t *testing.T, ledgerFile string) int {
 		t.Fatal(err)
 	}
 	return len(entries)
+}
+
+func TestWarmRefusesForeignLedgerBeforeCreatingIt(t *testing.T) {
+	dir := t.TempDir()
+	foreign := filepath.Join(dir, "sub", "evil.db")
+	w := newWarm(t.Context(), "b", filepath.Join(dir, "own.db"))
+	defer w.Close()
+	_, err := w.service(optimizeRequest{Config: string(configs.Default), Overrides: config.Overrides{Set: []string{"extensions.ledger.path=" + foreign}}})
+	if err == nil || !strings.Contains(err.Error(), "another ledger") {
+		t.Fatalf("want another ledger error, got %v", err)
+	}
+	if _, err := os.Stat(filepath.Dir(foreign)); !os.IsNotExist(err) {
+		t.Fatalf("foreign ledger dir was created: %v", err)
+	}
 }

@@ -153,15 +153,22 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 	return localOnly(mux)
 }
 
+// loopbackHost reports whether hostport names this machine: localhost or a
+// loopback IP, with or without a port.
+func loopbackHost(hostport string) bool {
+	host, _, err := net.SplitHostPort(hostport)
+	if err != nil {
+		host = hostport
+	}
+	ip := net.ParseIP(host)
+	return host == "localhost" || ip != nil && ip.IsLoopback()
+}
+
 // localOnly refuses requests addressed to another host name (DNS rebinding)
 // and cross-origin writes, so only pages served here can use the API.
 func localOnly(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		host, _, err := net.SplitHostPort(r.Host)
-		if err != nil {
-			host = r.Host
-		}
-		if ip := net.ParseIP(host); host != "localhost" && (ip == nil || !ip.IsLoopback()) {
+		if !loopbackHost(r.Host) {
 			http.Error(w, "dashboard answers on localhost only", http.StatusForbidden)
 			return
 		}
@@ -169,6 +176,8 @@ func localOnly(next http.Handler) http.Handler {
 			http.Error(w, "cross-origin request refused", http.StatusForbidden)
 			return
 		}
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "DENY")
 		next.ServeHTTP(w, r)
 	})
 }

@@ -123,6 +123,9 @@ var errNewBuild = errors.New("binary changed")
 // client asks it to stop. It returns errNewBuild once its binary changes,
 // so the new version restarts it.
 func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Duration) error {
+	if !loopbackHost(addr) {
+		return fmt.Errorf("server: %q is not a loopback address; the API has no login", addr)
+	}
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
@@ -159,7 +162,7 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Dur
 		fmt.Fprintf(os.Stderr, "gascoigne server: idle for %s, exiting\n", idle)
 		stop()
 	})
-	srv := &http.Server{Handler: act.track(mux), ReadHeaderTimeout: 5 * time.Second}
+	srv := &http.Server{Handler: act.track(mux), ReadHeaderTimeout: 5 * time.Second, IdleTimeout: 2 * time.Minute}
 	go func() {
 		<-ctx.Done()
 		srv.Shutdown(context.WithoutCancel(ctx))
@@ -268,10 +271,10 @@ func spawnServer(addr string) error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(serverLog()), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(serverLog()), 0o700); err != nil {
 		return err
 	}
-	log, err := os.OpenFile(serverLog(), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+	log, err := os.OpenFile(serverLog(), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 	if err != nil {
 		return err
 	}

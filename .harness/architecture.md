@@ -688,7 +688,7 @@ One embedded `dashboard.html`, no build step, serving the ledger live.
 - Run details compare original and optimized side by side (`/api/raw/{id}`, `/api/out/{id}`; the
   optimized text is `Event.Output`, kept gzip in `raw.output`), with `#run-ID` deep links. A run
   opens its steps and original; viewing an original there does not mark the source as failing.
-- Security: loopback Host names only (DNS rebinding); cross-origin writes refused.
+- Security: loopback Host names only (DNS rebinding); cross-origin writes refused; the server refuses a non-loopback `-addr` (no login); `/api/optimize` rejects a config whose ledger is not the server's before opening it; state files 0600, dirs 0700; `nosniff` + `X-Frame-Options: DENY`; the proxy forwards bodies over 128 MB unrewritten.
 
 ## Config
 

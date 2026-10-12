@@ -50,8 +50,12 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 		return err
 	}
 	l.path = path
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return err
+	}
+	// Originals of tool output live here; sqlite would create the file 0644.
+	if f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0o600); err == nil {
+		f.Close()
 	}
 	dsn := "file:" + url.PathEscape(path) + "?_pragma=journal_mode(wal)&_pragma=busy_timeout(5000)"
 	l.db, err = gorm.Open(gormlite.Open(dsn), &gorm.Config{Logger: logger.Discard})

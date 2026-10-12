@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -527,5 +528,15 @@ func TestLongKeys(t *testing.T) {
 	}
 	if f, _ := l.Failures(ctx, long); f.Count != 3 {
 		t.Fatalf("count %d after mark", f.Count)
+	}
+}
+
+func TestLedgerFilePrivate(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "data", "l.db")
+	start(t, &Config{Path: path})
+	for p, want := range map[string]os.FileMode{filepath.Dir(path): 0o700, path: 0o600} {
+		if fi, err := os.Stat(p); err != nil || fi.Mode().Perm() != want {
+			t.Errorf("%s: mode %v, %v; want %v", p, fi.Mode().Perm(), err, want)
+		}
 	}
 }

@@ -163,10 +163,21 @@ type meta struct {
 	folder *folder // results seen so far in this request
 }
 
+// maxRewriteBody bounds the request memory held for rewriting; larger
+// bodies are forwarded as they are.
+const maxRewriteBody = 128 << 20
+
 // rewrite replaces req's body with shortened tool results; on any problem
 // the original body is forwarded.
 func (r *Receiver) rewrite(req *http.Request, api rewriter) {
-	body, err := io.ReadAll(req.Body)
+	body, err := io.ReadAll(io.LimitReader(req.Body, maxRewriteBody+1))
+	if len(body) > maxRewriteBody { // too big to hold: pass it on untouched
+		req.Body = struct {
+			io.Reader
+			io.Closer
+		}{io.MultiReader(bytes.NewReader(body), req.Body), req.Body}
+		return
+	}
 	req.Body.Close()
 	req.Body = io.NopCloser(bytes.NewReader(body))
 	if err != nil || !strings.Contains(req.Header.Get("Content-Type"), "json") {

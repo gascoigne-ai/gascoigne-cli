@@ -70,12 +70,12 @@ func readRelease() release {
 }
 
 func (r release) save() error {
-	if err := os.MkdirAll(stateDir(), 0o755); err != nil {
+	if err := os.MkdirAll(stateDir(), 0o700); err != nil {
 		return err
 	}
 	data, _ := json.MarshalIndent(r, "", "  ")
 	tmp := releaseFile() + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+	if err := os.WriteFile(tmp, data, 0o600); err != nil {
 		return err
 	}
 	return os.Rename(tmp, releaseFile())

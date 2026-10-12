@@ -310,3 +310,16 @@ func TestBedrockRequestShortened(t *testing.T) {
 		t.Fatal("credential not forwarded")
 	}
 }
+
+func TestOversizeBodyForwardedUntouched(t *testing.T) {
+	_, _, proxy, got, _ := setup(t)
+	body := `{"model":"m","pad":"` + strings.Repeat("x", maxRewriteBody) + `"}`
+	resp, err := http.Post(proxy.URL+"/v1/messages", "application/json", strings.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if string(*got) != body {
+		t.Fatalf("upstream got %d bytes, want %d unchanged", len(*got), len(body))
+	}
+}

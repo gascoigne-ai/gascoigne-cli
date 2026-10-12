@@ -306,3 +306,24 @@ func TestDashboardHidesInstructionText(t *testing.T) {
 		}
 	}
 }
+
+func TestRunServerRefusesNonLoopback(t *testing.T) {
+	for _, addr := range []string{"0.0.0.0:0", ":0", "192.0.2.1:0", "example.com:0"} {
+		t.Run(addr, func(t *testing.T) {
+			err := runServer(t.Context(), nil, addr, 0)
+			if err == nil || !strings.Contains(err.Error(), "loopback") {
+				t.Fatalf("addr %q: want loopback error, got %v", addr, err)
+			}
+		})
+	}
+}
+
+func TestLocalOnlySecurityHeaders(t *testing.T) {
+	rec := httptest.NewRecorder()
+	localOnly(http.NotFoundHandler()).ServeHTTP(rec, httptest.NewRequest("GET", "http://localhost/", nil))
+	for h, want := range map[string]string{"X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY"} {
+		if got := rec.Header().Get(h); got != want {
+			t.Errorf("%s = %q, want %q", h, got, want)
+		}
+	}
+}

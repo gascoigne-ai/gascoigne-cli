@@ -383,7 +383,7 @@ func newSetupToken() (string, error) {
 		return "", err
 	}
 	t := setupToken{Token: hex.EncodeToString(b), Expires: time.Now().Add(24 * time.Hour)}
-	if err := os.MkdirAll(stateDir(), 0o755); err != nil {
+	if err := os.MkdirAll(stateDir(), 0o700); err != nil {
 		return "", err
 	}
 	data, _ := json.Marshal(t)

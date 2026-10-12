@@ -80,12 +80,12 @@ func legacyInstalls(known []install) []install {
 }
 
 func writeInstalls(list []install) error {
-	if err := os.MkdirAll(stateDir(), 0o755); err != nil {
+	if err := os.MkdirAll(stateDir(), 0o700); err != nil {
 		return err
 	}
 	data, _ := json.MarshalIndent(list, "", "  ")
 	tmp := installsFile() + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+	if err := os.WriteFile(tmp, data, 0o600); err != nil {
 		return err
 	}
 	return os.Rename(tmp, installsFile())
@@ -179,11 +179,11 @@ func (a agent) resync(e install) error {
 // process's and is taken over.
 func lockInstalls() (unlock func(), ok bool) {
 	file := filepath.Join(stateDir(), "installs.lock")
-	if err := os.MkdirAll(stateDir(), 0o755); err != nil {
+	if err := os.MkdirAll(stateDir(), 0o700); err != nil {
 		return nil, false
 	}
 	for range 2 {
-		f, err := os.OpenFile(file, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
+		f, err := os.OpenFile(file, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 		if err == nil {
 			f.Close()
 			return func() { os.Remove(file) }, true
