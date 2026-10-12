@@ -127,7 +127,7 @@ compare with each other; its baseline came within 5% of the actual cost there. D
 with cache writes at the 5-minute or 1-hour rate the transcript records (the 1-hour write costs 1.6 times
 more): a subscription does not bill per token.
 **Compacting saves tokens, not detail**: the saving is an upper bound on what is worth giving up, not
-advice to compact everywhere. Only main conversations count, subagents have conversations of their own. A session that spans the
+advice to compact everywhere. Sessions are main conversations; what subagents cost is added up apart (they have conversations of their own). A session that spans the
 period counts only the requests inside it (the page offers 24 hours to 90 days).
 Nothing leaves the machine and nothing is changed. Without a display, under `CI` or with
 `GASCOIGNE_SERVER=off` the table is printed; `-open=false` only prints the page's address. Claude Code

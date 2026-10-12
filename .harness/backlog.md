@@ -21,9 +21,8 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   unmeasured (do the proposed lines change agent behavior?). Failed-command repeats need the exit code,
   which events do not record.
 
-- Hooks: confirm on a real session that Claude subagent tool calls reach the PreToolUse/PostToolUse
-  hooks (`gain -by session` for the subagent's calls); check whether Cursor has a result-replacement
-  hook; the coverage table in `architecture.md` marks both as unverified.
+- Hooks: check whether Cursor has a result-replacement hook; the coverage table in `architecture.md` marks it as
+  unverified. (Claude subagent tool calls do reach gascoigne's hooks: verified on 13 subagent transcripts.)
 
 - Web pages: article benchmark (`.harness/scripts/html-bench.sh`, 181 pages) at recall 98.8%, precision 64.5% after
   link-dense blocks are dropped. Remaining misses: share bars and footers outside `<footer>`, and link lists of
@@ -47,7 +46,6 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   - `max_image_pixels` on by default [17]: measure on sessions with browser tools.
   - Cache lint for instruction files [16]: `prompts` flags volatile text early in the prefix.
   - 1h vs 5m cache-write split in `gain` [17]: see the Usage item above.
-  - Subagent hook coverage [17]: see the Hooks item above; if hooks do not run there, a guide line.
   - Gemini `PreCompress` resume snapshot [14].
   - Deferred MCP tools in `mcp-proxy` [15]: one-line summaries plus a search tool, full schemas on demand.
   - Session fetch cache [16]: the same URL again returns "unchanged since <id>" or a diff.
@@ -60,6 +58,8 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
     headless task runner [14]; plugin hook pricing [16] (also covered by the settings audit task).
 
 ## Measured
+- Subagents (`gascoigne context`, 2026-10-12, 90 days, one machine): 346 requests, about $6.5 of $485 (1.3%).
+  Their hooks run like the main conversation's; there is little to gain from a guide line about them.
 - Text added to conversations (`gascoigne context`, 2026-10-12, 30 days, one machine, $485): instruction files
   about $20 (4%), the skill listing about $9 (1.9%), agent listing $1.7, MCP instructions $1, a SessionStart plugin
   hook $0.6. Per-prompt hook context is named by event only. Nothing here is large: the lever is context size

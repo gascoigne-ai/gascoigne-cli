@@ -465,3 +465,34 @@ func TestOneHourCacheWrites(t *testing.T) {
 		t.Fatalf("the 1-hour split was not read: %+v", s.turns[0])
 	}
 }
+
+// A subagent runs in a conversation of its own: its requests are not a session, but they cost money.
+func TestSubagentsAreCountedApart(t *testing.T) {
+	main := line("m1", "claude-opus-5-5", 5, 0, 50_000, 100, "")
+	sub := line("s1", "claude-opus-5-5", 5, 20_000, 1_000, 200, `,"isSidechain":true`)
+	sub2 := line("s2", "claude-opus-5-5", 5, 21_000, 1_000, 200, `,"isSidechain":true`)
+	s, err := readSession(strings.NewReader(strings.Join([]string{main, sub, sub2}, "\n")), "x.jsonl", time.Time{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s.Turns != 1 || s.subTurns != 2 || s.subUSD <= 0 {
+		t.Fatalf("turns %d, subagent requests %d, $%.4f", s.Turns, s.subTurns, s.subUSD)
+	}
+	m, _ := cost.Lookup("claude-opus-5-5")
+	want := turn{read: 20_000, write: 1_000, input: 5, output: 200}.cost(m) + turn{read: 21_000, write: 1_000, input: 5, output: 200}.cost(m)
+	if d := s.subUSD - want; d > 1e-9 || d < -1e-9 {
+		t.Fatalf("subagent cost %.6f, want %.6f", s.subUSD, want)
+	}
+	// a file that holds only a subagent is no session but its cost is in the report
+	home := sandbox(t)
+	dir := filepath.Join(home, ".claude", "projects", "p", "sess", "subagents")
+	os.MkdirAll(dir, 0o755)
+	os.WriteFile(filepath.Join(dir, "agent-1.jsonl"), []byte(sub), 0o644)
+	r, err := loadContext(filepath.Join(home, ".claude", "projects"), 400*24*time.Hour, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(r.Sessions) != 0 || r.SubagentTurns != 1 || r.SubagentUSD <= 0 {
+		t.Fatalf("sessions %d, subagent %d $%.4f", len(r.Sessions), r.SubagentTurns, r.SubagentUSD)
+	}
+}

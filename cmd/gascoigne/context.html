@@ -74,7 +74,8 @@ function render() {
   const over200 = r.buckets.slice(2).reduce((n, b) => n + b.share, 0);
   const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
     kpi("Sessions", num(r.sessions.length), "last " + label), kpi("Requests", num(r.turns), "model calls"),
-    kpi("Cost", usd(r.cost_usd), "at API list prices", true), kpi("Above 200k context", Math.round(100 * over200) + "%", "of the cost"));
+    kpi("Cost", usd(r.cost_usd), "at API list prices", true), kpi("Above 200k context", Math.round(100 * over200) + "%", "of the cost"),
+    ...(r.subagent_turns ? [kpi("Subagents", usd(r.subagent_usd), num(r.subagent_turns) + " requests, not counted above")] : []));
 
   const buckets = panel("Where the money goes", "Cost by the size of the conversation each request re-read",
     table(el("tr", {}, th("Context of a request"), th("Requests", true), th("Cost", true), th("Share of cost")),

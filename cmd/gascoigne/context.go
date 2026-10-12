@@ -70,6 +70,8 @@ type sessionCost struct {
 	Series      []int     `json:"series"` // the context over the session, downsampled
 	turns       []turn
 	inj         []injection
+	subUSD      float64 // what subagent requests in this file cost: they run in conversations of their own
+	subTurns    int
 	floor       int // the smallest context of the whole session, also before the period: what a restart begins at
 }
 
@@ -137,17 +139,19 @@ type whatIf struct {
 
 // contextReport is the whole analysis.
 type contextReport struct {
-	Hours       int              `json:"hours"` // the period the report covers
-	Sessions    []sessionCost    `json:"sessions"`
-	Turns       int              `json:"turns"`
-	CostUSD     float64          `json:"cost_usd"`
-	ModelUSD    float64          `json:"model_usd"` // the baseline of the what-if, by the same simple model
-	Buckets     []contextBucket  `json:"buckets"`
-	WhatIf      []whatIf         `json:"what_if"`
-	Rewrites    []cacheRewrite   `json:"cache_rewrites"`
-	Injected    []injectedSource `json:"injected"`
-	Unpriced    int              `json:"unpriced_sessions"`
-	Assumptions []string         `json:"assumptions"`
+	Hours         int              `json:"hours"` // the period the report covers
+	Sessions      []sessionCost    `json:"sessions"`
+	Turns         int              `json:"turns"`
+	CostUSD       float64          `json:"cost_usd"`
+	ModelUSD      float64          `json:"model_usd"` // the baseline of the what-if, by the same simple model
+	Buckets       []contextBucket  `json:"buckets"`
+	WhatIf        []whatIf         `json:"what_if"`
+	Rewrites      []cacheRewrite   `json:"cache_rewrites"`
+	Injected      []injectedSource `json:"injected"`
+	SubagentUSD   float64          `json:"subagent_usd"` // not in the figures above: subagents have conversations of their own
+	SubagentTurns int              `json:"subagent_turns"`
+	Unpriced      int              `json:"unpriced_sessions"`
+	Assumptions   []string         `json:"assumptions"`
 }
 
 // usageLine is the part of a transcript line this needs.
@@ -185,7 +189,11 @@ func readSession(r io.Reader, name string, since time.Time) (sessionCost, error)
 		line, err := br.ReadBytes('\n')
 		if len(bytes.TrimSpace(line)) > 0 {
 			var t usageLine
-			ok := json.Unmarshal(line, &t) == nil && !t.IsSidechain
+			parsed := json.Unmarshal(line, &t) == nil
+			if parsed && t.IsSidechain && t.Type == "assistant" {
+				s.addSubagent(t, since)
+			}
+			ok := parsed && !t.IsSidechain
 			if ok && t.Type == "attachment" {
 				ts, _ := time.Parse(time.RFC3339, t.Timestamp)
 				if since.IsZero() || ts.IsZero() || !ts.Before(since) {
@@ -244,6 +252,20 @@ func readSession(r io.Reader, name string, since time.Time) (sessionCost, error)
 	}
 	s.finish()
 	return s, nil
+}
+
+// addSubagent prices one request of a subagent (inside the period), kept apart
+// from the sessions: its context is not the conversation's.
+func (s *sessionCost) addSubagent(t usageLine, since time.Time) {
+	u := t.Message.Usage
+	if ts, err := time.Parse(time.RFC3339, t.Timestamp); err == nil && !since.IsZero() && ts.Before(since) {
+		return
+	}
+	if m, ok := priceOf(t.Message.Model); ok && u.Input+u.CacheRead+u.CacheCreate > 0 {
+		tn := turn{read: u.CacheRead, write: u.CacheCreate, write1h: min(u.Creation.Hour, u.CacheCreate), input: u.Input, output: u.Output}
+		s.subUSD += tn.cost(m)
+		s.subTurns++
+	}
 }
 
 func maxTime(a, b time.Time) time.Time {
@@ -619,7 +641,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		"Dollars are what the tokens would cost at API list prices, cache writes at the 5-minute or 1-hour rate the transcript records; a subscription does not bill per token.",
 		fmt.Sprintf("A compaction is assumed to cost one request over the whole context plus a %dk-token summary; later turns grow as they did.", summaryTokens/1000),
 		"Compacting saves tokens, not detail: the summary forgets what it leaves out. Treat the saving as an upper bound on what is worth giving up.",
-		"Only main conversations are counted; subagents run in conversations of their own.",
+		"Sessions are main conversations; what subagents cost is added up apart, since they run in conversations of their own.",
 		"Added text is priced as written once to the cache and read by every later request of the session; what a hook printed is named by the command it ran, as the transcript records it.",
 		"A cache rewrite is context that the previous request carried but this one did not read from the cache; the cost shown is the extra over a read. The causes are read from the pauses between requests, so \"changed within the cache lifetime\" means the cached start of the conversation changed while it was warm (an edited instruction file, a changed tool set, another model); a transcript cannot say which.",
 	}
@@ -678,6 +700,8 @@ func loadContext(dir string, period time.Duration, now time.Time) (contextReport
 	}
 	slices.SortFunc(files, func(a, b file) int { return b.mod.Compare(a.mod) })
 	var sessions []sessionCost
+	var subUSD float64
+	var subTurns int
 	for _, f := range files[:min(len(files), maxSessions)] {
 		fh, err := os.Open(f.path)
 		if err != nil {
@@ -685,11 +709,15 @@ func loadContext(dir string, period time.Duration, now time.Time) (contextReport
 		}
 		s, err := readSession(fh, filepath.Base(f.path), cutoff)
 		fh.Close()
+		subUSD += s.subUSD
+		subTurns += s.subTurns
 		if err == nil && s.Turns > 0 {
 			sessions = append(sessions, s)
 		}
 	}
-	return buildContext(sessions, period), nil
+	r := buildContext(sessions, period)
+	r.SubagentUSD, r.SubagentTurns = subUSD, subTurns
+	return r, nil
 }
 
 // claudeProjects is where Claude Code keeps its transcripts.
@@ -752,7 +780,11 @@ func printContext(w io.Writer, r contextReport) {
 		fmt.Fprintf(w, "No Claude Code transcripts with usage in the last %s (looked in %s).\n", periodLabel(r.Hours), claudeProjects())
 		return
 	}
-	fmt.Fprintf(w, "%d sessions, %d requests, about %s at API list prices, last %s\n\n", len(r.Sessions), r.Turns, dollars(r.CostUSD), periodLabel(r.Hours))
+	fmt.Fprintf(w, "%d sessions, %d requests, about %s at API list prices, last %s\n", len(r.Sessions), r.Turns, dollars(r.CostUSD), periodLabel(r.Hours))
+	if r.SubagentTurns > 0 {
+		fmt.Fprintf(w, "plus subagents: %d requests, about %s\n", r.SubagentTurns, dollars(r.SubagentUSD))
+	}
+	fmt.Fprintln(w)
 	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "CONTEXT OF A REQUEST\tREQUESTS\tCOST\tSHARE")
 	for _, b := range r.Buckets {

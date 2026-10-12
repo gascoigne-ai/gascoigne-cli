@@ -528,7 +528,7 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
 | WebFetch | denied → gascoigne `fetch` (MCP) | no hook | no hook | no hook |
 | Read | not replaced (Edit needs the line numbers); the LLM proxy shortens it when on | no hook | no hook | no hook |
 | MCP tools | PostToolUse `mcp__*`, plus `mcp-proxy` | PostToolUse `mcp__*` | AfterTool `mcp_*` | `mcp-proxy` only |
-| Subagents | hooks run there too (Claude Code behavior; not measured here) | n/a | n/a | n/a |
+| Subagents | hooks run there too: gascoigne's own PreToolUse and PostToolUse show in subagent transcripts (13 files, 2026-10-12) | n/a | n/a | n/a |
 
 Cursor has the preToolUse hook only: no result replacement is known. A status line can show the
 savings: `gascoigne gain -oneline -since 1d` (`docs/agents.md`).
@@ -736,6 +736,8 @@ session id and per-turn usage (the LLM proxy has no session).
   transcript does not name the hook), instruction files, the skill listing, agent listing and MCP instructions.
   Priced as written once and read by every later request of the session (`before` = requests already made).
   The settings audit: a plugin hook's cost per month is in the table.
+- Subagents (`<session>/subagents/agent-*.jsonl`, every line a sidechain) are not sessions: their requests are priced
+  apart (`addSubagent`, `subagent_usd`, a KPI on the page) because their context is not the conversation's.
 - Everything local and read-only; the page says compacting saves tokens, not detail.
 
 ### MCP review (`mcpreview.go`, `mcp.html`)
