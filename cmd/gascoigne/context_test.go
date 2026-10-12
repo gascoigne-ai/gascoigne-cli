@@ -236,9 +236,12 @@ func TestRewrites(t *testing.T) {
 		mk(120_000, 0, 120*time.Minute),       // paused over an hour
 		mk(125_000, 119_000, 121*time.Minute), // a read 1% short is not a miss
 		mk(40_000, 0, 122*time.Minute),        // the context fell to a third: a compaction
+		mk(50_000, 40_000, 123*time.Minute),   // warm again, growing
+		mk(48_000, 0, 124*time.Minute),        // two minutes later it is smaller and nothing was read: older content removed
+		mk(60_000, 10_000, 125*time.Minute),   // a fixed start was read, the rest rewritten
 	}
 	got := rewrites(ts)
-	want := map[int]string{2: causeChanged, 3: causeFive, 4: causeHour, 6: causeCompaction}
+	want := map[int]string{2: causeChanged, 3: causeFive, 4: causeHour, 6: causeCompaction, 8: causeShrank, 9: causeStart}
 	if len(got) != len(want) {
 		t.Fatalf("got %v", got)
 	}
@@ -262,7 +265,7 @@ func TestRewrites(t *testing.T) {
 	for _, w := range r.Rewrites {
 		byCause[w.Cause] = w
 	}
-	if len(r.Rewrites) != 4 || byCause[causeHour].Turns != 1 {
+	if byCause[causeHour].Turns != 1 || byCause[causeShrank].Turns != 1 || byCause[causeStart].Turns != 1 {
 		t.Fatalf("rewrites %+v", r.Rewrites)
 	}
 	if d := byCause[causeHour].CostUSD - float64(115_000)*(m.CacheWrite-m.CacheRead)/1e6; d > 1e-9 || d < -1e-9 {
@@ -411,5 +414,27 @@ func TestInjectedCost(t *testing.T) {
 	}
 	if len(r.Injected) != 2 || r.Injected[0].CostUSD < r.Injected[1].CostUSD {
 		t.Fatalf("most expensive first: %+v", r.Injected)
+	}
+}
+
+func TestRewriteEvidence(t *testing.T) {
+	at := time.Date(2026, 10, 10, 10, 0, 0, 0, time.UTC)
+	a := turn{ctx: 100_000, read: 99_000, write: 1_000, ts: at, model: "claude-opus-5-5"}
+	switched := turn{ctx: 101_000, read: 0, write: 101_000, ts: at.Add(time.Minute), model: "claude-sonnet-5-5"}
+	marked := turn{ctx: 102_000, read: 0, write: 102_000, ts: at.Add(2 * time.Minute), model: "claude-sonnet-5-5", marks: []string{"tool set", "skill listing"}}
+	got := rewrites([]turn{a, switched, marked})
+	if got[1].cause != causeModel {
+		t.Errorf("a switched model: %q", got[1].cause)
+	}
+	if got[2].cause != causeMarked+"tool set, skill listing" {
+		t.Errorf("after recorded changes: %q", got[2].cause)
+	}
+	for _, m := range []string{"deferred_tools_delta", "instructions", "skill_listing", "agent_listing_delta", "mcp_instructions_delta", "model"} {
+		if prefixMark(json.RawMessage(`{"type":"`+m+`"}`)) == "" {
+			t.Errorf("%s is not a mark", m)
+		}
+	}
+	if prefixMark(json.RawMessage(`{"type":"hook_success"}`)) != "" || prefixMark(json.RawMessage(`x`)) != "" {
+		t.Error("bookkeeping is a mark")
 	}
 }

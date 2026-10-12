@@ -50,6 +50,8 @@ var thresholds = []int{150_000, 250_000, 400_000}
 type turn struct {
 	ctx, read, write, input, output int
 	ts                              time.Time
+	model                           string
+	marks                           []string // changes the transcript records between the previous request and this one
 }
 
 // sessionCost is one conversation.
@@ -116,6 +118,10 @@ const (
 	causeHour       = "idle for over an hour"
 	causeFive       = "idle for 5 to 60 minutes"
 	causeChanged    = "changed within the cache lifetime"
+	causeModel      = "another model than the request before"
+	causeMarked     = "changed within the cache lifetime, after a change to: "
+	causeShrank     = "context shrank without a compaction: older content removed or rewritten"
+	causeStart      = "only the fixed start was read: the rest of the conversation was rewritten"
 )
 
 // whatIf is the cost of compacting whenever a conversation reaches a size.
@@ -168,6 +174,7 @@ type usageLine struct {
 func readSession(r io.Reader, name string, since time.Time) (sessionCost, error) {
 	s := sessionCost{ID: strings.TrimSuffix(name, ".jsonl"), Priced: true}
 	br := bufio.NewReaderSize(r, 1<<20)
+	var pending []string      // changes seen since the last request
 	index := map[string]int{} // message id -> its place in turns: streamed lines repeat it
 	models := map[string]int{}
 	for {
@@ -178,6 +185,9 @@ func readSession(r io.Reader, name string, since time.Time) (sessionCost, error)
 			if ok && t.Type == "attachment" {
 				ts, _ := time.Parse(time.RFC3339, t.Timestamp)
 				if since.IsZero() || ts.IsZero() || !ts.Before(since) {
+					if mark := prefixMark(t.Attachment); mark != "" && !slices.Contains(pending, mark) {
+						pending = append(pending, mark)
+					}
 					if label, n := injectedText(t.Attachment); n > 0 {
 						s.inj = append(s.inj, injection{label: label, tokens: n, before: len(s.turns)})
 					}
@@ -189,6 +199,7 @@ func readSession(r io.Reader, name string, since time.Time) (sessionCost, error)
 				if ctx > 0 && !strings.HasPrefix(t.Message.Model, "<") {
 					tn := turn{ctx: ctx, read: u.CacheRead, write: u.CacheCreate, input: u.Input, output: u.Output}
 					tn.ts, _ = time.Parse(time.RFC3339, t.Timestamp)
+					tn.model = t.Message.Model
 					if s.floor == 0 || ctx < s.floor {
 						s.floor = ctx
 					}
@@ -198,6 +209,7 @@ func readSession(r io.Reader, name string, since time.Time) (sessionCost, error)
 					if i, ok := index[t.Message.ID]; ok && t.Message.ID != "" {
 						s.turns[i] = tn
 					} else {
+						tn.marks, pending = pending, nil
 						index[t.Message.ID] = len(s.turns)
 						s.turns = append(s.turns, tn)
 					}
@@ -286,6 +298,14 @@ func rewrites(turns []turn) map[int]struct {
 			cause = causeHour
 		case gap > 5*time.Minute:
 			cause = causeFive
+		case t.model != "" && prev.model != "" && t.model != prev.model:
+			cause = causeModel // the cache is kept per model
+		case t.ctx < prev.ctx: // a request normally carries more than the one before
+			cause = causeShrank
+		case t.read > 0 && t.read*10 < prev.ctx*3:
+			cause = causeStart
+		case len(t.marks) > 0:
+			cause = causeMarked + strings.Join(t.marks, ", ")
 		}
 		out[i] = struct {
 			cause  string
@@ -343,6 +363,33 @@ func injectedText(raw json.RawMessage) (string, int) {
 		return "", 0
 	}
 	return label, tokens.Estimate(string(body))
+}
+
+// prefixMark names an attachment that can change what the model is sent ahead
+// of the conversation: the tool set, the instruction files, the skill, agent
+// and MCP listings, the model. It is evidence beside a cache rewrite, not a proof.
+func prefixMark(raw json.RawMessage) string {
+	var a struct {
+		Type string `json:"type"`
+	}
+	if json.Unmarshal(raw, &a) != nil {
+		return ""
+	}
+	switch a.Type {
+	case "deferred_tools_delta":
+		return "tool set"
+	case "instructions":
+		return "instruction files"
+	case "skill_listing":
+		return "skill listing"
+	case "agent_listing_delta":
+		return "agent listing"
+	case "mcp_instructions_delta":
+		return "MCP instructions"
+	case "model":
+		return "model setting"
+	}
+	return ""
 }
 
 // shortCommand names a hook by what it runs, not by its whole command line:
@@ -522,12 +569,17 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		r.Injected = []injectedSource{}
 	}
 	for _, cause := range []string{causeFive, causeHour, causeChanged, causeCompaction} {
-		rw := rewriteOf(byCause, cause)
+		rewriteOf(byCause, cause) // the usual causes always show, even at zero
+	}
+	for _, rw := range byCause {
 		if r.CostUSD > 0 {
 			rw.Share = rw.CostUSD / r.CostUSD
 		}
 		r.Rewrites = append(r.Rewrites, *rw)
 	}
+	slices.SortFunc(r.Rewrites, func(a, b cacheRewrite) int {
+		return cmp.Or(cmp.Compare(b.CostUSD, a.CostUSD), cmp.Compare(a.Cause, b.Cause))
+	})
 	for i := range wi {
 		if r.ModelUSD > 0 {
 			wi[i].SavedPct = 100 * wi[i].SavedUSD / r.ModelUSD

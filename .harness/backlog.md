@@ -66,9 +66,11 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 
 - Cache rewrites from transcripts (`gascoigne context`, 2026-10-12, 30 days, one machine, $437 at list prices):
   rewrites cost about $48 extra (11%): pauses over an hour $15, "changed within the cache lifetime" $17 in
-  19 requests of roughly 190k tokens each, compactions $12, pauses of 5-60 minutes $4. The 19 changes are
-  the thing to explain (model switches and edited instruction files are the likely ones); which one needs
-  request bodies, see task 042. Requests above 400k tokens of context were 42% of the cost.
+  19 requests of roughly 190k tokens each, compactions $12, pauses of 5-60 minutes $4. Told apart further from
+  the transcript: 9 requests where the context shrank slightly and nothing was read ($12: older content removed
+  or rewritten, which looks like Claude Code's own context management), 1 model switch, the rest unexplained.
+  Requests above 400k tokens of context were 42% of the cost. Naming a system prompt or tool-set divergence needs
+  request bodies: record the first differing part per proxied request in the LLM proxy (open idea).
 
 - Guide line "issue independent tool calls together in one turn" (2026-10-12, registration 3): added to the
   full guide without an A/B. Observation to make after two weeks of real use: requests per day per agent before and

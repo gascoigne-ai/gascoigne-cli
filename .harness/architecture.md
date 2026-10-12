@@ -726,8 +726,11 @@ session id and per-turn usage (the LLM proxy has no session).
   month). More compactions are not always cheaper.
 - Cache rewrites (`rewrites`): a turn whose cache read fell short of the previous request's context by over 5%
   (and 2k tokens) rewrote the difference, priced at write minus read. Cause from the transcript's timestamps:
-  compaction, a pause over an hour, a pause of 5 to 60 minutes, else "changed within the cache lifetime"
-  (instruction file, tool set or model changed while warm; a transcript cannot say which, request bodies would).
+  compaction, a pause over an hour, a pause of 5 to 60 minutes; within the cache lifetime: another model
+  than the request before (the cache is per model), a context that shrank without a compaction (older content
+  removed or rewritten), only a fixed start read (the rest rewritten), a change recorded between the requests
+  (tool set, instruction files, skill, agent or MCP listing: evidence, not proof), else unexplained.
+  Request bodies (the proxy) would name the system prompt or tool-set divergence; transcripts cannot.
 - Injected text (`injectedText`): from `attachment` lines. A hook's `content` (SessionStart, named by the command it ran:
   the last two parts of its first path), a prompt or tool hook's `additional context` (the event only: the
   transcript does not name the hook), instruction files, the skill listing, agent listing and MCP instructions.
