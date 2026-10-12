@@ -10,19 +10,29 @@ import (
 
 // guide tells the agent how to get the most out of gascoigne. rewrites:
 // the agent's shell commands are rewritten before they run (claude, cursor,
-// pi), so how a command is written decides whether it is optimized.
-func guide(rewrites bool) string {
+// pi, opencode), so how a command is written decides whether it is optimized.
+// mcp: the agent has gascoigne's MCP tools (pi does not), so the guide names
+// only what the agent can call.
+func guide(rewrites, mcp bool) string {
 	var b strings.Builder
 	b.WriteString("gascoigne shrinks shell output and MCP tool results in this session to save context. To get the most from it:\n")
 	b.WriteString("- Read and search with shell commands (rg, grep, find, ls, cat, head, tail, git, build and test tools): their output is optimized.\n")
 	if rewrites {
 		b.WriteString("- Keep each shell call a plain command or a && / ; list, piping only into head or tail. Loops, $( ), redirects, subshells and other pipes run unoptimized.\n")
 	}
-	b.WriteString("- Read web pages and HTTP APIs with the gascoigne fetch tool (pass query to focus long pages); for large text you already have, use compress.\n")
-	b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name> (or the show tool); gascoigne show <file> lists its definitions with line ranges.\n")
+	if mcp {
+		b.WriteString("- Read web pages and HTTP APIs with the gascoigne fetch tool (pass query to focus long pages); for large text you already have, use compress.\n")
+		b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name> (or the show tool); gascoigne show <file> lists its definitions with line ranges.\n")
+	} else {
+		b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name>; gascoigne show <file> lists its definitions with line ranges.\n")
+	}
 	b.WriteString("- Ids like §1 in output stand for the path given in the [paths: §1=…] line above them.\n")
 	b.WriteString("- Keep your own text brief: report findings and results, not the steps you are about to take.\n")
-	b.WriteString("- Output ending in [gascoigne: … full: gascoigne raw <id>] was shortened. If a detail is missing, run gascoigne raw <id> (add -grep PATTERN, -query WORDS or -lines A-B to read only part) or call retrieve with the id instead of re-running the command.\n")
+	b.WriteString("- Output ending in [gascoigne: … full: gascoigne raw <id>] was shortened. If a detail is missing, run gascoigne raw <id> (add -grep PATTERN, -query WORDS or -lines A-B to read only part)")
+	if mcp {
+		b.WriteString(" or call retrieve with the id")
+	}
+	b.WriteString(" instead of re-running the command.\n")
 	return b.String()
 }
 
@@ -34,7 +44,7 @@ func withGuide(h hookFunc) hookFunc {
 			return h(ctx, c, in, prefix)
 		}
 		ensureProxyFor()
-		return map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "SessionStart", "additionalContext": guide(true)}}, nil
+		return map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "SessionStart", "additionalContext": guide(true, true)}}, nil
 	}
 }
 
@@ -44,8 +54,10 @@ const (
 )
 
 // guideBlock is the guide as a marked block for instruction files (AGENTS.md).
-func guideBlock(rewrites bool) string {
-	return guideStart + "\n" + guide(rewrites) + guideEnd + "\n"
+// Codex and pi share the project AGENTS.md: the block of the agent installed
+// last stays.
+func guideBlock(rewrites, mcp bool) string {
+	return guideStart + "\n" + guide(rewrites, mcp) + guideEnd + "\n"
 }
 
 // cutGuide removes the marked block from text.
@@ -71,13 +83,13 @@ func cutGuide(text string) (string, bool) {
 
 // addGuide puts the guide block into an instruction file, replacing an
 // earlier one; the rest of the file stays.
-func addGuide(file string, rewrites bool) (string, error) {
+func addGuide(file string, rewrites, mcp bool) (string, error) {
 	backup, err := writeConfig(file, func(text string) (string, error) {
 		text, _ = cutGuide(text)
 		if text = strings.TrimRight(text, "\n"); text != "" {
 			text += "\n\n"
 		}
-		return text + guideBlock(rewrites), nil
+		return text + guideBlock(rewrites, mcp), nil
 	})
 	if err != nil && !errors.Is(err, errUnchanged) {
 		return "", err
@@ -115,7 +127,7 @@ const (
 
 // cursorRule is the guide as a Cursor project rule applied to every chat.
 func cursorRule() string {
-	return cursorRuleHeader + "alwaysApply: true\n---\n" + guideBlock(true)
+	return cursorRuleHeader + "alwaysApply: true\n---\n" + guideBlock(true, true)
 }
 
 // codexHome is where codex keeps its user config and AGENTS.md.

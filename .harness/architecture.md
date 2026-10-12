@@ -383,6 +383,11 @@ of numbers for `tail`/`sed`). An agent edits within kept runs and reads a gap ba
 claude: a SessionStart hook (`additionalContext`). codex: `-c developer_instructions` per run, or
 an `AGENTS.md` marked block. cursor: a project rule. pi: an `AGENTS.md` block. Unwrap removes them.
 
+`guide(rewrites, mcp)` says only what the agent has: rewrite advice where commands are rewritten
+(not codex), the fetch/compress/show/retrieve tools where gascoigne's MCP server is registered
+(not pi; it gets the `gascoigne show` / `gascoigne raw` CLI forms). Codex and pi share the project
+`AGENTS.md` block: the one installed last stays.
+
 ### Other MCP servers (`proxy.go`)
 
 Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay direct.

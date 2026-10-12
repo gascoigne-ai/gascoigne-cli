@@ -45,7 +45,7 @@ func TestCodexArgs(t *testing.T) {
 		"-c", `mcp_servers.gascoigne={command="/opt/my tools/gascoigne",args=["mcp"]}`,
 		"-c", `hooks.PostToolUse=[{matcher="^Bash$|^mcp__.*",hooks=[{type="command",command="'/opt/my tools/gascoigne' hook codex"}]}]`,
 		"-c", `hooks.UserPromptSubmit=[{hooks=[{type="command",command="'/opt/my tools/gascoigne' hook codex"}]}]`,
-		"-c", "developer_instructions=" + tomlQuote(guide(false)),
+		"-c", "developer_instructions=" + tomlQuote(guide(false, true)),
 	}
 	if strings.Join(args, "\n") != strings.Join(want, "\n") {
 		t.Fatalf("got\n%s", strings.Join(args, "\n"))

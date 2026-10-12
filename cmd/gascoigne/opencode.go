@@ -99,7 +99,7 @@ func opencodeEnv(exe string) ([]string, error) {
 	}
 	if !hasInstructions { // a list given here would replace the user's for the run
 		guideFile := filepath.Join(dir, "gascoigne.md")
-		if err := os.WriteFile(guideFile, []byte(guide(true)), 0o644); err != nil {
+		if err := os.WriteFile(guideFile, []byte(guide(true, true)), 0o644); err != nil {
 			return nil, err
 		}
 		cfg.set("instructions", []any{guideFile})
@@ -203,7 +203,7 @@ func addOpencode(exe string, global bool) ([]string, error) {
 		return done, err
 	}
 	done = append(done, added(plugin, "plugin", "", err))
-	d, err = addGuide(agentsMD, true)
+	d, err = addGuide(agentsMD, true, true)
 	return append(done, d), err
 }
 

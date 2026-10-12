@@ -197,7 +197,7 @@ func addCodex(exe string, global bool) ([]string, error) {
 	if global {
 		agentsMD = filepath.Join(codexHome(), "AGENTS.md")
 	}
-	d, err := addGuide(agentsMD, true)
+	d, err := addGuide(agentsMD, false, true)
 	return append(done, d), err
 }
 
@@ -222,7 +222,7 @@ func addPi(exe string, global bool) ([]string, error) {
 	if err != nil {
 		return done, err
 	}
-	d, err := addGuide(agentsMD, true)
+	d, err := addGuide(agentsMD, true, false)
 	return append(done, d), err
 }
 

@@ -199,7 +199,7 @@ func codexArgs(exe string) ([]string, error) {
 	proxies, r := codexProxyArgs(exe, codexConfigured())
 	reportProxies(r)
 	if !codexHasInstructions() {
-		proxies = append(proxies, "-c", "developer_instructions="+tomlQuote(guide(false)))
+		proxies = append(proxies, "-c", "developer_instructions="+tomlQuote(guide(false, true)))
 	}
 	proxies = append(proxies, proxyForCodex()...)
 	return append([]string{

@@ -10,7 +10,7 @@ func TestGuideBlockRoundTrip(t *testing.T) {
 	sandbox(t)
 	write(t, "AGENTS.md", "# Project\n\nRun make check.\n")
 	for range 2 { // a second install replaces the block
-		if _, err := addGuide("AGENTS.md", true); err != nil {
+		if _, err := addGuide("AGENTS.md", true, true); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -28,7 +28,7 @@ func TestGuideBlockRoundTrip(t *testing.T) {
 
 func TestGuideOnlyFileDeleted(t *testing.T) {
 	sandbox(t)
-	if _, err := addGuide("AGENTS.md", true); err != nil {
+	if _, err := addGuide("AGENTS.md", true, true); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := removeGuide("AGENTS.md"); err != nil {
@@ -61,5 +61,50 @@ func TestInstallWritesGuides(t *testing.T) {
 		if _, err := os.Stat(f); !os.IsNotExist(err) {
 			t.Errorf("%s left after unwrap", f)
 		}
+	}
+}
+
+func TestGuidePromisesOnlyWhatTheAgentHas(t *testing.T) {
+	tests := []struct {
+		name             string
+		rewrites, mcp    bool
+		hasRewriteAdvice bool
+		hasMCPTools      bool
+	}{
+		{"claude, cursor, opencode", true, true, true, true},
+		{"codex: no rewrites", false, true, false, true},
+		{"pi: no MCP", true, false, true, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := guide(tt.rewrites, tt.mcp)
+			if got := strings.Contains(g, "Loops, $( )"); got != tt.hasRewriteAdvice {
+				t.Errorf("rewrite advice = %v, want %v", got, tt.hasRewriteAdvice)
+			}
+			for _, tool := range []string{"gascoigne fetch tool", "compress", "the show tool", "call retrieve"} {
+				if got := strings.Contains(g, tool); got != tt.hasMCPTools {
+					t.Errorf("%q present = %v, want %v", tool, got, tt.hasMCPTools)
+				}
+			}
+			if !strings.Contains(g, "gascoigne show <file>:<Name>") || !strings.Contains(g, "gascoigne raw <id>") {
+				t.Error("the CLI forms must stay for every agent")
+			}
+		})
+	}
+}
+
+func TestInstallGuideBlocksPerAgent(t *testing.T) {
+	sandbox(t)
+	if _, err := agents["codex"].add("gascoigne", false); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, "AGENTS.md"); strings.Contains(got, "Loops, $( )") {
+		t.Errorf("codex does not rewrite commands, its AGENTS.md block must not say how to write them:\n%s", got)
+	}
+	if _, err := agents["pi"].add("gascoigne", false); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, "AGENTS.md"); strings.Contains(got, "the show tool") || !strings.Contains(got, "Loops, $( )") {
+		t.Errorf("pi has no MCP tools but rewrites commands:\n%s", got)
 	}
 }
