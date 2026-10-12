@@ -151,3 +151,40 @@ func TestHookedMCPCallsLeaveEvents(t *testing.T) {
 		t.Fatalf("commands recorded: %v", got)
 	}
 }
+
+// HTML source read through a pipe is code, not a page, for the agents that
+// optimize after the run too.
+func TestResultHooksKeepHTMLSource(t *testing.T) {
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	t.Setenv("GASCOIGNE_LEDGER", filepath.Join(t.TempDir(), "l.db"))
+	cfg := filepath.Join(t.TempDir(), "c.yaml")
+	os.WriteFile(cfg, []byte("{}\n"), 0o644)
+	t.Setenv("GASCOIGNE_CONFIG", cfg)
+	html := "<!doctype html>\n<html><head><title>Docs</title></head><body>\n" +
+		strings.Repeat("<div class=\"row\"><p>some paragraph text here</p></div>\n", 200) + "</body></html>\n"
+	resp, _ := json.Marshal(map[string]any{"output": html, "exit_code": 0})
+	gem, _ := json.Marshal(map[string]any{"llmContent": html, "returnDisplay": "x"})
+	tests := []struct {
+		agent string
+		in    hookInput
+	}{
+		{"codex", hookInput{HookEventName: "PostToolUse", ToolName: "Bash", ToolResponse: resp}},
+		{"gemini", hookInput{HookEventName: "AfterTool", ToolName: "run_shell_command", ToolResponse: gem}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.agent, func(t *testing.T) {
+			tt.in.ToolInput = map[string]any{"command": "sed -n 1,200p page.html | cut -c1-80"}
+			reply, err := agents[tt.agent].hook(t.Context(), &common{attrs: attrFlag{}}, tt.in, "gascoigne exec")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if reply == nil {
+				return // left whole
+			}
+			m, _ := reply.(map[string]any)
+			if got, _ := m["reason"].(string); !strings.Contains(got, "<div") {
+				t.Fatalf("source lost: %.200s", got)
+			}
+		})
+	}
+}

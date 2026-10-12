@@ -238,3 +238,35 @@ func TestTranscriptModel(t *testing.T) {
 		t.Fatalf("missing file: %q", got)
 	}
 }
+
+// Every agent that rewrites commands shares wrapCommand: quoted pipes are
+// literal, and a multi-line command stays as it is.
+func TestRewriteSharedWrapping(t *testing.T) {
+	tests := []struct {
+		name, cmd, want string
+	}{
+		{"quoted pipe", `grep 'a\|b' f.txt | head -5`, `gascoigne exec -attr hint=top -- grep 'a\|b' f.txt | head -5`},
+		{"two commands", "go build ./... && go vet ./... | tail -3", "gascoigne exec -- go build ./... && gascoigne exec -- go vet ./... | tail -3"},
+		{"multi-line", "go build ./...\ngo vet ./...", ""},
+	}
+	for _, name := range []string{"claude", "cursor", "gemini", "opencode", "pi"} {
+		for _, tt := range tests {
+			t.Run(name+" "+tt.name, func(t *testing.T) {
+				in := hookInput{ToolInput: map[string]any{"command": tt.cmd}}
+				reply, err := agents[name].hook(t.Context(), &common{}, in, "gascoigne exec")
+				if err != nil {
+					t.Fatal(err)
+				}
+				got := compactJSON(reply)
+				if tt.want == "" && strings.Contains(got, "gascoigne exec") || tt.want != "" && !strings.Contains(got, jsonString(tt.want)) {
+					t.Fatalf("got %s\nwant %q", got, tt.want)
+				}
+			})
+		}
+	}
+}
+
+func jsonString(s string) string {
+	b, _ := json.Marshal(s)
+	return strings.Trim(string(b), `"`)
+}

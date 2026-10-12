@@ -535,7 +535,7 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
 | WebFetch | denied → gascoigne `fetch` (MCP) | no hook | no hook | no hook |
 | Read | not replaced: the hooks accept a replaced result of the tool's shape, but Claude numbers the lines itself, so only line-preserving changes are safe, and they save under 1% (see backlog); the LLM proxy shortens it when on | no hook | no hook | no hook |
 | MCP tools | PostToolUse `mcp__*`, plus `mcp-proxy` | PostToolUse `mcp__*` | AfterTool `mcp_*` | `mcp-proxy` only |
-| Subagents | hooks run there too: gascoigne's own PreToolUse and PostToolUse show in subagent transcripts (13 files, 2026-10-12) | n/a | n/a | n/a |
+| Subagents | hooks run there too: gascoigne's own PreToolUse and PostToolUse show in subagent transcripts (13 files, 2026-10-12) | unverified | unverified | unverified |
 
 Cursor has the preToolUse hook only: no result replacement is known. A status line can show the
 savings: `gascoigne gain -oneline -since 1d` (`docs/agents.md`).
@@ -553,6 +553,8 @@ registration (SessionStart is already installed). Gemini's `PreCompress` has no 
 
 ### Command rewriting rules (`hook.go`)
 
+- Shared by every rewrite agent (claude, cursor, gemini, opencode, pi); codex and gemini's AfterTool use only the
+  detect side (`detect.FromCmd` on the command that ran).
 - **Wrapped**: every command of a `&&`/`;` list, except builtins, quiet, interactive and REPL
   commands (`passthrough`; unknown programs are detected by content).
 - **Kept pipes**: `| head` / `| tail` stages at the end of any command of a list (they then cut

@@ -20,7 +20,7 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   which events do not record.
 
 - Hooks: check whether Cursor has a result-replacement hook; the coverage table in `architecture.md` marks it as
-  unverified. (Claude subagent tool calls do reach gascoigne's hooks: verified on 13 subagent transcripts.)
+  unverified. (Also open: whether subagent tool calls reach hooks in codex and gemini. Claude subagent tool calls do reach gascoigne's hooks: verified on 13 subagent transcripts.)
 
 - Web pages: article benchmark (`.harness/scripts/html-bench.sh`, 181 pages) at recall 98.8%, precision 64.5% after
   link-dense blocks are dropped. Remaining misses: share bars and footers outside `<footer>`, and link lists of
