@@ -1,0 +1,4 @@
+bin
+.git
+testdata
+coverage.out
