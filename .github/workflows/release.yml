@@ -3,15 +3,25 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build and attach binaries to (e.g. v0.4.0)
+        required: true
 
 permissions:
   contents: write
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
@@ -19,8 +29,8 @@ jobs:
       - name: Tag matches version.Number
         run: |
           want=$(sed -n 's/^const Number = "\(.*\)"/\1/p' version/version.go)
-          if [ "${GITHUB_REF_NAME}" != "v${want}" ]; then
-            echo "tag ${GITHUB_REF_NAME} does not match version.Number ${want}" >&2
+          if [ "${TAG}" != "v${want}" ]; then
+            echo "tag ${TAG} does not match version.Number ${want}" >&2
             exit 1
           fi
 
@@ -34,7 +44,7 @@ jobs:
           mkdir -p dist
           for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64; do
             os=${target%/*} arch=${target#*/}
-            name=gascoigne_${GITHUB_REF_NAME#v}_${os}_${arch}
+            name=gascoigne_${TAG#v}_${os}_${arch}
             exe=gascoigne; [ "$os" = windows ] && exe=gascoigne.exe
             mkdir -p "build/$name"
             GOOS=$os GOARCH=$arch go build -trimpath -ldflags "-s -w" -o "build/$name/$exe" ./cmd/gascoigne
@@ -50,18 +60,24 @@ jobs:
       # Release notes are the version's CHANGELOG.md section.
       - name: Notes
         run: |
-          awk -v v="${GITHUB_REF_NAME#v}" '
+          awk -v v="${TAG#v}" '
             index($0, "## [" v "]") == 1 { on = 1; next }
             on && /^## \[/ { exit }
             on && /^\[[^]]+\]: / { next }
             on { print }
           ' CHANGELOG.md > notes.md
           if ! grep -q '[^[:space:]]' notes.md; then
-            echo "CHANGELOG.md has no section for ${GITHUB_REF_NAME#v}" >&2
+            echo "CHANGELOG.md has no section for ${TAG#v}" >&2
             exit 1
           fi
 
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/* --title "${GITHUB_REF_NAME}" --notes-file notes.md --verify-tag
+        run: |
+          # A release made in the web UI exists before this runs: keep its notes, add the binaries.
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" dist/* --clobber
+          else
+            gh release create "${TAG}" dist/* --title "${TAG}" --notes-file notes.md --verify-tag
+          fi
