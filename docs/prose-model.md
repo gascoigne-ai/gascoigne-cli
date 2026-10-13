@@ -27,7 +27,7 @@ flowchart LR
    `nvidia-smi`, and macOS has no GPU variant (CoreML is built in). A CUDA build also needs the
    CUDA runtime and cuDNN 9 on the library path; it falls back to the CPU when they are missing.
 2. Enable it: `experimental: [prose]`, or answer yes in `gascoigne setup`, which runs step 1 for you (in the terminal it waits for the download; in the browser it downloads in the background). The server loads the
-   model at start (`optimizers.prose.warm`), so the first request does not wait for it.
+   model at start (`optimizers.prose.warm`), so the first request does not wait for it. After `optimizers.prose.idle` (default 5m, 0 keeps it) without a paragraph the model is unloaded, freeing GPU memory; the next paragraph loads it again, which takes a few seconds.
 
 Status: `gascoigne prose status` and the dashboard (*Experiments* panel, shown when any experiment is on) say `off`, `not-installed` or `ready`. The pass has its own optimizer id, `prose`, so its savings are the `prose` row of
 `gain -by optimizer` and of the *By optimizer* tab; the Experiments panel adds them to the model's state.

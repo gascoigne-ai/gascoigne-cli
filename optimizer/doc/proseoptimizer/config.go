@@ -3,6 +3,7 @@ package proseoptimizer
 import (
 	"errors"
 	"slices"
+	"time"
 )
 
 type Config struct {
@@ -16,6 +17,9 @@ type Config struct {
 	// Warm loads the model when the optimizer starts, so the server's first
 	// request does not wait for it.
 	Warm bool `yaml:"warm"`
+	// Idle unloads the model (freeing GPU memory) after this long without a
+	// paragraph; the next one loads it again, which takes seconds. 0 keeps it.
+	Idle time.Duration `yaml:"idle"`
 	// MinWords skips shorter paragraphs: dropping a word or two saves nothing.
 	MinWords int `yaml:"min_words"`
 }
@@ -26,6 +30,9 @@ func (c *Config) Validate() error {
 	}
 	if c.Enabled && (c.Threshold <= 0 || c.Threshold >= 1 || c.MinWords < 1) {
 		return errors.New("need 0 < threshold < 1 and min_words >= 1")
+	}
+	if c.Idle < 0 {
+		return errors.New("idle must not be negative")
 	}
 	return nil
 }

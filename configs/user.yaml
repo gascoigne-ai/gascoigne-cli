@@ -195,6 +195,7 @@
 #     device: auto                                ## auto (CUDA or CoreML, else CPU), cuda, coreml or cpu
 #     threshold: 0.5                              ## keep score from which a word stays; higher drops more
 #     warm: true                                  ## load the model at server start, not on the first paragraph
+#     idle: 5m                                    ## unload the model (frees GPU memory) after this long unused; 0 keeps it
 #     min_words: 40                               ## shorter paragraphs stay as they are
 #   embedjson:                                    ## JSON with record arrays inside text (log response bodies), crushed in place
 #     types: [log, test, build, task, doc/text]   ## types or families searched; JSON engines own data, cloud, http

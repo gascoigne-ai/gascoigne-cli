@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/prose"
@@ -32,13 +33,25 @@ type loaded struct {
 	mu       sync.Mutex
 	m        model
 	failures int
+	last     time.Time   // the model's last use
+	idle     *time.Timer // unloads the model cfg.Idle after last
 }
 
+// openModel checks the files against their pinned hashes before the first
+// load, so a damaged download fails with a clear error instead of inside the
+// runtime. Later loads (after an idle unload) skip the 601 MB hash.
 func openModel(cfg *Config) func() (model, error) {
+	verified := false
 	return func() (model, error) {
 		dir, err := prose.ModelDir()
 		if err != nil {
 			return nil, err
+		}
+		if !verified {
+			if err := prose.Verify(dir); err != nil {
+				return nil, fmt.Errorf("%w (gascoigne prose install fetches it again)", err)
+			}
+			verified = true
 		}
 		return prose.Open(dir, "", cfg.Device)
 	}
@@ -69,6 +82,7 @@ func (l *loaded) keep(words []string) (keep []bool, err error) {
 		return nil, l.fail(err)
 	}
 	l.failures = 0
+	l.touch()
 	return keep, nil
 }
 
@@ -79,7 +93,35 @@ func (l *loaded) load() error {
 	}
 	l.m = m
 	l.log.Debug("prose model loaded", "device", m.Device())
+	l.touch()
 	return nil
+}
+
+// touch marks the model used and arms the idle unload. The caller holds mu.
+func (l *loaded) touch() {
+	l.last = time.Now()
+	if l.cfg.Idle <= 0 || l.idle != nil {
+		return
+	}
+	l.idle = time.AfterFunc(l.cfg.Idle, l.unloadIfIdle)
+}
+
+// unloadIfIdle frees the model once it has sat unused for cfg.Idle; if it was
+// used meanwhile, it waits out the rest.
+func (l *loaded) unloadIfIdle() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.idle = nil
+	if l.m == nil {
+		return
+	}
+	if rest := l.cfg.Idle - time.Since(l.last); rest > 0 {
+		l.idle = time.AfterFunc(rest, l.unloadIfIdle)
+		return
+	}
+	l.m.Close()
+	l.m = nil
+	l.log.Debug("prose model unloaded", "idle", l.cfg.Idle)
 }
 
 // warm loads the model ahead of the first request: it takes seconds.
@@ -112,6 +154,10 @@ func (l *loaded) fail(err error) error {
 func (l *loaded) close() {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	if l.idle != nil {
+		l.idle.Stop()
+		l.idle = nil
+	}
 	if l.m != nil {
 		l.m.Close()
 		l.m = nil

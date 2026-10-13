@@ -169,7 +169,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
   inline code, links). Dropped words leave no marker. Model missing, failing, panicking or
   malformed → the lines stay as they were, never an optimizer error (that would discard the
   rule-based savings and mark the source failed); after 3 failures it is given up for the process.
-  Install: `gascoigne prose install [-runtime auto|cpu|cuda12|cuda13]` (model + ONNX Runtime, pinned hashes; cuDNN for CUDA is the user's). `warm` loads the model in `Start`.
+  Install: `gascoigne prose install [-runtime auto|cpu|cuda12|cuda13]` (model + ONNX Runtime, pinned hashes; cuDNN for CUDA is the user's). `warm` loads the model in `Start`; `idle` (5m) unloads it after that long unused, the next paragraph reloads it.
 
 **web (html)**
 - The root is the `<main>`/`<article>` with the most visible text, when that is ≥ half the page's

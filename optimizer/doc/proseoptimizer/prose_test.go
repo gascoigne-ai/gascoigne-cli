@@ -202,3 +202,35 @@ func TestValidate(t *testing.T) {
 		t.Fatal("threshold must be inside (0, 1), device a known one")
 	}
 }
+
+func TestIdleUnload(t *testing.T) {
+	op := &opening{m: &fake{}}
+	cfg := &Config{Enabled: true, Device: "auto", Threshold: 0.5, MinWords: 4, Idle: 50 * time.Millisecond}
+	l := &loaded{cfg: cfg, open: op.open, log: slog.New(slog.DiscardHandler)}
+	defer l.close()
+
+	if _, err := l.keep([]string{"a"}); err != nil {
+		t.Fatal(err)
+	}
+	waitFor := func(what string, cond func() bool) {
+		t.Helper()
+		for range 200 {
+			if cond() {
+				return
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		t.Fatal(what)
+	}
+	m := op.m.(*fake)
+	waitFor("idle model not unloaded", m.closed.Load)
+
+	m.closed.Store(false)
+	if _, err := l.keep([]string{"a"}); err != nil {
+		t.Fatal(err)
+	}
+	if op.calls.Load() != 2 {
+		t.Fatalf("model opened %d times, want a reload after the unload", op.calls.Load())
+	}
+	waitFor("reloaded model not unloaded again", m.closed.Load)
+}
