@@ -119,9 +119,15 @@ func (w *writer) text(s string) {
 	w.b.WriteString(s)
 }
 
+// scriptScheme reports hrefs that run code or embed data instead of pointing at a page.
+func scriptScheme(href string) bool {
+	h := strings.ToLower(strings.TrimSpace(href))
+	return strings.HasPrefix(h, "javascript:") || strings.HasPrefix(h, "data:") || strings.HasPrefix(h, "vbscript:")
+}
+
 func (w *writer) link(n *html.Node) {
 	href := attr(n, "href")
-	if !w.links || w.inLink || href == "" || strings.HasPrefix(href, "#") || strings.HasPrefix(href, "javascript:") {
+	if !w.links || w.inLink || href == "" || strings.HasPrefix(href, "#") || scriptScheme(href) {
 		w.children(n)
 		return
 	}

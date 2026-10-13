@@ -76,3 +76,23 @@ func TestMainContentRoot(t *testing.T) {
 		})
 	}
 }
+
+func TestScriptLinksDropped(t *testing.T) {
+	tests := []struct{ name, href string }{
+		{"javascript", "javascript:void(0)"},
+		{"mixed case", " JavaScript:alert(1)"},
+		{"data", "data:text/html,x"},
+		{"vbscript", "vbscript:x"},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := Markdown(`<body><p><a href="`+tc.href+`">label</a></p></body>`, true)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if strings.Contains(got, "](") {
+				t.Fatalf("link kept: %q", got)
+			}
+		})
+	}
+}

@@ -145,8 +145,8 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 			return
 		}
 		v := r.URL.Query()
-		after, _ := strconv.ParseUint(v.Get("after"), 10, 64)
-		before, _ := strconv.ParseUint(v.Get("before"), 10, 64)
+		after, _ := strconv.ParseUint(v.Get("after"), 10, strconv.IntSize)
+		before, _ := strconv.ParseUint(v.Get("before"), 10, strconv.IntSize)
 		limit, _ := strconv.Atoi(v.Get("limit"))
 		entries, err := l.Page(r.Context(), q, ledger.Page{After: uint(after), Before: uint(before),
 			Outcomes: outcomes(v), Limit: min(cmp.Or(limit, 100), 500)})
