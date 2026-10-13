@@ -215,7 +215,7 @@ remembered per browser.
 | Summary | tokens saved, savings rate, runs, optimized, not optimized, errors |
 | Daily savings | tokens saved per day |
 | Outcomes | runs and share of input tokens per outcome |
-| Recent runs | live feed, newest first: agent, command, content type, tokens, saved, outcome |
+| Recent runs | live feed, newest first: agent, command, content type (a *prose −N* tag when the prose model shortened it), tokens, saved, outcome |
 | Models and cost (tabs) | savings by model family and by model, and the proxy's API requests by day and by model |
 | Breakdown (tabs) | savings by command, by optimizer and by content type; runs not optimized (by stopping component and command, with the most recent reason); excluded sources, each with a *Re-enable* button (`forget`) |
 | Experiments | only when an experimental feature is on: each one's state (the prose model also its savings) |

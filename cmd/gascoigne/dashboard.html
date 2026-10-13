@@ -159,6 +159,7 @@ td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-word; }
 @keyframes fresh { from { background: var(--accent-soft); } to { background: transparent; } }
 .when { color: var(--muted); white-space: nowrap; }
 .dialect { color: var(--muted); font-size: 12.5px; }
+.tag { margin-left: 6px; padding: 1px 6px; border-radius: 9px; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 600; }
 .none { color: var(--faint); font-style: italic; }
 
 /* Bars and badges */
@@ -841,6 +842,9 @@ function agentLabel(e) {
   return el("span", { class: "none", title: "Not run by an agent: a terminal or script, or recorded before runs were tagged with their agent" }, "No agent");
 }
 
+// proseStep is the run's prose model step, if the model shortened its text.
+const proseStep = (e) => e.steps.find((s) => s.optimizer === "prose");
+
 const dialectsOf = (e) => [...new Set(e.steps.map((s) => s.dialect).filter(Boolean))].join(", ");
 
 // feedCols describe the recent-runs table for sorting and filtering (the rows
@@ -849,7 +853,7 @@ const feedCols = [
   { title: "Time", get: (e) => ago(e.ts), sort: (e) => new Date(e.ts).getTime() },
   { title: "Agent", get: (e) => e.agent || "No agent", cls: "hide-sm" },
   { title: "Command", get: (e) => e.command || e.key || "—" },
-  { title: "Content type", get: (e) => dialectsOf(e) || (e.filter ? "skipped by " + e.filter : ""), cls: "hide-sm" },
+  { title: "Content type", get: (e) => (dialectsOf(e) || (e.filter ? "skipped by " + e.filter : "")) + (proseStep(e) ? " prose" : ""), cls: "hide-sm" },
   { title: "Tokens", get: (e) => `${e.raw_tokens} ${e.out_tokens}`, sort: (e) => e.raw_tokens, num: true },
   { title: "Saved", get: (e) => fmtPct(pct(e.raw_tokens - e.out_tokens, e.raw_tokens)), sort: (e) => pct(e.raw_tokens - e.out_tokens, e.raw_tokens) },
   { title: "Outcome", get: (e) => e.outcome },
@@ -871,6 +875,11 @@ function renderFeed() {
   $("feed").replaceChildren(...(rows.length ? rows.map((e) => feedRow(e, false)) : [el("tr", {}, el("td", { colspan: 7, class: "empty" }, none))]));
 }
 
+function proseTag(e) {
+  const p = proseStep(e);
+  return p ? el("span", { class: "tag", title: `prose model: ${p.raw_tokens} → ${p.out_tokens} tokens` }, "prose −" + human(p.raw_tokens - p.out_tokens)) : "";
+}
+
 function feedRow(e, fresh) {
   const saved = e.raw_tokens - e.out_tokens;
   const dialects = dialectsOf(e);
@@ -878,7 +887,7 @@ function feedRow(e, fresh) {
     el("td", { class: "when", title: new Date(e.ts).toLocaleString(), "data-ts": e.ts }, ago(e.ts)),
     el("td", { class: "hide-sm" }, agentLabel(e)),
     el("td", { class: "mono" }, e.command || e.key || "—"),
-    el("td", { class: "hide-sm dialect" }, dialects || (e.filter ? "skipped by " + e.filter : "")),
+    el("td", { class: "hide-sm dialect" }, dialects || (e.filter ? "skipped by " + e.filter : ""), proseTag(e)),
     el("td", { class: "num" }, e.outcome === "optimized" ? `${human(e.raw_tokens)} → ${human(e.out_tokens)}` : human(e.raw_tokens)),
     el("td", {}, bar(pct(saved, e.raw_tokens))),
     el("td", {}, badge(e.outcome)));
