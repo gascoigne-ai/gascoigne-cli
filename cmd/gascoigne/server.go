@@ -142,15 +142,20 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Dur
 	mux := http.NewServeMux()
 	mux.Handle("/", dashboard(l, time.Second, info, stop))
 	mux.Handle("POST /api/optimize", localOnly(w))
+	mux.Handle("POST /sdk/v1/optimize", localOnly(sdkOptimize(w)))
+	mux.Handle("GET /sdk/v1/raw/{id}", localOnly(sdkRaw(l)))
+	proxyOn := false
 	proxy, closeProxy, err := llmProxy(ctx, &w.mu, info.Ledger, "", slog.New(slog.NewTextHandler(os.Stderr, nil)))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne server: LLM proxy off:", err)
 	} else {
 		defer closeProxy()
+		proxyOn = true
 		mux.Handle("/v1/", localOnly(proxy))
 		mux.Handle("/v1beta/", localOnly(proxy))  // Gemini
 		mux.Handle("/bedrock/", localOnly(proxy)) // Claude on Amazon Bedrock
 	}
+	mux.Handle("GET /sdk/v1/health", localOnly(sdkHealthHandler(info.Version, proxyOn)))
 	var rebuilt atomic.Bool
 	go watchBinary(ctx, b, 2*time.Second, func() string { b, _ := binary(); return b }, func() {
 		rebuilt.Store(true)

@@ -188,24 +188,32 @@ func (w *warm) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "other build or ledger", http.StatusConflict)
 		return
 	}
+	out, status, err := w.optimize(r.Context(), req)
+	if err != nil {
+		http.Error(rw, err.Error(), status)
+		return
+	}
+	respond(rw, out, nil)
+}
+
+// optimize runs the request's payload through its pipeline on the warm
+// service for its config; on error the HTTP status to answer with.
+func (w *warm) optimize(ctx context.Context, req optimizeRequest) (*payload.Payload, int, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	svc, err := w.service(req)
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusConflict)
-		return
+		return nil, http.StatusConflict, err
 	}
 	pl, ok := svc.Pipeline(req.Pipeline)
 	if !ok {
-		http.Error(rw, fmt.Sprintf("no pipeline %q", req.Pipeline), http.StatusConflict)
-		return
+		return nil, http.StatusConflict, fmt.Errorf("no pipeline %q", req.Pipeline)
 	}
-	out, err := pl.Optimize(r.Context(), req.Payload)
+	out, err := pl.Optimize(ctx, req.Payload)
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusUnprocessableEntity)
-		return
+		return nil, http.StatusUnprocessableEntity, err
 	}
-	respond(rw, out, nil)
+	return out, http.StatusOK, nil
 }
 
 // service returns the started service for the request's config.

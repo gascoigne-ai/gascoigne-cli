@@ -280,6 +280,19 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
 
 MCP pipelines have no exporters: stdout is the protocol channel.
 
+## SDK API (`cmd/gascoigne/sdk.go`)
+
+Stable loopback contract for gascoigne-sdk (agent frameworks), mounted in the background server beside
+`/api/optimize` (which stays internal: it needs the client's build, ledger and config).
+
+| Route | What |
+|---|---|
+| `GET /sdk/v1/health` | `{version, proto, proxy}`; `proto` (`sdkProto`) is bumped only by a breaking change, with the path |
+| `POST /sdk/v1/optimize` | `{text, tool?, cmd?, url?, query?, session?, agent?, model?}` → `{text, raw_id?, raw_tokens, out_tokens, skipped?}`; runs the `cli` pipeline on the user's config and ledger through `warm` |
+| `GET /sdk/v1/raw/{id}` | the original behind `raw_id`; instruction text (`hiddenKey`) is never served |
+
+All routes are `localOnly`. SDKs treat any failure as "return the input unchanged".
+
 ## LLM API proxy (`receiver/httpproxyreceiver`, `cmd/gascoigne/llmproxy.go`)
 
 ### Serving
