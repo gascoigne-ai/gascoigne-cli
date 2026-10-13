@@ -4,6 +4,13 @@ All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.1] - 2026-10-13
+
+### Fixed
+
+- The release notice read `latest.json` from the website's old address (404 since the site moved to
+  `gascoigne-ai.github.io`), so no update was ever signalled.
+
 ## [0.4.0] - 2026-10-13
 
 Prebuilt binaries on every release.

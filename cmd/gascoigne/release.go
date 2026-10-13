@@ -28,7 +28,7 @@ import (
 
 // releaseSite is the website's address; $GASCOIGNE_RELEASE_URL replaces it
 // (tests, a mirror).
-const releaseSite = "https://gascoigne-ai.github.io/gascoigne-webpage/"
+const releaseSite = "https://gascoigne-ai.github.io/"
 
 // releaseEvery is how long a result stands before the file is read again.
 const releaseEvery = 24 * time.Hour
