@@ -1,0 +1,37 @@
+gascoigne is token optimizer for LLM agents. It sits between agent and agent
+reads (shell output, MCP tool results, web pages), shrinks it, and keeps every original in
+local ledger so nothing ever lost.
+
+Output gascoigne already optimized (exec, MCP server, proxy) recognized by
+hint and left alone, are gascoigne's own MCP tools. **Read** never replaced: Claude
+numbers lines shows, and dropped lines would shift numbers. **WebSearch**
+left too: results (a median 608 tokens in measured sessions) rendered Claude
+Code from fixed structure.
+
+Measured on 16 Claude Code sessions (3,148 tool results): tool result stays in context for
+**median 110 later requests** (mean 145, deciles 17–335), and 0.8% of gaps between
+requests exceed 5-minute cache TTL. So rereads, not first read, make up most
+cost: on Opus 5.5 token saved is worth $5/MTok at first read and about $31/MTok in
+context.
+
+Most new support is a **dialect**: a new tool in a family gascoigne already has. A new
+**optimizer** is only for a new family. Other component kinds (receivers, filters,
+exporters, extensions) follow the same package shape.
+
+Every run appears as it happens, with its savings, content type and, when it was not
+optimized, the reason. Click a run to compare the original with what the agent read, side by
+side, and see each optimizer's step.
+
+Ids first 8 hex digits text's sha256 (12, 16 or 64 when prefix holds a
+different text), so same output from any session stored once and its hint costs ~7
+fewer tokens. Originals gzip-compressed. Source keys longer 200 bytes (whole
+command lines, heredocs) stored as 160-byte prefix plus hash. Ledgers older
+versions converted on first open and vacuumed (a real one: 22 MB → 6 MB).
+
+One self-contained page served from the binary, with no external requests. It follows the
+system's light or dark theme; the *Auto / Light / Dark* switch in the header overrides it
+and is remembered per browser.
+
+run that lost over 99.5% large output gets warning to check it. optimized text
+is kept next original (gzip, same retention), so runs recorded before show only
+original. Viewing either here does not mark source failing.

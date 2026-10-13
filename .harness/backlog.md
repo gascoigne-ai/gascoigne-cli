@@ -108,8 +108,9 @@ Measured; don't retry without new data.
   prompt-cache TTL leaves ~0.2% of requests cold, so rewriting on a cold cache saves ~0.2% of
   input cost; on warm requests it busts the cache. Unedited re-reads are ~0 (proxy fold covers
   them). Re-measure for 5-minute-TTL agents (codex).
-- Model-based text compression, rewriting prior reasoning: nondeterministic or lossy; signed
-  thinking blocks cannot change.
+- Model-based rewriting of prior reasoning: nondeterministic or lossy; signed thinking blocks
+  cannot change. (Extractive prose compression with a local model is the opt-in `doc.model`:
+  lossy, original kept in the ledger, off in the default chain and the eval.)
 - Trimming edit-tool result echoes in the proxy: Claude Code Edit/Write results average ~165 bytes
   (a one-line confirmation), 1.7% + 1.0% of tool-result bytes over 40 sessions; nothing to trim.
 - Folding repeated reminders in the proxy: transcripts hold few `<system-reminder>`s; repeats

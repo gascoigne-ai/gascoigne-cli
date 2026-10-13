@@ -1,0 +1,6 @@
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        4.0M     0  4.0M   0% /dev
+tmpfs            32G  1.2M   32G   1% /dev/shm
+/dev/nvme0n1p2  932G  611G  321G  66% /
+tmpfs            32G   48M   32G   1% /tmp
+/dev/nvme0n1p1  511M  176M  336M  35% /boot

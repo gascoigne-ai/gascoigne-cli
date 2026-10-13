@@ -1,7 +1,7 @@
 BIN := bin/gascoigne
 PREFIX ?= $(HOME)/.local
 
-.PHONY: build install uninstall test vet fmt fmt-check imports cover eval eval-ext eval-live check clean
+.PHONY: build install uninstall test vet fmt fmt-check imports cover eval eval-ext eval-live eval-experimental check clean
 
 build:
 	go build -o $(BIN) ./cmd/gascoigne
@@ -41,6 +41,10 @@ eval-ext: build
 
 eval-live: build
 	.harness/scripts/eval.sh -cases testdata/eval/live.yaml
+
+# Needs the prose model and ONNX Runtime (gascoigne prose install); not part of check.
+eval-experimental: build
+	GASCOIGNE_EXPERIMENTAL=prose .harness/scripts/eval.sh -cases testdata/eval-experimental/cases.yaml -set optimizers.doc.model.enabled=true
 
 check: fmt-check vet imports test
 

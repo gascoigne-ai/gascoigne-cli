@@ -39,6 +39,9 @@ so its column is the proxy's extra. Compare with another ref: `.harness/scripts/
 [REF=master] [N=10]` builds REF in a temp worktree, replays the same N newest transcripts with
 both builds (`replay -compare old.json files…`) and shows the `baseline.tsv` diff (fixtures).
 
+Experimental features (opt-in, extra installs): `make eval-experimental` runs
+`testdata/eval-experimental/cases.yaml` with them enabled; skipped by `make eval` and `make check`.
+
 Live drift: `make eval-live` runs `testdata/eval/live.yaml` (`run:` cases: real commands in the
 repo, output varies, so no golden/baseline; missing programs skip). A wrong type or a floor
 missed there while the fixture case passes means the tool's output changed shape: refresh the

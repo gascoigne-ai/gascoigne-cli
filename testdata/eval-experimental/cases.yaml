@@ -1,0 +1,31 @@
+# Experimental features, kept apart from cases.yaml: they need extra installs and are off by default.
+# Prose model (docs/prose-model.md): needs the model and ONNX Runtime (bin/gascoigne prose install).
+# Run: make eval-experimental (sets optimizers.doc.model.enabled=true). Goldens come from the model:
+# review diffs after a model, helper or threshold change, then rerun with -update.
+# min_saved is the saving of the whole pipeline, rule-based steps included.
+
+- name: prose/notes-text
+  file: prose/notes.txt
+  expect_type: doc/text
+  keep: ["gascoigne", "ledger"]
+  min_saved: 5
+
+- name: prose/decisions-md
+  file: prose/decisions.md
+  attrs: { cmd: cat decisions.md }
+  expect_type: doc/markdown
+  keep: ["## Changing agents' configs", "`~/.claude.json`", "backlog.md"]
+  min_saved: 5
+
+- name: prose/web-page
+  file: ../eval/html/go-dev-blog.html
+  attrs: { mime: text/html }
+  expect_type: doc/markdown
+  keep: ["Routing Enhancements for Go 1.22", "## Precedence", "http.HandleFunc(\"GET /posts/{id}\", handlePost2)"]
+  min_saved: 70
+
+# Aligned columns are command output, never sent to the model.
+- name: prose/df-table
+  file: prose/df.txt
+  attrs: { cmd: df -h }
+  unchanged: true
