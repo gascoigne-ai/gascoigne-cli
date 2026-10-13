@@ -86,7 +86,7 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   after (the dashboard and `gain` show requests and context per day; the LLM proxy has no session id, so use per-day request counts
   per agent). Drop the line if nothing moves.
 
-- Marker audit with exact o200k counts (`tokenizer/`; Claude needs an API key, not yet measured):
+- Marker audit with exact o200k counts (`tokens/exact/`; Claude needs an API key, not yet measured):
   raw id 16→8 hex saves 7 tokens per hint (done); `(×60)`→`×60` and `[↑ …`→`[…` save 2 each but
   only ~0.1% of eval output; `… N lines omitted`, `§1`, `_cols/_rows`, `L12-30` have no cheaper
   form. Re-run with `tokens` and a key before changing Claude-facing markers.

@@ -12,8 +12,8 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
-	"github.com/gascoigne-ai/gascoigne-cli/tokenizer"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens/exact"
 )
 
 // cmdTokens counts text the ways models do and prices one read of it.
@@ -91,7 +91,7 @@ func exactCounts(ctx context.Context, w io.Writer, t config.Tokenizers, text str
 	if t.O200k {
 		if dir, err := os.UserCacheDir(); err != nil {
 			fmt.Fprintf(w, "%-14s %9s  %s\n", "o200k exact", "-", err)
-		} else if bpe, err := tokenizer.O200k(ctx, filepath.Join(dir, "gascoigne")); err != nil {
+		} else if bpe, err := exact.O200k(ctx, filepath.Join(dir, "gascoigne")); err != nil {
 			fmt.Fprintf(w, "%-14s %9s  %s\n", "o200k exact", "-", err)
 		} else {
 			fmt.Fprintf(w, "%-14s %9d  %s\n", "o200k exact", bpe.Count(text), "o200k_base, counted locally")
@@ -102,7 +102,7 @@ func exactCounts(ctx context.Context, w io.Writer, t config.Tokenizers, text str
 		fmt.Fprintf(w, "%-14s %9s  %s\n", "claude exact", "-", "set tokenizers.anthropic_api_key in the config or ANTHROPIC_API_KEY")
 		return
 	}
-	n, err := tokenizer.Claude{Key: key, Model: t.AnthropicModel}.Count(ctx, text)
+	n, err := exact.Claude{Key: key, Model: t.AnthropicModel}.Count(ctx, text)
 	if err != nil {
 		fmt.Fprintf(w, "%-14s %9s  %s\n", "claude exact", "-", err)
 		return

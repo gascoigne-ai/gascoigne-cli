@@ -1,9 +1,9 @@
-// Package tokenizer counts tokens exactly, where tokens.Estimate only
+// Package exact counts tokens exactly, where tokens.Estimate only
 // approximates: o200k_base (the GPT-4o family's byte-pair encoding)
 // reimplemented in Go over its published vocabulary, and Claude through
 // Anthropic's token counting endpoint. Both cost a download or a request,
 // so they serve measurements (gascoigne tokens), not the optimizer path.
-package tokenizer
+package exact
 
 import (
 	"bufio"

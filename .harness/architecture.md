@@ -13,7 +13,7 @@ component/  payload/  tokens/        public contracts: what component authors im
 detect/  compress/  mcptool/         public libraries: content detection, text primitives, MCP tools
 lazyre/                              package-level regexps compiled on first use (init stays ~1 ms)
 version/                             release number + git commit from build info (CLI, MCP, health)
-tokenizer/                           exact counts: o200k BPE in Go, Claude via count_tokens
+tokens/exact/                        exact counts: o200k BPE in Go, Claude via count_tokens
 cost/                                tokenizer families, prices, agent context model
 receiver/  filter/  exporter/        components, one package each (OTel-contrib style)
 extension/
@@ -26,7 +26,7 @@ cmd/gascoigne  configs/              CLI + embedded default config
 - Receivers: stdin, exec, hook, mcp, mcp_proxy, httpproxy.
 - Component packages import only public packages, so each can become its own module.
   `make imports` fails if a public package imports `internal/`.
-- `tokenizer/` downloads the o200k vocabulary once and pins its hash.
+- `tokens/exact/` downloads the o200k vocabulary once and pins its hash.
 - `cost/` relates tokenizer families to `tokens.Estimate` by a factor.
 
 ## Flow
