@@ -77,3 +77,48 @@ func TestDashboardTablesSortAndFilter(t *testing.T) {
 		}
 	}
 }
+
+// A run the prose model shortened shows it in the feed and in its details;
+// a run where it was in the chain but changed nothing says so.
+func TestDashboardShowsProse(t *testing.T) {
+	node, err := exec.LookPath("node")
+	if err != nil {
+		t.Skip("node not installed: the page's prose info is not run")
+	}
+	page := string(dashboardHTML)
+	cut := func(from, to string) string {
+		a, b := strings.Index(page, from), strings.Index(page, to)
+		if a < 0 || b < a {
+			t.Fatalf("page lost %q..%q", from, to)
+		}
+		return page[a:b]
+	}
+	js := `const assert = require('assert');
+const human = (n) => String(n);
+const pct = (saved, raw) => raw > 0 ? (100 * saved / raw) : 0;
+const fmtPct = (p) => p.toFixed(1) + "%";
+const el = (tag, attrs, ...kids) => ({ tag, attrs: attrs || {}, text: kids.flat().join("") });
+` + cut("// proseStep is", "const dialectsOf") + cut("function proseTag", "function feedRow") + cut("// proseFact says", "function detailsView") + `
+const ran = { optimizers: ["doc", "prose"], steps: [{ optimizer: "doc", raw_tokens: 900, out_tokens: 700 }, { optimizer: "prose", raw_tokens: 700, out_tokens: 630 }] };
+const idle = { optimizers: ["doc", "prose"], steps: [{ optimizer: "doc", raw_tokens: 900, out_tokens: 700 }] };
+const off = { optimizers: ["doc"], steps: [] };
+assert.strictEqual(proseTag(ran).text, "prose −70");
+assert.match(proseTag(ran).attrs.title, /700 → 630/);
+assert.strictEqual(proseTag(idle), "");
+assert.match(proseFact(ran)[1], /700 → 630 tokens \(−70, 10\.0%\)/);
+assert.match(proseFact(idle)[1], /left the text as it was/);
+assert.strictEqual(proseFact(off), null);
+`
+	file := filepath.Join(t.TempDir(), "prose.js")
+	if err := os.WriteFile(file, []byte(js), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if out, err := exec.Command(node, file).CombinedOutput(); err != nil {
+		t.Fatalf("%v\n%s", err, out)
+	}
+	for _, want := range []string{`id="experiments-panel"`, `renderExperiments(`, `/api/experiments`, `proseTag(e)`, `proseFact(e)`} {
+		if !strings.Contains(page, want) {
+			t.Errorf("the page lost %s", want)
+		}
+	}
+}
