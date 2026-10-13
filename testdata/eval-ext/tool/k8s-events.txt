@@ -1,0 +1,5 @@
+NAMESPACE     LAST SEEN   TYPE      REASON              OBJECT                                MESSAGE
+default       2m          Warning   FailedScheduling    pod/nginx-deployment-5d8b9c7f4-x2k9j   0/3 nodes are available: 3 Insufficient memory
+default       5m          Normal    Scheduled           pod/redis-master-0                     Successfully assigned default/redis-master-0 to node-2
+kube-system   1h          Warning   NodeNotReady        node/node-3                            Node node-3 status is now: NodeNotReady
+default       30s         Normal    Pulled              pod/api-server-7f8d9c8b5-m4n2p         Container image "api-server:v2.1.0" already present

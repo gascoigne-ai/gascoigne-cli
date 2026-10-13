@@ -1,0 +1,125 @@
+[
+  {
+    "id": 0,
+    "name": "item_0",
+    "value": 0.0,
+    "status": "active"
+  },
+  {
+    "id": 1,
+    "name": "item_1",
+    "value": 1.5,
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "item_2",
+    "value": 3.0,
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "name": "item_3",
+    "value": 4.5,
+    "status": "active"
+  },
+  {
+    "id": 4,
+    "name": "item_4",
+    "value": 6.0,
+    "status": "active"
+  },
+  {
+    "id": 5,
+    "name": "item_5",
+    "value": 7.5,
+    "status": "active"
+  },
+  {
+    "id": 6,
+    "name": "item_6",
+    "value": 9.0,
+    "status": "active"
+  },
+  {
+    "id": 7,
+    "name": "item_7",
+    "value": 999.99,
+    "status": "error",
+    "error_code": "ERR-2018",
+    "task_id": "task-0018"
+  },
+  {
+    "id": 8,
+    "name": "item_8",
+    "value": 12.0,
+    "status": "active"
+  },
+  {
+    "id": 9,
+    "name": "item_9",
+    "value": 13.5,
+    "status": "active"
+  },
+  {
+    "id": 10,
+    "name": "item_10",
+    "value": 15.0,
+    "status": "active"
+  },
+  {
+    "id": 11,
+    "name": "item_11",
+    "value": 16.5,
+    "status": "active"
+  },
+  {
+    "id": 12,
+    "name": "item_12",
+    "value": 18.0,
+    "status": "active"
+  },
+  {
+    "id": 13,
+    "name": "item_13",
+    "value": 19.5,
+    "status": "active"
+  },
+  {
+    "id": 14,
+    "name": "item_14",
+    "value": 21.0,
+    "status": "active"
+  },
+  {
+    "id": 15,
+    "name": "item_15",
+    "value": -1.0,
+    "status": "failed",
+    "message": "Timeout on task-0018"
+  },
+  {
+    "id": 16,
+    "name": "item_16",
+    "value": 24.0,
+    "status": "active"
+  },
+  {
+    "id": 17,
+    "name": "item_17",
+    "value": 25.5,
+    "status": "active"
+  },
+  {
+    "id": 18,
+    "name": "item_18",
+    "value": 27.0,
+    "status": "active"
+  },
+  {
+    "id": 19,
+    "name": "item_19",
+    "value": 28.5,
+    "status": "active"
+  }
+]

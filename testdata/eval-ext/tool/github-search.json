@@ -1,0 +1,41 @@
+{
+  "total_count": 3,
+  "items": [
+    {
+      "id": 12345,
+      "name": "ctx-trim",
+      "full_name": "acme/ctx-trim",
+      "description": "Context optimization for LLM applications",
+      "stargazers_count": 1250,
+      "language": "Python",
+      "topics": [
+        "llm",
+        "compression"
+      ]
+    },
+    {
+      "id": 23456,
+      "name": "llm-cache",
+      "full_name": "openai/llm-cache",
+      "description": "High-performance caching for LLMs",
+      "stargazers_count": 890,
+      "language": "Python",
+      "topics": [
+        "caching",
+        "llm"
+      ]
+    },
+    {
+      "id": 34567,
+      "name": "prompt-optimizer",
+      "full_name": "google/prompt-optimizer",
+      "description": "Automatic prompt optimization with RL",
+      "stargazers_count": 2100,
+      "language": "Python",
+      "topics": [
+        "prompt-engineering",
+        "rlhf"
+      ]
+    }
+  ]
+}

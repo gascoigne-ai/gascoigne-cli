@@ -1,0 +1,50 @@
+{
+  "Reservations": [
+    {
+      "Instances": [
+        {
+          "InstanceId": "i-0abc123def456789a",
+          "InstanceType": "t3.large",
+          "State": {
+            "Name": "running"
+          },
+          "PrivateIpAddress": "10.0.1.100",
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "web-server-1"
+            }
+          ]
+        },
+        {
+          "InstanceId": "i-0def456ghi789012b",
+          "InstanceType": "t3.xlarge",
+          "State": {
+            "Name": "stopped"
+          },
+          "PrivateIpAddress": "10.0.1.101",
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "web-server-2"
+            }
+          ]
+        },
+        {
+          "InstanceId": "i-0ghi789jkl012345c",
+          "InstanceType": "r5.2xlarge",
+          "State": {
+            "Name": "running"
+          },
+          "PrivateIpAddress": "10.0.2.50",
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "database-primary"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

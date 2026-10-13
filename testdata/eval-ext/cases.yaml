@@ -1,0 +1,268 @@
+# External-style dataset, kept apart from cases.yaml to compare against published compression evals.
+# Needle/probe cases: JSON arrays with planted errors and anomalies; keep = facts that must survive.
+# Tool cases: small mixed tool outputs; keep = the answer to the question asked of the output.
+# Pure detection (no attrs). Run: gascoigne eval -cases testdata/eval-ext/cases.yaml
+
+- file: needle/00.json
+  keep: ["ERR-2000", "error", "failed", "999.99"]
+
+- file: needle/01.json
+  keep: ["ERR-2001", "error", "failed", "999.99"]
+
+- file: needle/02.json
+  keep: ["ERR-2002", "error", "failed", "999.99"]
+
+- file: needle/03.json
+  keep: ["ERR-2003", "error", "failed", "999.99"]
+
+- file: needle/04.json
+  keep: ["ERR-2004", "error", "failed", "999.99"]
+
+- file: needle/05.json
+  keep: ["ERR-2005", "error", "failed", "999.99"]
+
+- file: needle/06.json
+  keep: ["ERR-2006", "error", "failed", "999.99"]
+
+- file: needle/07.json
+  keep: ["ERR-2007", "error", "failed", "999.99"]
+
+- file: needle/08.json
+  keep: ["ERR-2008", "error", "failed", "999.99"]
+
+- file: needle/09.json
+  keep: ["ERR-2009", "error", "failed", "999.99"]
+
+- file: needle/10.json
+  keep: ["ERR-2010", "error", "failed", "999.99"]
+
+- file: needle/11.json
+  keep: ["ERR-2011", "error", "failed", "999.99"]
+
+- file: needle/12.json
+  keep: ["ERR-2012", "error", "failed", "999.99"]
+
+- file: needle/13.json
+  keep: ["ERR-2013", "error", "failed", "999.99"]
+
+- file: needle/14.json
+  keep: ["ERR-2014", "error", "failed", "999.99"]
+
+- file: needle/15.json
+  keep: ["ERR-2015", "error", "failed", "999.99"]
+
+- file: needle/16.json
+  keep: ["ERR-2016", "error", "failed", "999.99"]
+
+- file: needle/17.json
+  keep: ["ERR-2017", "error", "failed", "999.99"]
+
+- file: needle/18.json
+  keep: ["ERR-2018", "error", "failed", "999.99"]
+
+- file: needle/19.json
+  keep: ["ERR-2019", "error", "failed", "999.99"]
+
+- file: needle/20.json
+  keep: ["ERR-2020", "error", "failed", "999.99"]
+
+- file: needle/21.json
+  keep: ["ERR-2021", "error", "failed", "999.99"]
+
+- file: needle/22.json
+  keep: ["ERR-2022", "error", "failed", "999.99"]
+
+- file: needle/23.json
+  keep: ["ERR-2023", "error", "failed", "999.99"]
+
+- file: needle/24.json
+  keep: ["ERR-2024", "error", "failed", "999.99"]
+
+- file: needle/25.json
+  keep: ["ERR-2025", "error", "failed", "999.99"]
+
+- file: needle/26.json
+  keep: ["ERR-2026", "error", "failed", "999.99"]
+
+- file: needle/27.json
+  keep: ["ERR-2027", "error", "failed", "999.99"]
+
+- file: needle/28.json
+  keep: ["ERR-2028", "error", "failed", "999.99"]
+
+- file: needle/29.json
+  keep: ["ERR-2029", "error", "failed", "999.99"]
+
+- file: needle/30.json
+  keep: ["ERR-2030", "error", "failed", "999.99"]
+
+- file: needle/31.json
+  keep: ["ERR-2031", "error", "failed", "999.99"]
+
+- file: needle/32.json
+  keep: ["ERR-2032", "error", "failed", "999.99"]
+
+- file: needle/33.json
+  keep: ["ERR-2033", "error", "failed", "999.99"]
+
+- file: needle/34.json
+  keep: ["ERR-2034", "error", "failed", "999.99"]
+
+- file: needle/35.json
+  keep: ["ERR-2035", "error", "failed", "999.99"]
+
+- file: needle/36.json
+  keep: ["ERR-2036", "error", "failed", "999.99"]
+
+- file: needle/37.json
+  keep: ["ERR-2037", "error", "failed", "999.99"]
+
+- file: needle/38.json
+  keep: ["ERR-2038", "error", "failed", "999.99"]
+
+- file: needle/39.json
+  keep: ["ERR-2039", "error", "failed", "999.99"]
+
+- file: needle/40.json
+  keep: ["ERR-2040", "error", "failed", "999.99"]
+
+- file: needle/41.json
+  keep: ["ERR-2041", "error", "failed", "999.99"]
+
+- file: needle/42.json
+  keep: ["ERR-2042", "error", "failed", "999.99"]
+
+- file: needle/43.json
+  keep: ["ERR-2043", "error", "failed", "999.99"]
+
+- file: needle/44.json
+  keep: ["ERR-2044", "error", "failed", "999.99"]
+
+- file: needle/45.json
+  keep: ["ERR-2045", "error", "failed", "999.99"]
+
+- file: needle/46.json
+  keep: ["ERR-2046", "error", "failed", "999.99"]
+
+- file: needle/47.json
+  keep: ["ERR-2047", "error", "failed", "999.99"]
+
+- file: needle/48.json
+  keep: ["ERR-2048", "error", "failed", "999.99"]
+
+- file: needle/49.json
+  keep: ["ERR-2049", "error", "failed", "999.99"]
+
+- file: probe/00.json
+  keep: ["ERR-1000", "critical", "98.7", "prod-server-000"]
+
+- file: probe/01.json
+  keep: ["ERR-1001", "critical", "98.7", "prod-server-001"]
+
+- file: probe/02.json
+  keep: ["ERR-1002", "critical", "98.7", "prod-server-002"]
+
+- file: probe/03.json
+  keep: ["ERR-1003", "critical", "98.7", "prod-server-003"]
+
+- file: probe/04.json
+  keep: ["ERR-1004", "critical", "98.7", "prod-server-004"]
+
+- file: probe/05.json
+  keep: ["ERR-1005", "critical", "98.7", "prod-server-005"]
+
+- file: probe/06.json
+  keep: ["ERR-1006", "critical", "98.7", "prod-server-006"]
+
+- file: probe/07.json
+  keep: ["ERR-1007", "critical", "98.7", "prod-server-007"]
+
+- file: probe/08.json
+  keep: ["ERR-1008", "critical", "98.7", "prod-server-008"]
+
+- file: probe/09.json
+  keep: ["ERR-1009", "critical", "98.7", "prod-server-009"]
+
+- file: probe/10.json
+  keep: ["ERR-1010", "critical", "98.7", "prod-server-010"]
+
+- file: probe/11.json
+  keep: ["ERR-1011", "critical", "98.7", "prod-server-011"]
+
+- file: probe/12.json
+  keep: ["ERR-1012", "critical", "98.7", "prod-server-012"]
+
+- file: probe/13.json
+  keep: ["ERR-1013", "critical", "98.7", "prod-server-013"]
+
+- file: probe/14.json
+  keep: ["ERR-1014", "critical", "98.7", "prod-server-014"]
+
+- file: probe/15.json
+  keep: ["ERR-1015", "critical", "98.7", "prod-server-015"]
+
+- file: probe/16.json
+  keep: ["ERR-1016", "critical", "98.7", "prod-server-016"]
+
+- file: probe/17.json
+  keep: ["ERR-1017", "critical", "98.7", "prod-server-017"]
+
+- file: probe/18.json
+  keep: ["ERR-1018", "critical", "98.7", "prod-server-018"]
+
+- file: probe/19.json
+  keep: ["ERR-1019", "critical", "98.7", "prod-server-019"]
+
+- file: probe/20.json
+  keep: ["ERR-1020", "critical", "98.7", "prod-server-020"]
+
+- file: probe/21.json
+  keep: ["ERR-1021", "critical", "98.7", "prod-server-021"]
+
+- file: probe/22.json
+  keep: ["ERR-1022", "critical", "98.7", "prod-server-022"]
+
+- file: probe/23.json
+  keep: ["ERR-1023", "critical", "98.7", "prod-server-023"]
+
+- file: probe/24.json
+  keep: ["ERR-1024", "critical", "98.7", "prod-server-024"]
+
+- file: probe/25.json
+  keep: ["ERR-1025", "critical", "98.7", "prod-server-025"]
+
+- file: probe/26.json
+  keep: ["ERR-1026", "critical", "98.7", "prod-server-026"]
+
+- file: probe/27.json
+  keep: ["ERR-1027", "critical", "98.7", "prod-server-027"]
+
+- file: probe/28.json
+  keep: ["ERR-1028", "critical", "98.7", "prod-server-028"]
+
+- file: probe/29.json
+  keep: ["ERR-1029", "critical", "98.7", "prod-server-029"]
+
+- file: tool/github-search.json
+  keep: ["prompt-optimizer"]
+
+- file: tool/k8s-events.txt
+  keep: ["Insufficient memory"]
+
+- file: tool/traceback.txt
+  keep: ["card_declined"]
+
+- file: tool/db-query.json
+  keep: ["Alice"]
+
+- file: tool/metrics.json
+  keep: ["230"]
+
+- file: tool/git-log.txt
+  keep: ["Alice Developer"]
+
+- file: tool/aws-ec2.json
+  keep: ["web-server-2"]
+
+- file: tool/complex-api.json
+  keep: ["Mobile App"]

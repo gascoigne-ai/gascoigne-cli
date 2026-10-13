@@ -1,0 +1,37 @@
+[
+  {
+    "user_id": 1,
+    "name": "Alice",
+    "email": "alice@example.com",
+    "role": "admin",
+    "created_at": "2024-01-15"
+  },
+  {
+    "user_id": 2,
+    "name": "Bob",
+    "email": "bob@example.com",
+    "role": "user",
+    "created_at": "2024-02-20"
+  },
+  {
+    "user_id": 3,
+    "name": "Charlie",
+    "email": "charlie@example.com",
+    "role": "user",
+    "created_at": "2024-03-10"
+  },
+  {
+    "user_id": 4,
+    "name": "Diana",
+    "email": "diana@example.com",
+    "role": "moderator",
+    "created_at": "2024-04-05"
+  },
+  {
+    "user_id": 5,
+    "name": "Eve",
+    "email": "eve@example.com",
+    "role": "user",
+    "created_at": "2024-05-01"
+  }
+]

@@ -1,0 +1,2 @@
+// "_table": rows follow _cols, missing tail = null; _same: equal in all rows; _affix: prefix + cell + suffix
+{"_affix":{"email":["","@example.com"]},"_cols":["created_at","email","name","role","user_id"],"_rows":[["2024-01-15","alice","Alice","admin",1],["2024-02-20","bob","Bob","user",2],["2024-03-10","charlie","Charlie","user",3],["2024-04-05","diana","Diana","moderator",4],["2024-05-01","eve","Eve","user",5]]}

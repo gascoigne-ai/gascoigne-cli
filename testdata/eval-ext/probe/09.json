@@ -1,0 +1,148 @@
+[
+  {
+    "server": "prod-server-009",
+    "cpu": 45.2,
+    "memory": 72.1,
+    "status": "healthy"
+  },
+  {
+    "server": "staging-9",
+    "cpu": 12.0,
+    "memory": 30.5,
+    "status": "healthy"
+  },
+  {
+    "server": "dev-9",
+    "cpu": 5.0,
+    "memory": 20.0,
+    "status": "healthy"
+  },
+  {
+    "server": "prod-error-9",
+    "cpu": 98.7,
+    "memory": 95.3,
+    "status": "critical",
+    "error": "ERR-1009",
+    "metric": 51.5
+  },
+  {
+    "server": "node-0",
+    "cpu": 40.0,
+    "memory": 60.0,
+    "status": "healthy"
+  },
+  {
+    "server": "node-1",
+    "cpu": 40.5,
+    "memory": 60.3,
+    "status": "healthy"
+  },
+  {
+    "server": "node-2",
+    "cpu": 41.0,
+    "memory": 60.6,
+    "status": "healthy"
+  },
+  {
+    "server": "node-3",
+    "cpu": 41.5,
+    "memory": 60.9,
+    "status": "healthy"
+  },
+  {
+    "server": "node-4",
+    "cpu": 42.0,
+    "memory": 61.2,
+    "status": "healthy"
+  },
+  {
+    "server": "node-5",
+    "cpu": 42.5,
+    "memory": 61.5,
+    "status": "healthy"
+  },
+  {
+    "server": "node-6",
+    "cpu": 43.0,
+    "memory": 61.8,
+    "status": "healthy"
+  },
+  {
+    "server": "node-7",
+    "cpu": 43.5,
+    "memory": 62.1,
+    "status": "healthy"
+  },
+  {
+    "server": "node-8",
+    "cpu": 44.0,
+    "memory": 62.4,
+    "status": "healthy"
+  },
+  {
+    "server": "node-9",
+    "cpu": 44.5,
+    "memory": 62.7,
+    "status": "healthy"
+  },
+  {
+    "server": "node-10",
+    "cpu": 45.0,
+    "memory": 63.0,
+    "status": "healthy"
+  },
+  {
+    "server": "node-11",
+    "cpu": 45.5,
+    "memory": 63.3,
+    "status": "healthy"
+  },
+  {
+    "server": "node-12",
+    "cpu": 46.0,
+    "memory": 63.6,
+    "status": "healthy"
+  },
+  {
+    "server": "node-13",
+    "cpu": 46.5,
+    "memory": 63.9,
+    "status": "healthy"
+  },
+  {
+    "server": "node-14",
+    "cpu": 47.0,
+    "memory": 64.2,
+    "status": "healthy"
+  },
+  {
+    "server": "node-15",
+    "cpu": 47.5,
+    "memory": 64.5,
+    "status": "healthy"
+  },
+  {
+    "server": "node-16",
+    "cpu": 48.0,
+    "memory": 64.8,
+    "status": "healthy"
+  },
+  {
+    "server": "node-17",
+    "cpu": 48.5,
+    "memory": 65.1,
+    "status": "healthy"
+  },
+  {
+    "server": "node-18",
+    "cpu": 49.0,
+    "memory": 65.4,
+    "status": "healthy"
+  },
+  {
+    "server": "node-19",
+    "cpu": 49.5,
+    "memory": 65.7,
+    "status": "healthy"
+  }
+]

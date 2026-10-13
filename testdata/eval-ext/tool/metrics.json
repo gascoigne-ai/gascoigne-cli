@@ -1,0 +1,14 @@
+{
+  "service": "api-gateway",
+  "period": "last_hour",
+  "metrics": {
+    "requests_total": 125432,
+    "requests_success": 124890,
+    "requests_failed": 542,
+    "latency_p50_ms": 45,
+    "latency_p99_ms": 230,
+    "error_rate_percent": 0.43,
+    "cpu_usage_percent": 67.5,
+    "memory_usage_mb": 2048
+  }
+}

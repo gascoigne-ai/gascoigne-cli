@@ -1,7 +1,7 @@
 BIN := bin/gascoigne
 PREFIX ?= $(HOME)/.local
 
-.PHONY: build install uninstall test vet fmt fmt-check imports cover eval eval-live check clean
+.PHONY: build install uninstall test vet fmt fmt-check imports cover eval eval-ext eval-live check clean
 
 build:
 	go build -o $(BIN) ./cmd/gascoigne
@@ -35,6 +35,9 @@ cover:
 
 eval: build
 	.harness/scripts/eval.sh
+
+eval-ext: build
+	.harness/scripts/eval.sh -cases testdata/eval-ext/cases.yaml
 
 eval-live: build
 	.harness/scripts/eval.sh -cases testdata/eval/live.yaml
