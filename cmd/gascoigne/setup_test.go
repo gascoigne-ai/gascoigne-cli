@@ -448,3 +448,24 @@ func TestExperimentsExplainThemselves(t *testing.T) {
 		}
 	}
 }
+
+func TestNeedsProseModel(t *testing.T) {
+	sandbox(t)
+	on := map[string]string{experimentPrefix + "prose": "on"}
+	tests := []struct {
+		name    string
+		answers map[string]string
+		want    bool
+	}{
+		{"turned on, nothing downloaded", on, true},
+		{"left off", map[string]string{experimentPrefix + "prose": "off"}, false},
+		{"another experiment", map[string]string{experimentPrefix + "prompts": "on"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := needsProseModel(tt.answers); got != tt.want {
+				t.Fatalf("got %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

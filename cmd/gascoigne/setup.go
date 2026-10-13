@@ -19,6 +19,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gascoigne-ai/gascoigne-cli/prose"
 	"github.com/gascoigne-ai/gascoigne-cli/version"
 )
 
@@ -202,9 +203,9 @@ var experiments = []struct{ name, title, text, example, how, impact string }{
 		"Finds the instruction files an agent loads (CLAUDE.md and its imports, memory, skill and agent descriptions, AGENTS.md), counts and prices them, and flags large imports and duplicates. With -terse it can drop articles and fillers from instruction files in place (a .bak is kept).",
 		"Listing changes nothing. The point is to show instruction text that you pay for on every request; -terse edits your files, so review the result."},
 	{"prose", "Prose compression with a local model",
-		"Adds the prose command, which downloads a small language model that drops low-value words from long prose.",
+		"Downloads a small language model (601 MB) that drops low-value words from long prose, and turns the prose optimizer on.",
 		"$ gascoigne prose install\ngascoigne prose: onnxruntime-linux-x64-1.29.0.tgz\n  sha256 c3fddc4f139a045b0c4902c57410f0694f1c2fdf9b6939fbe38b1aeae7cd14ba\n  downloaded, checksum matches\n\n" +
-			"it is on once the download is there; the background server keeps the model loaded\n" +
+			"setup runs this download when you turn it on; the background server keeps the model loaded\n" +
 			"a README paragraph: 'It sits between an agent and what the agent reads, shrinks it' -> 'sits between agent and what agent reads, shrinks it'",
 		"prose install downloads the model (601 MB) and the ONNX Runtime libraries, checking their hashes. With this on, plain paragraphs of text and markdown go through the model on your GPU (CUDA or CoreML) or CPU; numbers, paths, flags, identifiers, negations, code and links are kept. The original stays retrievable with gascoigne raw.",
 		"Lossy: about 8-10% fewer tokens on prose-heavy text, none on code, tables or command output. Needs the downloads and a few hundred MB of memory while it runs (in the background server, which keeps the model loaded)."},
@@ -328,6 +329,31 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 		return out, nil
 	}
 	return append(out, rewriteInstalls()...), nil
+}
+
+// needsProseModel reports an answer that turned the prose experiment on while
+// its model is not downloaded: setup then fetches it, so the optimizer works
+// right away.
+func needsProseModel(answers map[string]string) bool {
+	if answers[experimentPrefix+"prose"] != "on" {
+		return false
+	}
+	dir, err := prose.ModelDir()
+	if err != nil {
+		return false
+	}
+	model, rt := prose.Installed(dir)
+	return !model || !rt
+}
+
+// installProseModel downloads the prose model (601 MB) and the ONNX Runtime;
+// progress and checksums go to stderr.
+func installProseModel(ctx context.Context) error {
+	dir, err := prose.ModelDir()
+	if err != nil {
+		return err
+	}
+	return prose.Install(ctx, dir, "auto")
 }
 
 // integrate sets gascoigne up for an agent the user said yes to: the same
@@ -529,6 +555,15 @@ func setupHandlers(mux *http.ServeMux) {
 			return
 		}
 		os.Remove(setupTokenFile()) // one answer per link
+		if needsProseModel(req.Answers) {
+			// Minutes of download: not within this request.
+			go func() {
+				if err := installProseModel(context.Background()); err != nil {
+					fmt.Fprintln(os.Stderr, "gascoigne: prose download failed, run gascoigne prose install:", err)
+				}
+			}()
+			lines = append(lines, "prose: downloading the model (601 MB) in the background; gascoigne prose status says when it is ready")
+		}
 		respond(w, map[string][]string{"done": lines}, nil)
 	})
 }
@@ -536,7 +571,7 @@ func setupHandlers(mux *http.ServeMux) {
 // cmdSetup asks the open questions: in the browser when one can open here,
 // else in the terminal (-t forces the terminal). -y takes the defaults; -all
 // asks the answered questions again.
-func cmdSetup(_ context.Context, args []string) error {
+func cmdSetup(ctx context.Context, args []string) error {
 	fset := newFlags("setup")
 	yes := fset.Bool("y", false, "take the default answer to every question")
 	all := fset.Bool("all", false, "also ask the questions already answered")
@@ -576,6 +611,12 @@ func cmdSetup(_ context.Context, args []string) error {
 	lines, err := applyAnswers(answers)
 	for _, l := range lines {
 		fmt.Println(l)
+	}
+	if err == nil && needsProseModel(answers) {
+		fmt.Println("prose: downloading the model (601 MB) and ONNX Runtime")
+		if ierr := installProseModel(ctx); ierr != nil {
+			return fmt.Errorf("prose is on but the download failed (%w); run gascoigne prose install to retry", ierr)
+		}
 	}
 	return err
 }
