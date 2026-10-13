@@ -46,7 +46,7 @@ omission markers are never sent to the model.
 
 ## Checksums
 
-`install` prints each file's SHA256 and refuses a download that differs. The ONNX Runtime 1.29.0 archives (from github.com/microsoft/onnxruntime/releases/tag/v1.29.0, hashes as GitHub lists them):
+`install` prints each file's SHA256 and refuses a download that differs. Every `gascoigne setup` run with prose on checks the installed files against these hashes (and the runtime library) and fetches again what is missing or damaged. The ONNX Runtime 1.29.0 archives (from github.com/microsoft/onnxruntime/releases/tag/v1.29.0, hashes as GitHub lists them):
 
 | platform / build | archive | sha256 |
 |---|---|---|

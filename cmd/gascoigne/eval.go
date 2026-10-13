@@ -22,6 +22,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/prose"
 )
 
 type evalBlock struct {
@@ -92,6 +93,9 @@ func cmdEval(ctx context.Context, args []string) error {
 	var cases []evalCase
 	if err := config.Decode(data, &cases); err != nil {
 		return fmt.Errorf("%s: %w", ef.cases, err)
+	}
+	if err := checkProseInstalled(c.sets); err != nil {
+		return err
 	}
 
 	if ef.record {
@@ -461,3 +465,16 @@ func writeBaseline(path string, names []string, m map[string]baseline) error {
 // ms shows a duration in milliseconds: wall time, so it varies run to run
 // and stays out of the baseline.
 func ms(d time.Duration) string { return fmt.Sprintf("%.1f", float64(d)/float64(time.Millisecond)) }
+
+// checkProseInstalled stops a run that turns the prose optimizer on without
+// its model: that run would pass text through and fail as golden diffs.
+func checkProseInstalled(sets []string) error {
+	if !slices.Contains(sets, "optimizers.prose.enabled=true") {
+		return nil
+	}
+	dir, _ := prose.ModelDir()
+	if model, rt := prose.Installed(dir); !model || !rt {
+		return errors.New("prose model not installed: run gascoigne prose install")
+	}
+	return nil
+}

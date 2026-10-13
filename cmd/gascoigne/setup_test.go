@@ -459,6 +459,7 @@ func TestNeedsProseModel(t *testing.T) {
 	}{
 		{"turned on, nothing downloaded", on, true},
 		{"left off", map[string]string{experimentPrefix + "prose": "off"}, false},
+		{"no answer, prose not configured", map[string]string{}, false},
 		{"another experiment", map[string]string{experimentPrefix + "prompts": "on"}, false},
 	}
 	for _, tt := range tests {

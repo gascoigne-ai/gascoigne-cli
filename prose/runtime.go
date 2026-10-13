@@ -75,7 +75,8 @@ func installRuntime(ctx context.Context, dir, variant string) error {
 	}
 	marker := filepath.Join(dir, ".archive")
 	fmt.Fprintf(os.Stderr, "gascoigne prose: %s\n  sha256 %s\n", asset.file, asset.sha256)
-	if got, _ := os.ReadFile(marker); string(got) == asset.sha256 {
+	// The marker alone is not enough: the library may have been deleted since.
+	if got, _ := os.ReadFile(marker); string(got) == asset.sha256 && fileExists(filepath.Join(dir, libName())) {
 		return nil
 	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {

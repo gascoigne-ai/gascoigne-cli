@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"cmp"
 	"context"
 	"crypto/rand"
 	"crypto/subtle"
@@ -331,19 +332,30 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 	return append(out, rewriteInstalls()...), nil
 }
 
-// needsProseModel reports an answer that turned the prose experiment on while
-// its model is not downloaded: setup then fetches it, so the optimizer works
-// right away.
+// needsProseModel reports a prose experiment that is on, by this setup's
+// answer or already in the config, while its files are missing or fail their
+// checksums: setup then fetches them, so the optimizer works right away.
 func needsProseModel(answers map[string]string) bool {
-	if answers[experimentPrefix+"prose"] != "on" {
+	on := cmp.Or(answers[experimentPrefix+"prose"], boolWord(experimentalOn("prose")))
+	if on != "on" {
 		return false
 	}
 	dir, err := prose.ModelDir()
 	if err != nil {
 		return false
 	}
-	model, rt := prose.Installed(dir)
-	return !model || !rt
+	err = prose.Verify(dir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "gascoigne prose:", err)
+	}
+	return err != nil
+}
+
+func boolWord(on bool) string {
+	if on {
+		return "on"
+	}
+	return ""
 }
 
 // installProseModel downloads the prose model (601 MB) and the ONNX Runtime;
@@ -590,7 +602,7 @@ func cmdSetup(ctx context.Context, args []string) error {
 	}
 	if len(ds) == 0 {
 		fmt.Println("nothing to decide; setup -all asks again")
-		return nil
+		return repairProse(ctx, nil)
 	}
 	if useBrowser(*yes, *term) {
 		link, err := setupLink()
@@ -612,13 +624,22 @@ func cmdSetup(ctx context.Context, args []string) error {
 	for _, l := range lines {
 		fmt.Println(l)
 	}
-	if err == nil && needsProseModel(answers) {
-		fmt.Println("prose: downloading the model (601 MB) and ONNX Runtime")
-		if ierr := installProseModel(ctx); ierr != nil {
-			return fmt.Errorf("prose is on but the download failed (%w); run gascoigne prose install to retry", ierr)
-		}
+	if err != nil {
+		return err
 	}
-	return err
+	return repairProse(ctx, answers)
+}
+
+// repairProse fetches the prose files again when they are missing or corrupt.
+func repairProse(ctx context.Context, answers map[string]string) error {
+	if !needsProseModel(answers) {
+		return nil
+	}
+	fmt.Println("prose: downloading the model (601 MB) and ONNX Runtime")
+	if err := installProseModel(ctx); err != nil {
+		return fmt.Errorf("prose is on but the download failed (%w); run gascoigne prose install to retry", err)
+	}
+	return nil
 }
 
 // useBrowser decides where setup asks: the page, unless defaults were asked

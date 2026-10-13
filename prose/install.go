@@ -23,6 +23,21 @@ var files = []struct{ remote, local, sha256 string }{
 	{"onnx/kompress-fp32.onnx", "model.onnx", "0f6758d903b5b5b90f784b7f17b599277f040a3c268afb88c193fe5bb9c08649"},
 }
 
+// Verify checks what Install leaves in dir: the runtime library and each model
+// file against its pinned hash. The error names the first thing wrong; Install
+// fetches again whatever fails here.
+func Verify(dir string) error {
+	if _, rt := Installed(dir); !rt {
+		return fmt.Errorf("ONNX Runtime library missing in %s", filepath.Join(dir, runtimeDir))
+	}
+	for _, f := range files {
+		if err := verify(filepath.Join(dir, f.local), f.sha256); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Install downloads what is missing into dir: the ONNX Runtime libraries
 // (in dir/onnxruntime) and the model (601 MB for the graph).
 func Install(ctx context.Context, dir, variant string) error {
@@ -64,13 +79,21 @@ func fetch(ctx context.Context, url, path string) error {
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("HTTP %s", res.Status)
 	}
-	f, err := os.Create(path)
+	// Written aside and renamed, so a cut-off download never looks installed.
+	part := path + ".part"
+	f, err := os.Create(part)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
 	_, err = io.Copy(f, res.Body)
-	return err
+	if cerr := f.Close(); err == nil {
+		err = cerr
+	}
+	if err != nil {
+		os.Remove(part)
+		return err
+	}
+	return os.Rename(part, path)
 }
 
 func verify(path, want string) error {

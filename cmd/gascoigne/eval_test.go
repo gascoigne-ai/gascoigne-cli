@@ -70,3 +70,14 @@ func TestWordOverlap(t *testing.T) {
 		t.Errorf("overlap %+v", o)
 	}
 }
+
+func TestCheckProseInstalled(t *testing.T) {
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
+	t.Setenv("HOME", t.TempDir())
+	if err := checkProseInstalled(nil); err != nil {
+		t.Fatalf("prose off: %v", err)
+	}
+	if err := checkProseInstalled([]string{"optimizers.prose.enabled=true"}); err == nil {
+		t.Fatal("prose on without a model must fail")
+	}
+}
