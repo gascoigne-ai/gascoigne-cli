@@ -102,10 +102,16 @@ func installRuntime(ctx context.Context, dir, variant string) error {
 }
 
 // extractLibs flattens the archive's lib/ files into dir, where the runtime
-// finds its provider libraries next to the main one.
+// loader finds them. Writes go through os.Root, so no entry name or symlink
+// target can reach outside dir.
 func extractLibs(archive, dir string) error {
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
 	if strings.HasSuffix(archive, ".zip") {
-		return extractZip(archive, dir)
+		return extractZip(archive, root)
 	}
 	f, err := os.Open(archive)
 	if err != nil {
@@ -125,16 +131,16 @@ func extractLibs(archive, dir string) error {
 		if err != nil {
 			return err
 		}
-		if !isLib(h.Name) {
+		name, ok := entryName(h.Name)
+		if !ok {
 			continue
 		}
-		dst := filepath.Join(dir, filepath.Base(h.Name))
 		switch h.Typeflag {
 		case tar.TypeReg:
-			err = write(dst, tr, h.FileInfo().Mode())
+			err = write(root, name, tr, h.FileInfo().Mode())
 		case tar.TypeSymlink:
-			os.Remove(dst)
-			err = os.Symlink(filepath.Base(h.Linkname), dst)
+			root.Remove(name)
+			err = root.Symlink(filepath.Base(h.Linkname), name)
 		}
 		if err != nil {
 			return err
@@ -142,25 +148,22 @@ func extractLibs(archive, dir string) error {
 	}
 }
 
-func extractZip(archive, dir string) error {
+func extractZip(archive string, root *os.Root) error {
 	z, err := zip.OpenReader(archive)
 	if err != nil {
 		return err
 	}
 	defer z.Close()
 	for _, f := range z.File {
-		if f.FileInfo().IsDir() || !isLib(f.Name) {
-			continue
-		}
-		dst, ok := libPath(dir, f.Name)
-		if !ok {
+		name, ok := entryName(f.Name)
+		if !ok || f.FileInfo().IsDir() {
 			continue
 		}
 		r, err := f.Open()
 		if err != nil {
 			return err
 		}
-		err = write(dst, r, f.Mode())
+		err = write(root, name, r, f.Mode())
 		r.Close()
 		if err != nil {
 			return err
@@ -169,11 +172,13 @@ func extractZip(archive, dir string) error {
 	return nil
 }
 
-// libPath is where an archive entry lands: its base name directly in dir.
-// Names that would leave dir are refused.
-func libPath(dir, name string) (string, bool) {
-	dst := filepath.Join(dir, filepath.Base(name))
-	return dst, strings.HasPrefix(dst, filepath.Clean(dir)+string(os.PathSeparator))
+// entryName is the file name an archive entry gets in the runtime dir: its base
+// name, when the entry is a library in the archive's lib/ directory.
+func entryName(entry string) (string, bool) {
+	if !isLib(entry) {
+		return "", false
+	}
+	return filepath.Base(entry), true
 }
 
 // isLib selects the shared libraries directly in the archive's lib/ directory:
@@ -187,8 +192,8 @@ func isLib(name string) bool {
 	return strings.Contains(base, ".so") || strings.HasSuffix(base, ".dylib") || strings.HasSuffix(base, ".dll")
 }
 
-func write(path string, r io.Reader, mode os.FileMode) error {
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode|0o644)
+func write(root *os.Root, name string, r io.Reader, mode os.FileMode) error {
+	f, err := root.OpenFile(name, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode|0o644)
 	if err != nil {
 		return err
 	}

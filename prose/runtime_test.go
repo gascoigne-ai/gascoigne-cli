@@ -75,18 +75,40 @@ func TestPickVariantExplicit(t *testing.T) {
 	}
 }
 
-func TestLibPath(t *testing.T) {
-	dir := t.TempDir()
-	for name, ok := range map[string]bool{
-		"onnx/lib/libonnxruntime.so": true,
-		"../../etc/passwd":           true, // flattened to its base name inside dir
-		"..":                         false,
-		".":                          false,
-		"":                           false,
+func TestEntryName(t *testing.T) {
+	for entry, want := range map[string]string{
+		"onnx/lib/libonnxruntime.so":   "libonnxruntime.so",
+		"lib/../lib/evil.so":           "evil.so", // cleaned: still directly in lib/
+		"onnx/lib/../../escape.so":     "",
+		"../../etc/passwd":             "",
+		"onnx/lib/..":                  "",
+		"onnx/include/onnxruntime.dll": "",
+		"":                             "",
 	} {
-		dst, got := libPath(dir, name)
-		if got != ok || (got && filepath.Dir(dst) != dir) {
-			t.Errorf("libPath(%q) = %q, %v; want ok=%v inside dir", name, dst, got, ok)
+		got, ok := entryName(entry)
+		if got != want || ok != (want != "") {
+			t.Errorf("entryName(%q) = %q, %v; want %q", entry, got, ok, want)
 		}
+	}
+}
+
+func TestExtractLibsKeepsSymlinksInside(t *testing.T) {
+	dir := t.TempDir()
+	archive := filepath.Join(dir, "rt.tgz")
+	f, _ := os.Create(archive)
+	gz := gzip.NewWriter(f)
+	tw := tar.NewWriter(gz)
+	tw.WriteHeader(&tar.Header{Name: "ort/lib/libevil.so", Linkname: "../../outside", Typeflag: tar.TypeSymlink})
+	tw.Close()
+	gz.Close()
+	f.Close()
+
+	out := filepath.Join(dir, "out")
+	os.Mkdir(out, 0o755)
+	if err := extractLibs(archive, out); err != nil {
+		t.Fatal(err)
+	}
+	if target, err := os.Readlink(filepath.Join(out, "libevil.so")); err != nil || target != "outside" {
+		t.Fatalf("link target %q, %v; want the bare name", target, err)
 	}
 }
