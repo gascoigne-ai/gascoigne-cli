@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gascoigne-ai/gascoigne-cli/compress/legend"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -47,14 +48,8 @@ panic: boom
 }
 
 func TestLegendRestoresPaths(t *testing.T) {
-	got := optimize(t, "test/go", trace).Text()
-	legend, body, _ := strings.Cut(got, "\n")
-	var pairs []string
-	for _, kv := range strings.Fields(strings.TrimSuffix(strings.TrimPrefix(legend, legendPrefix), "]")) {
-		id, path, _ := strings.Cut(kv, "=")
-		pairs = append(pairs, id+"/", path+"/")
-	}
-	if restored := strings.NewReplacer(pairs...).Replace(body); restored != trace {
+	line, body, _ := strings.Cut(optimize(t, "test/go", trace).Text(), "\n")
+	if restored := legend.Expand(line + "\n" + body); !strings.HasSuffix(restored, "\n"+trace) {
 		t.Fatalf("legend does not restore the paths:\n%s", restored)
 	}
 }

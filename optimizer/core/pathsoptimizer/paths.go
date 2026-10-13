@@ -10,18 +10,16 @@ package pathsoptimizer
 import (
 	"cmp"
 	"context"
-	"fmt"
 	"slices"
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/legend"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
-
-const legendPrefix = "[paths: "
 
 type Optimizer struct {
 	component.Nop
@@ -38,7 +36,7 @@ type span struct {
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	var spans []span
 	for i, b := range p.Blocks {
-		if !slices.Contains(o.cfg.Families, detect.Family(b.Type)) || strings.Contains(b.Text, legendPrefix) {
+		if !slices.Contains(o.cfg.Families, detect.Family(b.Type)) || legend.Has(b.Text) {
 			continue
 		}
 		for _, m := range pathRe.FindAllStringSubmatchIndex(b.Text, -1) {
@@ -64,10 +62,10 @@ func (o *Optimizer) pick(p *payload.Payload, spans []span) []string {
 	var aliases []string
 	taken := make([]bool, len(spans))
 	for len(aliases) < o.cfg.MaxAliases {
-		alias := id(len(aliases))
+		alias := legend.ID(legend.Paths, len(aliases))
 		best, gain := "", 0
 		for prefix, n := range o.counts(p, spans, taken) {
-			g := n*(len(prefix)-len(alias)) - len(alias) - len(prefix) - 2
+			g := legend.Worth(n, len(prefix), len(alias))
 			if g > gain || g == gain && prefix < best {
 				best, gain = prefix, g
 			}
@@ -116,21 +114,19 @@ func (o *Optimizer) apply(p *payload.Payload, spans []span, aliases []string) {
 		path := t[s.start:s.end]
 		for i, prefix := range aliases {
 			if strings.HasPrefix(path, prefix+"/") {
-				p.Blocks[s.block].Text = t[:s.start] + id(i) + path[len(prefix):] + t[s.end:]
+				p.Blocks[s.block].Text = t[:s.start] + legend.ID(legend.Paths, i) + path[len(prefix):] + t[s.end:]
 				break
 			}
 		}
 	}
-	legend := make([]string, len(aliases))
+	defs := make([]legend.Def, len(aliases))
 	for i, a := range aliases {
-		legend[i] = id(i) + "=" + a
+		defs[i] = legend.Def{Id: legend.ID(legend.Paths, i), Value: a}
 	}
 	first := slices.IndexFunc(p.Blocks, func(b payload.Block) bool {
 		return slices.Contains(o.cfg.Families, detect.Family(b.Type))
 	})
-	p.Blocks[first].Text = legendPrefix + strings.Join(legend, " ") + "]\n" + p.Blocks[first].Text
+	p.Blocks[first].Text = legend.Render(legend.Paths, defs) + "\n" + p.Blocks[first].Text
 }
 
 func text(p *payload.Payload, s span) string { return p.Blocks[s.block].Text[s.start:s.end] }
-
-func id(i int) string { return fmt.Sprintf("§%d", i+1) }

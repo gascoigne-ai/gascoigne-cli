@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/legend"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
@@ -55,7 +56,6 @@ var (
 	uuidRe    = lazyre.New(`\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b`)
 	numericRe = lazyre.New(`([A-Za-z_][\w.-]{0,24})"?[ =:]{1,3}(\d+(?:\.\d+)?)\b`)
 	fileRe    = lazyre.New(`[\w./@-]*\w\.\w+`)
-	legendRe  = lazyre.New(`\[paths: ([^\]\n]+)\]`)
 	// Punctuation that reformatting rewrites; path, URL and hash characters stay.
 	punctRe = lazyre.New(`[^\pL\pN_./-]+`)
 )
@@ -155,7 +155,7 @@ type haystack struct {
 }
 
 func newHaystack(text string) *haystack {
-	text = expandLegend(compress.StripANSI(text))
+	text = legend.Expand(compress.StripANSI(text))
 	h := &haystack{raw: text, norm: normalize(text), words: map[string]bool{}}
 	for _, w := range strings.Fields(h.norm) {
 		h.words[w] = true
@@ -166,24 +166,6 @@ func newHaystack(text string) *haystack {
 		}
 	}
 	return h
-}
-
-// expandLegend replaces §N ids with the prefixes the legend names.
-func expandLegend(text string) string {
-	m := legendRe.FindStringSubmatch(text)
-	if m == nil {
-		return text
-	}
-	defs := strings.Fields(m[1])
-	// Longest ids first: §12 must not be read as §1 followed by 2.
-	slices.SortStableFunc(defs, func(a, b string) int { return strings.Index(b, "=") - strings.Index(a, "=") })
-	var pairs []string
-	for _, def := range defs {
-		if id, path, ok := strings.Cut(def, "="); ok {
-			pairs = append(pairs, id, path)
-		}
-	}
-	return strings.NewReplacer(pairs...).Replace(text)
 }
 
 func normalize(s string) string {

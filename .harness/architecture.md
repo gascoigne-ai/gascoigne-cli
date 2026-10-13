@@ -192,7 +192,8 @@ lives in public libs so engines and composite families can reuse it. Families ar
 4. **`paths`** (`optimizer/core/pathsoptimizer`): long path prefixes repeated in
    test/build/search/log/task blocks → `§1/file.go`, with a legend `[paths: §1=…]` on top of the
    first such block. Greedy by bytes saved, kept only when ≥ `min_saving` tokens, idempotent,
-   never fs/data.
+   never fs/data. Legend lines are written, detected and expanded
+   by `compress/legend` (also used by `rerun` and the probe).
 5. **`truncate`** (`optimizer/core/truncateoptimizer`): blocks still over `max_tokens` keep
    head/tail token budgets + `max_errors` error lines from the middle; long lines are cut.
    `skip`: fs/code, data, k8s, cloud.

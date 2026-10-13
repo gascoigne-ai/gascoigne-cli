@@ -15,6 +15,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/legend"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
@@ -125,7 +126,7 @@ func (r *reference) longest(lines []string, i int) int {
 	for _, at := range r.anchors[lines[i]] {
 		ref := r.runs[at[0]]
 		k := 0
-		for i+k < len(lines) && at[1]+k < len(ref) && lines[i+k] == ref[at[1]+k] && !legend(lines[i+k]) {
+		for i+k < len(lines) && at[1]+k < len(ref) && lines[i+k] == ref[at[1]+k] && !legend.Is(lines[i+k]) {
 			k++
 		}
 		best = max(best, k)
@@ -147,12 +148,8 @@ func pointer(run []string) string {
 // bare brace and not a pointer.
 func anchors(l string) bool {
 	t := strings.TrimSpace(l)
-	return len(t) >= 4 && !strings.HasPrefix(t, "[↑ ") && !legend(l)
+	return len(t) >= 4 && !strings.HasPrefix(t, "[↑ ") && !legend.Is(l)
 }
-
-// legend reports a path legend line: the lines below use its ids, so it
-// always stays.
-func legend(l string) bool { return strings.HasPrefix(l, "[paths: ") }
 
 func size(lines []string) int {
 	n := 0
