@@ -81,7 +81,7 @@ func cmdEval(ctx context.Context, args []string) error {
 	fs.StringVar(&ef.pipeline, "pipeline", "cli", "`pipeline` to evaluate")
 	fs.StringVar(&ef.show, "show", "", "print optimized output of cases whose name contains `text`")
 	fs.BoolVar(&ef.update, "update", false, "rewrite golden outputs")
-	fs.BoolVar(&ef.record, "record", false, "write the runs to your ledger instead of a throwaway one, so the dashboard shows them (agent eval, one session per run; filter or `reset -agent eval` to drop them)")
+	fs.BoolVar(&ef.record, "record", false, "write the runs to your ledger instead of a throwaway one, so the dashboard shows them (agent eval, one session per run, and the dashboard server is started; filter or `reset -agent eval` to drop them)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -95,6 +95,7 @@ func cmdEval(ctx context.Context, args []string) error {
 	}
 
 	if ef.record {
+		c.server = true // so the dashboard is there to show them
 		c.agent = cmp.Or(c.agent, "eval")
 		c.session = cmp.Or(c.session, "eval-"+time.Now().Format("20060102-150405"))
 	} else {
