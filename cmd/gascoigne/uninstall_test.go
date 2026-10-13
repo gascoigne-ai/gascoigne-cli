@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -17,11 +18,14 @@ func TestLeftovers(t *testing.T) {
 	t.Setenv("XDG_STATE_HOME", "")
 	custom := filepath.Join(home, "elsewhere", "my.db")
 	t.Setenv(ledger.EnvPath, custom)
+	// Where these live depends on the OS (macOS ignores the XDG variables).
+	cfg, _ := os.UserConfigDir()
+	cache, _ := os.UserCacheDir()
+	write(t, filepath.Join(cfg, "gascoigne/config.yaml"), "x")
+	write(t, filepath.Join(cache, "gascoigne/server.log"), "x")
 	for _, f := range []string{
-		".config/gascoigne/config.yaml",
 		".local/share/gascoigne/ledger.db",
 		".local/state/gascoigne/denies.json",
-		".cache/gascoigne/server.log",
 		"elsewhere/my.db",
 		"elsewhere/my.db-wal",
 		"elsewhere/keep.txt",
@@ -32,10 +36,10 @@ func TestLeftovers(t *testing.T) {
 
 	got := leftovers(server)
 	want := []string{
-		filepath.Join(home, ".config/gascoigne"),
+		filepath.Join(cfg, "gascoigne"),
 		filepath.Join(home, ".local/share/gascoigne"),
 		filepath.Join(home, ".local/state/gascoigne"),
-		filepath.Join(home, ".cache/gascoigne"),
+		filepath.Join(cache, "gascoigne"),
 		custom,
 		custom + "-wal",
 	}

@@ -173,10 +173,10 @@ func TestOverlay(t *testing.T) {
 }
 
 func TestFirstRunWritesUserConfig(t *testing.T) {
-	home := t.TempDir()
-	t.Setenv("XDG_CONFIG_HOME", home)
+	sandbox(t)
 	t.Setenv("GASCOIGNE_CONFIG", "")
-	path := filepath.Join(home, "gascoigne", "config.yaml")
+	dir, _ := os.UserConfigDir()
+	path := filepath.Join(dir, "gascoigne", "config.yaml")
 
 	data, err := configData("")
 	if err != nil {

@@ -72,13 +72,19 @@ func TestUpgradeConfigRefusesBrokenValues(t *testing.T) {
 	}
 }
 
-// userConfig points the user config dir at a temp dir holding data.
+// userConfig points the user config dir at a temp dir holding data. HOME is
+// redirected too: macOS ignores XDG_CONFIG_HOME, so the real config was read.
 func userConfig(t *testing.T, data string) string {
 	t.Helper()
 	home := t.TempDir()
+	t.Setenv("HOME", home)
 	t.Setenv("XDG_CONFIG_HOME", home)
 	t.Setenv("GASCOIGNE_CONFIG", "")
-	path := filepath.Join(home, "gascoigne", "config.yaml")
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(dir, "gascoigne", "config.yaml")
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatal(err)
 	}
