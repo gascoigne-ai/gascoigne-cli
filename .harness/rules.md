@@ -34,8 +34,8 @@ Hard rules for every agent and human change. Breaking one = change rejected.
 ## Hygiene
 - No competitor or product names of other token tools in code, docs, tasks, or commits.
   Describe techniques generically ("command output filtering", "JSON compaction").
-  Exception: attribution and license notices for third-party datasets (`testdata/*/NOTICE.md`),
-  which the license requires to name the source.
+  Exception: datasets, and copyright, attribution and license notices (e.g. `testdata/*/NOTICE.md`),
+  where the source or its license requires naming it.
 - No speculative abstractions, options or hooks "for later".
 - Small focused commits; don't touch unrelated files; don't reformat untouched code.
 - No secrets, real user data or home paths in fixtures.
