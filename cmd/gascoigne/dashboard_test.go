@@ -463,3 +463,22 @@ func TestExperimentalProseEnablesOptimizer(t *testing.T) {
 		}
 	}
 }
+
+func TestEnabledExperiments(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_EXPERIMENTAL", "")
+	if got := enabledExperiments(); len(got) != 0 {
+		t.Fatalf("nothing is on, got %v", got)
+	}
+	t.Setenv("GASCOIGNE_EXPERIMENTAL", "prose,prompts")
+	got := enabledExperiments()
+	if len(got) != 2 {
+		t.Fatalf("got %v", got)
+	}
+	for _, x := range got {
+		want := map[string]string{"prose": "not-installed", "prompts": "on"}[x.Name]
+		if x.State != want {
+			t.Errorf("%s: state %q, want %q", x.Name, x.State, want)
+		}
+	}
+}

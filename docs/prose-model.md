@@ -29,8 +29,8 @@ flowchart LR
 2. Enable it: `experimental: [prose]` (or `gascoigne setup`). The server loads the
    model at start (`optimizers.prose.warm`), so the first request does not wait for it.
 
-Status: `gascoigne prose status` and the dashboard (a line under *By optimizer*) say `off`, `not-installed` or `ready`. The pass has its own optimizer id, `prose`, so its savings are the `prose` row of
-`gain -by optimizer` and of that table.
+Status: `gascoigne prose status` and the dashboard (*Experiments* panel, shown when any experiment is on) say `off`, `not-installed` or `ready`. The pass has its own optimizer id, `prose`, so its savings are the `prose` row of
+`gain -by optimizer` and of the *By optimizer* tab; the Experiments panel adds them to the model's state.
 
 Device: `optimizers.prose.device`, `auto`, `cuda`, `coreml` or `cpu`. Auto tries CUDA
 (Linux, Windows) or CoreML (macOS, which uses Metal and the Neural Engine; ONNX Runtime has no

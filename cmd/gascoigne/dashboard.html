@@ -195,6 +195,8 @@ dialog::backdrop { background: rgba(15, 18, 24, .5); }
 .tabs { display: flex; gap: 2px; padding: 8px 18px 0; border-bottom: 1px solid var(--border); }
 .tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--muted); padding: 7px 12px; font-weight: 600; }
 .tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.panel > .tabs { padding: 0; margin: -4px 0 12px; flex-wrap: wrap; }
+.pane[hidden] { display: none; }
 .dlg-body { padding: 14px 18px 18px; overflow: auto; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .dlg-body .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 0; margin-bottom: 10px; font-size: 12.5px; color: var(--muted); }
 .dlg-body .toolbar label { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; color: var(--text); }
@@ -363,64 +365,55 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     </div>
   </section>
 
-  <div class="grid">
-    <section class="panel">
-      <h2>By model family</h2>
+  <section class="panel tabbed" id="cost-panel">
+    <h2>Models and cost</h2>
+    <div class="pane" data-title="By model family">
       <p class="hint">Estimated savings in each model's own tokens and in dollars, with rereads (models recorded per run; runs without one use the agent's default, marked assumed)</p>
       <div class="scroll" id="families"></div>
-    </section>
-    <section class="panel">
-      <h2>By model</h2>
+    </div>
+    <div class="pane" data-title="By model">
       <p class="hint">The same per model, by tokenizer</p>
       <div class="scroll" id="models"></div>
-    </section>
-  </div>
-  <p class="hint" id="pricing"></p>
-
-  <div class="grid">
-    <section class="panel">
-      <h2>API requests by day</h2>
+    </div>
+    <div class="pane" data-title="Requests by day">
       <p class="hint">Measured by the LLM proxy. Each request re-reads the conversation, so requests times context is what drives the bill. (Not available when the agent uses a login the proxy stays out of.)</p>
       <div class="scroll" id="usage-days"></div>
-    </section>
-    <section class="panel">
-      <h2>API requests by model</h2>
+    </div>
+    <div class="pane" data-title="Requests by model">
       <p class="hint">Context: tokens one request carries (input, cache read and cache write), mean and peak</p>
       <div class="scroll" id="usage-models"></div>
-    </section>
-  </div>
+    </div>
+    <p class="hint" id="pricing"></p>
+  </section>
 
-  <div class="grid">
-    <section class="panel">
-      <h2>By command</h2>
+  <section class="panel tabbed" id="breakdown-panel">
+    <h2>Breakdown</h2>
+    <div class="pane" data-title="By command">
       <p class="hint">Savings per command</p>
       <div class="scroll" id="commands"></div>
-    </section>
-    <section class="panel">
-      <h2>By optimizer</h2>
+    </div>
+    <div class="pane" data-title="By optimizer">
       <p class="hint">Savings per optimizer</p>
-      <p class="hint" id="prose-status" hidden></p>
       <div class="scroll" id="optimizers"></div>
-    </section>
-  </div>
-
-  <div class="grid">
-    <section class="panel">
-      <h2>By content type</h2>
+    </div>
+    <div class="pane" data-title="By content type">
       <p class="hint">Savings per detected content type</p>
       <div class="scroll" id="dialects"></div>
-    </section>
-    <section class="panel">
-      <h2>Excluded sources</h2>
+    </div>
+    <div class="pane" data-title="Not optimized">
+      <p class="hint">Skipped by a filter, failed, or left unchanged, with the most recent reason</p>
+      <div class="scroll" id="reasons"></div>
+    </div>
+    <div class="pane" data-title="Excluded sources">
       <p class="hint">Sources passed through unmodified because their optimized output was insufficient. Re-enable a source to optimize it again.</p>
       <div class="scroll" id="failures"></div>
-    </section>
-  </div>
+    </div>
+  </section>
 
-  <section class="panel">
-    <h2>Runs not optimized</h2>
-    <p class="hint">Skipped by a filter, failed, or left unchanged, with the most recent reason</p>
-    <div class="scroll" id="reasons"></div>
+  <section class="panel" id="experiments-panel" hidden>
+    <h2>Experiments</h2>
+    <p class="hint">Experimental features that are switched on (config <code>experimental</code>, or gascoigne setup)</p>
+    <div class="scroll" id="experiments"></div>
   </section>
 
   <footer><span id="server-info">gascoigne server</span><br>
@@ -776,17 +769,38 @@ async function refreshOverview() {
   lazyTable($("optimizers"), savedCols("Optimizer", (r) => r.group + (r.family ? " · " + r.family : "")), o.optimizers);
   lazyTable($("dialects"), savedCols("Content type", (r) => r.group), o.dialects);
   renderReasons(o);
-  await refreshProse();
+  renderExperiments(await getJSON("/api/experiments"), o.optimizers);
   await refreshFailures();
 }
 
-// refreshProse shows the prose model pass's state under the optimizer table
-// once it is switched on; its savings are the "prose" row above.
-async function refreshProse() {
-  const st = await getJSON("/api/prose");
-  const box = $("prose-status");
-  box.hidden = !st.enabled;
-  box.textContent = "prose model: " + st.state + " — " + st.detail;
+// tabbed turns a panel's .pane children into tabs; the chosen tab is kept per
+// panel in this browser.
+function tabbed(panel) {
+  const panes = [...panel.querySelectorAll(":scope > .pane")];
+  const key = "gascoigne-tab-" + panel.id;
+  let saved = null;
+  try { saved = localStorage.getItem(key); } catch {}
+  const bar = el("div", { class: "tabs", role: "tablist" });
+  const show = (title) => {
+    for (const b of bar.children) b.setAttribute("aria-selected", b.textContent === title);
+    for (const p of panes) p.hidden = p.dataset.title !== title;
+    try { localStorage.setItem(key, title); } catch {}
+  };
+  bar.replaceChildren(...panes.map((p) =>
+    el("button", { role: "tab", onclick: () => show(p.dataset.title) }, p.dataset.title)));
+  panel.querySelector("h2").after(bar);
+  show(panes.some((p) => p.dataset.title === saved) ? saved : panes[0].dataset.title);
+}
+
+// renderExperiments lists the experimental features that are on, with the
+// prose model's savings from the optimizer table.
+function renderExperiments(list, optimizers) {
+  $("experiments-panel").hidden = !list.length;
+  const prose = (optimizers || []).find((r) => r.group === "prose");
+  $("experiments").replaceChildren(el("table", {}, el("tbody", {}, ...list.map((x) => {
+    const saved = x.name === "prose" && prose ? ` · saved ${human(prose.raw_tokens - prose.out_tokens)} tokens in ${human(prose.runs)} runs` : "";
+    return el("tr", {}, el("td", {}, x.title), el("td", {}, el("strong", {}, x.state)), el("td", { class: "hint" }, x.detail + saved));
+  }))));
 }
 
 async function refreshFailures() {
@@ -1166,6 +1180,7 @@ async function refreshServer() {
     $("server-info").textContent = `gascoigne ${h.version || "unknown version"} · server PID ${h.pid} on ${h.addr} · uptime ${up < 60 ? up + "m" : Math.floor(up / 60) + "h " + (up % 60) + "m"} · ledger ${h.ledger}`;
   } catch { $("server-info").textContent = "Server not responding"; }
 }
+document.querySelectorAll(".tabbed").forEach(tabbed);
 refreshServer();
 setInterval(refreshServer, 60000);
 for (const k of ["session", "agent", "since"]) {

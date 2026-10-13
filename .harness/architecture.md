@@ -160,7 +160,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
   sections leave their top-level headings + `… N lines omitted`.
 - man/help: furniture and boilerplate dropped, dedented. Help with a `query`: option entries are
   scored by BM25 and those ≥ a third of the best are kept.
-- Prose model (optimizer `prose`, after `doc` in the chain, own id so its savings show apart in `gain -by optimizer`; experimental `prose` command and setting, off by default (`prose status`, `/api/prose` and a dashboard line say if it can run), lossy, original in the ledger): `doc/text` and the
+- Prose model (optimizer `prose`, after `doc` in the chain, own id so its savings show apart in `gain -by optimizer`; experimental `prose` command and setting, off by default (`prose status`, `/api/experiments` and the dashboard's Experiments panel say if it can run), lossy, original in the ledger): `doc/text` and the
   plain paragraphs of markdown (not headings, tables, quotes, lists, HTML, links, fenced code) go
   to the model (package `prose`, loaded in the optimizing process, so the background server keeps it warm; `CGO_ENABLED=0`: `ortrt` opens the ONNX Runtime library with purego and calls its C API; CUDA on
   Linux/Windows, CoreML on macOS, else CPU), an extractive ModernBERT compressor (attribution: `docs/prose-model.md`). The experimental `prose` setting sets `optimizers.prose.enabled` in `configData`, so the config a client sends to the server carries it. Words are scored in

@@ -636,3 +636,29 @@ func isTerminal(f *os.File) bool {
 	info, err := f.Stat()
 	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
+
+// experiment is one switched-on experimental feature as the dashboard lists it.
+type experiment struct {
+	Name   string `json:"name"`
+	Title  string `json:"title"`
+	State  string `json:"state"`
+	Detail string `json:"detail"`
+}
+
+// enabledExperiments lists the experimental features that are on. The prose
+// model says whether it can run; the others have no state beyond being on.
+func enabledExperiments() []experiment {
+	out := []experiment{}
+	for _, e := range experiments {
+		if !experimentalOn(e.name) {
+			continue
+		}
+		x := experiment{Name: e.name, Title: e.title, State: "on", Detail: e.text}
+		if e.name == "prose" {
+			st := loadProseStatus()
+			x.State, x.Detail = st.State, st.Detail
+		}
+		out = append(out, x)
+	}
+	return out
+}

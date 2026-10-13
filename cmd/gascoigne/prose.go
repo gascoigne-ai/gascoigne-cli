@@ -10,25 +10,19 @@ import (
 // proseStatus says whether the prose model pass can run, and what to do when
 // it cannot. State is off, not-installed or ready.
 type proseStatus struct {
-	State   string `json:"state"`
-	Detail  string `json:"detail"`
-	Enabled bool   `json:"enabled"` // the experimental prose setting is on
-	Dir     string `json:"dir"`
+	State  string
+	Detail string
 }
 
 func loadProseStatus() proseStatus {
-	st := proseStatus{State: "off", Detail: "add prose to experimental in the config"}
 	if !experimentalOn("prose") {
-		return st
+		return proseStatus{"off", "add prose to experimental in the config"}
 	}
-	st.Enabled = true
-	st.Dir, _ = prose.ModelDir()
-	if model, rt := prose.Installed(st.Dir); !model || !rt {
-		st.State, st.Detail = "not-installed", "run: gascoigne prose install"
-		return st
+	dir, _ := prose.ModelDir()
+	if model, rt := prose.Installed(dir); !model || !rt {
+		return proseStatus{"not-installed", "run: gascoigne prose install"}
 	}
-	st.State, st.Detail = "ready", "model files in "+st.Dir
-	return st
+	return proseStatus{"ready", "model files in " + dir}
 }
 
 // cmdProse sets up the prose model and reports whether it can run. The model

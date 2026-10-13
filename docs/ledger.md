@@ -216,9 +216,11 @@ remembered per browser.
 | Daily savings | tokens saved per day |
 | Outcomes | runs and share of input tokens per outcome |
 | Recent runs | live feed, newest first: agent, command, content type, tokens, saved, outcome |
-| By command / By optimizer | savings by command; by optimizer and by content type |
-| Runs not optimized | by stopping component and command, with the most recent reason |
-| Excluded sources | failing sources, each with a *Re-enable* button (`forget`) |
+| Models and cost (tabs) | savings by model family and by model, and the proxy's API requests by day and by model |
+| Breakdown (tabs) | savings by command, by optimizer and by content type; runs not optimized (by stopping component and command, with the most recent reason); excluded sources, each with a *Re-enable* button (`forget`) |
+| Experiments | only when an experimental feature is on: each one's state (the prose model also its savings) |
+
+The tabbed panels keep the tab you chose, per browser.
 
 Filters at the top narrow everything to one session, one agent, or a period. *Reset statistics*
 deletes the runs matching the filters (after a confirmation); *Stop server* stops the
