@@ -63,7 +63,7 @@ func (c *evalCase) name() string {
 
 type evalFlags struct {
 	cases, pipeline, show string
-	update                bool
+	update, record        bool
 }
 
 // cmdEval pushes fixtures through a pipeline (without exporters) against a
@@ -81,6 +81,7 @@ func cmdEval(ctx context.Context, args []string) error {
 	fs.StringVar(&ef.pipeline, "pipeline", "cli", "`pipeline` to evaluate")
 	fs.StringVar(&ef.show, "show", "", "print optimized output of cases whose name contains `text`")
 	fs.BoolVar(&ef.update, "update", false, "rewrite golden outputs")
+	fs.BoolVar(&ef.record, "record", false, "write the runs to your ledger instead of a throwaway one, so the dashboard shows them (agent eval, one session per run; filter or `reset -agent eval` to drop them)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -93,12 +94,17 @@ func cmdEval(ctx context.Context, args []string) error {
 		return fmt.Errorf("%s: %w", ef.cases, err)
 	}
 
-	tmp, err := os.MkdirTemp("", "gascoigne-eval-")
-	if err != nil {
-		return err
+	if ef.record {
+		c.agent = cmp.Or(c.agent, "eval")
+		c.session = cmp.Or(c.session, "eval-"+time.Now().Format("20060102-150405"))
+	} else {
+		tmp, err := os.MkdirTemp("", "gascoigne-eval-")
+		if err != nil {
+			return err
+		}
+		defer os.RemoveAll(tmp)
+		os.Setenv(ledger.EnvPath, filepath.Join(tmp, "ledger.db"))
 	}
-	defer os.RemoveAll(tmp)
-	os.Setenv(ledger.EnvPath, filepath.Join(tmp, "ledger.db"))
 
 	svc, err := c.start(ctx)
 	if err != nil {

@@ -11,6 +11,7 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 - `make eval` — token savings and fact retention on `testdata/eval` fixtures (vs `baseline.tsv`)
 - `make eval-live` — the same checks on live commands in this repo (`testdata/eval/live.yaml`): catches tool output drift
 - `make eval-experimental` — opt-in features apart from the default eval (`testdata/eval-experimental/`; today the prose model, needs `gascoigne prose install`, see `docs/prose-model.md`); never part of `make check`
+- `bin/gascoigne eval -record [-cases file]` — the same run, written to your ledger (agent `eval`, a session per run; each case runs twice, so the counts double) so the dashboard shows it; `reset -agent eval` removes it
 - `.harness/scripts/ab.sh [-n]` — task success with vs without gascoigne on `testdata/ab` tasks (calls the API; `-n` free dry run)
 - `make build` → `bin/gascoigne`; `bin/gascoigne components`; `bin/gascoigne version` (release `version.Number` + git hash from build info, `-dirty` when uncommitted; also in `server status`, MCP server info)
 - `bin/gascoigne exec -- <cmd>`, `bin/gascoigne mcp`, `bin/gascoigne mcp-proxy -- <server>`, LLM API proxy in the background server under `/v1/` (base URL http://127.0.0.1:7878: shortens tool results in requests, Read with line numbers kept; `wrap` sets the agent base URL, `install -proxy claude` for good; Claude only with `ANTHROPIC_API_KEY`/`ANTHROPIC_AUTH_TOKEN`, a claude.ai login stays direct unless `GASCOIGNE_PROXY=on`; `GASCOIGNE_PROXY=off`)
