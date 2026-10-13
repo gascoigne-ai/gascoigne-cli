@@ -1,5 +1,5 @@
 // Package proseoptimizer drops low-value words from the plain paragraphs of
-// doc/text and doc/markdown with a local model (`gascoigne prose serve`).
+// doc/text and doc/markdown with a local model, loaded in this process.
 // It is opt-in and lossy: the original stays in the ledger. Its own optimizer
 // id keeps its savings apart in `gain -by optimizer` and the dashboard.
 package proseoptimizer
@@ -18,28 +18,28 @@ var fence = lazyre.New("^\\s*(```|~~~)")
 
 type Optimizer struct {
 	component.Nop
-	cfg    *Config
-	helper *helper // nil unless enabled
+	cfg   *Config
+	model *loaded // nil unless enabled
 }
 
 // Start loads the model in the background so the long-lived server answers
 // its first prose paragraph warm.
 func (o *Optimizer) Start(context.Context, component.Host) error {
-	if o.helper != nil && o.cfg.Warm {
-		go o.helper.warm()
+	if o.model != nil && o.cfg.Warm {
+		go o.model.warm()
 	}
 	return nil
 }
 
 func (o *Optimizer) Shutdown(context.Context) error {
-	if o.helper != nil {
-		o.helper.close()
+	if o.model != nil {
+		o.model.close()
 	}
 	return nil
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	if o.helper == nil {
+	if o.model == nil {
 		return nil
 	}
 	for i, b := range p.Blocks {

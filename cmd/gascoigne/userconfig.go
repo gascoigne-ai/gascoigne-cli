@@ -19,7 +19,19 @@ import (
 // laid over them (-config, $GASCOIGNE_CONFIG, else the user's). On first run
 // the user's file is created from the commented template, so every setting
 // is there to read and change while the defaults still apply.
+//
+// The experimental prose setting also switches its optimizer on, so the
+// config that is sent to the background server carries it.
 func configData(path string) ([]byte, error) {
+	data, err := configFile(path)
+	if err != nil || !experimentalOn("prose") {
+		return data, err
+	}
+	return overlay(data, []byte("optimizers:\n  prose:\n    enabled: true\n"))
+}
+
+// configFile is configData as the files say it.
+func configFile(path string) ([]byte, error) {
 	path, own := configPath(path)
 	if path == "" {
 		return configs.Default, nil
@@ -50,7 +62,7 @@ func configData(path string) ([]byte, error) {
 // configExperimental is the config's experimental list. A config that
 // does not load enables nothing; the commands that run it say why.
 func configExperimental() []string {
-	data, err := configData("")
+	data, err := configFile("")
 	if err != nil {
 		return nil
 	}

@@ -75,6 +75,9 @@ type common struct {
 	// it serves this build and ledger; else (or when it fails) the pipeline
 	// is built here.
 	useServer bool
+	// plain: the config as the files and -set say it, without what the
+	// experimental settings switch on (eval must not depend on the user's choices).
+	plain bool
 	// pipeline, when set, is the only one this run builds: a remote run has
 	// no ledger for the other pipelines' receivers (MCP) to start with.
 	pipeline string
@@ -130,7 +133,7 @@ func (l *listFlag) Set(s string) error { *l = append(*l, s); return nil }
 
 // start builds and starts the service; callers must Shutdown it.
 func (c *common) start(ctx context.Context) (*service.Service, error) {
-	data, err := configData(c.config)
+	data, err := c.configData()
 	if err != nil {
 		return nil, err
 	}
@@ -172,8 +175,16 @@ func (c *common) start(ctx context.Context) (*service.Service, error) {
 	return svc, nil
 }
 
+// configData is the config this run uses.
+func (c *common) configData() ([]byte, error) {
+	if c.plain {
+		return configFile(c.config)
+	}
+	return configData(c.config)
+}
+
 func (c *common) load() (*config.Config, error) {
-	data, err := configData(c.config)
+	data, err := c.configData()
 	if err != nil {
 		return nil, err
 	}

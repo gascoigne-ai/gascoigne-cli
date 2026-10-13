@@ -76,6 +76,7 @@ func cmdEval(ctx context.Context, args []string) error {
 	)
 	fs := newFlags("eval")
 	c.register(fs)
+	c.plain = true
 	fs.StringVar(&ef.cases, "cases", "testdata/eval/cases.yaml", "eval cases `file`; fixture paths are relative to it")
 	fs.StringVar(&ef.pipeline, "pipeline", "cli", "`pipeline` to evaluate")
 	fs.StringVar(&ef.show, "show", "", "print optimized output of cases whose name contains `text`")

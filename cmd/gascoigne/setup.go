@@ -204,10 +204,10 @@ var experiments = []struct{ name, title, text, example, how, impact string }{
 	{"prose", "Prose compression with a local model",
 		"Adds the prose command, which downloads a small language model that drops low-value words from long prose.",
 		"$ gascoigne prose install\ngascoigne prose: onnxruntime-linux-x64-1.29.0.tgz\n  sha256 c3fddc4f139a045b0c4902c57410f0694f1c2fdf9b6939fbe38b1aeae7cd14ba\n  downloaded, checksum matches\n\n" +
-			"then, in the config: optimizers.doc.model.enabled: true\n" +
+			"it is on once the download is there; the background server keeps the model loaded\n" +
 			"a README paragraph: 'It sits between an agent and what the agent reads, shrinks it' -> 'sits between agent and what agent reads, shrinks it'",
-		"prose install downloads the model (601 MB) and the ONNX Runtime libraries, checking their hashes. Once optimizers.doc.model.enabled is on, plain paragraphs of text and markdown go through the model on your GPU (CUDA or CoreML) or CPU; numbers, paths, flags, identifiers, negations, code and links are kept. The original stays retrievable with gascoigne raw.",
-		"Lossy: about 8-10% fewer tokens on prose-heavy text, none on code, tables or command output. Needs the downloads and a few hundred MB of memory while it runs; off until you also turn on the optimizer setting."},
+		"prose install downloads the model (601 MB) and the ONNX Runtime libraries, checking their hashes. With this on, plain paragraphs of text and markdown go through the model on your GPU (CUDA or CoreML) or CPU; numbers, paths, flags, identifiers, negations, code and links are kept. The original stays retrievable with gascoigne raw.",
+		"Lossy: about 8-10% fewer tokens on prose-heavy text, none on code, tables or command output. Needs the downloads and a few hundred MB of memory while it runs (in the background server, which keeps the model loaded)."},
 }
 
 // experimentDecisions are one on/off question per experimental feature. They

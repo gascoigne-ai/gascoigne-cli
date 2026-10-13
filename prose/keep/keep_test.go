@@ -1,7 +1,6 @@
-package serve
+package keep
 
 import (
-	"bytes"
 	"strings"
 	"testing"
 )
@@ -32,7 +31,7 @@ func (d *dropper) Scores(ids []int64) ([]float32, error) {
 	return s, nil
 }
 
-func TestKeep(t *testing.T) {
+func TestWords(t *testing.T) {
 	// "a" has one token (kept); "bb" has ids 10,11 (token 10 scores 1: kept);
 	// every word keeps a token scoring 1, so only a word whose tokens all
 	// score 0 drops, which needs a threshold above 1.
@@ -47,7 +46,7 @@ func TestKeep(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Keep(words, tt.threshold, fakeTok{}, &dropper{})
+			got, err := Words(words, tt.threshold, fakeTok{}, &dropper{})
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -60,34 +59,22 @@ func TestKeep(t *testing.T) {
 	}
 }
 
-func TestKeepChunks(t *testing.T) {
+func TestWordsChunks(t *testing.T) {
 	words := make([]string, 2*maxWords+1)
 	for i := range words {
 		words[i] = "a"
 	}
 	d := &dropper{}
-	keep, err := Keep(words, 0.5, fakeTok{}, d)
+	keep, err := Words(words, 0.5, fakeTok{}, d)
 	if err != nil || len(keep) != len(words) || d.calls != 3 {
 		t.Fatalf("calls %d, err %v", d.calls, err)
 	}
 }
 
-func TestKeepTokenCap(t *testing.T) {
+func TestWordsTokenCap(t *testing.T) {
 	long := strings.Repeat("x", maxTokens+1) // longer than the model takes: kept unscored
-	keep, err := Keep([]string{"a", long, "b"}, 1.5, fakeTok{}, &dropper{})
+	keep, err := Words([]string{"a", long, "b"}, 1.5, fakeTok{}, &dropper{})
 	if err != nil || keep[0] || !keep[1] || keep[2] {
 		t.Fatalf("got %v, %v", keep, err)
-	}
-}
-
-func TestRun(t *testing.T) {
-	var out bytes.Buffer
-	in := strings.NewReader(`{"words":["a","bb"],"threshold":0.5}` + "\nnot json\n")
-	if err := Run(in, &out, fakeTok{}, &dropper{}, "fake"); err != nil {
-		t.Fatal(err)
-	}
-	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
-	if len(lines) != 3 || lines[0] != "ready fake" || lines[1] != `{"keep":[true,true]}` || !strings.HasPrefix(lines[2], `{"error":`) {
-		t.Fatalf("got %q", lines)
 	}
 }

@@ -122,8 +122,9 @@ optimizers:
   # rerun: runs of lines the last runs of the same command in the session showed (within max_age) → one pointer
   rerun: { ledger: ledger, families: [test, build, task, pkg, log, search, vcs], max_age: 20m, runs: 3, min_lines: 4, min_chars: 200 }
   doc: { max_code_lines: 40, max_tokens: 5200, man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON] }
-  # prose: plain paragraphs of doc/text and markdown pass a local model (gascoigne prose, experimental, lossy)
-  prose: { enabled: false, command: [], threshold: 0.5, warm: true, min_words: 40 }
+  # prose: plain paragraphs of doc/text and markdown pass a local model, loaded in the process that optimizes
+  # (experimental, lossy). enabled follows the experimental prose setting, which sets it.
+  prose: { enabled: false, device: auto, threshold: 0.5, warm: true, min_words: 40 }
 
 exporters:
   stdout: { hint: true }

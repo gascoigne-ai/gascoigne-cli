@@ -240,11 +240,12 @@ func init() {
 			examples: []string{"gascoigne server status", "gascoigne server stop"},
 			run:      cmdServer},
 
-		{name: "prose", args: "[install|serve] [flags]", group: groupDev, experimental: true,
-			summary: "set up and run the prose model (doc.model): download model and ONNX Runtime, answer the optimizer",
+		{name: "prose", args: "[install|status] [flags]", group: groupDev, experimental: true,
+			summary: "set up the prose model: download model and ONNX Runtime, show whether it can run",
 			about: "install downloads the model (601 MB) and the ONNX Runtime libraries for this platform into the\n" +
-				"user cache dir, checking pinned SHA256 hashes, and prints them. serve is what the doc optimizer\n" +
-				"starts when optimizers.doc.model.enabled is true: one JSON line per request on stdin and stdout.\n" +
+				"user cache dir, checking pinned SHA256 hashes, and prints them. status says whether the model is\n" +
+				"installed. The prose optimizer is on with this experiment and loads the model in the process that\n" +
+				"optimizes: the background server keeps it loaded.\n" +
 				"GPU: CUDA on Linux and Windows (needs the CUDA runtime and cuDNN 9), CoreML on macOS, else the CPU.\n" +
 				"Experimental: enable with experimental: [prose] in the config or GASCOIGNE_EXPERIMENTAL=prose.\n" +
 				"See docs/prose-model.md.",

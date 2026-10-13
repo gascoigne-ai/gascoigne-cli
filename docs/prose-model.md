@@ -1,19 +1,22 @@
 # Prose compression with a local model
 
-Experimental and off by default: it needs `experimental: [prose]` in the config (or `GASCOIGNE_EXPERIMENTAL=prose`) for the `gascoigne prose` command the optimizer runs, plus `optimizers.prose.enabled: true`. Drops low-value words from prose (`doc/text` and plain markdown paragraphs, including converted web pages) with
+Experimental and off by default: `experimental: [prose]` in the config (or `GASCOIGNE_EXPERIMENTAL=prose`) turns it on, once `gascoigne prose install` has fetched the model. Drops low-value words from prose (`doc/text` and plain markdown paragraphs, including converted web pages) with
 a ModernBERT extractive compressor (see Attribution).
 Lossy: the original stays retrievable with `gascoigne raw <id>`. Numbers, paths, flags,
 identifiers, negations, inline code and links are never dropped; headings, tables, lists, quotes
 and code fences are untouched.
 
-The model runs in a child process of the same binary, `gascoigne prose serve`; there is no cgo and no separate program to install.
+The model is loaded inside the process that optimizes, with no cgo and no separate program. The background
+server keeps it loaded between runs, so runs that go through the server (the default) pay the load once. A run
+that stays local (`GASCOIGNE_SERVER=off`, another build, or a `GASCOIGNE_*` variable such as
+`GASCOIGNE_EXPERIMENTAL`; use the config setting to avoid that one) loads it for itself.
 
 ```mermaid
 flowchart LR
-  D["prose optimizer"] -->|"words, JSON line"| H["gascoigne prose serve"]
-  H --> O["ONNX Runtime"]
+  D["prose optimizer"] -->|"words"| M["model in this process"]
+  M --> O["ONNX Runtime"]
   O --> G["CUDA / CoreML / CPU"]
-  H -->|"keep flags"| D
+  M -->|"keep flags"| D
 ```
 
 ## Setup
@@ -23,20 +26,19 @@ flowchart LR
    auto|cpu|cuda12|cuda13` picks the ONNX Runtime build; auto reads the CUDA version from
    `nvidia-smi`, and macOS has no GPU variant (CoreML is built in). A CUDA build also needs the
    CUDA runtime and cuDNN 9 on the library path; it falls back to the CPU when they are missing.
-   To use your own runtime, set `ONNXRUNTIME_LIB` or `-lib`.
-2. Enable it: `optimizers.prose.enabled: true` (see `configs/user.yaml`). The server loads the
-   model at start (`prose.warm`), so the first request does not wait for it.
+2. Enable it: `experimental: [prose]` (or `gascoigne setup`). The server loads the
+   model at start (`optimizers.prose.warm`), so the first request does not wait for it.
 
-Status: `gascoigne prose status` and the dashboard (a line under *By optimizer*) say `off`, `needs-experimental`,
-`not-installed` or `ready`. The pass has its own optimizer id, `prose`, so its savings are the `prose` row of
+Status: `gascoigne prose status` and the dashboard (a line under *By optimizer*) say `off`, `not-installed` or `ready`. The pass has its own optimizer id, `prose`, so its savings are the `prose` row of
 `gain -by optimizer` and of that table.
 
-Device: `-device auto|cuda|coreml|cpu` (a `prose serve` flag; set `prose.command` to e.g. `[gascoigne, prose, serve, -device, cpu]`). Auto tries CUDA
+Device: `optimizers.prose.device`, `auto`, `cuda`, `coreml` or `cpu`. Auto tries CUDA
 (Linux, Windows) or CoreML (macOS, which uses Metal and the Neural Engine; ONNX Runtime has no
 direct Metal provider), then the CPU. The chosen device shows in the debug log.
 
-A missing or failing helper never fails a command: prose stays as it was, and after three failures
-the helper is not tried again until the server restarts. The same text can score slightly
+A missing or failing model never fails a command: prose stays as it was, and after three failures
+the model is not tried again until the server restarts. A native fault in the runtime is caught the same way.
+The same text can score slightly
 differently on GPU and CPU.
 
 Command output with aligned columns (`ps`, `df`, `ls -l`), headings, lists and gascoigne's own

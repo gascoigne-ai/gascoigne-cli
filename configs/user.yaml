@@ -190,9 +190,9 @@
 #     max_code_lines: 40                          ## longer code blocks keep head and tail
 #     max_tokens: 5200                            ## longer markdown keeps whole sections, query first
 #     man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON]
-#   prose:                                        ## prose paragraphs of text and markdown pass a local model (gascoigne prose, GPU), lossy, original in the ledger
-#     enabled: false                              ## also needs experimental: [prose], else the model process is refused
-#     command: []                                 ## empty: this binary's `prose serve`; or program and arguments
+#   prose:                                       ## prose paragraphs of text and markdown pass a local model (GPU), lossy, original in the ledger
+#     enabled: false                              ## set by experimental: [prose], which also needs gascoigne prose install
+#     device: auto                                ## auto (CUDA or CoreML, else CPU), cuda, coreml or cpu
 #     threshold: 0.5                              ## keep score from which a word stays; higher drops more
 #     warm: true                                  ## load the model at server start, not on the first paragraph
 #     min_words: 40                               ## shorter paragraphs stay as they are

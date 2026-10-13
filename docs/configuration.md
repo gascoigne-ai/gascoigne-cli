@@ -233,8 +233,8 @@ rows, query matches) and mark every gap.
 | `doc` | `max_code_lines` | 40 | Longer code blocks keep head and tail. |
 | | `max_tokens` | 5200 | Longer markdown is fitted by whole sections, query matches first. |
 | | `man_drop` | built-in list | Man page sections dropped as boilerplate. |
-| `prose` | `enabled` | false | Prose paragraphs pass a local model, [docs/prose-model.md](prose-model.md). Lossy; the original stays in the ledger. |
-| | `command` | `[]` | Program and arguments of the model process; empty runs `gascoigne prose serve`. |
+| `prose` | `enabled` | false | Set by `experimental: [prose]`. Prose paragraphs pass a local model, [docs/prose-model.md](prose-model.md). Lossy; the original stays in the ledger. |
+| | `device` | auto | `auto` (CUDA or CoreML, else CPU), `cuda`, `coreml` or `cpu`. |
 | | `threshold` | 0.5 | Keep score from which a word stays; higher drops more. |
 | | `warm` | true | Load the model when the server starts instead of on the first prose paragraph. |
 | | `min_words` | 40 | Shorter paragraphs stay as they are. |

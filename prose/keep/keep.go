@@ -1,14 +1,9 @@
-// Package serve is the helper's protocol loop: one JSON request per line in,
-// one reply per line out, after a "ready <device>" line. Scoring is behind Scorer so
-// the loop runs without the ONNX runtime.
-package serve
+// Package keep decides which words of a text the prose model keeps: it cuts
+// the words into the chunks the model was evaluated on and scores them.
+// Scoring is behind Scorer so it runs without the ONNX runtime.
+package keep
 
-import (
-	"bufio"
-	"encoding/json"
-	"fmt"
-	"io"
-)
+import "fmt"
 
 const (
 	// Words per model call, as the model was evaluated; tokens are capped by
@@ -22,61 +17,15 @@ type Scorer interface {
 	Scores(ids []int64) ([]float32, error)
 }
 
-// Words encodes one word into token ids.
-type Words interface {
-	Word(w string) []int
-}
-
-// Tokenizer adds the sequence markers.
+// Tokenizer encodes one word into token ids and names the sequence markers.
 type Tokenizer interface {
-	Words
+	Word(w string) []int
 	Markers() (cls, sep int)
 }
 
-type request struct {
-	Words     []string `json:"words"`
-	Threshold float64  `json:"threshold"`
-}
-
-type response struct {
-	Keep  []bool `json:"keep,omitempty"`
-	Error string `json:"error,omitempty"`
-}
-
-// Run answers requests until in closes.
-func Run(in io.Reader, out io.Writer, tok Tokenizer, sc Scorer, device string) error {
-	fmt.Fprintln(out, "ready", device)
-	r := bufio.NewReaderSize(in, 1<<20)
-	enc := json.NewEncoder(out)
-	for {
-		line, err := r.ReadBytes('\n')
-		if len(line) > 0 {
-			enc.Encode(handle(line, tok, sc))
-		}
-		if err == io.EOF {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-	}
-}
-
-func handle(line []byte, tok Tokenizer, sc Scorer) response {
-	var req request
-	if err := json.Unmarshal(line, &req); err != nil {
-		return response{Error: err.Error()}
-	}
-	keep, err := Keep(req.Words, req.Threshold, tok, sc)
-	if err != nil {
-		return response{Error: err.Error()}
-	}
-	return response{Keep: keep}
-}
-
-// Keep marks the words that have a token scoring at least threshold. Words
+// Words marks the words that have a token scoring at least threshold. Words
 // are scored in chunks; a word too long for the model is kept unscored.
-func Keep(words []string, threshold float64, tok Tokenizer, sc Scorer) ([]bool, error) {
+func Words(words []string, threshold float64, tok Tokenizer, sc Scorer) ([]bool, error) {
 	cls, sep := tok.Markers()
 	keep := make([]bool, len(words))
 	for start := 0; start < len(words); {

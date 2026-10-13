@@ -423,8 +423,7 @@ func TestProseStatus(t *testing.T) {
 	t.Setenv("GASCOIGNE_EXPERIMENTAL", "")
 	tests := []struct{ name, config, want string }{
 		{"off by default", "", "off"},
-		{"enabled, not experimental", "optimizers:\n  prose: {enabled: true}\n", "needs-experimental"},
-		{"enabled, nothing installed", "experimental: [prose]\noptimizers:\n  prose: {enabled: true}\n", "not-installed"},
+		{"experimental, nothing installed", "experimental: [prose]\n", "not-installed"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -437,5 +436,30 @@ func TestProseStatus(t *testing.T) {
 				t.Fatalf("got %q, want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+// The experimental setting is what switches the optimizer on, in the config
+// the server receives.
+func TestExperimentalProseEnablesOptimizer(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_EXPERIMENTAL", "")
+	for _, on := range []bool{false, true} {
+		path := filepath.Join(t.TempDir(), "config.yaml")
+		cfg := ""
+		if on {
+			cfg = "experimental: [prose]\n"
+		}
+		if err := os.WriteFile(path, []byte(cfg), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		t.Setenv("GASCOIGNE_CONFIG", path)
+		data, err := configData("")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := strings.Contains(string(data), "enabled: true"); got != on {
+			t.Errorf("experimental prose %v: optimizer enabled = %v", on, got)
+		}
 	}
 }

@@ -1,19 +1,17 @@
 // Package prose runs the prose compression model (a ModernBERT extractive
 // compressor, ONNX) on the GPU when there is one: CUDA on Linux and Windows,
-// CoreML (Metal, Neural Engine) on macOS, else the CPU. `gascoigne prose
-// serve` speaks the line protocol of package serve; the doc optimizer starts
-// it. Built without cgo: the ONNX Runtime library is opened at run time
+// CoreML (Metal, Neural Engine) on macOS, else the CPU. It runs inside the
+// process that optimizes (the background server keeps it loaded). Built without cgo: the ONNX Runtime library is opened at run time
 // (package ortrt) and fetched by Install.
 package prose
 
 import (
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/gascoigne-ai/gascoigne-cli/prose/bpe"
-	"github.com/gascoigne-ai/gascoigne-cli/prose/serve"
+	"github.com/gascoigne-ai/gascoigne-cli/prose/keep"
 )
 
 // ModelDir is where Install puts the model and the ONNX Runtime libraries.
@@ -25,13 +23,22 @@ func ModelDir() (string, error) {
 	return filepath.Join(cache, "gascoigne", "prose-model"), nil
 }
 
-// Serve answers requests from in on out until in closes. lib is the ONNX
-// Runtime library ("" finds the one Install put in dir, else the system's);
-// device is auto, cuda, coreml or cpu.
-func Serve(in io.Reader, out io.Writer, dir, lib, device string) error {
+// Model is the loaded tokenizer and ONNX session. Calls are serialized: the
+// session is one set of buffers on one device.
+type Model struct {
+	mu     sync.Mutex
+	tok    *bpe.Tokenizer
+	sc     *ortScorer
+	device string
+}
+
+// Open loads the model Install put in dir. lib is the ONNX Runtime library
+// ("" finds the one Install put in dir, else the system's); device is auto,
+// cuda, coreml or cpu.
+func Open(dir, lib, device string) (*Model, error) {
 	tok, err := bpe.Load(filepath.Join(dir, "tokenizer.json"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if lib == "" {
 		if own := filepath.Join(dir, runtimeDir, libName()); fileExists(own) {
@@ -40,11 +47,25 @@ func Serve(in io.Reader, out io.Writer, dir, lib, device string) error {
 	}
 	sc, err := newORT(filepath.Join(dir, "model.onnx"), lib, device)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer sc.close()
-	fmt.Fprintf(os.Stderr, "gascoigne prose: device %s\n", sc.device)
-	return serve.Run(in, out, tok, sc, sc.device)
+	return &Model{tok: tok, sc: sc, device: sc.device}, nil
+}
+
+// Device is the one the model runs on: cuda, coreml or cpu.
+func (m *Model) Device() string { return m.device }
+
+// Keep marks the words that have a token scoring at least threshold.
+func (m *Model) Keep(words []string, threshold float64) ([]bool, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return keep.Words(words, threshold, m.tok, m.sc)
+}
+
+func (m *Model) Close() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.sc.close()
 }
 
 func fileExists(path string) bool {

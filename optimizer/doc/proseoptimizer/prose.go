@@ -1,214 +1,121 @@
 package proseoptimizer
 
 import (
-	"bufio"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
-	"os"
-	"os/exec"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/prose"
 )
 
-const (
-	// The model loads on the helper's first start: seconds on a GPU, longer cold.
-	helperStartTimeout = 60 * time.Second
-	helperCallTimeout  = 20 * time.Second
-	// A helper failing this often is given up on for the process lifetime.
-	helperMaxFailures = 3
-)
+// maxFailures: a model failing this often is given up on for the process lifetime.
+const maxFailures = 3
 
-var errHelperGone = errors.New("prose helper given up")
+var errGivenUp = fmt.Errorf("prose model given up")
 
-// helper talks to the `gascoigne prose serve` process: one JSON line per request,
-// one per reply, after a "ready" line once the model is loaded. Requests are
-// serialized because the server calls the optimizer concurrently.
-type helper struct {
-	cfg *Config
-	log *slog.Logger
+// model is what the optimizer needs of the loaded model (prose.Model).
+type model interface {
+	Keep(words []string, threshold float64) ([]bool, error)
+	Device() string
+	Close()
+}
+
+// loaded holds the model, opened on first use or by warm. Failing to open or
+// run it never fails a command: the paragraph stays as it was.
+type loaded struct {
+	cfg  *Config
+	open func() (model, error)
+	log  *slog.Logger
 
 	mu       sync.Mutex
-	cmd      *exec.Cmd
-	stdin    interface{ Write([]byte) (int, error) }
-	stdout   *bufio.Reader
-	stderr   *tail
+	m        model
 	failures int
 }
 
-type request struct {
-	Words     []string `json:"words"`
-	Threshold float64  `json:"threshold"`
-}
-
-type response struct {
-	Keep []bool `json:"keep"`
+func openModel(cfg *Config) func() (model, error) {
+	return func() (model, error) {
+		dir, err := prose.ModelDir()
+		if err != nil {
+			return nil, err
+		}
+		return prose.Open(dir, "", cfg.Device)
+	}
 }
 
 // keep reports, per word, whether the model keeps it.
-func (h *helper) keep(words []string) ([]bool, error) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	if h.failures >= helperMaxFailures {
-		return nil, errHelperGone
+func (l *loaded) keep(words []string) (keep []bool, err error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.failures >= maxFailures {
+		return nil, errGivenUp
 	}
-	if h.cmd == nil {
-		if err := h.start(); err != nil {
-			return nil, h.fail(err)
+	defer func() {
+		if r := recover(); r != nil { // a native runtime fault must not take the server down with it
+			keep, err = nil, l.fail(fmt.Errorf("model panicked: %v", r))
+		}
+	}()
+	if l.m == nil {
+		if err := l.load(); err != nil {
+			return nil, l.fail(err)
 		}
 	}
-	var res response
-	if err := h.call(request{words, h.cfg.Threshold}, &res); err != nil {
-		return nil, h.fail(err)
+	keep, err = l.m.Keep(words, l.cfg.Threshold)
+	if err == nil && len(keep) != len(words) {
+		err = fmt.Errorf("model returned %d flags for %d words", len(keep), len(words))
 	}
-	if len(res.Keep) != len(words) {
-		return nil, h.fail(fmt.Errorf("helper returned %d flags for %d words", len(res.Keep), len(words)))
+	if err != nil {
+		return nil, l.fail(err)
 	}
-	h.failures = 0
-	return res.Keep, nil
+	l.failures = 0
+	return keep, nil
 }
 
-// warm starts the helper ahead of the first request: the model load takes
-// seconds, and a request arriving meanwhile waits for it on the mutex.
-func (h *helper) warm() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	if h.cmd != nil || h.failures >= helperMaxFailures {
-		return
-	}
-	if err := h.start(); err != nil {
-		h.fail(err)
-	}
-}
-
-// argv is the configured command, else this binary's `prose serve`.
-func (h *helper) argv() ([]string, error) {
-	if len(h.cfg.Command) > 0 {
-		return h.cfg.Command, nil
-	}
-	exe, err := os.Executable()
+func (l *loaded) load() error {
+	m, err := l.open()
 	if err != nil {
-		return nil, fmt.Errorf("find own binary: %w", err)
+		return fmt.Errorf("load prose model (gascoigne prose install?): %w", err)
 	}
-	return []string{exe, "prose", "serve"}, nil
-}
-
-func (h *helper) start() error {
-	args, err := h.argv()
-	if err != nil {
-		return err
-	}
-	cmd := exec.Command(args[0], args[1:]...)
-	h.stderr = &tail{}
-	cmd.Stderr = h.stderr
-	in, err := cmd.StdinPipe()
-	if err != nil {
-		return err
-	}
-	out, err := cmd.StdoutPipe()
-	if err != nil {
-		return err
-	}
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("start %s: %w", args[0], err)
-	}
-	h.cmd, h.stdin, h.stdout = cmd, in, bufio.NewReader(out)
-	var ready string
-	if err := h.within(helperStartTimeout, func() (err error) { ready, err = h.stdout.ReadString('\n'); return }); err != nil {
-		return fmt.Errorf("wait for %s: %w", args[0], err)
-	}
-	device, ok := strings.CutPrefix(strings.TrimSpace(ready), "ready")
-	if !ok {
-		return fmt.Errorf("unexpected helper greeting %q", strings.TrimSpace(ready))
-	}
-	h.log.Debug("prose helper started", "device", strings.TrimSpace(device))
+	l.m = m
+	l.log.Debug("prose model loaded", "device", m.Device())
 	return nil
 }
 
-func (h *helper) call(req request, res *response) error {
-	line, err := json.Marshal(req)
-	if err != nil {
-		return err
+// warm loads the model ahead of the first request: it takes seconds.
+func (l *loaded) warm() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.m != nil || l.failures >= maxFailures {
+		return
 	}
-	return h.within(helperCallTimeout, func() error {
-		if _, err := h.stdin.Write(append(line, '\n')); err != nil {
-			return err
-		}
-		reply, err := h.stdout.ReadBytes('\n')
-		if err != nil {
-			return err
-		}
-		return json.Unmarshal(reply, res)
-	})
+	if err := l.load(); err != nil {
+		l.fail(err)
+	}
 }
 
-// within runs fn and kills the helper when it takes longer than d, which
-// unblocks the pipe read.
-func (h *helper) within(d time.Duration, fn func() error) error {
-	proc := h.cmd.Process
-	t := time.AfterFunc(d, func() { proc.Kill() })
-	defer t.Stop()
-	return fn()
-}
-
-// fail drops the helper process so the next call restarts it, and warns once.
-func (h *helper) fail(err error) error {
-	if h.stderr != nil {
-		if msg := h.stderr.String(); msg != "" {
-			err = fmt.Errorf("%w: %s", err, msg)
-		}
+// fail counts a failure, drops the model so the next call reloads it, and
+// warns once when it is given up.
+func (l *loaded) fail(err error) error {
+	if l.m != nil {
+		l.m.Close()
+		l.m = nil
 	}
-	h.stop()
-	if h.failures++; h.failures == helperMaxFailures {
-		h.log.Warn("prose helper unavailable, prose compression off", "err", err)
+	if l.failures++; l.failures == maxFailures {
+		l.log.Warn("prose model unavailable, prose compression off", "err", err)
 	} else {
-		h.log.Debug("prose helper failed", "err", err)
+		l.log.Debug("prose model failed", "err", err)
 	}
 	return err
 }
 
-func (h *helper) stop() {
-	if h.cmd == nil {
-		return
+func (l *loaded) close() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.m != nil {
+		l.m.Close()
+		l.m = nil
 	}
-	h.cmd.Process.Kill()
-	h.cmd.Wait()
-	h.cmd = nil
-}
-
-// tail keeps the last bytes the helper wrote to stderr: its errors, which
-// would otherwise be lost.
-type tail struct {
-	mu  sync.Mutex
-	buf []byte
-}
-
-const tailSize = 1024
-
-func (t *tail) Write(p []byte) (int, error) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	t.buf = append(t.buf, p...)
-	if len(t.buf) > tailSize {
-		t.buf = t.buf[len(t.buf)-tailSize:]
-	}
-	return len(p), nil
-}
-
-func (t *tail) String() string {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	return strings.TrimSpace(string(t.buf))
-}
-
-func (h *helper) close() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.stop()
 }
 
 // structural lines (headings, tables, quotes, lists, HTML, links, setext
@@ -253,7 +160,7 @@ func (o *Optimizer) paragraph(lines []string) []string {
 	if len(words) < o.cfg.MinWords || tabular(lines) {
 		return lines
 	}
-	keep, err := o.helper.keep(words)
+	keep, err := o.model.keep(words)
 	if err != nil {
 		return lines
 	}
