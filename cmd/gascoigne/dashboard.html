@@ -1035,6 +1035,15 @@ function stat(label, value, cls, extra) {
   return el("span", { class: cls || "" }, el("span", { class: "k" }, label), el("span", { class: "v" }, value), extra || []);
 }
 
+// proseFact says what the prose model did in a run, when it was in the chain.
+function proseFact(e) {
+  if (!(e.optimizers || []).includes("prose")) return null;
+  const p = proseStep(e);
+  if (!p) return ["Prose model", "In the chain, left the text as it was: no long plain paragraph (min_words), or the model was not available (gascoigne prose status)"];
+  const dropped = p.raw_tokens - p.out_tokens;
+  return ["Prose model", `Dropped low-value words: ${p.raw_tokens} → ${p.out_tokens} tokens (−${dropped}, ${fmtPct(pct(dropped, p.raw_tokens))}). Lossy; numbers, paths, flags, code and links are kept. The original is stored.`];
+}
+
 function detailsView(e) {
   const facts = [
     ["Outcome", badge(e.outcome)],
@@ -1049,7 +1058,8 @@ function detailsView(e) {
     ["Reason", e.reason || "—"],
     ["Duration", e.duration_ms + " ms"],
     ["Original", e.raw_id ? el("code", {}, "gascoigne raw " + e.raw_id) : "Not stored (output was not changed)"],
-  ];
+    proseFact(e),
+  ].filter(Boolean);
   return el("dl", {}, facts.flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]));
 }
 
@@ -1059,7 +1069,7 @@ function stepsView(e) {
   return [el("p", { class: "hint" }, "Each optimizer that changed the output, in order: the bar is what was left after it."),
     el("div", { class: "steps" }, e.steps.map((s) => el("div", { class: "step" },
       el("span", { class: "lbl" }, s.optimizer),
-      el("span", { class: "track", title: s.dialect || s.family }, el("span", { style: `left:0;width:${100 * s.out_tokens / max}%` })),
+      el("span", { class: "track", title: s.optimizer === "prose" ? "prose model (lossy): " + (s.dialect || s.family) : s.dialect || s.family }, el("span", { style: `left:0;width:${100 * s.out_tokens / max}%` })),
       el("span", { class: "num" }, `${human(s.raw_tokens)} → ${human(s.out_tokens)}`))))];
 }
 

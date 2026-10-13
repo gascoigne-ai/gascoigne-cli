@@ -233,7 +233,7 @@ opens its details (`#run-42` in the address links straight to one):
   Either side can be shown alone.
 - **Steps** shows each optimizer that changed the run as a bar of what was left after it.
 - **Details** lists the source key, pipeline and route, optimizer chain, stop reason, timing
-  and the `gascoigne raw` command.
+  and the `gascoigne raw` command. When the prose model was in the chain, a *Prose model* line says what it dropped, or that it left the text alone.
 
 A run that lost over 99.5% of a large output gets a warning to check it. The optimized text is
 kept next to the original (gzip, same retention), so runs recorded before that show only the
