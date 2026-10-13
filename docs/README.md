@@ -15,6 +15,7 @@ local ledger so nothing is ever lost.
 | [Source files](source-files.md) | understand what `cat main.go` returns and how to edit around it |
 | [What savings are worth](cost.md) | how models count tokens and agents pay for tool output; the cost in `gain` and `tokens` |
 | [Ledger, retrieval and gain](ledger.md) | get originals back, read the savings report, watch runs live in the dashboard, reset bad sources |
+| [Prose compression](prose-model.md) | try the experimental local model that drops low-value words from long prose |
 | [Architecture](architecture.md) | understand the pipeline, components and content detection |
 | [Extending](extending.md) | add a dialect, an optimizer or another component |
 | [Development](development.md) | build, test, measure savings, keep goldens up to date |

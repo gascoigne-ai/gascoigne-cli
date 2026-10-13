@@ -297,6 +297,17 @@ Output is detected as `family/dialect` and handled by one engine per family.
 Across families: stack traces fold recursion and goroutines parked on one stack; a test or
 build re-run in the same session points at the failures you already saw instead of repeating them.
 
+## Experimental
+
+Off until you turn them on with `gascoigne setup -experimental` (or `experimental: [...]` in the config):
+
+- **prose**: a small local language model (runs on CUDA, CoreML or the CPU, no Python) drops low-value
+  words from long prose in text and markdown. Lossy, 8–10% fewer tokens on prose-heavy text, none on
+  code, tables or command output. Setup downloads it; the dashboard shows when it ran. See
+  [prose compression](docs/prose-model.md).
+- **prompts**: what your agents are told with every request, priced. **learn**: instruction lines proposed
+  from habits that cost context. **continuity**: a resume snapshot after compaction.
+
 ## Guarantees
 
 - **Lossless by retrieval** — originals go to a local sqlite ledger first; every optimized
@@ -326,6 +337,7 @@ Guides and reference live in [`docs/`](docs/README.md): [getting started](docs/g
 [agents](docs/agents.md), [MCP](docs/mcp.md), [CLI](docs/cli.md),
 [configuration](docs/configuration.md), [families](docs/families.md),
 [source files](docs/source-files.md), [ledger, gain and dashboard](docs/ledger.md), [cost](docs/cost.md),
+[prose compression](docs/prose-model.md),
 [architecture](docs/architecture.md), [extending](docs/extending.md).
 
 ## Develop

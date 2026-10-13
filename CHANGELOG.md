@@ -4,6 +4,41 @@ All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-10-13
+
+Prose compression with a local model, and a dashboard that groups its tables. The model is an experiment:
+off until you turn it on.
+
+### Added
+
+- Experimental prose compression (`experimental: [prose]`): a ModernBERT extractive model drops low-value
+  words from the plain paragraphs of text and markdown, including converted web pages. Numbers, paths,
+  flags, identifiers, negations, code and links stay; tables and aligned output are left alone. It runs
+  inside the process that optimizes, on CUDA (Linux, Windows), CoreML (macOS) or the CPU, with no cgo and no
+  Python (ONNX Runtime is opened at run time), and the background server keeps it loaded. It has its own
+  optimizer id `prose`, so its savings show apart in `gain -by optimizer`.
+- `gascoigne prose install` downloads the model and ONNX Runtime for your platform, checks pinned SHA256
+  hashes and prints them; `gascoigne prose status` says whether it is ready. `gascoigne setup` runs the
+  download when you turn the experiment on and checks the files again later.
+- `optimizers.prose.idle` frees the model and its GPU memory after five idle minutes; a damaged download
+  fails with a clear error.
+- Dashboard: an Experiments panel for the features that are on, a `prose −N` tag on runs the model
+  shortened, a prose line in run details and the run's raw id.
+- `eval -record` writes an eval run to your ledger and starts the dashboard; `make eval-experimental`
+  uses it. A separate eval set, `testdata/eval-experimental`, covers the opt-in features.
+
+### Changed
+
+- The dashboard's tables are tabs in two panels: models and cost (families, models, API requests) and
+  breakdown (command, optimizer, content type, not optimized, excluded sources); the tab is remembered.
+- `eval` ignores experimental settings, so its numbers do not depend on your choices.
+- New dependencies: `github.com/ebitengine/purego` (loads ONNX Runtime without cgo) and `golang.org/x/text`
+  (Unicode normalization for the tokenizer). Builds stay `CGO_ENABLED=0`.
+
+### Fixed
+
+- The dashboard page tests never ran outside GOOS=js (the file name ended in `_js`).
+
 ## [0.4.1] - 2026-10-13
 
 ### Fixed

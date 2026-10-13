@@ -238,6 +238,7 @@ rows, query matches) and mark every gap.
 | | `threshold` | 0.5 | Keep score from which a word stays; higher drops more. |
 | | `warm` | true | Load the model when the server starts instead of on the first prose paragraph. |
 | | `min_words` | 40 | Shorter paragraphs stay as they are. |
+| | `idle` | 5m | Free the model and its GPU memory after this long without a paragraph; the next one reloads it. `0` keeps it loaded. |
 | `test` | `coverage_below` | 80 | Coverage reports list files under this percent; the rest are counted. |
 | `data` | `max_output_lines` | 30 | Notebook cell text outputs keep head and tail; tracebacks stay. |
 | `aria` | `max_items`, `head`, `tail` | 20, 10, 4 | Browser snapshots: runs of like siblings keep head, tail and query matches. |

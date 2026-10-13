@@ -38,8 +38,9 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `prompts [-agent claude\|codex] [dir]` | Experimental (`experimental: [prompts]`). List the instruction text an agent sends with every request and price it; `-terse 0.1 <files>` drops articles and fillers from instruction files in place (`.bak` kept). |
 | `upgrade [-n]` | After installing a new version: write stale or lost hooks, rules and commands of your installs again, move `config.yaml` onto the new template (settings kept, `.bak` left), open the page for choices still waiting. `-n` lists without changing. |
 | `doctor` | Report the binary, server, saved answers and each install (hook present, registration current), in plain language. Changes nothing; `upgrade` repairs. |
-| `setup [-y] [-all] [-t] [-experimental]` | Answer the open questions (permissions, hook updates, new agents) in a browser page, or in the terminal where no browser opens or with `-t`. `-experimental` asks only about the experimental features (`continuity`, `learn`, `prompts`); `-all` asks answered questions again. |
+| `setup [-y] [-all] [-t] [-experimental]` | Answer the open questions (permissions, hook updates, new agents) in a browser page, or in the terminal where no browser opens or with `-t`. `-experimental` asks only about the experimental features (`continuity`, `learn`, `prompts`, `prose`); `-all` asks answered questions again. |
 | `learn [-since 30d] [-apply\|-remove] [-target FILE]` | Experimental (`experimental: [learn]`). Propose instruction lines from habits seen in at least two sessions: commands run again for output that was already shortened, and commands whose large output nothing can shorten. Prints them; `-apply` writes a marked block to `CLAUDE.local.md` (or `-target`), `-remove` takes it out. |
+| `prose [install\|status] [-model DIR] [-runtime auto\|cpu\|cuda12\|cuda13]` | Experimental (`experimental: [prose]`). `install` downloads the prose model (601 MB) and ONNX Runtime with pinned checksums, `status` says whether the model is ready. See [Prose compression](prose-model.md). |
 | `components` | List the built-in components and their families. |
 | `config [flags]` | Print the effective config after `-set`, `-only`, `-disable` and environment. |
 
@@ -191,6 +192,7 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 | `-show substr` | Print the optimized output of cases whose name contains this. |
 | `-update` | Rewrite golden outputs after you reviewed the change. |
 | `-pipeline name` | Pipeline to evaluate (default `cli`). |
+| `-record` | Write the runs to your ledger (agent `eval`, a session per run) and start the dashboard server, so the runs show there; `reset -agent eval` removes them. Each case runs twice, so counts double. |
 
 ## Environment variables
 
@@ -212,7 +214,7 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 | `GASCOIGNE_RELEASE_URL` | Another site address to read `latest.json` from (a mirror, a test). |
 | `GASCOIGNE_GUIDE` | Usage text for agents: `off`, `short` or `full` (overrides `install -guide`). |
 | `GASCOIGNE_AUTOSYNC=off` | Never let agent hooks update installs after an upgrade. |
-| `GASCOIGNE_EXPERIMENTAL` | Enable experimental features (`prompts`, `learn`, `continuity`, or `all`). |
+| `GASCOIGNE_EXPERIMENTAL` | Enable experimental features (`prompts`, `learn`, `continuity`, `prose`, or `all`). |
 | `NO_COLOR` | No colors in `gain`. |
 
 ## Exit codes
