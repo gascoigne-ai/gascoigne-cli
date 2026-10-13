@@ -59,3 +59,23 @@ func TestTableLeavesArrayItemsAlone(t *testing.T) {
 		t.Fatalf("an array item would read as a row: %v", tbl)
 	}
 }
+
+func TestTableSparseColumnsLastAndTrailingNullsTrimmed(t *testing.T) {
+	var items []any
+	for i := range 6 {
+		items = append(items, map[string]any{"id": json.Number(string(rune('1' + i))), "name": "n-" + string(rune('a'+i))})
+	}
+	items[3].(map[string]any)["err"] = "E1"
+	items[3].(map[string]any)["val"] = json.Number("7")
+	items[5].(map[string]any)["val"] = json.Number("9")
+	c := &crusher{cfg: Default()}
+	tbl, ok := c.table(items)
+	if !ok {
+		t.Fatal("no table")
+	}
+	out, _ := json.Marshal(tbl)
+	want := `{"_cols":["id","name","val","err"],"_rows":[[1,"n-a"],[2,"n-b"],[3,"n-c"],[4,"n-d",7,"E1"],[5,"n-e"],[6,"n-f",9]]}`
+	if string(out) != want {
+		t.Errorf("sparse columns go last, rows end at their last value:\n got %s\nwant %s", out, want)
+	}
+}

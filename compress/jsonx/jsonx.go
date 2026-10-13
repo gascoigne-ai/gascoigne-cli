@@ -16,7 +16,7 @@ import (
 )
 
 // Legend explains table encoding once per output, so readers can decode rows.
-const Legend = `"_table": rows align with _cols; _same: equal in all rows; _affix: value = prefix + cell + suffix`
+const Legend = `"_table": rows follow _cols, missing tail = null; _same: equal in all rows; _affix: prefix + cell + suffix`
 
 // Compress crushes one or more JSON values; stream turns several values
 // (NDJSON, concatenated JSON) into one array first.

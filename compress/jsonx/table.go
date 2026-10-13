@@ -1,6 +1,7 @@
 package jsonx
 
 import (
+	"cmp"
 	"reflect"
 	"slices"
 	"strings"
@@ -150,6 +151,16 @@ func hoist(cols []string, rows []any) map[string]any {
 		}
 		keepCols = append(keepCols, c)
 	}
+	nulls := func(c int) (n int) {
+		for _, row := range objRows {
+			if row[c] == nil {
+				n++
+			}
+		}
+		return n
+	}
+	// Sparse columns last, so rows can end before their trailing nulls.
+	slices.SortStableFunc(keepCols, func(a, b int) int { return cmp.Compare(nulls(a), nulls(b)) })
 	outCols := make([]string, len(keepCols))
 	for i, c := range keepCols {
 		outCols[i] = cols[c]
@@ -165,7 +176,7 @@ func hoist(cols []string, rows []any) map[string]any {
 		for j, c := range keepCols {
 			cells[j] = row[c]
 		}
-		outRows[i] = cells
+		outRows[i] = trimNulls(cells)
 	}
 	t := map[string]any{"_cols": outCols, "_rows": outRows}
 	if len(same) > 0 {
@@ -175,6 +186,14 @@ func hoist(cols []string, rows []any) map[string]any {
 		t["_affix"] = affix
 	}
 	return t
+}
+
+// trimNulls drops trailing nulls: a row shorter than _cols has null cells at the end.
+func trimNulls(cells []any) []any {
+	for len(cells) > 0 && cells[len(cells)-1] == nil {
+		cells = cells[:len(cells)-1]
+	}
+	return cells
 }
 
 func allEqual(rows [][]any, c int) bool {

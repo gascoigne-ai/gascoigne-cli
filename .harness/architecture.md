@@ -207,7 +207,8 @@ Used by `optimizer/data/jsonoptimizer`, cloud, data and web.
 1. **Small arrays are never sampled**: < `min_items`, < `min_tokens`, or ≤ `max_items`.
 2. **Lossless first**: similar objects become a table (`_cols/_rows`), with constant columns in
    `_same` and shared prefixes/suffixes in `_affix`. Items with nested objects are also tried
-   flattened to dotted columns (`jsonx.Flatten`); the smaller table wins. Kept when it saves
+   flattened to dotted columns (`jsonx.Flatten`); the smaller table wins. Columns with nulls come last
+   and rows end at their last non-null cell (a short row means null tail; valid JSON, no `null,null` runs). Kept when it saves
    ≥ `lossless_min_saving` and fits `lossless_max_tokens`.
 3. **Else scored sampling** to ~`max_items`, in priority order:
    - errors, always: error fields, bad statuses, 4xx/5xx, keys or enum values few items have

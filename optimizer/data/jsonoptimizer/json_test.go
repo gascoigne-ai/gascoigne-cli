@@ -103,7 +103,7 @@ func TestSampleSignals(t *testing.T) {
 		"query":        `/api/checkout`,
 		"rare value":   `"error"`,
 		"anomaly":      `5000`,
-		"rare key":     `30,`,
+		"rare key":     `,30]`,
 		"change point": `,100,`,
 		"marker":       `items omitted`,
 	} {
