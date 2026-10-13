@@ -1057,6 +1057,7 @@ function detailsView(e) {
     ["Stopped by", e.filter || "—"],
     ["Reason", e.reason || "—"],
     ["Duration", e.duration_ms + " ms"],
+    ["Raw id", e.raw_id ? el("code", {}, e.raw_id) : "—"],
     ["Original", e.raw_id ? el("code", {}, "gascoigne raw " + e.raw_id) : "Not stored (output was not changed)"],
     proseFact(e),
   ].filter(Boolean);
