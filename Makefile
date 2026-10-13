@@ -44,7 +44,7 @@ eval-live: build
 
 # Needs the prose model and ONNX Runtime (gascoigne prose install); not part of check.
 eval-experimental: build
-	GASCOIGNE_EXPERIMENTAL=prose .harness/scripts/eval.sh -cases testdata/eval-experimental/cases.yaml -set optimizers.doc.model.enabled=true
+	GASCOIGNE_EXPERIMENTAL=prose .harness/scripts/eval.sh -cases testdata/eval-experimental/cases.yaml -set optimizers.prose.enabled=true
 
 check: fmt-check vet imports test
 

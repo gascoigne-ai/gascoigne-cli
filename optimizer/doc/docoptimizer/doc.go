@@ -19,24 +19,7 @@ import (
 
 type Optimizer struct {
 	component.Nop
-	cfg    *Config
-	helper *helper // nil unless the prose model is enabled
-}
-
-// Start loads the model in the background so the long-lived server answers
-// its first prose paragraph warm.
-func (o *Optimizer) Start(context.Context, component.Host) error {
-	if o.helper != nil && o.cfg.Model.Warm {
-		go o.helper.warm()
-	}
-	return nil
-}
-
-func (o *Optimizer) Shutdown(context.Context) error {
-	if o.helper != nil {
-		o.helper.close()
-	}
-	return nil
+	cfg *Config
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
@@ -54,16 +37,8 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 			out = o.man(compress.Lines(compress.StripANSI(overstrike.ReplaceAllString(b.Text, ""))))
 		case "help":
 			out = helpFor(help(compress.Lines(compress.StripANSI(b.Text))), p.Attrs[payload.AttrQuery])
-		case "text":
-			if o.helper == nil {
-				continue
-			}
-			out = o.prose(compress.Lines(b.Text))
 		default:
 			continue
-		}
-		if o.helper != nil && detect.Dialect(b.Type) == "markdown" {
-			out = o.prose(out)
 		}
 		p.Blocks[i].Text = compress.Join(compress.SqueezeBlank(out))
 	}

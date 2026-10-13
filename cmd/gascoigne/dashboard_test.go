@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -415,4 +416,26 @@ func TestDashboardUsage(t *testing.T) {
 			t.Fatalf("%d", w.Code)
 		}
 	})
+}
+
+func TestProseStatus(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_EXPERIMENTAL", "")
+	tests := []struct{ name, config, want string }{
+		{"off by default", "", "off"},
+		{"enabled, not experimental", "optimizers:\n  prose: {enabled: true}\n", "needs-experimental"},
+		{"enabled, nothing installed", "experimental: [prose]\noptimizers:\n  prose: {enabled: true}\n", "not-installed"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "config.yaml")
+			if err := os.WriteFile(path, []byte(tt.config), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			t.Setenv("GASCOIGNE_CONFIG", path)
+			if got := loadProseStatus().State; got != tt.want {
+				t.Fatalf("got %q, want %q", got, tt.want)
+			}
+		})
+	}
 }

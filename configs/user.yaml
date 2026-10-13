@@ -190,12 +190,12 @@
 #     max_code_lines: 40                          ## longer code blocks keep head and tail
 #     max_tokens: 5200                            ## longer markdown keeps whole sections, query first
 #     man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON]
-#     model:                                   ## prose paragraphs of text and markdown pass a local model (gascoigne prose, GPU), lossy, original in the ledger
-#       enabled: false                              ## also needs experimental: [prose], else the model process is refused
-#       command: []                                 ## empty: this binary's `prose serve`; or program and arguments
-#       threshold: 0.5                              ## keep score from which a word stays; higher drops more
-#       warm: true                                  ## load the model at server start, not on the first paragraph
-#       min_words: 40                               ## shorter paragraphs stay as they are
+#   prose:                                        ## prose paragraphs of text and markdown pass a local model (gascoigne prose, GPU), lossy, original in the ledger
+#     enabled: false                              ## also needs experimental: [prose], else the model process is refused
+#     command: []                                 ## empty: this binary's `prose serve`; or program and arguments
+#     threshold: 0.5                              ## keep score from which a word stays; higher drops more
+#     warm: true                                  ## load the model at server start, not on the first paragraph
+#     min_words: 40                               ## shorter paragraphs stay as they are
 #   embedjson:                                    ## JSON with record arrays inside text (log response bodies), crushed in place
 #     types: [log, test, build, task, doc/text]   ## types or families searched; JSON engines own data, cloud, http
 #     json:                                       ## crusher: same keys as json above
@@ -249,7 +249,7 @@
 ## Which optimizers run. Each picks the blocks whose type it knows, so one chain serves all.
 # router:
 #   routes: []                        ## e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
-#   default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, doc, dense, paths, truncate, rerun]
+#   default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, doc, prose, dense, paths, truncate, rerun]
 
 ## Experimental commands to enable: prompts, or all. GASCOIGNE_EXPERIMENTAL adds to the list.
 # experimental: []

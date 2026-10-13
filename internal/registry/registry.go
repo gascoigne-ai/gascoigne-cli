@@ -22,6 +22,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/data/jsonoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/db/dboptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/doc/docoptimizer"
+	"github.com/gascoigne-ai/gascoigne-cli/optimizer/doc/proseoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/fs/catoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/fs/lsoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/infra/infraoptimizer"
@@ -86,6 +87,7 @@ func Factories() []component.Factory {
 		htmloptimizer.NewFactory(),
 		ariaoptimizer.NewFactory(),
 		docoptimizer.NewFactory(),
+		proseoptimizer.NewFactory(),
 		// exporters
 		stdoutexporter.NewFactory(),
 		// extensions

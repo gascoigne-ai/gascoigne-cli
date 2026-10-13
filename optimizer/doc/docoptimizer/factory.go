@@ -14,15 +14,10 @@ const (
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config {
-			return &Config{MaxCodeLines: 40, ManDrop: []string{"SEE ALSO", "AUTHOR", "AUTHORS", "REPORTING BUGS", "COPYRIGHT", "HISTORY", "COLOPHON"},
-				Model: Model{Threshold: 0.5, Warm: true, MinWords: 40}}
+			return &Config{MaxCodeLines: 40, ManDrop: []string{"SEE ALSO", "AUTHOR", "AUTHORS", "REPORTING BUGS", "COPYRIGHT", "HISTORY", "COLOPHON"}}
 		},
-		func(_ context.Context, s component.Settings, cfg *Config) (component.Component, error) {
-			o := &Optimizer{cfg: cfg}
-			if cfg.Model.Enabled {
-				o.helper = &helper{cfg: &cfg.Model, log: s.Logger}
-			}
-			return o, nil
+		func(_ context.Context, _ component.Settings, cfg *Config) (component.Component, error) {
+			return &Optimizer{cfg: cfg}, nil
 		},
 		component.WithFamily(family))
 }

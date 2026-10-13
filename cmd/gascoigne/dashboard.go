@@ -48,6 +48,9 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, _ *http.Request) {
 		respond(w, info, nil)
 	})
+	mux.HandleFunc("GET /api/prose", func(w http.ResponseWriter, _ *http.Request) {
+		respond(w, loadProseStatus(), nil)
+	})
 	mux.HandleFunc("POST /api/shutdown", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusAccepted)
 		go stop() // after the response is written

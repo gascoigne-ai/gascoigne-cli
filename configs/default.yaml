@@ -37,7 +37,7 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, doc, dense, paths, truncate, rerun]
+  default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, doc, prose, dense, paths, truncate, rerun]
 
 optimizers:
   test: { coverage_below: 80 } # coverage reports list files under this percent
@@ -121,7 +121,9 @@ optimizers:
   truncate: { max_tokens: 10000, head_tokens: 3200, tail_tokens: 3200, max_errors: 20, skip: [fs/code, data, k8s, cloud] }
   # rerun: runs of lines the last runs of the same command in the session showed (within max_age) → one pointer
   rerun: { ledger: ledger, families: [test, build, task, pkg, log, search, vcs], max_age: 20m, runs: 3, min_lines: 4, min_chars: 200 }
-  doc: { max_code_lines: 40, max_tokens: 5200, man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON], model: { enabled: false, command: [], threshold: 0.5, warm: true, min_words: 40 } }
+  doc: { max_code_lines: 40, max_tokens: 5200, man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON] }
+  # prose: plain paragraphs of doc/text and markdown pass a local model (gascoigne prose, experimental, lossy)
+  prose: { enabled: false, command: [], threshold: 0.5, warm: true, min_words: 40 }
 
 exporters:
   stdout: { hint: true }

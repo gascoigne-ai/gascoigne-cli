@@ -399,6 +399,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     <section class="panel">
       <h2>By optimizer</h2>
       <p class="hint">Savings per optimizer</p>
+      <p class="hint" id="prose-status" hidden></p>
       <div class="scroll" id="optimizers"></div>
     </section>
   </div>
@@ -775,7 +776,17 @@ async function refreshOverview() {
   lazyTable($("optimizers"), savedCols("Optimizer", (r) => r.group + (r.family ? " · " + r.family : "")), o.optimizers);
   lazyTable($("dialects"), savedCols("Content type", (r) => r.group), o.dialects);
   renderReasons(o);
+  await refreshProse();
   await refreshFailures();
+}
+
+// refreshProse shows the prose model pass's state under the optimizer table
+// once it is switched on; its savings are the "prose" row above.
+async function refreshProse() {
+  const st = await getJSON("/api/prose");
+  const box = $("prose-status");
+  box.hidden = !st.enabled;
+  box.textContent = "prose model: " + st.state + " — " + st.detail;
 }
 
 async function refreshFailures() {

@@ -1,6 +1,6 @@
 # Prose compression with a local model
 
-Experimental and off by default: it needs `experimental: [prose]` in the config (or `GASCOIGNE_EXPERIMENTAL=prose`) for the `gascoigne prose` command the optimizer runs, plus `optimizers.doc.model.enabled: true`. Drops low-value words from prose (`doc/text` and plain markdown paragraphs, including converted web pages) with
+Experimental and off by default: it needs `experimental: [prose]` in the config (or `GASCOIGNE_EXPERIMENTAL=prose`) for the `gascoigne prose` command the optimizer runs, plus `optimizers.prose.enabled: true`. Drops low-value words from prose (`doc/text` and plain markdown paragraphs, including converted web pages) with
 a ModernBERT extractive compressor (see Attribution).
 Lossy: the original stays retrievable with `gascoigne raw <id>`. Numbers, paths, flags,
 identifiers, negations, inline code and links are never dropped; headings, tables, lists, quotes
@@ -10,7 +10,7 @@ The model runs in a child process of the same binary, `gascoigne prose serve`; t
 
 ```mermaid
 flowchart LR
-  D["doc optimizer"] -->|"words, JSON line"| H["gascoigne prose serve"]
+  D["prose optimizer"] -->|"words, JSON line"| H["gascoigne prose serve"]
   H --> O["ONNX Runtime"]
   O --> G["CUDA / CoreML / CPU"]
   H -->|"keep flags"| D
@@ -24,10 +24,14 @@ flowchart LR
    `nvidia-smi`, and macOS has no GPU variant (CoreML is built in). A CUDA build also needs the
    CUDA runtime and cuDNN 9 on the library path; it falls back to the CPU when they are missing.
    To use your own runtime, set `ONNXRUNTIME_LIB` or `-lib`.
-2. Enable it: `optimizers.doc.model.enabled: true` (see `configs/user.yaml`). The server loads the
-   model at start (`model.warm`), so the first request does not wait for it.
+2. Enable it: `optimizers.prose.enabled: true` (see `configs/user.yaml`). The server loads the
+   model at start (`prose.warm`), so the first request does not wait for it.
 
-Device: `-device auto|cuda|coreml|cpu` (a `prose serve` flag; set `model.command` to e.g. `[gascoigne, prose, serve, -device, cpu]`). Auto tries CUDA
+Status: `gascoigne prose status` and the dashboard (a line under *By optimizer*) say `off`, `needs-experimental`,
+`not-installed` or `ready`. The pass has its own optimizer id, `prose`, so its savings are the `prose` row of
+`gain -by optimizer` and of that table.
+
+Device: `-device auto|cuda|coreml|cpu` (a `prose serve` flag; set `prose.command` to e.g. `[gascoigne, prose, serve, -device, cpu]`). Auto tries CUDA
 (Linux, Windows) or CoreML (macOS, which uses Metal and the Neural Engine; ONNX Runtime has no
 direct Metal provider), then the CPU. The chosen device shows in the debug log.
 

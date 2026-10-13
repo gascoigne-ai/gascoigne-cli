@@ -1,4 +1,4 @@
-package docoptimizer
+package proseoptimizer
 
 import (
 	"bufio"
@@ -29,7 +29,7 @@ var errHelperGone = errors.New("prose helper given up")
 // one per reply, after a "ready" line once the model is loaded. Requests are
 // serialized because the server calls the optimizer concurrently.
 type helper struct {
-	cfg *Model
+	cfg *Config
 	log *slog.Logger
 
 	mu       sync.Mutex
@@ -250,7 +250,7 @@ func (o *Optimizer) paragraph(lines []string) []string {
 			words, lineOf = append(words, w), append(lineOf, i)
 		}
 	}
-	if len(words) < o.cfg.Model.MinWords || tabular(lines) {
+	if len(words) < o.cfg.MinWords || tabular(lines) {
 		return lines
 	}
 	keep, err := o.helper.keep(words)

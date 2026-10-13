@@ -233,11 +233,11 @@ rows, query matches) and mark every gap.
 | `doc` | `max_code_lines` | 40 | Longer code blocks keep head and tail. |
 | | `max_tokens` | 5200 | Longer markdown is fitted by whole sections, query matches first. |
 | | `man_drop` | built-in list | Man page sections dropped as boilerplate. |
-| | `model.enabled` | false | Prose paragraphs pass a local model, [docs/prose-model.md](prose-model.md). Lossy; the original stays in the ledger. |
-| | `model.command` | `[]` | Program and arguments of the model process; empty runs `gascoigne prose serve`. |
-| | `model.threshold` | 0.5 | Keep score from which a word stays; higher drops more. |
-| | `model.warm` | true | Load the model when the server starts instead of on the first prose paragraph. |
-| | `model.min_words` | 40 | Shorter paragraphs stay as they are. |
+| `prose` | `enabled` | false | Prose paragraphs pass a local model, [docs/prose-model.md](prose-model.md). Lossy; the original stays in the ledger. |
+| | `command` | `[]` | Program and arguments of the model process; empty runs `gascoigne prose serve`. |
+| | `threshold` | 0.5 | Keep score from which a word stays; higher drops more. |
+| | `warm` | true | Load the model when the server starts instead of on the first prose paragraph. |
+| | `min_words` | 40 | Shorter paragraphs stay as they are. |
 | `test` | `coverage_below` | 80 | Coverage reports list files under this percent; the rest are counted. |
 | `data` | `max_output_lines` | 30 | Notebook cell text outputs keep head and tail; tracebacks stay. |
 | `aria` | `max_items`, `head`, `tail` | 20, 10, 4 | Browser snapshots: runs of like siblings keep head, tail and query matches. |

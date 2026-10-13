@@ -1,4 +1,4 @@
-package docoptimizer
+package proseoptimizer
 
 import (
 	"bufio"
@@ -48,8 +48,8 @@ func TestMain(m *testing.M) {
 func proseOptimizer(t *testing.T, mode string) *Optimizer {
 	t.Setenv("FAKE_PROSE", mode)
 	exe, _ := os.Executable()
-	cfg := &Config{MaxCodeLines: 6, MaxTokens: 4000, Model: Model{Enabled: true, Command: []string{exe}, Threshold: 0.5, MinWords: 4}}
-	return &Optimizer{cfg: cfg, helper: &helper{cfg: &cfg.Model, log: slog.New(slog.DiscardHandler)}}
+	cfg := &Config{Enabled: true, Command: []string{exe}, Threshold: 0.5, MinWords: 4}
+	return &Optimizer{cfg: cfg, helper: &helper{cfg: cfg, log: slog.New(slog.DiscardHandler)}}
 }
 
 func TestProse(t *testing.T) {
@@ -130,7 +130,7 @@ func TestHelperFailureCarriesStderr(t *testing.T) {
 func TestStartWarmsHelper(t *testing.T) {
 	for _, warm := range []bool{true, false} {
 		o := proseOptimizer(t, "ok")
-		o.cfg.Model.Warm = warm
+		o.cfg.Warm = warm
 		if err := o.Start(t.Context(), nil); err != nil {
 			t.Fatal(err)
 		}
@@ -154,7 +154,7 @@ func TestStartWarmsHelper(t *testing.T) {
 }
 
 func TestDefaultCommandIsSelf(t *testing.T) {
-	h := &helper{cfg: &Model{}}
+	h := &helper{cfg: &Config{}}
 	argv, err := h.argv()
 	if err != nil || len(argv) != 3 || argv[1] != "prose" || argv[2] != "serve" {
 		t.Fatalf("got %v, %v", argv, err)
@@ -172,7 +172,7 @@ func TestHelperGivenUp(t *testing.T) {
 }
 
 func TestDisabledByDefault(t *testing.T) {
-	o := testOptimizer()
+	o := &Optimizer{cfg: &Config{}}
 	body := "drop one dropb dropc dropd\n\n\n\nx"
 	p := &payload.Payload{Blocks: []payload.Block{{Type: "doc/text", Text: body}}}
 	if err := o.Optimize(t.Context(), p); err != nil || p.Blocks[0].Text != body {
@@ -180,10 +180,10 @@ func TestDisabledByDefault(t *testing.T) {
 	}
 }
 
-func TestModelValidate(t *testing.T) {
-	ok := Config{MaxCodeLines: 6, MaxTokens: 500, Model: Model{Enabled: true, Threshold: 0.5, MinWords: 1}}
+func TestValidate(t *testing.T) {
+	ok := Config{Enabled: true, Threshold: 0.5, MinWords: 1}
 	bad := ok
-	bad.Model.Threshold = 1
+	bad.Threshold = 1
 	if ok.Validate() != nil || bad.Validate() == nil {
 		t.Fatal("threshold must be inside (0, 1)")
 	}

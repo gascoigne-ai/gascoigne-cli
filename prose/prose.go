@@ -51,3 +51,10 @@ func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
+
+// Installed reports whether Install's files are in dir: the model with its
+// tokenizer, and the ONNX Runtime library (a system-wide one is not looked for).
+func Installed(dir string) (model, runtime bool) {
+	model = fileExists(filepath.Join(dir, "model.onnx")) && fileExists(filepath.Join(dir, "tokenizer.json"))
+	return model, fileExists(filepath.Join(dir, runtimeDir, libName()))
+}
