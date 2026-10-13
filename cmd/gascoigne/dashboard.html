@@ -212,6 +212,7 @@ dialog::backdrop { background: rgba(15, 18, 24, .5); }
 .compare.one { grid-template-columns: minmax(0, 1fr); }
 .pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .pane[hidden] { display: none; }
+.panel > .pane { border: 0; border-radius: 0; overflow: visible; } /* a tab of a panel sits in the panel's own frame */
 .pane-head { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border-top: 3px solid var(--border-strong); }
 .pane.orig .pane-head { border-top-color: var(--err); }
 .pane.opt .pane-head { border-top-color: var(--ok); }

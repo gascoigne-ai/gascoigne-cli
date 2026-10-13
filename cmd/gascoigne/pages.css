@@ -58,6 +58,9 @@ h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: .01em; }
 .navlink[aria-current="page"] { color: #fff; border-bottom-color: #f6ecf0; }
 .navlink:focus-visible { outline: 2px solid #e6c6d1; outline-offset: 3px; border-radius: 3px; }
 .ver { font-size: 12px; color: #b58c9b; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #e3cbd4; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: #6f7799; }
+.live.on i { background: #5ed39a; box-shadow: 0 0 0 3px rgba(94, 211, 154, .2); }
 .pagehead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 16px; }
 .pagehead .hint { margin: 0; }
 .theme { display: inline-flex; border: 1px solid rgba(246, 236, 240, .22); border-radius: 999px; padding: 2px; background: rgba(20, 6, 12, .35); }

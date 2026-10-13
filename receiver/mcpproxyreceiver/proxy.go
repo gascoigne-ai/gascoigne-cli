@@ -17,6 +17,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
@@ -156,18 +157,31 @@ func (r *Receiver) populate(ctx context.Context, s *mcp.Server, cs *mcp.ClientSe
 	}
 	direct, lazy := r.splitLazy(ctx, tools)
 	if stats {
-		var listed sync.Once
+		var mu sync.Mutex
+		var day string
 		s.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
 			return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
 				res, err := next(ctx, method, req)
 				if lr, ok := res.(*mcp.ListToolsResult); ok && err == nil && method == "tools/list" {
 					// The agent pays for the definitions only when it lists them, and for the
 					// ones it is shown: record exactly those, and what the lazy tools would cost.
-					listed.Do(func() { r.recordList(ctx, req.GetSession(), lr.Tools, lazy) })
+					// Once a day, not once per process: a session that lasts for days must not
+					// look like a server that went quiet.
+					today := time.Now().UTC().Format(time.DateOnly)
+					mu.Lock()
+					first := day != today
+					day = today
+					mu.Unlock()
+					if first {
+						r.recordList(ctx, req.GetSession(), lr.Tools, lazy)
+					}
 				}
 				return res, err
 			}
 		})
+	} else {
+		// After a late login the middleware cannot be added: record what the agent will be offered.
+		r.recordList(ctx, nil, direct, lazy)
 	}
 	switch {
 	case r.cfg.MaxTools > 0 && len(tools) > r.cfg.MaxTools: // max_tools hides everything; it wins over a choice of tools

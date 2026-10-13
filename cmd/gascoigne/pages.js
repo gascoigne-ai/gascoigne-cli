@@ -73,9 +73,15 @@
     const brand = el("div", { class: "brand" }, el("div", { class: "moon" }), el("div", {}, el("h1", { text: "Gascoigne" }), el("div", { class: "subtitle", text: "Token savings for coding agents" })));
     brand.querySelector(".moon").innerHTML = moon; // a fixed literal, no data
     const ver = el("span", { class: "ver", title: "gascoigne version" });
-    fetch("/api/health").then((r) => r.json()).then((h) => { ver.textContent = h.version ? "v" + h.version : ""; }).catch(() => {});
+    // The live dot follows the server: a health check now and every few seconds, as the dashboard's event stream does.
+    const live = el("div", { class: "live" }, el("i"), el("span", { text: "Connecting…" }));
+    const ping = () => fetch("/api/health").then((r) => r.json()).then((h) => {
+      ver.textContent = h.version ? "v" + h.version : "";
+      live.classList.add("on"); live.querySelector("span").textContent = "Live";
+    }).catch(() => { live.classList.remove("on"); live.querySelector("span").textContent = "Reconnecting…"; });
+    ping(); setInterval(ping, 5000);
     target.replaceWith(el("header", {}, brand, el("div", { class: "head-right" },
-      ...links.map(([href, text, id]) => el("a", { class: "navlink", href, text, ...(id === current ? { "aria-current": "page" } : {}) })), ver, theme)),
+      ...links.map(([href, text, id]) => el("a", { class: "navlink", href, text, ...(id === current ? { "aria-current": "page" } : {}) })), ver, live, theme)),
       el("div", { class: "pagehead" }, el("h2", { text: title }), el("span", { class: "hint", text: subtitle })));
   };
 
