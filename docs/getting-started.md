@@ -6,6 +6,22 @@
 go install github.com/gascoigne-ai/gascoigne-cli/cmd/gascoigne@latest
 ```
 
+**Prebuilt binary** (Linux, macOS), verified against the release's `checksums.txt`, into `~/.local/bin`:
+
+```sh
+v=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/gascoigne-ai/gascoigne-cli/releases/latest); v=${v##*/v}; os=$(uname -s | tr A-Z a-z); arch=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/'); f=gascoigne_${v}_${os}_${arch}.tar.gz; b=https://github.com/gascoigne-ai/gascoigne-cli/releases/download/v$v; curl -fsSLO $b/$f -O $b/checksums.txt && grep " $f\$" checksums.txt | { sha256sum -c - || shasum -a 256 -c -; } && tar xzf $f && mkdir -p ~/.local/bin && cp ${f%.tar.gz}/gascoigne ~/.local/bin/
+```
+
+**Windows** (PowerShell), into `%LOCALAPPDATA%\gascoigne` (add it to `PATH`):
+
+```powershell
+$v=(irm https://api.github.com/repos/gascoigne-ai/gascoigne-cli/releases/latest).tag_name.TrimStart('v'); $a=if($env:PROCESSOR_ARCHITECTURE -eq 'ARM64'){'arm64'}else{'amd64'}; $f="gascoigne_${v}_windows_$a.zip"; $b="https://github.com/gascoigne-ai/gascoigne-cli/releases/download/v$v"; iwr "$b/$f" -OutFile $f; if(-not ((irm "$b/checksums.txt") -match ((Get-FileHash $f).Hash.ToLower()+'  '+$f))){throw 'checksum mismatch'}; Expand-Archive $f . -Force; ni -Force -ItemType Directory $env:LOCALAPPDATA\gascoigne | Out-Null; cp "$($f -replace '\.zip$')\gascoigne.exe" $env:LOCALAPPDATA\gascoigne\
+```
+
+Binaries are not signed or notarized: on macOS run `xattr -d com.apple.quarantine ~/.local/bin/gascoigne`
+once; Windows SmartScreen may ask to confirm the first run. All archives are on the
+[Releases](https://github.com/gascoigne-ai/gascoigne-cli/releases) page.
+
 Or from a checkout:
 
 ```sh

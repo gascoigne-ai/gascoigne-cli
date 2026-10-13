@@ -4,6 +4,22 @@ All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-10-13
+
+Prebuilt binaries on every release.
+
+### Added
+
+- Linux, macOS and Windows archives (amd64, arm64) with `checksums.txt` attached to each GitHub release,
+  with install one-liners that verify the checksum (README, getting started, website).
+
+### Fixed
+
+- The release workflow attaches the binaries to a release created in the web UI instead of failing
+  because it already exists, and can be run by hand for an existing tag.
+- Links with `data:` and `vbscript:` targets are dropped from fetched pages like `javascript:` ones;
+  `after`/`before` in the dashboard events API are parsed without truncation.
+
 ## [0.3.1] - 2026-10-12
 
 Where context costs money, and a weekly look at MCP servers. `gascoigne context` and its page show what
