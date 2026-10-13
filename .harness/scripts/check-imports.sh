@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-public=(./component/... ./payload/... ./tokens/... ./detect/... ./compress/... ./mcptool/... ./mcpauth/... ./cost/... ./lazyre/... ./version/... ./receiver/... ./filter/... ./optimizer/... ./exporter/... ./extension/...)
+public=(./component/... ./payload/... ./tokens/... ./detect/... ./compress/... ./mcptool/... ./mcpauth/... ./cost/... ./prose/... ./lazyre/... ./version/... ./receiver/... ./filter/... ./optimizer/... ./exporter/... ./extension/...)
 bad=$(go list -f '{{.ImportPath}}: {{join .Imports " "}} {{join .TestImports " "}}' "${public[@]}" |
 	grep -E '/internal(/|$| )' || true)
 if [[ -n $bad ]]; then

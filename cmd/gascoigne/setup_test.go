@@ -439,7 +439,7 @@ func TestExperimentsExplainThemselves(t *testing.T) {
 	}
 	// The terminal prints the three parts before asking.
 	var out strings.Builder
-	if _, err := ask(strings.NewReader("\n\n\n"), &out, ds, false); err != nil {
+	if _, err := ask(strings.NewReader(strings.Repeat("\n", len(ds))), &out, ds, false); err != nil {
 		t.Fatal(err)
 	}
 	for _, want := range []string{"Example:", "How it works:", "Impact:", "gascoigne: your state before"} {

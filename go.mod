@@ -5,11 +5,13 @@ go 1.27
 toolchain go1.27.2
 
 require (
+	github.com/ebitengine/purego v0.11.1
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/ncruces/go-sqlite3/gormlite v0.34.0
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/net v0.61.0
 	golang.org/x/oauth2 v0.35.0
+	golang.org/x/text v0.43.0
 	gorm.io/gorm v1.31.2
 )
 
@@ -25,6 +27,5 @@ require (
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
-	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 )

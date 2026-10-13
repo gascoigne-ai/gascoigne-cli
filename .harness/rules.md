@@ -10,6 +10,8 @@ Hard rules for every agent and human change. Breaking one = change rejected.
     Never swap in a cgo driver (`gorm.io/driver/sqlite`, mattn): builds must stay `CGO_ENABLED=0`.
   - `golang.org/x/net` — HTML parsing (`html`, `html/atom`) for web data
   - `github.com/modelcontextprotocol/go-sdk` — MCP server/client
+  - `github.com/ebitengine/purego` — opens the ONNX Runtime library at run time without cgo (`prose/ortrt`)
+  - `golang.org/x/text` — NFC normalization for the prose model tokenizer (`prose/bpe`)
 - New dep only when the user explicitly asks. Never add one to "save time".
 
 ## Verification
