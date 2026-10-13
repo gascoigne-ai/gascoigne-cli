@@ -106,7 +106,7 @@ assert.strictEqual(proseTag(ran).text, "prose −70");
 assert.match(proseTag(ran).attrs.title, /700 → 630/);
 assert.strictEqual(proseTag(idle), "");
 assert.match(proseFact(ran)[1], /700 → 630 tokens \(−70, 10\.0%\)/);
-assert.match(proseFact(idle)[1], /left the text as it was/);
+assert.match(proseFact(idle)[1], /did not change this output/);
 assert.strictEqual(proseFact(off), null);
 `
 	file := filepath.Join(t.TempDir(), "prose.js")

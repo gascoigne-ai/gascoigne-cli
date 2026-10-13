@@ -1040,9 +1040,9 @@ function stat(label, value, cls, extra) {
 function proseFact(e) {
   if (!(e.optimizers || []).includes("prose")) return null;
   const p = proseStep(e);
-  if (!p) return ["Prose model", "In the chain, left the text as it was: no long plain paragraph (min_words), or the model was not available (gascoigne prose status)"];
+  if (!p) return ["Prose model", "The prose model was on but did not change this output. It only shortens long paragraphs of plain text (40 words or more by default), and this output had none. If you expected it to work, run `gascoigne prose status` to check the model is installed."];
   const dropped = p.raw_tokens - p.out_tokens;
-  return ["Prose model", `Dropped low-value words: ${p.raw_tokens} → ${p.out_tokens} tokens (−${dropped}, ${fmtPct(pct(dropped, p.raw_tokens))}). Lossy; numbers, paths, flags, code and links are kept. The original is stored.`];
+  return ["Prose model", `Shortened the wording: ${p.raw_tokens} → ${p.out_tokens} tokens (−${dropped}, ${fmtPct(pct(dropped, p.raw_tokens))}). It drops words that add little, so some detail can be lost, but numbers, paths, flags, code and links are kept. The full original is saved.`];
 }
 
 function detailsView(e) {
