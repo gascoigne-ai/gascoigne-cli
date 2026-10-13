@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/auth"
@@ -41,6 +42,7 @@ func Login(ctx context.Context, s *Store, serverURL string, open func(authURL st
 			ResponseTypes:           []string{"code"},
 			TokenEndpointAuthMethod: "none",
 		}},
+		Client:              discoveryClient(),
 		RedirectURL:         redirect,
 		RequestRefreshToken: true,
 		AuthorizationCodeFetcher: func(ctx context.Context, args *auth.AuthorizationArgs) (*auth.AuthorizationResult, error) {
@@ -75,6 +77,28 @@ func Login(ctx context.Context, s *Store, serverURL string, open func(authURL st
 		return errors.New("the server did not ask for a login (OAuth)")
 	}
 	return nil
+}
+
+// discoveryClient returns the client for OAuth metadata requests. The user
+// chose this server, so the SDK's private-address guard (lifted by any transport
+// that is not a plain *http.Transport) only gets in the way of internal servers.
+func discoveryClient() *http.Client {
+	t := http.DefaultTransport.(*http.Transport).Clone()
+	t.DialContext = (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}).DialContext
+	return &http.Client{Transport: trimWellKnown{t}}
+}
+
+// trimWellKnown drops the trailing slash the SDK leaves on metadata paths when
+// the issuer is a bare origin with a slash ("https://host/"): proxies answer
+// ".../oauth-authorization-server/" with a redirect to http and a 404.
+type trimWellKnown struct{ http.RoundTripper }
+
+func (t trimWellKnown) RoundTrip(r *http.Request) (*http.Response, error) {
+	if strings.HasPrefix(r.URL.Path, "/.well-known/") && strings.HasSuffix(r.URL.Path, "/") {
+		r = r.Clone(r.Context())
+		r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
+	}
+	return t.RoundTripper.RoundTrip(r)
 }
 
 // serveCallback answers the browser's redirect once and hands the result on.

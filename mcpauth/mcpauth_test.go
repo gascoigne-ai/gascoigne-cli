@@ -3,7 +3,9 @@ package mcpauth
 import (
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -52,6 +54,32 @@ func TestLoginThenHandler(t *testing.T) {
 	}
 	if c, _ := store.Get(url); c.Token.AccessToken != "tok2" {
 		t.Errorf("refreshed token not saved: %+v", c.Token)
+	}
+}
+
+func TestDiscoveryClientOptsOutOfPrivateIPGuard(t *testing.T) {
+	// The SDK keeps its private-address check only for a plain *http.Transport without a custom dialer.
+	if tr, ok := discoveryClient().Transport.(trimWellKnown).RoundTripper.(*http.Transport); !ok || tr.DialContext == nil {
+		t.Fatal("no dialer set: private-address servers cannot log in")
+	}
+}
+
+func TestDiscoveryClientTrimsWellKnownSlash(t *testing.T) {
+	var paths []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { paths = append(paths, r.URL.Path) }))
+	defer srv.Close()
+
+	c := discoveryClient()
+	for _, p := range []string{"/.well-known/oauth-authorization-server/", "/.well-known/oauth-protected-resource/mcp", "/register/"} {
+		resp, err := c.Get(srv.URL + p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+	}
+	want := []string{"/.well-known/oauth-authorization-server", "/.well-known/oauth-protected-resource/mcp", "/register/"}
+	if !slices.Equal(paths, want) {
+		t.Errorf("paths = %q, want %q", paths, want)
 	}
 }
 
