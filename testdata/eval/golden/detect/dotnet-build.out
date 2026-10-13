@@ -1,8 +1,8 @@
 /home/user/src/shop/src/Shop/Cart.cs
-  14:20 error CS0029 Cannot implicitly convert type 'string' to 'int' (×2, first shown)
-  22:13 error CS0103 The name 'FormatPrice' does not exist in the current context (×2, first shown)
+  14:20 error CS0029 Cannot implicitly convert type 'string' to 'int' (×2, same place)
+  22:13 error CS0103 The name 'FormatPrice' does not exist in the current context (×2, same place)
 /home/user/src/shop/src/Shop/Orders/OrderService.cs
-  41:9 warning CS0168 The variable 'ex' is declared but never used (×2, first shown)
-  57:16 error CS1061 'Order' does not contain a definition for 'Totl' and no accessible extension method 'Totl' accepting a first argument of type 'Order' could be found (are you missing a using directive or an assembly reference?) (×2, first shown)
+  41:9 warning CS0168 The variable 'ex' is declared but never used (×2, same place)
+  57:16 error CS1061 'Order' does not contain a definition for 'Totl' and no accessible extension method 'Totl' accepting a first argument of type 'Order' could be found (are you missing a using directive or an assembly reference?) (×2, same place)
 Build FAILED.
 6 errors, 2 warnings in 2 files

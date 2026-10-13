@@ -120,7 +120,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 | Family | Engine (lib) | Dialects |
 |---|---|---|
 | `test` | `compress/testreport`: go parsed, others via rules. Passes counted, noise and dependency frames dropped, failures and summaries kept | go, go-json, jest, vitest, bun, mocha, deno, pytest, cargo, rspec, maven, dotnet |
-| `build` | `compress/watch`: watch output keeps the last cycle + earlier result lines. `compress/diag`: diagnostics grouped by file, identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed) |
+| `build` | `compress/watch`: watch output keeps the last cycle + earlier result lines. `compress/diag`: diagnostics grouped by file, maven `symbol:`/`location:` lines kept with their error, identical ones in a file folded with their other lines (`×3, also at 5, 9`), identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed) |
 | `pkg` | `compress/pkgnoise`: progress and downloads dropped, warnings folded by kind | npm, pnpm, yarn, bun, pip, uv, poetry, go-mod, cargo, os |
 | `task` | sections; ok/cached ones collapse; failing ones via `compress/compose` | nx, turbo, make, just, gradle, compose, ci |
 | `vcs` | git engine (see below) | git-status, git-log, git-diff, git-remote, git-blame, git-branch, gh-list, gh-view |

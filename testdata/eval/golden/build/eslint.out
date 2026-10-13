@@ -7,7 +7,7 @@
   156:6 error @typescript-eslint/no-explicit-any Unexpected any. Specify a different type
   169:40 error @typescript-eslint/no-unused-vars 'React' is defined but never used
 §1/hooks/useOrders.ts
-  4:31 error no-console Unexpected console statement (×2, first shown)
+  4:31 error no-console Unexpected console statement (×2, also at 90)
   126:18 error @typescript-eslint/no-explicit-any Unexpected any. Specify a different type
   76:32 error react-hooks/exhaustive-deps React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array
 same in several files:

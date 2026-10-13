@@ -25,6 +25,7 @@ type Diagnostic struct {
 	Severity string // error, warning, note…; may be empty
 	Code     string // TS2322, E501, CS0103…
 	Message  string
+	Detail   []string // "symbol: variable X" lines javac prints under the message
 	Context  []string // code frame lines after it
 }
 
@@ -43,6 +44,8 @@ var (
 	eslintFile  = lazyre.New(`^(/|\./|[A-Za-z]:\\)?\S+\.[jt]sx?$|^\S+\.(vue|svelte|mjs|cjs)$`)
 	// [ERROR] /path/File.java:[14,20] msg   (maven compiler plugin)
 	mavenRe = lazyre.New(`^\[(ERROR|WARNING)\] (\S+\.(?:java|kt|scala)):\[(\d+),(\d+)\] (.+)$`)
+	// [ERROR]   symbol:   variable X   (maven: lines under a compiler error)
+	mavenDetailRe = lazyre.New(`^\[(?:ERROR|WARNING)\]\s{2,}(symbol|location|required|found|reason|expected|actual):\s*(.+)$`)
 	// code frame lines: indented, gutters, carets.
 	frameRe = lazyre.New(`^(\s{2,}|\s*\d+\s*\||\s*\|)|^\s*\^|^\s*~+\s*$`)
 )
@@ -115,6 +118,9 @@ func Compress(lines []string, r Rules) []string {
 		case esFile != "" && eslintRowRe.MatchString(t):
 			s := eslintRowRe.FindStringSubmatch(t)
 			add(&Diagnostic{File: esFile, Line: atoi(s[1]), Col: atoi(s[2]), Severity: s[3], Message: s[4], Code: s[5]})
+		case cur != nil && mavenDetailRe.MatchString(t):
+			s := mavenDetailRe.FindStringSubmatch(t)
+			cur.Detail = append(cur.Detail, s[1]+": "+strings.TrimSpace(s[2]))
 		case cur != nil && t != "" && frameRe.MatchString(t):
 			cur.Context = append(cur.Context, t)
 		case t == "":
@@ -188,16 +194,18 @@ func render(diags []*Diagnostic, other []string, order []any, maxFrame int) []st
 	return append(out, summary(diags, len(files)))
 }
 
+// maxAlso is how many extra lines a repeated finding lists before "… N more".
+const maxAlso = 11
+
 func fileLines(ds []*Diagnostic, maxFrame int) []string {
-	type key struct{ sev, code, msg string }
-	count := map[key]int{}
+	lines := map[signature][]int{}
 	for _, d := range ds {
-		count[key{d.Severity, d.Code, d.Message}]++
+		lines[sig(d)] = append(lines[sig(d)], d.Line)
 	}
-	seen := map[key]bool{}
+	seen := map[signature]bool{}
 	var out []string
 	for _, d := range ds {
-		k := key{d.Severity, d.Code, d.Message}
+		k := sig(d)
 		if seen[k] {
 			continue
 		}
@@ -207,9 +215,9 @@ func fileLines(ds []*Diagnostic, maxFrame int) []string {
 			pos += ":" + strconv.Itoa(d.Col)
 		}
 		head := strings.Join(slices.DeleteFunc([]string{"  " + pos, d.Severity, d.Code}, func(s string) bool { return s == "" }), " ")
-		line := head + " " + d.Message
-		if n := count[k]; n > 1 {
-			line += fmt.Sprintf(" (×%d, first shown)", n)
+		line := head + " " + text(d)
+		if n := len(lines[k]); n > 1 {
+			line += repeats(n, d.Line, lines[k])
 		}
 		out = append(out, line)
 		ctx := capFrame(d.Context, maxFrame)
@@ -218,6 +226,36 @@ func fileLines(ds []*Diagnostic, maxFrame int) []string {
 		}
 	}
 	return out
+}
+
+// text is the message with the detail lines the compiler printed under it.
+func text(d *Diagnostic) string {
+	if len(d.Detail) == 0 {
+		return d.Message
+	}
+	return d.Message + " [" + strings.Join(d.Detail, "; ") + "]"
+}
+
+// repeats says a finding came n times: at which other lines, or "same place"
+// when a tool printed it twice (maven and dotnet repeat errors in a summary).
+func repeats(n, first int, lines []int) string {
+	other := slices.DeleteFunc(slices.Compact(slices.Sorted(slices.Values(lines))), func(l int) bool { return l == first })
+	if len(other) == 0 {
+		return fmt.Sprintf(" (×%d, same place)", n)
+	}
+	return fmt.Sprintf(" (×%d, also at %s)", n, alsoAt(other))
+}
+
+// alsoAt lists lines of a repeated finding, the first maxAlso of them.
+func alsoAt(lines []int) string {
+	parts := make([]string, 0, maxAlso+1)
+	for _, l := range lines[:min(len(lines), maxAlso)] {
+		parts = append(parts, strconv.Itoa(l))
+	}
+	if more := len(lines) - maxAlso; more > 0 {
+		parts = append(parts, fmt.Sprintf("… %d more", more))
+	}
+	return strings.Join(parts, ", ")
 }
 
 func summary(diags []*Diagnostic, files int) string {
@@ -279,7 +317,7 @@ func capFrame(ctx []string, max int) []string {
 
 type signature struct{ sev, code, msg string }
 
-func sig(d *Diagnostic) signature { return signature{d.Severity, d.Code, d.Message} }
+func sig(d *Diagnostic) signature { return signature{d.Severity, d.Code, text(d)} }
 
 // shared is a diagnostic repeated in several files, printed once.
 type shared struct {
@@ -323,7 +361,7 @@ func sharedLines(found map[signature]*shared, maxFrame int) []string {
 	for _, s := range list {
 		d := s.first
 		head := strings.Join(slices.DeleteFunc([]string{"  " + cmp.Or(d.Severity, "error"), d.Code}, func(s string) bool { return s == "" }), " ")
-		out = append(out, head+" "+d.Message)
+		out = append(out, head+" "+text(d))
 		out = append(out, "    at "+strings.Join(s.where, ", "))
 		for _, c := range capFrame(d.Context, maxFrame) {
 			out = append(out, "    "+strings.TrimLeft(c, " "))

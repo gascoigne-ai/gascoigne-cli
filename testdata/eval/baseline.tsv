@@ -40,7 +40,7 @@ build/cargo-build	457	0	1
 build/dotnet-build	201	4	3
 build/docker-build-fail	531	4	24
 build/golangci	1018	6	0
-build/eslint	660	0	0
+build/eslint	661	0	0
 build/maven-compile	165	0	24
 detect/tsc	722	36	0
 detect/yarn-tsc	722	36	0
@@ -54,7 +54,7 @@ detect/cargo-build	457	0	1
 detect/dotnet-build	201	4	3
 detect/docker-build	531	4	24
 detect/golangci	1018	6	0
-detect/eslint	660	0	0
+detect/eslint	661	0	0
 detect/maven-compile	165	0	24
 pkg/pip-install	159	0	3
 pkg/uv-pip-install	171	0	0
@@ -206,7 +206,7 @@ detect/go-code	11420	88	28
 npm/install	76	0	2
 npm/install-verbose	76	8	1115
 npm/test-jest-fail	418	0	0
-npm/tsc-errors	173	1	0
+npm/tsc-errors	174	1	0
 detect/npm-verbose	76	8	1115
 detect/jest	418	0	0
 nx/run-many-build	324	1	61

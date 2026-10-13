@@ -1,6 +1,7 @@
 package diag
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 
@@ -87,5 +88,44 @@ func TestSARIF(t *testing.T) {
 	want := "semgrep: 2 results\napp/db.py:12:4: error: tainted SQL [r1]\nwarning: no location [r2]"
 	if strings.Join(got, "\n") != want {
 		t.Fatalf("got\n%s\nwant\n%s", strings.Join(got, "\n"), want)
+	}
+}
+
+func TestMavenDetailsStayWithTheirError(t *testing.T) {
+	in := `[ERROR] /src/T.java:[52,51] cannot find symbol
+[ERROR]   symbol:   variable Attrs
+[ERROR]   location: class T
+[ERROR] /src/T.java:[53,51] cannot find symbol
+[ERROR]   symbol:   variable Attrs
+[ERROR]   location: class T
+[ERROR] /src/T.java:[60,3] cannot find symbol
+[ERROR]   symbol:   variable Other
+[ERROR]   location: class T
+`
+	want := `/src/T.java
+  52:51 error cannot find symbol [symbol: variable Attrs; location: class T] (×2, also at 53)
+  60:3 error cannot find symbol [symbol: variable Other; location: class T]
+3 errors in 1 file
+`
+	if got := run(in, Rules{}); got != want {
+		t.Fatalf("got:\n%s\nwant:\n%s", got, want)
+	}
+}
+
+func TestRepeatsListTheirLines(t *testing.T) {
+	var in strings.Builder
+	for i := 1; i <= 15; i++ {
+		in.WriteString("a.go:" + strconv.Itoa(i*10) + ":1: error: boom\n")
+	}
+	got := run(in.String(), Rules{})
+	if !strings.Contains(got, "(×15, also at 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, … 3 more)") {
+		t.Fatalf("got:\n%s", got)
+	}
+}
+
+func TestRepeatOnTheSameLine(t *testing.T) {
+	got := run("a.go:4:1: error: boom\na.go:4:1: error: boom\n", Rules{})
+	if !strings.Contains(got, "4:1 error boom (×2, same place)") {
+		t.Fatalf("got:\n%s", got)
 	}
 }
