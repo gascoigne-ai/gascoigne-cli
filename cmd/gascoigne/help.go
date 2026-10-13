@@ -242,7 +242,7 @@ func init() {
 
 		{name: "prose", args: "[install|status] [flags]", group: groupDev, experimental: true,
 			summary: "set up the prose model: download model and ONNX Runtime, show whether it can run",
-			about: "install downloads the model (601 MB) and the ONNX Runtime libraries for this platform into the\n" +
+			about: "install downloads the model (274 MB) and the ONNX Runtime libraries for this platform into the\n" +
 				"user cache dir, checking pinned SHA256 hashes, and prints them. status says whether the model is\n" +
 				"installed. The prose optimizer is on with this experiment and loads the model in the process that\n" +
 				"optimizes: the background server keeps it loaded.\n" +

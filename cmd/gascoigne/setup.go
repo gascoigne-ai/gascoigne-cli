@@ -204,11 +204,11 @@ var experiments = []struct{ name, title, text, example, how, impact string }{
 		"Finds the instruction files an agent loads (CLAUDE.md and its imports, memory, skill and agent descriptions, AGENTS.md), counts and prices them, and flags large imports and duplicates. With -terse it can drop articles and fillers from instruction files in place (a .bak is kept).",
 		"Listing changes nothing. The point is to show instruction text that you pay for on every request; -terse edits your files, so review the result."},
 	{"prose", "Prose compression with a local model",
-		"Downloads a small language model (601 MB) that drops low-value words from long prose, and turns the prose optimizer on.",
+		"Downloads a small language model (274 MB) that drops low-value words from long prose, and turns the prose optimizer on.",
 		"$ gascoigne prose install\ngascoigne prose: onnxruntime-linux-x64-1.29.0.tgz\n  sha256 c3fddc4f139a045b0c4902c57410f0694f1c2fdf9b6939fbe38b1aeae7cd14ba\n  downloaded, checksum matches\n\n" +
 			"setup runs this download when you turn it on; the background server keeps the model loaded\n" +
 			"a README paragraph: 'It sits between an agent and what the agent reads, shrinks it' -> 'sits between agent and what agent reads, shrinks it'",
-		"prose install downloads the model (601 MB) and the ONNX Runtime libraries, checking their hashes. With this on, plain paragraphs of text and markdown go through the model on your GPU (CUDA or CoreML) or CPU; numbers, paths, flags, identifiers, negations, code and links are kept. The original stays retrievable with gascoigne raw.",
+		"prose install downloads the model (274 MB) and the ONNX Runtime libraries, checking their hashes. With this on, plain paragraphs of text and markdown go through the model on your GPU (CUDA or CoreML) or CPU; numbers, paths, flags, identifiers, negations, code and links are kept. The original stays retrievable with gascoigne raw.",
 		"Lossy: about 8-10% fewer tokens on prose-heavy text, none on code, tables or command output. Needs the downloads and a few hundred MB of memory while it runs (in the background server, which keeps the model loaded)."},
 }
 
@@ -358,7 +358,7 @@ func boolWord(on bool) string {
 	return ""
 }
 
-// installProseModel downloads the prose model (601 MB) and the ONNX Runtime;
+// installProseModel downloads the prose model (274 MB) and the ONNX Runtime;
 // progress and checksums go to stderr.
 func installProseModel(ctx context.Context) error {
 	dir, err := prose.ModelDir()
@@ -574,7 +574,7 @@ func setupHandlers(mux *http.ServeMux) {
 					fmt.Fprintln(os.Stderr, "gascoigne: prose download failed, run gascoigne prose install:", err)
 				}
 			}()
-			lines = append(lines, "prose: downloading the model (601 MB) in the background; gascoigne prose status says when it is ready")
+			lines = append(lines, "prose: downloading the model (274 MB) in the background; gascoigne prose status says when it is ready")
 		}
 		respond(w, map[string][]string{"done": lines}, nil)
 	})
@@ -635,7 +635,7 @@ func repairProse(ctx context.Context, answers map[string]string) error {
 	if !needsProseModel(answers) {
 		return nil
 	}
-	fmt.Println("prose: downloading the model (601 MB) and ONNX Runtime")
+	fmt.Println("prose: downloading the model (274 MB) and ONNX Runtime")
 	if err := installProseModel(ctx); err != nil {
 		return fmt.Errorf("prose is on but the download failed (%w); run gascoigne prose install to retry", err)
 	}

@@ -20,7 +20,7 @@ const revision = "e00cc5e60ff73b01674ef8fa6da6c5acf6d54181"
 // does not match its hash is refused.
 var files = []struct{ remote, local, sha256 string }{
 	{"tokenizer.json", "tokenizer.json", "6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30"},
-	{"onnx/kompress-fp32.onnx", "model.onnx", "0f6758d903b5b5b90f784b7f17b599277f040a3c268afb88c193fe5bb9c08649"},
+	{"onnx/kompress-int8-wo.onnx", "model.onnx", "c47ddd764dec5cf91fd1f10cf69e5538dd2a49d913828da7f6a993931cc7904f"},
 }
 
 // Verify checks what Install leaves in dir: the runtime library and each model
@@ -39,7 +39,7 @@ func Verify(dir string) error {
 }
 
 // Install downloads what is missing into dir: the ONNX Runtime libraries
-// (in dir/onnxruntime) and the model (601 MB for the graph).
+// (in dir/onnxruntime) and the model (274 MB, int8 weight-only graph).
 func Install(ctx context.Context, dir, variant string) error {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err

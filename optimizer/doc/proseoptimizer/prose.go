@@ -39,7 +39,7 @@ type loaded struct {
 
 // openModel checks the files against their pinned hashes before the first
 // load, so a damaged download fails with a clear error instead of inside the
-// runtime. Later loads (after an idle unload) skip the 601 MB hash.
+// runtime. Later loads (after an idle unload) skip the 274 MB hash.
 func openModel(cfg *Config) func() (model, error) {
 	verified := false
 	return func() (model, error) {

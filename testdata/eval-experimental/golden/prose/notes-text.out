@@ -4,7 +4,7 @@ local ledger so nothing ever lost.
 
 Output gascoigne already optimized (exec, MCP server, proxy) recognized by
 hint and left alone, are gascoigne's own MCP tools. **Read** never replaced: Claude
-numbers lines shows, and dropped lines would shift numbers. **WebSearch**
+numbers lines shows, and dropped lines shift numbers. **WebSearch**
 left too: results (a median 608 tokens in measured sessions) rendered Claude
 Code from fixed structure.
 
@@ -22,7 +22,7 @@ Every run appears as it happens, with its savings, content type and, when it was
 optimized, the reason. Click a run to compare the original with what the agent read, side by
 side, and see each optimizer's step.
 
-Ids first 8 hex digits text's sha256 (12, 16 or 64 when prefix holds a
+Ids first 8 hex digits text's sha256 (12, 16 or 64 when prefix holds
 different text), so same output from any session stored once and its hint costs ~7
 fewer tokens. Originals gzip-compressed. Source keys longer 200 bytes (whole
 command lines, heredocs) stored as 160-byte prefix plus hash. Ledgers older
@@ -33,5 +33,5 @@ system's light or dark theme; the *Auto / Light / Dark* switch in the header ove
 and is remembered per browser.
 
 run that lost over 99.5% large output gets warning to check it. optimized text
-is kept next original (gzip, same retention), so runs recorded before show only
+is kept next original (gzip, same retention), so runs recorded before that show only
 original. Viewing either here does not mark source failing.

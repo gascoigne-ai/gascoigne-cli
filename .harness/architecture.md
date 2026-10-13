@@ -163,7 +163,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 - Prose model (optimizer `prose`, after `doc` in the chain, own id so its savings show apart in `gain -by optimizer`; experimental `prose` command and setting, off by default (`prose status`, `/api/experiments` and the dashboard's Experiments panel say if it can run), lossy, original in the ledger): `doc/text` and the
   plain paragraphs of markdown (not headings, tables, quotes, lists, HTML, links, fenced code) go
   to the model (package `prose`, loaded in the optimizing process, so the background server keeps it warm; `CGO_ENABLED=0`: `ortrt` opens the ONNX Runtime library with purego and calls its C API; CUDA on
-  Linux/Windows, CoreML on macOS, else CPU), an extractive ModernBERT compressor (attribution: `docs/prose-model.md`). The experimental `prose` setting sets `optimizers.prose.enabled` in `configData`, so the config a client sends to the server carries it. Words are scored in
+  Linux/Windows, CoreML on macOS, else CPU), an extractive ModernBERT compressor, int8 weight-only ONNX graph, 274 MB, needs ORT ≥ 1.24 (attribution: `docs/prose-model.md`). The experimental `prose` setting sets `optimizers.prose.enabled` in `configData`, so the config a client sends to the server carries it. Words are scored in
   chunks of ≤350 words and ≤510 tokens; a word stays when any of its tokens scores ≥ `threshold`,
   or matches the hard-keep patterns (numbers, paths, flags, identifiers, negations, connectives,
   inline code, links). Dropped words leave no marker. Model missing, failing, panicking or

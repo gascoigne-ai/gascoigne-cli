@@ -21,7 +21,7 @@ flowchart LR
 
 ## Setup
 
-1. `gascoigne prose install` downloads ONNX Runtime 1.29 for your platform and the model (601 MB),
+1. `gascoigne prose install` downloads ONNX Runtime 1.29 for your platform and the model (274 MB),
    both hash checked, into the user cache dir (`-model DIR` to change it). `-runtime
    auto|cpu|cuda12|cuda13` picks the ONNX Runtime build; auto reads the CUDA version from
    `nvidia-smi`, and macOS has no GPU variant (CoreML is built in). A CUDA build also needs the
@@ -60,12 +60,14 @@ omission markers are never sent to the model.
 | windows/amd64/cuda13 | `onnxruntime-win-x64-gpu_cuda13-1.29.0.zip` | `0d2ab3feb9ed0ae68ccbbf2013ac87ad58a3b31bc8b28c5854f2ccacecbd8d90` |
 | windows/arm64/cpu | `onnxruntime-win-arm64-1.29.0.zip` | `a094a49c3ced0f9fca554647cc7566ae99d93a63a8ce6bf47975561c2de7608e` |
 
+The graph is `kompress-int8-wo` (int8 weight-only, MatMulNBits, needs ONNX Runtime 1.24 or newer): on the eval fixtures it keeps the same words as the fp32 graph for about 99% of the text and saves the same share of tokens, at 274 MB instead of 601 MB. Same output on CPU and CUDA; CUDA is about ten times faster per paragraph batch.
+
 Model files, at revision `e00cc5e60ff73b01674ef8fa6da6c5acf6d54181`:
 
 | file | sha256 |
 |---|---|
 | `tokenizer.json` | `6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30` |
-| `onnx/kompress-fp32.onnx` | `0f6758d903b5b5b90f784b7f17b599277f040a3c268afb88c193fe5bb9c08649` |
+| `onnx/kompress-int8-wo.onnx` | `c47ddd764dec5cf91fd1f10cf69e5538dd2a49d913828da7f6a993931cc7904f` |
 
 macOS on Intel has no ONNX Runtime 1.29 build: use `-lib` with your own.
 

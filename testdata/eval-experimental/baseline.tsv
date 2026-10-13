@@ -1,5 +1,5 @@
 # case	out tokens	lost errors	lost artifacts (gascoigne eval -update)
-prose/notes-text	519	0	0
-prose/decisions-md	2471	0	0
-prose/web-page	1753	3	53
+prose/notes-text	518	0	0
+prose/decisions-md	2465	0	0
+prose/web-page	1752	3	53
 prose/df-table	118	0	0

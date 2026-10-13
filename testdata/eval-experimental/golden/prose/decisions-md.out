@@ -39,7 +39,7 @@ version (a closed tab would mean update never happens).
 (`setup.json`, mode 0600, 24 h, deleted one answer), constant-time compare, only offered
 question ids and option values accepted, dashboard's loopback-Host and cross-origin checks.
 Never opened under `CI`, without display, or `GASCOIGNE_SERVER=off`; get flags and
-one-line notice. Rejected: terminal-only prompt (blocks scripts, easy miss in an agent's
+one-line notice. Rejected: terminal-only prompt (blocks scripts, easy miss in agent's
 output), unauthenticated page.
 
 **Where answers live.** `prefs.json` in the state dir, not `config.yaml`: a new config key needs a
@@ -117,7 +117,7 @@ user's choice, so it must not bring page back.
 **Lazy tools, not hidden tools.** unused tool not removed agent: `mcp-proxy` stops listing
 and says in `search_tools`'s description exists, agent asks it by name when task
 needs it. Rejected: hiding good agent never told cannot ask) and `list_changed`
-notification when agent asks changed tool set busts prompt cache); the lazy set read
+notification agent asks changed tool set busts prompt cache); the lazy set read
 start and never changes inside session.
 
 **The choice needs no setup token.** saved from review page dashboard's own guards
@@ -127,20 +127,20 @@ endpoint accepts only proxied server and tool names review already shows for it.
 
 **Server ids name plus command hash.** server's reported name collides when one binary is
 configured twice (two databases, two roots), stats and choices keyed by name and short hash
-command line. Only hash stored: arguments can hold keys. agent's config key not known
+command line. Only hash stored: arguments hold keys. agent's config key not known
 `mcp-proxy`, and passing change `install` writes every agent; found other way
 round instead: config entry runs `gascoigne mcp-proxy -- <command>` holds command, so hashing
 gives same id (`proxiedConfigs`).
 
 **Remote MCP servers go through stdio proxy, not server route.** `mcp-proxy -url` connects downstream
 SDK's HTTP/SSE client transports; agent still starts stdio command. Rejected:
-route on background server the upstream in request header (a shared warm process, but new
+route on background server upstream in request header (a shared warm process, but new
 network surface guard against loops and SSRF, plus session cache). cost is one process per agent
 session, for stdio servers. id hashes url (it can hold keys); header values live only in agent's own config.
 
 **OAuth is handled inside proxy, through login tool.** agent's own OAuth tokens (kept by agent, in
-its keychain or files) not readable by gascoigne, so proxied OAuth server needs its own login, once.
-proxy has no terminal and agent waits for it start, so it neither blocks on browser nor exits:
+its keychain or files) are not readable by gascoigne, so proxied OAuth server needs its own login, once.
+proxy has no terminal and agent waits it start, so it neither blocks on browser nor exits:
 offers `gascoigne_login` (instructions tell agent call it), and server's tools appear
 login done. costs one tools/list_changed in session, case where alternative no tools
 all. Rejected: probing servers install and leaving OAuth ones direct (a network call per entry, and user
@@ -149,9 +149,9 @@ state dir (0600), like agents' own credential files.
 
 **Switching server off shown, not done.** review page says where agent's config starts server
 and gives command removes it (`claude mcp remove <key> --scope user|local|project`; Cursor, delete
-entry). Disabling would write another program's settings, which gascoigne does only after question in
+entry). Disabling write another program's settings, which gascoigne does only after question in
 setup page, and Claude's own file (`~/.claude.json`) rewritten running Claude Code, so write
-can lose data. one-click action stays what is gascoigne's own: loading tools on request.
+can lose data. one-click action stays is gascoigne's own: loading tools on request.
 
 ## Process
 
