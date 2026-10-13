@@ -190,6 +190,12 @@
 #     max_code_lines: 40                          ## longer code blocks keep head and tail
 #     max_tokens: 5200                            ## longer markdown keeps whole sections, query first
 #     man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON]
+#     model:                                   ## prose paragraphs of text and markdown pass a local model (gascoigne prose, GPU), lossy, original in the ledger
+#       enabled: false                              ## also needs experimental: [prose], else the model process is refused
+#       command: []                                 ## empty: this binary's `prose serve`; or program and arguments
+#       threshold: 0.5                              ## keep score from which a word stays; higher drops more
+#       warm: true                                  ## load the model at server start, not on the first paragraph
+#       min_words: 40                               ## shorter paragraphs stay as they are
 #   embedjson:                                    ## JSON with record arrays inside text (log response bodies), crushed in place
 #     types: [log, test, build, task, doc/text]   ## types or families searched; JSON engines own data, cloud, http
 #     json:                                       ## crusher: same keys as json above
