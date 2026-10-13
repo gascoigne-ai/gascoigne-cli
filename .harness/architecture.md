@@ -126,7 +126,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 | `vcs` | git engine (see below) | git-status, git-log, git-diff, git-remote, git-blame, git-branch, gh-list, gh-view |
 | `search` | grep engine: matches grouped by file (with or without line numbers), identical lines in a file merged (`3,9: text`, `2× text`); with a `query`, the per-file cap keeps the best BM25 matches | grep, rg, ag, git-grep |
 | `fs` | ls engine: listings, tree, paths by directory, du largest, df real disks. cat: comments dropped, outlines (see Source files) | ls, tree, find, du, df, code |
-| `table` | `compress/table`: parses boxed/aligned/ruled/fixed-width tables, hoists constants, cuts cells; rows via `compress/rows` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, aligned, boxed |
+| `table` | `compress/table`: parses boxed/aligned/ruled/fixed-width tables, hoists constants, cuts cells; rows via `compress/sample` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, aligned, boxed |
 | `data` | json: `compress/jsonx` crusher. YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry | json, ndjson, yaml, csv, xml, toml |
 | `log` | log engine (see below) | app, journal, syslog, docker, kubectl, access, cloudwatch, gcp, azure |
 | `doc` | markdown/rst and man/help (see below) | markdown, rst, man, help (+ text: dedupe) |
@@ -202,7 +202,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 
 - `compress/compose` sniffs a section and calls the test/build/pkg engine; used by `task` and
   docker builds.
-- `compress/rows` samples records: errors, anomalies, change points, query matches, ends.
+- `compress/sample` samples records: errors, anomalies, change points, query matches, ends.
 - `compress/probe` measures retention: error lines, artifacts (paths, URLs, hashes, UUIDs) and
   `key=number` pairs of an original that are still readable in the output (regrouping, path
   legends and short hashes count as kept).

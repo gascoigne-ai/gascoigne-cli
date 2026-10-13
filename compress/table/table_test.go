@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 )
 
 func render(t *testing.T, in string, max int) string {
@@ -15,7 +15,7 @@ func render(t *testing.T, in string, max int) string {
 	if !ok {
 		t.Fatalf("no table in:\n%s", in)
 	}
-	return compress.Join(Render(tb, Options{MaxRows: max, MaxCell: 30, Rows: rows.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2}}))
+	return compress.Join(Render(tb, Options{MaxRows: max, MaxCell: 30, Rows: sample.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2}}))
 }
 
 func TestPsql(t *testing.T) {

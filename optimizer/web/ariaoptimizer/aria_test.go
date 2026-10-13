@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 )
 
 func TestShrink(t *testing.T) {
@@ -75,7 +75,7 @@ func TestShrink(t *testing.T) {
 	o := &Optimizer{cfg: &Config{MaxItems: 6, Head: 3, Tail: 2}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := o.shrink(tt.in, rows.Terms(tt.query)); got != tt.want {
+			if got := o.shrink(tt.in, sample.Terms(tt.query)); got != tt.want {
 				t.Fatalf("got\n%s\nwant\n%s", got, tt.want)
 			}
 		})

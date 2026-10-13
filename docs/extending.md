@@ -83,7 +83,7 @@ Rules for optimizers:
 - **Errors, not half-broken output**: the core falls back to the original and records it.
 - **Explain deliberate no-ops**: set `payload.AttrSkip` (`skip_reason`) to a factual reason,
   e.g. `mything: 120 rows < max_rows 200`.
-- **Reuse libraries**: `compress/`, `compress/rows`, `compress/table`, `compress/jsonx`. An
+- **Reuse libraries**: `compress/`, `compress/sample`, `compress/table`, `compress/jsonx`. An
   engine needing another family's logic uses its public library, never its package.
 - **Keep marker text short**; it costs tokens too.
 

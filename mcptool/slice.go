@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 )
 
 // Slice picks part of an original, so reading back a detail costs less than
@@ -89,9 +89,9 @@ func lineRange(spec string, n int) (int, int, error) {
 func queryHits(lines []string, query string, k int) []int {
 	docs := make([][]string, len(lines))
 	for i, l := range lines {
-		docs[i] = rows.Terms(l)
+		docs[i] = sample.Terms(l)
 	}
-	scores := rows.BM25(docs, rows.Terms(query))
+	scores := sample.BM25(docs, sample.Terms(query))
 	best := slices.Max(append(scores, 0))
 	if best == 0 {
 		return nil

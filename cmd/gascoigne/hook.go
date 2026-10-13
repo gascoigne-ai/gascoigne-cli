@@ -13,7 +13,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/exporter/stdoutexporter"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
@@ -112,7 +112,7 @@ func rewriteHook(reply func(updated map[string]any) any) hookFunc {
 		// The call's description says what the output is read for: ranked
 		// optimizers (search matches, doc sections, JSON items) keep that first.
 		desc, _ := in.ToolInput["description"].(string)
-		if q := rows.Intent(desc); q != "" {
+		if q := sample.Intent(desc); q != "" {
 			prefix += " -attr query=" + shellQuote(q)
 		}
 		wrapped, ok := wrapCommand(cmd, prefix)

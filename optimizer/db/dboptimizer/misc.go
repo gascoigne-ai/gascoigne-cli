@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/compress/table"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
@@ -85,7 +85,7 @@ func mongo(text string, o table.Options) []string {
 	opts := o.Rows
 	opts.MaxItems = o.MaxRows
 	var out []string
-	for _, d := range rows.Sample(docs, opts) {
+	for _, d := range sample.Sample(docs, opts) {
 		b, _ := json.Marshal(d)
 		out = append(out, string(b))
 	}

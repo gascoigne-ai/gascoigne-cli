@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
@@ -106,15 +106,15 @@ func split(lines []string) []*part {
 // score), best first: a page full of weak matches would otherwise fill the
 // budget with them.
 func byRelevance(secs []*part, query string) []int {
-	terms := rows.Terms(query)
+	terms := sample.Terms(query)
 	if len(terms) == 0 {
 		return nil
 	}
 	docs := make([][]string, len(secs))
 	for i, s := range secs {
-		docs[i] = rows.Terms(strings.Join(s.lines, "\n"))
+		docs[i] = sample.Terms(strings.Join(s.lines, "\n"))
 	}
-	scores := rows.BM25(docs, terms)
+	scores := sample.BM25(docs, terms)
 	best := slices.Max(scores)
 	var hits []int
 	for i := 1; i < len(secs); i++ {

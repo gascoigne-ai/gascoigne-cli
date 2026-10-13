@@ -10,7 +10,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
 )
 
@@ -65,7 +65,7 @@ func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.To
 	for i, t := range tools {
 		byName[t.Name] = t
 		names[i] = t.Name
-		docs[i] = rows.Terms(t.Name + " " + strings.ReplaceAll(t.Name, "_", " ") + " " + t.Description)
+		docs[i] = sample.Terms(t.Name + " " + strings.ReplaceAll(t.Name, "_", " ") + " " + t.Description)
 	}
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        searchToolName,
@@ -74,7 +74,7 @@ func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.To
 		if strings.TrimSpace(in.Query) == "" {
 			return mcptool.Result(strings.Join(names, "\n")), nil, nil
 		}
-		scores := rows.BM25(docs, rows.Terms(in.Query))
+		scores := sample.BM25(docs, sample.Terms(in.Query))
 		order := make([]int, len(tools))
 		for i := range order {
 			order[i] = i

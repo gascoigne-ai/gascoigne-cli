@@ -11,7 +11,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
@@ -197,7 +197,7 @@ const minOptions = 20
 // (usage, section headings, prose): every line of help text is distinct, so
 // without a query there is nothing to drop.
 func helpFor(lines []string, query string) []string {
-	terms := rows.Terms(query)
+	terms := sample.Terms(query)
 	if len(terms) == 0 {
 		return lines
 	}
@@ -219,9 +219,9 @@ func helpFor(lines []string, query string) []string {
 	}
 	docs := make([][]string, len(starts))
 	for k := range starts {
-		docs[k] = rows.Terms(strings.Join(lines[starts[k]:ends[k]], " "))
+		docs[k] = sample.Terms(strings.Join(lines[starts[k]:ends[k]], " "))
 	}
-	scores := rows.BM25(docs, terms)
+	scores := sample.BM25(docs, terms)
 	best := slices.Max(scores)
 	if best == 0 {
 		return lines

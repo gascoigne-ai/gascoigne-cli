@@ -7,7 +7,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
@@ -19,7 +19,7 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := rows.Terms(p.Attrs[payload.AttrQuery])
+	query := sample.Terms(p.Attrs[payload.AttrQuery])
 	return p.Rewrite(func(b payload.Block) (string, error) {
 		lines := compress.Lines(compress.StripANSI(b.Text))
 		switch b.Type {

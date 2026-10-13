@@ -15,7 +15,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
@@ -27,7 +27,7 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := rows.Terms(p.Attrs[payload.AttrQuery])
+	query := sample.Terms(p.Attrs[payload.AttrQuery])
 	return p.Rewrite(func(b payload.Block) (string, error) {
 		return o.shrink(b.Text, query), nil
 	}, detect.ARIA)
@@ -157,9 +157,9 @@ func matches(run []*node, query []string) []bool {
 	}
 	docs := make([][]string, len(run))
 	for i, n := range run {
-		docs[i] = rows.Terms(strings.Join(render([]*node{n}, 0), "\n"))
+		docs[i] = sample.Terms(strings.Join(render([]*node{n}, 0), "\n"))
 	}
-	scores := rows.BM25(docs, query)
+	scores := sample.BM25(docs, query)
 	best := slices.Max(scores)
 	for i, sc := range scores {
 		match[i] = sc > 0 && sc >= best/2

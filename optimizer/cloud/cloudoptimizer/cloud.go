@@ -14,7 +14,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/compress/jsonx"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/compress/table"
 	"github.com/gascoigne-ai/gascoigne-cli/compress/yamlx"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
@@ -27,7 +27,7 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := rows.Terms(p.Attrs[payload.AttrQuery])
+	query := sample.Terms(p.Attrs[payload.AttrQuery])
 	for i, b := range p.Blocks {
 		if detect.Family(b.Type) != detect.FamilyCloud {
 			continue
@@ -59,7 +59,7 @@ func (o *Optimizer) block(b payload.Block, query []string) (string, error) {
 	}
 	if t, ok := table.Parse(lines); ok {
 		return compress.Join(table.Render(t, table.Options{MaxRows: o.cfg.MaxRows, MaxCell: o.cfg.MaxCell,
-			Rows: rows.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3, Query: query}})), nil
+			Rows: sample.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3, Query: query}})), nil
 	}
 	if docs, err := yamlx.Docs(b.Text); err == nil && structured(docs) {
 		for _, d := range docs {

@@ -14,7 +14,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/compress/table"
 	"github.com/gascoigne-ai/gascoigne-cli/compress/yamlx"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
@@ -29,7 +29,7 @@ type Optimizer struct {
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	topts := table.Options{MaxRows: o.cfg.MaxRows, MaxCell: o.cfg.MaxCell,
-		Rows: rows.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3, Query: rows.Terms(p.Attrs[payload.AttrQuery])}}
+		Rows: sample.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3, Query: sample.Terms(p.Attrs[payload.AttrQuery])}}
 	for i, b := range p.Blocks {
 		if detect.Family(b.Type) != detect.FamilyK8s {
 			continue

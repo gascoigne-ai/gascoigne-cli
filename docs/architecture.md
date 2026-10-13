@@ -122,7 +122,7 @@ engine needs lives in public libraries under `compress/`:
 | `compress/pkgnoise` | package manager noise (pkg family) |
 | `compress/compose` | sniff a section and hand it to the test/build/pkg engine (task, docker builds) |
 | `compress/table` | parse and shrink tables (table, db, k8s, cloud, vcs, data) |
-| `compress/rows` | sample records: errors, anomalies, change points, BM25 query matches, ends |
+| `compress/sample` | sample records: errors, anomalies, change points, BM25 query matches, ends |
 | `compress/jsonx` | the JSON crusher (data, cloud, web) |
 | `compress/yamlx` | YAML prune rules (k8s, cloud) |
 | `compress/htmlx` | HTML to markdown (web, MCP fetch) |

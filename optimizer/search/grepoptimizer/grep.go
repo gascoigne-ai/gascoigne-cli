@@ -12,7 +12,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
@@ -53,7 +53,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 }
 
 func (o *Optimizer) group(lines []string, query string) []string {
-	terms := rows.Terms(query)
+	terms := sample.Terms(query)
 	parse := parseNumbered
 	if !slices.ContainsFunc(lines, numbered.MatchString) && plainBlock(lines) {
 		parse = parsePlain
@@ -127,9 +127,9 @@ func (o *Optimizer) relevant(hits []*hit, terms []string) []*hit {
 	}
 	docs := make([][]string, len(hits))
 	for i, h := range hits {
-		docs[i] = rows.Terms(h.text)
+		docs[i] = sample.Terms(h.text)
 	}
-	scores := rows.BM25(docs, terms)
+	scores := sample.BM25(docs, terms)
 	order := make([]int, len(hits))
 	for i := range order {
 		order[i] = i

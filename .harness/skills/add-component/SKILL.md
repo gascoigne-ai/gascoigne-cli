@@ -39,7 +39,7 @@ to make a component work — if you think you must, stop and ask the user.
      generic file/MIME type) plus rules in the family lib (`testreport`, `diag`, `pkgnoise`,
      `yamlx`, `table`) or a branch in the family engine. Add its command and content examples to
      `detect/matrix_test.go`. New optimizer only for a new family; engines needing another
-     family's logic use its public lib (`jsonx`, `htmlx`, `table`, `rows`), never its package.
+     family's logic use its public lib (`jsonx`, `htmlx`, `table`, `sample`), never its package.
 5. `<name>_test.go`: table-driven, real-shaped inputs.
 6. Register: one line in `internal/registry/registry.go` under the right kind comment.
 7. Optimizers: add to `optimizers:` and the router `default:` chain in `configs/default.yaml`.

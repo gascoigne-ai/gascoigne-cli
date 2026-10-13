@@ -1,7 +1,7 @@
-// Package rows samples long lists of records (decoded JSON objects, table
+// Package sample samples long lists of records (decoded JSON objects, table
 // rows) down to the ones worth reading: errors, anomalies, change points,
 // query matches and both ends. Gaps become "… N items omitted" markers.
-package rows
+package sample
 
 import (
 	"cmp"

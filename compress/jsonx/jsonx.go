@@ -1,7 +1,7 @@
 // Package jsonx compresses JSON. Values: empty ones dropped, long strings
 // and hashes shortened. Arrays: lossless first (similar objects as a table
 // with constant columns and shared prefixes/suffixes hoisted out); when that
-// is not enough, scored sampling (compress/rows) keeps errors, anomalies,
+// is not enough, scored sampling (compress/sample) keeps errors, anomalies,
 // change points, query matches and both ends, and marks what was omitted.
 package jsonx
 
@@ -12,7 +12,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 )
 
 // Legend explains table encoding once per output, so readers can decode rows.
@@ -114,7 +114,7 @@ func (c *crusher) array(items []any) any {
 	if small {
 		return items
 	}
-	kept := rows.Sample(items, rows.Options{
+	kept := sample.Sample(items, sample.Options{
 		MaxItems: c.cfg.MaxItems, HeadShare: c.cfg.HeadShare, TailShare: c.cfg.TailShare,
 		AnomalyStd: c.cfg.AnomalyStd, RelevanceK: c.cfg.RelevanceK, Query: c.query,
 	})

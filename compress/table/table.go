@@ -12,7 +12,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
 
@@ -186,7 +186,7 @@ func isHeader(l string) bool {
 type Options struct {
 	MaxRows int // longer tables are sampled
 	MaxCell int // longer cells are cut in the middle
-	Rows    rows.Options
+	Rows    sample.Options
 }
 
 // Render prints the table compactly.
@@ -196,7 +196,7 @@ func Render(t Table, o Options) []string {
 	if len(same) > 0 {
 		out = append(out, "same in all rows: "+strings.Join(same, ", "))
 	}
-	rows := append([]string{strings.Join(hdr, cell)}, sample(hdr, body, o)...)
+	rows := append([]string{strings.Join(hdr, cell)}, sampleRows(hdr, body, o)...)
 	return append(append(out, align(rows)...), t.After...)
 }
 
@@ -280,8 +280,8 @@ func hoist(header []string, data [][]string) ([]string, [][]string, []string) {
 	return pick(header), newData, same
 }
 
-// sample keeps notable rows of long tables via rows.Sample.
-func sample(header []string, data [][]string, o Options) []string {
+// sampleRows keeps notable rows of long tables via sample.Sample.
+func sampleRows(header []string, data [][]string, o Options) []string {
 	line := func(r []string) string {
 		cs := make([]string, len(r))
 		for i, c := range r {
@@ -307,7 +307,7 @@ func sample(header []string, data [][]string, o Options) []string {
 	opts := o.Rows
 	opts.MaxItems = o.MaxRows
 	var out []string
-	for _, it := range rows.Sample(items, opts) {
+	for _, it := range sample.Sample(items, opts) {
 		switch it := it.(type) {
 		case string:
 			out = append(out, it)

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
@@ -77,7 +77,7 @@ func attrsOf(c call) map[string]string {
 	}
 	if q := str("query", "q", "search", "prompt"); q != "" {
 		a[payload.AttrQuery] = q // relevance for long pages, search results, JSON
-	} else if q := rows.Intent(str("description")); q != "" {
+	} else if q := sample.Intent(str("description")); q != "" {
 		a[payload.AttrQuery] = q // what a shell call is for, in the agent's words
 	}
 	if u := str("url"); u != "" {

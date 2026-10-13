@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/compress/table"
 	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
 )
@@ -69,7 +69,7 @@ var ghColumns = map[int][]string{
 
 // ghList compacts gh list output, tab separated or aligned, as a table.
 func (o *Optimizer) ghList(lines []string, query []string) []string {
-	opts := table.Options{MaxRows: 30, MaxCell: 80, Rows: rows.Options{HeadShare: 0.5, TailShare: 0.15, RelevanceK: 3, Query: query}}
+	opts := table.Options{MaxRows: 30, MaxCell: 80, Rows: sample.Options{HeadShare: 0.5, TailShare: 0.15, RelevanceK: 3, Query: query}}
 	if len(lines) > 0 && strings.Contains(lines[0], "\t") {
 		var t table.Table
 		for _, l := range lines {

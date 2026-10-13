@@ -11,7 +11,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/compress/jsonx"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/rows"
+	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
@@ -25,7 +25,7 @@ type Optimizer struct {
 var legend = "// " + jsonx.Legend + "\n"
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := rows.Terms(p.Attrs[payload.AttrQuery])
+	query := sample.Terms(p.Attrs[payload.AttrQuery])
 	for i, b := range p.Blocks {
 		if o.wants(b.Type) {
 			p.Blocks[i].Text = o.crush(b.Text, query)

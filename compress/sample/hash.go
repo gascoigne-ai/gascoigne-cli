@@ -1,4 +1,4 @@
-package rows
+package sample
 
 import (
 	"encoding/json"
