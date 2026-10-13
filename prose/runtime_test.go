@@ -74,3 +74,19 @@ func TestPickVariantExplicit(t *testing.T) {
 		t.Fatalf("got %q", got)
 	}
 }
+
+func TestLibPath(t *testing.T) {
+	dir := t.TempDir()
+	for name, ok := range map[string]bool{
+		"onnx/lib/libonnxruntime.so": true,
+		"../../etc/passwd":           true, // flattened to its base name inside dir
+		"..":                         false,
+		".":                          false,
+		"":                           false,
+	} {
+		dst, got := libPath(dir, name)
+		if got != ok || (got && filepath.Dir(dst) != dir) {
+			t.Errorf("libPath(%q) = %q, %v; want ok=%v inside dir", name, dst, got, ok)
+		}
+	}
+}

@@ -152,17 +152,28 @@ func extractZip(archive, dir string) error {
 		if f.FileInfo().IsDir() || !isLib(f.Name) {
 			continue
 		}
+		dst, ok := libPath(dir, f.Name)
+		if !ok {
+			continue
+		}
 		r, err := f.Open()
 		if err != nil {
 			return err
 		}
-		err = write(filepath.Join(dir, filepath.Base(f.Name)), r, f.Mode())
+		err = write(dst, r, f.Mode())
 		r.Close()
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// libPath is where an archive entry lands: its base name directly in dir.
+// Names that would leave dir are refused.
+func libPath(dir, name string) (string, bool) {
+	dst := filepath.Join(dir, filepath.Base(name))
+	return dst, strings.HasPrefix(dst, filepath.Clean(dir)+string(os.PathSeparator))
 }
 
 // isLib selects the shared libraries directly in the archive's lib/ directory:
