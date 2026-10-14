@@ -85,7 +85,7 @@ func fetch(ctx context.Context, url, path string) error {
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(f, res.Body)
+	_, err = copyWithBar(f, res.Body, res.ContentLength)
 	if cerr := f.Close(); err == nil {
 		err = cerr
 	}
