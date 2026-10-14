@@ -4,6 +4,39 @@ All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] - 2026-10-14
+
+A second prose model you can pick in setup, a progress bar for its download, and an API for agent
+framework SDKs. The prose model stays an experiment.
+
+### Added
+
+- A second prose model, `ctxprune-small` (563 MB, trained on tool output, logs, code and web text). Pick it
+  with `optimizers.prose.model` or in `gascoigne setup`, which downloads the model you choose and checks
+  its files; `gascoigne prose install -name <model>` fetches either. The ONNX Runtime is shared.
+- A progress bar while `prose install` and setup download the model and the runtime, when stderr is a
+  terminal.
+- `/sdk/v1` on the background server: the API the agent framework SDKs use.
+- A minimal Alpine `Dockerfile`: a static build, a non-root user, the subcommand as the container command.
+- The dashboard shows the live status on every page and records the MCP tool lists daily.
+
+### Changed
+
+- The default prose model is the int8 weight-only graph: 274 MB instead of 601 MB, the same savings,
+  identical output on CPU and CUDA.
+- Models are named as on Hugging Face (`kompress-v2-base`, `ctxprune-small`) and each installs into a
+  directory of its own name, so files and checksums never mix. **Installs from 0.5.0 kept the model in the
+  root: run `gascoigne prose install` once more.**
+- `make eval-experimental` names the model of each run, so your setup choice does not change its goldens.
+- The dashboard's run details use plain labels (Command or tool, Steps tried, Skipped by, Original id), and
+  the prose step explains in plain words what it did or why it skipped.
+- Maven errors keep their symbol and location lines, and a repeated finding lists every line it occurs at.
+
+### Fixed
+
+- Unpacking the ONNX Runtime archive cannot write outside its directory, whatever entry names or symlink
+  targets the archive holds.
+
 ## [0.5.0] - 2026-10-13
 
 Prose compression with a local model, and a dashboard that groups its tables. The model is an experiment:
