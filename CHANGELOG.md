@@ -4,6 +4,13 @@ All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- The release notice reads `latest.json` hourly instead of daily, so a release published the day after a
+  read is no longer hidden for up to 24 hours.
+
 ## [0.6.1] - 2026-10-14
 
 The dashboard tells optimizing apart from rerequesting: when the agent asks for the original after an

@@ -87,7 +87,7 @@ func TestCheckReleaseOncePerDay(t *testing.T) {
 		t.Fatalf("saved: %+v", r)
 	}
 	if err := checkRelease(t.Context()); err != nil || hits.Load() != 1 {
-		t.Fatalf("within a day nothing is read: hits %d", hits.Load())
+		t.Fatalf("within an hour nothing is read: hits %d", hits.Load())
 	}
 	r := readRelease()
 	r.CheckedAt = time.Now().Add(-releaseEvery - time.Minute)
@@ -95,7 +95,7 @@ func TestCheckReleaseOncePerDay(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := checkRelease(t.Context()); err != nil || hits.Load() != 2 {
-		t.Fatalf("after a day it is read again: hits %d", hits.Load())
+		t.Fatalf("after an hour it is read again: hits %d", hits.Load())
 	}
 }
 

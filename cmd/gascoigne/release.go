@@ -20,7 +20,7 @@ import (
 
 // Release notice. The project website keeps a small file, latest.json, with
 // the id of the latest release and the page that tells about it. The
-// background server reads it once a day; the next session start after a
+// background server reads it hourly; the next session start after a
 // newer release appeared opens that page once. The request is a plain GET:
 // nothing identifying is sent, and hooks never touch the network (they read
 // the file the server saved). On by default; $GASCOIGNE_RELEASE_CHECK=off or
@@ -31,7 +31,7 @@ import (
 const releaseSite = "https://gascoigne-ai.github.io/"
 
 // releaseEvery is how long a result stands before the file is read again.
-const releaseEvery = 24 * time.Hour
+const releaseEvery = time.Hour
 
 // releaseRetry is how soon a failed read is tried again.
 const releaseRetry = time.Hour
@@ -130,7 +130,7 @@ func fetchRelease(ctx context.Context, base string) (release, error) {
 	return release{ID: f.ID, Released: f.Released, URL: page.String()}, nil
 }
 
-// checkRelease reads the website when a day has passed since the last read.
+// checkRelease reads the website when an hour has passed since the last read.
 // A failed read is tried again in an hour; the last good answer stays.
 func checkRelease(ctx context.Context) error {
 	if !releaseCheckOn() {
@@ -151,7 +151,7 @@ func checkRelease(ctx context.Context) error {
 }
 
 // watchRelease runs checkRelease in the background server: shortly after it
-// starts, then every hour (a read happens when a day has passed).
+// starts, then every hour (each tick reads).
 func watchRelease(ctx context.Context) {
 	t := time.NewTimer(30 * time.Second)
 	defer t.Stop()
@@ -201,7 +201,7 @@ func releaseDecision(p prefs) decision {
 		Title: "Tell me about new releases",
 		Text:  "gascoigne can notice when a new version is out and open its page once.",
 		Options: []option{
-			{"on", "Check once a day", "gascoigne's background server reads " + releaseBase() + "latest.json once a day. It is a plain request: nothing about you or this machine is sent, but the site's host sees your IP address as for any web page. A newer release opens its page once at the next session start."},
+			{"on", "Check hourly", "gascoigne's background server reads " + releaseBase() + "latest.json hourly. It is a plain request: nothing about you or this machine is sent, but the site's host sees your IP address as for any web page. A newer release opens its page once at the next session start."},
 			{"off", "Never check", "No request is made. Look for releases on the website or on GitHub yourself."},
 		}}
 }

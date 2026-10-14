@@ -510,7 +510,7 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   hook; SessionStart tells the agent to restart. Project installs are never touched by hooks:
   `gascoigne upgrade` does this project's and the user's now. Not decided = nothing is synced.
 - **Release notice** (`release.go`): the background server (`watchRelease`, started by `server run`)
-  reads `<site>latest.json` (`{"id":"0.3.0","released":"…","page":"releases/0.3.0/"}`) once a day
+  reads `<site>latest.json` (`{"id":"0.3.0","released":"…","page":"releases/0.3.0/"}`) hourly
   (`checkRelease`; a failure is retried in an hour, the last good answer stays) and saves it as
   `release.json` in the state dir. A claude SessionStart hook (`releaseNudge`: startup or resume,
   not compact or clear) opens the page once per release when `version.Newer(id, version.Number)`

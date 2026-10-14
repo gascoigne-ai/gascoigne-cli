@@ -40,7 +40,7 @@ type prefs struct {
 	// optimizers.prose.model in the config.
 	ProseModel string `json:"prose_model,omitempty"`
 	// ReleaseCheck (on or off; unset = on) lets the background server read the
-	// website's latest.json once a day; SeenRelease is the release whose page
+	// website's latest.json hourly; SeenRelease is the release whose page
 	// was already opened.
 	ReleaseCheck string `json:"release_check,omitempty"`
 	SeenRelease  string `json:"seen_release,omitempty"`
