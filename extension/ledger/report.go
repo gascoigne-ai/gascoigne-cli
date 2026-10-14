@@ -105,8 +105,11 @@ func (l *Ledger) aggregates(by string) string {
 			sum(steps.raw_tokens) AS raw_tokens, sum(steps.out_tokens) AS out_tokens,
 			min(events.ts) AS first_ts, max(events.ts) AS last_ts`
 	}
+	// A rerequested run cost the optimized result and then the original too:
+	// the agent read out+raw tokens where it would have read raw.
 	return `count(*) AS runs, sum(outcome = 'optimized') AS optimized, sum(outcome = 'error') AS failed,
-		sum(raw_tokens) AS raw_tokens, sum(out_tokens) AS out_tokens,
+		sum(raw_tokens) AS raw_tokens,
+		sum(CASE WHEN outcome = 'rerequested' THEN out_tokens + raw_tokens ELSE out_tokens END) AS out_tokens,
 		min(ts) AS first_ts, max(ts) AS last_ts`
 }
 
@@ -308,4 +311,28 @@ func (l *Ledger) RecentRuns(ctx context.Context, session string, limit int) ([]R
 		}
 	}
 	return out, nil
+}
+
+// ImpactDay compares, for one day, what optimizing saved with what
+// rerequests gave back.
+type ImpactDay struct {
+	Day         string `json:"day"`
+	Optimized   int    `json:"optimized"`   // runs the agent was content with
+	Saved       int    `json:"saved"`       // tokens those runs saved
+	Rerequested int    `json:"rerequested"` // runs after which the agent asked for the original
+	Wasted      int    `json:"wasted"`      // tokens the agent read twice for them: the optimized result on top of the original
+}
+
+// Impact is the daily optimized-versus-rerequested comparison, oldest first.
+func (l *Ledger) Impact(ctx context.Context, q component.StatsQuery) ([]ImpactDay, error) {
+	var days []ImpactDay
+	err := filter(l.events(ctx), "events", q).
+		Where("events.outcome IN ?", []string{string(component.Optimized), string(component.Rerequested)}).
+		Select(period(component.ByDay) + ` AS day,
+			sum(outcome = 'optimized') AS optimized,
+			sum(CASE WHEN outcome = 'optimized' THEN raw_tokens - out_tokens ELSE 0 END) AS saved,
+			sum(outcome = 'rerequested') AS rerequested,
+			sum(CASE WHEN outcome = 'rerequested' THEN out_tokens ELSE 0 END) AS wasted`).
+		Group("day").Order("day").Scan(&days).Error
+	return days, err
 }

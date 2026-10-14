@@ -137,6 +137,15 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		days, err := l.UsageDays(r.Context(), q)
 		respond(w, map[string]any{"models": nonNil(models), "days": nonNil(days)}, err)
 	})
+	mux.HandleFunc("GET /api/impact", func(w http.ResponseWriter, r *http.Request) {
+		q, err := statsQuery(r.URL.Query())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		days, err := l.Impact(r.Context(), q)
+		respond(w, nonNil(days), err)
+	})
 	mux.HandleFunc("GET /api/sessions", func(w http.ResponseWriter, r *http.Request) {
 		stats, err := l.Stats(r.Context(), component.StatsQuery{By: component.BySession})
 		respond(w, mcptool.Report(component.StatsQuery{By: component.BySession}, stats).Groups, err)

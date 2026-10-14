@@ -469,6 +469,36 @@ func TestRerequestedOutcome(t *testing.T) {
 	}
 }
 
+func TestImpact(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	recordRuns(t, l,
+		component.Event{Key: "a", Outcome: component.Optimized, RawTokens: 1000, OutTokens: 100},
+		component.Event{Key: "b", Outcome: component.Optimized, RawTokens: 500, OutTokens: 50},
+		component.Event{Key: "c", Outcome: component.Unchanged, RawTokens: 300, OutTokens: 300},
+	)
+	// The agent asked for the original of "b": it read 50 + 500 where 500 would do.
+	if err := l.MarkFailure(ctx, "b", component.ReasonRawRequested); err != nil {
+		t.Fatal(err)
+	}
+	days, err := l.Impact(ctx, component.StatsQuery{})
+	if err != nil || len(days) != 1 {
+		t.Fatalf("days %v, %v", days, err)
+	}
+	if d := days[0]; d.Optimized != 1 || d.Saved != 900 || d.Rerequested != 1 || d.Wasted != 50 {
+		t.Errorf("impact %+v", d)
+	}
+	stats, err := l.Stats(ctx, component.StatsQuery{By: component.ByOutcome})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, s := range stats {
+		if s.Group == "rerequested" && (s.RawTokens != 500 || s.OutTokens != 550) {
+			t.Errorf("rerequested raw %d out %d, want 500 and 550 (read twice)", s.RawTokens, s.OutTokens)
+		}
+	}
+}
+
 func TestMigrateRerequested(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()
