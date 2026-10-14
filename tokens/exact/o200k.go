@@ -8,18 +8,19 @@ package exact
 import (
 	"bufio"
 	"bytes"
+	"container/heap"
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
@@ -40,6 +41,10 @@ const (
 var o200kSplit = lazyre.New(`[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]*[\p{Ll}\p{Lm}\p{Lo}\p{M}]+(?i:'s|'t|'re|'ve|'m|'ll|'d)?` +
 	`|[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]+[\p{Ll}\p{Lm}\p{Lo}\p{M}]*(?i:'s|'t|'re|'ve|'m|'ll|'d)?` +
 	`|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n/]*|\s*[\r\n]+|\s+`)
+
+// httpClient bounds every request: a stalled network must end in an error,
+// not a hung command.
+var httpClient = &http.Client{Timeout: 30 * time.Second}
 
 // BPE is a byte-pair encoding: token bytes → merge rank.
 type BPE struct {
@@ -71,7 +76,7 @@ func download(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -144,37 +149,71 @@ func isSpace(s string) bool {
 	return strings.TrimFunc(s, unicode.IsSpace) == ""
 }
 
-// pieceTokens merges the piece's bytes, lowest rank first, until no pair
-// is in the vocabulary.
+// pair is a merge candidate: the tokens starting at i and j, spanning
+// piece[i:end]. It is stale once either token changed.
+type pair struct{ rank, i, j, end int }
+
+type pairHeap []pair
+
+func (h pairHeap) Len() int { return len(h) }
+func (h pairHeap) Less(a, b int) bool {
+	if h[a].rank != h[b].rank {
+		return h[a].rank < h[b].rank
+	}
+	return h[a].i < h[b].i
+}
+func (h pairHeap) Swap(a, b int) { h[a], h[b] = h[b], h[a] }
+func (h *pairHeap) Push(x any)   { *h = append(*h, x.(pair)) }
+func (h *pairHeap) Pop() any {
+	old := *h
+	p := old[len(old)-1]
+	*h = old[:len(old)-1]
+	return p
+}
+
+// pieceTokens merges the piece's bytes, lowest rank first (leftmost on
+// ties), until no pair is in the vocabulary. Tokens are a linked list
+// keyed by start offset and candidates a heap, so it is O(n log n): a
+// long piece without spaces (minified or base64 data) stays fast.
 func (b *BPE) pieceTokens(piece string) int {
 	if _, ok := b.ranks[piece]; ok {
 		return 1
 	}
-	// parts are the start offsets of the current tokens.
-	parts := make([]int, len(piece)+1)
-	for i := range parts {
-		parts[i] = i
+	n := len(piece)
+	next := make([]int, n+1)
+	prev := make([]int, n+1)
+	for i := range next {
+		next[i], prev[i] = i+1, i-1
 	}
-	rank := func(i int) int {
-		if i+2 >= len(parts) {
-			return math.MaxInt
+	var h pairHeap
+	push := func(i int) {
+		if i < 0 {
+			return
 		}
-		if r, ok := b.ranks[piece[parts[i]:parts[i+2]]]; ok {
-			return r
+		j := next[i]
+		if j >= n {
+			return
 		}
-		return math.MaxInt
+		end := next[j]
+		if r, ok := b.ranks[piece[i:end]]; ok {
+			heap.Push(&h, pair{r, i, j, end})
+		}
 	}
-	for len(parts) > 2 {
-		best, at := math.MaxInt, -1
-		for i := 0; i+2 < len(parts); i++ {
-			if r := rank(i); r < best {
-				best, at = r, i
-			}
-		}
-		if at < 0 {
-			break
-		}
-		parts = append(parts[:at+1], parts[at+2:]...)
+	for i := range n - 1 {
+		push(i)
 	}
-	return len(parts) - 1
+	count := n
+	for len(h) > 0 {
+		p := heap.Pop(&h).(pair)
+		if next[p.i] != p.j || next[p.j] != p.end {
+			continue // stale
+		}
+		next[p.i] = p.end
+		prev[p.end] = p.i
+		next[p.j] = -1
+		count--
+		push(prev[p.i])
+		push(p.i)
+	}
+	return count
 }

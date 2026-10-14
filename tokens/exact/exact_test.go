@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 )
 
 // Splits as the reference implementation of o200k_base makes them.
@@ -75,5 +76,74 @@ func TestClaudeCount(t *testing.T) {
 	}
 	if _, err := (Claude{}).Count(t.Context(), "t"); err != ErrNoKey {
 		t.Fatalf("no key: %v", err)
+	}
+}
+
+// naiveTokens is the quadratic reference merge loop.
+func (b *BPE) naiveTokens(piece string) int {
+	if _, ok := b.ranks[piece]; ok {
+		return 1
+	}
+	parts := make([]int, len(piece)+1)
+	for i := range parts {
+		parts[i] = i
+	}
+	for len(parts) > 2 {
+		best, at := -1, -1
+		for i := 0; i+2 < len(parts); i++ {
+			if r, ok := b.ranks[piece[parts[i]:parts[i+2]]]; ok && (at < 0 || r < best) {
+				best, at = r, i
+			}
+		}
+		if at < 0 {
+			break
+		}
+		parts = append(parts[:at+1], parts[at+2:]...)
+	}
+	return len(parts) - 1
+}
+
+func testBPE(t *testing.T, toks ...string) *BPE {
+	t.Helper()
+	var vocab strings.Builder
+	for i, tok := range toks {
+		fmt.Fprintf(&vocab, "%s %d\n", base64.StdEncoding.EncodeToString([]byte(tok)), i)
+	}
+	b, err := parseVocab([]byte(vocab.String()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return b
+}
+
+func TestPieceTokensMatchesNaive(t *testing.T) {
+	b := testBPE(t, "a", "b", "c", "ab", "bc", "abc", "ca", "aab", "cab", "bca", "abca")
+	for n := range 400 {
+		var s strings.Builder
+		x := uint32(n*2654435761 + 1)
+		for range n % 40 {
+			x = x*1664525 + 1013904223
+			s.WriteByte("abcd"[x>>24%4])
+		}
+		if got, want := b.pieceTokens(s.String()), b.naiveTokens(s.String()); got != want {
+			t.Errorf("pieceTokens(%q) = %d, want %d", s.String(), got, want)
+		}
+	}
+}
+
+// A long piece with no spaces (minified or base64 data) must not take
+// quadratic time.
+func TestPieceTokensLong(t *testing.T) {
+	b := testBPE(t, "a", "b", "ab")
+	piece := strings.Repeat("ab", 200_000)
+	done := make(chan int)
+	go func() { done <- b.pieceTokens(piece) }()
+	select {
+	case got := <-done:
+		if got != 200_000 {
+			t.Errorf("pieceTokens = %d, want 200000", got)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("pieceTokens still running after 5s")
 	}
 }

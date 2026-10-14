@@ -26,7 +26,7 @@ cmd/gascoigne  configs/              CLI + embedded default config
 - Receivers: stdin, exec, hook, mcp, mcp_proxy, httpproxy.
 - Component packages import only public packages, so each can become its own module.
   `make imports` fails if a public package imports `internal/`.
-- `tokens/exact/` downloads the o200k vocabulary once and pins its hash.
+- `tokens/exact/` downloads the o200k vocabulary once and pins its hash. BPE merging is O(n log n) per piece (heap), so long space-free pieces do not stall; HTTP requests time out after 30s.
 - `cost/` relates tokenizer families to `tokens.Estimate` by a factor.
 
 ## Flow

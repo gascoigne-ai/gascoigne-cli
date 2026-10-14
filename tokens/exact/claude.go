@@ -59,7 +59,7 @@ func (c Claude) request(ctx context.Context, text string) (int, error) {
 	req.Header.Set("anthropic-version", "2023-06-01")
 	req.Header.Set("content-type", "application/json")
 	// Straight to the API: gascoigne's own proxy would only pass it through.
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return 0, err
 	}
