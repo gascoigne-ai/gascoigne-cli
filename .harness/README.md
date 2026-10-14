@@ -10,7 +10,7 @@ Everything an agent needs to work on gascoigne consistently. `CLAUDE.md` imports
 | `architecture.md` | flow, contracts, detection, families and dialects, source files, agents (wrap/unwrap/hook), full-payload guarantee, ledger, gain |
 | `recommendations.md` | practices every change follows (loaded) |
 | `backlog.md` | open ideas, measured results, dropped ideas with numbers (not loaded) |
-| `skills/` | `verify`, `add-component`, `eval` |
+| `skills/` | `verify`, `add-component`, `eval`, `release` |
 | `tasks/` | work queue for the autonomous loop (empty when idle) |
 | `scripts/loop.sh` | autonomous agent loop |
 | `scripts/eval.sh` | token savings benchmark |

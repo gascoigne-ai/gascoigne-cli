@@ -53,4 +53,4 @@ Changing behavior a section describes: update that section in the same commit.
 
 Layout: public contracts `component/` `payload/` `tokens/`, libs `detect/` `compress/` `mcptool/` `cost/` `prose/` `lazyre/` (package-level regexps: `lazyre.New`, never `regexp.MustCompile`); components in `receiver/` `filter/` `optimizer/` `exporter/` `extension/` (never import `internal/`); engine in `internal/`.
 
-Skills: `verify`, `add-component`, `eval`. Task queue: `.harness/tasks/`, loop: `.harness/scripts/loop.sh`.
+Skills: `verify`, `add-component`, `eval`, `release` (version, changelog, tag, push, website page). Task queue: `.harness/tasks/`, loop: `.harness/scripts/loop.sh`.
