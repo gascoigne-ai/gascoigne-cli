@@ -4,6 +4,36 @@ All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.1] - 2026-10-14
+
+The dashboard tells optimizing apart from rerequesting: when the agent asks for the original after an
+optimized result, the run is no longer counted as a saving.
+
+### Added
+
+- Outcome `rerequested`: an optimized run the agent then fetched in full (`gascoigne raw`, MCP retrieve)
+  or reran raw is stored as rerequested, not optimized. Runs recorded before are converted once, on the
+  first start of the ledger.
+- A rerequested run costs the agent the optimized result plus the original, so savings, `gain` and the
+  cost section now subtract it.
+- Dashboard: an "Optimizing vs rerequesting" chart (gross saved, given back, net, rerequest rate per day;
+  `GET /api/impact`), and run feed filters Optimized, Bypassed, Unchanged, Rerequested, Raw (the agent
+  asked for the original at once) and Failed. Bypassed has its own color.
+- `ledger.events_ttl`: how long runs, API usage and failure history stay.
+
+### Changed
+
+- Retention defaults: originals 30 days (was 24 hours), MCP tool stats one year (was two weeks), runs, API
+  usage and failure history one year (were kept forever). `0` keeps any of them forever.
+
+### Fixed
+
+- `gascoigne tokens` with no file and a terminal on stdin waited for input forever; it now says what to do.
+- `gascoigne tokens` no longer stalls on long text without spaces (minified or base64 data): the o200k
+  count was quadratic. Its downloads and the Claude count request time out after 30 seconds.
+- Groups in `gain` were ordered by gross savings, ignoring the rerequest cost.
+- `git branch` output with blank lines (several commands run together) crashed the git optimizer.
+
 ## [0.6.0] - 2026-10-14
 
 A second prose model you can pick in setup, a progress bar for its download, and an API for agent
