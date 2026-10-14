@@ -47,7 +47,7 @@ func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component
 		return nil, fmt.Errorf("stats: unknown grouping %q", q.By)
 	}
 	tx = filter(tx, "events", q)
-	order := fmt.Sprintf("sum(%[1]s.raw_tokens) - sum(%[1]s.out_tokens) DESC, 1", table)
+	order := fmt.Sprintf("sum(%[1]s.raw_tokens) - sum(%[2]s) DESC, 1", table, l.outTokens(q.By))
 	if q.Chronological() {
 		order = "1"
 	}
@@ -98,6 +98,19 @@ func (l *Ledger) steps(ctx context.Context) *gorm.DB {
 	return l.db.WithContext(ctx).Model(&step{}).Joins("JOIN events ON events.id = steps.event_id")
 }
 
+// eventOut is the tokens an event's run cost the agent. A rerequested run
+// cost the optimized result and then the original too: out + raw tokens
+// where it would have read raw.
+const eventOut = "CASE WHEN events.outcome = 'rerequested' THEN events.out_tokens + events.raw_tokens ELSE events.out_tokens END"
+
+// outTokens is the column or expression the grouping sums as output tokens.
+func (l *Ledger) outTokens(by string) string {
+	if by == component.ByFamily || by == component.ByOptimizer || by == component.ByDialect {
+		return "steps.out_tokens"
+	}
+	return eventOut
+}
+
 // aggregates: events count outcomes; every step is an optimization.
 func (l *Ledger) aggregates(by string) string {
 	if by == component.ByFamily || by == component.ByOptimizer || by == component.ByDialect {
@@ -105,11 +118,9 @@ func (l *Ledger) aggregates(by string) string {
 			sum(steps.raw_tokens) AS raw_tokens, sum(steps.out_tokens) AS out_tokens,
 			min(events.ts) AS first_ts, max(events.ts) AS last_ts`
 	}
-	// A rerequested run cost the optimized result and then the original too:
-	// the agent read out+raw tokens where it would have read raw.
 	return `count(*) AS runs, sum(outcome = 'optimized') AS optimized, sum(outcome = 'error') AS failed,
 		sum(raw_tokens) AS raw_tokens,
-		sum(CASE WHEN outcome = 'rerequested' THEN out_tokens + raw_tokens ELSE out_tokens END) AS out_tokens,
+		sum(` + eventOut + `) AS out_tokens,
 		min(ts) AS first_ts, max(ts) AS last_ts`
 }
 

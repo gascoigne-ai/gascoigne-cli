@@ -652,9 +652,9 @@ Lives in core (`service/pipeline.go`), not in optimizers:
 | `raw` | originals, gzip-compressed (plain JSON rows from before still read); TTL-pruned. `gascoigne flush [-older]` / `POST /api/flush` delete and VACUUM |
 | `failures` | per-key failure count |
 | `tool_stats` | per day, agent, MCP server, tool: definition tokens (last listing that day) and calls. Written by `mcp-proxy` through the optional `mcptool.ToolStatRecorder` (not a `component/` contract); pruned at `stats_ttl` (1 y). Direct servers' calls are the hook's events whose command is the tool name |
+| `usage` | per proxied API request: agent, model, input, cache read/write and output tokens as the provider billed them |
 
 Retention (pruned once, when the ledger starts): `raw` at `raw_ttl` (30 d), `events` with their `steps`, `usage` and `failures` at `events_ttl` (1 y), `tool_stats` at `stats_ttl` (1 y); `0` keeps forever.
-| `usage` | per proxied API request: agent, model, input, cache read/write and output tokens as the provider billed them |
 
 **Raw ids** are sha256 prefixes of the original's text, attrs aside: the same output from two
 sessions is stored once. 8 hex digits, unless that prefix holds another text (then 12, 16, 64):
