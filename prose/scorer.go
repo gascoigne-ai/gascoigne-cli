@@ -12,24 +12,26 @@ import (
 // defaultLib is looked up on the system library path when no path is given.
 var defaultLib = map[string]string{"darwin": "libonnxruntime.dylib", "windows": "onnxruntime.dll"}
 
-// ortScorer runs the model's graph: input_ids and attention_mask in,
-// final_scores [batch, seq] (keep probability times span weight) out.
+// ortScorer runs the model's graph: input_ids and attention_mask in, a keep
+// score per token out: final_scores [batch, seq] (keep probability times span
+// weight), or logits [batch, seq, 2] (drop, keep) that become probabilities.
 type ortScorer struct {
 	rt      *ortrt.Runtime
 	session *ortrt.Session
 	device  string
+	logits  bool
 }
 
-func newORT(model, lib, device string) (*ortScorer, error) {
+func newORT(model, lib, device string, out ortrt.Output) (*ortScorer, error) {
 	rt, err := ortrt.Open(cmp.Or(lib, defaultLib[runtime.GOOS], "libonnxruntime.so"))
 	if err != nil {
 		return nil, fmt.Errorf("onnx runtime: %w", err)
 	}
 	var errs []error
 	for _, d := range candidates(device) {
-		s, err := open(rt, model, d)
+		s, err := open(rt, model, d, out)
 		if err == nil {
-			return &ortScorer{rt: rt, session: s, device: d}, nil
+			return &ortScorer{rt: rt, session: s, device: d, logits: out.Width == 2}, nil
 		}
 		errs = append(errs, fmt.Errorf("%s: %w", d, err))
 	}
@@ -49,8 +51,8 @@ func candidates(device string) []string {
 	return []string{"cuda", "cpu"}
 }
 
-func open(rt *ortrt.Runtime, model, device string) (*ortrt.Session, error) {
-	s, err := rt.NewSession(model, device)
+func open(rt *ortrt.Runtime, model, device string, out ortrt.Output) (*ortrt.Session, error) {
+	s, err := rt.NewSession(model, device, out)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +64,13 @@ func open(rt *ortrt.Runtime, model, device string) (*ortrt.Session, error) {
 	return s, nil
 }
 
-func (s *ortScorer) Scores(ids []int64) ([]float32, error) { return s.session.Scores(ids) }
+func (s *ortScorer) Scores(ids []int64) ([]float32, error) {
+	scores, err := s.session.Scores(ids)
+	if err != nil || !s.logits {
+		return scores, err
+	}
+	return keepProb(scores), nil
+}
 
 func (s *ortScorer) close() {
 	s.session.Close()

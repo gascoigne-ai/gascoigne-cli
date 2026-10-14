@@ -473,8 +473,14 @@ func checkProseInstalled(sets []string) error {
 		return nil
 	}
 	dir, _ := prose.ModelDir()
-	if model, rt := prose.Installed(dir); !model || !rt {
-		return errors.New("prose model not installed: run gascoigne prose install")
+	name := configProseModel()
+	for _, s := range sets {
+		if v, ok := strings.CutPrefix(s, "optimizers.prose.model="); ok {
+			name = v
+		}
+	}
+	if model, rt := prose.Installed(dir, name); !model || !rt {
+		return fmt.Errorf("prose model %q not installed: run gascoigne prose install -name %s", name, name)
 	}
 	return nil
 }

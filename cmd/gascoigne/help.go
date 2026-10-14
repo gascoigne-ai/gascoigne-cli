@@ -244,12 +244,13 @@ func init() {
 			summary: "set up the prose model: download model and ONNX Runtime, show whether it can run",
 			about: "install downloads the model (274 MB) and the ONNX Runtime libraries for this platform into the\n" +
 				"user cache dir, checking pinned SHA256 hashes, and prints them. status says whether the model is\n" +
-				"installed. The prose optimizer is on with this experiment and loads the model in the process that\n" +
+				"installed. -name picks the model: default, or agent (563 MB, also trained on tool output, logs and\n" +
+				"code; the config's optimizers.prose.model by default). The prose optimizer is on with this experiment and loads the model in the process that\n" +
 				"optimizes: the background server keeps it loaded.\n" +
 				"GPU: CUDA on Linux and Windows (needs the CUDA runtime and cuDNN 9), CoreML on macOS, else the CPU.\n" +
 				"Experimental: enable with experimental: [prose] in the config or GASCOIGNE_EXPERIMENTAL=prose.\n" +
 				"See docs/prose-model.md.",
-			examples: []string{"gascoigne prose install", "gascoigne prose install -runtime cpu", "gascoigne prose status"},
+			examples: []string{"gascoigne prose install", "gascoigne prose install -runtime cpu", "gascoigne prose install -name agent", "gascoigne prose status"},
 			run:      cmdProse},
 		{name: "config", args: "[flags]", group: groupDev,
 			summary: "print the effective config, overrides applied; -upgrade moves your settings to a new version",

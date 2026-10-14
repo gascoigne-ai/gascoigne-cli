@@ -133,17 +133,25 @@ func (r *Runtime) bind(table uintptr) {
 // Close releases the environment.
 func (r *Runtime) Close() { r.api.releaseEnv(r.env) }
 
+// Output names the graph output to read and how many floats it holds per
+// token: final_scores has one, logits two (drop, keep).
+type Output struct {
+	Name  string
+	Width int
+}
+
 // Session is a loaded graph taking input_ids and attention_mask and
-// returning final_scores.
+// returning the Output.
 type Session struct {
 	rt      *Runtime
 	handle  uintptr
 	memInfo uintptr
+	out     Output
 }
 
 // NewSession loads the graph on device: "cuda", "coreml" or "cpu". A provider
 // the library lacks is an error, so callers can fall back.
-func (r *Runtime) NewSession(model, device string) (*Session, error) {
+func (r *Runtime) NewSession(model, device string, out Output) (*Session, error) {
 	var opts uintptr
 	if err := r.check(r.api.createSessOptions(&opts)); err != nil {
 		return nil, err
@@ -152,7 +160,7 @@ func (r *Runtime) NewSession(model, device string) (*Session, error) {
 	if err := r.appendProvider(opts, device); err != nil {
 		return nil, err
 	}
-	s := &Session{rt: r}
+	s := &Session{rt: r, out: out}
 	path := modelPath(model)
 	if err := r.check(r.api.createSession(r.env, path, opts, &s.handle)); err != nil {
 		return nil, err
@@ -183,7 +191,7 @@ func (r *Runtime) appendProvider(opts uintptr, device string) error {
 	return fmt.Errorf("unknown device %q", device)
 }
 
-// Scores runs one sequence and returns a score per token.
+// Scores runs one sequence and returns Width floats per token.
 func (s *Session) Scores(ids []int64) ([]float32, error) {
 	r, n := s.rt, len(ids)
 	mask := make([]int64, n)
@@ -203,7 +211,7 @@ func (s *Session) Scores(ids []int64) ([]float32, error) {
 	defer s.release(in[:])
 	names := [2][]byte{cstr("input_ids"), cstr("attention_mask")}
 	inNames := [2]unsafe.Pointer{unsafe.Pointer(&names[0][0]), unsafe.Pointer(&names[1][0])}
-	outName := cstr("final_scores")
+	outName := cstr(s.out.Name)
 	outNames := [1]unsafe.Pointer{unsafe.Pointer(&outName[0])}
 	var out uintptr
 	err := r.check(r.api.run(s.handle, 0, unsafe.Pointer(&inNames[0]), unsafe.Pointer(&in[0]), 2,
@@ -218,7 +226,7 @@ func (s *Session) Scores(ids []int64) ([]float32, error) {
 	if err := r.check(r.api.getTensorData(out, &data)); err != nil {
 		return nil, err
 	}
-	return append([]float32(nil), unsafe.Slice((*float32)(ptr(data)), n)...), nil
+	return append([]float32(nil), unsafe.Slice((*float32)(ptr(data)), n*s.out.Width)...), nil
 }
 
 func (s *Session) release(values []uintptr) {

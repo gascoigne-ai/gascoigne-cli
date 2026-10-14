@@ -39,7 +39,7 @@ type loaded struct {
 
 // openModel checks the files against their pinned hashes before the first
 // load, so a damaged download fails with a clear error instead of inside the
-// runtime. Later loads (after an idle unload) skip the 274 MB hash.
+// runtime. Later loads (after an idle unload) skip the hash.
 func openModel(cfg *Config) func() (model, error) {
 	verified := false
 	return func() (model, error) {
@@ -48,12 +48,12 @@ func openModel(cfg *Config) func() (model, error) {
 			return nil, err
 		}
 		if !verified {
-			if err := prose.Verify(dir); err != nil {
+			if err := prose.Verify(dir, cfg.Model); err != nil {
 				return nil, fmt.Errorf("%w (gascoigne prose install fetches it again)", err)
 			}
 			verified = true
 		}
-		return prose.Open(dir, "", cfg.Device)
+		return prose.Open(dir, "", cfg.Device, cfg.Model)
 	}
 }
 

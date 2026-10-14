@@ -1,0 +1,29 @@
+# The prose model "agent" (docs/prose-model.md) on the same fixtures as ../cases.yaml: it keeps
+# fewer words at the same threshold, so min_saved differs and the goldens are its own.
+# Run: make eval-experimental (sets optimizers.prose.model=agent; needs gascoigne prose install -name agent).
+
+- name: prose/notes-text
+  file: ../prose/notes.txt
+  expect_type: doc/text
+  keep: ["gascoigne", "ledger"]
+  min_saved: 5
+
+- name: prose/decisions-md
+  file: ../prose/decisions.md
+  attrs: { cmd: cat decisions.md }
+  expect_type: doc/markdown
+  keep: ["## Changing agents' configs", "`~/.claude.json`", "backlog.md"]
+  min_saved: 5
+
+- name: prose/web-page
+  file: ../../eval/html/go-dev-blog.html
+  attrs: { mime: text/html }
+  expect_type: doc/markdown
+  keep: ["Routing Enhancements for Go 1.22", "## Precedence", "http.HandleFunc(\"GET /posts/{id}\", handlePost2)"]
+  min_saved: 70
+
+# Aligned columns are command output, never sent to the model.
+- name: prose/df-table
+  file: ../prose/df.txt
+  attrs: { cmd: df -h }
+  unchanged: true

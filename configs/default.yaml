@@ -124,7 +124,7 @@ optimizers:
   doc: { max_code_lines: 40, max_tokens: 5200, man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON] }
   # prose: plain paragraphs of doc/text and markdown pass a local model, loaded in the process that optimizes
   # (experimental, lossy). enabled follows the experimental prose setting, which sets it.
-  prose: { enabled: false, device: auto, threshold: 0.5, warm: true, idle: 5m, min_words: 40 }
+  prose: { enabled: false, model: default, device: auto, threshold: 0.5, warm: true, idle: 5m, min_words: 40 }
 
 exporters:
   stdout: { hint: true }

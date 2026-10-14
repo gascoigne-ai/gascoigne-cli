@@ -14,7 +14,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/prose/keep"
 )
 
-// ModelDir is where Install puts the model and the ONNX Runtime libraries.
+// ModelDir is the root where Install puts the models and the ONNX Runtime libraries.
 func ModelDir() (string, error) {
 	cache, err := os.UserCacheDir()
 	if err != nil {
@@ -32,20 +32,24 @@ type Model struct {
 	device string
 }
 
-// Open loads the model Install put in dir. lib is the ONNX Runtime library
-// ("" finds the one Install put in dir, else the system's); device is auto,
-// cuda, coreml or cpu.
-func Open(dir, lib, device string) (*Model, error) {
+// Open loads the named model Install put under root. lib is the ONNX Runtime
+// library ("" finds the one Install put in root, else the system's); device is
+// auto, cuda, coreml or cpu.
+func Open(root, lib, device, name string) (*Model, error) {
+	s, dir, err := lookup(root, name)
+	if err != nil {
+		return nil, err
+	}
 	tok, err := bpe.Load(filepath.Join(dir, "tokenizer.json"))
 	if err != nil {
 		return nil, err
 	}
 	if lib == "" {
-		if own := filepath.Join(dir, runtimeDir, libName()); fileExists(own) {
+		if own := filepath.Join(root, runtimeDir, libName()); fileExists(own) {
 			lib = own
 		}
 	}
-	sc, err := newORT(filepath.Join(dir, "model.onnx"), lib, device)
+	sc, err := newORT(filepath.Join(dir, "model.onnx"), lib, device, s.out)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +77,14 @@ func fileExists(path string) bool {
 	return err == nil
 }
 
-// Installed reports whether Install's files are in dir: the model with its
-// tokenizer, and the ONNX Runtime library (a system-wide one is not looked for).
-func Installed(dir string) (model, runtime bool) {
+// Installed reports whether Install's files are under root: the named model
+// with its tokenizer, and the ONNX Runtime library (a system-wide one is not
+// looked for).
+func Installed(root, name string) (model, runtime bool) {
+	_, dir, err := lookup(root, name)
+	if err != nil {
+		return false, false
+	}
 	model = fileExists(filepath.Join(dir, "model.onnx")) && fileExists(filepath.Join(dir, "tokenizer.json"))
-	return model, fileExists(filepath.Join(dir, runtimeDir, libName()))
+	return model, fileExists(filepath.Join(root, runtimeDir, libName()))
 }

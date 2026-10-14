@@ -14,23 +14,18 @@ import (
 // runtimeDir holds the ONNX Runtime libraries inside the model directory.
 const runtimeDir = "onnxruntime"
 
-const revision = "e00cc5e60ff73b01674ef8fa6da6c5acf6d54181"
-
-// files are the model's artifacts at the pinned revision: a download that
-// does not match its hash is refused.
-var files = []struct{ remote, local, sha256 string }{
-	{"tokenizer.json", "tokenizer.json", "6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30"},
-	{"onnx/kompress-int8-wo.onnx", "model.onnx", "c47ddd764dec5cf91fd1f10cf69e5538dd2a49d913828da7f6a993931cc7904f"},
-}
-
-// Verify checks what Install leaves in dir: the runtime library and each model
-// file against its pinned hash. The error names the first thing wrong; Install
-// fetches again whatever fails here.
-func Verify(dir string) error {
-	if _, rt := Installed(dir); !rt {
-		return fmt.Errorf("ONNX Runtime library missing in %s", filepath.Join(dir, runtimeDir))
+// Verify checks what Install leaves in root: the runtime library and each file
+// of the named model against its pinned hash. The error names the first thing
+// wrong; Install fetches again whatever fails here.
+func Verify(root, name string) error {
+	s, dir, err := lookup(root, name)
+	if err != nil {
+		return err
 	}
-	for _, f := range files {
+	if _, rt := Installed(root, name); !rt {
+		return fmt.Errorf("ONNX Runtime library missing in %s", filepath.Join(root, runtimeDir))
+	}
+	for _, f := range s.files {
 		if err := verify(filepath.Join(dir, f.local), f.sha256); err != nil {
 			return err
 		}
@@ -38,22 +33,27 @@ func Verify(dir string) error {
 	return nil
 }
 
-// Install downloads what is missing into dir: the ONNX Runtime libraries
-// (in dir/onnxruntime) and the model (274 MB, int8 weight-only graph).
-func Install(ctx context.Context, dir, variant string) error {
+// Install downloads what is missing into root: the ONNX Runtime libraries
+// (in root/onnxruntime, shared by the models) and the named model (default:
+// 274 MB, int8 weight-only graph; agent: 563 MB).
+func Install(ctx context.Context, root, variant, name string) error {
+	s, dir, err := lookup(root, name)
+	if err != nil {
+		return err
+	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
-	if err := installRuntime(ctx, filepath.Join(dir, runtimeDir), variant); err != nil {
+	if err := installRuntime(ctx, filepath.Join(root, runtimeDir), variant); err != nil {
 		return err
 	}
-	for _, f := range files {
+	for _, f := range s.files {
 		path := filepath.Join(dir, f.local)
 		fmt.Fprintf(os.Stderr, "gascoigne prose: %s\n  sha256 %s\n", f.remote, f.sha256)
 		if verify(path, f.sha256) == nil {
 			continue
 		}
-		url := "https://huggingface.co/chopratejas/kompress-v2-base/resolve/" + revision + "/" + f.remote
+		url := "https://huggingface.co/" + s.repo + "/resolve/" + s.revision + "/" + f.remote
 		if err := fetch(ctx, url, path); err != nil {
 			return fmt.Errorf("download %s: %w", f.remote, err)
 		}

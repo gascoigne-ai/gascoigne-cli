@@ -193,13 +193,15 @@ func TestDisabledByDefault(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	ok := Config{Enabled: true, Device: "cpu", Threshold: 0.5, MinWords: 1}
+	ok := Config{Enabled: true, Model: "default", Device: "cpu", Threshold: 0.5, MinWords: 1}
 	bad := ok
 	bad.Threshold = 1
 	worse := ok
 	worse.Device = "tpu"
-	if ok.Validate() != nil || bad.Validate() == nil || worse.Validate() == nil {
-		t.Fatal("threshold must be inside (0, 1), device a known one")
+	unknown := ok
+	unknown.Model = "huge"
+	if ok.Validate() != nil || bad.Validate() == nil || worse.Validate() == nil || unknown.Validate() == nil {
+		t.Fatal("threshold must be inside (0, 1), device and model known ones")
 	}
 }
 

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/prose"
 )
@@ -19,10 +21,11 @@ func loadProseStatus() proseStatus {
 		return proseStatus{"off", "add prose to experimental in the config"}
 	}
 	dir, _ := prose.ModelDir()
-	if model, rt := prose.Installed(dir); !model || !rt {
-		return proseStatus{"not-installed", "run: gascoigne prose install"}
+	name := configProseModel()
+	if model, rt := prose.Installed(dir, name); !model || !rt {
+		return proseStatus{"not-installed", "run: gascoigne prose install -name " + name}
 	}
-	return proseStatus{"ready", "model files in " + dir}
+	return proseStatus{"ready", name + " model files in " + dir}
 }
 
 // cmdProse sets up the prose model and reports whether it can run. The model
@@ -34,6 +37,7 @@ func cmdProse(ctx context.Context, args []string) error {
 	}
 	fs := newFlags("prose")
 	dir := fs.String("model", "", "model `directory` (default: user cache dir, gascoigne/prose-model)")
+	name := fs.String("name", "", "install: model, "+strings.Join(prose.Names(), " or ")+" (default: optimizers.prose.model of the config)")
 	variant := fs.String("runtime", "auto", "install: ONNX Runtime build: auto (by nvidia-smi), cpu, cuda12 or cuda13")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -51,7 +55,7 @@ func cmdProse(ctx context.Context, args []string) error {
 		fmt.Printf("prose: %s (%s)\n", st.State, st.Detail)
 		return nil
 	case "install":
-		return prose.Install(ctx, *dir, *variant)
+		return prose.Install(ctx, *dir, *variant, cmp.Or(*name, configProseModel()))
 	}
 	return fmt.Errorf("unknown prose command %q (install, status)", sub)
 }

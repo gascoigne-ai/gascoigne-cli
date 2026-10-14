@@ -13,6 +13,7 @@ import (
 	"go.yaml.in/yaml/v3"
 
 	"github.com/gascoigne-ai/gascoigne-cli/configs"
+	"github.com/gascoigne-ai/gascoigne-cli/prose"
 )
 
 // configData is the config to run: the built-in defaults with a config file
@@ -57,6 +58,25 @@ func configFile(path string) ([]byte, error) {
 		return nil, fmt.Errorf("config %s: %w", path, err)
 	}
 	return data, nil
+}
+
+// configProseModel is the prose model the config chooses (optimizers.prose.model).
+func configProseModel() string {
+	data, err := configFile("")
+	if err != nil {
+		return prose.Default
+	}
+	var c struct {
+		Optimizers struct {
+			Prose struct {
+				Model string `yaml:"model"`
+			} `yaml:"prose"`
+		} `yaml:"optimizers"`
+	}
+	if yaml.Unmarshal(data, &c) != nil {
+		return prose.Default
+	}
+	return cmp.Or(c.Optimizers.Prose.Model, prose.Default)
 }
 
 // configExperimental is the config's experimental list. A config that

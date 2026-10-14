@@ -344,7 +344,7 @@ func needsProseModel(answers map[string]string) bool {
 	if err != nil {
 		return false
 	}
-	err = prose.Verify(dir)
+	err = prose.Verify(dir, configProseModel())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne prose:", err)
 	}
@@ -365,7 +365,7 @@ func installProseModel(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return prose.Install(ctx, dir, "auto")
+	return prose.Install(ctx, dir, "auto", configProseModel())
 }
 
 // integrate sets gascoigne up for an agent the user said yes to: the same

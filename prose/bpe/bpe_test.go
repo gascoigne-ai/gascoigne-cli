@@ -11,15 +11,23 @@ import (
 // words (testdata/ref.json, generated once). PROSE_TOKENIZER points at the
 // model's tokenizer.json; without it the test is skipped.
 func TestWordsMatchReference(t *testing.T) {
-	path := os.Getenv("PROSE_TOKENIZER")
+	for _, c := range []struct{ env, ref string }{
+		{"PROSE_TOKENIZER", "testdata/ref.json"},
+		{"PROSE_TOKENIZER_AGENT", "testdata/ref-agent.json"},
+	} {
+		t.Run(c.env, func(t *testing.T) { matchReference(t, os.Getenv(c.env), c.ref) })
+	}
+}
+
+func matchReference(t *testing.T, path, ref string) {
 	if path == "" {
-		t.Skip("set PROSE_TOKENIZER to the model's tokenizer.json")
+		t.Skip("set the env var to the model's tokenizer.json")
 	}
 	tok, err := Load(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := os.ReadFile("testdata/ref.json")
+	data, err := os.ReadFile(ref)
 	if err != nil {
 		t.Fatal(err)
 	}

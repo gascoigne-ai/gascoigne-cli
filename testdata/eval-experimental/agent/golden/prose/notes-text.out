@@ -1,0 +1,37 @@
+gascoigne is a token optimizer for LLM agents. sits between an agent and what agent
+reads (shell output, MCP tool results, web pages), shrinks it, and keeps every original in
+local ledger nothing ever lost.
+
+Output gascoigne already optimized (exec, its MCP server, the proxy) is recognized by its
+hint and left alone, as gascoigne's own MCP tools. **Read** is never replaced: Claude
+numbers lines shows, and dropped lines shift numbers. **WebSearch** is
+left too: results (a median of 608 tokens in measured sessions) rendered by Claude
+Code from fixed structure.
+
+Measured on 16 Claude Code sessions (3,148 tool results): tool result stays in context for
+**median 110 later requests** (mean 145, deciles 17–335), and 0.8% of gaps between
+requests exceed 5-minute cache TTL. rereads, not first
+cost: Opus 5.5 token saved worth $5/MTok at first read and $31/MTok
+context.
+
+Most new support is a **dialect**: a new tool in a family gascoigne already has. A new
+**optimizer** is only for a new family. Other component kinds (receivers, filters,
+exporters, extensions) follow the same package shape.
+
+Every run appears as it happens, with its savings, content type and, when it was not
+optimized, the reason. Click a run to compare the original with what the agent read, side by
+side, and see each optimizer's step.
+
+Ids are first 8 hex digits of text's sha256 (12, 16 or 64
+text), same output from any session stored once and hint costs ~7
+fewer tokens. Originals gzip-compressed. Source keys longer than 200 bytes (whole
+heredocs) stored as 160-byte prefix plus hash. Ledgers older
+versions converted on first open and vacuumed (a real one: 22 MB → 6 MB).
+
+One self-contained page served from the binary, with no external requests. It follows the
+system's light or dark theme; the *Auto / Light / Dark* switch in the header overrides it
+and is remembered per browser.
+
+run lost over 99.5% of large output gets warning to check it. optimized text
+kept next to original (gzip, same retention), runs recorded before show only
+original. not mark failing.

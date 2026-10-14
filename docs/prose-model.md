@@ -19,6 +19,21 @@ flowchart LR
   M -->|"keep flags"| D
 ```
 
+## Models
+
+`optimizers.prose.model` picks one; `gascoigne prose install -name agent` fetches the second (the ONNX Runtime is shared).
+
+| model | size | trained on | notes |
+|---|---|---|---|
+| `default` | 274 MB (int8 weight-only) | general prose | drops articles and fillers; the fixtures keep their meaning at the default threshold |
+| `agent` | 563 MB (fp32) | tool output, logs, stack traces, diffs, code, markdown and web text | about 3x faster on the CPU and 1.4x on CUDA in the fixtures; at the same threshold it keeps fewer words on prose (raise `threshold` to compare), and it also drops some content words (`must`, `so`) that the hard-keep patterns do not cover |
+
+Only plain paragraphs reach the model in both cases: logs, code, tables and lists do not, so
+the agent model's training on them does not matter until routing sends them. Its quality
+numbers (author's, not measured here) are for about half of the words kept; this repository
+has no answer-quality measure, only `make eval-experimental` (savings, kept facts, goldens
+for both). Compare on your own text before switching.
+
 ## Setup
 
 1. `gascoigne prose install` downloads ONNX Runtime 1.29 for your platform and the model (274 MB),
@@ -69,6 +84,13 @@ Model files, at revision `e00cc5e60ff73b01674ef8fa6da6c5acf6d54181`:
 | `tokenizer.json` | `6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30` |
 | `onnx/kompress-int8-wo.onnx` | `c47ddd764dec5cf91fd1f10cf69e5538dd2a49d913828da7f6a993931cc7904f` |
 
+Agent model files, at revision `c47bfc26508f437d9d737550e19a2541e3049f83`, in `agent/` beside the default model:
+
+| file | sha256 |
+|---|---|
+| `tokenizer.json` | `609d8f4c067cd3950f88594c5a802616cea245823836ef5848ee4fc40aab5b6f` |
+| `onnx/model.onnx` | `fe605d35ebe4219c4adff23b6ae6ce139993a67148e4ba78f60cd677c4f20036` |
+
 macOS on Intel has no ONNX Runtime 1.29 build: use `-lib` with your own.
 
 ## Attribution
@@ -76,3 +98,9 @@ macOS on Intel has no ONNX Runtime 1.29 build: use `-lib` with your own.
 Model: [chopratejas/kompress-v2-base](https://huggingface.co/chopratejas/kompress-v2-base),
 Apache 2.0, fine-tuned from ModernBERT-base (Apache 2.0). Downloaded by `gascoigne prose install`
 at a pinned revision; not bundled with gascoigne.
+
+Agent model: [darioooooo0o/ctxprune-small](https://huggingface.co/darioooooo0o/ctxprune-small),
+Apache 2.0, fine-tuned from jhu-clsp/mmBERT-small (MIT); its training data is permissively
+licensed, with CC BY 4.0 and ODC-BY parts that the model card lists. Downloaded by
+`gascoigne prose install -name agent` at a pinned revision; not bundled. Its tokenizer is
+SentencePiece style (256k vocabulary) and runs in `prose/bpe` like the default one.
