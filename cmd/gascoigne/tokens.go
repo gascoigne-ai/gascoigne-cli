@@ -3,6 +3,7 @@ package main
 import (
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -27,6 +28,9 @@ func cmdTokens(ctx context.Context, args []string) error {
 		return err
 	}
 	var in io.Reader = os.Stdin
+	if fs.NArg() == 0 && isTerminal(os.Stdin) {
+		return errors.New("tokens: no file and stdin is a terminal; give a file or pipe text in (gascoigne tokens file.txt)")
+	}
 	if fs.NArg() > 0 {
 		f, err := os.Open(fs.Arg(0))
 		if err != nil {
