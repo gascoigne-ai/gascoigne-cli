@@ -218,3 +218,13 @@ func TestGHViewDropsEmptyFields(t *testing.T) {
 		t.Fatalf("got %q", got)
 	}
 }
+
+// Blank lines (output of several commands run together) must not panic.
+func TestBranchBlankLines(t *testing.T) {
+	o := &Optimizer{cfg: &Config{ContextLines: 1, MaxFileLines: 200}}
+	in := []string{"* main", "", "  feature", "  remotes/origin/main", "", "  remotes/origin/other"}
+	got := o.branch(in)
+	if len(got) == 0 {
+		t.Fatal("branch dropped everything")
+	}
+}

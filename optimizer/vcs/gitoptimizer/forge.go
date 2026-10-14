@@ -32,12 +32,21 @@ func blame(lines []string) []string {
 	return out
 }
 
+// firstField is the first word of s, or "" when s is blank.
+func firstField(s string) string {
+	f := strings.Fields(s)
+	if len(f) == 0 {
+		return ""
+	}
+	return f[0]
+}
+
 // branch drops remote branches mirrored by a local one and caps the rest.
 func (o *Optimizer) branch(lines []string) []string {
 	local := map[string]bool{}
 	for _, l := range lines {
 		if name := strings.TrimSpace(strings.TrimPrefix(l, "*")); !strings.HasPrefix(name, "remotes/") {
-			local[strings.Fields(name + " ")[0]] = true
+			local[firstField(name)] = true
 		}
 	}
 	var out, remote []string
@@ -48,7 +57,7 @@ func (o *Optimizer) branch(lines []string) []string {
 		switch {
 		case !ok:
 			out = append(out, l)
-		case local[strings.Fields(r[strings.Index(r, "/")+1:] + " ")[0]] && !strings.Contains(r, "->"):
+		case local[firstField(r[strings.Index(r, "/")+1:])] && !strings.Contains(r, "->"):
 			mirrored++
 		default:
 			remote = append(remote, l)
