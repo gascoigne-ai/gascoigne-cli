@@ -69,6 +69,9 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 	if err := l.migrateKeys(ctx); err != nil {
 		return fmt.Errorf("ledger migrate keys: %w", err)
 	}
+	if err := l.migrateRerequested(ctx); err != nil {
+		return fmt.Errorf("ledger migrate rerequested: %w", err)
+	}
 	if err := l.pruneToolStats(ctx); err != nil {
 		return err
 	}
@@ -236,7 +239,13 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 	for i, s := range ev.Steps {
 		steps[i] = step{Optimizer: s.Optimizer, Family: s.Family, Dialect: s.Dialect, RawTokens: s.RawTokens, OutTokens: s.OutTokens}
 	}
-	return l.db.WithContext(ctx).Create(&event{
+	db := l.db.WithContext(ctx)
+	if isRawRerun(ev) { // the agent was not content with an earlier optimized result
+		if err := markRerequested(db, storedKey(ev.Key), ev.TS.UnixMilli(), &ev.Session); err != nil {
+			return err
+		}
+	}
+	return db.Create(&event{
 		TS:         ev.TS.UnixMilli(),
 		Session:    ev.Session,
 		Agent:      ev.Agent,
@@ -259,6 +268,11 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 
 func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
 	f := failure{Key: storedKey(key), Count: 1, LastTS: time.Now().UnixMilli(), Reason: reason}
+	if reason == component.ReasonRawRequested {
+		if err := markRerequested(l.db.WithContext(ctx), f.Key, f.LastTS, nil); err != nil {
+			return err
+		}
+	}
 	return l.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "key"}},
 		DoUpdates: clause.Assignments(map[string]any{

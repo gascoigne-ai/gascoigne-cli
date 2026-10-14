@@ -14,6 +14,9 @@ const (
 	Unchanged Outcome = "unchanged"
 	Bypassed  Outcome = "bypassed"
 	Failed    Outcome = "error"
+	// Rerequested is a run that was optimized, but the agent then asked for
+	// the original (fetched it in full or ran the source again raw).
+	Rerequested Outcome = "rerequested"
 )
 
 // Event is one payload's trip through a pipeline.
@@ -87,7 +90,7 @@ const (
 	ByOptimizer = "optimizer" // single optimizer, from steps
 	ByDialect   = "dialect"   // content type the optimizers changed, from steps
 	ByCommand   = "command"
-	ByOutcome   = "outcome" // optimized, unchanged, bypassed, error
+	ByOutcome   = "outcome" // optimized, unchanged, bypassed, rerequested, error
 	ByAgent     = "agent"
 	ByModel     = "model"
 	ByDay       = "day"   // local time, YYYY-MM-DD

@@ -152,7 +152,7 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		before, _ := strconv.ParseUint(v.Get("before"), 10, strconv.IntSize)
 		limit, _ := strconv.Atoi(v.Get("limit"))
 		entries, err := l.Page(r.Context(), q, ledger.Page{After: uint(after), Before: uint(before),
-			Outcomes: outcomes(v), RawAsked: v.Get("raw") == "1", Rerequested: v.Get("rerequested") == "1", Limit: min(cmp.Or(limit, 100), 500)})
+			Outcomes: outcomes(v), RawAsked: v.Get("raw") == "1", Limit: min(cmp.Or(limit, 100), 500)})
 		respond(w, eventsJSON(entries), err)
 	})
 	mux.HandleFunc("GET /api/stream", func(w http.ResponseWriter, r *http.Request) {
@@ -161,7 +161,7 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		stream(w, r, l, q, ledger.Page{Outcomes: outcomes(r.URL.Query()), RawAsked: r.URL.Query().Get("raw") == "1", Rerequested: r.URL.Query().Get("rerequested") == "1"}, poll)
+		stream(w, r, l, q, ledger.Page{Outcomes: outcomes(r.URL.Query()), RawAsked: r.URL.Query().Get("raw") == "1"}, poll)
 	})
 	mux.HandleFunc("GET /api/raw/{id}", func(w http.ResponseWriter, r *http.Request) {
 		// Unlike gascoigne raw, looking does not mark the source as failing:
@@ -256,7 +256,7 @@ func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q componen
 	w.Header().Set("Cache-Control", "no-cache")
 	var last uint
 	send := func(limit int) error {
-		entries, err := l.Page(r.Context(), q, ledger.Page{After: last, Outcomes: feed.Outcomes, RawAsked: feed.RawAsked, Rerequested: feed.Rerequested, Limit: limit})
+		entries, err := l.Page(r.Context(), q, ledger.Page{After: last, Outcomes: feed.Outcomes, RawAsked: feed.RawAsked, Limit: limit})
 		if err != nil || len(entries) == 0 {
 			return err
 		}
@@ -289,8 +289,7 @@ func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q componen
 }
 
 // outcomes reads ?outcome=optimized,bypassed for the run feed (?raw=1 keeps
-// runs where the agent asked for the original at once, ?rerequested=1 runs
-// where it asked after getting an optimized result).
+// runs where the agent asked for the original at once).
 func outcomes(v url.Values) []string { return splitList(v.Get("outcome"), ",") }
 
 func statsQuery(v url.Values) (component.StatsQuery, error) {

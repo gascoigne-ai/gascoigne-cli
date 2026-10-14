@@ -415,47 +415,89 @@ func TestPage(t *testing.T) {
 	}
 }
 
-func TestPageRawAndRerequested(t *testing.T) {
-	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
-	ctx := t.Context()
+const rawReq = "raw requested: attr raw=true (-raw, MCP raw)"
+
+func recordRuns(t *testing.T, l *Ledger, runs ...component.Event) {
+	t.Helper()
 	ts := time.Now().Add(-time.Minute)
-	run := func(key string, o component.Outcome, reason string) {
-		t.Helper()
+	for _, e := range runs {
 		ts = ts.Add(time.Millisecond)
-		if err := l.Record(ctx, component.Event{TS: ts, Session: "s", Key: key, Outcome: o, Reason: reason}); err != nil {
+		e.TS, e.Session = ts, "s"
+		if err := l.Record(t.Context(), e); err != nil {
 			t.Fatal(err)
 		}
 	}
-	const raw = "raw requested: attr raw=true (-raw, MCP raw)"
-	run("direct", component.Bypassed, raw)  // asked raw at once
-	run("rerun", component.Optimized, "")   // got optimized ...
-	run("rerun", component.Bypassed, raw)   // ... then reran raw
-	run("fetched", component.Optimized, "") // optimized, original fetched
-	run("fetched", component.Optimized, "") // a later run, not fetched
-	run("other", component.Bypassed, "45 tokens < min_tokens 200")
-	if err := l.MarkFailure(ctx, "fetched", component.ReasonRawRequested); err != nil {
+}
+
+func pageKeys(t *testing.T, l *Ledger, p Page) []string {
+	t.Helper()
+	p.Limit = 10
+	got, err := l.Page(t.Context(), component.StatsQuery{}, p)
+	if err != nil {
 		t.Fatal(err)
 	}
-	keys := func(p Page) []string {
-		t.Helper()
-		p.Limit = 10
-		got, err := l.Page(ctx, component.StatsQuery{}, p)
-		if err != nil {
+	var out []string
+	for _, e := range got {
+		out = append(out, e.Key+":"+string(e.Outcome))
+	}
+	return out
+}
+
+func TestRerequestedOutcome(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	opt, byp := component.Optimized, component.Bypassed
+	recordRuns(t, l,
+		component.Event{Key: "direct", Outcome: byp, Reason: rawReq}, // asked raw at once
+		component.Event{Key: "rerun", Outcome: opt},
+		component.Event{Key: "rerun", Outcome: byp, Reason: rawReq}, // reran raw after an optimized run
+		component.Event{Key: "fetched", Outcome: opt},
+		component.Event{Key: "fetched", Outcome: opt},
+		component.Event{Key: "other", Outcome: byp, Reason: "45 tokens < min_tokens 200"},
+	)
+	// The agent fetched the original of the latest "fetched" run.
+	if err := l.MarkFailure(t.Context(), "fetched", component.ReasonRawRequested); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := pageKeys(t, l, Page{Outcomes: []string{"rerequested"}}), []string{"fetched:rerequested", "rerun:rerequested"}; !slices.Equal(got, want) {
+		t.Errorf("rerequested: %v, want %v", got, want)
+	}
+	if got, want := pageKeys(t, l, Page{RawAsked: true}), []string{"direct:bypassed"}; !slices.Equal(got, want) {
+		t.Errorf("raw: %v, want %v", got, want)
+	}
+	if got := pageKeys(t, l, Page{Outcomes: []string{"optimized"}}); !slices.Equal(got, []string{"fetched:optimized"}) {
+		t.Errorf("optimized: %v", got)
+	}
+}
+
+func TestMigrateRerequested(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	opt, byp := component.Optimized, component.Bypassed
+	recordRuns(t, l,
+		component.Event{Key: "rerun", Outcome: opt},
+		component.Event{Key: "rerun", Outcome: byp, Reason: rawReq},
+		component.Event{Key: "fetched", Outcome: opt},
+		component.Event{Key: "fetched", Outcome: opt},
+		component.Event{Key: "plain", Outcome: opt},
+	)
+	// State of a database from before the outcome existed.
+	if err := l.db.Exec("UPDATE events SET outcome = 'optimized' WHERE outcome = 'rerequested'").Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := l.db.Create(&failure{Key: "fetched", Count: 1, LastTS: time.Now().UnixMilli(), Reason: component.ReasonRawRequested}).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := l.db.Exec("PRAGMA user_version = 1").Error; err != nil {
+		t.Fatal(err)
+	}
+	for range 2 { // the second run must change nothing
+		if err := l.migrateRerequested(ctx); err != nil {
 			t.Fatal(err)
 		}
-		var out []string
-		for _, e := range got {
-			out = append(out, e.Key)
-		}
-		return out
 	}
-	if got := keys(Page{RawAsked: true}); !slices.Equal(got, []string{"direct"}) {
-		t.Errorf("raw: %v", got)
-	}
-	// The fetch happened after both "fetched" runs: the later one is the
-	// run whose result the agent saw last.
-	if got := keys(Page{Rerequested: true}); !slices.Equal(got, []string{"fetched", "rerun"}) {
-		t.Errorf("rerequested: %v", got)
+	want := []string{"plain:optimized", "fetched:rerequested", "fetched:optimized", "rerun:bypassed", "rerun:rerequested"}
+	if got := pageKeys(t, l, Page{}); !slices.Equal(got, want) {
+		t.Errorf("got %v, want %v", got, want)
 	}
 }
 

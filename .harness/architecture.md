@@ -646,6 +646,8 @@ Lives in core (`service/pipeline.go`), not in optimizers:
 | Table | Holds |
 |---|---|
 | `events` | every trip: route, tokens, outcome, `session`, `command`, `reason`, bypassing `filter` |
+
+**Rerequested**: an `optimized` event becomes `rerequested` when the agent then asks for the original: a full fetch (`MarkFailure` with `raw_requested` marks the source's latest optimized run) or a raw rerun (`Record` of a bypass with a `raw requested` reason marks the earlier optimized run of that source and session). `migrateRerequested` applies this once to old data (`user_version` 2). The dashboard's Raw filter is the other case: a raw request with no earlier run of that source.
 | `steps` | per event, each optimizer that changed tokens: optimizer, family, tokens before/after |
 | `raw` | originals, gzip-compressed (plain JSON rows from before still read); TTL-pruned. `gascoigne flush [-older]` / `POST /api/flush` delete and VACUUM |
 | `failures` | per-key failure count |

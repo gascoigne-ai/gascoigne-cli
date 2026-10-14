@@ -406,10 +406,11 @@ func estimates(o Overview) []string {
 
 // outcomeNotes say what each outcome means for tokens.
 var outcomeNotes = map[string]string{
-	string(component.Optimized): "shrunk; original retrievable",
-	string(component.Unchanged): "no optimizer applied",
-	string(component.Bypassed):  "passed through by a filter (see skipped)",
-	string(component.Failed):    "optimizer error, original returned",
+	string(component.Optimized):   "shrunk; original retrievable",
+	string(component.Unchanged):   "no optimizer applied",
+	string(component.Bypassed):    "passed through by a filter (see skipped)",
+	string(component.Rerequested): "shrunk, then the agent asked for the original",
+	string(component.Failed):      "optimizer error, original returned",
 }
 
 // skipReasons describe filter types, for runs recorded before reasons were.

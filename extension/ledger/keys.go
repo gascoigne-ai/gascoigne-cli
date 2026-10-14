@@ -32,7 +32,8 @@ func storedKey(key string) string {
 	return key[:cut] + "…#" + hex.EncodeToString(sum[:8])
 }
 
-// schemaVersion counts data migrations done (PRAGMA user_version).
+// schemaVersion is the user_version after migrateKeys; migrateRerequested
+// raises it further.
 const schemaVersion = 1
 
 // migrateKeys shortens keys stored before storedKey, once per database

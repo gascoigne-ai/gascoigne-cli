@@ -64,7 +64,7 @@ func lessons(entries []ledger.Entry) []lesson {
 	for _, e := range entries {
 		switch {
 		case e.Command == "" || e.Session == "":
-		case e.Outcome == component.Optimized && e.RawID != "" && e.Route != "fold":
+		case (e.Outcome == component.Optimized || e.Outcome == component.Rerequested) && e.RawID != "" && e.Route != "fold":
 			k := [2]string{e.Session, e.Key}
 			if perSession[k]++; perSession[k] >= learnMinRuns {
 				add(reruns, e.Command, e.Session, 0)

@@ -139,7 +139,7 @@ func (l *Ledger) reasons(ctx context.Context, q component.StatsQuery) ([]compone
 		LastID                     uint
 	}
 	tx := filter(l.db.WithContext(ctx).Table("events e"), "e", q).
-		Where("e.outcome <> ?", string(component.Optimized))
+		Where("e.outcome NOT IN ?", []string{string(component.Optimized), string(component.Rerequested)})
 	err := tx.Select(`e.outcome, e.filter, e.command, count(*) AS runs,
 			sum(e.raw_tokens) AS raw_tokens, sum(e.out_tokens) AS out_tokens,
 			min(e.ts) AS first_ts, max(e.ts) AS last_ts, max(e.id) AS last_id`).
@@ -191,21 +191,17 @@ type Page struct {
 	// away: skipped with a "raw requested" reason (-raw, MCP raw,
 	// GASCOIGNE_RAW) and no earlier optimized run of that source in the session.
 	RawAsked bool
-	// Rerequested keeps runs where the agent got an optimized result and
-	// then asked for the original: the run it fetched in full (gascoigne
-	// raw, MCP retrieve) or a raw rerun after an optimized run of that source.
-	Rerequested bool
-	Limit       int
+	Limit    int
 }
 
 // rawRequested matches the reason of a run skipped because the agent asked
 // for the original.
 const rawRequested = "raw requested%"
 
-// earlierOptimized finds an optimized run of the same source and session
-// before the one being filtered.
+// earlierOptimized finds an optimized run (since rerequested) of the same
+// source and session before the one being filtered.
 const earlierOptimized = "SELECT 1 FROM events e2 WHERE e2.key = events.key AND e2.session = events.session " +
-	"AND e2.outcome = 'optimized' AND e2.id < events.id"
+	"AND e2.outcome IN ('optimized', 'rerequested') AND e2.id < events.id"
 
 // Page returns the runs matching q and p, newest first.
 func (l *Ledger) Page(ctx context.Context, q component.StatsQuery, p Page) ([]Entry, error) {
@@ -219,12 +215,6 @@ func (l *Ledger) Page(ctx context.Context, q component.StatsQuery, p Page) ([]En
 	}
 	if p.RawAsked {
 		tx = tx.Where("events.reason LIKE ? AND NOT EXISTS ("+earlierOptimized+")", rawRequested)
-	}
-	if p.Rerequested {
-		tx = tx.Where("(events.reason LIKE ? AND EXISTS ("+earlierOptimized+")) OR "+
-			"(events.outcome = ? AND events.id = (SELECT MAX(e2.id) FROM events e2 JOIN failures f ON f.key = e2.key "+
-			"WHERE e2.key = events.key AND e2.outcome = ? AND f.reason = ? AND e2.ts <= f.last_ts))",
-			rawRequested, component.Optimized, component.Optimized, component.ReasonRawRequested)
 	}
 	if err := tx.Order("events.id DESC").Limit(p.Limit).Find(&rows).Error; err != nil {
 		return nil, err
@@ -301,7 +291,7 @@ func (l *Ledger) RecentRuns(ctx context.Context, session string, limit int) ([]R
 	var rows []Run
 	err := l.db.WithContext(ctx).Model(&event{}).
 		Select("key, raw_id, raw_tokens, out_tokens").
-		Where("session = ? AND raw_id != '' AND outcome = ?", session, component.Optimized).
+		Where("session = ? AND raw_id != '' AND outcome IN ?", session, []string{string(component.Optimized), string(component.Rerequested)}).
 		Order("id DESC").Limit(limit * 20).Scan(&rows).Error
 	if err != nil {
 		return nil, err
