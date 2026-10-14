@@ -169,7 +169,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
   inline code, links). Dropped words leave no marker. Model missing, failing, panicking or
   malformed → the lines stay as they were, never an optimizer error (that would discard the
   rule-based savings and mark the source failed); after 3 failures it is given up for the process.
-  Models (`prose/models.go`, setting `optimizers.prose.model`, Hugging Face names): `kompress-v2-base` and `ctxprune-small`, each with pinned repo, revision, file hashes and graph output (`final_scores` or `logits`, turned into keep probabilities); ctxprune-small sits in `ctxprune-small/` under the model root and shares the runtime; `prose/bpe` reads both tokenizer kinds (byte-level, and "▁" word starts with byte fallback). Install: `gascoigne prose install [-name kompress-v2-base|ctxprune-small] [-runtime auto|cpu|cuda12|cuda13]` (model + ONNX Runtime, pinned hashes; cuDNN for CUDA is the user's). `warm` loads the model in `Start`; `idle` (5m) unloads it after that long unused, the next paragraph reloads it.
+  Models (`prose/models.go`, setting `optimizers.prose.model`, Hugging Face names): `kompress-v2-base` and `ctxprune-small`, each with pinned repo, revision, file hashes and graph output (`final_scores` or `logits`, turned into keep probabilities); each model sits in a directory of its own name under the model root (so files never mix and checksums stay per model) and shares the runtime; installs from 0.5.0 kept kompress-v2-base in the root and need `prose install` again; `prose/bpe` reads both tokenizer kinds (byte-level, and "▁" word starts with byte fallback). Install: `gascoigne prose install [-name kompress-v2-base|ctxprune-small] [-runtime auto|cpu|cuda12|cuda13]` (model + ONNX Runtime, pinned hashes; cuDNN for CUDA is the user's). `warm` loads the model in `Start`; `idle` (5m) unloads it after that long unused, the next paragraph reloads it.
 
 **web (html)**
 - The root is the `<main>`/`<article>` with the most visible text, when that is ≥ half the page's
@@ -553,6 +553,10 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
   choice is `prefs.experimental`, which `experimentalOn` reads next to `$GASCOIGNE_EXPERIMENTAL` and
   the config's list; `setup -experimental` asks only those, and a test keeps `experiments` in step with
   the commands marked experimental in `help.go`;
+  a further optional question, `prose_model` (`proseModelDecision`, choices in `proseChoices`), picks the
+  prose model: `prefs.prose_model` is laid over `optimizers.prose.model` by `configData`, so
+  `configProseModel`, `prose install`, `prose status` and the optimizer all follow it; when prose is on,
+  save verifies the chosen model's files (`needsProseModel`) and downloads them if missing or corrupt;
   a save bar says how many answers will be saved, and the result lists what was done.
   New agents: an agent on PATH with no recorded install and not declined gets a question
   (`integrate:<agent>`, default yes). It is only signaled: a SessionStart note and the page (until answered, like any question); yes runs the user-level install and records it, no is remembered

@@ -36,6 +36,9 @@ type prefs struct {
 	// setup (config.yaml's experimental list and $GASCOIGNE_EXPERIMENTAL
 	// still count).
 	Experimental []string `json:"experimental,omitempty"`
+	// ProseModel is the prose model chosen in setup; "" leaves it to
+	// optimizers.prose.model in the config.
+	ProseModel string `json:"prose_model,omitempty"`
 	// ReleaseCheck (on or off; unset = on) lets the background server read the
 	// website's latest.json once a day; SeenRelease is the release whose page
 	// was already opened.

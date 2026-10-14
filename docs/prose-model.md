@@ -41,7 +41,7 @@ for both). Compare on your own text before switching.
    auto|cpu|cuda12|cuda13` picks the ONNX Runtime build; auto reads the CUDA version from
    `nvidia-smi`, and macOS has no GPU variant (CoreML is built in). A CUDA build also needs the
    CUDA runtime and cuDNN 9 on the library path; it falls back to the CPU when they are missing.
-2. Enable it: `experimental: [prose]`, or answer yes in `gascoigne setup`, which runs step 1 for you (in the terminal it waits for the download; in the browser it downloads in the background). The server loads the
+2. Enable it: `experimental: [prose]`, or answer yes in `gascoigne setup`, which also asks which model to use (saved as a preference that wins over `optimizers.prose.model`) and runs step 1 for it, checking the files of the chosen model (in the terminal it waits for the download; in the browser it downloads in the background). The server loads the
    model at start (`optimizers.prose.warm`), so the first request does not wait for it. After `optimizers.prose.idle` (default 5m, 0 keeps it) without a paragraph the model is unloaded, freeing GPU memory; the next paragraph loads it again, which takes a few seconds.
 
 Status: `gascoigne prose status` and the dashboard (*Experiments* panel, shown when any experiment is on) say `off`, `not-installed` or `ready`. The pass has its own optimizer id, `prose`, so its savings are the `prose` row of
@@ -77,14 +77,16 @@ omission markers are never sent to the model.
 
 The graph is `kompress-int8-wo` (int8 weight-only, MatMulNBits, needs ONNX Runtime 1.24 or newer): on the eval fixtures it keeps the same words as the fp32 graph for about 99% of the text and saves the same share of tokens, at 274 MB instead of 601 MB. Same output on CPU and CUDA; CUDA is about ten times faster per paragraph batch.
 
-Model files, at revision `e00cc5e60ff73b01674ef8fa6da6c5acf6d54181`:
+Each model lives in a directory named after it under the model root (`kompress-v2-base/`, `ctxprune-small/`), so files and checksums never mix; the ONNX Runtime is shared. Installs from 0.5.0 kept kompress-v2-base in the root: install it again.
+
+kompress-v2-base files, at revision `e00cc5e60ff73b01674ef8fa6da6c5acf6d54181`:
 
 | file | sha256 |
 |---|---|
 | `tokenizer.json` | `6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30` |
 | `onnx/kompress-int8-wo.onnx` | `c47ddd764dec5cf91fd1f10cf69e5538dd2a49d913828da7f6a993931cc7904f` |
 
-ctxprune-small files, at revision `c47bfc26508f437d9d737550e19a2541e3049f83`, in `ctxprune-small/` beside the kompress-v2-base files:
+ctxprune-small files, at revision `c47bfc26508f437d9d737550e19a2541e3049f83`, :
 
 | file | sha256 |
 |---|---|

@@ -1,6 +1,6 @@
 # Experimental features, kept apart from cases.yaml: they need extra installs and are off by default.
-# Prose model (docs/prose-model.md): needs the model and ONNX Runtime (bin/gascoigne prose install).
-# Run: make eval-experimental (sets optimizers.prose.enabled=true). Goldens come from the model:
+# Prose model kompress-v2-base (docs/prose-model.md): needs gascoigne prose install -name kompress-v2-base.
+# Run: make eval-experimental (sets optimizers.prose.enabled=true and optimizers.prose.model=kompress-v2-base). Goldens come from the model:
 # review diffs after a model, helper or threshold change, then rerun with -update.
 # min_saved is the saving of the whole pipeline, rule-based steps included.
 

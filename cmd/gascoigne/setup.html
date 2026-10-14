@@ -223,9 +223,10 @@ async function load() {
     });
     if (g === "experimental") {
       // Folded: optional features are not part of finishing the setup.
-      const on = qs.filter((q) => q.current === "on").length;
+      const features = qs.filter((q) => q.id.startsWith("experimental:"));
+      const on = features.filter((q) => q.current === "on").length;
       form.append(el("details", { class: "fold" },
-        el("summary", {}, el("h2", {}, groupTitle[g]), el("span", { class: "fold-note" }, `${qs.length} features, ${on} on · open to read what each does`)),
+        el("summary", {}, el("h2", {}, groupTitle[g]), el("span", { class: "fold-note" }, `${features.length} features, ${on} on · open to read what each does`)),
         boxes));
     } else {
       form.append(el("h2", {}, groupTitle[g]), ...boxes);

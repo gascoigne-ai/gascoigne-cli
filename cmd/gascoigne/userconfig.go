@@ -21,14 +21,25 @@ import (
 // the user's file is created from the commented template, so every setting
 // is there to read and change while the defaults still apply.
 //
-// The experimental prose setting also switches its optimizer on, so the
-// config that is sent to the background server carries it.
+// The experimental prose setting also switches its optimizer on, and setup's
+// model choice wins over the file, so the config that is sent to the
+// background server carries both.
 func configData(path string) ([]byte, error) {
 	data, err := configFile(path)
-	if err != nil || !experimentalOn("prose") {
-		return data, err
+	if err != nil {
+		return nil, err
 	}
-	return overlay(data, []byte("optimizers:\n  prose:\n    enabled: true\n"))
+	var over string
+	if experimentalOn("prose") {
+		over += "    enabled: true\n"
+	}
+	if m := readPrefs().ProseModel; m != "" {
+		over += "    model: " + m + "\n"
+	}
+	if over == "" {
+		return data, nil
+	}
+	return overlay(data, []byte("optimizers:\n  prose:\n"+over))
 }
 
 // configFile is configData as the files say it.
@@ -62,7 +73,7 @@ func configFile(path string) ([]byte, error) {
 
 // configProseModel is the prose model the config chooses (optimizers.prose.model).
 func configProseModel() string {
-	data, err := configFile("")
+	data, err := configData("")
 	if err != nil {
 		return prose.Kompress
 	}

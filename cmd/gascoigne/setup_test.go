@@ -6,9 +6,12 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gascoigne-ai/gascoigne-cli/prose"
 )
 
 func postSetup(h http.Handler, body string) *httptest.ResponseRecorder {
@@ -468,5 +471,36 @@ func TestNeedsProseModel(t *testing.T) {
 				t.Fatalf("got %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestProseModelChoice(t *testing.T) {
+	sandbox(t)
+	if got, want := len(proseChoices), len(prose.Names()); got != want {
+		t.Fatalf("setup offers %d prose models, prose has %d", got, want)
+	}
+	for _, c := range proseChoices {
+		if !slices.Contains(prose.Names(), c.name) {
+			t.Errorf("setup offers unknown prose model %q", c.name)
+		}
+	}
+	if d := proseModelDecision(prefs{}); d.Current != prose.Kompress || !d.Optional {
+		t.Fatalf("default choice: %+v", d)
+	}
+	if got := configProseModel(); got != prose.Kompress {
+		t.Fatalf("before any choice: %q", got)
+	}
+	if _, err := applyAnswers(map[string]string{proseModelID: prose.Ctxprune}); err != nil {
+		t.Fatal(err)
+	}
+	if got := configProseModel(); got != prose.Ctxprune {
+		t.Fatalf("after choosing: %q", got)
+	}
+	if _, err := applyAnswers(map[string]string{proseModelID: "nope"}); err == nil {
+		t.Fatal("an unknown model must be refused")
+	}
+	// The files checked are the chosen model's: turning prose on finds them missing.
+	if !needsProseModel(map[string]string{experimentPrefix + "prose": "on"}) {
+		t.Fatal("chosen model not downloaded: setup must fetch it")
 	}
 }

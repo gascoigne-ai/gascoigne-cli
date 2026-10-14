@@ -42,9 +42,10 @@ eval-ext: build
 eval-live: build
 	.harness/scripts/eval.sh -cases testdata/eval/live.yaml
 
-# Needs the prose model and ONNX Runtime (gascoigne prose install); not part of check.
+# Needs both prose models and ONNX Runtime (gascoigne prose install -name kompress-v2-base, then
+# -name ctxprune-small); not part of check. Each run names its model, so the setup choice does not matter.
 eval-experimental: build
-	GASCOIGNE_EXPERIMENTAL=prose .harness/scripts/eval.sh -cases testdata/eval-experimental/cases.yaml -record -set optimizers.prose.enabled=true
+	GASCOIGNE_EXPERIMENTAL=prose .harness/scripts/eval.sh -cases testdata/eval-experimental/cases.yaml -record -set optimizers.prose.enabled=true -set optimizers.prose.model=kompress-v2-base
 	GASCOIGNE_EXPERIMENTAL=prose .harness/scripts/eval.sh -cases testdata/eval-experimental/ctxprune-small/cases.yaml -record -set optimizers.prose.enabled=true -set optimizers.prose.model=ctxprune-small
 
 check: fmt-check vet imports test

@@ -20,11 +20,11 @@ func TestInstalled(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	put("tokenizer.json")
+	put("kompress-v2-base/tokenizer.json")
 	if model, _ := Installed(dir, Kompress); model {
 		t.Fatal("tokenizer alone is not the model")
 	}
-	put("model.onnx")
+	put("kompress-v2-base/model.onnx")
 	put(filepath.Join(runtimeDir, libName()))
 	if model, rt := Installed(dir, Kompress); !model || !rt {
 		t.Fatalf("model %v, runtime %v", model, rt)
@@ -81,8 +81,8 @@ func TestCtxpruneModelLayout(t *testing.T) {
 		}
 	}
 	put(filepath.Join(runtimeDir, libName()))
-	put("tokenizer.json")
-	put("model.onnx")
+	put("kompress-v2-base/tokenizer.json")
+	put("kompress-v2-base/model.onnx")
 	if model, _ := Installed(root, Ctxprune); model {
 		t.Fatal("the kompress files are not the ctxprune model")
 	}

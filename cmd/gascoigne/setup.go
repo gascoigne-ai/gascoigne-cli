@@ -87,7 +87,8 @@ func decisions(p prefs) []decision {
 				{"no", "Not for " + name, "Nothing is installed, and you are not asked again."},
 			}})
 	}
-	return append(ds, experimentDecisions(p)...)
+	ds = append(ds, experimentDecisions(p)...)
+	return append(ds, proseModelDecision(p))
 }
 
 // staleInstalls are the recorded installs written by an older registration.
@@ -228,6 +229,39 @@ func experimentDecisions(p prefs) []decision {
 	return ds
 }
 
+// proseModelID is the question that picks the prose model.
+const proseModelID = "prose_model"
+
+// proseChoices are the models the prose question offers, the default first;
+// a test keeps them in step with prose.Names.
+var proseChoices = []struct{ name, size, detail string }{
+	{prose.Kompress, "274 MB", "Trained on general prose: drops articles and fillers, and keeps the meaning of the fixtures at the default threshold."},
+	{prose.Ctxprune, "563 MB", "Trained on tool output, logs, code and web text: about 3x faster on the CPU, keeps fewer words on prose."},
+}
+
+// proseSize is the download size of a prose model, for messages.
+func proseSize(name string) string {
+	for _, c := range proseChoices {
+		if c.name == name {
+			return c.size
+		}
+	}
+	return "?"
+}
+
+// proseModelDecision picks the model the prose experiment uses. It always has
+// an answer, like the experiments: only a prose that is on downloads it.
+func proseModelDecision(p prefs) decision {
+	d := decision{ID: proseModelID, Group: "experimental", Optional: true, Default: prose.Kompress,
+		Current: cmp.Or(p.ProseModel, prose.Kompress),
+		Title:   "Model for prose compression",
+		Text:    "Which model the prose experiment runs. With prose on, setup downloads the one you pick and checks its files."}
+	for _, c := range proseChoices {
+		d.Options = append(d.Options, option{c.name, c.name + " (" + c.size + ")", c.detail})
+	}
+	return d
+}
+
 // integratePrefix starts the id of a question about an agent found on PATH.
 const integratePrefix = "integrate:"
 
@@ -298,6 +332,9 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 		}
 	}
 	slices.Sort(p.Experimental)
+	if v, ok := answers[proseModelID]; ok {
+		p.ProseModel = v
+	}
 	if v, ok := answers["release"]; ok {
 		p.ReleaseCheck = v
 	}
@@ -358,7 +395,7 @@ func boolWord(on bool) string {
 	return ""
 }
 
-// installProseModel downloads the prose model (274 MB) and the ONNX Runtime;
+// installProseModel downloads the chosen prose model and the ONNX Runtime;
 // progress and checksums go to stderr.
 func installProseModel(ctx context.Context) error {
 	dir, err := prose.ModelDir()
@@ -574,7 +611,8 @@ func setupHandlers(mux *http.ServeMux) {
 					fmt.Fprintln(os.Stderr, "gascoigne: prose download failed, run gascoigne prose install:", err)
 				}
 			}()
-			lines = append(lines, "prose: downloading the model (274 MB) in the background; gascoigne prose status says when it is ready")
+			name := configProseModel()
+			lines = append(lines, fmt.Sprintf("prose: downloading %s (%s) in the background; gascoigne prose status says when it is ready", name, proseSize(name)))
 		}
 		respond(w, map[string][]string{"done": lines}, nil)
 	})
@@ -598,7 +636,7 @@ func cmdSetup(ctx context.Context, args []string) error {
 		ds = decisions(p)
 	}
 	if *experimental {
-		ds = experimentDecisions(p)
+		ds = append(experimentDecisions(p), proseModelDecision(p))
 	}
 	if len(ds) == 0 {
 		fmt.Println("nothing to decide; setup -all asks again")
@@ -635,7 +673,8 @@ func repairProse(ctx context.Context, answers map[string]string) error {
 	if !needsProseModel(answers) {
 		return nil
 	}
-	fmt.Println("prose: downloading the model (274 MB) and ONNX Runtime")
+	name := configProseModel()
+	fmt.Printf("prose: downloading %s (%s) and ONNX Runtime\n", name, proseSize(name))
 	if err := installProseModel(ctx); err != nil {
 		return fmt.Errorf("prose is on but the download failed (%w); run gascoigne prose install to retry", err)
 	}

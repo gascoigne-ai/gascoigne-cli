@@ -34,6 +34,7 @@ var models = map[string]spec{
 	Kompress: {
 		repo:     "chopratejas/kompress-v2-base",
 		revision: "e00cc5e60ff73b01674ef8fa6da6c5acf6d54181",
+		sub:      Kompress,
 		files: []file{
 			{"tokenizer.json", "tokenizer.json", "6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30"},
 			{"onnx/kompress-int8-wo.onnx", "model.onnx", "c47ddd764dec5cf91fd1f10cf69e5538dd2a49d913828da7f6a993931cc7904f"},
