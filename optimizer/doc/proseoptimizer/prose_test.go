@@ -193,7 +193,7 @@ func TestDisabledByDefault(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	ok := Config{Enabled: true, Model: "default", Device: "cpu", Threshold: 0.5, MinWords: 1}
+	ok := Config{Enabled: true, Model: "kompress-v2-base", Device: "cpu", Threshold: 0.5, MinWords: 1}
 	bad := ok
 	bad.Threshold = 1
 	worse := ok

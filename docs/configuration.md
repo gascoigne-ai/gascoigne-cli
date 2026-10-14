@@ -234,7 +234,7 @@ rows, query matches) and mark every gap.
 | | `max_tokens` | 5200 | Longer markdown is fitted by whole sections, query matches first. |
 | | `man_drop` | built-in list | Man page sections dropped as boilerplate. |
 | `prose` | `enabled` | false | Set by `experimental: [prose]`. Prose paragraphs pass a local model, [docs/prose-model.md](prose-model.md). Lossy; the original stays in the ledger. |
-| | `model` | default | `default` (general prose compressor, 274 MB) or `agent` (also trained on tool output, logs and code, 563 MB; `gascoigne prose install -name agent`). Keeps fewer words at the same threshold, so raise `threshold` to compare. |
+| | `model` | kompress-v2-base | Hugging Face name: `kompress-v2-base` (general prose compressor, 274 MB) or `ctxprune-small` (also trained on tool output, logs and code, 563 MB; `gascoigne prose install -name ctxprune-small`). Keeps fewer words at the same threshold, so raise `threshold` to compare. |
 | | `device` | auto | `auto` (CUDA or CoreML, else CPU), `cuda`, `coreml` or `cpu`. |
 | | `threshold` | 0.5 | Keep score from which a word stays; higher drops more. |
 | | `warm` | true | Load the model when the server starts instead of on the first prose paragraph. |

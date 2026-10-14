@@ -192,7 +192,7 @@
 #     man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON]
 #   prose:                                       ## prose paragraphs of text and markdown pass a local model (GPU), lossy, original in the ledger
 #     enabled: false                              ## set by experimental: [prose], which also needs gascoigne prose install
-#     model: default                              ## default, or agent (also trained on tool output, logs and code; gascoigne prose install -name agent)
+#     model: kompress-v2-base                     ## or ctxprune-small (also trained on tool output, logs and code; gascoigne prose install -name ctxprune-small)
 #     device: auto                                ## auto (CUDA or CoreML, else CPU), cuda, coreml or cpu
 #     threshold: 0.5                              ## keep score from which a word stays; higher drops more
 #     warm: true                                  ## load the model at server start, not on the first paragraph

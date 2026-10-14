@@ -1,6 +1,6 @@
-# The prose model "agent" (docs/prose-model.md) on the same fixtures as ../cases.yaml: it keeps
+# The prose model ctxprune-small (docs/prose-model.md) on the same fixtures as ../cases.yaml: it keeps
 # fewer words at the same threshold, so min_saved differs and the goldens are its own.
-# Run: make eval-experimental (sets optimizers.prose.model=agent; needs gascoigne prose install -name agent).
+# Run: make eval-experimental (sets optimizers.prose.model=ctxprune-small; needs gascoigne prose install -name ctxprune-small).
 
 - name: prose/notes-text
   file: ../prose/notes.txt

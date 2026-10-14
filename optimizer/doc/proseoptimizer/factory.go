@@ -11,7 +11,7 @@ import (
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, "prose",
 		func() *Config {
-			return &Config{Device: "auto", Model: prose.Default, Threshold: 0.5, Warm: true, Idle: 5 * time.Minute, MinWords: 40}
+			return &Config{Device: "auto", Model: prose.Kompress, Threshold: 0.5, Warm: true, Idle: 5 * time.Minute, MinWords: 40}
 		},
 		func(_ context.Context, s component.Settings, cfg *Config) (component.Component, error) {
 			o := &Optimizer{cfg: cfg}

@@ -36,8 +36,9 @@ Hard rules for every agent and human change. Breaking one = change rejected.
 ## Hygiene
 - No competitor or product names of other token tools in code, docs, tasks, or commits.
   Describe techniques generically ("command output filtering", "JSON compaction").
-  Exception: datasets, and copyright, attribution and license notices (e.g. `testdata/*/NOTICE.md`),
-  where the source or its license requires naming it.
+  Exception: datasets, copyright, attribution and license notices (e.g. `testdata/*/NOTICE.md`),
+  where the source or its license requires naming it, and the Hugging Face ids of the prose models
+  (`prose/models.go`, `docs/prose-model.md`), which are what users select and download.
 - No speculative abstractions, options or hooks "for later".
 - Small focused commits; don't touch unrelated files; don't reformat untouched code.
 - No secrets, real user data or home paths in fixtures.

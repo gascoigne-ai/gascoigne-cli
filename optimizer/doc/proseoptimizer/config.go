@@ -15,8 +15,9 @@ type Config struct {
 	Enabled bool `yaml:"enabled"`
 	// Device is auto (CUDA or CoreML, else CPU), cuda, coreml or cpu.
 	Device string `yaml:"device"`
-	// Model is the prose model: default (a general compressor) or agent (also
-	// trained on tool output, logs and code; run prose install for it).
+	// Model is the prose model, by Hugging Face name: kompress-v2-base (a general
+	// compressor) or ctxprune-small (also trained on tool output, logs and code;
+	// run prose install -name ctxprune-small for it).
 	Model string `yaml:"model"`
 	// Threshold is the keep score from which a word stays; higher drops more.
 	Threshold float64 `yaml:"threshold"`

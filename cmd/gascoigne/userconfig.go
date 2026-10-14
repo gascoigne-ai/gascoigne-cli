@@ -64,7 +64,7 @@ func configFile(path string) ([]byte, error) {
 func configProseModel() string {
 	data, err := configFile("")
 	if err != nil {
-		return prose.Default
+		return prose.Kompress
 	}
 	var c struct {
 		Optimizers struct {
@@ -74,9 +74,9 @@ func configProseModel() string {
 		} `yaml:"optimizers"`
 	}
 	if yaml.Unmarshal(data, &c) != nil {
-		return prose.Default
+		return prose.Kompress
 	}
-	return cmp.Or(c.Optimizers.Prose.Model, prose.Default)
+	return cmp.Or(c.Optimizers.Prose.Model, prose.Kompress)
 }
 
 // configExperimental is the config's experimental list. A config that
