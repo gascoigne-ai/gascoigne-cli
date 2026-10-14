@@ -355,6 +355,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
         <button data-o="optimized" data-icon="check">Optimized</button>
         <button data-o="unchanged" data-icon="minus">Unchanged</button>
         <button data-o="bypassed" data-icon="skip">Skipped</button>
+        <button data-o="raw" data-icon="undo" title="Runs where the agent asked for the original (raw requested)">Raw asked</button>
         <button data-o="error" data-icon="alert">Failed</button>
       </span>
     </div>
@@ -917,7 +918,8 @@ function addEvents(list, fresh, older) {
 // feedQuery is the dashboard filters plus the outcome chosen above the feed.
 function feedQuery() {
   const p = filters();
-  if (state.outcome) p.set("outcome", state.outcome);
+  if (state.outcome === "raw") p.set("raw", "1");
+  else if (state.outcome) p.set("outcome", state.outcome);
   return p;
 }
 

@@ -415,6 +415,26 @@ func TestPage(t *testing.T) {
 	}
 }
 
+func TestPageRawAsked(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	for _, e := range []component.Event{
+		{Key: "a", Outcome: component.Optimized},
+		{Key: "b", Outcome: component.Bypassed, Reason: "raw requested: attr raw=true (-raw, MCP raw)"},
+		{Key: "c", Outcome: component.Bypassed, Reason: "45 tokens < min_tokens 200"},
+		{Key: "d", Outcome: component.Bypassed, Reason: "raw requested: env GASCOIGNE_RAW=1"},
+	} {
+		e.TS = time.Now()
+		if err := l.Record(ctx, e); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := l.Page(ctx, component.StatsQuery{}, Page{RawAsked: true, Limit: 10})
+	if err != nil || len(got) != 2 || got[0].Key != "d" || got[1].Key != "b" {
+		t.Fatalf("got %v, %v", got, err)
+	}
+}
+
 func TestRecentOutputs(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()

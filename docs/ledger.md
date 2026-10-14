@@ -254,7 +254,7 @@ The page is built on a small JSON API you can also script against:
 | `GET /api/context?days=` | the context report behind the `/context` page and `gascoigne context -json`, read from Claude Code's transcripts, not the ledger |
 | `GET /api/mcp` | the MCP review behind the `/mcp` page and `gascoigne mcp-review -json` |
 | `POST /api/mcp/lazy` | `{id, tools}`: load these tools of one proxied server on request from the next session; `[]` lists them all again |
-| `GET /api/events?after=<id>&session=&agent=&model=&since=` | up to 200 runs newer than `after`, newest first, with steps |
+| `GET /api/events?after=<id>&session=&agent=&model=&since=&outcome=&raw=1` (`raw=1`: only runs where the agent asked for the original) | up to 200 runs newer than `after`, newest first, with steps |
 | `GET /api/stream?…` | server-sent events: the latest 100 runs, then each new batch |
 | `GET /api/raw/<id>` | an original as text (does not mark the source) |
 | `GET /api/failures` | failing sources |

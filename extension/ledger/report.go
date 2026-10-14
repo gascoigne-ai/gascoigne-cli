@@ -187,6 +187,9 @@ type Page struct {
 	// Outcomes keeps runs with these outcomes ("optimized", "unchanged",
 	// "bypassed", "error"); empty = all.
 	Outcomes []string
+	// RawAsked keeps runs where the agent asked for the original: skipped
+	// with a "raw requested" reason (-raw, MCP raw, GASCOIGNE_RAW).
+	RawAsked bool
 	Limit    int
 }
 
@@ -199,6 +202,9 @@ func (l *Ledger) Page(ctx context.Context, q component.StatsQuery, p Page) ([]En
 	}
 	if len(p.Outcomes) > 0 {
 		tx = tx.Where("events.outcome IN ?", p.Outcomes)
+	}
+	if p.RawAsked {
+		tx = tx.Where("events.reason LIKE ?", "raw requested%")
 	}
 	if err := tx.Order("events.id DESC").Limit(p.Limit).Find(&rows).Error; err != nil {
 		return nil, err
