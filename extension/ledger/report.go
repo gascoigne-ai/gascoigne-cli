@@ -190,7 +190,10 @@ type Page struct {
 	// RawAsked keeps runs where the agent asked for the original: skipped
 	// with a "raw requested" reason (-raw, MCP raw, GASCOIGNE_RAW).
 	RawAsked bool
-	Limit    int
+	// Rerequested keeps runs of sources whose original an agent fetched in
+	// full (failure reason raw_requested).
+	Rerequested bool
+	Limit       int
 }
 
 // Page returns the runs matching q and p, newest first.
@@ -205,6 +208,9 @@ func (l *Ledger) Page(ctx context.Context, q component.StatsQuery, p Page) ([]En
 	}
 	if p.RawAsked {
 		tx = tx.Where("events.reason LIKE ?", "raw requested%")
+	}
+	if p.Rerequested {
+		tx = tx.Where("events.key IN (?)", l.db.Model(&failure{}).Select("key").Where("reason = ?", component.ReasonRawRequested))
 	}
 	if err := tx.Order("events.id DESC").Limit(p.Limit).Find(&rows).Error; err != nil {
 		return nil, err

@@ -353,10 +353,11 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
       <span class="seg" id="f-outcome" role="group" aria-label="Filter by outcome">
         <button data-o="" data-icon="list" aria-pressed="true">All</button>
         <button data-o="optimized" data-icon="check">Optimized</button>
+        <button data-o="bypassed" data-icon="skip">Bypassed</button>
         <button data-o="unchanged" data-icon="minus">Unchanged</button>
-        <button data-o="bypassed" data-icon="skip">Skipped</button>
-        <button data-o="raw" data-icon="undo" title="Runs where the agent asked for the original (raw requested)">Raw asked</button>
-        <button data-o="error" data-icon="alert">Failed</button>
+        <button data-o="rerequested" data-icon="undo" title="Runs of sources whose original the agent fetched in full (gascoigne raw)">Rerequested</button>
+        <button data-o="raw" data-icon="undo" title="Runs where the agent asked for the original (raw requested)">Raw</button>
+        <button data-o="error" data-icon="alert">Failures</button>
       </span>
     </div>
     <input type="search" id="feed-filter" class="tfilter" placeholder="Filter loaded runs" aria-label="Filter loaded runs">
@@ -918,7 +919,7 @@ function addEvents(list, fresh, older) {
 // feedQuery is the dashboard filters plus the outcome chosen above the feed.
 function feedQuery() {
   const p = filters();
-  if (state.outcome === "raw") p.set("raw", "1");
+  if (state.outcome === "raw" || state.outcome === "rerequested") p.set(state.outcome, "1");
   else if (state.outcome) p.set("outcome", state.outcome);
   return p;
 }

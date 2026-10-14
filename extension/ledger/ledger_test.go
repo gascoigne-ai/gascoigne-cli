@@ -435,6 +435,26 @@ func TestPageRawAsked(t *testing.T) {
 	}
 }
 
+func TestPageRerequested(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	for _, k := range []string{"a", "b", "a"} {
+		if err := l.Record(ctx, component.Event{TS: time.Now(), Key: k, Outcome: component.Optimized}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := l.MarkFailure(ctx, "a", component.ReasonRawRequested); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.MarkFailure(ctx, "b", component.ReasonManual); err != nil {
+		t.Fatal(err)
+	}
+	got, err := l.Page(ctx, component.StatsQuery{}, Page{Rerequested: true, Limit: 10})
+	if err != nil || len(got) != 2 || got[0].Key != "a" || got[1].Key != "a" {
+		t.Fatalf("got %v, %v", got, err)
+	}
+}
+
 func TestRecentOutputs(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()
