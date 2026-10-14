@@ -415,43 +415,47 @@ func TestPage(t *testing.T) {
 	}
 }
 
-func TestPageRawAsked(t *testing.T) {
+func TestPageRawAndRerequested(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()
-	for _, e := range []component.Event{
-		{Key: "a", Outcome: component.Optimized},
-		{Key: "b", Outcome: component.Bypassed, Reason: "raw requested: attr raw=true (-raw, MCP raw)"},
-		{Key: "c", Outcome: component.Bypassed, Reason: "45 tokens < min_tokens 200"},
-		{Key: "d", Outcome: component.Bypassed, Reason: "raw requested: env GASCOIGNE_RAW=1"},
-	} {
-		e.TS = time.Now()
-		if err := l.Record(ctx, e); err != nil {
+	ts := time.Now().Add(-time.Minute)
+	run := func(key string, o component.Outcome, reason string) {
+		t.Helper()
+		ts = ts.Add(time.Millisecond)
+		if err := l.Record(ctx, component.Event{TS: ts, Session: "s", Key: key, Outcome: o, Reason: reason}); err != nil {
 			t.Fatal(err)
 		}
 	}
-	got, err := l.Page(ctx, component.StatsQuery{}, Page{RawAsked: true, Limit: 10})
-	if err != nil || len(got) != 2 || got[0].Key != "d" || got[1].Key != "b" {
-		t.Fatalf("got %v, %v", got, err)
+	const raw = "raw requested: attr raw=true (-raw, MCP raw)"
+	run("direct", component.Bypassed, raw)  // asked raw at once
+	run("rerun", component.Optimized, "")   // got optimized ...
+	run("rerun", component.Bypassed, raw)   // ... then reran raw
+	run("fetched", component.Optimized, "") // optimized, original fetched
+	run("fetched", component.Optimized, "") // a later run, not fetched
+	run("other", component.Bypassed, "45 tokens < min_tokens 200")
+	if err := l.MarkFailure(ctx, "fetched", component.ReasonRawRequested); err != nil {
+		t.Fatal(err)
 	}
-}
-
-func TestPageRerequested(t *testing.T) {
-	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
-	ctx := t.Context()
-	for _, k := range []string{"a", "b", "a"} {
-		if err := l.Record(ctx, component.Event{TS: time.Now(), Key: k, Outcome: component.Optimized}); err != nil {
+	keys := func(p Page) []string {
+		t.Helper()
+		p.Limit = 10
+		got, err := l.Page(ctx, component.StatsQuery{}, p)
+		if err != nil {
 			t.Fatal(err)
 		}
+		var out []string
+		for _, e := range got {
+			out = append(out, e.Key)
+		}
+		return out
 	}
-	if err := l.MarkFailure(ctx, "a", component.ReasonRawRequested); err != nil {
-		t.Fatal(err)
+	if got := keys(Page{RawAsked: true}); !slices.Equal(got, []string{"direct"}) {
+		t.Errorf("raw: %v", got)
 	}
-	if err := l.MarkFailure(ctx, "b", component.ReasonManual); err != nil {
-		t.Fatal(err)
-	}
-	got, err := l.Page(ctx, component.StatsQuery{}, Page{Rerequested: true, Limit: 10})
-	if err != nil || len(got) != 2 || got[0].Key != "a" || got[1].Key != "a" {
-		t.Fatalf("got %v, %v", got, err)
+	// The fetch happened after both "fetched" runs: the later one is the
+	// run whose result the agent saw last.
+	if got := keys(Page{Rerequested: true}); !slices.Equal(got, []string{"fetched", "rerun"}) {
+		t.Errorf("rerequested: %v", got)
 	}
 }
 

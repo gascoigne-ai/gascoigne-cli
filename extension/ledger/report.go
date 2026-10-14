@@ -187,14 +187,25 @@ type Page struct {
 	// Outcomes keeps runs with these outcomes ("optimized", "unchanged",
 	// "bypassed", "error"); empty = all.
 	Outcomes []string
-	// RawAsked keeps runs where the agent asked for the original: skipped
-	// with a "raw requested" reason (-raw, MCP raw, GASCOIGNE_RAW).
+	// RawAsked keeps runs where the agent asked for the original straight
+	// away: skipped with a "raw requested" reason (-raw, MCP raw,
+	// GASCOIGNE_RAW) and no earlier optimized run of that source in the session.
 	RawAsked bool
-	// Rerequested keeps runs of sources whose original an agent fetched in
-	// full (failure reason raw_requested).
+	// Rerequested keeps runs where the agent got an optimized result and
+	// then asked for the original: the run it fetched in full (gascoigne
+	// raw, MCP retrieve) or a raw rerun after an optimized run of that source.
 	Rerequested bool
 	Limit       int
 }
+
+// rawRequested matches the reason of a run skipped because the agent asked
+// for the original.
+const rawRequested = "raw requested%"
+
+// earlierOptimized finds an optimized run of the same source and session
+// before the one being filtered.
+const earlierOptimized = "SELECT 1 FROM events e2 WHERE e2.key = events.key AND e2.session = events.session " +
+	"AND e2.outcome = 'optimized' AND e2.id < events.id"
 
 // Page returns the runs matching q and p, newest first.
 func (l *Ledger) Page(ctx context.Context, q component.StatsQuery, p Page) ([]Entry, error) {
@@ -207,10 +218,13 @@ func (l *Ledger) Page(ctx context.Context, q component.StatsQuery, p Page) ([]En
 		tx = tx.Where("events.outcome IN ?", p.Outcomes)
 	}
 	if p.RawAsked {
-		tx = tx.Where("events.reason LIKE ?", "raw requested%")
+		tx = tx.Where("events.reason LIKE ? AND NOT EXISTS ("+earlierOptimized+")", rawRequested)
 	}
 	if p.Rerequested {
-		tx = tx.Where("events.key IN (?)", l.db.Model(&failure{}).Select("key").Where("reason = ?", component.ReasonRawRequested))
+		tx = tx.Where("(events.reason LIKE ? AND EXISTS ("+earlierOptimized+")) OR "+
+			"(events.outcome = ? AND events.id = (SELECT MAX(e2.id) FROM events e2 JOIN failures f ON f.key = e2.key "+
+			"WHERE e2.key = events.key AND e2.outcome = ? AND f.reason = ? AND e2.ts <= f.last_ts))",
+			rawRequested, component.Optimized, component.Optimized, component.ReasonRawRequested)
 	}
 	if err := tx.Order("events.id DESC").Limit(p.Limit).Find(&rows).Error; err != nil {
 		return nil, err

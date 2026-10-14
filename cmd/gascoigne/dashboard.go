@@ -289,8 +289,8 @@ func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q componen
 }
 
 // outcomes reads ?outcome=optimized,bypassed for the run feed (?raw=1 keeps
-// runs where the agent asked for the original, ?rerequested=1 runs of sources
-// whose original it fetched in full).
+// runs where the agent asked for the original at once, ?rerequested=1 runs
+// where it asked after getting an optimized result).
 func outcomes(v url.Values) []string { return splitList(v.Get("outcome"), ",") }
 
 func statsQuery(v url.Values) (component.StatsQuery, error) {

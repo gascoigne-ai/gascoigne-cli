@@ -355,9 +355,9 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
         <button data-o="optimized" data-icon="check">Optimized</button>
         <button data-o="bypassed" data-icon="skip">Bypassed</button>
         <button data-o="unchanged" data-icon="minus">Unchanged</button>
-        <button data-o="rerequested" data-icon="undo" title="Runs of sources whose original the agent fetched in full (gascoigne raw)">Rerequested</button>
-        <button data-o="raw" data-icon="undo" title="Runs where the agent asked for the original (raw requested)">Raw</button>
-        <button data-o="error" data-icon="alert">Failures</button>
+        <button data-o="rerequested" data-icon="undo" title="The agent got an optimized result, then asked for the original">Rerequested</button>
+        <button data-o="raw" data-icon="undo" title="The agent asked for the original straight away">Raw</button>
+        <button data-o="error" data-icon="alert">Failed</button>
       </span>
     </div>
     <input type="search" id="feed-filter" class="tfilter" placeholder="Filter loaded runs" aria-label="Filter loaded runs">
