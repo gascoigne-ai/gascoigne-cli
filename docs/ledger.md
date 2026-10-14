@@ -6,11 +6,11 @@ Every run through gascoigne is recorded in a local sqlite ledger:
 
 | Table | Holds | Kept |
 |---|---|---|
-| `raw` | originals of optimized payloads, gzip-compressed, by content-derived id | `raw_ttl` (24h by default), or until `flush` |
-| `events` | every run: time, session, agent, model, command, source key, route, tokens in/out, outcome, the component that stopped it and why | forever |
-| `steps` | per event, each optimizer that changed tokens: family, dialect, tokens before/after | forever |
-| `tool_stats` | per day, agent, MCP server and tool: the tool's definition size in tokens (as listed by `mcp-proxy`) and how many times it was called. Names and counts only, never arguments or results | `stats_ttl` (14 days by default) |
-| `failures` | per source key: how often it optimized badly, when, why | until `forget` |
+| `raw` | originals of optimized payloads, gzip-compressed, by content-derived id | `raw_ttl` (30 days by default), or until `flush` |
+| `events` | every run: time, session, agent, model, command, source key, route, tokens in/out, outcome, the component that stopped it and why | `events_ttl` (a year by default) |
+| `steps` | per event, each optimizer that changed tokens: family, dialect, tokens before/after | with their event |
+| `tool_stats` | per day, agent, MCP server and tool: the tool's definition size in tokens (as listed by `mcp-proxy`) and how many times it was called. Names and counts only, never arguments or results | `stats_ttl` (a year by default) |
+| `failures` | per source key: how often it optimized badly, when, why | until `forget`, or `events_ttl` after the last failure |
 
 The driver is pure Go (no cgo), in WAL mode, so several gascoigne processes (an agent's hooks,
 the MCP server, the dashboard) share one ledger safely.

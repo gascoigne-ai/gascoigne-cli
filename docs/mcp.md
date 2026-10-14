@@ -95,4 +95,4 @@ Register the proxy in place of the original server:
 On stdio, stdout is the protocol channel. Results go back to the client as tool results, so
 the `mcp` and `mcp-proxy` pipelines have receivers and filters but no exporters.
 
-Each `mcp-proxy` also records, per day, what the server's tool definitions cost in tokens and how many times each tool was called (table `tool_stats`, two weeks by default, `ledger.stats_ttl`). Only tool names and counts are kept. It is the data for judging which MCP servers earn the space their definitions take in every request. Calls to servers that do not go through the proxy are visible only through the agent's hooks, as runs named after the tool, without sizes.
+Each `mcp-proxy` also records, per day, what the server's tool definitions cost in tokens and how many times each tool was called (table `tool_stats`, a year by default, `ledger.stats_ttl`). Only tool names and counts are kept. It is the data for judging which MCP servers earn the space their definitions take in every request. Calls to servers that do not go through the proxy are visible only through the agent's hooks, as runs named after the tool, without sizes.

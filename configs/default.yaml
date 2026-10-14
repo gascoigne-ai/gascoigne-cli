@@ -1,7 +1,7 @@
 # Flow: receiver → filters → router → optimizers → exporters.
 # Originals of optimized payloads land in the ledger: `gascoigne raw <id>`.
 extensions:
-  ledger: { path: "", raw_ttl: 24h, stats_ttl: 336h } # path "": $XDG_DATA_HOME/gascoigne/ledger.db; stats_ttl: daily per-tool MCP stats
+  ledger: { path: "", raw_ttl: 720h, stats_ttl: 8760h, events_ttl: 8760h } # path "": $XDG_DATA_HOME/gascoigne/ledger.db; stats_ttl: daily per-tool MCP stats; events_ttl: runs, usage, failures
 
 receivers:
   stdin: { kind: cmd_output }

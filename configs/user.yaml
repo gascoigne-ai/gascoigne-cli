@@ -14,8 +14,9 @@
 # extensions:
 #   ledger:
 #     path: ""        ## sqlite file; "" = $XDG_DATA_HOME/gascoigne/ledger.db ($GASCOIGNE_LEDGER wins)
-#     raw_ttl: 24h    ## how long originals stay retrievable; 0 keeps them forever
-#     stats_ttl: 336h ## how long the daily per-tool MCP stats stay (two weeks); 0 keeps them forever
+#     raw_ttl: 720h   ## how long originals stay retrievable (30 days); 0 keeps them forever
+#     stats_ttl: 8760h  ## how long the daily per-tool MCP stats stay (a year); 0 keeps them forever
+#     events_ttl: 8760h ## how long runs, API usage and failure history stay (a year); 0 keeps them forever
 
 ## Where input comes from.
 # receivers:

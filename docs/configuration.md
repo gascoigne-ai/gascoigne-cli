@@ -159,8 +159,9 @@ Routes you add replace the `routes` list as a whole, like any list.
 | Option | Default | Meaning |
 |---|---|---|
 | `ledger.path` | `$XDG_DATA_HOME/gascoigne/ledger.db` | sqlite database; env vars are expanded. `GASCOIGNE_LEDGER` overrides it. |
-| `ledger.raw_ttl` | `24h` | How long originals stay retrievable. `0` keeps them forever. Events and savings are never pruned. |
-| `ledger.stats_ttl` | `336h` | How long the daily per-tool MCP stats (definition size and calls per server and tool) stay: two weeks, so a week can be compared with the one before. `0` keeps them forever. |
+| `ledger.raw_ttl` | `720h` | How long originals stay retrievable (30 days). `0` keeps them forever. |
+| `ledger.events_ttl` | `8760h` | How long runs and their steps, API usage and failure history stay (a year). `0` keeps them forever. |
+| `ledger.stats_ttl` | `8760h` | How long the daily per-tool MCP stats (definition size and calls per server and tool) stay (a year). `0` keeps them forever. |
 
 ### Receivers
 

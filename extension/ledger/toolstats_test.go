@@ -91,6 +91,44 @@ func TestToolStats(t *testing.T) {
 	})
 }
 
+func TestPruneEvents(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), EventsTTL: 24 * time.Hour})
+	ctx := t.Context()
+	now := time.Now()
+	l.now = func() time.Time { return now }
+	for _, ago := range []time.Duration{48 * time.Hour, time.Hour} {
+		ev := component.Event{TS: now.Add(-ago), Key: ago.String(), Outcome: component.Optimized,
+			Steps: []component.Step{{Optimizer: "x", RawTokens: 10, OutTokens: 5}}}
+		if err := l.Record(ctx, ev); err != nil {
+			t.Fatal(err)
+		}
+		if err := l.RecordUsage(ctx, component.Usage{TS: now.Add(-ago), Agent: "a", Model: "m", Input: 1}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	l.db.Create(&failure{Key: "old", Count: 1, LastTS: now.Add(-48 * time.Hour).UnixMilli(), Reason: "x"})
+	l.db.Create(&failure{Key: "new", Count: 1, LastTS: now.UnixMilli(), Reason: "x"})
+	if err := l.pruneEvents(ctx); err != nil {
+		t.Fatal(err)
+	}
+	var events, steps, usages, failures int64
+	l.db.Model(&event{}).Count(&events)
+	l.db.Model(&step{}).Count(&steps)
+	l.db.Model(&usage{}).Count(&usages)
+	l.db.Model(&failure{}).Count(&failures)
+	if events != 1 || steps != 1 || usages != 1 || failures != 1 {
+		t.Errorf("kept events %d steps %d usage %d failures %d, want 1 each", events, steps, usages, failures)
+	}
+	l.cfg.EventsTTL = 0
+	l.now = func() time.Time { return now.Add(1000 * time.Hour) }
+	if err := l.pruneEvents(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if l.db.Model(&event{}).Count(&events); events != 1 {
+		t.Error("events pruned with events_ttl 0")
+	}
+}
+
 func TestStatsTTLValidate(t *testing.T) {
 	if err := (&Config{StatsTTL: -time.Hour}).Validate(); err == nil {
 		t.Fatal("negative stats_ttl accepted")

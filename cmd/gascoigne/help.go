@@ -195,7 +195,7 @@ func init() {
 				"used, unused, or learning (seen for less than a week). -text prints the same table; -json\n" +
 				"prints it for scripts; -open=false only prints the page's address. Without a display, under\n" +
 				"CI or with GASCOIGNE_SERVER=off the table is printed. Data: the daily per-tool stats\n" +
-				"mcp-proxy records, kept two weeks (ledger stats_ttl).",
+				"mcp-proxy records, kept a year (ledger stats_ttl).",
 			examples: []string{"gascoigne mcp-review", "gascoigne mcp-review -text", "gascoigne mcp-review -json"},
 			run:      cmdMCPReview},
 		{name: "probe", args: "[flags]", group: groupSavings,

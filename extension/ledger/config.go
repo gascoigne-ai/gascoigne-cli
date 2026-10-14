@@ -8,9 +8,12 @@ import (
 )
 
 const (
-	DefaultRawTTL = 24 * time.Hour
-	// DefaultStatsTTL is two weeks: a weekly review compares a week with the one before.
-	DefaultStatsTTL = 14 * 24 * time.Hour
+	// DefaultRawTTL keeps originals a month, long enough to look into a run later.
+	DefaultRawTTL = 30 * 24 * time.Hour
+	// DefaultStatsTTL keeps the daily per-tool MCP stats a year.
+	DefaultStatsTTL = 365 * 24 * time.Hour
+	// DefaultEventsTTL keeps runs, usage and failure history a year.
+	DefaultEventsTTL = 365 * 24 * time.Hour
 )
 
 // EnvPath overrides the configured path; eval uses it to isolate runs.
@@ -23,6 +26,9 @@ type Config struct {
 	RawTTL time.Duration `yaml:"raw_ttl"`
 	// StatsTTL is how long the daily per-tool MCP stats stay. 0 keeps them forever.
 	StatsTTL time.Duration `yaml:"stats_ttl"`
+	// EventsTTL is how long runs (with their steps), API usage and failure
+	// history stay. 0 keeps them forever.
+	EventsTTL time.Duration `yaml:"events_ttl"`
 }
 
 func (c *Config) Validate() error {
@@ -31,6 +37,9 @@ func (c *Config) Validate() error {
 	}
 	if c.StatsTTL < 0 {
 		return errors.New("stats_ttl must not be negative")
+	}
+	if c.EventsTTL < 0 {
+		return errors.New("events_ttl must not be negative")
 	}
 	return nil
 }

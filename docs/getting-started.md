@@ -137,8 +137,8 @@ file is touched. `gascoigne install` registers it for good. See [Agents](agents.
 | your config | `$XDG_CONFIG_HOME/gascoigne/config.yaml`, written on first run with every setting commented out (or `$GASCOIGNE_CONFIG`, `-config`) |
 | built-in config | `configs/default.yaml`, embedded in the binary |
 
-Originals are kept for 24 hours by default (`extensions.ledger.raw_ttl`). Events and savings
-are kept until you clear them with `gascoigne reset`.
+Originals are kept for 30 days by default (`extensions.ledger.raw_ttl`). Runs, savings and
+API usage are kept for a year (`events_ttl`), or until you clear them with `gascoigne reset`.
 
 | background server log | `$XDG_CACHE_HOME/gascoigne/server.log` (usually `~/.cache/gascoigne/server.log`) |
 
