@@ -27,6 +27,8 @@ try { const t = localStorage.getItem("gascoigne-theme"); if (t === "light" || t 
   --ok-soft: #e5f5ec;
   --warn: #a8570c;
   --warn-soft: #fbf1e3;
+  --info: #1f6fb2;
+  --info-soft: #e6f0fa;
   --err: #d1281b;
   --err-soft: #fdecea;
   --track: #ece5e8;
@@ -40,7 +42,7 @@ try { const t = localStorage.getItem("gascoigne-theme"); if (t === "light" || t 
   :root:not([data-theme="light"]) {
     --bg: #140f12; --surface: #1c1519; --surface-2: #241b20; --border: #33262d; --border-strong: #47353e;
     --text: #f1e8eb; --muted: #bfaab2; --faint: #85717a; --accent: #e88aa6; --accent-soft: #3a1a27;
-    --ok: #5ed39a; --ok-soft: #112a20; --warn: #f0b05a; --warn-soft: #2c2214; --err: #ff6b5e; --err-soft: #3a1714;
+    --ok: #5ed39a; --ok-soft: #112a20; --warn: #f0b05a; --warn-soft: #2c2214; --info: #6cb0f0; --info-soft: #12243a; --err: #ff6b5e; --err-soft: #3a1714;
     --track: #2d2228; --shadow: 0 1px 2px rgba(0, 0, 0, .45);
     --night: linear-gradient(120deg, #1f0a13 0%, #3d0f22 55%, #571a33 100%);
     color-scheme: dark;
@@ -49,7 +51,7 @@ try { const t = localStorage.getItem("gascoigne-theme"); if (t === "light" || t 
 :root[data-theme="dark"] {
   --bg: #140f12; --surface: #1c1519; --surface-2: #241b20; --border: #33262d; --border-strong: #47353e;
   --text: #f1e8eb; --muted: #bfaab2; --faint: #85717a; --accent: #e88aa6; --accent-soft: #3a1a27;
-  --ok: #5ed39a; --ok-soft: #112a20; --warn: #f0b05a; --warn-soft: #2c2214; --err: #ff6b5e; --err-soft: #3a1714;
+  --ok: #5ed39a; --ok-soft: #112a20; --warn: #f0b05a; --warn-soft: #2c2214; --info: #6cb0f0; --info-soft: #12243a; --err: #ff6b5e; --err-soft: #3a1714;
   --track: #2d2228; --shadow: 0 1px 2px rgba(0, 0, 0, .45);
   --night: linear-gradient(120deg, #1f0a13 0%, #3d0f22 55%, #571a33 100%);
   color-scheme: dark;
@@ -169,7 +171,7 @@ td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-word; }
 .badge.optimized { color: var(--ok); background: var(--ok-soft); }
 .badge.unchanged { color: var(--muted); background: var(--surface-2); }
 .badge.rerequested { color: var(--warn); background: var(--warn-soft); }
-.badge.bypassed { color: var(--warn); background: var(--warn-soft); }
+.badge.bypassed { color: var(--info); background: var(--info-soft); }
 .badge.error { color: var(--err); background: var(--err-soft); }
 
 /* Daily chart */
