@@ -167,15 +167,17 @@ func matches(run []*node, query []string) []bool {
 	return match
 }
 
-func render(nodes []*node, depth int) []string {
-	var out []string
+func render(nodes []*node, depth int) []string { return appendRender(nil, nodes, depth) }
+
+// appendRender renders into out so nested levels share one slice.
+func appendRender(out []string, nodes []*node, depth int) []string {
 	pad := strings.Repeat("  ", depth)
 	for _, n := range nodes {
 		out = append(out, fmt.Sprintf("%s- %s", pad, n.text))
 		for _, e := range n.extra {
 			out = append(out, pad+"  "+e)
 		}
-		out = append(out, render(n.kids, depth+1)...)
+		out = appendRender(out, n.kids, depth+1)
 	}
 	return out
 }

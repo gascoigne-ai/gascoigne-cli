@@ -79,13 +79,15 @@ func (o *Optimizer) markdown(lines []string, query string) []string {
 			toc++
 			continue
 		}
-		l = badge.ReplaceAllString(l, "")
-		l = image.ReplaceAllStringFunc(l, func(m string) string {
-			if alt := image.FindStringSubmatch(m)[1]; alt != "" {
-				return "[image: " + alt + "]"
-			}
-			return ""
-		})
+		if strings.Contains(l, "![") { // both patterns need it; skips the regexes on most lines
+			l = badge.ReplaceAllString(l, "")
+			l = image.ReplaceAllStringFunc(l, func(m string) string {
+				if alt := image.FindStringSubmatch(m)[1]; alt != "" {
+					return "[image: " + alt + "]"
+				}
+				return ""
+			})
+		}
 		if layoutHTML.MatchString(l) || strings.TrimSpace(l) == "" && l != "" {
 			continue
 		}
