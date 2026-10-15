@@ -21,26 +21,13 @@ var (
 	slash  = syntax{line: "//", block: [2]string{"/*", "*/"}, strs: []string{"`", `"""`}}
 	hash   = syntax{line: "#", strs: []string{`"""`, `'''`}, heredoc: true}
 	python = syntax{line: "#", strs: []string{`"""`, `'''`}, docstrings: true}
-	dash   = syntax{line: "--"}
-	semi   = syntax{line: ";"}
 )
 
-var syntaxByExt = map[string]syntax{
-	".rb": hash, ".pl": hash, ".pm": hash, ".r": hash, ".jl": hash, ".nim": hash, ".ex": hash,
-	".exs": hash, ".tf": hash, ".ps1": hash,
-	".lua": dash, ".hs": dash, ".elm": dash,
-	".clj": semi, ".cljs": semi, ".el": semi, ".lisp": semi, ".scm": semi,
-	".erl": {line: "%"}, ".hrl": {line: "%"},
-	// Config files read to be edited (see the detect filter's edit_safe).
-	".yaml": {line: "#"}, ".yml": {line: "#"}, ".toml": {line: "#"}, ".ini": {line: ";"}, ".conf": {line: "#"},
-	".php": {line: "//", block: slash.block, strs: slash.strs, heredoc: true},
-}
-
-// syntaxOf picks comment syntax by file extension, else by language family;
-// ok is false for languages whose comments are not known.
+// syntaxOf picks comment syntax from the language row of the file, else by
+// language family; ok is false for languages whose comments are not known.
 func syntaxOf(lang string, h detect.Hints) (syntax, bool) {
-	if s, ok := syntaxByExt[detect.SourceExt(h)]; ok {
-		return s, true
+	if l, ok := detect.LanguageOf(h); ok && l.HasSyntax() {
+		return syntax{line: l.Line, block: l.Block, strs: l.Strs, heredoc: l.Heredoc, docstrings: l.Docstrings}, true
 	}
 	switch lang {
 	case detect.LangGo, detect.LangCLike:
