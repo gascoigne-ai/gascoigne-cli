@@ -17,12 +17,11 @@ const (
 // outliers returns the lines, among those not already important, whose
 // number at some place is far above the median of their template's lines
 // there: one slow request among fast ones would otherwise fold into a ×N.
-func outliers(lines []string, important []bool) []int {
+func outliers(lines, norms []string, important []bool) []int {
 	groups := map[string][]int{}
-	for i, l := range lines {
+	for i := range lines {
 		if !important[i] {
-			norm := compress.Normalize(l)
-			groups[norm] = append(groups[norm], i)
+			groups[norms[i]] = append(groups[norms[i]], i)
 		}
 	}
 	var out []int

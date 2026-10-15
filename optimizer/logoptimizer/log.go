@@ -126,24 +126,29 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 		}
 	}
 
-	for _, i := range outliers(lines, important) {
+	norms := make([]string, len(lines))
+	for i, l := range lines {
+		norms[i] = compress.Normalize(l)
+	}
+	for _, i := range outliers(lines, norms, important) {
 		important[i] = true
 	}
 
 	counts := map[string]int{}
 	srcsOf := map[string][]int{}
-	for i, l := range lines {
+	for i := range lines {
 		if !important[i] {
-			norm := compress.Normalize(l)
-			counts[norm]++
-			srcsOf[norm] = union(srcsOf[norm], sources(i))
+			counts[norms[i]]++
+			if src != nil {
+				srcsOf[norms[i]] = union(srcsOf[norms[i]], sources(i))
+			}
 		}
 	}
 	var out []entry
 	seen := map[string]bool{}
 	dropped, repeats := 0, 0
 	for i, l := range lines {
-		norm := compress.Normalize(l)
+		norm := norms[i]
 		keep := important[i] || (!seen[norm] && !(o.cfg.DropDebug && isDebug(l)))
 		if !keep {
 			dropped++
@@ -188,12 +193,15 @@ func gap(dropped, repeats int) string {
 // dedupeRuns collapses consecutive entries equal after Normalize into the
 // first one suffixed with "(×N)", like compress.DedupeRuns.
 func dedupeRuns(es []entry) []entry {
+	norms := make([]string, len(es))
+	for i, e := range es {
+		norms[i] = compress.Normalize(e.text)
+	}
 	var out []entry
 	for i := 0; i < len(es); {
 		j := i + 1
-		norm := compress.Normalize(es[i].text)
 		e := es[i]
-		for j < len(es) && compress.Normalize(es[j].text) == norm {
+		for j < len(es) && norms[j] == norms[i] {
 			e.srcs = union(e.srcs, es[j].srcs)
 			j++
 		}
