@@ -29,7 +29,7 @@ func init() {
 				return strings.Contains(head, `"runs"`) && (strings.Contains(head, "sarif") || strings.Contains(head, `"2.1.0"`))
 			}},
 		Spec{Type: GoBuild, Cmds: []string{"go build", "go vet", "go install", "staticcheck"}, Priority: 51,
-			Sniff: anyLine(`^# [a-z][\w./-]*$|^\S+\.go:\d+:\d+: `)}, // package paths are lowercase, headings rarely
+			Sniff: anyLine(`^# [a-z][\w./-]*$|^[^\s\x60'"]\S*\.go:\d+:\d+: `)}, // package paths are lowercase, headings rarely
 		Spec{Type: TSC, Cmds: []string{"tsc", "vue-tsc"}, Priority: 52,
 			Sniff: anyLine(`\.tsx?\(\d+,\d+\): error TS\d+|\.tsx?:\d+:\d+ - error TS\d+`)},
 		Spec{Type: ESLint, Cmds: []string{"eslint", "next lint"}, Priority: 52,

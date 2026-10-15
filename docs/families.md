@@ -76,6 +76,11 @@ their result lines (`Found 3 errors…`). With `exec -watch` each rebuild is pri
 | `build/maven`, `build/dotnet` | `mvn compile/package/install`; `dotnet build/publish`, `msbuild` |
 | `build/bundler` | `vite`, `webpack`, `rollup`, `esbuild`, `next build`, `parcel` |
 | `build/docker` | `docker build`, `docker buildx build`, `podman build`, `docker compose build` |
+| `build/cmake`, `build/ninja`, `build/meson`, `build/bazel` | `cmake`; `ninja`; `meson`; `bazel build/run` (configure and progress lines dropped, diagnostics grouped) |
+| `build/cpplint`, `build/msvc` | `clang-tidy`, `cppcheck`, `cpplint`; `cl`, `cl.exe` |
+| `build/dmd`, `build/scala`, `build/swift`, `build/zig`, `build/kotlin` | `dmd`, `ldc2`, `gdc`, `dub build`; `sbt`, `scalac`, `scala-cli`, `mill`; `swift build`, `swiftc`, `xcodebuild`; `zig build`; `kotlinc`, `ktlint`, `detekt` |
+| `build/haskell`, `build/dart`, `build/elixir`, `build/php`, `build/rubocop`, `build/pylint`, `build/fmt`, `build/lint` | `ghc`, `cabal build`, `stack build`; `dart/flutter analyze`; `mix compile/credo`; `phpstan`, `psalm`, `phpcs`; `rubocop`; `pylint`; formatters' `--check` (`rustfmt`, `black`, `prettier`, `clang-format`); `biome`, `oxlint`, `stylelint`, `shellcheck`, `hadolint`, `yamllint`, … |
+| `build/generic` | any tool: three or more `file:line[:col]: error|warning` lines (sniffed only, no command) |
 | `build/sarif` | `*.sarif` (CodeQL, semgrep, gosec, …) | each result as `file:line:col: level: message [rule]`, then grouped like compiler output; rule help and fingerprints dropped (CodeQL: 15,590 → 1,065) |
 
 `tsc` with many errors: 1,910 → 722 (62.2%). webpack warnings: 2,744 → 104 (96.2%).

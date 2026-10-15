@@ -1,0 +1,9 @@
+ - shop-0.1.0.0 (lib) (first run)
+src/Shop/Cart.hs
+  12:9 error [GHC-88464] (×4, also at 18, 24, 30)
+    Variable not in scope: discount0 :: Int
+    Suggested fix: Perhaps use ‘discount’ (imported from Shop.Prices)
+src/Shop/Order.hs
+  30:5 warning GHC-40910 [-Wunused-matches]
+    Defined but not used: ‘x’
+4 errors, 1 warning in 2 files

@@ -1,0 +1,21 @@
+Building for debugging...
+[1/9] Compiling Shop Cart.swift
+[2/9] Compiling Shop Order.swift
+[3/9] Emitting module Shop
+/home/dev/shop/Sources/Shop/Cart.swift:14:16: error: cannot find 'discount0' in scope
+        let t = total - discount0
+                        ^~~~~~~~~
+/home/dev/shop/Sources/Shop/Cart.swift:20:16: error: cannot find 'discount1' in scope
+        let t = total - discount1
+                        ^~~~~~~~~
+/home/dev/shop/Sources/Shop/Cart.swift:26:16: error: cannot find 'discount2' in scope
+        let t = total - discount2
+                        ^~~~~~~~~
+/home/dev/shop/Sources/Shop/Cart.swift:32:16: error: cannot find 'discount3' in scope
+        let t = total - discount3
+                        ^~~~~~~~~
+/home/dev/shop/Sources/Shop/Cart.swift:38:16: error: cannot find 'discount4' in scope
+        let t = total - discount4
+                        ^~~~~~~~~
+/home/dev/shop/Sources/Shop/Order.swift:8:5: warning: variable 'x' was never mutated; consider changing to 'let' constant
+error: fatalError

@@ -1,0 +1,16 @@
+Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33135 for x64
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+main.cpp
+net.cpp
+store.cpp
+C:\src\shop\net.cpp(20): error C2065: 'sock0': undeclared identifier
+C:\src\shop\net.cpp(27): error C2065: 'sock1': undeclared identifier
+C:\src\shop\net.cpp(34): error C2065: 'sock2': undeclared identifier
+C:\src\shop\net.cpp(41): error C2065: 'sock3': undeclared identifier
+C:\src\shop\net.cpp(48): error C2065: 'sock4': undeclared identifier
+C:\src\shop\net.cpp(60): error C2039: 'send': is not a member of 'net::Socket'
+C:\src\shop\include\net.h(15): note: see declaration of 'net::Socket'
+C:\src\shop\store.cpp(12): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\src\shop\store.cpp(19): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\src\shop\store.cpp(33): fatal error C1083: Cannot open include file: 'zstd.h': No such file or directory

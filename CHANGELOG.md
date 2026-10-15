@@ -8,6 +8,10 @@ All notable changes to gascoigne. The format follows
 
 ### Added
 
+- Build output of CMake, Ninja, Meson, Bazel, clang-tidy/cppcheck, MSVC, dmd/ldc2/dub, sbt/scalac, Swift,
+  Zig, Kotlin, GHC/cabal, Dart, rubocop, pylint, formatters and other linters is recognised and grouped
+  like compiler output; any unknown tool printing `file:line: error` lines is handled as `build/generic`.
+  Dialects can be declared as one `detect.Row` with their own command and content examples.
 - Source outline knows D (`.d`, `.di`) and more C++ (`.cxx`, `.hh`, `.hxx`, `.ipp`, `.tpp`, `.inl`, `.cppm`,
   `.ixx`, `.cu`, `.cuh`) and Scala (`.sc`, `.sbt`) extensions; Rust is also recognised without a file name.
 

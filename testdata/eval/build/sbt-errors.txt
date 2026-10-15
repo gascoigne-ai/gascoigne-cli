@@ -1,0 +1,28 @@
+[info] welcome to sbt 1.9.7 (Eclipse Adoptium Java 17.0.9)
+[info] loading settings for project global-plugins from plugins.sbt ...
+[info] loading project definition from /home/dev/shop/project
+[info] loading settings for project shop from build.sbt ...
+[info] set current project to shop (in build file:/home/dev/shop/)
+[info] compiling 14 Scala sources to /home/dev/shop/target/scala-2.13/classes ...
+[error] /home/dev/shop/src/main/scala/shop/Cart0.scala:12:8: not found: value price0
+[error]     val total = items.map(_.price0).sum
+[error]                           ^
+[error] /home/dev/shop/src/main/scala/shop/Cart1.scala:17:9: not found: value price1
+[error]     val total = items.map(_.price1).sum
+[error]                           ^
+[error] /home/dev/shop/src/main/scala/shop/Cart2.scala:22:10: not found: value price2
+[error]     val total = items.map(_.price2).sum
+[error]                           ^
+[error] /home/dev/shop/src/main/scala/shop/Cart3.scala:27:11: not found: value price3
+[error]     val total = items.map(_.price3).sum
+[error]                           ^
+[error] /home/dev/shop/src/main/scala/shop/Cart4.scala:32:12: not found: value price4
+[error]     val total = items.map(_.price4).sum
+[error]                           ^
+[warn] /home/dev/shop/src/main/scala/shop/Order.scala:30:12: match may not be exhaustive.
+[warn] It would fail on the following input: Cancelled
+[warn]     status match {
+[warn]            ^
+[error] two errors found
+[error] (Compile / compileIncremental) Compilation failed
+[error] Total time: 5 s, completed Oct 14, 2026, 10:00:00 AM

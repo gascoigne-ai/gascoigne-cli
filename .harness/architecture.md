@@ -85,6 +85,12 @@ Dialects are declarative `Spec`s in `internal/detect/<family>.go`:
 - file globs and MIME types
 - a sniffer with a priority: composite runners first, generic formats last
 
+Tools whose family engine reads rules from a table (`diag.rules`, `testreport.dialects`, …) are
+declared as `detect.Row`s (`rows_<family>.go`): type, command patterns, one sniff pattern, plus
+an example command and sample text that `TestRows` checks, so no separate matrix entry is needed.
+`build/generic` is the shape fallback: three or more `file:line: error|warning` lines (before
+`search/grep`, whose shape it shares) get the diagnostic engine with no tool-specific rules.
+
 `Argv` unwraps wrappers and runners (`sudo`, `npx`, `uv run`, `bundle exec`, `python -m`).
 
 ### Evidence order

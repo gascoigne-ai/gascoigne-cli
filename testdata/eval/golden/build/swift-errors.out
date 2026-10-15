@@ -1,0 +1,20 @@
+/home/dev/shop/Sources/Shop/Cart.swift
+  14:16 error cannot find 'discount0' in scope
+    let t = total - discount0
+    ^~~~~~~~~
+  20:16 error cannot find 'discount1' in scope
+    let t = total - discount1
+    ^~~~~~~~~
+  26:16 error cannot find 'discount2' in scope
+    let t = total - discount2
+    ^~~~~~~~~
+  32:16 error cannot find 'discount3' in scope
+    let t = total - discount3
+    ^~~~~~~~~
+  38:16 error cannot find 'discount4' in scope
+    let t = total - discount4
+    ^~~~~~~~~
+/home/dev/shop/Sources/Shop/Order.swift
+  8:5 warning variable 'x' was never mutated; consider changing to 'let' constant
+error : fatalError
+5 errors, 1 warning in 2 files

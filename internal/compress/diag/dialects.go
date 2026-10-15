@@ -22,6 +22,31 @@ var rules = map[string]Rules{
 	"ruff":     {},
 	"mypy":     {},
 	"golangci": {Noise: re(`^level=(info|debug)`)},
+
+	"cmake":   {Noise: re(`^-- (The (C|CXX|ASM|CUDA) compiler|Detecting|Check for|Looking for|Performing Test|Found |Configuring done|Generating done|Build files have been written|Using )|^\[\s*\d+%\] (Building|Linking|Built target|Generating|Scanning|Automatic)|^Scanning dependencies of target|^g?make\[\d+\]: (Entering|Leaving)`)},
+	"ninja":   {Noise: re(`^\[\d+/\d+\] (Building|Linking|Generating|Running|Install|Re-running|Creating|Scanning)`)},
+	"meson":   {Noise: re(`^(Run-time dependency|Library|Program|Dependency|Compiler for|Build targets in project|Found ninja|Message:|Project (name|version)|Host machine|Build machine|Has header|Checking for|Configuring)\b|^\[\d+/\d+\] (Compiling|Linking|Generating)`)},
+	"bazel":   {Noise: re(`^(\(\d\d:\d\d:\d\d\) )?(Loading:|Analyzing:|INFO: (Analyzed|Found \d|From |Build options|Invocation|Elapsed|Streaming|Current date|Reading|Repository|Writing)|DEBUG:|\[[\d,]+ / [\d,]+\]|Computing main repo mapping)|^\s*Fetching`)},
+	"cpplint": {Noise: re(`^\d+ warnings? generated\.|^Suppressed \d+ warnings|^Use -header-filter|^Use -system-headers|^Checking \S+|^\d+/\d+ files checked`), MaxFrame: 3},
+	"msvc":    {Noise: re(`^Microsoft \(R\)|^Copyright \(C\) Microsoft|^\S+\.(cpp|cc|c|cxx)\s*$|^Generating Code|^Finished Generating|^\s+Creating library`)},
+	"dmd":     {Noise: re(`^(Performing "|Starting Performing|Building \S+ \S+: building configuration|Running (ldc2|dmd)|Linking|Compiling|\s*Up-to-date|Fetching|Placing|Using |Selecting|Basic dub)`)},
+	"scala": {
+		Tag:      re(`^\[(error|warn)\] `),
+		Noise:    re(`^\[info\] (welcome to sbt|loading |set current project|compiling \d+ |done compiling|Updating|Resolving|Fetched|resolving key|Non-compiled module|Compilation completed)|^\[success\] `),
+		MaxFrame: 6,
+	},
+	"swift":   {Noise: re(`^(\[\d+/\d+\] (Compiling|Emitting|Write|Linking)|Building for |Build complete|Compiling |Fetching |Computing version|Creating working|Resolving|Fetched|Cloning)`)},
+	"zig":     {Noise: re(`^\s*\+- `)},
+	"kotlin":  {},
+	"php":     {},
+	"rubocop": {Noise: re(`^Inspecting \d+ files?|^[.CWEFR]+$|^Offenses:$`)},
+	"pylint":  {Noise: re(`^\*{5,} Module `)},
+	"lint":    {},
+	"dart":    {Noise: re(`^Analyzing \S+\.\.\.`)},
+	"elixir":  {Noise: re(`^==> |^Compiling \d+ files? \(\.ex\)|^Generated \S+ app`)},
+	"haskell": {Noise: re(`^\[\s*\d+ of \d+\] Compiling|^Linking |^Loaded package|^Preprocessing |^Building |^Configuring |^In order, the following|^Resolving dependencies|^Build profile|^Up to date|^Downloading|^Starting|^Completed`), MaxFrame: 10},
+	"fmt":     {},
+	"generic": {},
 }
 
 // For returns the rules of a build dialect.

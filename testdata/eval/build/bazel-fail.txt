@@ -1,0 +1,68 @@
+Starting local Bazel server and connecting to it...
+(12:01:02) INFO: Invocation ID: 6f1c3c0e-0000-4000-8000-000000000001
+(12:01:02) INFO: Options provided by the client:
+  Inherited 'common' options: --isatty=1 --terminal_columns=120
+(12:01:03) Loading: 0 packages loaded
+(12:01:03) Analyzing: target //services/svc1:server (12 packages loaded, 40 targets configured)
+(12:01:03) Analyzing: target //services/svc2:server (12 packages loaded, 40 targets configured)
+(12:01:04) Analyzing: target //services/svc3:server (12 packages loaded, 40 targets configured)
+(12:01:04) Analyzing: target //services/svc4:server (12 packages loaded, 40 targets configured)
+(12:01:04) Analyzing: target //services/svc5:server (12 packages loaded, 40 targets configured)
+(12:01:05) Analyzing: target //services/svc6:server (12 packages loaded, 40 targets configured)
+(12:01:05) Analyzing: target //services/svc7:server (12 packages loaded, 40 targets configured)
+(12:01:05) Analyzing: target //services/svc8:server (12 packages loaded, 40 targets configured)
+(12:01:06) Analyzing: target //services/svc9:server (12 packages loaded, 40 targets configured)
+(12:01:06) Analyzing: target //services/svc10:server (12 packages loaded, 40 targets configured)
+(12:01:06) Analyzing: target //services/svc11:server (12 packages loaded, 40 targets configured)
+(12:01:07) Analyzing: target //services/svc12:server (12 packages loaded, 40 targets configured)
+(12:01:07) Analyzing: target //services/svc13:server (12 packages loaded, 40 targets configured)
+(12:01:07) Analyzing: target //services/svc14:server (12 packages loaded, 40 targets configured)
+(12:01:08) Analyzing: target //services/svc15:server (12 packages loaded, 40 targets configured)
+(12:01:08) Analyzing: target //services/svc16:server (12 packages loaded, 40 targets configured)
+(12:01:08) Analyzing: target //services/svc17:server (12 packages loaded, 40 targets configured)
+(12:01:09) Analyzing: target //services/svc18:server (12 packages loaded, 40 targets configured)
+(12:01:09) Analyzing: target //services/svc19:server (12 packages loaded, 40 targets configured)
+(12:01:09) Analyzing: target //services/svc20:server (12 packages loaded, 40 targets configured)
+(12:01:10) Analyzing: target //services/svc21:server (12 packages loaded, 40 targets configured)
+(12:01:10) Analyzing: target //services/svc22:server (12 packages loaded, 40 targets configured)
+(12:01:10) Analyzing: target //services/svc23:server (12 packages loaded, 40 targets configured)
+(12:01:11) Analyzing: target //services/svc24:server (12 packages loaded, 40 targets configured)
+(12:01:30) INFO: Analyzed target //services/orders:server (214 packages loaded, 5120 targets configured).
+(12:01:30) INFO: Found 1 target...
+[7 / 214] Compiling services/orders/handler1.cc; 1s linux-sandbox
+[14 / 214] Compiling services/orders/handler2.cc; 1s linux-sandbox
+[21 / 214] Compiling services/orders/handler3.cc; 1s linux-sandbox
+[28 / 214] Compiling services/orders/handler4.cc; 1s linux-sandbox
+[35 / 214] Compiling services/orders/handler5.cc; 1s linux-sandbox
+[42 / 214] Compiling services/orders/handler6.cc; 1s linux-sandbox
+[49 / 214] Compiling services/orders/handler7.cc; 1s linux-sandbox
+[56 / 214] Compiling services/orders/handler8.cc; 1s linux-sandbox
+[63 / 214] Compiling services/orders/handler9.cc; 1s linux-sandbox
+[70 / 214] Compiling services/orders/handler10.cc; 1s linux-sandbox
+[77 / 214] Compiling services/orders/handler11.cc; 1s linux-sandbox
+[84 / 214] Compiling services/orders/handler12.cc; 1s linux-sandbox
+[91 / 214] Compiling services/orders/handler13.cc; 1s linux-sandbox
+[98 / 214] Compiling services/orders/handler14.cc; 1s linux-sandbox
+[105 / 214] Compiling services/orders/handler15.cc; 1s linux-sandbox
+[112 / 214] Compiling services/orders/handler16.cc; 1s linux-sandbox
+[119 / 214] Compiling services/orders/handler17.cc; 1s linux-sandbox
+[126 / 214] Compiling services/orders/handler18.cc; 1s linux-sandbox
+[133 / 214] Compiling services/orders/handler19.cc; 1s linux-sandbox
+[140 / 214] Compiling services/orders/handler20.cc; 1s linux-sandbox
+[147 / 214] Compiling services/orders/handler21.cc; 1s linux-sandbox
+[154 / 214] Compiling services/orders/handler22.cc; 1s linux-sandbox
+[161 / 214] Compiling services/orders/handler23.cc; 1s linux-sandbox
+[168 / 214] Compiling services/orders/handler24.cc; 1s linux-sandbox
+[175 / 214] Compiling services/orders/handler25.cc; 1s linux-sandbox
+[182 / 214] Compiling services/orders/handler26.cc; 1s linux-sandbox
+[189 / 214] Compiling services/orders/handler27.cc; 1s linux-sandbox
+[196 / 214] Compiling services/orders/handler28.cc; 1s linux-sandbox
+[203 / 214] Compiling services/orders/handler29.cc; 1s linux-sandbox
+(12:02:11) ERROR: /home/dev/shop/services/orders/BUILD:14:11: Compiling services/orders/handler.cc failed: (Exit 1): gcc failed: error executing CppCompile command
+services/orders/handler.cc:41:23: error: 'Order' was not declared in this scope
+   41 |     std::vector<Order> orders;
+      |                 ^~~~~
+services/orders/handler.cc:57:12: error: no matching function for call to 'process(int&)'
+(12:02:12) INFO: Elapsed time: 70.1s, Critical Path: 12.40s
+(12:02:12) INFO: 63 processes: 12 internal, 51 linux-sandbox.
+(12:02:12) FAILED: Build did NOT complete successfully

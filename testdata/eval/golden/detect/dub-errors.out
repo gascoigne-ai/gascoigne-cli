@@ -1,0 +1,12 @@
+vibe-d 0.9.6: building configuration "libevent"...
+source/app.d
+  10:5 error undefined identifier `conn0`
+  19:6 error undefined identifier `conn1`
+  28:7 error undefined identifier `conn2`
+  37:8 error undefined identifier `conn3`
+  60:13 error cannot implicitly convert expression `count` of type `long` to `int`
+source/model/order.d
+  22:1 deprecation module `std.xml` is deprecated
+  45:9 warning statement is not reachable
+dmd failed with exit code 1.
+5 errors, 1 warning in 2 files

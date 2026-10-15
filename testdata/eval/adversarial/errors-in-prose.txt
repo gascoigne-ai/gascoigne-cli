@@ -1,0 +1,11 @@
+# Troubleshooting notes
+
+When the compiler fails you will usually see something like main.go:12: error in the log,
+but the useful part is the message after it. Teams often paste output such as
+`handler.go:30:5: warning` into tickets without saying which tool printed it.
+
+Another common thing is a stack frame like at Foo.bar(Foo.java:12) inside a quoted
+paragraph, which is only an example and not a trace. Keep the text as it is, because the
+document explains how to read these lines rather than reporting a real failure. Reviewers
+asked for more detail on this section, so the paragraph is intentionally long enough to be
+worth keeping around when the notes are read again later by someone who has not seen them.

@@ -1,0 +1,52 @@
+[1/23] Building CXX object src/CMakeFiles/app.dir/net/socket.cc.o
+[2/23] Building CXX object src/CMakeFiles/app.dir/net/pool.cc.o
+[3/23] Building CXX object src/CMakeFiles/app.dir/core/engine.cc.o
+[4/23] Building CXX object src/CMakeFiles/app.dir/core/loop.cc.o
+[5/23] Building CXX object src/CMakeFiles/app.dir/util/strings.cc.o
+[6/23] Building CXX object src/CMakeFiles/app.dir/util/fmt.cc.o
+[7/23] Building CXX object src/CMakeFiles/app.dir/db/conn.cc.o
+[8/23] Building CXX object src/CMakeFiles/app.dir/db/query.cc.o
+[9/23] Building CXX object src/CMakeFiles/app.dir/api/server.cc.o
+[10/23] Building CXX object src/CMakeFiles/app.dir/api/router.cc.o
+FAILED: src/CMakeFiles/app.dir/db/query.cc.o
+/usr/bin/c++ -DNDEBUG -O2 -std=c++20 -Iinclude -MD -MT src/CMakeFiles/app.dir/db/query.cc.o -MF src/CMakeFiles/app.dir/db/query.cc.o.d -o src/CMakeFiles/app.dir/db/query.cc.o -c ../src/db/query.cc
+In file included from ../src/db/query.cc:3:
+../include/db/query.h:40:17: error: 'optional' in namespace 'std' does not name a template type
+   40 |     std::optional<Row> first0();
+      |          ^~~~~~~~
+../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
+In file included from ../src/db/query.cc:3:
+../include/db/query.h:41:17: error: 'optional' in namespace 'std' does not name a template type
+   41 |     std::optional<Row> first1();
+      |          ^~~~~~~~
+../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
+In file included from ../src/db/query.cc:3:
+../include/db/query.h:42:17: error: 'optional' in namespace 'std' does not name a template type
+   42 |     std::optional<Row> first2();
+      |          ^~~~~~~~
+../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
+In file included from ../src/db/query.cc:3:
+../include/db/query.h:43:17: error: 'optional' in namespace 'std' does not name a template type
+   43 |     std::optional<Row> first3();
+      |          ^~~~~~~~
+../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
+In file included from ../src/db/query.cc:3:
+../include/db/query.h:44:17: error: 'optional' in namespace 'std' does not name a template type
+   44 |     std::optional<Row> first4();
+      |          ^~~~~~~~
+../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
+In file included from ../src/db/query.cc:3:
+../include/db/query.h:45:17: error: 'optional' in namespace 'std' does not name a template type
+   45 |     std::optional<Row> first5();
+      |          ^~~~~~~~
+../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
+../src/db/query.cc: In member function 'void db::Query::run()':
+../src/db/query.cc:88:9: error: 'conn_' was not declared in this scope
+   88 |         conn_->exec(sql_);
+      |         ^~~~~
+[11/23] Building CXX object src/CMakeFiles/app.dir/util/fmt.cc.o
+[12/23] Building CXX object src/CMakeFiles/app.dir/db/conn.cc.o
+[13/23] Building CXX object src/CMakeFiles/app.dir/db/query.cc.o
+[14/23] Building CXX object src/CMakeFiles/app.dir/api/server.cc.o
+[15/23] Building CXX object src/CMakeFiles/app.dir/api/router.cc.o
+ninja: build stopped: subcommand failed.

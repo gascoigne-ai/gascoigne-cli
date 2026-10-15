@@ -1,0 +1,22 @@
+Resolving dependencies...
+Build profile: -w ghc-9.6.4 -O1
+In order, the following will be built (use -v for more details):
+ - shop-0.1.0.0 (lib) (first run)
+Configuring library for shop-0.1.0.0..
+Preprocessing library for shop-0.1.0.0..
+Building library for shop-0.1.0.0..
+[1 of 3] Compiling Shop.Cart        ( src/Shop/Cart.hs, dist/Shop/Cart.o )
+src/Shop/Cart.hs:12:9: error: [GHC-88464]
+    Variable not in scope: discount0 :: Int
+    Suggested fix: Perhaps use ‘discount’ (imported from Shop.Prices)
+src/Shop/Cart.hs:18:9: error: [GHC-88464]
+    Variable not in scope: discount1 :: Int
+    Suggested fix: Perhaps use ‘discount’ (imported from Shop.Prices)
+src/Shop/Cart.hs:24:9: error: [GHC-88464]
+    Variable not in scope: discount2 :: Int
+    Suggested fix: Perhaps use ‘discount’ (imported from Shop.Prices)
+src/Shop/Cart.hs:30:9: error: [GHC-88464]
+    Variable not in scope: discount3 :: Int
+    Suggested fix: Perhaps use ‘discount’ (imported from Shop.Prices)
+src/Shop/Order.hs:30:5: warning: [GHC-40910] [-Wunused-matches]
+    Defined but not used: ‘x’

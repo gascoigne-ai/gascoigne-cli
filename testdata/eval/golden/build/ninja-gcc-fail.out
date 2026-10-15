@@ -1,0 +1,20 @@
+FAILED: src/CMakeFiles/app.dir/db/query.cc.o
+/usr/bin/c++ -DNDEBUG -O2 -std=c++20 -Iinclude -MD -MT src/CMakeFiles/app.dir/db/query.cc.o -MF src/CMakeFiles/app.dir/db/query.cc.o.d -o src/CMakeFiles/app.dir/db/query.cc.o -c ../src/db/query.cc
+In file included from ../src/db/query.cc:3:
+../include/db/query.h
+  40:17 error 'optional' in namespace 'std' does not name a template type (×6, also at 41, 42, 43, 44, 45)
+    40 |     std::optional<Row> first0();
+    |          ^~~~~~~~
+  5:1 note 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'? (×6, same place)
+../src/db/query.cc
+  88:9 error 'conn_' was not declared in this scope
+    88 |         conn_->exec(sql_);
+    |         ^~~~~
+In file included from ../src/db/query.cc:3:
+In file included from ../src/db/query.cc:3:
+In file included from ../src/db/query.cc:3:
+In file included from ../src/db/query.cc:3:
+In file included from ../src/db/query.cc:3:
+../src/db/query.cc: In member function 'void db::Query::run()':
+ninja: build stopped: subcommand failed.
+7 errors, 6 notes in 2 files

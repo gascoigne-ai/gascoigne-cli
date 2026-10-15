@@ -1,0 +1,13 @@
+CMake Error at CMakeLists.txt:34 (find_package):
+  By not providing "Findgrpc.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "grpc", but
+  CMake did not find one.
+  Could not find a package configuration file provided by "grpc" with any of
+  the following names:
+    grpcConfig.cmake
+    grpc-config.cmake
+CMake Warning at cmake/Options.cmake:12 (message):
+  LTO is disabled because the compiler does not support it
+Call Stack (most recent call first):
+  CMakeLists.txt:8 (include)
+-- Configuring incomplete, errors occurred!

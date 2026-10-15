@@ -31,9 +31,10 @@ type Diagnostic struct {
 
 var (
 	// file(l,c): error TS2322: msg [project]   (tsc, msbuild/dotnet)
-	parenRe = lazyre.New(`^\s*(\S+?)\((\d+),(\d+)\): (error|warning|info) (\w+): (.+?)(?: \[[^\]]+\])?$`)
+	// also msvc "a.cpp(12): error C2065: msg" and dmd "a.d(12,5): Error: msg": column and code are optional
+	parenRe = lazyre.New(`^\s*(\S+?)\((\d+)(?:,(\d+))?\): (error|warning|info|Error|Warning|Deprecation|fatal error)(?: ([A-Za-z]+\d+))?:\s+(.+?)(?: \[[^\]]+\])?$`)
 	// file:l:c: [severity:] msg   (go, gcc/clang, golangci, ruff, mypy, javac, eslint unix)
-	colonRe = lazyre.New(`^(?:\./)?([^\s:()][^:()]*?\.[A-Za-z0-9]+):(\d+)(?::(\d+))?:\s*(?:(fatal error|error|warning|note|info|hint)\s*:?\s*)?(?:(\[?[A-Z]+\d+\]?)\s+)?(.+)$`)
+	colonRe = lazyre.New(`^(?:\./)?([^\s:()][^:()]*?\.[A-Za-z0-9]+):(\d+)(?::(\d+))?:\s*(?:(fatal error|error|warning|note|info|hint)\s*:?\s*)?(?:(\[?[A-Z]+-?\d+\]?)\s+)?(.+)$`)
 	// rust/cargo: "error[E0308]: msg" then "  --> src/main.rs:4:5"
 	rustHeadRe = lazyre.New(`^(error|warning)(?:\[(E\d+)\])?: (.+)$`)
 	// ruff full format: "F401 [*] msg" then " --> file:l:c"
@@ -41,7 +42,13 @@ var (
 	rustLocRe  = lazyre.New(`^\s*--> (\S+?):(\d+):(\d+)$`)
 	// eslint stylish: path line, then "  12:5  error  msg  rule"
 	eslintRowRe = lazyre.New(`^\s+(\d+):(\d+)\s+(error|warning)\s+(.+?)\s{2,}(\S+)$`)
-	eslintFile  = lazyre.New(`^(/|\./|[A-Za-z]:\\)?\S+\.[jt]sx?$|^\S+\.(vue|svelte|mjs|cjs)$`)
+	eslintFile  = lazyre.New(`^(/|\./|[A-Za-z]:\\)?\S+\.[jt]sx?$|^\S+\.(vue|svelte|mjs|cjs|css|scss|sass|less|ya?ml|md)$`)
+	// dart analyze: "  error - lib/main.dart:12:5 - msg - code"
+	dartRe = lazyre.New(`^\s+(error|warning|info) [-•] (\S+?):(\d+):(\d+) [-•] (.+?) [-•] (\w+)$`)
+	// kotlinc: "e: file:///src/Main.kt:12:5 Unresolved reference: x"
+	kotlinRe = lazyre.New(`^([ew]): (?:file://)?(\S+\.kts?):(\d+):(\d+)\s+(.+)$`)
+	// elixir: header "warning: unused variable x", location "  lib/foo.ex:12: Foo.bar/1"
+	elixirLocRe = lazyre.New(`^\s+(\S+\.exs?):(\d+)(?::(\d+))?: \S+$`)
 	// [ERROR] /path/File.java:[14,20] msg   (maven compiler plugin)
 	mavenRe = lazyre.New(`^\[(ERROR|WARNING)\] (\S+\.(?:java|kt|scala)):\[(\d+),(\d+)\] (.+)$`)
 	// [ERROR]   symbol:   variable X   (maven: lines under a compiler error)
@@ -53,6 +60,7 @@ var (
 // Rules tune the engine for a dialect.
 type Rules struct {
 	Strip    *lazyre.Regexp // prefix removed from every line first (docker "#8 1.234 ")
+	Tag      *lazyre.Regexp // prefix whose group 1 is the severity of a diagnostic without one (sbt "[error] ")
 	Noise    *lazyre.Regexp // dropped lines
 	MaxFrame int            // code frame lines kept per diagnostic
 }
@@ -92,10 +100,22 @@ func Compress(lines []string, r Rules) []string {
 		if r.Strip != nil {
 			t = r.Strip.ReplaceAllString(t, "")
 		}
+		tag := ""
+		if r.Tag != nil {
+			if m := r.Tag.FindStringSubmatch(t); m != nil {
+				// Only diagnostics and their frames lose the prefix; other lines stay as printed.
+				if rest := t[len(m[0]):]; match(rest) != nil || cur != nil && frameRe.MatchString(rest) {
+					tag, t = tagSeverity(m[1]), rest
+				}
+			}
+		}
 		switch m := match(t); {
 		case r.Noise != nil && r.Noise.MatchString(t):
 			dropped++
 		case m != nil:
+			if m.Severity == "" {
+				m.Severity = tag
+			}
 			add(m)
 			pending, esFile = nil, ""
 		case rustHeadRe.MatchString(t):
@@ -108,8 +128,11 @@ func Compress(lines []string, r Rules) []string {
 			s := ruffHeadRe.FindStringSubmatch(t)
 			pending = &Diagnostic{Code: s[1], Message: s[2]}
 			cur = nil
-		case pending != nil && rustLocRe.MatchString(t):
+		case pending != nil && (rustLocRe.MatchString(t) || elixirLocRe.MatchString(t)):
 			s := rustLocRe.FindStringSubmatch(t)
+			if s == nil {
+				s = elixirLocRe.FindStringSubmatch(t)
+			}
 			pending.File, pending.Line, pending.Col = s[1], atoi(s[2]), atoi(s[3])
 			add(pending)
 			pending = nil
@@ -142,13 +165,27 @@ func match(t string) *Diagnostic {
 	if s := mavenRe.FindStringSubmatch(t); s != nil {
 		return &Diagnostic{File: s[2], Line: atoi(s[3]), Col: atoi(s[4]), Severity: strings.ToLower(s[1]), Message: s[5]}
 	}
+	if s := dartRe.FindStringSubmatch(t); s != nil {
+		return &Diagnostic{File: s[2], Line: atoi(s[3]), Col: atoi(s[4]), Severity: s[1], Code: s[6], Message: s[5]}
+	}
+	if s := kotlinRe.FindStringSubmatch(t); s != nil {
+		return &Diagnostic{File: s[2], Line: atoi(s[3]), Col: atoi(s[4]), Severity: map[string]string{"e": "error", "w": "warning"}[s[1]], Message: s[5]}
+	}
 	if s := parenRe.FindStringSubmatch(t); s != nil {
-		return &Diagnostic{File: s[1], Line: atoi(s[2]), Col: atoi(s[3]), Severity: s[4], Code: s[5], Message: s[6]}
+		return &Diagnostic{File: s[1], Line: atoi(s[2]), Col: atoi(s[3]), Severity: strings.ToLower(s[4]), Code: s[5], Message: s[6]}
 	}
 	if s := colonRe.FindStringSubmatch(t); s != nil && !strings.Contains(s[1], " ") {
 		return &Diagnostic{File: s[1], Line: atoi(s[2]), Col: atoi(s[3]), Severity: s[4], Code: strings.Trim(s[5], "[]"), Message: s[6]}
 	}
 	return nil
+}
+
+// tagSeverity names the level of a tool's own prefix: sbt says warn.
+func tagSeverity(s string) string {
+	if s == "warn" {
+		return "warning"
+	}
+	return s
 }
 
 func atoi(s string) int {

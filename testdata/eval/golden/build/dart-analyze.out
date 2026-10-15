@@ -1,0 +1,12 @@
+lib/cart.dart
+  10:5 error undefined_identifier The name 'discount0' isn't defined
+  17:6 error undefined_identifier The name 'discount1' isn't defined
+  24:7 error undefined_identifier The name 'discount2' isn't defined
+  31:8 error undefined_identifier The name 'discount3' isn't defined
+  38:9 error undefined_identifier The name 'discount4' isn't defined
+  45:10 error undefined_identifier The name 'discount5' isn't defined
+lib/order.dart
+  12:7 warning unused_local_variable The value of the local variable 'x' isn't used
+  30:3 info prefer_const_constructors Prefer const with constant constructors
+8 issues found.
+6 errors, 1 warning, 1 info in 2 files

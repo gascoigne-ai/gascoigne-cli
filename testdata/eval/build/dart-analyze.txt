@@ -1,0 +1,12 @@
+Analyzing shop...
+
+  error - lib/cart.dart:10:5 - The name 'discount0' isn't defined - undefined_identifier
+  error - lib/cart.dart:17:6 - The name 'discount1' isn't defined - undefined_identifier
+  error - lib/cart.dart:24:7 - The name 'discount2' isn't defined - undefined_identifier
+  error - lib/cart.dart:31:8 - The name 'discount3' isn't defined - undefined_identifier
+  error - lib/cart.dart:38:9 - The name 'discount4' isn't defined - undefined_identifier
+  error - lib/cart.dart:45:10 - The name 'discount5' isn't defined - undefined_identifier
+  warning - lib/order.dart:12:7 - The value of the local variable 'x' isn't used - unused_local_variable
+   info - lib/order.dart:30:3 - Prefer const with constant constructors - prefer_const_constructors
+
+8 issues found.

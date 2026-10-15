@@ -1,0 +1,12 @@
+Starting local Bazel server and connecting to it...
+(12:01:02) INFO: Options provided by the client:
+  Inherited 'common' options: --isatty=1 --terminal_columns=120
+(12:02:11) ERROR: /home/dev/shop/services/orders/BUILD:14:11: Compiling services/orders/handler.cc failed: (Exit 1): gcc failed: error executing CppCompile command
+services/orders/handler.cc
+  41:23 error 'Order' was not declared in this scope
+    41 |     std::vector<Order> orders;
+    |                 ^~~~~
+  57:12 error no matching function for call to 'process(int&)'
+(12:02:12) INFO: 63 processes: 12 internal, 51 linux-sandbox.
+(12:02:12) FAILED: Build did NOT complete successfully
+2 errors in 1 file

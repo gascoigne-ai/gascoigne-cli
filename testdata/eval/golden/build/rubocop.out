@@ -1,0 +1,9 @@
+app/models/order0.rb
+  40:5 W: Lint/UselessAssignment: Useless assignment to variable - `x`.
+app/services/pay.rb
+  12:3 E: Lint/Syntax: unexpected token tRCURLY
+same in several files:
+  error C: Style/FrozenStringLiteralComment: Missing frozen string literal comment.
+    at app/models/order0.rb:3, app/models/order0.rb:15, app/models/order0.rb:27, app/models/order1.rb:7, app/models/order1.rb:19, app/models/order1.rb:31, app/models/order2.rb:11, app/models/order2.rb:23
+24 files inspected, 10 offenses detected
+10 errors in 4 files

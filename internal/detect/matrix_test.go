@@ -217,6 +217,7 @@ var sniffFixtures = map[string]string{
 	"web/http":        "web/curl-i-github.json.txt",
 }
 var sniffInline = map[string]string{
+	"build/generic": "x.q:1:2: error: a\nx.q:3:4: warning: b\nx.q:5:6: error: c\n",
 	Journal:         "-- Boot 1f2e3d4c5b6a --\nOct 10 07:00:01 host systemd[1]: Started Daily Cleanup.\nOct 10 07:00:02 host systemd[1]: Starting Backup...\n",
 	"table/aligned": "NAME       STATUS    AGE    VERSION\nnode-a     Ready     12d    v1.31\nnode-b     Ready     12d    v1.31\nnode-c     NotReady  3d     v1.31\n",
 	"table/boxed":   "+----+-------+\n| id | name  |\n+----+-------+\n|  1 | alpha |\n|  2 | beta  |\n|  3 | gamma |\n|  4 | delta |\n+----+-------+\n",
@@ -224,6 +225,9 @@ var sniffInline = map[string]string{
 
 func TestDialectMatrix(t *testing.T) {
 	for _, s := range specs {
+		if IsRow(s.Type) {
+			continue // rows carry their own examples (TestRows)
+		}
 		if len(s.Cmds) > 0 || s.CmdFunc != nil {
 			cmd, ok := cmdExamples[s.Type]
 			if !ok {

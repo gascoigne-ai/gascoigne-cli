@@ -132,3 +132,17 @@ func isNDJSON(_ string, lines []string) bool {
 	}
 	return n >= 2
 }
+
+// atLeast matches when at least n sampled lines match pattern.
+func atLeast(pattern string, n int) Sniffer {
+	re := lazyre.New(pattern)
+	return func(_ string, lines []string) bool {
+		hits := 0
+		for _, l := range lines {
+			if re.MatchString(l) {
+				hits++
+			}
+		}
+		return hits >= n
+	}
+}

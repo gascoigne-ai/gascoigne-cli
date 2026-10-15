@@ -1,0 +1,17 @@
+Inspecting 24 files
+..C..W...C.....E...C....
+
+Offenses:
+
+app/models/order0.rb:3:1: C: Style/FrozenStringLiteralComment: Missing frozen string literal comment.
+app/models/order1.rb:7:2: C: Style/FrozenStringLiteralComment: Missing frozen string literal comment.
+app/models/order2.rb:11:3: C: Style/FrozenStringLiteralComment: Missing frozen string literal comment.
+app/models/order0.rb:15:4: C: Style/FrozenStringLiteralComment: Missing frozen string literal comment.
+app/models/order1.rb:19:5: C: Style/FrozenStringLiteralComment: Missing frozen string literal comment.
+app/models/order2.rb:23:6: C: Style/FrozenStringLiteralComment: Missing frozen string literal comment.
+app/models/order0.rb:27:7: C: Style/FrozenStringLiteralComment: Missing frozen string literal comment.
+app/models/order1.rb:31:8: C: Style/FrozenStringLiteralComment: Missing frozen string literal comment.
+app/models/order0.rb:40:5: W: Lint/UselessAssignment: Useless assignment to variable - `x`.
+app/services/pay.rb:12:3: E: Lint/Syntax: unexpected token tRCURLY
+
+24 files inspected, 10 offenses detected

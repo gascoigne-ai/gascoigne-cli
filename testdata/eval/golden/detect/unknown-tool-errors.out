@@ -1,0 +1,47 @@
+checking project layout...
+scanning 40 modules
+src/mod0/unit0.zz
+  10:3 error unknown symbol 'foo0'
+    10 | use foo0;
+    |     ^^^^
+  16:9 error unknown symbol 'foo6'
+    16 | use foo6;
+    |     ^^^^
+src/mod1/unit1.zz
+  11:4 error unknown symbol 'foo1'
+    11 | use foo1;
+    |     ^^^^
+  17:10 error unknown symbol 'foo7'
+    17 | use foo7;
+    |     ^^^^
+src/mod0/unit2.zz
+  12:5 error unknown symbol 'foo2'
+    12 | use foo2;
+    |     ^^^^
+  18:11 error unknown symbol 'foo8'
+    18 | use foo8;
+    |     ^^^^
+src/mod1/unit0.zz
+  13:6 error unknown symbol 'foo3'
+    13 | use foo3;
+    |     ^^^^
+  19:12 error unknown symbol 'foo9'
+    19 | use foo9;
+    |     ^^^^
+  5:1 warning unused import
+src/mod0/unit1.zz
+  14:7 error unknown symbol 'foo4'
+    14 | use foo4;
+    |     ^^^^
+  20:13 error unknown symbol 'foo10'
+    20 | use foo10;
+    |     ^^^^
+src/mod1/unit2.zz
+  15:8 error unknown symbol 'foo5'
+    15 | use foo5;
+    |     ^^^^
+  21:14 error unknown symbol 'foo11'
+    21 | use foo11;
+    |     ^^^^
+12 errors, 1 warning
+12 errors, 1 warning in 6 files

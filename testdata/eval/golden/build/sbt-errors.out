@@ -1,0 +1,30 @@
+[paths: §1=/home/dev/shop/src/main/scala/shop]
+§1/Cart0.scala
+  12:8 error not found: value price0
+    val total = items.map(_.price0).sum
+    ^
+§1/Cart1.scala
+  17:9 error not found: value price1
+    val total = items.map(_.price1).sum
+    ^
+§1/Cart2.scala
+  22:10 error not found: value price2
+    val total = items.map(_.price2).sum
+    ^
+§1/Cart3.scala
+  27:11 error not found: value price3
+    val total = items.map(_.price3).sum
+    ^
+§1/Cart4.scala
+  32:12 error not found: value price4
+    val total = items.map(_.price4).sum
+    ^
+§1/Order.scala
+  30:12 warning match may not be exhaustive.
+[warn] It would fail on the following input: Cancelled
+[warn]     status match {
+[warn]            ^
+[error] two errors found
+[error] (Compile / compileIncremental) Compilation failed
+[error] Total time: 5 s, completed Oct 14, 2026, 10:00:00 AM
+5 errors, 1 warning in 6 files

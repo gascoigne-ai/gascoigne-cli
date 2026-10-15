@@ -1,0 +1,10 @@
+/home/dev/shop/src/main/kotlin/shop/Cart.kt
+  15:13 error Unresolved reference: discount0
+  19:13 error Unresolved reference: discount1
+  23:13 error Unresolved reference: discount2
+  27:13 error Unresolved reference: discount3
+  31:13 error Unresolved reference: discount4
+/home/dev/shop/src/main/kotlin/shop/Order.kt
+  9:9 warning Variable 'x' is never used
+  30:5 error Type mismatch: inferred type is String but Int was expected
+6 errors, 1 warning in 2 files

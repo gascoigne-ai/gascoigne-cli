@@ -429,6 +429,129 @@
 - { name: detect/find, file: ls/find-x-net.txt, expect_type: fs/find }
 - { name: detect/du, file: ls/du-x-net.txt, expect_type: fs/du }
 - { name: detect/df, file: ls/df-h.txt, expect_type: fs/df }
+# --- build tools (declared as rows)
+- name: build/cmake-fail
+  file: build/cmake-fail.txt
+  attrs: { cmd: cmake -S . -B build }
+  expect_type: build/cmake
+  keep: ["CMake Error at CMakeLists.txt:34 (find_package)", "grpcConfig.cmake", "Configuring incomplete"]
+  min_saved: 74
+- name: detect/cmake-fail
+  file: build/cmake-fail.txt
+  expect_type: build/cmake
+- name: build/ninja-gcc-fail
+  file: build/ninja-gcc-fail.txt
+  attrs: { cmd: ninja -C build }
+  expect_type: build/ninja
+  keep: ["include/db/query.h", "src/db/query.cc", "88", "conn_", "FAILED"]
+  min_saved: 62
+- name: build/bazel-fail
+  file: build/bazel-fail.txt
+  attrs: { cmd: bazel build //services/orders:server }
+  expect_type: build/bazel
+  keep: ["services/orders/handler.cc", "41", "'Order' was not declared in this scope", "FAILED: Build did NOT complete"]
+  min_saved: 83
+- name: build/msvc-errors
+  file: build/msvc-errors.txt
+  attrs: { cmd: cl /EHsc net.cpp store.cpp }
+  expect_type: build/msvc
+  keep: ["C2065", "C2039", "C1083", "zstd.h"]
+  min_saved: 34
+- name: detect/msvc-errors
+  file: build/msvc-errors.txt
+  expect_type: build/msvc
+- name: build/dub-errors
+  file: build/dub-errors.txt
+  attrs: { cmd: dub build }
+  expect_type: build/dmd
+  keep: ["source/app.d", "undefined identifier", "order.d", "dmd failed with exit code 1."]
+  min_saved: 26
+- name: detect/dub-errors
+  file: build/dub-errors.txt
+  expect_type: build/dmd
+- name: build/sbt-errors
+  file: build/sbt-errors.txt
+  attrs: { cmd: sbt compile }
+  expect_type: build/scala
+  keep: ["Cart0.scala", "not found: value price0", "Order.scala", "Compilation failed"]
+  min_saved: 37
+- name: detect/sbt-errors
+  file: build/sbt-errors.txt
+  expect_type: build/scala
+- name: build/swift-errors
+  file: build/swift-errors.txt
+  attrs: { cmd: swift build }
+  expect_type: build/swift
+  keep: ["Cart.swift", "cannot find 'discount0' in scope", "Order.swift"]
+  min_saved: 25
+- name: detect/swift-errors
+  file: build/swift-errors.txt
+  expect_type: build/swift
+- name: build/zig-errors
+  file: build/zig-errors.txt
+  attrs: { cmd: zig build }
+  expect_type: build/zig
+  keep: ["src/main.zig", "use of undeclared identifier 'cfg0'", "src/db.zig", "expected type 'u32'"]
+  min_saved: 5
+- name: detect/zig-errors
+  file: build/zig-errors.txt
+  expect_type: build/zig
+- name: build/rubocop
+  file: build/rubocop.txt
+  attrs: { cmd: rubocop }
+  expect_type: build/rubocop
+  keep: ["Lint/Syntax", "order0.rb", "10 offenses detected"]
+  min_saved: 36
+- name: detect/rubocop
+  file: build/rubocop.txt
+  expect_type: build/rubocop
+- name: build/pylint
+  file: build/pylint.txt
+  attrs: { cmd: pylint shop }
+  expect_type: build/pylint
+  keep: ["E1101", "no-member", "order.py", "6.12/10"]
+  min_saved: 47
+- name: detect/pylint
+  file: build/pylint.txt
+  expect_type: build/pylint
+- name: build/dart-analyze
+  file: build/dart-analyze.txt
+  attrs: { cmd: dart analyze }
+  expect_type: build/dart
+  keep: ["lib/cart.dart", "undefined_identifier", "lib/order.dart", "8 issues found"]
+  min_saved: 24
+- name: detect/dart-analyze
+  file: build/dart-analyze.txt
+  expect_type: build/dart
+- name: build/ghc-errors
+  file: build/ghc-errors.txt
+  attrs: { cmd: cabal build }
+  expect_type: build/haskell
+  keep: ["Cart.hs", "Variable not in scope: discount0", "Order.hs"]
+  min_saved: 62
+- name: detect/ghc-errors
+  file: build/ghc-errors.txt
+  expect_type: build/haskell
+- name: build/kotlinc-errors
+  file: build/kotlinc-errors.txt
+  attrs: { cmd: kotlinc Main.kt }
+  expect_type: build/kotlin
+  keep: ["Cart.kt", "Unresolved reference: discount0", "Order.kt"]
+  min_saved: 37
+- name: detect/kotlinc-errors
+  file: build/kotlinc-errors.txt
+  expect_type: build/kotlin
+
+- name: detect/unknown-tool-errors
+  file: build/unknown-tool-errors.txt
+  expect_type: build/generic
+  keep: ["unit0.zz", "unknown symbol 'foo0'", "12 errors, 1 warning"]
+  min_saved: 11
+- name: adversarial/errors-in-prose
+  file: adversarial/errors-in-prose.txt
+  expect_type: doc/text
+  unchanged: true
+
 # --- cat (code)
 - file: cat/server.go.txt
   attrs: { cmd: cat net/http/server.go }

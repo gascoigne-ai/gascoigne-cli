@@ -1,0 +1,12 @@
+C:\src\shop\net.cpp
+  20 error C2065 'sock0': undeclared identifier
+  27 error C2065 'sock1': undeclared identifier
+  34 error C2065 'sock2': undeclared identifier
+  41 error C2065 'sock3': undeclared identifier
+  48 error C2065 'sock4': undeclared identifier
+  60 error C2039 'send': is not a member of 'net::Socket'
+C:\src\shop\store.cpp
+  12 warning C4267 'argument': conversion from 'size_t' to 'int', possible loss of data (×2, also at 19)
+  33 fatal error C1083 Cannot open include file: 'zstd.h': No such file or directory
+C:\src\shop\include\net.h(15): note: see declaration of 'net::Socket'
+1 fatal error, 6 errors, 2 warnings in 2 files

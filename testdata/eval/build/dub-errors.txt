@@ -1,0 +1,11 @@
+Performing "debug" build using /usr/bin/dmd for x86_64.
+vibe-d 0.9.6: building configuration "libevent"...
+Building shop ~master: building configuration [application]
+source/app.d(10,5): Error: undefined identifier `conn0`
+source/app.d(19,6): Error: undefined identifier `conn1`
+source/app.d(28,7): Error: undefined identifier `conn2`
+source/app.d(37,8): Error: undefined identifier `conn3`
+source/app.d(60,13): Error: cannot implicitly convert expression `count` of type `long` to `int`
+source/model/order.d(22,1): Deprecation: module `std.xml` is deprecated
+source/model/order.d(45,9): Warning: statement is not reachable
+dmd failed with exit code 1.

@@ -1,0 +1,22 @@
+info: Compiling shop
+src/main.zig
+  10:9 error use of undeclared identifier 'cfg0'
+    const v = cfg0.value;
+    ^~~~
+  14:9 error use of undeclared identifier 'cfg1'
+    const v = cfg1.value;
+    ^~~~
+  18:9 error use of undeclared identifier 'cfg2'
+    const v = cfg2.value;
+    ^~~~
+  22:9 error use of undeclared identifier 'cfg3'
+    const v = cfg3.value;
+    ^~~~
+  26:9 error use of undeclared identifier 'cfg4'
+    const v = cfg4.value;
+    ^~~~
+src/db.zig
+  22:5 error expected type 'u32', found 'i64'
+error : the following command failed with 2 compilation errors:
+/usr/bin/zig build-exe src/main.zig --cache-dir zig-cache
+6 errors in 2 files
