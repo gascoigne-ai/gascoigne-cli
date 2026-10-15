@@ -5,14 +5,15 @@ Everything an agent needs to work on gascoigne consistently. `CLAUDE.md` imports
 
 | Path | What |
 |---|---|
-| `rules.md` | hard rules (deps, verification, architecture, hygiene) |
+| `common/` | submodule `gascoigne-harness`: shared rules, commit style, `verify` skill, `loop.sh` (see its README) |
+| `rules.md` | hard rules specific to this repo (deps, architecture), on top of `common/rules.md` |
 | `code-style.md` | how code should read |
 | `architecture.md` | layout + index of `architecture/*.md`: flow, detection, families and dialects, mcp, llm-proxy, agents, hooks, ledger, server, reports, config, one file per area |
 | `recommendations.md` | practices every change follows (loaded) |
 | `backlog.md` | open ideas, measured results, dropped ideas with numbers (not loaded) |
-| `skills/` | `verify`, `add-component`, `eval`, `release` |
+| `skills/` | `verify` (symlink into `common/`), `add-component`, `eval`, `release` |
 | `tasks/` | work queue for the autonomous loop (empty when idle) |
-| `scripts/loop.sh` | autonomous agent loop |
+| `scripts/loop.sh` | wraps `common/scripts/loop.sh` with `make check && make eval` |
 | `scripts/eval.sh` | token savings benchmark |
 | `logs/` | loop transcripts (gitignored) |
 

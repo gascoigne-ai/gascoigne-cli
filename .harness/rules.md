@@ -1,6 +1,6 @@
 # Rules
 
-Hard rules for every agent and human change. Breaking one = change rejected.
+Adds to the shared `common/rules.md` and `common/commit-style.md`. Breaking one = change rejected.
 
 ## Dependencies
 - Stdlib first. Approved third-party deps:
@@ -12,13 +12,10 @@ Hard rules for every agent and human change. Breaking one = change rejected.
   - `github.com/modelcontextprotocol/go-sdk` — MCP server/client
   - `github.com/ebitengine/purego` — opens the ONNX Runtime library at run time without cgo (`internal/prose/ortrt`)
   - `golang.org/x/text` — NFC normalization for the prose model tokenizer (`internal/prose/bpe`)
-- New dep only when the user explicitly asks. Never add one to "save time".
 
 ## Verification
-- `make check` (gofmt, vet, tests) must pass before you call work done.
-- New behavior ships with tests. Table-driven where there are several cases.
+- `make check` (gofmt, vet, imports, tests) must pass before you call work done.
 - Optimizer changes: run `make eval`; savings must not regress and `raw ok` must never be `NO`.
-- Bugs get a failing test first, then the fix.
 
 ## Architecture
 - Extend by adding a component (receiver, filter, optimizer, exporter, extension) + config.
@@ -35,18 +32,11 @@ Hard rules for every agent and human change. Breaking one = change rejected.
 - Optimizers are deterministic: same input, same output (prompt caching + eval depend on it).
 
 ## Hygiene
-- No competitor or product names of other token tools in code, docs, tasks, or commits.
-  Describe techniques generically ("command output filtering", "JSON compaction").
-  Exception: datasets, copyright, attribution and license notices (e.g. `testdata/*/NOTICE.md`),
-  where the source or its license requires naming it, and the Hugging Face ids of the prose models
-  (`internal/prose/models.go`, `docs/prose-model.md`), which are what users select and download.
-- No speculative abstractions, options or hooks "for later".
-- Small focused commits; don't touch unrelated files; don't reformat untouched code.
+- Competitor names (`common/rules.md`) are allowed also in `testdata/*/NOTICE.md` and for the Hugging
+  Face ids of the prose models (`internal/prose/models.go`, `docs/prose-model.md`), which are what
+  users select and download.
 - No secrets, real user data or home paths in fixtures.
 
 ## Worktrees
-- The repo is a bare repo (`.bare`) with one worktree per branch next to it: `master/`, `<branch>/`
-  (`/` in the branch name becomes `-`). Each agent works in its own worktree, never in another's.
-- Create/remove with `wt new|rm cli <branch>` (parent dir). It copies `.claude/settings.local.json`.
-- `bin/` is ignored, so build per worktree (`make build`). The background server defaults to
-  `127.0.0.1:7878`; set `GASCOIGNE_SERVER_ADDR` to a free port when agents run concurrently.
+- The background server defaults to `127.0.0.1:7878`; set `GASCOIGNE_SERVER_ADDR` to a free port when
+  agents run concurrently. `bin/` is ignored: `make build` per worktree.

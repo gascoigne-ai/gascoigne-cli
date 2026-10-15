@@ -27,6 +27,9 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 - per agent/run tuning: `-set path=yaml`, `-only`, `-disable` (or `GASCOIGNE_SET/ONLY/DISABLE`); `bin/gascoigne config` shows the result
 
 ## Harness
+Shared with the other gascoigne repos: submodule `.harness/common` (`git submodule update --init` in a new worktree).
+@.harness/common/rules.md
+@.harness/common/commit-style.md
 @.harness/rules.md
 @.harness/code-style.md
 @.harness/recommendations.md

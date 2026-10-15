@@ -1,0 +1,4 @@
+[submodule ".harness/common"]
+	path = .harness/common
+	url = git@github.com:gascoigne-ai/gascoigne-harness.git
+	branch = main
