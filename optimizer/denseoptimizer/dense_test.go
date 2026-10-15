@@ -74,3 +74,13 @@ func TestCutRuneBoundary(t *testing.T) {
 		t.Fatalf("cut mid-rune: %q", out[:200])
 	}
 }
+
+func TestZeroTail(t *testing.T) {
+	cfg := defaults()
+	cfg.Tail = 0
+	p := payload.New(payload.CmdOutput, "start\n"+strings.Repeat("QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVo0", 100)+"\nend\n")
+	p.Blocks[0].Type = "log/app"
+	if err := (&Optimizer{cfg: cfg}).Optimize(t.Context(), p); err != nil {
+		t.Fatal(err)
+	}
+}

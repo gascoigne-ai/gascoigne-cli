@@ -85,7 +85,8 @@ func (o *Optimizer) cut(l string) string {
 
 // runeStart moves i back to the start of the rune it falls in.
 func runeStart(s string, i int) int {
-	for i > 0 && !utf8.RuneStart(s[i]) {
+	i = min(i, len(s))
+	for i > 0 && i < len(s) && !utf8.RuneStart(s[i]) {
 		i--
 	}
 	return i
