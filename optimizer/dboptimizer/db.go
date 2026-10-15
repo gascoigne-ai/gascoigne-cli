@@ -24,10 +24,7 @@ type Optimizer struct {
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	opts := table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, sample.Terms(p.Attrs[payload.AttrQuery]))
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyDB {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		lines := compress.CleanLines(b.Text)
 		var out []string
 		switch detect.Dialect(b.Type) {
@@ -42,9 +39,8 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		default:
 			out = results(lines, opts)
 		}
-		p.Blocks[i].Text = compress.Join(out)
-	}
-	return nil
+		return compress.Join(out), nil
+	}, detect.FamilyDB)
 }
 
 // footer ends a result set: "(3 rows)", "3 rows in set (0.00 sec)", "Empty set".

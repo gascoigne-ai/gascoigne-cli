@@ -19,17 +19,13 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyTest {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		lines, err := o.compressBlock(b)
 		if err != nil {
-			return err
+			return "", err
 		}
-		p.Blocks[i].Text = compress.Join(lines)
-	}
-	return nil
+		return compress.Join(lines), nil
+	}, detect.FamilyTest)
 }
 
 func (o *Optimizer) compressBlock(b payload.Block) ([]string, error) {

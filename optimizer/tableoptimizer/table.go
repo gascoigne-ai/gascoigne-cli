@@ -22,16 +22,12 @@ type Optimizer struct {
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyTable {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		t, ok := table.Parse(compress.CleanLines(b.Text))
 		if !ok {
 			p.Set(payload.AttrSkip, "table: no table found")
-			continue
+			return b.Text, nil
 		}
-		p.Blocks[i].Text = compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query)))
-	}
-	return nil
+		return compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query))), nil
+	}, detect.FamilyTable)
 }

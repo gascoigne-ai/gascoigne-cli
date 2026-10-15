@@ -59,7 +59,7 @@ flowchart LR
 
 - Every component embeds the lifecycle `Start(ctx, Host)` / `Shutdown(ctx)` (`component.Nop` for none).
 - Start order: extensions → exporters → optimizers → filters → receivers. Shutdown is reversed.
-- Optimizers self-select by `Block.Type` through `payload.Rewrite`. The default router therefore
+- Optimizers self-select by `Block.Type` through `payload.Rewrite` (exact types) or `payload.RewriteFamily` (every dialect of a family). The default router therefore
   sends every payload through one chain of all optimizers; routes only override per command or
   content.
 

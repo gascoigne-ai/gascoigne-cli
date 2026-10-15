@@ -23,10 +23,7 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyDoc {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		var out []string
 		switch detect.Dialect(b.Type) {
 		case "markdown":
@@ -38,11 +35,10 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		case "help":
 			out = helpFor(help(compress.CleanLines(b.Text)), p.Attrs[payload.AttrQuery])
 		default:
-			continue
+			return b.Text, nil
 		}
-		p.Blocks[i].Text = compress.Join(compress.SqueezeBlank(out))
-	}
-	return nil
+		return compress.Join(compress.SqueezeBlank(out)), nil
+	}, detect.FamilyDoc)
 }
 
 var (

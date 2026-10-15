@@ -16,15 +16,11 @@ import (
 type Optimizer struct{ component.Nop }
 
 func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyPkg {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		r, ok := pkgnoise.For(detect.Dialect(b.Type))
 		if !ok {
-			continue
+			return b.Text, nil
 		}
-		p.Blocks[i].Text = compress.Join(pkgnoise.Compress(compress.CleanLines(b.Text), r))
-	}
-	return nil
+		return compress.Join(pkgnoise.Compress(compress.CleanLines(b.Text), r)), nil
+	}, detect.FamilyPkg)
 }

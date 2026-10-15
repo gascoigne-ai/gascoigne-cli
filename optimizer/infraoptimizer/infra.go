@@ -22,10 +22,7 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyInfra {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		lines := compress.CleanLines(b.Text)
 		var out []string
 		switch detect.Dialect(b.Type) {
@@ -42,9 +39,8 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		default:
 			out = compress.DedupeRuns(lines)
 		}
-		p.Blocks[i].Text = compress.Join(compress.SqueezeBlank(out))
-	}
-	return nil
+		return compress.Join(compress.SqueezeBlank(out)), nil
+	}, detect.FamilyInfra)
 }
 
 var (

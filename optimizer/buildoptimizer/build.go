@@ -23,10 +23,7 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyBuild {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		dialect := detect.Dialect(b.Type)
 		r := diag.For(dialect)
 		if r.MaxFrame == 0 {
@@ -37,16 +34,15 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		case "sarif":
 			var err error
 			if lines, err = diag.SARIF(b.Text); err != nil {
-				return err
+				return "", err
 			}
 		case "docker":
 			lines = dockerSteps(watch.Last(compress.CleanLines(b.Text)))
 		default:
 			lines = watch.Last(compress.CleanLines(b.Text))
 		}
-		p.Blocks[i].Text = compress.Join(diag.Compress(lines, r))
-	}
-	return nil
+		return compress.Join(diag.Compress(lines, r)), nil
+	}, detect.FamilyBuild)
 }
 
 var (

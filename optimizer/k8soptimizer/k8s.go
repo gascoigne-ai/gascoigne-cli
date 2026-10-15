@@ -29,17 +29,9 @@ type Optimizer struct {
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	topts := table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, sample.Terms(p.Attrs[payload.AttrQuery]))
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyK8s {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		if detect.Dialect(b.Type) == "manifest" {
-			text, err := o.manifests(b.Text)
-			if err != nil {
-				return err
-			}
-			p.Blocks[i].Text = text
-			continue
+			return o.manifests(b.Text)
 		}
 		lines := compress.CleanLines(b.Text)
 		var out []string
@@ -57,9 +49,8 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 				out = lines
 			}
 		}
-		p.Blocks[i].Text = compress.Join(out)
-	}
-	return nil
+		return compress.Join(out), nil
+	}, detect.FamilyK8s)
 }
 
 // manifests prunes every document; lists keep unhealthy items and ends.

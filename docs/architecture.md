@@ -86,7 +86,7 @@ payload.Payload{
   `cmd:` over `tool:`.
 
 Optimizers change blocks through `p.Rewrite(fn, types…)`, which only visits blocks of the given
-types.
+types; `p.RewriteFamily(fn, family)` visits every dialect of a family.
 
 ## Content detection
 

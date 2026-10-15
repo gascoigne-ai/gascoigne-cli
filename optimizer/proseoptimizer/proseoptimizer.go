@@ -39,14 +39,10 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	if o.model == nil {
 		return nil
 	}
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyDoc {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		if d := detect.Dialect(b.Type); d != "text" && d != "markdown" {
-			continue
+			return b.Text, nil
 		}
-		p.Blocks[i].Text = compress.Join(compress.SqueezeBlank(o.prose(compress.Lines(b.Text))))
-	}
-	return nil
+		return compress.Join(compress.SqueezeBlank(o.prose(compress.Lines(b.Text)))), nil
+	}, detect.FamilyDoc)
 }

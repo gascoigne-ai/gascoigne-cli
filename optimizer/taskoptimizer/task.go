@@ -29,17 +29,13 @@ var splitters = map[string]func([]string) []string{
 }
 
 func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyTask {
-			continue
-		}
+	return p.RewriteFamily(func(b payload.Block) (string, error) {
 		split, ok := splitters[detect.Dialect(b.Type)]
 		if !ok {
-			continue
+			return b.Text, nil
 		}
-		p.Blocks[i].Text = compress.Join(compress.SqueezeBlank(split(compress.CleanLines(b.Text))))
-	}
-	return nil
+		return compress.Join(compress.SqueezeBlank(split(compress.CleanLines(b.Text)))), nil
+	}, detect.FamilyTask)
 }
 
 // section is one task or step.

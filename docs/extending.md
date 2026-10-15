@@ -79,7 +79,7 @@ Rules for optimizers:
 
 - **Deterministic and idempotent**: same input, same output; running twice changes nothing
   more.
-- **Only your blocks**: select them with `p.Rewrite(fn, types…)`.
+- **Only your blocks**: select them with `p.Rewrite(fn, types…)`, or `p.RewriteFamily(fn, family)` for a whole family.
 - **Errors, not half-broken output**: the core falls back to the original and records it.
 - **Explain deliberate no-ops**: set `payload.AttrSkip` (`skip_reason`) to a factual reason,
   e.g. `mything: 120 rows < max_rows 200`.

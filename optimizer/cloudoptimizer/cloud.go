@@ -28,17 +28,7 @@ type Optimizer struct {
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	for i, b := range p.Blocks {
-		if detect.Family(b.Type) != detect.FamilyCloud {
-			continue
-		}
-		out, err := o.block(b, query)
-		if err != nil {
-			return err
-		}
-		p.Blocks[i].Text = out
-	}
-	return nil
+	return p.RewriteFamily(func(b payload.Block) (string, error) { return o.block(b, query) }, detect.FamilyCloud)
 }
 
 func (o *Optimizer) block(b payload.Block, query []string) (string, error) {
