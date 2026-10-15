@@ -1,0 +1,48 @@
+Loading composer repositories with package information
+Installing dependencies from lock file (including require-dev)
+Package operations: 20 installs, 0 updates, 0 removals
+  - Downloading monolog/monolog (4.9.17)
+  - Downloading symfony/console (3.5.19)
+  - Downloading symfony/process (8.9.2)
+  - Downloading symfony/finder (1.7.8)
+  - Downloading guzzlehttp/guzzle (9.3.6)
+  - Downloading guzzlehttp/psr7 (8.8.17)
+  - Downloading psr/log (8.6.20)
+  - Downloading psr/http-message (3.3.20)
+  - Downloading doctrine/dbal (3.8.12)
+  - Downloading doctrine/orm (1.1.5)
+  - Downloading laravel/framework (1.4.0)
+  - Downloading nesbot/carbon (5.7.19)
+  - Downloading ramsey/uuid (7.6.12)
+  - Downloading league/flysystem (8.2.11)
+  - Downloading vlucas/phpdotenv (2.0.4)
+  - Downloading fakerphp/faker (8.3.8)
+  - Downloading phpunit/phpunit (7.4.13)
+  - Downloading mockery/mockery (9.6.18)
+  - Downloading nikic/php-parser (6.8.18)
+  - Downloading brick/math (7.9.7)
+  - Installing monolog/monolog (4.9.17): Extracting archive
+  - Installing symfony/console (3.5.19): Extracting archive
+  - Installing symfony/process (8.9.2): Extracting archive
+  - Installing symfony/finder (1.7.8): Extracting archive
+  - Installing guzzlehttp/guzzle (9.3.6): Extracting archive
+  - Installing guzzlehttp/psr7 (8.8.17): Extracting archive
+  - Installing psr/log (8.6.20): Extracting archive
+  - Installing psr/http-message (3.3.20): Extracting archive
+  - Installing doctrine/dbal (3.8.12): Extracting archive
+  - Installing doctrine/orm (1.1.5): Extracting archive
+  - Installing laravel/framework (1.4.0): Extracting archive
+  - Installing nesbot/carbon (5.7.19): Extracting archive
+  - Installing ramsey/uuid (7.6.12): Extracting archive
+  - Installing league/flysystem (8.2.11): Extracting archive
+  - Installing vlucas/phpdotenv (2.0.4): Extracting archive
+  - Installing fakerphp/faker (8.3.8): Extracting archive
+  - Installing phpunit/phpunit (7.4.13): Extracting archive
+  - Installing mockery/mockery (9.6.18): Extracting archive
+  - Installing nikic/php-parser (6.8.18): Extracting archive
+  - Installing brick/math (7.9.7): Extracting archive
+Package doctrine/dbal is abandoned, you should avoid using it. Use doctrine/dbal instead.
+Generating autoload files
+78 packages you are using are looking for funding.
+Use the `composer fund` command to find out more!
+No security vulnerability advisories found.

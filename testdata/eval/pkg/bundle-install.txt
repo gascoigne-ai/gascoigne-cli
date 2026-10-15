@@ -1,0 +1,46 @@
+Fetching gem metadata from https://rubygems.org/.........
+Resolving dependencies...
+Fetching rack 3.0.4
+Installing rack 3.0.4
+Using rails 5.2.5
+Using activesupport 5.9.9
+Fetching activerecord 1.3.9
+Installing activerecord 1.3.9
+Using actionpack 3.4.1
+Using actionview 1.7.7
+Fetching railties 1.5.1
+Installing railties 1.5.1
+Using puma 4.2.0
+Using nokogiri 3.6.6
+Fetching racc 7.1.0
+Installing racc 7.1.0
+Using json 5.9.0
+Using mini_mime 4.9.5
+Fetching mime-types 5.4.8
+Installing mime-types 5.4.8
+Using concurrent-ruby 2.0.4
+Using i18n 1.1.1
+Fetching tzinfo 5.8.0
+Installing tzinfo 5.8.0
+Using zeitwerk 2.6.4
+Using loofah 5.4.2
+Fetching rake 6.0.5
+Installing rake 6.0.5
+Using thor 3.5.2
+Using rspec-core 7.6.6
+Fetching rspec-expectations 4.8.6
+Installing rspec-expectations 4.8.6
+Using rspec-mocks 6.9.8
+Using rspec-support 1.9.8
+Fetching diff-lcs 3.6.3
+Installing diff-lcs 3.6.3
+Using sqlite3 3.6.4
+Using pg 5.4.8
+Fetching redis 3.0.6
+Installing redis 3.0.6
+Using sidekiq 5.5.0
+Using bootsnap 4.9.9
+Installing nokogiri 1.16.0 with native extensions
+Bundle complete! 14 Gemfile dependencies, 62 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+Post-install message from sidekiq: please run the migrations

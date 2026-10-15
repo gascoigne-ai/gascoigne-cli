@@ -1,0 +1,49 @@
+Fetching https://github.com/apple/swift-argument-parser.git from cache
+Fetched https://github.com/apple/swift-argument-parser.git from cache (0.48s)
+Computing version for https://github.com/apple/swift-argument-parser.git
+Computed https://github.com/apple/swift-argument-parser.git at 1.9.0 (0.06s)
+Creating working copy for https://github.com/apple/swift-argument-parser.git
+Working copy of https://github.com/apple/swift-argument-parser.git resolved at 1.2.0
+Fetching https://github.com/apple/swift-log.git from cache
+Fetched https://github.com/apple/swift-log.git from cache (0.56s)
+Computing version for https://github.com/apple/swift-log.git
+Computed https://github.com/apple/swift-log.git at 1.2.0 (0.06s)
+Creating working copy for https://github.com/apple/swift-log.git
+Working copy of https://github.com/apple/swift-log.git resolved at 1.5.0
+Fetching https://github.com/apple/swift-nio.git from cache
+Fetched https://github.com/apple/swift-nio.git from cache (0.86s)
+Computing version for https://github.com/apple/swift-nio.git
+Computed https://github.com/apple/swift-nio.git at 1.4.0 (0.05s)
+Creating working copy for https://github.com/apple/swift-nio.git
+Working copy of https://github.com/apple/swift-nio.git resolved at 1.6.0
+Fetching https://github.com/apple/swift-collections.git from cache
+Fetched https://github.com/apple/swift-collections.git from cache (0.23s)
+Computing version for https://github.com/apple/swift-collections.git
+Computed https://github.com/apple/swift-collections.git at 1.0.0 (0.03s)
+Creating working copy for https://github.com/apple/swift-collections.git
+Working copy of https://github.com/apple/swift-collections.git resolved at 1.4.0
+Fetching https://github.com/apple/swift-atomics.git from cache
+Fetched https://github.com/apple/swift-atomics.git from cache (0.74s)
+Computing version for https://github.com/apple/swift-atomics.git
+Computed https://github.com/apple/swift-atomics.git at 1.3.0 (0.05s)
+Creating working copy for https://github.com/apple/swift-atomics.git
+Working copy of https://github.com/apple/swift-atomics.git resolved at 1.3.0
+Fetching https://github.com/apple/swift-algorithms.git from cache
+Fetched https://github.com/apple/swift-algorithms.git from cache (0.51s)
+Computing version for https://github.com/apple/swift-algorithms.git
+Computed https://github.com/apple/swift-algorithms.git at 1.2.0 (0.07s)
+Creating working copy for https://github.com/apple/swift-algorithms.git
+Working copy of https://github.com/apple/swift-algorithms.git resolved at 1.1.0
+Fetching https://github.com/apple/swift-numerics.git from cache
+Fetched https://github.com/apple/swift-numerics.git from cache (0.23s)
+Computing version for https://github.com/apple/swift-numerics.git
+Computed https://github.com/apple/swift-numerics.git at 1.9.0 (0.06s)
+Creating working copy for https://github.com/apple/swift-numerics.git
+Working copy of https://github.com/apple/swift-numerics.git resolved at 1.5.0
+Fetching https://github.com/apple/swift-system.git from cache
+Fetched https://github.com/apple/swift-system.git from cache (0.96s)
+Computing version for https://github.com/apple/swift-system.git
+Computed https://github.com/apple/swift-system.git at 1.3.0 (0.08s)
+Creating working copy for https://github.com/apple/swift-system.git
+Working copy of https://github.com/apple/swift-system.git resolved at 1.2.0
+error: Dependencies could not be resolved because root depends on 'swift-nio' 3.0.0..<4.0.0 and no versions of 'swift-nio' match the requirement 3.0.0..<4.0.0.

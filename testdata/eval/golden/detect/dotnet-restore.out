@@ -1,0 +1,2 @@
+/home/dev/shop/src/Shop.Api/Shop.Api.csproj : warning NU1903: Package 'Newtonsoft.Json' 9.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr
+error NU1101: Unable to find package Shop.Missing. No packages exist with this id in source(s): nuget.org

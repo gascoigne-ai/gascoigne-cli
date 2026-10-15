@@ -1,0 +1,1 @@
+error: Dependencies could not be resolved because root depends on 'swift-nio' 3.0.0..<4.0.0 and no versions of 'swift-nio' match the requirement 3.0.0..<4.0.0.

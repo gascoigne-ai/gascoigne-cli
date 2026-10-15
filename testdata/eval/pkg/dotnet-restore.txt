@@ -1,0 +1,35 @@
+  Determining projects to restore...
+  GET https://api.nuget.org/v3-flatcontainer/newtonsoft.json/index.json
+  OK https://api.nuget.org/v3-flatcontainer/newtonsoft.json/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/serilog/index.json
+  OK https://api.nuget.org/v3-flatcontainer/serilog/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/serilog/3.1.1/serilog.3.1.1.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/serilog.sinks.console/index.json
+  OK https://api.nuget.org/v3-flatcontainer/serilog.sinks.console/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/serilog.sinks.console/5.0.1/serilog.sinks.console.5.0.1.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/dapper/index.json
+  OK https://api.nuget.org/v3-flatcontainer/dapper/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/dapper/2.1.28/dapper.2.1.28.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/polly/index.json
+  OK https://api.nuget.org/v3-flatcontainer/polly/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/polly/8.2.0/polly.8.2.0.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/mediatr/index.json
+  OK https://api.nuget.org/v3-flatcontainer/mediatr/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/mediatr/12.2.0/mediatr.12.2.0.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/fluentvalidation/index.json
+  OK https://api.nuget.org/v3-flatcontainer/fluentvalidation/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/fluentvalidation/11.9.0/fluentvalidation.11.9.0.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/automapper/index.json
+  OK https://api.nuget.org/v3-flatcontainer/automapper/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/automapper/12.0.1/automapper.12.0.1.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/npgsql/index.json
+  OK https://api.nuget.org/v3-flatcontainer/npgsql/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/npgsql/8.0.1/npgsql.8.0.1.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/stackexchange.redis/index.json
+  OK https://api.nuget.org/v3-flatcontainer/stackexchange.redis/index.json 42ms
+  GET https://api.nuget.org/v3-flatcontainer/stackexchange.redis/2.7.10/stackexchange.redis.2.7.10.nupkg
+  Restored /home/dev/shop/src/Shop.Api/Shop.Api.csproj (in 3.4 sec).
+  Restored /home/dev/shop/src/Shop.Core/Shop.Core.csproj (in 1.2 sec).
+/home/dev/shop/src/Shop.Api/Shop.Api.csproj : warning NU1903: Package 'Newtonsoft.Json' 9.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-5crp-9r3c-p9vr
+error NU1101: Unable to find package Shop.Missing. No packages exist with this id in source(s): nuget.org

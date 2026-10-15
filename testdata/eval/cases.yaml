@@ -655,6 +655,71 @@
   attrs: { cmd: ./build/shop }
   keep: ["heap-use-after-free", "shop::Cart::total() const", "/src/cart.cc:41:12", "SUMMARY: AddressSanitizer"]
 
+# --- package managers (declared as rows)
+- name: pkg/composer-install
+  file: pkg/composer-install.txt
+  attrs: { cmd: composer install }
+  expect_type: pkg/composer
+  keep: ["Package operations: 20 installs", "monolog/monolog", "Package doctrine/dbal is abandoned"]
+  min_saved: 60
+- name: detect/composer-install
+  file: pkg/composer-install.txt
+  expect_type: pkg/composer
+- name: pkg/bundle-install
+  file: pkg/bundle-install.txt
+  attrs: { cmd: bundle install }
+  expect_type: pkg/gem
+  keep: ["Bundle complete! 14 Gemfile dependencies", "Installing nokogiri 1.16.0 with native extensions", "Post-install message from sidekiq"]
+  min_saved: 29
+- name: detect/bundle-install
+  file: pkg/bundle-install.txt
+  expect_type: pkg/gem
+- name: pkg/dotnet-restore
+  file: pkg/dotnet-restore.txt
+  attrs: { cmd: dotnet restore }
+  expect_type: pkg/nuget
+  keep: ["warning NU1903", "error NU1101: Unable to find package Shop.Missing"]
+  min_saved: 86
+- name: detect/dotnet-restore
+  file: pkg/dotnet-restore.txt
+  expect_type: pkg/nuget
+- name: pkg/conda-install
+  file: pkg/conda-install.txt
+  attrs: { cmd: conda install numpy pandas scikit-learn }
+  expect_type: pkg/conda
+  keep: ["Package Plan", "numpy", "Executing transaction: done"]
+  min_saved: 40
+- name: detect/conda-install
+  file: pkg/conda-install.txt
+  expect_type: pkg/conda
+- name: pkg/nix-build-fail
+  file: pkg/nix-build-fail.txt
+  attrs: { cmd: nix build .#shop }
+  expect_type: pkg/nix
+  keep: ["shop-lib.c:44:10: fatal error: openssl/ssl.h", "error: builder for '/nix/store/bbb-shop-lib.drv' failed with exit code 2;"]
+  min_saved: 83
+- name: detect/nix-build-fail
+  file: pkg/nix-build-fail.txt
+  expect_type: pkg/nix
+- name: pkg/pub-get
+  file: pkg/pub-get.txt
+  attrs: { cmd: flutter pub get }
+  expect_type: pkg/pub
+  keep: ["Got dependencies!", "collection 1.18.0 (1.19.0 available)", "24 packages have newer versions"]
+  min_saved: 5
+- name: detect/pub-get
+  file: pkg/pub-get.txt
+  expect_type: pkg/pub
+- name: pkg/swift-package-resolve
+  file: pkg/swift-package-resolve.txt
+  attrs: { cmd: swift package resolve }
+  expect_type: pkg/swift
+  keep: ["error: Dependencies could not be resolved because root depends on 'swift-nio'"]
+  min_saved: 91
+- name: detect/swift-package-resolve
+  file: pkg/swift-package-resolve.txt
+  expect_type: pkg/swift
+
 # --- cat (code)
 - file: cat/server.go.txt
   attrs: { cmd: cat net/http/server.go }

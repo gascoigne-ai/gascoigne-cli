@@ -16,6 +16,8 @@ All notable changes to gascoigne. The format follows
   unittest, node:test/TAP, Playwright, Cypress, Karma, flutter/dart test and cabal/stack: passes are counted,
   failures and summaries kept, dependency frames dropped. `cargo bench`, `llvm-cov`, `tarpaulin` and `miri` use
   the cargo rules.
+- Package manager output of Composer, Bundler/gem, mix, pub, SwiftPM, NuGet, conda/mamba, deno, Nix, Flatpak/snap
+  and `mvn dependency:*`: progress and download lines dropped, installs folded into lists, failures kept.
 - Stack traces: runs of runtime and framework frames (JVM/Scala/Kotlin, Python site-packages, Rust backtraces, Ruby
   gems, .NET, PHP vendor, gdb/lldb and sanitizer frames in libc/libstdc++, D runtime) fold into one count
   (`trace.min_frames`).

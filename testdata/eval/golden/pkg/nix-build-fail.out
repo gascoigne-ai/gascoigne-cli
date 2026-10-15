@@ -1,0 +1,16 @@
+these 4 derivations will be built:
+  /nix/store/aaa-shop-deps.drv
+  /nix/store/bbb-shop-lib.drv
+  /nix/store/ccc-shop.drv
+  /nix/store/ddd-shop-env.drv
+these 38 paths will be fetched (112.5 MiB download, 540.2 MiB unpacked):
+  /nix/store/000hash-pkg0-1.0 (×38)
+building
+shop-lib.c:44:10: fatal error: openssl/ssl.h: No such file or directory
+   44 | #include <openssl/ssl.h>
+compilation terminated.
+make: *** [Makefile:12: shop-lib.o] Error 1
+error: builder for '/nix/store/bbb-shop-lib.drv' failed with exit code 2;
+       last 10 log lines:
+       > make: *** [Makefile:12: shop-lib.o] Error 1
+error: 1 dependencies of derivation '/nix/store/ccc-shop.drv' failed to build

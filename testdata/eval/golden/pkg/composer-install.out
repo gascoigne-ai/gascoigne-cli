@@ -1,0 +1,3 @@
+Package operations: 20 installs, 0 updates, 0 removals
+installed (20): monolog/monolog (4.9.17), symfony/console (3.5.19), symfony/process (8.9.2), symfony/finder (1.7.8), guzzlehttp/guzzle (9.3.6), guzzlehttp/psr7 (8.8.17), psr/log (8.6.20), psr/http-message (3.3.20), doctrine/dbal (3.8.12), doctrine/orm (1.1.5), laravel/framework (1.4.0), nesbot/carbon (5.7.19), ramsey/uuid (7.6.12), league/flysystem (8.2.11), vlucas/phpdotenv (2.0.4), fakerphp/faker (8.3.8), phpunit/phpunit (7.4.13), mockery/mockery (9.6.18), nikic/php-parser (6.8.18), brick/math (7.9.7)
+Package doctrine/dbal is abandoned, you should avoid using it. Use doctrine/dbal instead.
