@@ -83,7 +83,7 @@ func (o *Optimizer) cellOutput(raw json.RawMessage) []string {
 	case "error":
 		lines := []string{fmt.Sprintf("# error: %s: %s", out.EName, out.EValue)}
 		for _, t := range out.Traceback {
-			lines = append(lines, compress.Lines(compress.StripANSI(t))...)
+			lines = append(lines, compress.CleanLines(t)...)
 		}
 		return lines
 	}

@@ -21,7 +21,7 @@ type Optimizer struct {
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	query := sample.Terms(p.Attrs[payload.AttrQuery])
 	return p.Rewrite(func(b payload.Block) (string, error) {
-		lines := compress.Lines(compress.StripANSI(b.Text))
+		lines := compress.CleanLines(b.Text)
 		switch b.Type {
 		case detect.GitStatus:
 			lines = status(lines)

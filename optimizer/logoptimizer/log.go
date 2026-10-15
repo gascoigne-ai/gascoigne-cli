@@ -28,7 +28,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if b.Type != detect.Text && detect.Family(b.Type) != detect.FamilyLog {
 			continue
 		}
-		lines := compress.Lines(compress.StripANSI(b.Text))
+		lines := compress.CleanLines(b.Text)
 		switch {
 		case b.Type == detect.Text:
 			lines = compress.SqueezeBlank(dedupeExact(lines))

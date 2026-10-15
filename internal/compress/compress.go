@@ -22,6 +22,9 @@ func Lines(s string) []string {
 	return strings.Split(s, "\n")
 }
 
+// CleanLines is Lines of s without terminal escapes: how optimizers read output.
+func CleanLines(s string) []string { return Lines(StripANSI(s)) }
+
 // Join joins lines and ends with a newline when there is any line.
 func Join(lines []string) string {
 	if len(lines) == 0 {

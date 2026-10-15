@@ -26,7 +26,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if detect.Family(b.Type) != detect.FamilyTable {
 			continue
 		}
-		t, ok := table.Parse(compress.Lines(compress.StripANSI(b.Text)))
+		t, ok := table.Parse(compress.CleanLines(b.Text))
 		if !ok {
 			p.Set(payload.AttrSkip, "table: no table found")
 			continue

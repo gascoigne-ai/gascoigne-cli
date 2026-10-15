@@ -41,7 +41,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 			p.Blocks[i].Text = text
 			continue
 		}
-		lines := compress.Lines(compress.StripANSI(b.Text))
+		lines := compress.CleanLines(b.Text)
 		var out []string
 		switch detect.Dialect(b.Type) {
 		case "describe":

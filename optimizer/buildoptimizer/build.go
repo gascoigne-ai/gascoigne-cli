@@ -40,9 +40,9 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 				return err
 			}
 		case "docker":
-			lines = dockerSteps(watch.Last(compress.Lines(compress.StripANSI(b.Text))))
+			lines = dockerSteps(watch.Last(compress.CleanLines(b.Text)))
 		default:
-			lines = watch.Last(compress.Lines(compress.StripANSI(b.Text)))
+			lines = watch.Last(compress.CleanLines(b.Text))
 		}
 		p.Blocks[i].Text = compress.Join(diag.Compress(lines, r))
 	}

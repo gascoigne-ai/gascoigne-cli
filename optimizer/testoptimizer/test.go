@@ -41,9 +41,9 @@ func (o *Optimizer) compressBlock(b payload.Block) ([]string, error) {
 	case "go-json":
 		return testreport.GoJSON(b.Text)
 	case "go":
-		return testreport.Go(compress.Lines(compress.StripANSI(b.Text))), nil
+		return testreport.Go(compress.CleanLines(b.Text)), nil
 	default:
-		lines := compress.Lines(compress.StripANSI(b.Text))
+		lines := compress.CleanLines(b.Text)
 		out, ok := testreport.Compress(dialect, lines)
 		if !ok {
 			return lines, nil

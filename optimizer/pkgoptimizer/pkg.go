@@ -24,7 +24,7 @@ func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if !ok {
 			continue
 		}
-		p.Blocks[i].Text = compress.Join(pkgnoise.Compress(compress.Lines(compress.StripANSI(b.Text)), r))
+		p.Blocks[i].Text = compress.Join(pkgnoise.Compress(compress.CleanLines(b.Text), r))
 	}
 	return nil
 }

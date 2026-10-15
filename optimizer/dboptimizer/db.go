@@ -28,7 +28,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if detect.Family(b.Type) != detect.FamilyDB {
 			continue
 		}
-		lines := compress.Lines(compress.StripANSI(b.Text))
+		lines := compress.CleanLines(b.Text)
 		var out []string
 		switch detect.Dialect(b.Type) {
 		case "explain":

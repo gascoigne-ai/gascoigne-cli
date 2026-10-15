@@ -37,7 +37,7 @@ func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if !ok {
 			continue
 		}
-		p.Blocks[i].Text = compress.Join(compress.SqueezeBlank(split(compress.Lines(compress.StripANSI(b.Text)))))
+		p.Blocks[i].Text = compress.Join(compress.SqueezeBlank(split(compress.CleanLines(b.Text))))
 	}
 	return nil
 }

@@ -27,7 +27,7 @@ var entry = lazyre.New(`^([-dlcbps])([rwxsStT-]{9})[.+@]?\s+\d+\s+\S+\s+\S+\s+(\
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	return p.Rewrite(func(b payload.Block) (string, error) {
-		lines := compress.Lines(compress.StripANSI(b.Text))
+		lines := compress.CleanLines(b.Text)
 		switch b.Type {
 		case detect.Tree:
 			lines = o.tree(lines)

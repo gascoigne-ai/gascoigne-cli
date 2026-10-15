@@ -48,7 +48,7 @@ type file struct {
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	return p.Rewrite(func(b payload.Block) (string, error) {
-		return compress.Join(o.group(compress.Lines(compress.StripANSI(b.Text)), p.Attrs[payload.AttrQuery])), nil
+		return compress.Join(o.group(compress.CleanLines(b.Text), p.Attrs[payload.AttrQuery])), nil
 	}, detect.Grep, detect.RG, detect.AG, detect.GitGrep)
 }
 

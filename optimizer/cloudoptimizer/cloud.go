@@ -44,7 +44,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 func (o *Optimizer) block(b payload.Block, query []string) (string, error) {
 	text := strings.TrimSpace(b.Text)
 	if detect.Dialect(b.Type) == "aws-s3" {
-		return compress.Join(o.s3(compress.Lines(compress.StripANSI(b.Text)))), nil
+		return compress.Join(o.s3(compress.CleanLines(b.Text))), nil
 	}
 	switch {
 	case strings.HasPrefix(text, "{") || strings.HasPrefix(text, "["):
@@ -57,7 +57,7 @@ func (o *Optimizer) block(b payload.Block, query []string) (string, error) {
 		}
 		return jsonx.Render(values, false, &o.cfg.JSON, query)
 	}
-	if t, ok := table.Parse(compress.Lines(compress.StripANSI(b.Text))); ok {
+	if t, ok := table.Parse(compress.CleanLines(b.Text)); ok {
 		return compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query))), nil
 	}
 	if docs, err := yamlx.Docs(b.Text); err == nil && structured(docs) {

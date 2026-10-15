@@ -34,9 +34,9 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		case "rst":
 			out = o.rst(compress.Lines(b.Text))
 		case "man":
-			out = o.man(compress.Lines(compress.StripANSI(overstrike.ReplaceAllString(b.Text, ""))))
+			out = o.man(compress.CleanLines(overstrike.ReplaceAllString(b.Text, "")))
 		case "help":
-			out = helpFor(help(compress.Lines(compress.StripANSI(b.Text))), p.Attrs[payload.AttrQuery])
+			out = helpFor(help(compress.CleanLines(b.Text)), p.Attrs[payload.AttrQuery])
 		default:
 			continue
 		}

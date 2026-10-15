@@ -27,7 +27,7 @@ type Optimizer struct {
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	query := sample.Terms(p.Attrs[payload.AttrQuery])
 	return p.Rewrite(func(b payload.Block) (string, error) {
-		head, body := o.split(compress.Lines(compress.StripANSI(b.Text)))
+		head, body := o.split(compress.CleanLines(b.Text))
 		return compress.Join(head) + o.body(body, query), nil
 	}, detect.HTTP)
 }
