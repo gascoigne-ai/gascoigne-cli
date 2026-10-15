@@ -1,0 +1,27 @@
+Building for debugging...
+[8/8] Linking ShopPackageTests
+Build complete! (2.31s)
+Test Suite 'All tests' started at 2026-10-14 10:00:00.000
+Test Suite 'CartTests' started at 2026-10-14 10:00:00.1
+Test Case '-[ShopTests.CartTests testAdd]' started.
+Test Case '-[ShopTests.CartTests testAdd]' passed (0.001 seconds).
+Test Case '-[ShopTests.CartTests testRemove]' started.
+Test Case '-[ShopTests.CartTests testRemove]' passed (0.001 seconds).
+Test Case '-[ShopTests.CartTests testTotal]' started.
+Test Case '-[ShopTests.CartTests testTotal]' passed (0.001 seconds).
+Test Case '-[ShopTests.CartTests testEmpty]' started.
+Test Case '-[ShopTests.CartTests testEmpty]' passed (0.001 seconds).
+Test Suite 'CartTests' passed at 2026-10-14 10:00:00.2
+Test Suite 'OrderTests' started at 2026-10-14 10:00:00.1
+Test Case '-[ShopTests.OrderTests testCreate]' started.
+Test Case '-[ShopTests.OrderTests testCreate]' passed (0.001 seconds).
+Test Case '-[ShopTests.OrderTests testCancel]' started.
+Test Case '-[ShopTests.OrderTests testCancel]' passed (0.001 seconds).
+Test Case '-[ShopTests.OrderTests testRefund]' started.
+/home/dev/shop/Tests/ShopTests/OrderTests.swift:41: error: -[ShopTests.OrderTests testRefund] : XCTAssertEqual failed: ("0") is not equal to ("120")
+Test Case '-[ShopTests.OrderTests testRefund]' failed (0.001 seconds).
+Test Case '-[ShopTests.OrderTests testShip]' started.
+Test Case '-[ShopTests.OrderTests testShip]' passed (0.001 seconds).
+Test Suite 'OrderTests' passed at 2026-10-14 10:00:00.2
+Test Suite 'All tests' failed at 2026-10-14 10:00:00.3
+	 Executed 8 tests, with 1 failure (0 unexpected) in 0.012 (0.013) seconds

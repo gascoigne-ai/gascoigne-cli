@@ -1,0 +1,30 @@
+Running 12 tests using 4 workers
+
+  ✓  1 [chromium] › cart.spec.ts:4:5 › cart item 1 (1.1s)
+  ✓  2 [chromium] › cart.spec.ts:5:5 › cart item 2 (1.2s)
+  ✓  3 [chromium] › cart.spec.ts:6:5 › cart item 3 (1.3s)
+  ✓  4 [chromium] › cart.spec.ts:7:5 › cart item 4 (1.4s)
+  ✓  5 [chromium] › cart.spec.ts:8:5 › cart item 5 (1.5s)
+  ✓  6 [chromium] › cart.spec.ts:9:5 › cart item 6 (1.6s)
+  ✓  7 [chromium] › cart.spec.ts:10:5 › cart item 7 (1.7s)
+  ✓  8 [chromium] › cart.spec.ts:11:5 › cart item 8 (1.8s)
+  ✓  9 [chromium] › cart.spec.ts:12:5 › cart item 9 (1.9s)
+  ✓  10 [chromium] › cart.spec.ts:13:5 › cart item 10 (1.10s)
+  ✓  11 [chromium] › cart.spec.ts:14:5 › cart item 11 (1.11s)
+  ✘  12 [chromium] › checkout.spec.ts:20:5 › pays with card (5.0s)
+
+
+  1) [chromium] › checkout.spec.ts:20:5 › pays with card ──────────────────────────────
+
+    Error: expect(locator).toBeVisible()
+
+    Locator: getByText('Thank you')
+    Expected: visible
+    Received: <element(s) not found>
+
+      at /home/dev/shop/tests/checkout.spec.ts:28:40
+      at node_modules/playwright/lib/worker/testInfo.js:310:7
+
+  1 failed
+    [chromium] › checkout.spec.ts:20:5 › pays with card
+  11 passed (14s)

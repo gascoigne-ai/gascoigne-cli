@@ -1,0 +1,34 @@
+Test project /home/dev/shop/build
+      Start  1: cart_unit
+      Start  1: cart_unit
+      Start  2: order_unit
+      Start  3: pricing_unit
+      Start  4: store_unit
+      Start  5: net_unit
+      Start  6: json_unit
+      Start  7: db_unit
+      Start  8: auth_unit
+      Start  9: cache_unit
+      Start 10: queue_unit
+      Start 11: retry_unit
+      Start 12: clock_unit
+ 1/12 Test # 1: cart_unit ......................      Passed    0.01 sec
+ 2/12 Test # 2: order_unit ......................      Passed    0.02 sec
+ 3/12 Test # 3: pricing_unit ......................      Passed    0.03 sec
+ 4/12 Test # 4: store_unit ......................      Passed    0.04 sec
+ 5/12 Test # 5: net_unit ......................      Passed    0.05 sec
+ 6/12 Test # 6: json_unit ......................      Passed    0.06 sec
+ 7/12 Test # 7: db_unit ......................   ***Failed    0.07 sec
+ 8/12 Test # 8: auth_unit ......................      Passed    0.08 sec
+ 9/12 Test # 9: cache_unit ......................      Passed    0.09 sec
+10/12 Test #10: queue_unit ......................      Passed    0.10 sec
+11/12 Test #11: retry_unit ......................      Passed    0.11 sec
+12/12 Test #12: clock_unit ......................      Passed    0.12 sec
+
+92% tests passed, 1 tests failed out of 12
+
+Total Test time (real) =   1.20 sec
+
+The following tests FAILED:
+	 7 - db_unit (Failed)
+Errors while running CTest

@@ -1,0 +1,12 @@
+test_refund (tests.test_order.OrderTest) ... FAIL
+
+FAIL: test_refund (tests.test_order.OrderTest)
+Traceback (most recent call last):
+  File "/home/dev/shop/tests/test_order.py", line 41, in test_refund
+    self.assertEqual(order.refund(), 120)
+AssertionError: 0 != 120
+
+Ran 25 tests in 0.004s
+
+FAILED (failures=1)
+… 24 passing test lines omitted

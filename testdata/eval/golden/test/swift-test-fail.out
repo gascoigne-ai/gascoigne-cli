@@ -1,0 +1,5 @@
+/home/dev/shop/Tests/ShopTests/OrderTests.swift:41: error: -[ShopTests.OrderTests testRefund] : XCTAssertEqual failed: ("0") is not equal to ("120")
+Test Case '-[ShopTests.OrderTests testRefund]' failed (0.001 seconds).
+Test Suite 'All tests' failed at 2026-10-14 10:00:00.3
+	 Executed 8 tests, with 1 failure (0 unexpected) in 0.012 (0.013) seconds
+… 7 passing test lines omitted

@@ -1,0 +1,13 @@
+not ok 13 - refunds the total
+  location: '/home/dev/shop/test/order.test.js:41:1'
+  failureType: 'testCodeFailure'
+  error: 'Expected values to be strictly equal:\n\n0 !== 120\n'
+  code: 'ERR_ASSERTION'
+  stack: |-
+    TestContext.<anonymous> (/home/dev/shop/test/order.test.js:42:10)
+    node:internal/test_runner/test:632:20
+1..13
+# tests 13
+# pass 12
+# fail 1
+… 25 passing test lines omitted

@@ -1,0 +1,19 @@
+[info] CartSpec:
+[info] Cart
+[info] OrderSpec:
+[info] Order
+[info] - should refund the total *** FAILED ***
+[info]   0 did not equal 120 (OrderSpec.scala:41)
+… 2 dependency stack frames omitted
+[info]   at shop.OrderSpec.$anonfun$new$5(OrderSpec.scala:41)
+… 1 dependency stack frame omitted
+[info] Run completed in 1 second, 120 milliseconds.
+[info] Total number of tests run: 9
+[info] Suites: completed 2, aborted 0
+[info] Tests: succeeded 8, failed 1, canceled 0, ignored 0, pending 0
+[info] *** 1 TEST FAILED ***
+[error] Failed tests:
+[error] 	shop.OrderSpec
+[error] (Test / test) sbt.TestsFailedException: Tests unsuccessful
+[error] Total time: 4 s, completed Oct 14, 2026, 10:00:00 AM
+… 8 passing test lines omitted

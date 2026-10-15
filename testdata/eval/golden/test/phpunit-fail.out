@@ -1,0 +1,17 @@
+..........F...........................................  55 / 120 ( 45%)
+........................................................ 110 / 120 ( 91%)
+
+Time: 00:00.412, Memory: 14.00 MB
+
+There was 1 failure:
+
+1) Tests\OrderTest::testRefund
+Failed asserting that 0 matches expected 120.
+
+/home/dev/shop/vendor/phpunit/phpunit/src/Framework/Constraint/Constraint.php:122
+/home/dev/shop/vendor/phpunit/phpunit/src/Framework/Assert.php:2371
+/home/dev/shop/tests/OrderTest.php:41
+
+FAILURES!
+Tests: 120, Assertions: 240, Failures: 1.
+… 1 passing test line omitted

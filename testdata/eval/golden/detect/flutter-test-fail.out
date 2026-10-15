@@ -1,0 +1,8 @@
+00:01 +40 -1: Order refund [E]
+  Expected: <120>
+    Actual: <0>
+  package:test_api          expect
+  test/order_test.dart 41:7  main.<fn>
+
+00:02 +40 -1: Some tests failed.
+… 41 passing test lines omitted

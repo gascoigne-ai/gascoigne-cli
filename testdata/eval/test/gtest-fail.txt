@@ -1,0 +1,51 @@
+[==========] Running 14 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from Cart
+[ RUN      ] Cart.Add
+[       OK ] Cart.Add (0 ms)
+[ RUN      ] Cart.Remove
+[       OK ] Cart.Remove (0 ms)
+[ RUN      ] Cart.Total
+[       OK ] Cart.Total (0 ms)
+[ RUN      ] Cart.Empty
+[       OK ] Cart.Empty (0 ms)
+[ RUN      ] Cart.Discount
+[       OK ] Cart.Discount (0 ms)
+[----------] 5 tests from Cart (1 ms total)
+
+[----------] 5 tests from Order
+[ RUN      ] Order.Create
+[       OK ] Order.Create (0 ms)
+[ RUN      ] Order.Cancel
+[       OK ] Order.Cancel (0 ms)
+[ RUN      ] Order.Ship
+[       OK ] Order.Ship (0 ms)
+[ RUN      ] Order.Refund
+../tests/order_test.cc:88: Failure
+Expected equality of these values:
+  order.refunded()
+    Which is: false
+  true
+[  FAILED  ] Order.Refund (0 ms)
+[ RUN      ] Order.Split
+[       OK ] Order.Split (0 ms)
+[----------] 5 tests from Order (1 ms total)
+
+[----------] 4 tests from Store
+[ RUN      ] Store.Open
+[       OK ] Store.Open (0 ms)
+[ RUN      ] Store.Close
+[       OK ] Store.Close (0 ms)
+[ RUN      ] Store.Stock
+[       OK ] Store.Stock (0 ms)
+[ RUN      ] Store.Restock
+[       OK ] Store.Restock (0 ms)
+[----------] 4 tests from Store (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 3 test suites ran. (3 ms total)
+[  PASSED  ] 13 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Order.Refund
+
+1 FAILED TEST

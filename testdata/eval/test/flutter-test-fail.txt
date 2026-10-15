@@ -1,0 +1,48 @@
+00:00 +0: loading test/cart_test.dart
+00:00 +0: loading test/order_test.dart
+00:00 +1: Cart item 1 adds and totals
+00:00 +2: Cart item 2 adds and totals
+00:00 +3: Cart item 3 adds and totals
+00:00 +4: Cart item 4 adds and totals
+00:00 +5: Cart item 5 adds and totals
+00:00 +6: Cart item 6 adds and totals
+00:00 +7: Cart item 7 adds and totals
+00:00 +8: Cart item 8 adds and totals
+00:00 +9: Cart item 9 adds and totals
+00:00 +10: Cart item 10 adds and totals
+00:00 +11: Cart item 11 adds and totals
+00:00 +12: Cart item 12 adds and totals
+00:00 +13: Cart item 13 adds and totals
+00:00 +14: Cart item 14 adds and totals
+00:01 +15: Cart item 15 adds and totals
+00:01 +16: Cart item 16 adds and totals
+00:01 +17: Cart item 17 adds and totals
+00:01 +18: Cart item 18 adds and totals
+00:01 +19: Cart item 19 adds and totals
+00:01 +20: Cart item 20 adds and totals
+00:01 +21: Cart item 21 adds and totals
+00:01 +22: Cart item 22 adds and totals
+00:01 +23: Cart item 23 adds and totals
+00:01 +24: Cart item 24 adds and totals
+00:01 +25: Cart item 25 adds and totals
+00:01 +26: Cart item 26 adds and totals
+00:01 +27: Cart item 27 adds and totals
+00:01 +28: Cart item 28 adds and totals
+00:01 +29: Cart item 29 adds and totals
+00:02 +30: Cart item 30 adds and totals
+00:02 +31: Cart item 31 adds and totals
+00:02 +32: Cart item 32 adds and totals
+00:02 +33: Cart item 33 adds and totals
+00:02 +34: Cart item 34 adds and totals
+00:02 +35: Cart item 35 adds and totals
+00:02 +36: Cart item 36 adds and totals
+00:02 +37: Cart item 37 adds and totals
+00:02 +38: Cart item 38 adds and totals
+00:02 +39: Cart item 39 adds and totals
+00:01 +40 -1: Order refund [E]
+  Expected: <120>
+    Actual: <0>
+  package:test_api          expect
+  test/order_test.dart 41:7  main.<fn>
+
+00:02 +40 -1: Some tests failed.

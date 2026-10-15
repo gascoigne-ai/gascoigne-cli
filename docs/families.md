@@ -37,10 +37,14 @@ dropped. Go output is parsed; the others follow rules.
 | `test/go-json` | `go test -json` |
 | `test/jest`, `test/vitest`, `test/bun`, `test/mocha`, `test/deno` | `jest`, `vitest`, `bun test`, `mocha`, `deno test` |
 | `test/pytest` | `pytest`, `py.test` |
-| `test/cargo` | `cargo test`, `cargo nextest` |
+| `test/cargo` | `cargo test`, `cargo nextest`, `cargo bench`, `cargo llvm-cov`, `cargo tarpaulin`, `cargo miri` |
 | `test/rspec` | `rspec` |
 | `test/maven` | `mvn test`, `mvn verify` |
 | `test/dotnet` | `dotnet test` |
+| `test/ctest`, `test/gtest`, `test/catch` | `ctest`; GoogleTest; Catch2 and doctest (sniffed) |
+| `test/sbt`, `test/dub`, `test/swift`, `test/mix`, `test/dart`, `test/hspec` | `sbt test`, `scala-cli test`, `mill test` (ScalaTest, MUnit); `dub test`; `swift test`; `mix test`; `flutter test`, `dart test`; `cabal test`, `stack test` |
+| `test/phpunit`, `test/minitest`, `test/unittest` | `phpunit`, `pest`, `php artisan test`; `rake test`, `rails test`; `unittest`, `nosetests` |
+| `test/tap`, `test/playwright`, `test/cypress`, `test/karma` | `node --test`, `tap`, `ava`; `playwright test`; `cypress run`; `karma start`, `ng test` |
 | `test/junit` | JUnit XML reports (`junit*.xml`, `TEST-*.xml`, sniffed) | count line per suite; failing and erroring cases with message, details and output; skipped cases with reason |
 | `test/coverage` | lcov (`lcov.info`), `go tool cover -func` | total, then files under `coverage_below` (80%) worst first with uncovered line ranges or weak functions |
 

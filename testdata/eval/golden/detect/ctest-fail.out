@@ -1,0 +1,18 @@
+ 1/12 Test # 1: cart_unit ......................      Passed    0.01 sec
+ 2/12 Test # 2: order_unit ......................      Passed    0.02 sec
+ 3/12 Test # 3: pricing_unit ......................      Passed    0.03 sec
+ 4/12 Test # 4: store_unit ......................      Passed    0.04 sec
+ 5/12 Test # 5: net_unit ......................      Passed    0.05 sec
+ 6/12 Test # 6: json_unit ......................      Passed    0.06 sec
+ 7/12 Test # 7: db_unit ......................   ***Failed    0.07 sec
+ 8/12 Test # 8: auth_unit ......................      Passed    0.08 sec
+ 9/12 Test # 9: cache_unit ......................      Passed    0.09 sec
+
+92% tests passed, 1 tests failed out of 12
+
+Total Test time (real) =   1.20 sec
+
+The following tests FAILED:
+	 7 - db_unit (Failed)
+Errors while running CTest
+… 3 passing test lines omitted

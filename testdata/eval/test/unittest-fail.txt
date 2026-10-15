@@ -1,0 +1,38 @@
+test_add (tests.test_cart.CartTest) ... ok
+test_remove (tests.test_cart.CartTest) ... ok
+test_total (tests.test_cart.CartTest) ... ok
+test_empty (tests.test_cart.CartTest) ... ok
+test_discount (tests.test_cart.CartTest) ... ok
+test_clear (tests.test_cart.CartTest) ... ok
+test_add (tests.test_order.OrderTest) ... ok
+test_remove (tests.test_order.OrderTest) ... ok
+test_total (tests.test_order.OrderTest) ... ok
+test_empty (tests.test_order.OrderTest) ... ok
+test_discount (tests.test_order.OrderTest) ... ok
+test_clear (tests.test_order.OrderTest) ... ok
+test_add (tests.test_pricing.PricingTest) ... ok
+test_remove (tests.test_pricing.PricingTest) ... ok
+test_total (tests.test_pricing.PricingTest) ... ok
+test_empty (tests.test_pricing.PricingTest) ... ok
+test_discount (tests.test_pricing.PricingTest) ... ok
+test_clear (tests.test_pricing.PricingTest) ... ok
+test_add (tests.test_store.StoreTest) ... ok
+test_remove (tests.test_store.StoreTest) ... ok
+test_total (tests.test_store.StoreTest) ... ok
+test_empty (tests.test_store.StoreTest) ... ok
+test_discount (tests.test_store.StoreTest) ... ok
+test_clear (tests.test_store.StoreTest) ... ok
+test_refund (tests.test_order.OrderTest) ... FAIL
+
+======================================================================
+FAIL: test_refund (tests.test_order.OrderTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/dev/shop/tests/test_order.py", line 41, in test_refund
+    self.assertEqual(order.refund(), 120)
+AssertionError: 0 != 120
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.004s
+
+FAILED (failures=1)

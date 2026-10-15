@@ -47,7 +47,7 @@ func init() {
 			Sniff: anyLine(`^\s*(PASS|FAIL)\s+\S+\.(test|spec)\.\w+|^Tests:\s+\d`)},
 		Spec{Type: Pytest, Cmds: []string{"pytest", "py.test"}, Priority: 48,
 			Sniff: anyLine(`^=+ (test session starts|FAILURES|ERRORS|short test summary info) =+$|^=+ .*\d+ (passed|failed).* in [\d.]+s`)},
-		Spec{Type: CargoTest, Cmds: []string{"cargo test", "cargo nextest"}, Priority: 48,
+		Spec{Type: CargoTest, Cmds: []string{"cargo test", "cargo nextest", "cargo bench", "cargo llvm-cov", "cargo tarpaulin", "cargo miri"}, Priority: 48,
 			Sniff: anyLine(`^test result: (ok|FAILED)\. \d+ passed`)},
 		Spec{Type: Mocha, Cmds: []string{"mocha"}, Priority: 48, Sniff: anyLine(`^\s+\d+ passing \(\d+m?s\)`)},
 		Spec{Type: RSpec, Cmds: []string{"rspec"}, Priority: 48, Sniff: anyLine(`^\d+ examples?, \d+ failures?`)},

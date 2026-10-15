@@ -1,0 +1,28 @@
+Compiling 4 files (.ex)
+Generated shop app
+Running ExUnit with seed: 214356, max_cases: 16
+
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+F
+
+  1) test refund returns the total (Shop.OrderTest)
+     test/shop/order_test.exs:41
+     Assertion with == failed
+     code:  assert Order.refund(order) == 120
+     left:  0
+     right: 120
+     stacktrace:
+       (elixir) lib/enum.ex:1234: Enum.each/2
+       (ex_unit) lib/ex_unit/runner.ex:432: ExUnit.Runner.exec_test/1
+       (ex_unit) lib/ex_unit/runner.ex:380: anonymous fn/4 in ExUnit.Runner.spawn_test_monitor/4
+       test/shop/order_test.exs:41: (test)
+
+Finished in 0.1 seconds (0.05s async, 0.05s sync)
+361 tests, 1 failure
+
+Randomized with seed 214356

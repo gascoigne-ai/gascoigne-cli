@@ -1,0 +1,17 @@
+  ✘  12 [chromium] › checkout.spec.ts:20:5 › pays with card (5.0s)
+
+  1) [chromium] › checkout.spec.ts:20:5 › pays with card ──────────────────────────────
+
+    Error: expect(locator).toBeVisible()
+
+    Locator: getByText('Thank you')
+    Expected: visible
+    Received: <element(s) not found>
+
+      at /home/dev/shop/tests/checkout.spec.ts:28:40
+… 1 dependency stack frame omitted
+
+  1 failed
+    [chromium] › checkout.spec.ts:20:5 › pays with card
+  11 passed (14s)
+… 11 passing test lines omitted

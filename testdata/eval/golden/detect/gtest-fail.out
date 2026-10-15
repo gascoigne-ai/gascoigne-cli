@@ -1,0 +1,13 @@
+../tests/order_test.cc:88: Failure
+Expected equality of these values:
+  order.refunded()
+    Which is: false
+  true
+[  FAILED  ] Order.Refund (0 ms)
+
+[  PASSED  ] 13 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Order.Refund
+
+1 FAILED TEST
+… 13 passing test lines omitted

@@ -1,0 +1,16 @@
+… 1 line above repeated 5 more times
+F
+
+  1) test refund returns the total (Shop.OrderTest)
+     test/shop/order_test.exs:41
+     Assertion with == failed
+     code:  assert Order.refund(order) == 120
+     left:  0
+     right: 120
+     stacktrace:
+… 3 dependency stack frames omitted
+       test/shop/order_test.exs:41: (test)
+
+Finished in 0.1 seconds (0.05s async, 0.05s sync)
+361 tests, 1 failure
+… 1 passing test line omitted

@@ -12,6 +12,10 @@ All notable changes to gascoigne. The format follows
   Zig, Kotlin, GHC/cabal, Dart, rubocop, pylint, formatters and other linters is recognised and grouped
   like compiler output; any unknown tool printing `file:line: error` lines is handled as `build/generic`.
   Dialects can be declared as one `detect.Row` with their own command and content examples.
+- Test output of ctest, GoogleTest, Catch2, sbt/ScalaTest, dub, PHPUnit/Pest, swift test, mix test, minitest,
+  unittest, node:test/TAP, Playwright, Cypress, Karma, flutter/dart test and cabal/stack: passes are counted,
+  failures and summaries kept, dependency frames dropped. `cargo bench`, `llvm-cov`, `tarpaulin` and `miri` use
+  the cargo rules.
 - Source outline knows D (`.d`, `.di`) and more C++ (`.cxx`, `.hh`, `.hxx`, `.ipp`, `.tpp`, `.inl`, `.cppm`,
   `.ixx`, `.cu`, `.cuh`) and Scala (`.sc`, `.sbt`) extensions; Rust is also recognised without a file name.
 

@@ -1,0 +1,90 @@
+TAP version 13
+# Subtest: adds item 1
+ok 1 - adds item 1
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 2
+ok 2 - adds item 2
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 3
+ok 3 - adds item 3
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 4
+ok 4 - adds item 4
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 5
+ok 5 - adds item 5
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 6
+ok 6 - adds item 6
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 7
+ok 7 - adds item 7
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 8
+ok 8 - adds item 8
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 9
+ok 9 - adds item 9
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 10
+ok 10 - adds item 10
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 11
+ok 11 - adds item 11
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: adds item 12
+ok 12 - adds item 12
+  ---
+  duration_ms: 0.5
+  type: 'test'
+  ...
+# Subtest: refunds the total
+not ok 13 - refunds the total
+  ---
+  duration_ms: 1.2
+  type: 'test'
+  location: '/home/dev/shop/test/order.test.js:41:1'
+  failureType: 'testCodeFailure'
+  error: 'Expected values to be strictly equal:\n\n0 !== 120\n'
+  code: 'ERR_ASSERTION'
+  stack: |-
+    TestContext.<anonymous> (/home/dev/shop/test/order.test.js:42:10)
+    node:internal/test_runner/test:632:20
+  ...
+1..13
+# tests 13
+# pass 12
+# fail 1

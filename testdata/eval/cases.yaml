@@ -552,6 +552,95 @@
   expect_type: doc/text
   unchanged: true
 
+# --- test runners (declared as rows)
+- name: test/ctest-fail
+  file: test/ctest-fail.txt
+  attrs: { cmd: ctest --output-on-failure }
+  expect_type: test/ctest
+  keep: ["db_unit", "92% tests passed, 1 tests failed out of 12", "Errors while running CTest"]
+  min_saved: 37
+- name: detect/ctest-fail
+  file: test/ctest-fail.txt
+  expect_type: test/ctest
+- name: test/gtest-fail
+  file: test/gtest-fail.txt
+  attrs: { cmd: ./build/shop_tests }
+  expect_type: test/gtest
+  keep: ["order_test.cc:88: Failure", "Order.Refund", "1 FAILED TEST"]
+  min_saved: 77
+- name: detect/gtest-fail
+  file: test/gtest-fail.txt
+  expect_type: test/gtest
+- name: test/sbt-test-fail
+  file: test/sbt-test-fail.txt
+  attrs: { cmd: sbt test }
+  expect_type: test/sbt
+  keep: ["should refund the total *** FAILED ***", "0 did not equal 120 (OrderSpec.scala:41)", "Tests: succeeded 8, failed 1"]
+  min_saved: 45
+- name: detect/sbt-test-fail
+  file: test/sbt-test-fail.txt
+  expect_type: test/sbt
+- name: test/phpunit-fail
+  file: test/phpunit-fail.txt
+  attrs: { cmd: vendor/bin/phpunit }
+  expect_type: test/phpunit
+  keep: ["Tests\\OrderTest::testRefund", "Failed asserting that 0 matches expected 120.", "Tests: 120, Assertions: 240, Failures: 1."]
+  min_saved: 17
+- name: test/swift-test-fail
+  file: test/swift-test-fail.txt
+  attrs: { cmd: swift test }
+  expect_type: test/swift
+  keep: ["OrderTests.swift:41", "XCTAssertEqual failed", "Executed 8 tests, with 1 failure"]
+  min_saved: 71
+- name: detect/swift-test-fail
+  file: test/swift-test-fail.txt
+  expect_type: test/swift
+- name: test/mix-test-fail
+  file: test/mix-test-fail.txt
+  attrs: { cmd: mix test }
+  expect_type: test/mix
+  keep: ["1) test refund returns the total (Shop.OrderTest)", "test/shop/order_test.exs:41", "361 tests, 1 failure"]
+  min_saved: 50
+- name: detect/mix-test-fail
+  file: test/mix-test-fail.txt
+  expect_type: test/mix
+- name: test/unittest-fail
+  file: test/unittest-fail.txt
+  attrs: { cmd: python -m unittest discover }
+  expect_type: test/unittest
+  keep: ["FAIL: test_refund (tests.test_order.OrderTest)", "AssertionError: 0 != 120", "FAILED (failures=1)"]
+  min_saved: 75
+- name: detect/unittest-fail
+  file: test/unittest-fail.txt
+  expect_type: test/unittest
+- name: test/node-test-fail
+  file: test/node-test-fail.txt
+  attrs: { cmd: node --test }
+  expect_type: test/tap
+  keep: ["not ok 13 - refunds the total", "/home/dev/shop/test/order.test.js:41:1", "# fail 1"]
+  min_saved: 73
+- name: detect/node-test-fail
+  file: test/node-test-fail.txt
+  expect_type: test/tap
+- name: test/playwright-fail
+  file: test/playwright-fail.txt
+  attrs: { cmd: npx playwright test }
+  expect_type: test/playwright
+  keep: ["checkout.spec.ts:20:5", "expect(locator).toBeVisible()", "11 passed (14s)"]
+  min_saved: 62
+- name: detect/playwright-fail
+  file: test/playwright-fail.txt
+  expect_type: test/playwright
+- name: test/flutter-test-fail
+  file: test/flutter-test-fail.txt
+  attrs: { cmd: flutter test }
+  expect_type: test/dart
+  keep: ["Order refund [E]", "test/order_test.dart 41:7", "Some tests failed."]
+  min_saved: 83
+- name: detect/flutter-test-fail
+  file: test/flutter-test-fail.txt
+  expect_type: test/dart
+
 # --- cat (code)
 - file: cat/server.go.txt
   attrs: { cmd: cat net/http/server.go }
