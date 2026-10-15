@@ -228,3 +228,9 @@ func TestBranchBlankLines(t *testing.T) {
 		t.Fatal("branch dropped everything")
 	}
 }
+
+func TestParseCommitLineBare(t *testing.T) {
+	for _, l := range []string{"commit", "commit "} {
+		_ = parseCommitLine(l) // must not panic
+	}
+}

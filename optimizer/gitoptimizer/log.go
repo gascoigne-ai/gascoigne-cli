@@ -89,7 +89,10 @@ func statLine(l string) string {
 
 func parseCommitLine(l string) commit {
 	f := strings.Fields(l)
-	c := commit{sha: f[1][:min(7, len(f[1]))]}
+	var c commit
+	if len(f) > 1 {
+		c.sha = f[1][:min(7, len(f[1]))]
+	}
 	if i := strings.Index(l, "("); i > 0 {
 		c.refs = l[i:]
 	}
