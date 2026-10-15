@@ -27,8 +27,8 @@ func init() {
 		Spec{Type: Systemctl, Cmds: []string{"systemctl list-units", "systemctl list-unit-files", "systemctl list-timers", "systemctl --failed"}, Priority: 60,
 			Sniff: firstLine(`^\s*(UNIT\s+(LOAD|FILE)\s+|NEXT\s+LEFT\s+LAST)`)},
 		Spec{Type: DockerPS, Cmds: []string{"docker ps", "docker images", "docker image ls", "docker container ls", "docker volume ls", "docker network ls",
-			"podman ps", "podman images", "docker compose ps"}, Priority: 60,
-			Sniff: firstLine(`^(CONTAINER ID\s+IMAGE|REPOSITORY\s+TAG\s+IMAGE ID|DRIVER\s+VOLUME NAME|NETWORK ID\s+NAME|NAME\s+IMAGE\s+COMMAND\s+SERVICE)`)},
+			"podman ps", "podman images", "docker compose ps", "docker stats", "podman stats", "nerdctl ps", "nerdctl images", "crictl ps", "crictl images"}, Priority: 60,
+			Sniff: firstLine(`^(CONTAINER ID\s+IMAGE|CONTAINER ID\s+NAME\s+CPU %|REPOSITORY\s+TAG\s+IMAGE ID|DRIVER\s+VOLUME NAME|NETWORK ID\s+NAME|NAME\s+IMAGE\s+COMMAND\s+SERVICE)`)},
 		Spec{Type: Boxed, Priority: 61, Sniff: all(anyLine(`^\s*[+┌╔][-─═]{3,}`), ratio(`[|│]`, 0.6))},
 		Spec{Type: Aligned, Priority: 85, Sniff: alignedTable},
 	)

@@ -720,6 +720,28 @@
   file: pkg/swift-package-resolve.txt
   expect_type: pkg/swift
 
+# --- text lockfiles
+- name: lock/yarn
+  file: lock/yarn.lock
+  attrs: { cmd: cat yarn.lock }
+  expect_type: data/lock
+  keep: ["yarn.lock: 34 packages", "typescript@", "@babel/core@"]
+  min_saved: 85
+- name: detect/yarn-lock
+  file: lock/yarn.lock
+  expect_type: data/lock
+- name: detect/go-sum
+  file: lock/go.sum
+  expect_type: data/lock
+  keep: ["github.com/gin-gonic/gin v", "golang.org/x/net v"]
+  min_saved: 70
+- name: detect/gemfile-lock
+  file: lock/Gemfile.lock
+  expect_type: data/lock
+  keep: ["  rails ", "PLATFORMS", "BUNDLED WITH", "   2.5.3"]
+  min_saved: 50
+
+
 # --- cat (code)
 - file: cat/server.go.txt
   attrs: { cmd: cat net/http/server.go }

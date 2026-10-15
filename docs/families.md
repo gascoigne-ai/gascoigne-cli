@@ -126,7 +126,7 @@ composed: their content goes to the test, build or pkg engine.
 |---|---|---|
 | `vcs/git-status` | `git status` | hints dropped; staged, unstaged and untracked paths grouped, siblings merged (`internal/service/{pipeline.go,service.go}`) |
 | `vcs/git-log` | `git log` | one line per commit (hash, date, author, subject, `+N body lines`); `--stat`/`--name-only`/`--name-status` file lists kept under it, stat bars reduced to their signs (`\| 140 +-`) |
-| `vcs/git-diff` | `git diff`, `git show`, `*.diff`, `*.patch` | context cut to `context_lines`, long files capped; small in-line edits as word diffs (`~[-var-]{+const+} minUsagePadding = 25`); lockfiles (`go.sum`, `package-lock.json`, `Cargo.lock`, …) and generated files (`*.pb.go`, `*.min.js`, `Code generated … DO NOT EDIT`) folded to `+N -M lines folded`; a removed block of `min_move_lines`+ lines that comes back verbatim elsewhere (moved code, same or other file, indentation aside) becomes `-… 50 lines moved to internal/compress/rows/hash.go:8` |
+| `vcs/git-diff` | `git diff`, `git show`, `gh pr diff`, `glab mr diff`, `jj diff --git`, `hg diff --git`, `*.diff`, `*.patch` | context cut to `context_lines`, long files capped; small in-line edits as word diffs (`~[-var-]{+const+} minUsagePadding = 25`); lockfiles (`go.sum`, `package-lock.json`, `Cargo.lock`, …) and generated files (`*.pb.go`, `*.min.js`, `Code generated … DO NOT EDIT`) folded to `+N -M lines folded`; a removed block of `min_move_lines`+ lines that comes back verbatim elsewhere (moved code, same or other file, indentation aside) becomes `-… 50 lines moved to internal/compress/rows/hash.go:8` |
 | `vcs/git-blame` | `git blame`, `git annotate` | runs of lines by one commit grouped |
 | `vcs/git-branch`, `vcs/git-remote` | `git branch`; `git push/pull/fetch/clone` | mirrored remote branches and transfer progress dropped |
 | `vcs/gh-list`, `vcs/gh-view` | `gh pr list`, `gh issue list`, …; `gh pr view` | lists as tables |
@@ -172,7 +172,8 @@ query matches and both ends stay.
 | `table/ps`, `table/top` | `ps`, `top`, `htop` |
 | `table/ss`, `table/lsof` | `ss`, `netstat`; `lsof` |
 | `table/systemctl` | `systemctl list-units/list-unit-files/list-timers`, `--failed` |
-| `table/docker` | `docker ps/images/volume ls/network ls`, `podman ps` |
+| `table/docker` | `docker ps/images/volume ls/network ls/stats`, `podman ps/stats`, `nerdctl ps`, `crictl ps` |
+| `table/sys` | `lsblk`, `lsmod`, `w` |
 | `table/aligned`, `table/boxed` | any aligned or box-drawn table (sniffed) |
 
 `ps aux`: 12,762 → 1,473 (88.5%). `lsof`: 10,471 → 1,385 (86.8%).
@@ -187,6 +188,7 @@ query matches and both ends stay.
 | `data/csv` | `*.csv`, `*.tsv` | table engine |
 | `data/xml` | `*.xml`, `pom.xml`, `*.csproj`, feeds, `xmllint` | runs of repeated siblings sampled, failures kept |
 | `data/toml` | `*.toml`, `Cargo.lock`, `poetry.lock`, `uv.lock` | lockfiles one line per package |
+| `data/lock` | `yarn.lock`, `go.sum`, `Gemfile.lock` | `name@version` per package; resolved URLs, integrity hashes and dependency edges dropped (yarn.lock: 4,097 → 338) |
 | `data/ipynb` | `*.ipynb` | cells as `# %% [3] code In[2]` + source; text outputs capped (`max_output_lines`), images and widgets as `[image/png 46 KB]`, error tracebacks whole, metadata dropped (20,144 → 896) |
 
 The crusher, in order: drop empty values, shorten hashes, cut long strings; turn arrays of

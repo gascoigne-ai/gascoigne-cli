@@ -21,6 +21,9 @@ All notable changes to gascoigne. The format follows
   the cargo rules.
 - Package manager output of Composer, Bundler/gem, mix, pub, SwiftPM, NuGet, conda/mamba, deno, Nix, Flatpak/snap
   and `mvn dependency:*`: progress and download lines dropped, installs folded into lists, failures kept.
+- Text lockfiles (`yarn.lock`, `go.sum`, `Gemfile.lock`) shrink to `name@version` lists (`data/lock`). `docker stats`,
+  `nerdctl`, `crictl`, `lsblk`, `lsmod`, `w` are recognised as tables; `gh pr diff`, `glab mr diff`, `jj`/`hg` git-style
+  diffs and `gh pr checks`, `glab` listings use the git and forge engines.
 - Stack traces: runs of runtime and framework frames (JVM/Scala/Kotlin, Python site-packages, Rust backtraces, Ruby
   gems, .NET, PHP vendor, gdb/lldb and sanitizer frames in libc/libstdc++, D runtime) fold into one count
   (`trace.min_frames`).

@@ -257,6 +257,10 @@ pkg/pub-get	265	0	0
 detect/pub-get	265	0	0
 pkg/swift-package-resolve	54	0	16
 detect/swift-package-resolve	54	0	16
+lock/yarn	338	0	109
+detect/yarn-lock	338	0	109
+detect/go-sum	464	2	4
+detect/gemfile-lock	315	0	0
 cat/server.go	11420	88	28
 cat/router.go	854	0	0
 cat/args.go	1177	0	2

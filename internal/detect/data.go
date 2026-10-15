@@ -11,6 +11,7 @@ const (
 	XML    = "data/xml"
 	TOML   = "data/toml"
 	IPYNB  = "data/ipynb" // Jupyter notebooks
+	Lock   = "data/lock"  // text lockfiles: yarn.lock, go.sum, Gemfile.lock
 )
 
 func init() {
