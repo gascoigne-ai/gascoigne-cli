@@ -43,6 +43,7 @@ var (
 	// eslint stylish: path line, then "  12:5  error  msg  rule"
 	eslintRowRe = lazyre.New(`^\s+(\d+):(\d+)\s+(error|warning)\s+(.+?)\s{2,}(\S+)$`)
 	eslintFile  = lazyre.New(`^(/|\./|[A-Za-z]:\\)?\S+\.[jt]sx?$|^\S+\.(vue|svelte|mjs|cjs|css|scss|sass|less|ya?ml|md)$`)
+	noteRe = lazyre.New(`^(recursively )?required (from|by)\b`)
 	// dart analyze: "  error - lib/main.dart:12:5 - msg - code"
 	dartRe = lazyre.New(`^\s+(error|warning|info) [-•] (\S+?):(\d+):(\d+) [-•] (.+?) [-•] (\w+)$`)
 	// kotlinc: "e: file:///src/Main.kt:12:5 Unresolved reference: x"
@@ -70,6 +71,7 @@ func Compress(lines []string, r Rules) []string {
 	if r.MaxFrame == 0 {
 		r.MaxFrame = 4
 	}
+	lines = collapse(lines, 2)
 	var (
 		diags   []*Diagnostic
 		other   []string // kept non-diagnostic lines, in order, as markers into diags
@@ -175,7 +177,11 @@ func match(t string) *Diagnostic {
 		return &Diagnostic{File: s[1], Line: atoi(s[2]), Col: atoi(s[3]), Severity: strings.ToLower(s[4]), Code: s[5], Message: s[6]}
 	}
 	if s := colonRe.FindStringSubmatch(t); s != nil && !strings.Contains(s[1], " ") {
-		return &Diagnostic{File: s[1], Line: atoi(s[2]), Col: atoi(s[3]), Severity: s[4], Code: strings.Trim(s[5], "[]"), Message: s[6]}
+		d := &Diagnostic{File: s[1], Line: atoi(s[2]), Col: atoi(s[3]), Severity: s[4], Code: strings.Trim(s[5], "[]"), Message: s[6]}
+		if d.Severity == "" && noteRe.MatchString(d.Message) {
+			d.Severity = "note" // gcc's instantiation chain: "required from here"
+		}
+		return d
 	}
 	return nil
 }

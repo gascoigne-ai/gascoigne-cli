@@ -742,6 +742,13 @@
   min_saved: 50
 
 
+- name: build/cmake-cpp-errors
+  file: build/cmake-cpp-errors.txt
+  attrs: { cmd: cmake --build build }
+  expect_type: build/cmake
+  min_saved: 75
+  keep: ["static assertion failed: Box depth limit", "include/core/box.h", "undefined reference (3 symbols): net::connect(int), net::close(int), sqlite3_open", "collect2: error: ld returned 1 exit status"]
+
 # --- cat (code)
 - file: cat/server.go.txt
   attrs: { cmd: cat net/http/server.go }

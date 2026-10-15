@@ -24,6 +24,9 @@ All notable changes to gascoigne. The format follows
 - Text lockfiles (`yarn.lock`, `go.sum`, `Gemfile.lock`) shrink to `name@version` lists (`data/lock`). `docker stats`,
   `nerdctl`, `crictl`, `lsblk`, `lsmod`, `w` are recognised as tables; `gh pr diff`, `glab mr diff`, `jj`/`hg` git-style
   diffs and `gh pr checks`, `glab` listings use the git and forge engines.
+- Compiler output: runs of C++ template instantiation notes and include chains keep their ends and count the
+  middle; a linker's `undefined reference` lines become one list of symbols; gcc's "required from" lines count as
+  notes, not errors.
 - Stack traces: runs of runtime and framework frames (JVM/Scala/Kotlin, Python site-packages, Rust backtraces, Ruby
   gems, .NET, PHP vendor, gdb/lldb and sanitizer frames in libc/libstdc++, D runtime) fold into one count
   (`trace.min_frames`).

@@ -1,0 +1,19 @@
+In file included from /home/dev/shop/include/core/a.h:3,
+                 from /home/dev/shop/include/core/b.h:5,
+… 3 include chain lines omitted
+                 from /home/dev/shop/src/net.cc:1:
+/home/dev/shop/include/core/box.h: In instantiation of 'struct core::Box<0>':
+/home/dev/shop/include/core/box.h
+  20:12 note recursively required from 'struct core::Box<1>'
+  9:7 error static assertion failed: Box depth limit
+    9 |       static_assert(N < 16, "Box depth limit");
+    |                     ~~^~~~
+/home/dev/shop/src/net.cc
+  44:18 note required from here
+… 24 template instantiation notes omitted
+gmake[2]: *** [CMakeFiles/app.dir/build.make:90: CMakeFiles/app.dir/src/net.cc.o] Error 1
+undefined reference (3 symbols): net::connect(int), net::close(int), sqlite3_open
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/Makefile2:83: CMakeFiles/app.dir/all] Error 2
+gmake: *** [Makefile:91: all] Error 2
+1 error, 2 notes in 2 files
