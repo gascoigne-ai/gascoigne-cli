@@ -100,6 +100,5 @@ func (o *Optimizer) csv(text string, query []string) string {
 		return text
 	}
 	t := table.Table{Header: records[0], Rows: records[1:]}
-	return compress.Join(table.Render(t, table.Options{MaxRows: o.cfg.MaxRows, MaxCell: o.cfg.MaxCell,
-		Rows: sample.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3, Query: query}}))
+	return compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query)))
 }

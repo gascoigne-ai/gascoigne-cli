@@ -189,6 +189,13 @@ type Options struct {
 	Rows    sample.Options
 }
 
+// ForQuery is the sampling every table optimizer uses: ends, anomalies and
+// the best matches of query.
+func ForQuery(maxRows, maxCell int, query []string) Options {
+	return Options{MaxRows: maxRows, MaxCell: maxCell,
+		Rows: sample.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3, Query: query}}
+}
+
 // Render prints the table compactly.
 func Render(t Table, o Options) []string {
 	out := append([]string{}, t.Before...)

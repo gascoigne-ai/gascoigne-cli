@@ -31,10 +31,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 			p.Set(payload.AttrSkip, "table: no table found")
 			continue
 		}
-		p.Blocks[i].Text = compress.Join(table.Render(t, table.Options{
-			MaxRows: o.cfg.MaxRows, MaxCell: o.cfg.MaxCell,
-			Rows: sample.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3, Query: query},
-		}))
+		p.Blocks[i].Text = compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query)))
 	}
 	return nil
 }

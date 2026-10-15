@@ -58,8 +58,7 @@ func (o *Optimizer) block(b payload.Block, query []string) (string, error) {
 		return jsonx.Render(values, false, &o.cfg.JSON, query)
 	}
 	if t, ok := table.Parse(compress.Lines(compress.StripANSI(b.Text))); ok {
-		return compress.Join(table.Render(t, table.Options{MaxRows: o.cfg.MaxRows, MaxCell: o.cfg.MaxCell,
-			Rows: sample.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3, Query: query}})), nil
+		return compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query))), nil
 	}
 	if docs, err := yamlx.Docs(b.Text); err == nil && structured(docs) {
 		for _, d := range docs {
