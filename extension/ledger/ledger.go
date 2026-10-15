@@ -63,7 +63,7 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 	if err != nil {
 		return err
 	}
-	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &step{}, &raw{}, &failure{}, &usage{}, &toolStat{}); err != nil {
+	if err := l.db.WithContext(ctx).AutoMigrate(&event{}, &step{}, &raw{}, &failure{}, &usage{}, &toolStat{}, &dailyStat{}, &dailyStepStat{}); err != nil {
 		return fmt.Errorf("ledger migrate: %w", err)
 	}
 	if err := l.migrateKeys(ctx); err != nil {
@@ -76,6 +76,9 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 		return err
 	}
 	if err := l.pruneEvents(ctx); err != nil {
+		return err
+	}
+	if err := l.pruneRollup(ctx); err != nil {
 		return err
 	}
 	return l.prune(ctx)
@@ -101,13 +104,17 @@ func (l *Ledger) prune(ctx context.Context) error {
 }
 
 // pruneEvents drops runs, their steps, API usage and failure history older
-// than EventsTTL; 0 keeps them all.
+// than EventsTTL; 0 keeps them all. The runs and steps are first added to the
+// daily rollups, in the same transaction, so their totals outlive them.
 func (l *Ledger) pruneEvents(ctx context.Context) error {
 	if l.cfg.EventsTTL == 0 {
 		return nil
 	}
 	cutoff := l.now().Add(-l.cfg.EventsTTL).UnixMilli()
 	return l.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := rollUp(tx, cutoff); err != nil {
+			return err
+		}
 		old := tx.Model(&event{}).Select("id").Where("ts < ?", cutoff)
 		if err := tx.Where("event_id IN (?)", old).Delete(&step{}).Error; err != nil {
 			return err

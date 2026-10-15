@@ -13,11 +13,12 @@
 **Rerequested**: an `optimized` event becomes `rerequested` when the agent then asks for the original: a full fetch (`MarkFailure` with `raw_requested` marks the source's latest optimized run) or a raw rerun (`Record` of a bypass with a `raw requested` reason marks the earlier optimized run of that source and session). `migrateRerequested` applies this once to old data (`user_version` 2). Stats count a rerequested run as the agent read it: the optimized result plus the original (out = out + raw), so savings net out the give-back; `Ledger.Impact` / `GET /api/impact` split gross savings and give-back per day for the dashboard chart. The dashboard's Raw filter is the other case: a raw request with no earlier run of that source.
 | `steps` | per event, each optimizer that changed tokens: optimizer, family, tokens before/after |
 | `raw` | originals, gzip-compressed (plain JSON rows from before still read); TTL-pruned. `gascoigne flush [-older]` / `POST /api/flush` delete and VACUUM |
+| `daily_stats`, `daily_step_stats` | totals of runs and steps pruned at `events_ttl`, per local day and agent, model, command, route, outcome (steps: optimizer, family, dialect; `rollup.go`). Added in the same transaction that deletes the runs; no session or reason; `Ledger.Stats` merges them into every grouping that has them, a `-since` inside a rolled-up day counts the whole day. Pruned at `rollup_ttl` (0, forever) |
 | `failures` | per-key failure count |
 | `tool_stats` | per day, agent, MCP server, tool: definition tokens (last listing that day) and calls. Written by `mcp-proxy` through the optional `mcptool.ToolStatRecorder` (not a `component/` contract); pruned at `stats_ttl` (1 y). Direct servers' calls are the hook's events whose command is the tool name |
 | `usage` | per proxied API request: agent, model, input, cache read/write and output tokens as the provider billed them |
 
-Retention (pruned once, when the ledger starts): `raw` at `raw_ttl` (30 d), `events` with their `steps`, `usage` and `failures` at `events_ttl` (1 y), `tool_stats` at `stats_ttl` (1 y); `0` keeps forever.
+Retention (pruned once, when the ledger starts): `raw` at `raw_ttl` (30 d), `events` with their `steps`, `usage` and `failures` at `events_ttl` (1 y), `tool_stats` at `stats_ttl` (1 y), `daily_stats` / `daily_step_stats` at `rollup_ttl` (forever); `0` keeps forever.
 
 **Raw ids** are sha256 prefixes of the original's text, attrs aside: the same output from two
 sessions is stored once. 8 hex digits, unless that prefix holds another text (then 12, 16, 64):

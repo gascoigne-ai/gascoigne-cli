@@ -10,6 +10,7 @@ Every run through gascoigne is recorded in a local sqlite ledger:
 | `events` | every run: time, session, agent, model, command, source key, route, tokens in/out, outcome, the component that stopped it and why | `events_ttl` (a year by default) |
 | `steps` | per event, each optimizer that changed tokens: family, dialect, tokens before/after | with their event |
 | `tool_stats` | per day, agent, MCP server and tool: the tool's definition size in tokens (as listed by `mcp-proxy`) and how many times it was called. Names and counts only, never arguments or results | `stats_ttl` (a year by default) |
+| `daily_stats`, `daily_step_stats` | daily totals of the runs and steps pruned at `events_ttl`, per day, agent, model, command, route, outcome (steps: optimizer, family, dialect); no session or reason | `rollup_ttl` (forever by default) |
 | `failures` | per source key: how often it optimized badly, when, why | until `forget`, or `events_ttl` after the last failure |
 
 The driver is pure Go (no cgo), in WAL mode, so several gascoigne processes (an agent's hooks,

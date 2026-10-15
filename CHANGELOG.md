@@ -8,6 +8,8 @@ All notable changes to gascoigne. The format follows
 
 ### Added
 
+- `gain` history survives `events_ttl`: runs pruned from the ledger are first added to daily totals (`daily_stats`,
+  `daily_step_stats`), kept forever by default (`ledger.rollup_ttl`). Session and reason groupings only cover stored runs.
 - Source outline for Ruby, Crystal, Elixir, Lua, Julia (`end`-closed blocks), Haskell, Elm, OCaml/F#, Nim (declarations
   with indented bodies) and Clojure, Lisp, Scheme, Racket (parenthesis balance); Perl, R, PowerShell, Groovy, Solidity,
   Move, Odin and Vue/Svelte/Astro use the brace outline. Shebangs identify scripts without a file name.

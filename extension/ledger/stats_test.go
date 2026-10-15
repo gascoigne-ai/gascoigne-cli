@@ -570,3 +570,90 @@ func TestPageMatchesModel(t *testing.T) {
 		}
 	}
 }
+
+// Pruning old runs keeps their totals: every grouping the rollup can answer
+// equals the model of the full history, before and after a restart; session
+// groups only know the runs still stored.
+func TestRollupKeepsTotals(t *testing.T) {
+	for _, seed := range []uint64{1, 2} {
+		t.Run(fmt.Sprint("seed", seed), func(t *testing.T) {
+			l, m := randomLedger(t, seed, 400)
+			cutoff := m.runs[len(m.runs)/2].ev.TS
+			now := time.Now()
+			l.now = func() time.Time { return now }
+			l.cfg.EventsTTL = now.Sub(cutoff)
+			for range 2 { // a second prune has nothing left to add
+				if err := l.pruneEvents(t.Context()); err != nil {
+					t.Fatal(err)
+				}
+			}
+			day := time.Date(cutoff.Year(), cutoff.Month(), cutoff.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, 1)
+			filters := map[string]component.StatsQuery{
+				"all": {}, "agent": {Agent: "a2"}, "model": {Model: "m1"}, "since": {Since: day},
+			}
+			for fname, f := range filters {
+				for _, by := range allGroupings {
+					if by == component.BySession {
+						continue
+					}
+					q := f
+					q.By = by
+					got, err := l.Stats(t.Context(), q)
+					if err != nil {
+						t.Fatalf("%s/%s: %v", fname, by, err)
+					}
+					diffStats(t, fname+"/"+by, got, m.stats(q))
+				}
+			}
+			live := &model{}
+			for _, r := range m.runs {
+				if !r.ev.TS.Before(cutoff) {
+					live.runs = append(live.runs, r)
+				}
+			}
+			q := component.StatsQuery{By: component.BySession}
+			got, err := l.Stats(t.Context(), q)
+			if err != nil {
+				t.Fatal(err)
+			}
+			diffStats(t, "session", got, live.stats(q))
+		})
+	}
+}
+
+func TestRollupTTL(t *testing.T) {
+	l, m := randomLedger(t, 3, 100) // runs 400 to ~340 days ago
+	now := time.Now()
+	l.now = func() time.Time { return now }
+	l.cfg.EventsTTL = time.Hour
+	if err := l.pruneEvents(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	runs := func() (n int) {
+		got, err := l.Stats(t.Context(), component.StatsQuery{By: component.ByOutcome})
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, s := range got {
+			n += s.Runs
+		}
+		return n
+	}
+	if got := runs(); got != len(m.runs) {
+		t.Fatalf("runs after events prune = %d, want %d", got, len(m.runs))
+	}
+	l.cfg.RollupTTL = 370 * 24 * time.Hour
+	if err := l.pruneRollup(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	if got := runs(); got == 0 || got >= len(m.runs) {
+		t.Fatalf("runs after rollup_ttl 370d = %d of %d, want some", got, len(m.runs))
+	}
+	l.cfg.RollupTTL = time.Hour
+	if err := l.pruneRollup(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	if got := runs(); got != 0 {
+		t.Fatalf("runs left = %d", got)
+	}
+}

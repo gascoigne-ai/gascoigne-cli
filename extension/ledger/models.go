@@ -55,3 +55,34 @@ type failure struct {
 	LastTS int64  `gorm:"not null"`
 	Reason string `gorm:"not null"`
 }
+
+// dailyStat holds the totals of runs pruned at events_ttl, one row per local
+// day and dimension. It has no session or reason: those stay with the runs.
+type dailyStat struct {
+	Day       string `gorm:"primaryKey"` // local YYYY-MM-DD
+	Agent     string `gorm:"primaryKey"`
+	Model     string `gorm:"primaryKey"`
+	Command   string `gorm:"primaryKey"`
+	Route     string `gorm:"primaryKey"`
+	Outcome   string `gorm:"primaryKey"`
+	Runs      int    `gorm:"not null"`
+	RawTokens int    `gorm:"not null"`
+	OutTokens int    `gorm:"not null"` // as events count it: a rerequested run adds its original
+	FirstTS   int64  `gorm:"not null"`
+	LastTS    int64  `gorm:"not null"`
+}
+
+// dailyStepStat is dailyStat for the optimizer steps of the pruned runs.
+type dailyStepStat struct {
+	Day       string `gorm:"primaryKey"`
+	Agent     string `gorm:"primaryKey"`
+	Model     string `gorm:"primaryKey"`
+	Optimizer string `gorm:"primaryKey"`
+	Family    string `gorm:"primaryKey"`
+	Dialect   string `gorm:"primaryKey"`
+	Runs      int    `gorm:"not null"`
+	RawTokens int    `gorm:"not null"`
+	OutTokens int    `gorm:"not null"`
+	FirstTS   int64  `gorm:"not null"`
+	LastTS    int64  `gorm:"not null"`
+}

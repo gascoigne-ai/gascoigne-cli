@@ -14,6 +14,8 @@ const (
 	DefaultStatsTTL = 365 * 24 * time.Hour
 	// DefaultEventsTTL keeps runs, usage and failure history a year.
 	DefaultEventsTTL = 365 * 24 * time.Hour
+	// DefaultRollupTTL keeps the daily totals of pruned runs forever.
+	DefaultRollupTTL time.Duration = 0
 )
 
 // EnvPath overrides the configured path; eval uses it to isolate runs.
@@ -29,6 +31,10 @@ type Config struct {
 	// EventsTTL is how long runs (with their steps), API usage and failure
 	// history stay. 0 keeps them forever.
 	EventsTTL time.Duration `yaml:"events_ttl"`
+	// RollupTTL is how long the daily totals of runs pruned at EventsTTL stay
+	// (by day, agent, model, command, route, outcome and optimizer). 0 keeps
+	// them forever.
+	RollupTTL time.Duration `yaml:"rollup_ttl"`
 }
 
 func (c *Config) Validate() error {
@@ -40,6 +46,9 @@ func (c *Config) Validate() error {
 	}
 	if c.EventsTTL < 0 {
 		return errors.New("events_ttl must not be negative")
+	}
+	if c.RollupTTL < 0 {
+		return errors.New("rollup_ttl must not be negative")
 	}
 	return nil
 }

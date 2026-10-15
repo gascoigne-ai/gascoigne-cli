@@ -13,9 +13,10 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 )
 
-// Stats aggregates events by route or session, or optimizer steps by family
-// or optimizer, optionally within one session; biggest savings first.
-func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
+// liveStats aggregates the events still stored by route or session, or
+// optimizer steps by family or optimizer, optionally within one session;
+// biggest savings first. Stats adds the rolled-up history to it.
+func (l *Ledger) liveStats(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
 	var (
 		tx           *gorm.DB
 		group, table string
