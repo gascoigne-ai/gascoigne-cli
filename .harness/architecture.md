@@ -125,15 +125,15 @@ lives in public libs so engines and composite families can reuse it. Families ar
 
 | Family | Engine (lib) | Dialects |
 |---|---|---|
-| `test` | `internal/compress/testreport`: go parsed, others via rules. Passes counted, noise and dependency frames dropped, failures and summaries kept | go, go-json, jest, vitest, bun, mocha, deno, pytest, cargo, rspec, maven, dotnet |
-| `build` | `internal/compress/watch`: watch output keeps the last cycle + earlier result lines. `internal/compress/diag`: diagnostics grouped by file, maven `symbol:`/`location:` lines kept with their error, identical ones in a file folded with their other lines (`×3, also at 5, 9`), identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed) |
-| `pkg` | `internal/compress/pkgnoise`: progress and downloads dropped, warnings folded by kind | npm, pnpm, yarn, bun, pip, uv, poetry, go-mod, cargo, os |
+| `test` | `internal/compress/testreport`: go parsed, others via rules (`pass`, `noise`, `frames`, `keep` for pass-shaped lines that stay; a missing rule never matches). Passes counted, noise and dependency frames dropped, failures and summaries kept | go, go-json, jest, vitest, bun, mocha, deno, pytest, cargo (also bench, llvm-cov, miri), rspec, maven, dotnet, ctest, gtest, catch, sbt, dub, phpunit, swift, mix, minitest, unittest, tap, playwright, cypress, karma, dart, hspec |
+| `build` | `internal/compress/watch`: watch output keeps the last cycle + earlier result lines. `internal/compress/diag`: diagnostics grouped by file, maven `symbol:`/`location:` lines kept with their error, identical ones in a file folded with their other lines (`×3, also at 5, 9`), identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules (`Noise`, `Strip`, `Tag` for a level prefix such as sbt `[error]`), shapes `file:l:c:`, `file(l,c):` with optional column and code (msvc, dmd), rust/elixir header + location, dart, kotlinc; `chain.go` keeps the ends of runs of template instantiation notes (gcc, clang) and include chains and folds a linker's `undefined reference` lines into one symbol list | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed), cmake, ninja, meson, bazel, cpplint, msvc, dmd, scala, swift, zig, kotlin, haskell, dart, elixir, php, rubocop, pylint, fmt, lint, and `generic` (3+ `file:line: error` lines of any tool) |
+| `pkg` | `internal/compress/pkgnoise`: progress and downloads dropped, warnings and installs folded by kind | npm, pnpm, yarn, bun, pip, uv, poetry, go-mod, cargo, os, composer, gem, mix, pub, swift, nuget, conda, deno, nix, flatpak, mvndeps |
 | `task` | sections; ok/cached ones collapse; failing ones via `internal/compress/compose` | nx, turbo, make, just, gradle, compose, ci |
 | `vcs` | git engine (see below) | git-status, git-log, git-diff, git-remote, git-blame, git-branch, gh-list, gh-view |
 | `search` | grep engine: matches grouped by file (with or without line numbers), identical lines in a file merged (`3,9: text`, `2× text`); with a `query`, the per-file cap keeps the best BM25 matches | grep, rg, ag, git-grep |
 | `fs` | ls engine: listings, tree, paths by directory, du largest, df real disks. cat: comments dropped, outlines (see Source files) | ls, tree, find, du, df, code |
-| `table` | `internal/compress/table`: parses boxed/aligned/ruled/fixed-width tables, hoists constants, cuts cells; rows via `internal/compress/sample` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, aligned, boxed |
-| `data` | json: `internal/compress/jsonx` crusher. YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry | json, ndjson, yaml, csv, xml, toml |
+| `table` | `internal/compress/table`: parses boxed/aligned/ruled/fixed-width tables, hoists constants, cuts cells; rows via `internal/compress/sample` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, sys, aligned, boxed |
+| `data` | json: `internal/compress/jsonx` crusher. YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry; text lockfiles (`lock.go`: yarn.lock, go.sum, Gemfile.lock) as `name@version` lists | json, ndjson, yaml, csv, xml, toml, ipynb, lock |
 | `log` | log engine (see below) | app, journal, syslog, docker, kubectl, access, cloudwatch, gcp, azure |
 | `doc` | markdown/rst and man/help (see below) | markdown, rst, man, help (+ text: dedupe) |
 | `web` | html: `internal/compress/htmlx` → markdown (see below). http: transport headers and TLS chatter dropped, body by type | html, http |
@@ -191,16 +191,23 @@ lives in public libs so engines and composite families can reuse it. Families ar
 1. **`embedjson`** (`optimizer/embedjsonoptimizer`, first): JSON values with record arrays
    inside log/test/build/task/text blocks (`jsonx.Spans`) are crushed in place by jsonx; the text
    around them stays byte-exact.
-2. *Family engines.*
-3. **`dense`** (`optimizer/denseoptimizer`): long space-free lines (minified code, base64,
+2. **`trace`** (`optimizer/traceoptimizer`, `internal/compress/trace`, runs before the family engines
+   on test/build/task/log/doc blocks): recursion cycles once with a count, Go goroutines on one
+   stack once, and runs of at least `min_frames` runtime or framework frames as one count
+   (`frames.go`: a table of runtimes, each with a frame regex, a noise regex, an optional detail line
+   under a frame, a marker wording and `keepTop` for the throw site of JVM and .NET traces). Rows
+   for JVM, Python, Rust, Ruby, .NET, PHP, gdb/lldb/sanitizers/valgrind (plus ASan's shadow dump) and D.
+   Node frames stay with the family engines. Adding a runtime is a row.
+3. *Family engines.*
+4. **`dense`** (`optimizer/denseoptimizer`): long space-free lines (minified code, base64,
    data URIs) keep head/tail bytes around `…[N bytes dense]…`, once a block holds `min_total`
    such bytes. JSON lines and fs/code read from disk (file attr, `detect.ReadsFile`) are untouched.
-4. **`paths`** (`optimizer/pathsoptimizer`): long path prefixes repeated in
+5. **`paths`** (`optimizer/pathsoptimizer`): long path prefixes repeated in
    test/build/search/log/task blocks → `§1/file.go`, with a legend `[paths: §1=…]` on top of the
    first such block. Greedy by bytes saved, kept only when ≥ `min_saving` tokens, idempotent,
    never fs/data. Legend lines are written, detected and expanded
    by `internal/compress/legend` (also used by `rerun` and the probe).
-5. **`truncate`** (`optimizer/truncateoptimizer`): blocks still over `max_tokens` keep
+6. **`truncate`** (`optimizer/truncateoptimizer`): blocks still over `max_tokens` keep
    head/tail token budgets + `max_errors` error lines from the middle; long lines are cut.
    `skip`: fs/code, data, k8s, cloud.
 

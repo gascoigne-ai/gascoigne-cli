@@ -43,7 +43,7 @@ var (
 	// eslint stylish: path line, then "  12:5  error  msg  rule"
 	eslintRowRe = lazyre.New(`^\s+(\d+):(\d+)\s+(error|warning)\s+(.+?)\s{2,}(\S+)$`)
 	eslintFile  = lazyre.New(`^(/|\./|[A-Za-z]:\\)?\S+\.[jt]sx?$|^\S+\.(vue|svelte|mjs|cjs|css|scss|sass|less|ya?ml|md)$`)
-	noteRe = lazyre.New(`^(recursively )?required (from|by)\b`)
+	noteRe      = lazyre.New(`^(recursively )?required (from|by)\b`)
 	// dart analyze: "  error - lib/main.dart:12:5 - msg - code"
 	dartRe = lazyre.New(`^\s+(error|warning|info) [-•] (\S+?):(\d+):(\d+) [-•] (.+?) [-•] (\w+)$`)
 	// kotlinc: "e: file:///src/Main.kt:12:5 Unresolved reference: x"

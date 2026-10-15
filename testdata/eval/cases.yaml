@@ -434,8 +434,8 @@
   file: build/cmake-fail.txt
   attrs: { cmd: cmake -S . -B build }
   expect_type: build/cmake
-  keep: ["CMake Error at CMakeLists.txt:34 (find_package)", "grpcConfig.cmake", "Configuring incomplete"]
-  min_saved: 74
+  keep: ["CMake Error at CMakeLists.txt:4 (find_package)", "GrpcConfig.cmake", "Configuring incomplete"]
+  min_saved: 22
 - name: detect/cmake-fail
   file: build/cmake-fail.txt
   expect_type: build/cmake
@@ -443,8 +443,8 @@
   file: build/ninja-gcc-fail.txt
   attrs: { cmd: ninja -C build }
   expect_type: build/ninja
-  keep: ["include/db/query.h", "src/db/query.cc", "88", "conn_", "FAILED"]
-  min_saved: 62
+  keep: ["3:1 error ‘Optional’ does not name a type", "‘v’ was not declared in this scope", "ninja: build stopped"]
+  min_saved: 44
 - name: build/bazel-fail
   file: build/bazel-fail.txt
   attrs: { cmd: bazel build //services/orders:server }
@@ -653,7 +653,8 @@
 - name: trace/asan-uaf
   file: trace/asan-uaf.txt
   attrs: { cmd: ./build/shop }
-  keep: ["heap-use-after-free", "shop::Cart::total() const", "/src/cart.cc:41:12", "SUMMARY: AddressSanitizer"]
+  keep: ["heap-use-after-free", "uaf.cc:5", "uaf.cc:4", "uaf.cc:3", "SUMMARY: AddressSanitizer"]
+  min_saved: 67
 
 # --- package managers (declared as rows)
 - name: pkg/composer-install
@@ -742,12 +743,19 @@
   min_saved: 50
 
 
-- name: build/cmake-cpp-errors
-  file: build/cmake-cpp-errors.txt
-  attrs: { cmd: cmake --build build }
-  expect_type: build/cmake
-  min_saved: 75
-  keep: ["static assertion failed: Box depth limit", "include/core/box.h", "undefined reference (3 symbols): net::connect(int), net::close(int), sqlite3_open", "collect2: error: ld returned 1 exit status"]
+
+- name: build/gcc-template-real
+  file: build/gcc-template-real.txt
+  attrs: { cmd: g++ -std=c++20 -fmax-errors=3 -c src/box.cc }
+  expect_type: build/gcc
+  keep: ["static assertion failed: Box depth limit", "src/box.h", "compilation terminated due to -fmax-errors=3."]
+  min_saved: 47
+- name: build/clang-template-real
+  file: build/clang-template-real.txt
+  attrs: { cmd: clang++ -std=c++20 -c tmpl.cc }
+  expect_type: build/clang
+  keep: ["4:19 error static assertion failed due to requirement", "1 error, 4 notes in 1 file"]
+  min_saved: 45
 
 # --- cat (code)
 - file: cat/server.go.txt
@@ -836,6 +844,12 @@
   expect_type: fs/code
   keep: ["(defn add-item", "(defn total [cart]", "(defn apply-coupon [cart code]", "; … L"]
   min_saved: 32
+# A big SQL dump read with cat is data, not source: it must stay doc/text so truncate applies.
+- name: cat/dump-sql
+  file: cat/dump.sql.txt
+  attrs: { cmd: cat dump.sql }
+  expect_type: doc/text
+  min_saved: 60
 - name: detect/go-code
   file: cat/server.go.txt
   expect_type: fs/code

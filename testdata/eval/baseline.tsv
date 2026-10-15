@@ -17,7 +17,7 @@ test/mocha-fail	205	0	0
 test/deno-fail	185	0	0
 test/rspec-fail	279	0	1
 test/cargo-test-fail	226	0	3
-test/maven-test-fail	415	4	11
+test/maven-test-fail	421	4	11
 test/dotnet-test-fail	195	0	1
 detect/pytest	652	0	1
 detect/vitest	429	0	1
@@ -25,7 +25,7 @@ detect/mocha	205	0	0
 detect/deno	185	0	0
 detect/rspec	279	0	1
 detect/cargo-test	226	0	3
-detect/maven-test	415	4	11
+detect/maven-test	421	4	11
 detect/dotnet-test	195	0	1
 build/tsc-watch	180	4	2
 build/tsc-many	722	36	0
@@ -195,9 +195,9 @@ detect/tree	1929	0	0
 detect/find	1632	0	416
 detect/du	189	0	13
 detect/df	161	0	4
-build/cmake-fail	154	0	8
-detect/cmake-fail	154	0	8
-build/ninja-gcc-fail	405	0	9
+build/cmake-fail	177	0	1
+detect/cmake-fail	177	0	1
+build/ninja-gcc-fail	423	0	15
 build/bazel-fail	200	0	31
 build/msvc-errors	211	0	0
 detect/msvc-errors	211	0	0
@@ -240,9 +240,9 @@ test/playwright-fail	171	0	1
 detect/playwright-fail	171	0	1
 test/flutter-test-fail	80	0	0
 detect/flutter-test-fail	80	0	0
-trace/jvm-crash	136	0	0
+trace/jvm-crash	199	0	0
 trace/rust-panic	198	0	5
-trace/asan-uaf	331	0	5
+trace/asan-uaf	409	0	4
 pkg/composer-install	263	0	0
 detect/composer-install	263	0	0
 pkg/bundle-install	276	0	1
@@ -261,7 +261,8 @@ lock/yarn	338	0	109
 detect/yarn-lock	338	0	109
 detect/go-sum	464	2	4
 detect/gemfile-lock	315	0	0
-build/cmake-cpp-errors	322	18	11
+build/gcc-template-real	263	0	0
+build/clang-template-real	191	0	0
 cat/server.go	11420	88	28
 cat/router.go	854	0	0
 cat/args.go	1177	0	2
@@ -278,6 +279,7 @@ cat/cart-elixir-outline	398	0	0
 cat/cart-lua-outline	269	0	0
 cat/cart-haskell-outline	467	0	0
 cat/cart-clojure-outline	339	0	0
+cat/dump-sql	6378	0	0
 detect/go-code	11420	88	28
 npm/install	76	0	2
 npm/install-verbose	76	8	1115

@@ -1,0 +1,38 @@
+In file included from src/box.cc:1:
+src/box.h: In instantiation of ‘struct Box<6>’:
+src/box.h:6:16:   recursively required from ‘struct Box<1>’
+    6 |     Box<N + 1> inner;
+      |                ^~~~~
+src/box.h:6:16:   required from ‘struct Box<0>’
+src/box.cc:3:12:   required from here
+    3 |     Box<0> b;
+      |            ^
+src/box.h:5:21: error: static assertion failed: Box depth limit
+    5 |     static_assert(N < 6, "Box depth limit");
+      |                   ~~^~~
+  • the comparison reduces to ‘(6 < 6)’
+src/box.h: In instantiation of ‘struct Box<7>’:
+src/box.h:6:16:   recursively required from ‘struct Box<1>’
+    6 |     Box<N + 1> inner;
+      |                ^~~~~
+src/box.h:6:16:   required from ‘struct Box<0>’
+src/box.cc:3:12:   required from here
+    3 |     Box<0> b;
+      |            ^
+src/box.h:5:21: error: static assertion failed: Box depth limit
+    5 |     static_assert(N < 6, "Box depth limit");
+      |                   ~~^~~
+  • the comparison reduces to ‘(7 < 6)’
+src/box.h: In instantiation of ‘struct Box<8>’:
+src/box.h:6:16:   recursively required from ‘struct Box<1>’
+    6 |     Box<N + 1> inner;
+      |                ^~~~~
+src/box.h:6:16:   required from ‘struct Box<0>’
+src/box.cc:3:12:   required from here
+    3 |     Box<0> b;
+      |            ^
+src/box.h:5:21: error: static assertion failed: Box depth limit
+    5 |     static_assert(N < 6, "Box depth limit");
+      |                   ~~^~~
+  • the comparison reduces to ‘(8 < 6)’
+compilation terminated due to -fmax-errors=3.

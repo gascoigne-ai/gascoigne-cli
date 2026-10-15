@@ -128,7 +128,7 @@ var languages = []Language{
 	{Name: "scheme", Class: LangOther, Exts: []string{".scm", ".ss", ".rkt"}, Line: ";",
 		Style: StyleParen, Func: `^\((define|define-syntax|define-record-type)\b`},
 	{Name: "erlang", Class: LangOther, Exts: []string{".erl", ".hrl"}, Line: "%"},
-	{Name: "sql", Class: LangOther, Exts: []string{".sql"}, Line: "--", Block: slashBlock},
+	// No .sql row: dumps are data, and as doc/text they shrink 86% where code with no outline would not.
 	{Name: "protobuf", Class: LangOther, Exts: []string{".proto"}, Line: "//", Block: slashBlock},
 	{Name: "graphql", Class: LangOther, Exts: []string{".graphql", ".gql"}, Line: "#"},
 	{Name: "terraform", Class: LangOther, Exts: []string{".tf", ".hcl"}, Line: "#", Strs: tripleStrs, Heredoc: true},

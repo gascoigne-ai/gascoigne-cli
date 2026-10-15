@@ -1,0 +1,19 @@
+In file included from src/box.cc:1:
+src/box.h: In instantiation of ‘struct Box<6>’:
+src/box.h
+  6:16 note recursively required from ‘struct Box<1>’ (×3, same place)
+    6 |     Box<N + 1> inner;
+    |                ^~~~~
+  6:16 note required from ‘struct Box<0>’ (×3, same place)
+  5:21 error static assertion failed: Box depth limit (×3, same place)
+    5 |     static_assert(N < 6, "Box depth limit");
+    |                   ~~^~~
+    • the comparison reduces to ‘(6 < 6)’
+src/box.cc
+  3:12 note required from here (×3, same place)
+    3 |     Box<0> b;
+    |            ^
+src/box.h: In instantiation of ‘struct Box<7>’:
+src/box.h: In instantiation of ‘struct Box<8>’:
+compilation terminated due to -fmax-errors=3.
+3 errors, 9 notes in 2 files

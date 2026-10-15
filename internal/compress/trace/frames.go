@@ -1,6 +1,7 @@
 package trace
 
 import (
+	"cmp"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
@@ -13,14 +14,19 @@ type runtime struct {
 	frame  *lazyre.Regexp // a frame line
 	noise  *lazyre.Regexp // a frame inside the runtime or a framework
 	detail *lazyre.Regexp // optional line under a frame that goes with it
+	what   string         // marker wording, "framework stack frames" when empty
+	// keepTop keeps the first frame under a header line: where the exception
+	// was thrown, even when that is inside the runtime (Objects.requireNonNull).
+	keepTop bool
 }
 
 func re(s string) *lazyre.Regexp { return lazyre.New(s) }
 
 var runtimes = []runtime{
 	{ // JVM: java, scala, kotlin
-		frame: re(`^\s+at [\w$.<>/]+\(.*\)$`),
-		noise: re(`^\s+at (java\.|javax\.|jdk\.|sun\.|com\.sun\.|scala\.|kotlin\.|kotlinx\.|org\.junit|org\.scalatest|org\.apache\.(maven|catalina|tomcat)|org\.springframework\.(aop|cglib|web\.servlet|web\.filter)|io\.netty|akka\.|cats\.effect|zio\.|reactor\.core)`),
+		keepTop: true,
+		frame:   re(`^\s+at [\w$.<>/]+\(.*\)$`),
+		noise:   re(`^\s+at (java\.|javax\.|jdk\.|sun\.|com\.sun\.|scala\.|kotlin\.|kotlinx\.|org\.junit|org\.scalatest|org\.apache\.(maven|catalina|tomcat)|org\.springframework\.(aop|cglib|web\.servlet|web\.filter)|io\.netty|akka\.|cats\.effect|zio\.|reactor\.core)`),
 	},
 	{ // Python: a File line and the source line under it
 		frame:  re(`^\s+File ".*", line \d+`),
@@ -37,16 +43,22 @@ var runtimes = []runtime{
 		noise: re(`^\s+(from )?\S*(/gems/|/rubygems/|/ruby/\d|<internal:)`),
 	},
 	{ // .NET
-		frame: re(`^\s+at [\w.` + "`" + `<>+\[\],]+\(.*\)( in .+:line \d+)?$`),
-		noise: re(`^\s+at (System\.|Microsoft\.|Xunit\.|NUnit\.)`),
+		keepTop: true,
+		frame:   re(`^\s+at [\w.` + "`" + `<>+\[\],]+\(.*\)( in .+:line \d+)?$`),
+		noise:   re(`^\s+at (System\.|Microsoft\.|Xunit\.|NUnit\.)`),
 	},
 	{ // PHP
 		frame: re(`^#\d+ \S+\(\d+\): |^#\d+ \[internal function\]`),
 		noise: re(`^#\d+ \S*vendor/|^#\d+ \[internal function\]`),
 	},
-	{ // gdb, lldb, sanitizers, valgrind: "#3 0x... in fn file:line"
-		frame: re(`^\s*#\d+ +0x[0-9a-f]+ in |^\s*==\d+==\s+(at|by) 0x`),
-		noise: re(`^\s*#\d+ +0x[0-9a-f]+ in (__libc|_start|start_thread|clone|std::|__gnu_cxx|__cxx11|__asan|__interceptor|__sanitizer|operator new|operator delete)|\(/(usr/)?lib[^)]*\)$|^\s*==\d+==\s+(at|by) 0x[0-9A-F]+: (\(below main\)|__libc|_start|start_thread|operator new|malloc|calloc|realloc)`),
+	{ // gdb, lldb, sanitizers, valgrind: "#3 0x... in fn file:line", "#1 0x...  (/usr/lib/libc.so.6+0x27780)"
+		frame: re(`^\s*#\d+ +0x[0-9a-f]+ |^\s*==\d+==\s+(at|by) 0x`),
+		noise: re(`^\s*#\d+ +0x[0-9a-f]+ in (__libc|_start|start_thread|clone|std::|__gnu_cxx|__cxx11|__asan|__interceptor|__sanitizer|operator new|operator delete)|^\s*#\d+ +0x[0-9a-f]+ +(in \S+ )?\(/(usr/)?lib[^)]*\.so[\w.]*\+0x[0-9a-f]+\)|^\s*==\d+==\s+(at|by) 0x[0-9A-F]+: (\(below main\)|__libc|_start|start_thread|operator new|malloc|calloc|realloc)`),
+	},
+	{ // AddressSanitizer's shadow memory dump and legend
+		frame: re(`^Shadow bytes around the buggy address:$|^\s*(=>)?0x[0-9a-f]+:( |\[)[0-9a-f]{2}|^Shadow byte legend|^  [A-Z][A-Za-z ]+:\s+[0-9a-f]{2}( [0-9a-f]{2})*\s*$`),
+		noise: re(`^Shadow bytes around the buggy address:$|^\s*(=>)?0x[0-9a-f]+:( |\[)[0-9a-f]{2}|^Shadow byte legend|^  [A-Z][A-Za-z ]+:\s+[0-9a-f]{2}( [0-9a-f]{2})*\s*$`),
+		what:  "sanitizer shadow lines",
 	},
 	{ // D
 		frame: re(`^\?\?:\? |^\S+\.d:\d+ `),
@@ -67,11 +79,16 @@ func Frames(lines []string, minRun int) []string {
 			i++
 			continue
 		}
+		if rt.keepTop && (i == 0 || !rt.frame.MatchString(lines[i-1])) {
+			out = append(out, lines[i])
+			i++
+			n--
+		}
 		frames := countFrames(rt, lines[i:i+n])
 		if frames < minRun {
 			out = append(out, lines[i:i+n]...)
 		} else {
-			out = append(out, compress.Omitted(frames, "framework stack frames"))
+			out = append(out, compress.Omitted(frames, cmp.Or(rt.what, "framework stack frames")))
 		}
 		i += n
 	}

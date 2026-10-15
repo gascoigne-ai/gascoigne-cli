@@ -82,7 +82,7 @@ function bodies are found. Unknown languages are left alone rather than guessed.
 | `end` | Ruby, Crystal, Elixir, Lua, Julia |
 | declarations with deeper-indented bodies | Haskell, Elm, OCaml, F#, Nim |
 | parenthesis balance | Clojure, Emacs Lisp, Common Lisp, Scheme, Racket |
-| comments only | Erlang, SQL, Protobuf, GraphQL, Terraform, YAML, TOML, INI |
+| comments only | Erlang, Protobuf, GraphQL, Terraform, YAML, TOML, INI |
 
 The brace outline lexes Rust lifetimes and raw strings, C++ raw strings and digit separators,
 nested block comments (Rust, Scala, D) and counts `mod`, `union`, `package` and `extern "C" {` as

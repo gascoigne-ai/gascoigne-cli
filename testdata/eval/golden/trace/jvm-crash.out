@@ -5,6 +5,8 @@ java.lang.IllegalStateException: cart 42 is closed
 	at shop.Checkout.$anonfun$pay$1(Checkout.scala:18)
 … 31 framework stack frames omitted
 Caused by: java.io.IOException: connection reset
-… 3 framework stack frames omitted
+	at java.base/sun.nio.ch.SocketDispatcher.read0(Native Method)
+	at java.base/sun.nio.ch.SocketDispatcher.read(SocketDispatcher.java:47)
+	at java.base/sun.nio.ch.IOUtil.read(IOUtil.java:330)
 	at shop.net.Client.read(Client.scala:77)
 	... 22 more

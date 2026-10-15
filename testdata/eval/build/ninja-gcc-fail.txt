@@ -1,52 +1,37 @@
-[1/23] Building CXX object src/CMakeFiles/app.dir/net/socket.cc.o
-[2/23] Building CXX object src/CMakeFiles/app.dir/net/pool.cc.o
-[3/23] Building CXX object src/CMakeFiles/app.dir/core/engine.cc.o
-[4/23] Building CXX object src/CMakeFiles/app.dir/core/loop.cc.o
-[5/23] Building CXX object src/CMakeFiles/app.dir/util/strings.cc.o
-[6/23] Building CXX object src/CMakeFiles/app.dir/util/fmt.cc.o
-[7/23] Building CXX object src/CMakeFiles/app.dir/db/conn.cc.o
-[8/23] Building CXX object src/CMakeFiles/app.dir/db/query.cc.o
-[9/23] Building CXX object src/CMakeFiles/app.dir/api/server.cc.o
-[10/23] Building CXX object src/CMakeFiles/app.dir/api/router.cc.o
-FAILED: src/CMakeFiles/app.dir/db/query.cc.o
-/usr/bin/c++ -DNDEBUG -O2 -std=c++20 -Iinclude -MD -MT src/CMakeFiles/app.dir/db/query.cc.o -MF src/CMakeFiles/app.dir/db/query.cc.o.d -o src/CMakeFiles/app.dir/db/query.cc.o -c ../src/db/query.cc
-In file included from ../src/db/query.cc:3:
-../include/db/query.h:40:17: error: 'optional' in namespace 'std' does not name a template type
-   40 |     std::optional<Row> first0();
-      |          ^~~~~~~~
-../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
-In file included from ../src/db/query.cc:3:
-../include/db/query.h:41:17: error: 'optional' in namespace 'std' does not name a template type
-   41 |     std::optional<Row> first1();
-      |          ^~~~~~~~
-../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
-In file included from ../src/db/query.cc:3:
-../include/db/query.h:42:17: error: 'optional' in namespace 'std' does not name a template type
-   42 |     std::optional<Row> first2();
-      |          ^~~~~~~~
-../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
-In file included from ../src/db/query.cc:3:
-../include/db/query.h:43:17: error: 'optional' in namespace 'std' does not name a template type
-   43 |     std::optional<Row> first3();
-      |          ^~~~~~~~
-../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
-In file included from ../src/db/query.cc:3:
-../include/db/query.h:44:17: error: 'optional' in namespace 'std' does not name a template type
-   44 |     std::optional<Row> first4();
-      |          ^~~~~~~~
-../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
-In file included from ../src/db/query.cc:3:
-../include/db/query.h:45:17: error: 'optional' in namespace 'std' does not name a template type
-   45 |     std::optional<Row> first5();
-      |          ^~~~~~~~
-../include/db/query.h:5:1: note: 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'?
-../src/db/query.cc: In member function 'void db::Query::run()':
-../src/db/query.cc:88:9: error: 'conn_' was not declared in this scope
-   88 |         conn_->exec(sql_);
-      |         ^~~~~
-[11/23] Building CXX object src/CMakeFiles/app.dir/util/fmt.cc.o
-[12/23] Building CXX object src/CMakeFiles/app.dir/db/conn.cc.o
-[13/23] Building CXX object src/CMakeFiles/app.dir/db/query.cc.o
-[14/23] Building CXX object src/CMakeFiles/app.dir/api/server.cc.o
-[15/23] Building CXX object src/CMakeFiles/app.dir/api/router.cc.o
+ninja: Entering directory `build'
+[1/17] Building CXX object CMakeFiles/core.dir/src/store.cc.o
+FAILED: [code=1] CMakeFiles/core.dir/src/store.cc.o 
+/usr/bin/c++   -std=gnu++20 -MD -MT CMakeFiles/core.dir/src/store.cc.o -MF CMakeFiles/core.dir/src/store.cc.o.d -o CMakeFiles/core.dir/src/store.cc.o -c /home/dev/shop/src/store.cc
+/home/dev/shop/src/store.cc:3:1: error: ‘Optional’ does not name a type
+    3 | Optional<std::string> find_name(int id) {
+      | ^~~~~~~~
+/home/dev/shop/src/store.cc:8:22: error: ‘vector’ in namespace ‘std’ does not name a template type
+    8 | int count(const std::vector<int>& v) { return v.size(); }
+      |                      ^~~~~~
+/home/dev/shop/src/store.cc:2:1: note: ‘std::vector’ is defined in header ‘<vector>’; this is probably fixable by adding ‘#include <vector>’
+    1 | #include <string>
+  +++ |+#include <vector>
+    2 | namespace shop {
+/home/dev/shop/src/store.cc:8:28: error: expected ‘,’ or ‘...’ before ‘<’ token
+    8 | int count(const std::vector<int>& v) { return v.size(); }
+      |                            ^
+/home/dev/shop/src/store.cc: In function ‘int shop::count(int)’:
+/home/dev/shop/src/store.cc:8:47: error: ‘v’ was not declared in this scope
+    8 | int count(const std::vector<int>& v) { return v.size(); }
+      |                                               ^
+[2/17] Building CXX object CMakeFiles/core.dir/src/audit.cc.o
+[3/17] Building CXX object CMakeFiles/core.dir/src/conn.cc.o
+[4/17] Building CXX object CMakeFiles/core.dir/src/router.cc.o
+[5/17] Building CXX object CMakeFiles/core.dir/src/catalog.cc.o
+[6/17] Building CXX object CMakeFiles/core.dir/src/billing.cc.o
+[7/17] Building CXX object CMakeFiles/core.dir/src/query.cc.o
+[8/17] Building CXX object CMakeFiles/core.dir/src/engine.cc.o
+[9/17] Building CXX object CMakeFiles/core.dir/src/socket.cc.o
+[10/17] Building CXX object CMakeFiles/core.dir/src/clock.cc.o
+[11/17] Building CXX object CMakeFiles/core.dir/src/loop.cc.o
+[12/17] Building CXX object CMakeFiles/core.dir/src/server.cc.o
+[13/17] Building CXX object CMakeFiles/core.dir/src/pool.cc.o
+[14/17] Building CXX object CMakeFiles/core.dir/src/retry.cc.o
+[15/17] Building CXX object CMakeFiles/core.dir/src/cache.cc.o
+[16/17] Building CXX object CMakeFiles/core.dir/src/queue.cc.o
 ninja: build stopped: subcommand failed.

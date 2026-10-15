@@ -1,21 +1,56 @@
 =================================================================
-==31337==ERROR: AddressSanitizer: heap-use-after-free on address 0x602000000050 at pc 0x55c1 bp 0x7ffc sp 0x7ffc
-READ of size 4 at 0x602000000050 thread T0
-    #0 0x55c10000 in shop::Cart::total() const /src/cart.cc:41:12
-    #1 0x55c10001 in shop::Checkout::pay() /src/checkout.cc:18:5
-    #2 0x55c10002 in std::__invoke_impl<void, void (*)()> /usr/include/c++/13/bits/invoke.h:61:14
-    #3 0x55c10003 in std::__invoke<void (*)()> /usr/include/c++/13/bits/invoke.h:96:14
-    #4 0x55c10004 in std::thread::_State_impl<...>::_M_run() /usr/include/c++/13/bits/std_thread.h:253:13
-    #5 0x55c10005 in main /src/main.cc:9:5
-    #6 0x55c10006 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58:16
-    #7 0x55c10007 in __libc_start_main_impl ../csu/libc-start.c:360:3
-    #8 0x55c10008 in _start (/src/shop+0x1234)
+==31337==ERROR: AddressSanitizer: heap-use-after-free on address 0x7b1e45de0010 at pc 0x55f2150521d2 bp 0x7ffeeef681e0 sp 0x7ffeeef681d0
+READ of size 4 at 0x7b1e45de0010 thread T0
+    #0 0x55f2150521d1 in main /home/dev/shop/uaf.cc:5
+    #1 0x7efe46c27780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #2 0x7efe46c278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #3 0x55f2150520a4 in _start (/home/dev/shop/uaf.g+++0x10a4) (BuildId: 2ab1e3b9a4a8f49b1be55274b520351c2befceda)
 
-0x602000000050 is located 0 bytes inside of 4-byte region [0x602000000050,0x602000000054)
+0x7b1e45de0010 is located 0 bytes inside of 4-byte region [0x7b1e45de0010,0x7b1e45de0014)
 freed by thread T0 here:
-    #0 0x7f000000 in operator delete(void*) /usr/src/gcc/libsanitizer/asan/asan_new_delete.cpp:164:3
-    #1 0x7f000001 in shop::Cart::~Cart() /src/cart.cc:12:5
-    #2 0x7f000002 in main /src/main.cc:7:3
+    #0 0x7efe4752ae91  (/usr/lib/libasan.so.8+0x12ae91) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x55f21505219a in main /home/dev/shop/uaf.cc:4
+    #2 0x7efe46c27780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #3 0x7efe46c278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #4 0x55f2150520a4 in _start (/home/dev/shop/uaf.g+++0x10a4) (BuildId: 2ab1e3b9a4a8f49b1be55274b520351c2befceda)
 
-SUMMARY: AddressSanitizer: heap-use-after-free /src/cart.cc:41:12 in shop::Cart::total() const
+previously allocated by thread T0 here:
+    #0 0x7efe4752c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x55f21505218a in main /home/dev/shop/uaf.cc:3
+    #2 0x7efe46c27780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #3 0x7efe46c278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #4 0x55f2150520a4 in _start (/home/dev/shop/uaf.g+++0x10a4) (BuildId: 2ab1e3b9a4a8f49b1be55274b520351c2befceda)
+
+SUMMARY: AddressSanitizer: heap-use-after-free /home/dev/shop/uaf.cc:5 in main
+Shadow bytes around the buggy address:
+  0x7b1e45ddfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7b1e45ddfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7b1e45ddfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7b1e45ddff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7b1e45ddff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x7b1e45de0000: fa fa[fd]fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7b1e45de0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7b1e45de0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7b1e45de0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7b1e45de0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7b1e45de0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
 ==31337==ABORTING

@@ -1,20 +1,23 @@
-FAILED: src/CMakeFiles/app.dir/db/query.cc.o
-/usr/bin/c++ -DNDEBUG -O2 -std=c++20 -Iinclude -MD -MT src/CMakeFiles/app.dir/db/query.cc.o -MF src/CMakeFiles/app.dir/db/query.cc.o.d -o src/CMakeFiles/app.dir/db/query.cc.o -c ../src/db/query.cc
-In file included from ../src/db/query.cc:3:
-../include/db/query.h
-  40:17 error 'optional' in namespace 'std' does not name a template type (×6, also at 41, 42, 43, 44, 45)
-    40 |     std::optional<Row> first0();
-    |          ^~~~~~~~
-  5:1 note 'std::optional' is defined in header '<optional>'; did you forget to '#include <optional>'? (×6, same place)
-../src/db/query.cc
-  88:9 error 'conn_' was not declared in this scope
-    88 |         conn_->exec(sql_);
-    |         ^~~~~
-In file included from ../src/db/query.cc:3:
-In file included from ../src/db/query.cc:3:
-In file included from ../src/db/query.cc:3:
-In file included from ../src/db/query.cc:3:
-In file included from ../src/db/query.cc:3:
-../src/db/query.cc: In member function 'void db::Query::run()':
+ninja: Entering directory `build'
+FAILED: [code=1] CMakeFiles/core.dir/src/store.cc.o
+/usr/bin/c++   -std=gnu++20 -MD -MT CMakeFiles/core.dir/src/store.cc.o -MF CMakeFiles/core.dir/src/store.cc.o.d -o CMakeFiles/core.dir/src/store.cc.o -c /home/dev/shop/src/store.cc
+/home/dev/shop/src/store.cc
+  3:1 error ‘Optional’ does not name a type
+    3 | Optional<std::string> find_name(int id) {
+    | ^~~~~~~~
+  8:22 error ‘vector’ in namespace ‘std’ does not name a template type
+    8 | int count(const std::vector<int>& v) { return v.size(); }
+    |                      ^~~~~~
+  2:1 note ‘std::vector’ is defined in header ‘<vector>’; this is probably fixable by adding ‘#include <vector>’
+    1 | #include <string>
+    +++ |+#include <vector>
+    2 | namespace shop {
+  8:28 error expected ‘,’ or ‘...’ before ‘<’ token
+    8 | int count(const std::vector<int>& v) { return v.size(); }
+    |                            ^
+  8:47 error ‘v’ was not declared in this scope
+    8 | int count(const std::vector<int>& v) { return v.size(); }
+    |                                               ^
+/home/dev/shop/src/store.cc: In function ‘int shop::count(int)’:
 ninja: build stopped: subcommand failed.
-7 errors, 6 notes in 2 files
+4 errors, 1 note in 1 file

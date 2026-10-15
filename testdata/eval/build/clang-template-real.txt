@@ -1,0 +1,19 @@
+tmpl.cc:4:19: error: static assertion failed due to requirement '16UL < 16': Box depth limit
+    4 |     static_assert(N < 16, "Box depth limit");
+      |                   ^~~~~~
+tmpl.cc:5:16: note: in instantiation of template class 'Box<16>' requested here
+    5 |     Box<N + 1> inner;
+      |                ^
+tmpl.cc:5:16: note: in instantiation of template class 'Box<15>' requested here
+tmpl.cc:5:16: note: in instantiation of template class 'Box<14>' requested here
+tmpl.cc:5:16: note: in instantiation of template class 'Box<13>' requested here
+tmpl.cc:5:16: note: in instantiation of template class 'Box<12>' requested here
+tmpl.cc:5:16: note: (skipping 7 contexts in backtrace; use -ftemplate-backtrace-limit=0 to see all)
+tmpl.cc:5:16: note: in instantiation of template class 'Box<4>' requested here
+tmpl.cc:5:16: note: in instantiation of template class 'Box<3>' requested here
+tmpl.cc:5:16: note: in instantiation of template class 'Box<2>' requested here
+tmpl.cc:5:16: note: in instantiation of template class 'Box<1>' requested here
+tmpl.cc:8:12: note: in instantiation of template class 'Box<0>' requested here
+    8 |     Box<0> b;
+      |            ^
+1 error generated.

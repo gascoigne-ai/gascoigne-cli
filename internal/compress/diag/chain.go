@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	// "t.cc:10:12:   required from here", "In instantiation of 'X<int>':" (gcc, clang notes)
-	instantiationRe = lazyre.New(`^\S+:\d+:\d+:\s+(recursively )?required (from|by)\b|^\S+: In (instantiation|member function|function|constructor|destructor|static member function|lambda function|substitution)\b|^\s+(recursively )?required from\b`)
+	// gcc "t.cc:10:12:   required from here", "In instantiation of 'X<int>':", "[ skipping 8 instantiation contexts ]";
+	// clang "t.cc:5:16: note: in instantiation of template class 'Box<3>' requested here", "note: (skipping 7 contexts in backtrace; …)"
+	instantiationRe = lazyre.New(`^\S+:\d+:\d+:\s+(recursively )?required (from|by)\b|^\S+: In (instantiation|member function|function|constructor|destructor|static member function|lambda function|substitution)\b|^\s+(recursively )?required from\b|^\s*\[ skipping \d+ instantiation contexts|^\S+:\d+:\d+: note: (in instantiation of .* requested here|\(skipping \d+ contexts)`)
 	// "In file included from a.h:3:" and its "                 from b.h:5:" continuations
 	includeRe = lazyre.New(`^In file included from \S+:\d+[:,]|^\s+from \S+\.(h|hh|hpp|hxx|c|cc|cpp|cxx|inl|ipp|tpp):\d+[:,]`)
 	// "/usr/bin/ld: a.o: in function `main':" and "a.cc:(.text+0x12): undefined reference to `X::f()'"

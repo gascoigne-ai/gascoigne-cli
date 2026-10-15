@@ -20,6 +20,15 @@ func TestFrames(t *testing.T) {
 	at shop.Cart.total(Cart.scala:41)
 … 4 framework stack frames omitted
 	at shop.Main$.main(Main.scala:9)`},
+		{"jvm keeps the throw site", `java.lang.NullPointerException
+	at java.base/java.util.Objects.requireNonNull(Objects.java:233)
+	at java.base/java.util.Optional.of(Optional.java:113)
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:100)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+	at shop.Cart.total(Cart.java:41)`, `java.lang.NullPointerException
+	at java.base/java.util.Objects.requireNonNull(Objects.java:233)
+… 3 framework stack frames omitted
+	at shop.Cart.total(Cart.java:41)`},
 		{"short run stays", `Exception in thread "main" java.lang.Error
 	at shop.A.f(A.java:1)
 	at java.base/java.lang.Thread.run(Thread.java:840)

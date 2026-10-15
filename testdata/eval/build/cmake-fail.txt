@@ -1,55 +1,26 @@
--- The C compiler identification is GNU 13.2.1
--- The CXX compiler identification is GNU 13.2.1
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: /usr/bin/cc - skipped
--- Detecting C compile features
--- Detecting C compile features - done
+-- The CXX compiler identification is GNU 16.2.1
 -- Detecting CXX compiler ABI info
 -- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
 -- Detecting CXX compile features - done
--- Looking for pthread.h
--- Performing Test HAVE_THREADS_H
--- Performing Test HAVE_THREADS_H - Success
--- Found Threads: /usr/lib/x86_64-linux-gnu/libthreads.so (found version "1.6.2")
--- Looking for zlib_init
--- Performing Test HAVE_ZLIB_H
--- Performing Test HAVE_ZLIB_H - Success
--- Found ZLIB: /usr/lib/x86_64-linux-gnu/libzlib.so (found version "1.7.0")
--- Looking for openssl_init
--- Performing Test HAVE_OPENSSL_H
--- Performing Test HAVE_OPENSSL_H - Success
--- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libopenssl.so (found version "1.2.8")
--- Looking for curl_init
--- Performing Test HAVE_CURL_H
--- Performing Test HAVE_CURL_H - Success
--- Found CURL: /usr/lib/x86_64-linux-gnu/libcurl.so (found version "1.2.5")
--- Looking for pkgconfig_init
--- Performing Test HAVE_PKGCONFIG_H
--- Performing Test HAVE_PKGCONFIG_H - Success
--- Found PkgConfig: /usr/lib/x86_64-linux-gnu/libpkgconfig.so (found version "1.1.8")
--- Looking for fmt_init
--- Performing Test HAVE_FMT_H
--- Performing Test HAVE_FMT_H - Success
--- Found fmt: /usr/lib/x86_64-linux-gnu/libfmt.so (found version "1.4.0")
--- Looking for spdlog_init
--- Performing Test HAVE_SPDLOG_H
--- Performing Test HAVE_SPDLOG_H - Success
--- Found spdlog: /usr/lib/x86_64-linux-gnu/libspdlog.so (found version "1.2.6")
-CMake Error at CMakeLists.txt:34 (find_package):
-  By not providing "Findgrpc.cmake" in CMAKE_MODULE_PATH this project has
-  asked CMake to find a package configuration file provided by "grpc", but
+CMake Error at CMakeLists.txt:4 (find_package):
+  By not providing "FindGrpc.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "Grpc", but
   CMake did not find one.
 
-  Could not find a package configuration file provided by "grpc" with any of
+  Could not find a package configuration file provided by "Grpc" with any of
   the following names:
 
-    grpcConfig.cmake
+    Grpc.cps
+    grpc.cps
+    GrpcConfig.cmake
     grpc-config.cmake
 
-CMake Warning at cmake/Options.cmake:12 (message):
-  LTO is disabled because the compiler does not support it
-Call Stack (most recent call first):
-  CMakeLists.txt:8 (include)
+  Add the installation prefix of "Grpc" to CMAKE_PREFIX_PATH or set
+  "Grpc_DIR" to a directory containing one of the above files.  If "Grpc"
+  provides a separate development package or SDK, be sure it has been
+  installed.
+
 
 -- Configuring incomplete, errors occurred!
