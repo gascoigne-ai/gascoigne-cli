@@ -1,5 +1,5 @@
---- a/compress/probe/probe.go
-+++ b/compress/probe/probe.go
+--- a/internal/compress/probe/probe.go
++++ b/internal/compress/probe/probe.go
 @@ -132,7 +132,7 @@
  
  // isHash: 7–64 hex digits mixing letters and digits (words like "defaced" are not).

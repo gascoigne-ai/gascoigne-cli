@@ -10,8 +10,8 @@ Hard rules for every agent and human change. Breaking one = change rejected.
     Never swap in a cgo driver (`gorm.io/driver/sqlite`, mattn): builds must stay `CGO_ENABLED=0`.
   - `golang.org/x/net` — HTML parsing (`html`, `html/atom`) for web data
   - `github.com/modelcontextprotocol/go-sdk` — MCP server/client
-  - `github.com/ebitengine/purego` — opens the ONNX Runtime library at run time without cgo (`prose/ortrt`)
-  - `golang.org/x/text` — NFC normalization for the prose model tokenizer (`prose/bpe`)
+  - `github.com/ebitengine/purego` — opens the ONNX Runtime library at run time without cgo (`internal/prose/ortrt`)
+  - `golang.org/x/text` — NFC normalization for the prose model tokenizer (`internal/prose/bpe`)
 - New dep only when the user explicitly asks. Never add one to "save time".
 
 ## Verification
@@ -25,9 +25,10 @@ Hard rules for every agent and human change. Breaking one = change rejected.
   Never special-case a component inside core.
 - Core = public contracts `component/`, `payload/`, `tokens/` + engine `internal/{config,router,service}`.
   Changing core needs user approval. Contract changes break every component — treat as API changes.
-- Module boundary: component dirs (`receiver/`, `filter/`, `optimizer/`, `exporter/`, `extension/`)
-  import only public packages, never `internal/` (enforced by `make imports`). Each component dir
-  must be able to become its own Go module later. No imports between component packages.
+- Boundary: public contracts `component/`, `payload/`, `tokens/` never import `internal/`. Component
+  dirs (`receiver/`, `filter/`, `optimizer/`, `exporter/`, `extension/`) may import them and the
+  libs in `internal/` (`compress`, `detect`, ...), never the engine `internal/{config,router,service,registry}`
+  (enforced by `make imports`). No imports between component packages.
 - New optimizer = new package + registry line + route in `configs/default.yaml` + eval case.
 - Never lose information. Optimized output must stay reversible through the ledger;
   bypass output stays byte-exact. Optimizers never write to the ledger themselves — core does.
@@ -38,7 +39,7 @@ Hard rules for every agent and human change. Breaking one = change rejected.
   Describe techniques generically ("command output filtering", "JSON compaction").
   Exception: datasets, copyright, attribution and license notices (e.g. `testdata/*/NOTICE.md`),
   where the source or its license requires naming it, and the Hugging Face ids of the prose models
-  (`prose/models.go`, `docs/prose-model.md`), which are what users select and download.
+  (`internal/prose/models.go`, `docs/prose-model.md`), which are what users select and download.
 - No speculative abstractions, options or hooks "for later".
 - Small focused commits; don't touch unrelated files; don't reformat untouched code.
 - No secrets, real user data or home paths in fixtures.

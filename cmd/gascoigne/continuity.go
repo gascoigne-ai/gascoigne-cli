@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
-	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
 // Resume snapshot (experimental: continuity). After an agent compacts its

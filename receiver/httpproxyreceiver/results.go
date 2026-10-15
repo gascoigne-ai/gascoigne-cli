@@ -12,8 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
-	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/sample"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 

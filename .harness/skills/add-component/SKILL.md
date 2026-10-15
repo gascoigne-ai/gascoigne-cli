@@ -9,9 +9,10 @@ Read `.harness/architecture.md` first. Never edit core (`component/`, `payload/`
 to make a component work — if you think you must, stop and ask the user.
 
 ## Steps
-1. Package `<kind>/<name><kind>/` at repo root (optimizers: `optimizer/<family>/<name>optimizer/`
-   and `component.WithFamily(family)` in the factory — see families in architecture.md) — never under `internal/`; import only
-   `component`, `payload`, `tokens` and stdlib/approved deps (`make imports` enforces) (e.g. `optimizer/data/jsonoptimizer/`).
+1. Package `<kind>/<name><kind>/` at repo root (optimizers: `optimizer/<name>optimizer/`
+   and `component.WithFamily(family)` in the factory — see families in architecture.md) — never under `internal/`; import
+   `component`, `payload`, `tokens`, the `internal/` libs (e.g. `compress`, `detect`) and stdlib/approved deps, never the
+   engine `internal/{config,router,service,registry}` (`make imports` enforces) (e.g. `optimizer/jsonoptimizer/`).
 2. `factory.go`:
    ```go
    const typ = "json"
@@ -31,14 +32,14 @@ to make a component work — if you think you must, stop and ask the user.
    - Need a shared service? Look it up in `Start` via `host.Extension(id)`; id comes from config.
    - Optimizers: select blocks by content type with `p.Rewrite(fn, detect.X, ...)`; never
      touch other blocks. Deterministic; return an error instead of half-broken output (core
-     falls back to the original and records the failure). Reuse `compress/` primitives.
+     falls back to the original and records the failure). Reuse `internal/compress/` primitives.
    - When a filter bypasses or an optimizer deliberately leaves its blocks alone, set
      `payload.AttrSkip` to a factual reason (numbers, thresholds, flags) — `gain` shows it.
    - New tool of an existing family: add a dialect, not an optimizer — a `Spec` in
-     `detect/<family>.go` (cmd patterns, sniffer, priority, `Refines` when it specializes a
+     `internal/detect/<family>.go` (cmd patterns, sniffer, priority, `Refines` when it specializes a
      generic file/MIME type) plus rules in the family lib (`testreport`, `diag`, `pkgnoise`,
      `yamlx`, `table`) or a branch in the family engine. Add its command and content examples to
-     `detect/matrix_test.go`. New optimizer only for a new family; engines needing another
+     `internal/detect/matrix_test.go`. New optimizer only for a new family; engines needing another
      family's logic use its public lib (`jsonx`, `htmlx`, `table`, `sample`), never its package.
 5. `<name>_test.go`: table-driven, real-shaped inputs.
 6. Register: one line in `internal/registry/registry.go` under the right kind comment.

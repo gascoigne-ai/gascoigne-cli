@@ -22,12 +22,12 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/schema"
-	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
-	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/schema"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcpauth"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
-	"github.com/gascoigne-ai/gascoigne-cli/version"
 )
 
 type Receiver struct {

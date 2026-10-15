@@ -9,7 +9,7 @@ description: Measure gascoigne token savings on fixtures. Use when changing opti
    throwaway ledger (`GASCOIGNE_LEDGER` temp path; real ledger untouched).
 2. Table: `type` = block types after optimization, `route` = chain that ran (`-` = a filter
    bypassed it, e.g. `minsize`), `lost` = error lines/artifacts (paths, URLs, hashes) of the
-   original no longer readable in the output (`compress/probe`; regrouping and path legends
+   original no longer readable in the output (`internal/compress/probe`; regrouping and path legends
    count as kept, sampling and caps as lost), `ms` = wall time of one optimization (not in the
    baseline; look into outliers), `check` = all assertions of the case held.
 3. Per case assertions: `expect_type`, `keep` (substrings that must survive), `min_saved` (%),

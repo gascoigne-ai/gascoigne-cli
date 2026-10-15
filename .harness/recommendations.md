@@ -7,7 +7,7 @@ Practices for every change. Rules are in `rules.md`, the reasons behind design c
 
 ## Practices
 - New tools of an existing family are dialects, not optimizers (skill `add-component`); shared
-  primitives go to `compress/`.
+  primitives go to `internal/compress/`.
 - Deterministic, idempotent output ⇒ prompt-cache friendly: no timestamps or random ids.
 - Measure before claiming: every optimizer gets eval cases with real-shaped fixtures.
 - Keep hint/marker text short; it costs tokens too.

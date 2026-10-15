@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gascoigne-ai/gascoigne-cli/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 )
 
 // line is one assistant line of a transcript.

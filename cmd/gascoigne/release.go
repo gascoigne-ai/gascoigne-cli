@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
-	"github.com/gascoigne-ai/gascoigne-cli/version"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
 
 // Release notice. The project website keeps a small file, latest.json, with

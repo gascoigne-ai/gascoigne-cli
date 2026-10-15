@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcpauth"
 )
 
 // The OAuth logins of remote MCP servers run in the background server, not in

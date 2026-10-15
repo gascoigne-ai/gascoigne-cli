@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/watch"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/watch"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 

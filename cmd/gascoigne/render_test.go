@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/gascoigne-ai/gascoigne-cli/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 	"regexp"
 	"strings"
 	"testing"

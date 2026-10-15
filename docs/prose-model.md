@@ -105,4 +105,4 @@ ctxprune-small: [darioooooo0o/ctxprune-small](https://huggingface.co/darioooooo0
 Apache 2.0, fine-tuned from jhu-clsp/mmBERT-small (MIT); its training data is permissively
 licensed, with CC BY 4.0 and ODC-BY parts that the model card lists. Downloaded by
 `gascoigne prose install -name ctxprune-small` at a pinned revision; not bundled. Its tokenizer is
-SentencePiece style (256k vocabulary) and runs in `prose/bpe` like the other one.
+SentencePiece style (256k vocabulary) and runs in `internal/prose/bpe` like the other one.

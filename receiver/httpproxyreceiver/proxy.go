@@ -26,7 +26,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
-	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
 // RawHeader set to 1 forwards a request untouched.

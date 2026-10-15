@@ -90,7 +90,7 @@ types.
 
 ## Content detection
 
-`detect/` holds one declarative `Spec` per dialect, grouped by family in `detect/<family>.go`:
+`internal/detect/` holds one declarative `Spec` per dialect, grouped by family in `internal/detect/<family>.go`:
 
 ```go
 Spec{
@@ -106,27 +106,27 @@ Spec{
 
 Evidence order: command → file/MIME → sniffing → `doc/text`. `CmdFunc` covers what patterns
 cannot (flag values like `-o yaml`). `detect.Argv` unwraps wrappers and runners before
-matching. `detect/matrix_test.go` requires a command example for every dialect with command
+matching. `internal/detect/matrix_test.go` requires a command example for every dialect with command
 patterns and an eval fixture for every dialect with a sniffer.
 
 ## Families and shared libraries
 
-One engine per family lives in `optimizer/<family>/<name>optimizer`. Logic that more than one
-engine needs lives in public libraries under `compress/`:
+One engine per family lives in `optimizer/<name>optimizer`. Logic that more than one
+engine needs lives in public libraries under `internal/compress/`:
 
 | Library | Used for |
 |---|---|
 | `compress` | lines, ANSI stripping, `… N omitted` markers, head/tail, dedupe, severity |
-| `compress/testreport` | test output rules (test family) |
-| `compress/diag` | diagnostics grouping (build family) |
-| `compress/pkgnoise` | package manager noise (pkg family) |
-| `compress/compose` | sniff a section and hand it to the test/build/pkg engine (task, docker builds) |
-| `compress/table` | parse and shrink tables (table, db, k8s, cloud, vcs, data) |
-| `compress/sample` | sample records: errors, anomalies, change points, BM25 query matches, ends |
-| `compress/jsonx` | the JSON crusher (data, cloud, web) |
-| `compress/yamlx` | YAML prune rules (k8s, cloud) |
-| `compress/htmlx` | HTML to markdown (web, MCP fetch) |
-| `compress/watch` | watch-mode build cycles (build engine, `exec -watch`) |
+| `internal/compress/testreport` | test output rules (test family) |
+| `internal/compress/diag` | diagnostics grouping (build family) |
+| `internal/compress/pkgnoise` | package manager noise (pkg family) |
+| `internal/compress/compose` | sniff a section and hand it to the test/build/pkg engine (task, docker builds) |
+| `internal/compress/table` | parse and shrink tables (table, db, k8s, cloud, vcs, data) |
+| `internal/compress/sample` | sample records: errors, anomalies, change points, BM25 query matches, ends |
+| `internal/compress/jsonx` | the JSON crusher (data, cloud, web) |
+| `internal/compress/yamlx` | YAML prune rules (k8s, cloud) |
+| `internal/compress/htmlx` | HTML to markdown (web, MCP fetch) |
+| `internal/compress/watch` | watch-mode build cycles (build engine, `exec -watch`) |
 
 Other public libraries: `detect` (content types), `mcptool` (MCP tools and reports), `cost`
 (tokenizer families and prices), `lazyre` (package-level patterns compiled on first use, so a
@@ -136,15 +136,14 @@ short CLI run never pays for them), `tokens` (the BPE-style token estimate).
 
 ```
 component/  payload/  tokens/        public contracts: what component authors import
-detect/  compress/  mcptool/         public libraries
-cost/  lazyre/
 receiver/  filter/  exporter/        components, one package each
 extension/
-optimizer/<family>/<name>optimizer   optimizers grouped by family
+optimizer/<name>optimizer            optimizers, flat
 internal/config  router  service     engine: YAML, routing, pipeline execution
 internal/registry                    the built-in component list
+internal/detect  compress  mcptool   libraries
+internal/cost  lazyre  version  prose  mcpauth
 cmd/gascoigne                        CLI, agent integration, background server (dashboard, LLM proxy)
-configs/default.yaml                 embedded default config
 ```
 
 Component packages import only public packages, never `internal/`, and never each other, so

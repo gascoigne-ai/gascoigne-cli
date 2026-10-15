@@ -10,24 +10,24 @@ Each `##` section stands alone; read only the one for the area you touch.
 
 ```
 component/  payload/  tokens/        public contracts: what component authors import
-detect/  compress/  mcptool/         public libraries: content detection, text primitives, MCP tools
-lazyre/                              package-level regexps compiled on first use (init stays ~1 ms)
-version/                             release number + git commit from build info (CLI, MCP, health)
-tokens/exact/                        exact counts: o200k BPE in Go, Claude via count_tokens
-cost/                                tokenizer families, prices, agent context model
 receiver/  filter/  exporter/        components, one package each (OTel-contrib style)
 extension/
-optimizer/<family>/<name>optimizer   optimizers grouped by family (see Families)
+optimizer/<name>optimizer            optimizers, flat; family is declared by the factory (see Families)
 internal/config  router  service     engine: YAML, routing, pipeline execution
 internal/registry                    built-in component list (the "distribution")
+internal/detect  compress  mcptool   libs: content detection, text primitives, MCP tools
+internal/lazyre                      package-level regexps compiled on first use (init stays ~1 ms)
+internal/version                     release number + git commit from build info (CLI, MCP, health)
+internal/cost  prose  mcpauth        tokenizer families and prices, prose model runtime, MCP OAuth
+internal/exact                       exact counts: o200k BPE in Go, Claude via count_tokens
 cmd/gascoigne  configs/              CLI + embedded default config
 ```
 
 - Receivers: stdin, exec, hook, mcp, mcp_proxy, httpproxy.
-- Component packages import only public packages, so each can become its own module.
-  `make imports` fails if a public package imports `internal/`.
-- `tokens/exact/` downloads the o200k vocabulary once and pins its hash. BPE merging is O(n log n) per piece (heap), so long space-free pieces do not stall; HTTP requests time out after 30s.
-- `cost/` relates tokenizer families to `tokens.Estimate` by a factor.
+- Only `component/ payload/ tokens/` are public. Components import them plus the `internal/` libs, never the
+  engine (`internal/{config,router,service,registry}`). `make imports` fails on either breach.
+- `internal/exact/` downloads the o200k vocabulary once and pins its hash. BPE merging is O(n log n) per piece (heap), so long space-free pieces do not stall; HTTP requests time out after 30s.
+- `internal/cost/` relates tokenizer families to `tokens.Estimate` by a factor.
 
 ## Flow
 
@@ -73,14 +73,14 @@ flowchart LR
   `route`, `raw_tokens`, `out_tokens`.
 - **`Key()`**: stable source identity (`file:` > `url:` > `cmd:` > `tool:`), used for failure history.
 
-## Content detection: `family/dialect` (`detect/`, `filter/detectfilter`)
+## Content detection: `family/dialect` (`internal/detect/`, `filter/detectfilter`)
 
 Every block gets a type `family/dialect` (`test/jest`, `build/tsc`, `pkg/pip`, `task/nx`). One
 payload can mix types, and each part meets its own family engine.
 
 ### Dialect specs
 
-Dialects are declarative `Spec`s in `detect/<family>.go`:
+Dialects are declarative `Spec`s in `internal/detect/<family>.go`:
 - command patterns: `program sub sub -flag`, the most specific wins; `CmdFunc` for flag values
 - file globs and MIME types
 - a sniffer with a priority: composite runners first, generic formats last
@@ -97,7 +97,7 @@ whose sniffer matches: `cat deploy.yaml` with manifests → `k8s/manifest`, a sa
 
 ### Helpers and rules
 
-- `detect/matrix_test.go` requires a command example for every dialect with command patterns,
+- `internal/detect/matrix_test.go` requires a command example for every dialect with command patterns,
   and a content example (an eval fixture) for every dialect with a sniffer.
 - `detect.Family` / `detect.Dialect` split a type.
 - `detect.Command` names commands for stats; leading `cd`/`export` steps of a list are skipped.
@@ -111,7 +111,7 @@ whose sniffer matches: `cat deploy.yaml` with manifests → `k8s/manifest`, a sa
 
 ## Families
 
-One engine per family (`optimizer/<family>/<family>optimizer`); dialects tune it. Shared logic
+One engine per family (`optimizer/<family>optimizer`); dialects tune it. Shared logic
 lives in public libs so engines and composite families can reuse it. Families are what
 `gain -by family` reports; `gain -by dialect` splits them.
 
@@ -119,20 +119,20 @@ lives in public libs so engines and composite families can reuse it. Families ar
 
 | Family | Engine (lib) | Dialects |
 |---|---|---|
-| `test` | `compress/testreport`: go parsed, others via rules. Passes counted, noise and dependency frames dropped, failures and summaries kept | go, go-json, jest, vitest, bun, mocha, deno, pytest, cargo, rspec, maven, dotnet |
-| `build` | `compress/watch`: watch output keeps the last cycle + earlier result lines. `compress/diag`: diagnostics grouped by file, maven `symbol:`/`location:` lines kept with their error, identical ones in a file folded with their other lines (`×3, also at 5, 9`), identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed) |
-| `pkg` | `compress/pkgnoise`: progress and downloads dropped, warnings folded by kind | npm, pnpm, yarn, bun, pip, uv, poetry, go-mod, cargo, os |
-| `task` | sections; ok/cached ones collapse; failing ones via `compress/compose` | nx, turbo, make, just, gradle, compose, ci |
+| `test` | `internal/compress/testreport`: go parsed, others via rules. Passes counted, noise and dependency frames dropped, failures and summaries kept | go, go-json, jest, vitest, bun, mocha, deno, pytest, cargo, rspec, maven, dotnet |
+| `build` | `internal/compress/watch`: watch output keeps the last cycle + earlier result lines. `internal/compress/diag`: diagnostics grouped by file, maven `symbol:`/`location:` lines kept with their error, identical ones in a file folded with their other lines (`×3, also at 5, 9`), identical ones across 3+ files folded, code frames capped (annotations kept), per-dialect noise/prefix rules | go, tsc, eslint, golangci, ruff, mypy, rustc, gcc, clang, javac, maven, dotnet, bundler, docker (RUN steps composed) |
+| `pkg` | `internal/compress/pkgnoise`: progress and downloads dropped, warnings folded by kind | npm, pnpm, yarn, bun, pip, uv, poetry, go-mod, cargo, os |
+| `task` | sections; ok/cached ones collapse; failing ones via `internal/compress/compose` | nx, turbo, make, just, gradle, compose, ci |
 | `vcs` | git engine (see below) | git-status, git-log, git-diff, git-remote, git-blame, git-branch, gh-list, gh-view |
 | `search` | grep engine: matches grouped by file (with or without line numbers), identical lines in a file merged (`3,9: text`, `2× text`); with a `query`, the per-file cap keeps the best BM25 matches | grep, rg, ag, git-grep |
 | `fs` | ls engine: listings, tree, paths by directory, du largest, df real disks. cat: comments dropped, outlines (see Source files) | ls, tree, find, du, df, code |
-| `table` | `compress/table`: parses boxed/aligned/ruled/fixed-width tables, hoists constants, cuts cells; rows via `compress/sample` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, aligned, boxed |
-| `data` | json: `compress/jsonx` crusher. YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry | json, ndjson, yaml, csv, xml, toml |
+| `table` | `internal/compress/table`: parses boxed/aligned/ruled/fixed-width tables, hoists constants, cuts cells; rows via `internal/compress/sample` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, aligned, boxed |
+| `data` | json: `internal/compress/jsonx` crusher. YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry | json, ndjson, yaml, csv, xml, toml |
 | `log` | log engine (see below) | app, journal, syslog, docker, kubectl, access, cloudwatch, gcp, azure |
 | `doc` | markdown/rst and man/help (see below) | markdown, rst, man, help (+ text: dedupe) |
-| `web` | html: `compress/htmlx` → markdown (see below). http: transport headers and TLS chatter dropped, body by type | html, http |
-| `db` | results via `compress/table`, EXPLAIN pruned to costly nodes, redis keys folded, mongo docs as JSON rows | psql, mysql, sqlite, explain, redis, mongosh, migrate |
-| `k8s` | `compress/yamlx` prune rules (managedFields, last-applied, defaults); lists keep unhealthy items; describe/events/helm | get, manifest, describe, events, helm |
+| `web` | html: `internal/compress/htmlx` → markdown (see below). http: transport headers and TLS chatter dropped, body by type | html, http |
+| `db` | results via `internal/compress/table`, EXPLAIN pruned to costly nodes, redis keys folded, mongo docs as JSON rows | psql, mysql, sqlite, explain, redis, mongosh, migrate |
+| `k8s` | `internal/compress/yamlx` prune rules (managedFields, last-applied, defaults); lists keep unhealthy items; describe/events/helm | get, manifest, describe, events, helm |
 | `infra` | plans: refresh/progress folded, known-after-apply listed, count/for_each siblings "(like above)". ansible: quiet tasks counted, failures and recap kept | terraform, pulumi, ansible, cdk, helm-diff |
 | `cloud` | JSON: pagination/metadata/etags pruned, envelopes unwrapped, items flattened so jsonx hoists leaves. YAML via yamlx; tables; s3 listings summarized | aws, aws-s3, gcp, azure |
 
@@ -143,7 +143,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
   qualifies. Lockfiles and generated files fold to counts.
 - Blocks removed and re-added verbatim elsewhere → `-… N lines moved to file:L` (`moves.go`).
 - Log keeps `--stat` and name lists. Blame runs are grouped. Mirrored remote branches are dropped.
-- gh lists go through `compress/table`.
+- gh lists go through `internal/compress/table`.
 
 **log**
 - Lines become templates with counts; errors keep their context.
@@ -169,7 +169,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
   inline code, links). Dropped words leave no marker. Model missing, failing, panicking or
   malformed → the lines stay as they were, never an optimizer error (that would discard the
   rule-based savings and mark the source failed); after 3 failures it is given up for the process.
-  Models (`prose/models.go`, setting `optimizers.prose.model`, Hugging Face names): `kompress-v2-base` and `ctxprune-small`, each with pinned repo, revision, file hashes and graph output (`final_scores` or `logits`, turned into keep probabilities); each model sits in a directory of its own name under the model root (so files never mix and checksums stay per model) and shares the runtime; installs from 0.5.0 kept kompress-v2-base in the root and need `prose install` again; `prose/bpe` reads both tokenizer kinds (byte-level, and "▁" word starts with byte fallback). Install: `gascoigne prose install [-name kompress-v2-base|ctxprune-small] [-runtime auto|cpu|cuda12|cuda13]` (model + ONNX Runtime, pinned hashes; cuDNN for CUDA is the user's). `warm` loads the model in `Start`; `idle` (5m) unloads it after that long unused, the next paragraph reloads it.
+  Models (`internal/prose/models.go`, setting `optimizers.prose.model`, Hugging Face names): `kompress-v2-base` and `ctxprune-small`, each with pinned repo, revision, file hashes and graph output (`final_scores` or `logits`, turned into keep probabilities); each model sits in a directory of its own name under the model root (so files never mix and checksums stay per model) and shares the runtime; installs from 0.5.0 kept kompress-v2-base in the root and need `prose install` again; `internal/prose/bpe` reads both tokenizer kinds (byte-level, and "▁" word starts with byte fallback). Install: `gascoigne prose install [-name kompress-v2-base|ctxprune-small] [-runtime auto|cpu|cuda12|cuda13]` (model + ONNX Runtime, pinned hashes; cuDNN for CUDA is the user's). `warm` loads the model in `Start`; `idle` (5m) unloads it after that long unused, the next paragraph reloads it.
 
 **web (html)**
 - The root is the `<main>`/`<article>` with the most visible text, when that is ≥ half the page's
@@ -182,28 +182,28 @@ lives in public libs so engines and composite families can reuse it. Families ar
 
 ### Core optimizers (in default chain order)
 
-1. **`embedjson`** (`optimizer/core/embedjsonoptimizer`, first): JSON values with record arrays
+1. **`embedjson`** (`optimizer/embedjsonoptimizer`, first): JSON values with record arrays
    inside log/test/build/task/text blocks (`jsonx.Spans`) are crushed in place by jsonx; the text
    around them stays byte-exact.
 2. *Family engines.*
-3. **`dense`** (`optimizer/core/denseoptimizer`): long space-free lines (minified code, base64,
+3. **`dense`** (`optimizer/denseoptimizer`): long space-free lines (minified code, base64,
    data URIs) keep head/tail bytes around `…[N bytes dense]…`, once a block holds `min_total`
    such bytes. JSON lines and fs/code read from disk (file attr, `detect.ReadsFile`) are untouched.
-4. **`paths`** (`optimizer/core/pathsoptimizer`): long path prefixes repeated in
+4. **`paths`** (`optimizer/pathsoptimizer`): long path prefixes repeated in
    test/build/search/log/task blocks → `§1/file.go`, with a legend `[paths: §1=…]` on top of the
    first such block. Greedy by bytes saved, kept only when ≥ `min_saving` tokens, idempotent,
    never fs/data. Legend lines are written, detected and expanded
-   by `compress/legend` (also used by `rerun` and the probe).
-5. **`truncate`** (`optimizer/core/truncateoptimizer`): blocks still over `max_tokens` keep
+   by `internal/compress/legend` (also used by `rerun` and the probe).
+5. **`truncate`** (`optimizer/truncateoptimizer`): blocks still over `max_tokens` keep
    head/tail token budgets + `max_errors` error lines from the middle; long lines are cut.
    `skip`: fs/code, data, k8s, cloud.
 
 ### Shared libraries
 
-- `compress/compose` sniffs a section and calls the test/build/pkg engine; used by `task` and
+- `internal/compress/compose` sniffs a section and calls the test/build/pkg engine; used by `task` and
   docker builds.
-- `compress/sample` samples records: errors, anomalies, change points, query matches, ends.
-- `compress/probe` measures retention: error lines, artifacts (paths, URLs, hashes, UUIDs) and
+- `internal/compress/sample` samples records: errors, anomalies, change points, query matches, ends.
+- `internal/compress/probe` measures retention: error lines, artifacts (paths, URLs, hashes, UUIDs) and
   `key=number` pairs of an original that are still readable in the output (regrouping, path
   legends and short hashes count as kept).
   - `gascoigne eval` shows lost counts per case and pins them, with out tokens, in
@@ -211,9 +211,9 @@ lives in public libs so engines and composite families can reuse it. Families ar
   - `gascoigne probe` runs it over ledger originals vs stored outputs (proxy folds skipped), per
     family + worst runs.
 
-### JSON arrays (`compress/jsonx`)
+### JSON arrays (`internal/compress/jsonx`)
 
-Used by `optimizer/data/jsonoptimizer`, cloud, data and web.
+Used by `optimizer/jsonoptimizer`, cloud, data and web.
 
 1. **Small arrays are never sampled**: < `min_items`, < `min_tokens`, or ≤ `max_items`.
 2. **Lossless first**: similar objects become a table (`_cols/_rows`), with constant columns in
@@ -236,7 +236,7 @@ Used by `optimizer/data/jsonoptimizer`, cloud, data and web.
 |---|---|
 | `fetch` | web pages → markdown, API JSON compressed; http/https only, timeout, size cap. The cheap way to read web data |
 | `compress` | any text, with optional `cmd`/`file` hints |
-| `show {file, symbol?}` | one definition with doc comment and line numbers, or the outline without a symbol. Also `gascoigne show file[:symbol]`; `mcptool.Show` on `compress/symbols` (Go parser, Python indent, C-like braces) |
+| `show {file, symbol?}` | one definition with doc comment and line numbers, or the outline without a symbol. Also `gascoigne show file[:symbol]`; `mcptool.Show` on `internal/compress/symbols` (Go parser, Python indent, C-like braces) |
 | `retrieve id` | the original; optional `lines`/`grep`/`query` read a part (not a failure). A full read marks the source as badly optimized |
 | `stats` | savings (see Ledger → Reports) |
 
@@ -348,7 +348,7 @@ Read lines match by text, with a uniform line-number shift.
 
 ### Other request parts
 
-- **Tool schemas** (`tools.go`, `compact_tools`, `compress/schema`): titles restating names and
+- **Tool schemas** (`tools.go`, `compact_tools`, `internal/compress/schema`): titles restating names and
   `$schema`/`$id` are dropped in every API's shape; one event per distinct tool set (route `tools`).
 - **Instructions** (`prompts.go`): system prompts, `<system-reminder>`s in user text, chat/responses
   system/developer messages and `instructions`, Gemini `systemInstruction`. Each distinct block
@@ -409,7 +409,7 @@ request per model turn after tool results:
   prefix the previous request sent identically is read from the cache, the rest written); how
   many re-sent messages the proxy forwarded byte-identical (canonical JSON)
 
-## Source files (`optimizer/fs/catoptimizer`)
+## Source files (`optimizer/catoptimizer`)
 
 Agents edit by exact text, so source is shrunk only by dropping whole lines. Kept lines are
 byte-exact: indentation and trailing comments are untouched, so Python stays valid as far as shown.
@@ -704,7 +704,7 @@ count. Nothing is written otherwise.
   agent tokens) and defaults to the overview of the calling session (`session: all` for every
   session).
 
-### Cost (`cost/`, `mcptool.BuildCosts`, docs/cost.md)
+### Cost (`internal/cost/`, `mcptool.BuildCosts`, docs/cost.md)
 
 saved tokens × tokenizer factor × (first read + rereads), per agent and model:
 - tokenizer factor: claude 1.58 (measured from transcripts), legacy 1.25, gemini 0.79, o200k 1

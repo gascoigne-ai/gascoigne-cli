@@ -1,5 +1,5 @@
---- a/optimizer/log/logoptimizer/outliers.go
-+++ b/optimizer/log/logoptimizer/outliers.go
+--- a/optimizer/logoptimizer/outliers.go
++++ b/optimizer/logoptimizer/outliers.go
 @@ -47,7 +47,7 @@
  			continue
  		}

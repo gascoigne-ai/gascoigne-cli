@@ -12,7 +12,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/gascoigne-ai/gascoigne-cli/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 )
 
 func TestReplayFile(t *testing.T) {

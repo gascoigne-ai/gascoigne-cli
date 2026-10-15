@@ -20,8 +20,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gascoigne-ai/gascoigne-cli/prose"
-	"github.com/gascoigne-ai/gascoigne-cli/version"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
 
 //go:embed setup.html

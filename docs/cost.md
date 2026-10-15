@@ -57,7 +57,7 @@ as the agent's default (`claude` → `claude-opus-5-5`, `codex` → `gpt-5.3-cod
 `gemini` → `gemini-3.1-pro`) and marked `*`. Models with no known price are listed as
 *not priced*.
 
-Prices are list prices (standard tier, short context) checked 2026-10-11, in `cost/cost.go`:
+Prices are list prices (standard tier, short context) checked 2026-10-11, in `internal/cost/cost.go`:
 
 - Anthropic: <https://platform.claude.com/docs/en/about-claude/pricing>
 - OpenAI: <https://developers.openai.com/api/docs/pricing>

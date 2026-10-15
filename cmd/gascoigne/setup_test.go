@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gascoigne-ai/gascoigne-cli/prose"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
 )
 
 func postSetup(h http.Handler, body string) *httptest.ResponseRecorder {

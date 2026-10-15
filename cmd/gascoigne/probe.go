@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/probe"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
-	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/probe"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
 // probeRun is one optimized original checked against its stored output.

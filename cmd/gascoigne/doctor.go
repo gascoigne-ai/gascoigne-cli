@@ -10,7 +10,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/version"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
 
 // A finding is one line of the doctor's report. fix, when set, repairs it

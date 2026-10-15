@@ -161,3 +161,14 @@ can lose data. The one-click action stays what is gascoigne's own: loading tools
 - Tasks live in `.harness/tasks/`; a finished task is deleted in the commit that does it.
 - A build artifact (`cmd/gascoigne/gascoigne`) was committed by mistake and is now ignored; the
   history was not rewritten (unpushed commits, rewrite declined).
+
+## Layout
+
+**Public surface is `component/ payload/ tokens/`; libs live in `internal/` (2026-10-15).** The OTel Collector
+keeps a small public API and hides the rest. The top level had ~25 dirs (libs beside contracts and components)
+and `optimizer/` nested one dir per family. Now `detect compress mcptool cost prose mcpauth version lazyre` are
+under `internal/`, and optimizers are flat (`optimizer/<name>optimizer`; the family is the factory's
+`WithFamily`, not a directory). Cost: components import `internal/`, so they can no longer become separate Go
+modules; the old rule (components import only public packages) is gone. Kept: components never import the engine
+(`internal/{config,router,service,registry}`), so no component special-cases core. Rejected: nesting libs
+under `pkg/` (fewer dirs but still all public) and keeping libs public (no real consumer outside this module).

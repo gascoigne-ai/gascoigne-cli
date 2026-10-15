@@ -9,7 +9,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/version"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
 
 // command is one subcommand: how it runs and how help presents it.

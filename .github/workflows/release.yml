@@ -28,7 +28,7 @@ jobs:
 
       - name: Tag matches version.Number
         run: |
-          want=$(sed -n 's/^const Number = "\(.*\)"/\1/p' version/version.go)
+          want=$(sed -n 's/^const Number = "\(.*\)"/\1/p' internal/version/version.go)
           if [ "${TAG}" != "v${want}" ]; then
             echo "tag ${TAG} does not match version.Number ${want}" >&2
             exit 1

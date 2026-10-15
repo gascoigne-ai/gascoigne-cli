@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/prose"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
 )
 
 // proseStatus says whether the prose model pass can run, and what to do when

@@ -18,8 +18,8 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 - agents: `bin/gascoigne wrap claude|codex|gemini|opencode|pi [args]` (per run), `install [-g] [agent...]` (for good: project, `-g` user configs; also cursor), `wrap -print <agent>` prints it, `unwrap [agent...]` removes it; hooks call `gascoigne hook <agent>`
 - live view: background server auto-started by exec/hook/mcp/wrap → http://127.0.0.1:7878; `server status|stop|start|run`, `dashboard` opens it in a browser (`-open=false` only prints the URL), `GASCOIGNE_SERVER=off`; exec/run/codex hook optimize through it (`POST /api/optimize`, warm pipeline), else build the pipeline locally; it restarts itself when its binary changes and exits after 30m idle (`server run -idle`, `GASCOIGNE_SERVER_IDLE`, 0 never; health checks are not activity), restarted by the next command or agent prompt (UserPromptSubmit hook: claude, codex; opencode `chat.message`)
 - `bin/gascoigne reset [-session|-agent|-since]` clears savings stats; `-all` also originals and failures
-- `bin/gascoigne tokens [file]` counts text per tokenizer family and prices it, plus exact counts (`tokens/exact/`: o200k in Go, vocabulary cached; Claude via `count_tokens` with config `tokenizers.anthropic_api_key` or `$ANTHROPIC_API_KEY`); `gain` has a cost section (`cost/`, docs/cost.md); hooks record the model from the agent transcript
-- `bin/gascoigne prompts [-agent claude|codex] [dir]` (experimental: config `experimental: [prompts]` or `GASCOIGNE_EXPERIMENTAL=prompts`, `all` for every one; commands with `experimental: true` in `help.go` are hidden and refused otherwise) lists the instruction text sent with every request (CLAUDE.md chain + imports, memory, skill/agent descriptions; AGENTS.md), prices it, flags large imports, duplicate lines, long descriptions; `prompts -terse 0.1 <files>` drops articles/fillers/hedges in place (`compress/terse`, `.bak` kept)
+- `bin/gascoigne tokens [file]` counts text per tokenizer family and prices it, plus exact counts (`internal/exact/`: o200k in Go, vocabulary cached; Claude via `count_tokens` with config `tokenizers.anthropic_api_key` or `$ANTHROPIC_API_KEY`); `gain` has a cost section (`internal/cost/`, docs/cost.md); hooks record the model from the agent transcript
+- `bin/gascoigne prompts [-agent claude|codex] [dir]` (experimental: config `experimental: [prompts]` or `GASCOIGNE_EXPERIMENTAL=prompts`, `all` for every one; commands with `experimental: true` in `help.go` are hidden and refused otherwise) lists the instruction text sent with every request (CLAUDE.md chain + imports, memory, skill/agent descriptions; AGENTS.md), prices it, flags large imports, duplicate lines, long descriptions; `prompts -terse 0.1 <files>` drops articles/fillers/hedges in place (`internal/compress/terse`, `.bak` kept)
 - `bin/gascoigne probe [-since 7d]` checks recorded runs for error lines/artifacts their output lost
 - `bin/gascoigne replay [-sessions N]` replays Claude Code transcripts through the LLM proxy: savings per tool, prompt-cache stability
 - `bin/gascoigne flush [-older 7d]` deletes stored originals (gzip in `raw`) and vacuums
@@ -38,11 +38,11 @@ for the area you touch before changing it (`sed -n '/^## Ledger/,/^## /p' .harne
 | Section | Read when touching |
 |---|---|
 | Layout, Flow, Payload | package boundaries, pipeline order, `payload/` attrs |
-| Content detection | `detect/`, `filter/detectfilter`, new dialects |
-| Families | any `optimizer/<family>`, `compress/*` engines, `embedjson`/`dense`/`paths`/`truncate` |
-| MCP | `receiver/mcp*`, `mcptool/` |
+| Content detection | `internal/detect/`, `filter/detectfilter`, new dialects |
+| Families | any `optimizer/*`, `internal/compress/*` engines, `embedjson`/`dense`/`paths`/`truncate` |
+| MCP | `receiver/mcp*`, `internal/mcptool/` |
 | LLM API proxy | `receiver/httpproxyreceiver`, `llmproxy.go`, `replay.go` |
-| Source files | `optimizer/fs/catoptimizer` |
+| Source files | `optimizer/catoptimizer` |
 | Agents | `agents.go`, `hook.go`, `posthook.go`, `install.go`, `unwrap.go`, `guide.go` |
 | Full-payload guarantee | `internal/service`, hints, raw ids |
 | Ledger | `extension/ledger`, `gain`, `server.go`, `dashboard.go`, cost |
@@ -51,6 +51,6 @@ for the area you touch before changing it (`sed -n '/^## Ledger/,/^## /p' .harne
 
 Changing behavior a section describes: update that section in the same commit.
 
-Layout: public contracts `component/` `payload/` `tokens/`, libs `detect/` `compress/` `mcptool/` `cost/` `prose/` `lazyre/` (package-level regexps: `lazyre.New`, never `regexp.MustCompile`); components in `receiver/` `filter/` `optimizer/` `exporter/` `extension/` (never import `internal/`); engine in `internal/`.
+Layout: public contracts `component/` `payload/` `tokens/`; components in `receiver/` `filter/` `optimizer/` (flat: `optimizer/<name>optimizer`) `exporter/` `extension/` (may import `internal/` libs, never the engine); engine in `internal/{config,router,service,registry}`; libs in `internal/` (`detect` `compress` `mcptool` `cost` `prose` `mcpauth` `exact` `version` `lazyre`: package-level regexps `lazyre.New`, never `regexp.MustCompile`).
 
 Skills: `verify`, `add-component`, `eval`, `release` (version, changelog, tag, push, website page). Task queue: `.harness/tasks/`, loop: `.harness/scripts/loop.sh`.

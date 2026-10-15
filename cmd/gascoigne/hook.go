@@ -13,10 +13,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
-	"github.com/gascoigne-ai/gascoigne-cli/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/exporter/stdoutexporter"
-	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/sample"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/hookreceiver"
 )

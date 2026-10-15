@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
-	"github.com/gascoigne-ai/gascoigne-cli/version"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
 
 const defaultServerAddr = "127.0.0.1:7878"

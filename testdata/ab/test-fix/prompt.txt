@@ -1,1 +1,1 @@
-The tests of ./compress/probe fail. Find the bug in the non-test code and fix it. Do not change test files.
+The tests of ./internal/compress/probe fail. Find the bug in the non-test code and fix it. Do not change test files.

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gascoigne-ai/gascoigne-cli/version"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
 
 // site serves latest.json with body and counts the requests it gets.

@@ -10,10 +10,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/terse"
-	"github.com/gascoigne-ai/gascoigne-cli/cost"
-	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
-	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/terse"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
-	"github.com/gascoigne-ai/gascoigne-cli/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 )
 
 func TestGainOneline(t *testing.T) {

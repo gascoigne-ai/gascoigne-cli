@@ -3,7 +3,7 @@
 # a wrong type or a savings drop here, with the fixture case still passing,
 # means the fixture is stale. Output varies with the repository, so floors
 # sit at about half of what was measured. A missing program skips its case.
-- run: go test -v -count=1 ./compress/... ./lazyre/ ./tokens/
+- run: go test -v -count=1 ./internal/compress/... ./internal/lazyre/ ./tokens/
   expect_type: test/go
   min_saved: 45
 - run: git log --stat -n 30

@@ -10,8 +10,8 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
-	"github.com/gascoigne-ai/gascoigne-cli/version"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcpauth"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
 
 // loginTool is the one tool a remote server offers until its OAuth login is done.

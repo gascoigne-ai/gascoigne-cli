@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
-	"github.com/gascoigne-ai/gascoigne-cli/compress/schema"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/schema"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )

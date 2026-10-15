@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/version"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
 
 // cmdUpgrade gathers what a new gascoigne needs done in one place, so there

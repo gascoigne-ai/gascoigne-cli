@@ -17,7 +17,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/gascoigne-ai/gascoigne-cli/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 

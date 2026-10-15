@@ -24,7 +24,7 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 
 - Web pages: article benchmark (`.harness/scripts/html-bench.sh`, 181 pages) at recall 98.8%, precision 64.5% after
   link-dense blocks are dropped. Remaining misses: share bars and footers outside `<footer>`, and link lists of
-  long titles that are chrome; the thresholds are in `compress/htmlx/dense.go`.
+  long titles that are chrome; the thresholds are in `internal/compress/htmlx/dense.go`.
 
 - Token-saving ideas from the 2026-10-12 ideation pass (score out of 25 in brackets; tasks 040-054
   hold the top ones). Measure each with `ab.sh`, `replay` or `make eval` before keeping it:
@@ -37,7 +37,7 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   - Cold-cache history diet [17]: shrink old tool results only on requests whose prefix is rewritten
     anyway (after the TTL, compaction, or a changed system prompt or tool set); warm requests stay
     byte-identical. Measure cold vs warm cost with `replay`.
-  - Tool description trimming [16]: cap long MCP tool descriptions with `compress/terse`; tool sets
+  - Tool description trimming [16]: cap long MCP tool descriptions with `internal/compress/terse`; tool sets
     are about 35k tokens per request, mostly descriptions.
   - Stronger default truncation [16]: `truncate.max_tokens` 10000 to 4000 where the hint reads the rest.
   - Read line numbers on every 5th line in the proxy [12]: risky for edits, needs an edit-task A/B.
@@ -86,7 +86,7 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   after (the dashboard and `gain` show requests and context per day; the LLM proxy has no session id, so use per-day request counts
   per agent). Drop the line if nothing moves.
 
-- Marker audit with exact o200k counts (`tokens/exact/`; Claude needs an API key, not yet measured):
+- Marker audit with exact o200k counts (`internal/exact/`; Claude needs an API key, not yet measured):
   raw id 16→8 hex saves 7 tokens per hint (done); `(×60)`→`×60` and `[↑ …`→`[…` save 2 each but
   only ~0.1% of eval output; `… N lines omitted`, `§1`, `_cols/_rows`, `L12-30` have no cheaper
   form. Re-run with `tokens` and a key before changing Claude-facing markers.

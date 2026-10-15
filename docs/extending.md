@@ -11,7 +11,7 @@ to make a component work; the contracts are APIs every component depends on.
 
 Example: a new test runner, `mytest`.
 
-1. **Detection.** Add a `Spec` in `detect/test.go`:
+1. **Detection.** Add a `Spec` in `internal/detect/test.go`:
 
    ```go
    Spec{Type: MyTest, Cmds: []string{"mytest"}, Priority: 30, Sniff: anyLine(`^MYTEST v\d`)}
@@ -20,9 +20,9 @@ Example: a new test runner, `mytest`.
    and the type constant (`MyTest = "test/mytest"`). Use `Refines` when it specializes a generic
    file or MIME type, `CmdFunc` when a flag value decides it.
 2. **Rules.** Teach the family's engine or library what to keep and drop: for tests,
-   `compress/testreport`; for builds, `compress/diag`; for package managers,
-   `compress/pkgnoise`; for YAML, `compress/yamlx`; for tables, `compress/table`.
-3. **Matrix.** Add a command example and a content example in `detect/matrix_test.go`.
+   `internal/compress/testreport`; for builds, `internal/compress/diag`; for package managers,
+   `internal/compress/pkgnoise`; for YAML, `internal/compress/yamlx`; for tables, `internal/compress/table`.
+3. **Matrix.** Add a command example and a content example in `internal/detect/matrix_test.go`.
 4. **Fixture.** Save realistic, sanitized output in `testdata/eval/<tool>/` (no secrets,
    emails or home paths) and add a case to `testdata/eval/cases.yaml`:
 
@@ -40,7 +40,7 @@ Example: a new test runner, `mytest`.
 ## Add an optimizer (a new family)
 
 ```
-optimizer/<family>/<name>optimizer/
+optimizer/<name>optimizer/
   factory.go     NewFactory() via component.NewFactory, const typ, component.WithFamily
   config.go      Config with yaml tags, documented fields, Validate() for constraints
   <name>.go      the engine (package doc comment here)
@@ -83,7 +83,7 @@ Rules for optimizers:
 - **Errors, not half-broken output**: the core falls back to the original and records it.
 - **Explain deliberate no-ops**: set `payload.AttrSkip` (`skip_reason`) to a factual reason,
   e.g. `mything: 120 rows < max_rows 200`.
-- **Reuse libraries**: `compress/`, `compress/sample`, `compress/table`, `compress/jsonx`. An
+- **Reuse libraries**: `internal/compress/`, `internal/compress/sample`, `internal/compress/table`, `internal/compress/jsonx`. An
   engine needing another family's logic uses its public library, never its package.
 - **Keep marker text short**; it costs tokens too.
 

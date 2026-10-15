@@ -10,8 +10,8 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/gascoigne-ai/gascoigne-cli/compress/sample"
-	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/sample"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
 // searchResults is how many tools search_tools returns with their schemas.

@@ -17,7 +17,7 @@ Versions follow SemVer; a patch release carries fixes and small features, a mino
    Added / Changed / Fixed). One summary sentence under the heading. Name data migrations and
    changed defaults (retention, config) so upgrading users see them. The release workflow uses this
    section as the GitHub release notes and fails without it.
-4. `version/version.go`: `const Number = "X.Y.Z"`. The workflow fails when the tag differs.
+4. `internal/version/version.go`: `const Number = "X.Y.Z"`. The workflow fails when the tag differs.
 5. Commit both as `release: X.Y.Z <short summary>` (fixes go in their own earlier commits).
 
 ## 2. Tag and push

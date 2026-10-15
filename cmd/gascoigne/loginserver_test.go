@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/gascoigne-ai/gascoigne-cli/mcpauth/authtest"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcpauth/authtest"
 )
 
 // The proxy asks the server to log in; the server opens the browser.

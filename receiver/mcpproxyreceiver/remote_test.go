@@ -12,8 +12,8 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
-	"github.com/gascoigne-ai/gascoigne-cli/mcpauth/authtest"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcpauth"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcpauth/authtest"
 )
 
 func TestRemote(t *testing.T) {

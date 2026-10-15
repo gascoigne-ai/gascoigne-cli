@@ -115,7 +115,7 @@ composed: their content goes to the test, build or pkg engine.
 |---|---|---|
 | `vcs/git-status` | `git status` | hints dropped; staged, unstaged and untracked paths grouped, siblings merged (`internal/service/{pipeline.go,service.go}`) |
 | `vcs/git-log` | `git log` | one line per commit (hash, date, author, subject, `+N body lines`); `--stat`/`--name-only`/`--name-status` file lists kept under it, stat bars reduced to their signs (`\| 140 +-`) |
-| `vcs/git-diff` | `git diff`, `git show`, `*.diff`, `*.patch` | context cut to `context_lines`, long files capped; small in-line edits as word diffs (`~[-var-]{+const+} minUsagePadding = 25`); lockfiles (`go.sum`, `package-lock.json`, `Cargo.lock`, …) and generated files (`*.pb.go`, `*.min.js`, `Code generated … DO NOT EDIT`) folded to `+N -M lines folded`; a removed block of `min_move_lines`+ lines that comes back verbatim elsewhere (moved code, same or other file, indentation aside) becomes `-… 50 lines moved to compress/rows/hash.go:8` |
+| `vcs/git-diff` | `git diff`, `git show`, `*.diff`, `*.patch` | context cut to `context_lines`, long files capped; small in-line edits as word diffs (`~[-var-]{+const+} minUsagePadding = 25`); lockfiles (`go.sum`, `package-lock.json`, `Cargo.lock`, …) and generated files (`*.pb.go`, `*.min.js`, `Code generated … DO NOT EDIT`) folded to `+N -M lines folded`; a removed block of `min_move_lines`+ lines that comes back verbatim elsewhere (moved code, same or other file, indentation aside) becomes `-… 50 lines moved to internal/compress/rows/hash.go:8` |
 | `vcs/git-blame` | `git blame`, `git annotate` | runs of lines by one commit grouped |
 | `vcs/git-branch`, `vcs/git-remote` | `git branch`; `git push/pull/fetch/clone` | mirrored remote branches and transfer progress dropped |
 | `vcs/gh-list`, `vcs/gh-view` | `gh pr list`, `gh issue list`, …; `gh pr view` | lists as tables |
@@ -292,7 +292,7 @@ engine; S3 listings summarized.
 
 ## Composition
 
-`compress/compose` sniffs a section and hands it to the test, build or pkg engine. The task
+`internal/compress/compose` sniffs a section and hands it to the test, build or pkg engine. The task
 family and docker builds use it, so `make test` inside a CI log is treated as test output.
 
 ## JSON inside text (`embedjson`, first in the chain)

@@ -1,1 +1,1 @@
-`go build ./...` fails. Fix the code so it builds and the tests of ./optimizer/log/... pass. Do not change test files.
+`go build ./...` fails. Fix the code so it builds and the tests of ./optimizer/... pass. Do not change test files.

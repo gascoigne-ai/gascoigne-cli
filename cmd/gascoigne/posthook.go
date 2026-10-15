@@ -6,7 +6,7 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 

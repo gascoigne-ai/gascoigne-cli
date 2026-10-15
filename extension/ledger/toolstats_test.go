@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
-	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
 func TestToolStats(t *testing.T) {

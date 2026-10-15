@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
-	"github.com/gascoigne-ai/gascoigne-cli/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
-	"github.com/gascoigne-ai/gascoigne-cli/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
 // withLedger parses flags, starts the service and hands the ledger to fn.

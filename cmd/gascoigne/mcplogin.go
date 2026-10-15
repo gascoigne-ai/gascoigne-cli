@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/gascoigne-ai/gascoigne-cli/mcpauth"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcpauth"
 )
 
 // authStore is where mcp-login keeps the OAuth tokens of remote MCP servers.

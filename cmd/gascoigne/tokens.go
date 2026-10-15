@@ -11,10 +11,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gascoigne-ai/gascoigne-cli/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/exact"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
-	"github.com/gascoigne-ai/gascoigne-cli/tokens/exact"
 )
 
 // cmdTokens counts text the ways models do and prices one read of it.
