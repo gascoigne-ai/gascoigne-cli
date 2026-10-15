@@ -130,7 +130,8 @@ engine needs lives in public libraries under `internal/compress/`:
 
 Other public libraries: `detect` (content types), `mcptool` (MCP tools and reports), `cost`
 (tokenizer families and prices), `lazyre` (package-level patterns compiled on first use, so a
-short CLI run never pays for them), `tokens` (the BPE-style token estimate).
+short CLI run never pays for them), `pcomb` (line matchers from combinators and rule tables with
+examples, for tables a long regexp would make unreadable), `tokens` (the BPE-style token estimate).
 
 ## Layout
 

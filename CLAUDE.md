@@ -33,24 +33,13 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 
 Why things are as they are: `.harness/decisions.md` (not loaded). Open ideas, measured results, dropped ideas:
 `.harness/backlog.md` (not loaded; read before proposing or retrying an optimization).
-Architecture reference: `.harness/architecture.md` (not loaded; ~17k tokens). Read the section
-for the area you touch before changing it (`sed -n '/^## Ledger/,/^## /p' .harness/architecture.md`):
-| Section | Read when touching |
-|---|---|
-| Layout, Flow, Payload | package boundaries, pipeline order, `payload/` attrs |
-| Content detection | `internal/detect/`, `filter/detectfilter`, new dialects |
-| Families | any `optimizer/*`, `internal/compress/*` engines, `embedjson`/`dense`/`paths`/`truncate` |
-| MCP | `receiver/mcp*`, `internal/mcptool/` |
-| LLM API proxy | `receiver/httpproxyreceiver`, `llmproxy.go`, `replay.go` |
-| Source files | `optimizer/catoptimizer` |
-| Agents | `agents.go`, `hook.go`, `posthook.go`, `install.go`, `unwrap.go`, `guide.go` |
-| Full-payload guarantee | `internal/service`, hints, raw ids |
-| Ledger | `extension/ledger`, `gain`, `server.go`, `dashboard.go`, cost |
-| Config | `configs/`, `internal/config`, overrides |
-| Adding a component | new receiver/filter/optimizer/exporter/extension |
+Architecture reference: `.harness/architecture.md` (index, layout; loaded on demand) links one file per area in
+`.harness/architecture/` (each ~15-140 lines). Read the file for the area you touch before changing it:
+flow, detection, families, mcp, llm-proxy, source-files, agents, hooks, full-payload, ledger, server, reports,
+config, adding-component. The index table says which files each one covers.
 
-Changing behavior a section describes: update that section in the same commit.
+Changing behavior a file describes: update that file in the same commit.
 
-Layout: public contracts `component/` `payload/` `tokens/`; components in `receiver/` `filter/` `optimizer/` (flat: `optimizer/<name>optimizer`) `exporter/` `extension/` (may import `internal/` libs, never the engine); engine in `internal/{config,router,service,registry}`; libs in `internal/` (`detect` `compress` `mcptool` `cost` `prose` `mcpauth` `exact` `version` `lazyre`: package-level regexps `lazyre.New`, never `regexp.MustCompile`).
+Layout: public contracts `component/` `payload/` `tokens/`; components in `receiver/` `filter/` `optimizer/` (flat: `optimizer/<name>optimizer`) `exporter/` `extension/` (may import `internal/` libs, never the engine); engine in `internal/{config,router,service,registry}`; libs in `internal/` (`detect` `compress` `mcptool` `cost` `prose` `mcpauth` `exact` `version` `lazyre`: package-level regexps `lazyre.New`, never `regexp.MustCompile`; `pcomb`: line matchers and named rule tables with examples, preferred over a new long regexp alternation).
 
 Skills: `verify`, `add-component`, `eval`, `release` (version, changelog, tag, push, website page). Task queue: `.harness/tasks/`, loop: `.harness/scripts/loop.sh`.
