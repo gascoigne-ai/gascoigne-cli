@@ -169,3 +169,23 @@ func TestNumericOutlierKept(t *testing.T) {
 		})
 	}
 }
+
+func TestShortLevelValueIsNotDebug(t *testing.T) {
+	for _, l := range []string{"level=E msg=boom", "level=D msg=boom", "level=bug msg=boom"} {
+		if isDebug(l) {
+			t.Errorf("isDebug(%q) = true", l)
+		}
+	}
+	for _, l := range []string{"10:00 DEBUG x", "level=debug msg=x", "level=TRACE msg=x"} {
+		if !isDebug(l) {
+			t.Errorf("isDebug(%q) = false", l)
+		}
+	}
+}
+
+func TestFieldsKeepsDottedTopLevelKeys(t *testing.T) {
+	got := fields(map[string]any{"service.name": "api", "msg": "hi", "n": float64(3)})
+	if got != "n=3 service.name=api" {
+		t.Fatalf("got %q", got)
+	}
+}

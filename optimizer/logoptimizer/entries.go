@@ -61,7 +61,7 @@ func fields(m map[string]any) string {
 		if slices.Contains(timeKeys, k) || slices.Contains(sevKeys, k) || slices.Contains(msgKeys, k) {
 			continue
 		}
-		if v := pick(m, []string{k}); v != "" {
+		if v := scalar(m[k]); v != "" {
 			parts = append(parts, k+"="+v)
 		}
 	}
@@ -135,17 +135,22 @@ func pick(m map[string]any, keys []string) string {
 			}
 			v = obj[part]
 		}
-		switch v := v.(type) {
-		case nil:
-		case string:
-			if v != "" {
-				return strings.TrimRight(v, "\n")
-			}
-		case float64:
-			return strconv.FormatFloat(v, 'f', -1, 64) // epoch ms, not 1.7e+12
-		case int, bool, time.Time:
-			return fmt.Sprint(v)
+		if s := scalar(v); s != "" {
+			return s
 		}
+	}
+	return ""
+}
+
+// scalar renders a decoded value, or "" for nil, empty strings and containers.
+func scalar(v any) string {
+	switch v := v.(type) {
+	case string:
+		return strings.TrimRight(v, "\n")
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64) // epoch ms, not 1.7e+12
+	case int, bool, time.Time:
+		return fmt.Sprint(v)
 	}
 	return ""
 }

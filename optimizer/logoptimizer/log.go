@@ -79,7 +79,11 @@ func severity(l string) compress.Severity {
 
 func isDebug(l string) bool {
 	m := levelRe.FindStringSubmatch(l)
-	return m != nil && strings.Contains("TRACE DEBUG", strings.ToUpper(m[1]+m[2]))
+	if m == nil {
+		return false
+	}
+	lvl := strings.ToUpper(m[1] + m[2])
+	return lvl == "TRACE" || lvl == "DEBUG"
 }
 
 func (o *Optimizer) log(lines []string) []string {
