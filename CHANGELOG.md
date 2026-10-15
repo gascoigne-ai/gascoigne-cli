@@ -6,8 +6,16 @@ All notable changes to gascoigne. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Source outline knows D (`.d`, `.di`) and more C++ (`.cxx`, `.hh`, `.hxx`, `.ipp`, `.tpp`, `.inl`, `.cppm`,
+  `.ixx`, `.cu`, `.cuh`) and Scala (`.sc`, `.sbt`) extensions; Rust is also recognised without a file name.
+
 ### Fixed
 
+- Source outline: Rust lifetimes (`&'static str`), nested block comments (Rust, Scala, D), C++ and Rust raw
+  strings and digit separators no longer break brace counting; functions inside `mod`, `union`, `package`
+  and `extern "C"` blocks are outlined.
 - The release notice reads `latest.json` hourly instead of daily, so a release published the day after a
   read is no longer hidden for up to 24 hours.
 

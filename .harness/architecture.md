@@ -432,8 +432,11 @@ of numbers for `tail`/`sed`). An agent edits within kept runs and reads a gap ba
   kept as they are.
 
 **Scope.**
-- Language-agnostic: comment syntax per extension (`//` + `/* */`, `#`, `--`, `;`, `%`), else by
-  family (`detect.Lang`). Unknown languages are left alone.
+- Language-agnostic: one `detect.Language` row per language (extensions, outline class, comment
+  syntax, lexical quirks), else by class (`detect.Lang`). Unknown languages are left alone.
+- The brace outline lexes per row: nested block comments (Rust, Scala, D `/+ +/`), raw strings
+  (Rust `r#"…"#`, C++ `R"x(…)x"`), Rust lifetimes vs char literals, C++ digit separators; `mod`,
+  `union`, `package` and `extern "C" {` open containers, so their functions are outlined.
 - Only `cat`/`head`/`tail` output and MCP `compress` are touched, never an agent's own
   file-read tool.
 

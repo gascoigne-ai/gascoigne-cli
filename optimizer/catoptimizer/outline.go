@@ -6,7 +6,9 @@ import (
 	"go/token"
 	"slices"
 	"strings"
+	"unicode/utf8"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
@@ -16,7 +18,7 @@ func (o *Optimizer) goOutline(src string, lines []string) []span {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, "", src, parser.ParseComments|parser.SkipObjectResolution)
 	if err != nil {
-		return o.braceOutline(lines)
+		return o.braceOutline(lines, detect.Language{})
 	}
 	var spans []span
 	for _, d := range f.Decls {
@@ -33,47 +35,55 @@ func (o *Optimizer) goOutline(src string, lines []string) []span {
 	return spans
 }
 
-var container = lazyre.New(`\b(class|interface|enum|struct|namespace|module|impl|trait|object|record)\b`)
+var (
+	container = lazyre.New(`\b(class|interface|enum|struct|union|namespace|module|mod|package|impl|trait|object|record)\b`)
+	// extern "C" { and extern(C) { hold declarations, not a body; extern "C" fn does.
+	externBlock = lazyre.New(`\bextern\s*("[^"]*"|\(\w+(\+\+)?\))?\s*\{`)
+)
+
+// containerEnd is the index where the first container keyword of l ends (a
+// brace after it opens a container block), -1 when there is none.
+func containerEnd(l string) int {
+	if m := container.FindStringIndex(l); m != nil {
+		return m[1]
+	}
+	if m := externBlock.FindStringIndex(l); m != nil {
+		return m[1] - 1
+	}
+	return -1
+}
 
 // braceOutline elides bodies of blocks nested only in containers (classes,
 // namespaces): functions and methods, top-level object literals. Strings and
 // comments are skipped roughly; good enough for an outline.
-func (o *Optimizer) braceOutline(lines []string) []span {
+func (o *Optimizer) braceOutline(lines []string, lang detect.Language) []span {
 	type open struct {
 		line      int
 		container bool
 	}
 	var stack []open
 	elide := map[int]int{} // first body line → last body line
-	inBlockComment := false
+	sc := lexer{lang: lang}
 	for i, l := range lines {
 		// A block opens in a container when a keyword precedes its brace:
 		// the line's first keyword ends before it. Found once per line, not
 		// per brace, so minified one-line sources stay linear.
 		kw := -1
 		if strings.IndexByte(l, '{') >= 0 {
-			if m := container.FindStringIndex(l); m != nil {
-				kw = m[1]
-			}
+			kw = containerEnd(l)
 		}
 		for j := 0; j < len(l); j++ {
-			c := l[j]
-			switch {
-			case inBlockComment:
-				if c == '*' && j+1 < len(l) && l[j+1] == '/' {
-					inBlockComment = false
-					j++
-				}
-			case c == '/' && j+1 < len(l) && l[j+1] == '/':
-				j = len(l)
-			case c == '/' && j+1 < len(l) && l[j+1] == '*':
-				inBlockComment = true
-				j++
-			case c == '"' || c == '\'' || c == '`':
-				j = skipString(l, j)
-			case c == '{':
+			if end, skipped := sc.skip(l, j); skipped {
+				j = end
+				continue
+			}
+			switch l[j] {
+			case '{':
 				stack = append(stack, open{i, kw >= 0 && kw <= j})
-			case c == '}' && len(stack) > 0:
+			case '}':
+				if len(stack) == 0 {
+					continue
+				}
 				top := stack[len(stack)-1]
 				stack = stack[:len(stack)-1]
 				outer := !slices.ContainsFunc(stack, func(s open) bool { return !s.container })
@@ -84,6 +94,117 @@ func (o *Optimizer) braceOutline(lines []string) []span {
 		}
 	}
 	return spans(elide)
+}
+
+// lexer tells code from comments and strings across the lines of a source.
+type lexer struct {
+	lang    detect.Language
+	closers []string // of the block comments we are in, innermost last
+	raw     string   // closer of the raw string we are in
+}
+
+// skip reports whether l[j] starts or continues a comment or string, and
+// the index of the last byte of it on this line (len(l) when it goes on).
+func (x *lexer) skip(l string, j int) (end int, skipped bool) {
+	switch {
+	case x.raw != "":
+		if strings.HasPrefix(l[j:], x.raw) {
+			j += len(x.raw) - 1
+			x.raw = ""
+		}
+		return j, true
+	case len(x.closers) > 0:
+		return x.inComment(l, j), true
+	case strings.HasPrefix(l[j:], "//"):
+		return len(l), true
+	}
+	if closer := x.commentOpener(l[j:]); closer != "" {
+		x.closers = append(x.closers, closer)
+		return j + 1, true
+	}
+	switch c := l[j]; {
+	case c == '\'':
+		return x.quote(l, j)
+	case c == '"' || c == '`':
+		return skipString(l, j), true
+	case c == 'r' && x.lang.Raw == detect.RawRust, c == 'R' && x.lang.Raw == detect.RawCpp:
+		return x.rawStart(l, j)
+	}
+	return j, false
+}
+
+// inComment moves through a block comment, opening nested ones.
+func (x *lexer) inComment(l string, j int) int {
+	if rest := l[j:]; strings.HasPrefix(rest, x.closers[len(x.closers)-1]) {
+		j += len(x.closers[len(x.closers)-1]) - 1
+		x.closers = x.closers[:len(x.closers)-1]
+	} else if closer := x.commentOpener(rest); closer != "" && x.nests(closer) {
+		x.closers = append(x.closers, closer)
+		j++
+	}
+	return j
+}
+
+// commentOpener is the closer of the block comment l starts with, "" when it
+// starts with none. Both delimiters are two bytes, so callers step one past.
+func (x *lexer) commentOpener(l string) string {
+	switch {
+	case strings.HasPrefix(l, "/*"):
+		return "*/"
+	case x.lang.Nested[0] != "" && strings.HasPrefix(l, x.lang.Nested[0]):
+		return x.lang.Nested[1]
+	}
+	return ""
+}
+
+// nests reports whether a comment closed by closer may hold another.
+func (x *lexer) nests(closer string) bool {
+	return closer == x.lang.Nested[1] || x.lang.NestedBlock
+}
+
+// quote handles ': a char literal, a lifetime, a digit separator or a string.
+func (x *lexer) quote(l string, j int) (int, bool) {
+	switch {
+	case x.lang.DigitSep && j > 0 && isDigit(l[j-1]) && j+1 < len(l) && isDigit(l[j+1]):
+		return j, true
+	case x.lang.Lifetimes:
+		if j+1 < len(l) && l[j+1] != '\\' {
+			_, w := utf8.DecodeRuneInString(l[j+1:])
+			if j+1+w >= len(l) || l[j+1+w] != '\'' {
+				return j, true // 'a: no closing quote follows
+			}
+		}
+	}
+	return skipString(l, j), true
+}
+
+func isDigit(c byte) bool { return c >= '0' && c <= '9' }
+
+func isIdent(c byte) bool {
+	return c == '_' || isDigit(c) || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z'
+}
+
+// rawStart opens a raw string at l[j] (r#"…"# in Rust, R"x(…)x" in C++);
+// anything else is an identifier and not skipped.
+func (x *lexer) rawStart(l string, j int) (int, bool) {
+	if j > 0 && isIdent(l[j-1]) && !strings.ContainsRune("bLuU8", rune(l[j-1])) {
+		return j, false
+	}
+	rest := l[j+1:]
+	if x.lang.Raw == detect.RawRust {
+		hashes := len(rest) - len(strings.TrimLeft(rest, "#"))
+		if !strings.HasPrefix(rest[hashes:], `"`) {
+			return j, false
+		}
+		x.raw = `"` + rest[:hashes]
+		return j + hashes + 1, true
+	}
+	delim, _, ok := strings.Cut(strings.TrimPrefix(rest, `"`), "(")
+	if !strings.HasPrefix(rest, `"`) || !ok || len(delim) > 16 || strings.ContainsAny(delim, ` )\\"`) {
+		return j, false
+	}
+	x.raw = ")" + delim + `"`
+	return j + 2 + len(delim), true
 }
 
 func skipString(l string, j int) int {

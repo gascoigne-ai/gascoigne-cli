@@ -71,9 +71,13 @@ func (o *Optimizer) rewrite(text, lang string, h detect.Hints, mode string) stri
 		return text
 	}
 	lines := compress.Lines(text)
+	row, _ := detect.Source(text, h)
+	if row.Class != lang {
+		row = detect.Language{}
+	}
 	var bodies []span
 	if mode == Outline {
-		bodies = o.outline(text, lines, lang)
+		bodies = o.outline(text, lines, lang, row)
 	}
 	gaps := bodies
 	syn, known := syntaxOf(lang, h)
@@ -95,14 +99,14 @@ func (o *Optimizer) rewrite(text, lang string, h detect.Hints, mode string) stri
 	return compress.Join(out)
 }
 
-func (o *Optimizer) outline(text string, lines []string, lang string) []span {
+func (o *Optimizer) outline(text string, lines []string, lang string, row detect.Language) []span {
 	switch lang {
 	case detect.LangGo:
 		return o.goOutline(text, lines)
 	case detect.LangPython:
 		return o.indentOutline(lines)
 	case detect.LangCLike:
-		return o.braceOutline(lines)
+		return o.braceOutline(lines, row)
 	}
 	return nil
 }

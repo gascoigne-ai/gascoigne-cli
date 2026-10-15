@@ -2,6 +2,7 @@ package detect
 
 import (
 	"path"
+	"slices"
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
@@ -29,7 +30,20 @@ type Language struct {
 	Strs       []string  // delimiters of strings that can span lines
 	Heredoc    bool      // <<EOF … EOF (shell, ruby, perl, php)
 	Docstrings bool      // python: a string right after def/class is documentation
+
+	// Lexical quirks the brace outline must know to count braces right.
+	NestedBlock bool      // Block comments nest (rust, scala)
+	Nested      [2]string // a second, always nesting comment pair (d: /+ +/)
+	Raw         string    // raw string flavour: RawRust r#"…"#, RawCpp R"x(…)x"
+	Lifetimes   bool      // 'a is a lifetime, not the start of a char literal
+	DigitSep    bool      // 1'000 digit separators
 }
+
+// Raw string flavours.
+const (
+	RawRust = "rust"
+	RawCpp  = "cpp"
+)
 
 // HasSyntax reports whether the row spells out its comment syntax.
 func (l Language) HasSyntax() bool { return l.Line != "" || l.Block[0] != "" }
@@ -48,12 +62,13 @@ var languages = []Language{
 	{Name: "typescript", Class: LangCLike, Exts: []string{".ts", ".tsx", ".mts"}},
 	{Name: "java", Class: LangCLike, Exts: []string{".java"}},
 	{Name: "kotlin", Class: LangCLike, Exts: []string{".kt"}},
-	{Name: "scala", Class: LangCLike, Exts: []string{".scala"}},
+	{Name: "scala", Class: LangCLike, Exts: []string{".scala", ".sc", ".sbt"}, Line: "//", Block: slashBlock, Strs: []string{`"""`}, NestedBlock: true},
 	{Name: "swift", Class: LangCLike, Exts: []string{".swift"}},
 	{Name: "c", Class: LangCLike, Exts: []string{".c", ".h"}},
-	{Name: "c++", Class: LangCLike, Exts: []string{".cc", ".cpp", ".hpp"}},
+	{Name: "c++", Class: LangCLike, Exts: []string{".cc", ".cpp", ".hpp", ".cxx", ".hh", ".hxx", ".ipp", ".tpp", ".inl", ".cppm", ".ixx", ".cu", ".cuh"}, Line: "//", Block: slashBlock, Raw: RawCpp, DigitSep: true},
 	{Name: "c#", Class: LangCLike, Exts: []string{".cs"}},
-	{Name: "rust", Class: LangCLike, Exts: []string{".rs"}},
+	{Name: "rust", Class: LangCLike, Exts: []string{".rs"}, Line: "//", Block: slashBlock, NestedBlock: true, Raw: RawRust, Lifetimes: true},
+	{Name: "d", Class: LangCLike, Exts: []string{".d", ".di"}, Line: "//", Block: slashBlock, Nested: [2]string{"/+", "+/"}, Strs: []string{"`"}},
 	{Name: "php", Class: LangCLike, Exts: []string{".php"}, Line: "//", Block: slashBlock, Strs: []string{"`", `"""`}, Heredoc: true},
 	{Name: "dart", Class: LangCLike, Exts: []string{".dart"}},
 	{Name: "zig", Class: LangCLike, Exts: []string{".zig"}},
@@ -99,13 +114,15 @@ func LanguageOf(h Hints) (Language, bool) {
 }
 
 var langSniffers = []struct {
-	lang string
-	re   *lazyre.Regexp
+	name, class string // a language row by name, else just the class
+	re          *lazyre.Regexp
 }{
-	{LangGo, lazyre.New(`(?m)^package \w+\s*$`)},
-	{LangPython, lazyre.New(`(?m)^(def \w+\(.*\):|class \w+(\(.*\))?:|from [\w.]+ import |import \w+\s*$)`)},
-	{LangShell, lazyre.New(`^#!.*\b(ba|z)?sh\b`)},
-	{LangCLike, lazyre.New(`(?m)^(import .* from |export (default |const |function |class |interface )|#include [<"]|(public |private )?(static )?(class|interface|enum) \w+.*\{|fn \w+\(|use [\w:]+;|function \w+\()`)},
+	{"", LangGo, lazyre.New(`(?m)^package \w+\s*$`)},
+	{"", LangPython, lazyre.New(`(?m)^(def \w+\(.*\):|class \w+(\(.*\))?:|from [\w.]+ import |import \w+\s*$)`)},
+	{"", LangShell, lazyre.New(`^#!.*\b(ba|z)?sh\b`)},
+	// Before the generic c-like sniffer, which would take Rust for it.
+	{"rust", LangCLike, lazyre.New(`(?m)^\s*(pub(\([a-z]+\))? )?(async |const |unsafe )*fn \w+[<(]|^\s*impl(<[^>]*>)? [\w:<>, ]+( for \w+)? \{|^\s*#\[(derive|cfg|test)\b|^\s*(pub )?mod \w+[;{]`)},
+	{"", LangCLike, lazyre.New(`(?m)^(import .* from |export (default |const |function |class |interface )|#include [<"]|(public |private )?(static )?(class|interface|enum) \w+.*\{|fn \w+\(|use [\w:]+;|function \w+\()`)},
 }
 
 // SourceExt is the lower-case extension of the file named by the file hint
@@ -120,16 +137,28 @@ func SourceExt(h Hints) string {
 	return strings.ToLower(path.Ext(file))
 }
 
-// Lang returns the language class of source code, or "" when text is not code.
-func Lang(text string, h Hints) string {
+// Source is the language of source code: its row by file extension, else a
+// guess from the text (a row only for languages told apart by content).
+// ok is false when text is not code.
+func Source(text string, h Hints) (l Language, ok bool) {
 	if l, ok := LanguageOf(h); ok {
-		return l.Class
+		return l, true
 	}
 	head := text[:min(len(text), 8192)]
 	for _, s := range langSniffers {
-		if s.re.MatchString(head) {
-			return s.lang
+		if !s.re.MatchString(head) {
+			continue
 		}
+		if i := slices.IndexFunc(languages, func(l Language) bool { return l.Name == s.name }); i >= 0 {
+			return languages[i], true
+		}
+		return Language{Class: s.class}, true
 	}
-	return ""
+	return Language{}, false
+}
+
+// Lang returns the language class of source code, or "" when text is not code.
+func Lang(text string, h Hints) string {
+	l, _ := Source(text, h)
+	return l.Class
 }

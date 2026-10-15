@@ -136,7 +136,7 @@ run({ mode: "x" }, function main() {
   two()
   three()
 })`, "\n")
-	got := opt(Outline).braceOutline(lines)
+	got := opt(Outline).braceOutline(lines, detect.Language{})
 	want := []span{{from: 2, to: 4}, {from: 8, to: 10}}
 	if !slices.Equal(got, want) {
 		t.Errorf("spans %v, want %v", got, want)

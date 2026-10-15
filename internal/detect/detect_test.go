@@ -187,6 +187,10 @@ func TestLang(t *testing.T) {
 		want string
 	}{
 		{"", Hints{File: "x.ts"}, LangCLike},
+		{"", Hints{File: "x.d"}, LangCLike},
+		{"", Hints{File: "x.cxx"}, LangCLike},
+		{"", Hints{File: "build.sc"}, LangCLike},
+		{"pub fn run(x: u8) -> u8 {\n    x\n}\n", Hints{}, LangCLike},
 		{"", Hints{Cmd: "cat src/main.go"}, LangGo},
 		{"package foo\n", Hints{}, LangGo},
 		{"#!/bin/bash\necho\n", Hints{}, LangShell},
