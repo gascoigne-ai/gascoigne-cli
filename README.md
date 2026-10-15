@@ -7,7 +7,7 @@
 A token optimizer for coding agents. It shrinks command output, tool results and web pages
 before they reach the model, and keeps every original one command away.
 
-`70–99% off verbose output` · `16 families` · `110+ tools & formats` · `claude · codex · gemini · opencode · pi · cursor` · `pure Go, no cgo`
+`70–99% off verbose output` · `16 families` · `150+ tools & formats` · `claude · codex · gemini · opencode · pi · cursor` · `pure Go, no cgo`
 
 </div>
 

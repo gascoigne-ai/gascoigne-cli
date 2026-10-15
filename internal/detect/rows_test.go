@@ -1,6 +1,11 @@
 package detect
 
-import "testing"
+import (
+	"os"
+	"slices"
+	"strings"
+	"testing"
+)
 
 func TestRows(t *testing.T) {
 	for _, r := range rows {
@@ -23,4 +28,21 @@ func TestRows(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestRowCoverage reports rows without an eval case (run with -v). It does
+// not fail: fixtures need the tool's real output, and a row is useful for
+// detection before one exists.
+func TestRowCoverage(t *testing.T) {
+	b, err := os.ReadFile("../../testdata/eval/cases.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var missing []string
+	for _, r := range rows {
+		if !strings.Contains(string(b), "expect_type: "+r.Type+"\n") && !slices.Contains(missing, r.Type) {
+			missing = append(missing, r.Type)
+		}
+	}
+	t.Logf("%d of %d row types have no eval case: %s", len(missing), len(rows), strings.Join(missing, " "))
 }

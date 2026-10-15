@@ -1,7 +1,7 @@
 # gascoigne
 
 Token optimizer for LLM agents: 16 family engines (test, build, pkg, task, vcs, search, fs, table,
-data, log, doc, web, db, k8s, infra, cloud) with ~110 tools/formats as declarative dialects
+data, log, doc, web, db, k8s, infra, cloud) with ~150 tools/formats as declarative dialects
 (`family/dialect` types),
 MCP server + proxy, LLM API proxy. Go 1.27, module `github.com/gascoigne-ai/gascoigne-cli`.
 Flow: receiver → filter → router → optimizer → exporter; sqlite ledger keeps originals + gains + failures.
