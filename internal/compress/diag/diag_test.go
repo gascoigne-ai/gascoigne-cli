@@ -129,3 +129,14 @@ func TestRepeatOnTheSameLine(t *testing.T) {
 		t.Fatalf("got:\n%s", got)
 	}
 }
+
+// Every noise rule must match its own examples and none of its near misses.
+func TestNoiseRulesVerify(t *testing.T) {
+	for _, d := range Dialects() {
+		t.Run(d, func(t *testing.T) {
+			if err := For(d).Noise.Verify(); err != nil {
+				t.Error(err)
+			}
+		})
+	}
+}

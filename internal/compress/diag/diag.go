@@ -15,6 +15,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
 
 // Diagnostic is one finding.
@@ -62,7 +63,7 @@ var (
 type Rules struct {
 	Strip    *lazyre.Regexp // prefix removed from every line first (docker "#8 1.234 ")
 	Tag      *lazyre.Regexp // prefix whose group 1 is the severity of a diagnostic without one (sbt "[error] ")
-	Noise    *lazyre.Regexp // dropped lines
+	Noise    pcomb.Rules    // dropped lines
 	MaxFrame int            // code frame lines kept per diagnostic
 }
 
@@ -112,7 +113,7 @@ func Compress(lines []string, r Rules) []string {
 			}
 		}
 		switch m := match(t); {
-		case r.Noise != nil && r.Noise.MatchString(t):
+		case r.Noise.Match(t):
 			dropped++
 		case m != nil:
 			if m.Severity == "" {
