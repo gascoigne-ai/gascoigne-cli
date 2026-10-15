@@ -25,3 +25,17 @@ func TestEveryRuleCompiles(t *testing.T) {
 		}
 	}
 }
+
+// Every noise rule must match its own examples and none of its near misses.
+func TestNoiseRulesVerify(t *testing.T) {
+	for d, r := range rules {
+		t.Run(d, func(t *testing.T) {
+			if len(r.Noise) == 0 {
+				t.Error("manager has no noise rules")
+			}
+			if err := r.Noise.Verify(); err != nil {
+				t.Error(err)
+			}
+		})
+	}
+}
