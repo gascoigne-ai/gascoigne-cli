@@ -8,6 +8,8 @@ All notable changes to gascoigne. The format follows
 
 ### Added
 
+- `gain` controls: `-brief`, `-show`/`-hide` overview sections, `-top` (default 10 rows per table, 0 all), `-sort`,
+  `-min-tokens`. The overview now cuts long tables at 10 rows and says how many were left out.
 - `gain` history survives `events_ttl`: runs pruned from the ledger are first added to daily totals (`daily_stats`,
   `daily_step_stats`), kept forever by default (`ledger.rollup_ttl`). Session and reason groupings only cover stored runs.
 - Source outline for Ruby, Crystal, Elixir, Lua, Julia (`end`-closed blocks), Haskell, Elm, OCaml/F#, Nim (declarations

@@ -56,6 +56,8 @@ count. Nothing is written otherwise.
 | `gain -by day\|week\|month` | trend, oldest first, bars scaled to the best period |
 | `gain -by agent\|model\|session\|command\|optimizer\|family\|outcome\|reason\|route` | one grouping |
 | `gain -failures` | sources that bypass optimization after going bad |
+| `gain -brief`, `-show a,b`, `-hide a,b` | overview sections by name (`overviewSections` in `render.go`: one table row per section, so a new section is a row); the totals header always prints; refused with `-by` |
+| `-top N` (10; 0 all), `-sort saved\|runs\|in\|pct\|name`, `-min-tokens N` | rows of every grouped table (`gainView.rows`, `gainview.go`); a dim note counts the rows cut; trends stay chronological |
 | filters, any view | `-session`, `-agent`, `-model`, `-since 7d\|4w\|6mo\|24h` (combine freely); also `-all`, `-json` |
 
 - The overview ends with `estimates` (`Overview.Estimates`, JSON `estimates`, MCP `stats`): what

@@ -118,6 +118,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		color    string
 		since    string
 		rereads  float64
+		view     gainViewFlags
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
@@ -127,6 +128,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
 		fs.BoolVar(&oneline, "oneline", false, "print one line of totals, for a status line")
 		fs.StringVar(&color, "color", "auto", "`mode`: auto (terminal, no NO_COLOR), always or never")
+		view.register(fs)
 		fs.Float64Var(&rereads, "rereads", cost.AgentContext.Rereads, "later requests that read each tool result again, for the cost estimate (`n`; measured median 110)")
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
@@ -156,8 +158,12 @@ func cmdGain(ctx context.Context, args []string) error {
 		if err != nil {
 			return err
 		}
+		v, err := view.build(by == "")
+		if err != nil {
+			return err
+		}
 		if by == "" {
-			return overview(ctx, l, q, asJSON, p, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss})
+			return overview(ctx, l, q, asJSON, p, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss}, v)
 		}
 		stats, err := l.Stats(ctx, q)
 		if err != nil {
@@ -166,7 +172,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		if asJSON {
 			return writeJSON(mcptool.Report(q, stats))
 		}
-		p.renderStats(os.Stdout, q, stats)
+		p.renderStats(os.Stdout, q, stats, v)
 		return nil
 	})
 }
@@ -226,7 +232,7 @@ func writeJSON(v any) error {
 	return enc.Encode(v)
 }
 
-func overview(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, asJSON bool, p painter, c cost.Context) error {
+func overview(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, asJSON bool, p painter, c cost.Context, v gainView) error {
 	o, err := mcptool.BuildOverview(ctx, l, q)
 	if err != nil {
 		return err
@@ -256,7 +262,7 @@ func overview(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, asJ
 			APIDays        []ledger.UsageDay  `json:"api_days"`
 		}{o, len(failing), usage, days})
 	}
-	p.renderOverview(os.Stdout, o, len(failing), usage, days)
+	p.renderOverview(os.Stdout, o, len(failing), usage, days, v)
 	return nil
 }
 

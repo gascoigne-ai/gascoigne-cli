@@ -147,7 +147,7 @@ func init() {
 
 		{name: "gain", args: "[flags]", group: groupSavings,
 			summary:  "token savings report",
-			examples: []string{"gascoigne gain", "gascoigne gain -by command -since 7d", "gascoigne gain -session claude-20261010-111234 -json"},
+			examples: []string{"gascoigne gain", "gascoigne gain -by command -since 7d", "gascoigne gain -brief", "gascoigne gain -show agent,model -top 3", "gascoigne gain -by command -sort runs -min-tokens 1000"},
 			run:      cmdGain},
 		{name: "raw", args: "<id> [-lines a-b|-grep re|-query words]", group: groupSavings,
 			summary:  "print an original byte-exact (marks the source as failing), or part of it",

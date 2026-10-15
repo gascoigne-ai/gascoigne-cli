@@ -140,8 +140,107 @@ func (p painter) section(w io.Writer, title string) {
 
 const barWidth = 20
 
+// overviewData is what the overview sections draw from.
+type overviewData struct {
+	o       mcptool.Overview
+	failing int
+	usage   []ledger.UsageStat
+	days    []ledger.UsageDay
+	view    gainView
+}
+
+// overviewSections are the overview's blocks in print order; -only and -hide
+// pick them by name.
+var overviewSections = []struct {
+	name string
+	draw func(p painter, w io.Writer, d overviewData)
+}{
+	{"outcome", func(p painter, w io.Writer, d overviewData) { p.outcomeTable(w, d.o) }},
+	{"trend", func(p painter, w io.Writer, d overviewData) { p.trendTable(w, d.trendTitle(), "day", d.o.Days) }},
+	{"agent", func(p painter, w io.Writer, d overviewData) {
+		d.savings(p, w, "agents", "agent", mcptool.Named(d.o.Agents), false)
+	}},
+	{"model", func(p painter, w io.Writer, d overviewData) {
+		d.savings(p, w, "models", "model", mcptool.Named(d.o.Models), false)
+	}},
+	{"cost", func(p painter, w io.Writer, d overviewData) { p.costTable(w, d.o.Cost) }},
+	{"usage", func(p painter, w io.Writer, d overviewData) { p.usageTable(w, d.usage) }},
+	{"apidays", func(p painter, w io.Writer, d overviewData) { p.usageDaysTable(w, d.days) }},
+	{"command", func(p painter, w io.Writer, d overviewData) {
+		d.savings(p, w, "commands", "command", d.o.Commands, false)
+	}},
+	{"optimizer", func(p painter, w io.Writer, d overviewData) {
+		d.savings(p, w, "optimizers", "optimizer", d.o.Optimizers, true)
+	}},
+	{"dialect", func(p painter, w io.Writer, d overviewData) {
+		d.savings(p, w, "dialects", "dialect", d.o.Dialects, false)
+	}},
+	{"skipped", func(p painter, w io.Writer, d overviewData) {
+		d.reasons(p, w, "skipped · not optimized on purpose", "filter", d.o.Skipped, yellow)
+	}},
+	{"failed", func(p painter, w io.Writer, d overviewData) {
+		d.reasons(p, w, "failed · optimizer errors, original returned", "optimizer", d.o.Failed, red)
+	}},
+	{"unchanged", func(p painter, w io.Writer, d overviewData) {
+		d.reasons(p, w, "unchanged · nothing to optimize", "", d.o.Unchanged, dim)
+	}},
+	{"failing", func(p painter, w io.Writer, d overviewData) {
+		if d.failing > 0 {
+			fmt.Fprintf(w, "\n%s %d sources bypass optimization after going bad · %s\n",
+				p.paint(yellow, "⚠"), d.failing, p.paint(dim, "gascoigne gain -failures"))
+		}
+	}},
+	{"estimates", func(p painter, w io.Writer, d overviewData) {
+		if len(d.o.Estimates) == 0 {
+			return
+		}
+		p.section(w, "estimates · how these numbers are made")
+		for _, n := range d.o.Estimates {
+			fmt.Fprintln(w, p.paint(dim, " "+n))
+		}
+	}},
+}
+
+func (d overviewData) trendTitle() string {
+	if len(d.o.Days) == 7 {
+		return "last 7 days"
+	}
+	return fmt.Sprintf("last %d days", len(d.o.Days))
+}
+
+// savings draws a savings table limited by the view; the share bars stay
+// relative to all savings.
+func (d overviewData) savings(p painter, w io.Writer, title, name string, rows []mcptool.StatsJSON, family bool) {
+	shown, more := d.view.rows(rows)
+	p.savingsTable(w, title+" · share of savings", name, shown, d.o.Total.Saved, family)
+	p.more(w, more, len(shown) > 0)
+}
+
+func (d overviewData) reasons(p painter, w io.Writer, title, by string, rows []mcptool.StatsJSON, style string) {
+	shown, more := d.view.rows(rows)
+	p.reasonTable(w, title, by, shown, style)
+	p.more(w, more, len(shown) > 0)
+}
+
+// more notes the rows a view limit left out.
+func (p painter) more(w io.Writer, n int, drawn bool) {
+	if n > 0 && drawn {
+		fmt.Fprintln(w, p.paint(dim, fmt.Sprintf(" … %d more (-top 0 shows all)", n)))
+	}
+}
+
 // renderOverview prints the gain overview for terminals.
-func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int, usage []ledger.UsageStat, days []ledger.UsageDay) {
+func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int, usage []ledger.UsageStat, days []ledger.UsageDay, v gainView) {
+	p.overviewHeader(w, o)
+	d := overviewData{o, failing, usage, days, v}
+	for _, s := range overviewSections {
+		if v.show(s.name) {
+			s.draw(p, w, d)
+		}
+	}
+}
+
+func (p painter) overviewHeader(w io.Writer, o mcptool.Overview) {
 	t := o.Total
 	title := "gascoigne savings" + filterLabel(o.Filter)
 	fmt.Fprintln(w, p.paint(bold, title))
@@ -165,47 +264,27 @@ func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int, us
 		p.paint(dim, fmt.Sprintf("%d runs:", t.Runs)),
 		p.paint(green, fmt.Sprintf("%d optimized", t.Optimized)),
 		p.paint(yellow, fmt.Sprintf("%d skipped", skipped)), failed)
+}
 
-	if len(o.Outcomes) > 0 {
-		p.section(w, "outcomes · share of input tokens")
-		var rows [][]cell
-		for _, r := range o.Outcomes {
-			share := pct(r.RawTokens, t.RawTokens)
-			style := map[string]string{"optimized": green, "bypassed": yellow, "error": red, "unchanged": dim}[r.Group]
-			rows = append(rows, []cell{
-				{text: r.Group, style: style},
-				{text: fmt.Sprint(r.Runs), right: true},
-				{text: human(r.RawTokens), right: true},
-				{text: human(r.OutTokens), right: true},
-				{text: human(r.Saved), right: true, style: zeroDim(r.Saved)},
-				{text: bar(share/100, barWidth) + fmt.Sprintf(" %5.1f%%", share), style: style},
-			})
-		}
-		p.table(w, []string{"outcome", "runs", "in", "out", "saved", " share"}, rows)
+func (p painter) outcomeTable(w io.Writer, o mcptool.Overview) {
+	if len(o.Outcomes) == 0 {
+		return
 	}
-	p.trendTable(w, "last 7 days", "day", o.Days)
-	p.savingsTable(w, "agents · share of savings", "agent", mcptool.Named(o.Agents), t.Saved, false)
-	p.savingsTable(w, "models · share of savings", "model", mcptool.Named(o.Models), t.Saved, false)
-	p.costTable(w, o.Cost)
-	p.usageTable(w, usage)
-	p.usageDaysTable(w, days)
-	p.savingsTable(w, "commands · share of savings", "command", o.Commands, t.Saved, false)
-	p.savingsTable(w, "optimizers · share of savings", "optimizer", o.Optimizers, t.Saved, true)
-	p.savingsTable(w, "dialects · share of savings", "dialect", o.Dialects, t.Saved, false)
-
-	p.reasonTable(w, "skipped · not optimized on purpose", "filter", o.Skipped, yellow)
-	p.reasonTable(w, "failed · optimizer errors, original returned", "optimizer", o.Failed, red)
-	p.reasonTable(w, "unchanged · nothing to optimize", "", o.Unchanged, dim)
-	if failing > 0 {
-		fmt.Fprintf(w, "\n%s %d sources bypass optimization after going bad · %s\n",
-			p.paint(yellow, "⚠"), failing, p.paint(dim, "gascoigne gain -failures"))
+	p.section(w, "outcomes · share of input tokens")
+	var rows [][]cell
+	for _, r := range o.Outcomes {
+		share := pct(r.RawTokens, o.Total.RawTokens)
+		style := map[string]string{"optimized": green, "bypassed": yellow, "error": red, "unchanged": dim}[r.Group]
+		rows = append(rows, []cell{
+			{text: r.Group, style: style},
+			{text: fmt.Sprint(r.Runs), right: true},
+			{text: human(r.RawTokens), right: true},
+			{text: human(r.OutTokens), right: true},
+			{text: human(r.Saved), right: true, style: zeroDim(r.Saved)},
+			{text: bar(share/100, barWidth) + fmt.Sprintf(" %5.1f%%", share), style: style},
+		})
 	}
-	if len(o.Estimates) > 0 {
-		p.section(w, "estimates · how these numbers are made")
-		for _, n := range o.Estimates {
-			fmt.Fprintln(w, p.paint(dim, " "+n))
-		}
-	}
+	p.table(w, []string{"outcome", "runs", "in", "out", "saved", " share"}, rows)
 }
 
 // reasonTable lists runs that were not optimized with the facts behind it.
@@ -330,7 +409,7 @@ func (p painter) savingsTable(w io.Writer, title, name string, rows []mcptool.St
 }
 
 // renderStats prints one grouping for terminals.
-func (p painter) renderStats(w io.Writer, q component.StatsQuery, stats []component.Stat) {
+func (p painter) renderStats(w io.Writer, q component.StatsQuery, stats []component.Stat, v gainView) {
 	r := mcptool.Report(q, stats)
 	title := "gascoigne savings by " + r.By + filterLabel(q)
 	fmt.Fprintln(w, p.paint(bold, title))
@@ -338,7 +417,9 @@ func (p painter) renderStats(w io.Writer, q component.StatsQuery, stats []compon
 		p.trendTable(w, r.By, r.By, append(r.Groups, r.Total))
 		return
 	}
-	p.savingsTable(w, r.By, r.By, append(r.Groups, r.Total), r.Total.Saved, r.By == component.ByOptimizer)
+	shown, more := v.rows(r.Groups)
+	p.savingsTable(w, r.By, r.By, append(shown, r.Total), r.Total.Saved, r.By == component.ByOptimizer)
+	p.more(w, more, true)
 }
 
 // costTable prices the savings per model: once at first read, and with the

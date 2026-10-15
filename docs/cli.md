@@ -77,6 +77,10 @@ gascoigne gain -since 7d -by day        # trend
 gascoigne gain -session claude-2026…    # one agent session
 gascoigne gain -failures                # sources that bypass optimization
 gascoigne gain -json                    # machine-readable
+gascoigne gain -brief                   # outcomes and trend only
+gascoigne gain -show agent,model -top 3 # chosen sections, three rows each
+gascoigne gain -hide estimates,dialect  # everything but these
+gascoigne gain -by command -sort runs -min-tokens 1000
 ```
 
 | Flag | Meaning |
@@ -85,6 +89,11 @@ gascoigne gain -json                    # machine-readable
 | `-since d` | Only the last period: `24h`, `7d`, `4w`, `6mo` |
 | `-session`, `-agent`, `-model` | Filters, combine freely |
 | `-all` | Ignore session/agent/model coming from `GASCOIGNE_*` (inside a wrapped agent, plain `gain` shows only the current session) |
+| `-brief` | Overview: only the outcomes and the trend |
+| `-show a,b` / `-hide a,b` | Overview sections to print / leave out: `outcome`, `trend`, `agent`, `model`, `cost`, `usage`, `apidays`, `command`, `optimizer`, `dialect`, `skipped`, `failed`, `unchanged`, `failing`, `estimates` (the totals header always prints) |
+| `-top n` | Rows per table (default 10, `0` all); a note counts the rest |
+| `-sort s` | Order of grouped tables: `saved` (default), `runs`, `in`, `pct`, `name` (trends stay by time) |
+| `-min-tokens n` | Hide groups with fewer input tokens |
 | `-failures` | List failing sources |
 | `-json` | JSON output |
 | `-color auto\|always\|never` | `auto` honors `NO_COLOR` and whether stdout is a terminal |
