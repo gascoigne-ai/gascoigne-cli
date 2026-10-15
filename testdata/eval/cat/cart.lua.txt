@@ -1,0 +1,69 @@
+-- Shopping cart helpers.
+--
+-- Carts are plain tables: { items = { {sku=..., price=..., qty=...} }, discount = 0 }.
+
+local M = {}
+
+local RATES = { PL = 0.23, DE = 0.19, US = 0.0 }
+
+--- Creates an empty cart for a country.
+function M.new(country)
+  return { items = {}, discount = 0, country = country or "PL" }
+end
+
+--- Adds an item; a second add of the same sku bumps the quantity.
+function M.add(cart, sku, price, qty)
+  qty = qty or 1
+  for _, line in ipairs(cart.items) do
+    if line.sku == sku then
+      line.qty = line.qty + qty
+      return cart
+    end
+  end
+  table.insert(cart.items, { sku = sku, price = price, qty = qty })
+  return cart
+end
+
+function M.remove(cart, sku)
+  for i, line in ipairs(cart.items) do
+    if line.sku == sku then
+      table.remove(cart.items, i)
+      break
+    end
+  end
+  return cart
+end
+
+--- Sum of line totals before discount and tax.
+function M.subtotal(cart)
+  local sum = 0
+  for _, line in ipairs(cart.items) do
+    sum = sum + line.price * line.qty
+  end
+  return sum
+end
+
+function M.total(cart)
+  local base = M.subtotal(cart) - cart.discount
+  if base < 0 then
+    base = 0
+  end
+  local rate = RATES[cart.country] or 0.0
+  return math.floor(base * (1 + rate) * 100 + 0.5) / 100
+end
+
+local function trim(s)
+  return (s:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+function M.coupon(cart, code)
+  code = trim(code)
+  if code == "HALF" then
+    cart.discount = M.subtotal(cart) // 2
+  elseif code:match("^FIX%d+$") then
+    cart.discount = math.min(tonumber(code:sub(4)), M.subtotal(cart))
+  end
+  return cart
+end
+
+return M

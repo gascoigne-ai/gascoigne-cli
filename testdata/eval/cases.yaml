@@ -783,6 +783,30 @@
 - name: detect/rust-code
   file: cat/lru.rs.txt
   expect_type: fs/code
+- name: cat/cart-elixir-outline
+  file: cat/cart.ex.txt
+  attrs: { cmd: cat lib/shop/cart.ex, cat_mode: outline }
+  expect_type: fs/code
+  keep: ["defmodule Shop.Cart do", "def add(%__MODULE__{items: items} = cart, sku, price, qty \\\\ 1) do", "def total(%__MODULE__{} = cart) do", "defp apply_coupon(cart, code) do", "# … L"]
+  min_saved: 28
+- name: cat/cart-lua-outline
+  file: cat/cart.lua.txt
+  attrs: { cmd: cat lua/cart.lua, cat_mode: outline }
+  expect_type: fs/code
+  keep: ["function M.add(cart, sku, price, qty)", "function M.total(cart)", "local function trim(s)", "return M", "-- … L"]
+  min_saved: 49
+- name: cat/cart-haskell-outline
+  file: cat/Cart.hs.txt
+  attrs: { cmd: cat src/Shop/Cart.hs, cat_mode: outline }
+  expect_type: fs/code
+  keep: ["addItem :: String -> Int -> Int -> Cart -> Cart", "total :: Cart -> Double", "class Priced a where", "-- … L"]
+  min_saved: 18
+- name: cat/cart-clojure-outline
+  file: cat/cart.clj.txt
+  attrs: { cmd: cat src/shop/cart.clj, cat_mode: outline }
+  expect_type: fs/code
+  keep: ["(defn add-item", "(defn total [cart]", "(defn apply-coupon [cart code]", "; … L"]
+  min_saved: 32
 - name: detect/go-code
   file: cat/server.go.txt
   expect_type: fs/code

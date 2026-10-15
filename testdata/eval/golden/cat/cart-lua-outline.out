@@ -1,0 +1,39 @@
+-- outline: 5 bodies elided (cat_mode=full for complete source)
+-- … comments L1-3
+
+local M = {}
+
+local RATES = { PL = 0.23, DE = 0.19, US = 0.0 }
+
+--- Creates an empty cart for a country.
+function M.new(country)
+  return { items = {}, discount = 0, country = country or "PL" }
+end
+
+--- Adds an item; a second add of the same sku bumps the quantity.
+function M.add(cart, sku, price, qty)
+  -- … L16-24
+end
+
+function M.remove(cart, sku)
+  -- … L28-34
+end
+
+--- Sum of line totals before discount and tax.
+function M.subtotal(cart)
+  -- … L39-43
+end
+
+function M.total(cart)
+  -- … L47-52
+end
+
+local function trim(s)
+  return (s:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+function M.coupon(cart, code)
+  -- … L60-66
+end
+
+return M

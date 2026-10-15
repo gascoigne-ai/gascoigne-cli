@@ -440,6 +440,8 @@ of numbers for `tail`/`sed`). An agent edits within kept runs and reads a gap ba
 **Scope.**
 - Language-agnostic: one `detect.Language` row per language (extensions, outline class, comment
   syntax, lexical quirks), else by class (`detect.Lang`). Unknown languages are left alone.
+- Outline style per row: braces (c-like), `end` blocks, declaration + indented body, parenthesis
+  balance, Go AST, Python indentation; rows without one only lose comments.
 - The brace outline lexes per row: nested block comments (Rust, Scala, D `/+ +/`), raw strings
   (Rust `r#"…"#`, C++ `R"x(…)x"`), Rust lifetimes vs char literals, C++ digit separators; `mod`,
   `union`, `package` and `extern "C" {` open containers, so their functions are outlined.

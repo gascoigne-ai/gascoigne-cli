@@ -1,0 +1,66 @@
+-- | A shopping cart: items with prices, discounts and tax.
+--
+-- Carts are immutable; every function returns a new cart.
+module Shop.Cart
+  ( Cart (..)
+  , Item (..)
+  , emptyCart
+  , addItem
+  , subtotal
+  , total
+  ) where
+
+import Data.List (find, foldl')
+import qualified Data.Map.Strict as Map
+
+-- | One line of a cart.
+data Item = Item
+  { sku :: String
+  , price :: Int
+  , qty :: Int
+  } deriving (Show, Eq)
+
+data Cart = Cart
+  { items :: [Item]
+  , discount :: Int
+  , country :: String
+  } deriving (Show, Eq)
+
+rates :: Map.Map String Double
+rates = Map.fromList [("PL", 0.23), ("DE", 0.19), ("US", 0.0)]
+
+emptyCart :: String -> Cart
+emptyCart c = Cart { items = [], discount = 0, country = c }
+
+-- | Adds an item; a second add of the same sku bumps the quantity.
+addItem :: String -> Int -> Int -> Cart -> Cart
+addItem s p q cart =
+  case find ((== s) . sku) (items cart) of
+    Nothing -> cart { items = items cart ++ [Item s p q] }
+    Just _ -> cart { items = map bump (items cart) }
+  where
+    bump it
+      | sku it == s = it { qty = qty it + q }
+      | otherwise = it
+
+-- | Sum of line totals before discount and tax.
+subtotal :: Cart -> Int
+subtotal cart = foldl' (\acc it -> acc + price it * qty it) 0 (items cart)
+
+total :: Cart -> Double
+total cart =
+  let base = max 0 (subtotal cart - discount cart)
+      rate = Map.findWithDefault 0 (country cart) rates
+      raw = fromIntegral base * (1 + rate)
+  in fromIntegral (round (raw * 100)) / 100
+
+class Priced a where
+  unitPrice :: a -> Int
+  lineTotal :: a -> Int -> Int
+  lineTotal x n =
+    let p = unitPrice x
+        d = if n >= 10 then p `div` 10 else 0
+    in (p - d) * n
+
+instance Priced Item where
+  unitPrice = price

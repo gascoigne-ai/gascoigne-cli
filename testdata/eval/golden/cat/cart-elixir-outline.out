@@ -1,0 +1,44 @@
+# outline: 3 bodies elided (cat_mode=full for complete source)
+defmodule Shop.Cart do
+  @moduledoc """
+  A shopping cart: items with prices, discounts and tax.
+
+  Carts are plain structs; every function returns a new cart.
+  """
+
+  # Tax rates by country, kept in one place so tests can override them.
+  @rates %{"PL" => 0.23, "DE" => 0.19, "US" => 0.0}
+
+  defstruct items: [], discount: 0, country: "PL"
+
+  @doc "Adds an item unless a line with the same sku exists, then bumps its quantity."
+  def add(%__MODULE__{items: items} = cart, sku, price, qty \\ 1) do
+    # … L15-22
+  end
+
+  def remove(%__MODULE__{items: items} = cart, sku) do
+    %{cart | items: Enum.reject(items, &(&1.sku == sku))}
+  end
+
+  @doc "Sum of line totals before discount and tax."
+  def subtotal(%__MODULE__{items: items}) do
+    items
+    |> Enum.map(fn line -> line.price * line.qty end)
+    |> Enum.sum()
+  end
+
+  def total(%__MODULE__{} = cart) do
+    # … L37-43
+  end
+
+  def empty?(%__MODULE__{items: []}), do: true
+  def empty?(_), do: false
+
+  defp apply_coupon(cart, "HALF") do
+    %{cart | discount: div(subtotal(cart), 2)}
+  end
+
+  defp apply_coupon(cart, code) do
+    # … L54-59
+  end
+end

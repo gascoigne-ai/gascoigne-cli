@@ -1,0 +1,33 @@
+; outline: 3 bodies elided (cat_mode=full for complete source)
+(ns shop.cart
+  "A shopping cart: items with prices, discounts and tax."
+  (:require [clojure.string :as str]))
+
+;; Tax rates by country, kept in one place so tests can override them.
+(def rates {"PL" 0.23 "DE" 0.19 "US" 0.0})
+
+(defn new-cart
+  "Creates an empty cart for a country."
+  [country]
+  {:items [] :discount 0 :country (or country "PL")})
+
+(defn add-item
+  ; … L14-19
+       (update cart :items conj {:sku sku :price price :qty qty})))))
+
+(defn remove-item [cart sku]
+  (update cart :items (fn [items] (vec (remove #(= (:sku %) sku) items)))))
+
+(defn subtotal
+  ; … L26-29
+       (reduce + 0)))
+
+(defn total [cart]
+  (let [base (max 0 (- (subtotal cart) (:discount cart)))
+        rate (get rates (:country cart) 0.0)
+        raw  (* base (+ 1 rate))]
+    (/ (Math/round (* raw 100)) 100.0)))
+
+(defn apply-coupon [cart code]
+  ; … L39-42
+      :else cart)))

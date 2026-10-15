@@ -1,0 +1,61 @@
+defmodule Shop.Cart do
+  @moduledoc """
+  A shopping cart: items with prices, discounts and tax.
+
+  Carts are plain structs; every function returns a new cart.
+  """
+
+  # Tax rates by country, kept in one place so tests can override them.
+  @rates %{"PL" => 0.23, "DE" => 0.19, "US" => 0.0}
+
+  defstruct items: [], discount: 0, country: "PL"
+
+  @doc "Adds an item unless a line with the same sku exists, then bumps its quantity."
+  def add(%__MODULE__{items: items} = cart, sku, price, qty \\ 1) do
+    case Enum.find_index(items, &(&1.sku == sku)) do
+      nil ->
+        %{cart | items: items ++ [%{sku: sku, price: price, qty: qty}]}
+
+      i ->
+        updated = List.update_at(items, i, fn line -> %{line | qty: line.qty + qty} end)
+        %{cart | items: updated}
+    end
+  end
+
+  def remove(%__MODULE__{items: items} = cart, sku) do
+    %{cart | items: Enum.reject(items, &(&1.sku == sku))}
+  end
+
+  @doc "Sum of line totals before discount and tax."
+  def subtotal(%__MODULE__{items: items}) do
+    items
+    |> Enum.map(fn line -> line.price * line.qty end)
+    |> Enum.sum()
+  end
+
+  def total(%__MODULE__{} = cart) do
+    base = subtotal(cart) - cart.discount
+    rate = Map.get(@rates, cart.country, 0.0)
+
+    base
+    |> max(0)
+    |> Kernel.*(1 + rate)
+    |> Float.round(2)
+  end
+
+  def empty?(%__MODULE__{items: []}), do: true
+  def empty?(_), do: false
+
+  defp apply_coupon(cart, "HALF") do
+    %{cart | discount: div(subtotal(cart), 2)}
+  end
+
+  defp apply_coupon(cart, code) do
+    if String.starts_with?(code, "FIX") do
+      amount = code |> String.trim_leading("FIX") |> String.to_integer()
+      %{cart | discount: min(amount, subtotal(cart))}
+    else
+      cart
+    end
+  end
+end

@@ -107,6 +107,15 @@ func (o *Optimizer) outline(text string, lines []string, lang string, row detect
 		return o.indentOutline(lines)
 	case detect.LangCLike:
 		return o.braceOutline(lines, row)
+	case detect.LangOther:
+		switch row.Style {
+		case detect.StyleEnd:
+			return o.endOutline(lines, row)
+		case detect.StyleDecl:
+			return o.declOutline(lines, row)
+		case detect.StyleParen:
+			return o.parenOutline(lines, row)
+		}
 	}
 	return nil
 }

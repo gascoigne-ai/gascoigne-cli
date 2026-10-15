@@ -1,6 +1,7 @@
 package catoptimizer
 
 import (
+	"cmp"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -115,7 +116,7 @@ func (x *lexer) skip(l string, j int) (end int, skipped bool) {
 		return j, true
 	case len(x.closers) > 0:
 		return x.inComment(l, j), true
-	case strings.HasPrefix(l[j:], "//"):
+	case strings.HasPrefix(l[j:], cmp.Or(x.lang.Line, "//")):
 		return len(l), true
 	}
 	if closer := x.commentOpener(l[j:]); closer != "" {
@@ -291,4 +292,138 @@ func spans(elide map[int]int) []span {
 	}
 	slices.SortFunc(out, func(a, b span) int { return a.from - b.from })
 	return out
+}
+
+// oneLiner reports whether a block opened on line t is also closed on it
+// (def f, do: x; if x then y end).
+var oneLiner = lazyre.New(`\bend\b[\s);,]*$|(^|[\s,])do:\s`)
+
+// endOutline elides bodies of functions in languages that close blocks with
+// end (Ruby, Elixir, Lua, Julia): functions nested only in containers.
+func (o *Optimizer) endOutline(lines []string, row detect.Language) []span {
+	open, fn, cont := lazyre.New(row.Open), lazyre.New(row.Func), lazyre.New(row.Container)
+	type block struct {
+		line int
+		kind byte // 'f' function, 'c' container, 'o' other
+	}
+	var stack []block
+	elide := map[int]int{}
+	for i, l := range lines {
+		t := strings.TrimSpace(l)
+		switch {
+		case t == "" || row.Line != "" && strings.HasPrefix(t, row.Line):
+		case strings.HasPrefix(t, "end") && (len(t) == 3 || !isIdent(t[3])):
+			if len(stack) == 0 {
+				continue
+			}
+			top := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+			outer := !slices.ContainsFunc(stack, func(b block) bool { return b.kind != 'c' })
+			if top.kind == 'f' && outer && i-top.line-1 >= o.cfg.MinBody {
+				elide[top.line+1] = i - 1
+			}
+		case open.MatchString(l) && !oneLiner.MatchString(t):
+			kind := byte('o')
+			switch {
+			case cont.MatchString(l) && row.Container != "":
+				kind = 'c'
+			case fn.MatchString(l) && row.Func != "":
+				kind = 'f'
+			}
+			stack = append(stack, block{i, kind})
+		}
+	}
+	return spans(elide)
+}
+
+// declOutline elides the lines under a declaration (deeper indented than it)
+// for languages without block delimiters: Haskell, OCaml, Nim. Declarations
+// nested only in containers (instance, module) are elided.
+func (o *Optimizer) declOutline(lines []string, row detect.Language) []span {
+	fn, cont := lazyre.New(row.Func), lazyre.New(row.Container)
+	type scope struct {
+		indent    int
+		container bool
+	}
+	var stack []scope
+	elide := map[int]int{}
+	for i := 0; i < len(lines); i++ {
+		l := lines[i]
+		t := strings.TrimSpace(l)
+		if t == "" || row.Line != "" && strings.HasPrefix(t, row.Line) {
+			continue
+		}
+		indent := indentOf(l)
+		for len(stack) > 0 && stack[len(stack)-1].indent >= indent {
+			stack = stack[:len(stack)-1]
+		}
+		switch {
+		case cont.MatchString(l):
+			stack = append(stack, scope{indent, true})
+		case fn.MatchString(l):
+			end := i
+			for j := i + 1; j < len(lines); j++ {
+				if strings.TrimSpace(lines[j]) != "" && indentOf(lines[j]) <= indent {
+					break
+				}
+				if strings.TrimSpace(lines[j]) != "" {
+					end = j
+				}
+			}
+			outer := !slices.ContainsFunc(stack, func(s scope) bool { return !s.container })
+			if outer && end-i >= o.cfg.MinBody {
+				elide[i+1] = end
+			}
+			i = end
+		}
+	}
+	return spans(elide)
+}
+
+// parenOutline elides the inner lines of top-level forms (defn, define) in
+// Lisp family languages; the first and the closing line stay.
+func (o *Optimizer) parenOutline(lines []string, row detect.Language) []span {
+	fn := lazyre.New(row.Func)
+	elide := map[int]int{}
+	for i := 0; i < len(lines); i++ {
+		if !fn.MatchString(lines[i]) {
+			continue
+		}
+		end := formEnd(lines, i)
+		if end-i-1 >= o.cfg.MinBody {
+			elide[i+1] = end - 1
+		}
+		i = end
+	}
+	return spans(elide)
+}
+
+// formEnd is the line where the form starting on line i closes, the last
+// line when it never does. Strings and ; comments are skipped roughly.
+func formEnd(lines []string, i int) int {
+	depth := 0
+	for j := i; j < len(lines); j++ {
+		inStr := false
+		l := lines[j]
+		for k := 0; k < len(l); k++ {
+			switch c := l[k]; {
+			case c == '\\':
+				k++
+			case inStr:
+				inStr = c != '"'
+			case c == '"':
+				inStr = true
+			case c == ';':
+				k = len(l)
+			case c == '(' || c == '[' || c == '{':
+				depth++
+			case c == ')' || c == ']' || c == '}':
+				depth--
+			}
+		}
+		if depth <= 0 {
+			return j
+		}
+	}
+	return len(lines) - 1
 }

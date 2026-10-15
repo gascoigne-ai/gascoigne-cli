@@ -71,8 +71,23 @@ Python stays valid as far as it is shown.
 
 ## Languages
 
-Comment syntax comes from the file extension (`//` and `/* */`, `#`, `--`, `;`, `%`), else from
-the language family (`detect.Lang`). Unknown languages are left alone rather than guessed.
+Each language is one row of the `detect` language table: extensions, comment syntax and how its
+function bodies are found. Unknown languages are left alone rather than guessed.
+
+| Outline by | Languages |
+|---|---|
+| Go parser | Go |
+| indentation | Python |
+| braces | JavaScript, TypeScript, Java, Kotlin, Scala, Swift, C, C++, C#, Rust, D, PHP, Dart, Zig, Groovy, Solidity, Move, Odin, Perl, R, PowerShell, Vue, Svelte, Astro |
+| `end` | Ruby, Crystal, Elixir, Lua, Julia |
+| declarations with deeper-indented bodies | Haskell, Elm, OCaml, F#, Nim |
+| parenthesis balance | Clojure, Emacs Lisp, Common Lisp, Scheme, Racket |
+| comments only | Erlang, SQL, Protobuf, GraphQL, Terraform, YAML, TOML, INI |
+
+The brace outline lexes Rust lifetimes and raw strings, C++ raw strings and digit separators,
+nested block comments (Rust, Scala, D) and counts `mod`, `union`, `package` and `extern "C" {` as
+containers, so methods and functions inside them are outlined. Shebangs (`ruby`, `node`, `perl`,
+`php`, `lua`, `python`, `rdmd`) and some content (Rust) identify a file without a name.
 
 ## Savings
 
@@ -80,7 +95,7 @@ the language family (`detect.Lang`). Unknown languages are left alone rather tha
 |---|---|--:|--:|--:|
 | Go `net/http/server.go` | outline | 35,098 | 9,363 | 73.3% |
 | JavaScript (deep-eql) | outline | 4,166 | 868 | 79.2% |
-| Ruby `benchmark.rb` | clean | 4,778 | 2,096 | 56.1% |
+| Ruby `benchmark.rb` | outline | 6,390 | 1,746 | 72.7% |
 | Python `json/decoder.py` | clean | 3,220 | 2,353 | 26.9% |
 | Python `json/decoder.py` | outline (forced) | 3,220 | 579 | 82.0% |
 

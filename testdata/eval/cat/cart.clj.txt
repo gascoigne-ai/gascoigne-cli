@@ -1,0 +1,43 @@
+(ns shop.cart
+  "A shopping cart: items with prices, discounts and tax."
+  (:require [clojure.string :as str]))
+
+;; Tax rates by country, kept in one place so tests can override them.
+(def rates {"PL" 0.23 "DE" 0.19 "US" 0.0})
+
+(defn new-cart
+  "Creates an empty cart for a country."
+  [country]
+  {:items [] :discount 0 :country (or country "PL")})
+
+(defn add-item
+  "Adds an item; a second add of the same sku bumps the quantity."
+  ([cart sku price] (add-item cart sku price 1))
+  ([cart sku price qty]
+   (let [idx (first (keep-indexed (fn [i line] (when (= (:sku line) sku) i)) (:items cart)))]
+     (if idx
+       (update-in cart [:items idx :qty] + qty)
+       (update cart :items conj {:sku sku :price price :qty qty})))))
+
+(defn remove-item [cart sku]
+  (update cart :items (fn [items] (vec (remove #(= (:sku %) sku) items)))))
+
+(defn subtotal
+  "Sum of line totals before discount and tax."
+  [cart]
+  (->> (:items cart)
+       (map (fn [{:keys [price qty]}] (* price qty)))
+       (reduce + 0)))
+
+(defn total [cart]
+  (let [base (max 0 (- (subtotal cart) (:discount cart)))
+        rate (get rates (:country cart) 0.0)
+        raw  (* base (+ 1 rate))]
+    (/ (Math/round (* raw 100)) 100.0)))
+
+(defn apply-coupon [cart code]
+  (let [code (str/trim code)]
+    (cond
+      (= code "HALF") (assoc cart :discount (quot (subtotal cart) 2))
+      (re-matches #"FIX\d+" code) (assoc cart :discount (min (parse-long (subs code 3)) (subtotal cart)))
+      :else cart)))

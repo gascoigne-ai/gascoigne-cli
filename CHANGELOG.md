@@ -8,6 +8,9 @@ All notable changes to gascoigne. The format follows
 
 ### Added
 
+- Source outline for Ruby, Crystal, Elixir, Lua, Julia (`end`-closed blocks), Haskell, Elm, OCaml/F#, Nim (declarations
+  with indented bodies) and Clojure, Lisp, Scheme, Racket (parenthesis balance); Perl, R, PowerShell, Groovy, Solidity,
+  Move, Odin and Vue/Svelte/Astro use the brace outline. Shebangs identify scripts without a file name.
 - Build output of CMake, Ninja, Meson, Bazel, clang-tidy/cppcheck, MSVC, dmd/ldc2/dub, sbt/scalac, Swift,
   Zig, Kotlin, GHC/cabal, Dart, rubocop, pylint, formatters and other linters is recognised and grouped
   like compiler output; any unknown tool printing `file:line: error` lines is handled as `build/generic`.
