@@ -43,3 +43,10 @@ Hard rules for every agent and human change. Breaking one = change rejected.
 - No speculative abstractions, options or hooks "for later".
 - Small focused commits; don't touch unrelated files; don't reformat untouched code.
 - No secrets, real user data or home paths in fixtures.
+
+## Worktrees
+- The repo is a bare repo (`.bare`) with one worktree per branch next to it: `master/`, `<branch>/`
+  (`/` in the branch name becomes `-`). Each agent works in its own worktree, never in another's.
+- Create/remove with `wt new|rm cli <branch>` (parent dir). It copies `.claude/settings.local.json`.
+- `bin/` is ignored, so build per worktree (`make build`). The background server defaults to
+  `127.0.0.1:7878`; set `GASCOIGNE_SERVER_ADDR` to a free port when agents run concurrently.
