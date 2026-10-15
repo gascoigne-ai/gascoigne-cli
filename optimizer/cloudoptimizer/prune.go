@@ -1,6 +1,8 @@
 package cloudoptimizer
 
 import (
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/yamlx"
@@ -42,7 +44,7 @@ func isGCPKind(v any) bool {
 // yamlRules: the same for YAML output (gcloud describe).
 var yamlRules = func() []yamlx.Rule {
 	var r []yamlx.Rule
-	for k := range dropKeys {
+	for _, k := range slices.Sorted(maps.Keys(dropKeys)) {
 		r = append(r, yamlx.Rule{Key: k})
 	}
 	// Cloud Run (knative) bookkeeping written by the control plane and gcloud.

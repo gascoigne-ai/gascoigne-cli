@@ -92,8 +92,8 @@ func (o *Optimizer) counts(p *payload.Payload, spans []span, taken []bool) map[s
 			continue
 		}
 		path := text(p, s)
-		for j := range len(path) {
-			if path[j] == '/' && j >= o.cfg.MinPrefix && j < strings.LastIndexByte(path, '/')+1 {
+		for j := range strings.LastIndexByte(path, '/') + 1 {
+			if path[j] == '/' && j >= o.cfg.MinPrefix {
 				counts[path[:j]]++
 			}
 		}
@@ -107,17 +107,26 @@ func (o *Optimizer) counts(p *payload.Payload, spans []span, taken []bool) map[s
 }
 
 func (o *Optimizer) apply(p *payload.Payload, spans []span, aliases []string) {
-	// Replace from the end so earlier offsets stay valid.
-	slices.SortFunc(spans, func(a, b span) int { return cmp.Or(b.block-a.block, b.start-a.start) })
-	for _, s := range spans {
-		t := p.Blocks[s.block].Text
-		path := t[s.start:s.end]
-		for i, prefix := range aliases {
-			if strings.HasPrefix(path, prefix+"/") {
-				p.Blocks[s.block].Text = t[:s.start] + legend.ID(legend.Paths, i) + path[len(prefix):] + t[s.end:]
-				break
+	slices.SortFunc(spans, func(a, b span) int { return cmp.Or(a.block-b.block, a.start-b.start) })
+	for k := 0; k < len(spans); {
+		blk := spans[k].block
+		t := p.Blocks[blk].Text
+		var sb strings.Builder
+		pos := 0
+		for ; k < len(spans) && spans[k].block == blk; k++ {
+			s := spans[k]
+			path := t[s.start:s.end]
+			i := slices.IndexFunc(aliases, func(a string) bool { return strings.HasPrefix(path, a+"/") })
+			if i < 0 {
+				continue
 			}
+			sb.WriteString(t[pos:s.start])
+			sb.WriteString(legend.ID(legend.Paths, i))
+			sb.WriteString(path[len(aliases[i]):])
+			pos = s.end
 		}
+		sb.WriteString(t[pos:])
+		p.Blocks[blk].Text = sb.String()
 	}
 	defs := make([]legend.Def, len(aliases))
 	for i, a := range aliases {

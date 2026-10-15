@@ -27,7 +27,7 @@ const maxLine = 2000
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	for i, b := range p.Blocks {
-		if tokens.Estimate(b.Text) <= o.cfg.MaxTokens || o.skip(b.Type) {
+		if o.skip(b.Type) || tokens.Estimate(b.Text) <= o.cfg.MaxTokens {
 			continue
 		}
 		p.Blocks[i].Text = o.cut(b.Text)

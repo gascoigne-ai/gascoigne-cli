@@ -86,9 +86,10 @@ func (o *Optimizer) body(lines []string, query []string) string {
 	if strings.TrimSpace(text) == "" {
 		return ""
 	}
-	switch detect.Sniff(text) {
+	kind := detect.Sniff(text)
+	switch kind {
 	case detect.JSON, detect.NDJSON:
-		if out, err := jsonx.Compress(text, detect.Sniff(text) == detect.NDJSON, &o.cfg.JSON, query); err == nil {
+		if out, err := jsonx.Compress(text, kind == detect.NDJSON, &o.cfg.JSON, query); err == nil {
 			return "\n" + out
 		}
 	case detect.HTML:

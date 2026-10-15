@@ -43,10 +43,10 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 
 func (o *Optimizer) block(b payload.Block, query []string) (string, error) {
 	text := strings.TrimSpace(b.Text)
-	lines := compress.Lines(compress.StripANSI(b.Text))
+	if detect.Dialect(b.Type) == "aws-s3" {
+		return compress.Join(o.s3(compress.Lines(compress.StripANSI(b.Text)))), nil
+	}
 	switch {
-	case detect.Dialect(b.Type) == "aws-s3":
-		return compress.Join(o.s3(lines)), nil
 	case strings.HasPrefix(text, "{") || strings.HasPrefix(text, "["):
 		values, err := jsonx.Decode(text)
 		if err != nil {
@@ -57,7 +57,7 @@ func (o *Optimizer) block(b payload.Block, query []string) (string, error) {
 		}
 		return jsonx.Render(values, false, &o.cfg.JSON, query)
 	}
-	if t, ok := table.Parse(lines); ok {
+	if t, ok := table.Parse(compress.Lines(compress.StripANSI(b.Text))); ok {
 		return compress.Join(table.Render(t, table.Options{MaxRows: o.cfg.MaxRows, MaxCell: o.cfg.MaxCell,
 			Rows: sample.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2, RelevanceK: 3, Query: query}})), nil
 	}

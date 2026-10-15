@@ -47,19 +47,19 @@ func (o *Optimizer) skip(typ string) bool {
 
 func (o *Optimizer) elide(text string) string {
 	lines := compress.Lines(text)
+	var dense []int
 	total := 0
-	for _, l := range lines {
+	for i, l := range lines {
 		if o.dense(l) {
+			dense = append(dense, i)
 			total += len(l)
 		}
 	}
 	if total < o.cfg.MinTotal {
 		return text
 	}
-	for i, l := range lines {
-		if o.dense(l) {
-			lines[i] = o.cut(l)
-		}
+	for _, i := range dense {
+		lines[i] = o.cut(lines[i])
 	}
 	return compress.Join(lines)
 }

@@ -32,15 +32,17 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if r.MaxFrame == 0 {
 			r.MaxFrame = o.cfg.MaxFrame
 		}
-		lines := watch.Last(compress.Lines(compress.StripANSI(b.Text)))
+		var lines []string
 		switch dialect {
-		case "docker":
-			lines = dockerSteps(lines)
 		case "sarif":
 			var err error
 			if lines, err = diag.SARIF(b.Text); err != nil {
 				return err
 			}
+		case "docker":
+			lines = dockerSteps(watch.Last(compress.Lines(compress.StripANSI(b.Text))))
+		default:
+			lines = watch.Last(compress.Lines(compress.StripANSI(b.Text)))
 		}
 		p.Blocks[i].Text = compress.Join(diag.Compress(lines, r))
 	}
@@ -57,20 +59,22 @@ var (
 func dockerSteps(lines []string) []string {
 	cmds := map[string]string{}
 	bodies := map[string][]string{}
-	for _, l := range lines {
-		if m := dockerStep.FindStringSubmatch(l); m != nil {
-			cmds[m[1]] = m[2]
-		} else if m := dockerOut.FindStringSubmatch(l); m != nil && cmds[m[1]] != "" {
-			bodies[m[1]] = append(bodies[m[1]], m[2])
+	steps := make([][]string, len(lines))
+	outs := make([][]string, len(lines))
+	for i, l := range lines {
+		if steps[i] = dockerStep.FindStringSubmatch(l); steps[i] != nil {
+			cmds[steps[i][1]] = steps[i][2]
+		} else if outs[i] = dockerOut.FindStringSubmatch(l); outs[i] != nil && cmds[outs[i][1]] != "" {
+			bodies[outs[i][1]] = append(bodies[outs[i][1]], outs[i][2])
 		}
 	}
 	var out []string
-	for _, l := range lines {
-		if m := dockerOut.FindStringSubmatch(l); m != nil && cmds[m[1]] != "" {
+	for i, l := range lines {
+		if m := outs[i]; m != nil && cmds[m[1]] != "" {
 			continue // replaced by the step's compressed body
 		}
 		out = append(out, l)
-		if m := dockerStep.FindStringSubmatch(l); m != nil {
+		if m := steps[i]; m != nil {
 			for _, b := range compose.Lines(bodies[m[1]], m[2]) {
 				out = append(out, "#"+m[1]+" "+b)
 			}

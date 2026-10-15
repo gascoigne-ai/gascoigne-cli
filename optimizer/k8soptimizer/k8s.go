@@ -34,16 +34,17 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if detect.Family(b.Type) != detect.FamilyK8s {
 			continue
 		}
-		lines := compress.Lines(compress.StripANSI(b.Text))
-		var out []string
-		switch detect.Dialect(b.Type) {
-		case "manifest":
+		if detect.Dialect(b.Type) == "manifest" {
 			text, err := o.manifests(b.Text)
 			if err != nil {
 				return err
 			}
 			p.Blocks[i].Text = text
 			continue
+		}
+		lines := compress.Lines(compress.StripANSI(b.Text))
+		var out []string
+		switch detect.Dialect(b.Type) {
 		case "describe":
 			out = describe(lines)
 		case "events":
