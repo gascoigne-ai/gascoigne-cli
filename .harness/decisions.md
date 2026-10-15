@@ -2,7 +2,7 @@
 
 Why things are the way they are, for the next person (or agent) who wonders. One entry per
 decision: what, why, what was rejected. Measured results that closed a question are in
-`backlog.md`; behavior is in `architecture.md`.
+`backlog.md`; behavior is in `architecture.md` and `architecture/`.
 
 ## Changing agents' configs
 

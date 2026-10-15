@@ -31,7 +31,7 @@ pending() {
 prompt() {
 	cat <<PROMPT
 You are working autonomously on gascoigne. Follow .harness/rules.md and .harness/code-style.md
-strictly; read .harness/architecture.md before changing code.
+strictly; read .harness/architecture.md (index) and the .harness/architecture/ file for your area before changing code.
 
 Complete this task fully, then run the verify skill (make check, and make eval if optimizers,
 filters, routes or default config changed). Do not commit and do not edit the task file;

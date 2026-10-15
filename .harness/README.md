@@ -7,7 +7,7 @@ Everything an agent needs to work on gascoigne consistently. `CLAUDE.md` imports
 |---|---|
 | `rules.md` | hard rules (deps, verification, architecture, hygiene) |
 | `code-style.md` | how code should read |
-| `architecture.md` | flow, contracts, detection, families and dialects, source files, agents (wrap/unwrap/hook), full-payload guarantee, ledger, gain |
+| `architecture.md` | layout + index of `architecture/*.md`: flow, detection, families and dialects, mcp, llm-proxy, agents, hooks, ledger, server, reports, config, one file per area |
 | `recommendations.md` | practices every change follows (loaded) |
 | `backlog.md` | open ideas, measured results, dropped ideas with numbers (not loaded) |
 | `skills/` | `verify`, `add-component`, `eval`, `release` |

@@ -329,7 +329,7 @@ flowchart LR
 ```
 
 Pipeline modeled on the OpenTelemetry Collector: typed components built by factories, wired
-by YAML (`configs/default.yaml`). Details in [`.harness/architecture.md`](.harness/architecture.md).
+by YAML (`configs/default.yaml`). Details in [`.harness/architecture.md`](.harness/architecture.md) and `.harness/architecture/`.
 
 ## Documentation
 

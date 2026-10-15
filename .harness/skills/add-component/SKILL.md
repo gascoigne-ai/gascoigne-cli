@@ -5,12 +5,12 @@ description: Add a new gascoigne component (receiver, filter, optimizer, exporte
 
 # Add component
 
-Read `.harness/architecture.md` first. Never edit core (`component/`, `payload/`, `tokens/`, `internal/{config,router,service}`)
+Read `.harness/architecture.md` first, then `architecture/adding-component.md` and the file for your area. Never edit core (`component/`, `payload/`, `tokens/`, `internal/{config,router,service}`)
 to make a component work — if you think you must, stop and ask the user.
 
 ## Steps
 1. Package `<kind>/<name><kind>/` at repo root (optimizers: `optimizer/<name>optimizer/`
-   and `component.WithFamily(family)` in the factory — see families in architecture.md) — never under `internal/`; import
+   and `component.WithFamily(family)` in the factory — see `architecture/families.md`) — never under `internal/`; import
    `component`, `payload`, `tokens`, the `internal/` libs (e.g. `compress`, `detect`) and stdlib/approved deps, never the
    engine `internal/{config,router,service,registry}` (`make imports` enforces) (e.g. `optimizer/jsonoptimizer/`).
 2. `factory.go`:
