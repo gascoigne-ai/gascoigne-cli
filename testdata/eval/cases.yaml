@@ -641,6 +641,20 @@
   file: test/flutter-test-fail.txt
   expect_type: test/dart
 
+# --- stack traces (runtime frames folded by the trace optimizer)
+- name: trace/jvm-crash
+  file: trace/jvm-crash.txt
+  attrs: { cmd: sbt run }
+  keep: ["shop.Cart.total(Cart.scala:41)", "IllegalStateException: cart 42 is closed", "Caused by: java.io.IOException: connection reset", "shop.net.Client.read(Client.scala:77)"]
+- name: trace/rust-panic
+  file: trace/rust-panic.txt
+  attrs: { cmd: cargo run }
+  keep: ["panicked at src/lru.rs:41:9", "shop::lru::Lru<K,V>::get", "./src/main.rs:9:5"]
+- name: trace/asan-uaf
+  file: trace/asan-uaf.txt
+  attrs: { cmd: ./build/shop }
+  keep: ["heap-use-after-free", "shop::Cart::total() const", "/src/cart.cc:41:12", "SUMMARY: AddressSanitizer"]
+
 # --- cat (code)
 - file: cat/server.go.txt
   attrs: { cmd: cat net/http/server.go }

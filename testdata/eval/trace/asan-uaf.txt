@@ -1,0 +1,21 @@
+=================================================================
+==31337==ERROR: AddressSanitizer: heap-use-after-free on address 0x602000000050 at pc 0x55c1 bp 0x7ffc sp 0x7ffc
+READ of size 4 at 0x602000000050 thread T0
+    #0 0x55c10000 in shop::Cart::total() const /src/cart.cc:41:12
+    #1 0x55c10001 in shop::Checkout::pay() /src/checkout.cc:18:5
+    #2 0x55c10002 in std::__invoke_impl<void, void (*)()> /usr/include/c++/13/bits/invoke.h:61:14
+    #3 0x55c10003 in std::__invoke<void (*)()> /usr/include/c++/13/bits/invoke.h:96:14
+    #4 0x55c10004 in std::thread::_State_impl<...>::_M_run() /usr/include/c++/13/bits/std_thread.h:253:13
+    #5 0x55c10005 in main /src/main.cc:9:5
+    #6 0x55c10006 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58:16
+    #7 0x55c10007 in __libc_start_main_impl ../csu/libc-start.c:360:3
+    #8 0x55c10008 in _start (/src/shop+0x1234)
+
+0x602000000050 is located 0 bytes inside of 4-byte region [0x602000000050,0x602000000054)
+freed by thread T0 here:
+    #0 0x7f000000 in operator delete(void*) /usr/src/gcc/libsanitizer/asan/asan_new_delete.cpp:164:3
+    #1 0x7f000001 in shop::Cart::~Cart() /src/cart.cc:12:5
+    #2 0x7f000002 in main /src/main.cc:7:3
+
+SUMMARY: AddressSanitizer: heap-use-after-free /src/cart.cc:41:12 in shop::Cart::total() const
+==31337==ABORTING

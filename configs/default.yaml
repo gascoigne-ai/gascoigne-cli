@@ -112,7 +112,7 @@ optimizers:
       lossless_max_tokens: 2000, min_items: 5, min_tokens: 200, max_items: 15, head_share: 0.3,
       tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
   # trace: recursion frame cycles once with a count, Go goroutines on one stack once with the others' ids
-  trace: { families: [test, build, task, log, doc], max_period: 12, min_repeats: 3, min_goroutines: 3 }
+  trace: { families: [test, build, task, log, doc], max_period: 12, min_repeats: 3, min_goroutines: 3, min_frames: 3 }
   # dense: long space-free lines (minified code, base64, data URIs) keep head and tail
   dense: { min_line: 300, min_total: 2000, head: 160, tail: 80, skip: [data, k8s, cloud] }
   # paths: long path prefixes repeated in test/build/search/log/task output → §1/file.go, legend on top

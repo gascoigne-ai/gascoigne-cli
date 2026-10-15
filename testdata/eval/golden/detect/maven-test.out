@@ -7,7 +7,7 @@
 [ERROR] Tests run: 5, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.031 s <<< FAILURE! -- in com.example.shop.CartTest
 [ERROR] com.example.shop.CartTest.neverNegative -- Time elapsed: 0.008 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: expected: <0> but was: <-4>
-… 4 dependency stack frames omitted
+… 4 framework stack frames omitted
 	at com.example.shop.CartTest.neverNegative(CartTest.java:24)
 … 2 dependency stack frames omitted
 [ERROR] com.example.shop.CartTest.lowercaseCoupon -- Time elapsed: 0.002 s <<< FAILURE!

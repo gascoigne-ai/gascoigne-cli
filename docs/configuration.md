@@ -246,6 +246,7 @@ rows, query matches) and mark every gap.
 | `aria` | `max_items`, `head`, `tail` | 20, 10, 4 | Browser snapshots: runs of like siblings keep head, tail and query matches. |
 | `trace` | `max_period`, `min_repeats` | 12, 3 | Stack-trace frame cycles up to this long, repeated this often, show once with a count. |
 | | `min_goroutines` | 3 | Goroutines on one stack shown once with the others' ids. |
+| | `min_frames` | 3 | Shortest run of runtime or framework frames shown as a count. |
 | `rerun` | `max_age`, `runs` | 20m, 3 | A re-run in the same session folds lines the last runs showed into a pointer. |
 | | `min_lines`, `min_chars` | 4, 200 | Smallest run folded. |
 | `pkg`, `task` | — | | No options. |

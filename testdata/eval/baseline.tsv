@@ -240,6 +240,9 @@ test/playwright-fail	171	0	1
 detect/playwright-fail	171	0	1
 test/flutter-test-fail	80	0	0
 detect/flutter-test-fail	80	0	0
+trace/jvm-crash	136	0	0
+trace/rust-panic	198	0	5
+trace/asan-uaf	331	0	5
 cat/server.go	11420	88	28
 cat/router.go	854	0	0
 cat/args.go	1177	0	2

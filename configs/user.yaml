@@ -215,11 +215,12 @@
 #       tail_share: 0.15
 #       anomaly_std: 2
 #       relevance_k: 3
-#   trace:                                        ## stack traces: recursion cycles and Go goroutines on one stack shown once
+#   trace:                                        ## stack traces: recursion cycles, Go goroutines on one stack and runs of runtime frames shown once
 #     families: [test, build, task, log, doc]     ## doc covers unrecognized text
 #     max_period: 12                              ## longest frame cycle searched, lines
 #     min_repeats: 3                              ## times in a row a cycle must occur
 #     min_goroutines: 3                           ## smallest group of goroutines shown once
+#     min_frames: 3                               ## shortest run of runtime/framework frames shown as a count
 #   dense:                                        ## minified code, base64, data URIs: long space-free lines keep head and tail
 #     min_line: 300                               ## shortest line that can be dense, bytes
 #     min_total: 2000                             ## fewest dense bytes in a block worth eliding (one token or URL stays)

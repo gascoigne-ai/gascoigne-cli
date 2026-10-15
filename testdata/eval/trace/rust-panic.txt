@@ -1,0 +1,31 @@
+   Compiling shop v0.1.0 (/home/dev/shop)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.20s
+     Running `target/debug/shop`
+starting shop
+thread 'main' panicked at src/lru.rs:41:9:
+index out of bounds: the len is 3 but the index is 7
+stack backtrace:
+   0: rust_begin_unwind
+             at /rustc/90c5/library/std/src/panicking.rs:645:5
+   1: core::panicking::panic_fmt
+             at /rustc/90c5/library/core/src/panicking.rs:72:14
+   2: core::panicking::panic_bounds_check
+             at /rustc/90c5/library/core/src/panicking.rs:208:5
+   3: shop::lru::Lru<K,V>::get
+             at ./src/lru.rs:41:9
+   4: shop::checkout::pay
+             at ./src/checkout.rs:18:14
+   5: shop::main
+             at ./src/main.rs:9:5
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/90c5/library/core/src/ops/function.rs:250:5
+   7: std::sys_common::backtrace::__rust_begin_short_backtrace
+             at /rustc/90c5/library/std/src/sys_common/backtrace.rs:155:18
+   8: std::rt::lang_start::{{closure}}
+             at /rustc/90c5/library/std/src/rt.rs:166:18
+   9: std::rt::lang_start_internal
+             at /rustc/90c5/library/std/src/rt.rs:148:20
+  10: main
+  11: __libc_start_main
+  12: _start
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.

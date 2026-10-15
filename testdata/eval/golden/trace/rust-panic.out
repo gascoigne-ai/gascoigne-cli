@@ -1,0 +1,16 @@
+   Compiling shop v0.1.0 (/home/dev/shop)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.20s
+     Running `target/debug/shop`
+starting shop
+thread 'main' panicked at src/lru.rs:41:9:
+index out of bounds: the len is 3 but the index is 7
+stack backtrace:
+… 3 framework stack frames omitted
+   3: shop::lru::Lru<K,V>::get
+             at ./src/lru.rs:41:9
+   4: shop::checkout::pay
+             at ./src/checkout.rs:18:14
+   5: shop::main
+             at ./src/main.rs:9:5
+… 7 framework stack frames omitted
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.

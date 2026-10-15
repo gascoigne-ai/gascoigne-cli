@@ -1,0 +1,10 @@
+2026-10-14 10:00:01 INFO  shop.Main - starting
+2026-10-14 10:00:02 ERROR shop.Main - fatal: cannot start
+java.lang.IllegalStateException: cart 42 is closed
+	at shop.Cart.total(Cart.scala:41)
+	at shop.Checkout.$anonfun$pay$1(Checkout.scala:18)
+… 31 framework stack frames omitted
+Caused by: java.io.IOException: connection reset
+… 3 framework stack frames omitted
+	at shop.net.Client.read(Client.scala:77)
+	... 22 more

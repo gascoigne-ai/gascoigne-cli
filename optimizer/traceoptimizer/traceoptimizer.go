@@ -1,6 +1,7 @@
 // Package traceoptimizer folds stack traces in command output (see
 // compress/trace): recursion cycles once with a count, goroutines of a Go
-// dump on the same stack once with the others' ids. It runs before the
+// dump on the same stack once with the others' ids, runs of runtime and
+// framework frames (JVM, Python, Rust, Ruby, .NET, PHP, gdb) as one count. It runs before the
 // family engines, so they parse and cap the shorter text.
 package traceoptimizer
 
@@ -31,6 +32,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if strings.Contains(b.Text, "goroutine ") {
 			folded = trace.Goroutines(folded, o.cfg.MinGoroutines)
 		}
+		folded = trace.Frames(folded, o.cfg.MinFrames)
 		if len(folded) < len(lines) {
 			p.Blocks[i].Text = compress.Join(folded)
 		}

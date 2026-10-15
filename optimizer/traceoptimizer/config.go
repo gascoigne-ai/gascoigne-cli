@@ -15,11 +15,14 @@ type Config struct {
 	// MinGoroutines is the smallest group of goroutines on one stack shown
 	// once.
 	MinGoroutines int `yaml:"min_goroutines"`
+	// MinFrames is the shortest run of runtime or framework frames that is
+	// replaced by a count.
+	MinFrames int `yaml:"min_frames"`
 }
 
 func (c *Config) Validate() error {
-	if c.MaxPeriod < 1 || c.MinRepeats < 2 || c.MinGoroutines < 2 {
-		return errors.New("max_period must be at least 1, min_repeats and min_goroutines at least 2")
+	if c.MaxPeriod < 1 || c.MinRepeats < 2 || c.MinGoroutines < 2 || c.MinFrames < 2 {
+		return errors.New("max_period must be at least 1, min_repeats, min_goroutines and min_frames at least 2")
 	}
 	return nil
 }

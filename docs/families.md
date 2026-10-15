@@ -321,6 +321,12 @@ A frame cycle repeated in a row (recursion, mutual recursion) stays once with
 stay once with `+39 more on this stack: 61 62 …`. A Python `RecursionError`: 25,543 → 218; a
 `go test` timeout dump: 7,478 → 388.
 
+Runs of runtime and framework frames show as one count, `… 31 framework stack frames omitted`,
+while the program's own frames stay: JVM (java, scala, kotlin, cats-effect, zio, akka), Python
+(`site-packages`), Rust backtraces (`std::`, `core::`, `tokio::`), Ruby gems, .NET (`System.`),
+PHP `vendor/`, gdb/lldb/sanitizer/valgrind frames in libc and libstdc++, D runtime. Runs shorter than
+`min_frames` stay. A Scala crash log: 755 → 136.
+
 ## Re-runs (`rerun`, last)
 
 Agents re-run tests and builds after every edit. When the same command runs again in the same
