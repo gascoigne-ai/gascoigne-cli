@@ -1,0 +1,112 @@
+// … comments L1-4
+
+use std::collections::HashMap;
+use std::hash::Hash;
+
+/// Raw notes: the format is `key=value`, e.g. r#"a="{x}""#.
+const NOTE: &str = r#"{ "unbalanced" "#;
+
+/* Block comments nest in Rust: /* inner { */ still a comment { */
+#[derive(Debug, Clone)]
+struct Node<K, V> {
+    key: K,
+    value: V,
+    prev: Option<usize>,
+    next: Option<usize>,
+}
+
+/// An LRU cache holding at most `cap` entries.
+pub struct Lru<K, V> {
+    cap: usize,
+    slab: Vec<Node<K, V>>,
+    index: HashMap<K, usize>,
+    head: Option<usize>,
+    tail: Option<usize>,
+}
+
+mod stats {
+    /// Hit and miss counters.
+    pub fn ratio(hits: u64, misses: u64) -> f64 {
+        let total = hits + misses;
+        if total == 0 {
+            return 0.0;
+        }
+        hits as f64 / total as f64
+    }
+}
+
+impl<K: Hash + Eq + Clone, V> Lru<K, V> {
+    /// Creates a cache with room for `cap` entries.
+    pub fn new(cap: usize) -> Self {
+        assert!(cap > 0, "capacity must be positive");
+        Lru { cap, slab: Vec::with_capacity(cap), index: HashMap::new(), head: None, tail: None }
+    }
+
+    /// Returns the value for `key` and marks it as most recently used.
+    pub fn get(&mut self, key: &K) -> Option<&V> {
+        let i = *self.index.get(key)?;
+        self.detach(i);
+        self.attach_front(i);
+        Some(&self.slab[i].value)
+    }
+
+    /// Inserts a value, evicting the least recently used entry when full.
+    pub fn put(&mut self, key: K, value: V) {
+        if let Some(&i) = self.index.get(&key) {
+            self.slab[i].value = value;
+            self.detach(i);
+            self.attach_front(i);
+            return;
+        }
+        if self.slab.len() == self.cap {
+            let last = self.tail.expect("full cache has a tail");
+            self.detach(last);
+            let old = std::mem::replace(&mut self.slab[last], Node { key: key.clone(), value, prev: None, next: None });
+            self.index.remove(&old.key);
+            self.index.insert(key, last);
+            self.attach_front(last);
+            return;
+        }
+        self.slab.push(Node { key: key.clone(), value, prev: None, next: None });
+        let i = self.slab.len() - 1;
+        self.index.insert(key, i);
+        self.attach_front(i);
+    }
+
+    fn detach(&mut self, i: usize) {
+        let (prev, next) = (self.slab[i].prev, self.slab[i].next);
+        match prev {
+            Some(p) => self.slab[p].next = next,
+            None => self.head = next,
+        }
+        match next {
+            Some(n) => self.slab[n].prev = prev,
+            None => self.tail = prev,
+        }
+    }
+
+    fn attach_front(&mut self, i: usize) {
+        self.slab[i].prev = None;
+        self.slab[i].next = self.head;
+        if let Some(h) = self.head {
+            self.slab[h].prev = Some(i);
+        }
+        self.head = Some(i);
+        if self.tail.is_none() {
+            self.tail = Some(i);
+        }
+    }
+}
+
+pub fn longest<'a>(a: &'a str, b: &'a str) -> &'a str {
+    if a.len() >= b.len() {
+        a
+    } else {
+        b
+    }
+}
+
+pub fn label(kind: &'static str, open: char) -> String {
+    let brace = if open == '{' { "curly" } else { "other" };
+    format!("{kind}:{brace}")
+}

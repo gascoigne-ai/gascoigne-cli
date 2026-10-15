@@ -1,0 +1,58 @@
+// outline: 3 bodies elided (cat_mode=full for complete source)
+/// A string cache with a size limit.
+///
+/// Oldest entries leave first.
+module cache;
+
+import std.algorithm : remove;
+import std.stdio : writeln;
+
+/+ D has nested comments: /+ inner { +/ still a comment { +/
+
+enum string banner = `cache { v1 "`;
+
+union Slot {
+    ulong raw;
+    double real;
+}
+
+struct Entry {
+    string key;
+    string value;
+}
+
+class Cache {
+    private Entry[] entries;
+    private size_t limit;
+
+    this(size_t limit) {
+        this.limit = limit;
+        this.entries = [];
+    }
+
+    /// Stores a value, dropping the oldest entry when the cache is full.
+    void put(string key, string value) {
+        // … L34-43
+    }
+
+    /// Looks a key up; returns null when it is missing.
+    string get(string key) {
+        // … L48-53
+    }
+
+    size_t length() const {
+        return entries.length;
+    }
+}
+
+extern (C) {
+    int cache_version() {
+        const major = 1;
+        const minor = 4;
+        return major * 100 + minor;
+    }
+}
+
+unittest {
+    // … L70-76
+}

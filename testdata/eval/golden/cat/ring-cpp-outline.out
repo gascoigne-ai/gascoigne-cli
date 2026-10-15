@@ -1,0 +1,62 @@
+// outline: 4 bodies elided (cat_mode=full for complete source)
+// … comments L1-3
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <stdexcept>
+
+namespace audio {
+
+/// Number of samples kept: 48'000 is one second at 48 kHz.
+constexpr std::size_t kCapacity = 48'000;
+
+const char *kBanner = R"banner(
+ring { buffer " v1
+)banner";
+
+extern "C" {
+int ring_version() {
+    const int major = 1;
+    const int minor = 2;
+    return major * 100 + minor;
+}
+}
+
+template <typename T, std::size_t N>
+class Ring {
+public:
+    /// Pushes a sample, overwriting the oldest one when full.
+    void push(T sample) {
+        // … L32-38
+    }
+
+    /// Mean of the samples currently held.
+    double mean() const {
+        // … L43-46
+    }
+
+    std::size_t size() const { return size_; }
+
+    /// Largest sample, scanning the whole buffer.
+    T peak() const {
+        // … L53-59
+    }
+
+private:
+    std::array<T, N> data_{};
+    std::size_t head_ = 0;
+    std::size_t size_ = 0;
+    T sum_{};
+};
+
+struct Stats {
+    double mean;
+    std::int32_t peak;
+
+    static Stats of(const Ring<std::int32_t, kCapacity> &r) {
+        // … L74-77
+    }
+};
+
+}  // namespace audio

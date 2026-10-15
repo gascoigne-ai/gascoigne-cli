@@ -1,0 +1,68 @@
+// outline: 6 bodies elided (cat_mode=full for complete source)
+// … comments L1-4
+
+use std::collections::HashMap;
+use std::hash::Hash;
+
+/// Raw notes: the format is `key=value`, e.g. r#"a="{x}""#.
+const NOTE: &str = r#"{ "unbalanced" "#;
+
+/* Block comments nest in Rust: /* inner { */ still a comment { */
+#[derive(Debug, Clone)]
+struct Node<K, V> {
+    key: K,
+    value: V,
+    prev: Option<usize>,
+    next: Option<usize>,
+}
+
+/// An LRU cache holding at most `cap` entries.
+pub struct Lru<K, V> {
+    cap: usize,
+    slab: Vec<Node<K, V>>,
+    index: HashMap<K, usize>,
+    head: Option<usize>,
+    tail: Option<usize>,
+}
+
+mod stats {
+    /// Hit and miss counters.
+    pub fn ratio(hits: u64, misses: u64) -> f64 {
+        // … L33-37
+    }
+}
+
+impl<K: Hash + Eq + Clone, V> Lru<K, V> {
+    /// Creates a cache with room for `cap` entries.
+    pub fn new(cap: usize) -> Self {
+        assert!(cap > 0, "capacity must be positive");
+        Lru { cap, slab: Vec::with_capacity(cap), index: HashMap::new(), head: None, tail: None }
+    }
+
+    /// Returns the value for `key` and marks it as most recently used.
+    pub fn get(&mut self, key: &K) -> Option<&V> {
+        // … L50-53
+    }
+
+    /// Inserts a value, evicting the least recently used entry when full.
+    pub fn put(&mut self, key: K, value: V) {
+        // … L58-76
+    }
+
+    fn detach(&mut self, i: usize) {
+        // … L80-88
+    }
+
+    fn attach_front(&mut self, i: usize) {
+        // … L92-100
+    }
+}
+
+pub fn longest<'a>(a: &'a str, b: &'a str) -> &'a str {
+    // … L105-109
+}
+
+pub fn label(kind: &'static str, open: char) -> String {
+    let brace = if open == '{' { "curly" } else { "other" };
+    format!("{kind}:{brace}")
+}

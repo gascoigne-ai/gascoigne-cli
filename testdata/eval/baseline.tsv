@@ -202,6 +202,11 @@ cat/decoder.py	2865	3	0
 cat/decoder-outline	774	3	0
 cat/benchmark.rb	2800	0	0
 cat/deep-eql.js	1041	7	0
+cat/lru-rust-outline	631	0	0
+cat/ring-cpp-outline	410	0	0
+cat/queue-scala-outline	410	0	0
+cat/cache-d-outline	344	0	0
+detect/rust-code	1134	0	0
 detect/go-code	11420	88	28
 npm/install	76	0	2
 npm/install-verbose	76	8	1115

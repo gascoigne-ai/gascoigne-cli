@@ -1,0 +1,77 @@
+/// A string cache with a size limit.
+///
+/// Oldest entries leave first.
+module cache;
+
+import std.algorithm : remove;
+import std.stdio : writeln;
+
+/+ D has nested comments: /+ inner { +/ still a comment { +/
+
+enum string banner = `cache { v1 "`;
+
+union Slot {
+    ulong raw;
+    double real;
+}
+
+struct Entry {
+    string key;
+    string value;
+}
+
+class Cache {
+    private Entry[] entries;
+    private size_t limit;
+
+    this(size_t limit) {
+        this.limit = limit;
+        this.entries = [];
+    }
+
+    /// Stores a value, dropping the oldest entry when the cache is full.
+    void put(string key, string value) {
+        foreach (i, e; entries) {
+            if (e.key == key) {
+                entries = entries.remove(i);
+                break;
+            }
+        }
+        if (entries.length == limit) {
+            entries = entries[1 .. $];
+        }
+        entries ~= Entry(key, value);
+    }
+
+    /// Looks a key up; returns null when it is missing.
+    string get(string key) {
+        foreach (e; entries) {
+            if (e.key == key) {
+                return e.value;
+            }
+        }
+        return null;
+    }
+
+    size_t length() const {
+        return entries.length;
+    }
+}
+
+extern (C) {
+    int cache_version() {
+        const major = 1;
+        const minor = 4;
+        return major * 100 + minor;
+    }
+}
+
+unittest {
+    auto c = new Cache(2);
+    c.put("a", "1");
+    c.put("b", "2");
+    c.put("c", "3");
+    assert(c.get("a") is null);
+    assert(c.get("c") == "3");
+    assert(c.length == 2);
+}

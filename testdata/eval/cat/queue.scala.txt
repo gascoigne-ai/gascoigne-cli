@@ -1,0 +1,59 @@
+package shop.orders
+
+import scala.collection.mutable
+
+/** An order waiting to be packed.
+  *
+  * Orders with a higher priority are packed first; ties keep arrival order.
+  */
+final case class Order(id: Long, items: List[String], priority: Int)
+
+/* Scala block comments nest: /* inner { */ still a comment { */
+object Queue {
+
+  /** Raw text with a quote and a brace: """{ " """. */
+  val Banner: String = """queue { v1 " """
+
+  def empty: Queue = new Queue(mutable.PriorityQueue.empty(ordering))
+
+  private val ordering: Ordering[Order] = Ordering.by[Order, Int](_.priority)
+}
+
+class Queue private (pending: mutable.PriorityQueue[Order]) {
+
+  /** Adds an order unless an order with the same id is already waiting. */
+  def offer(order: Order): Boolean = {
+    val duplicate = pending.exists(_.id == order.id)
+    if (!duplicate) {
+      pending.enqueue(order)
+    }
+    !duplicate
+  }
+
+  /** Removes and returns the next order to pack. */
+  def poll(): Option[Order] = {
+    if (pending.isEmpty) {
+      None
+    } else {
+      Some(pending.dequeue())
+    }
+  }
+
+  def size: Int = pending.size
+
+  def summary(): String = {
+    val ids = pending.toList.map(_.id)
+    val total = pending.map(_.items.size).sum
+    s"${ids.size} orders, $total items, ids=${ids.mkString(",")}"
+  }
+}
+
+package audit {
+  object Log {
+    def record(order: Order): String = {
+      val line = s"packed ${order.id}"
+      println(line)
+      line
+    }
+  }
+}
