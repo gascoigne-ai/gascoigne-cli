@@ -36,7 +36,7 @@ dependencies = [
  "serde_derive 1.0.1",
 ]
 `
-	got := testOptimizer().toml(in)
+	got := toml(in)
 	want := "version = 1\n\n[[package]] ×3\n  anyio 4.6.0 deps: idna, sniffio\n  idna 3.10\n  serde 1.0.1 deps: serde_derive\n"
 	if got != want {
 		t.Fatalf("got:\n%s", got)

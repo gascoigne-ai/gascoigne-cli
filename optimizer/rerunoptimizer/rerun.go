@@ -86,7 +86,7 @@ func newReference(outs []string) *reference {
 		lines := compress.Lines(out)
 		r.runs = append(r.runs, lines)
 		for j, l := range lines {
-			if !anchors(l) {
+			if !isAnchor(l) {
 				continue
 			}
 			if s := r.anchors[l]; len(s) < maxAnchors {
@@ -144,9 +144,9 @@ func pointer(run []string) string {
 	return fmt.Sprintf("[↑ %d lines as in the previous run, from %q]", len(run), first)
 }
 
-// anchors reports a line distinct enough to start a run: not blank, not a
+// isAnchor reports a line distinct enough to start a run: not blank, not a
 // bare brace and not a pointer.
-func anchors(l string) bool {
+func isAnchor(l string) bool {
 	t := strings.TrimSpace(l)
 	return len(t) >= 4 && !strings.HasPrefix(t, "[↑ ") && !legend.Is(l)
 }

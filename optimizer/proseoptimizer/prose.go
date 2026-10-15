@@ -1,6 +1,7 @@
 package proseoptimizer
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -15,7 +16,7 @@ import (
 // maxFailures: a model failing this often is given up on for the process lifetime.
 const maxFailures = 3
 
-var errGivenUp = fmt.Errorf("prose model given up")
+var errGivenUp = errors.New("prose model given up")
 
 // model is what the optimizer needs of the loaded model (prose.Model).
 type model interface {

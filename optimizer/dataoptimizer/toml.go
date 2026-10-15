@@ -25,7 +25,7 @@ type entry struct {
 
 // toml folds repeated array tables (lockfile [[package]] entries) to one line
 // each: scalar fields and dependency names, without hashes and URLs.
-func (o *Optimizer) toml(text string) string {
+func toml(text string) string {
 	lines := compress.Lines(text)
 	count := map[string]int{}
 	for _, l := range lines {

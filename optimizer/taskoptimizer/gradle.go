@@ -43,7 +43,7 @@ func gradle(lines []string) []string {
 	// Executed tasks with output (warnings) are worth showing; silent ones are not.
 	var shown []section
 	for _, s := range sections {
-		if s.failed || len(strings.TrimSpace(strings.Join(s.body, ""))) > 0 && hasFailure(s.body) {
+		if s.failed || hasFailure(s.body) {
 			s.failed = true
 			shown = append(shown, s)
 		}
