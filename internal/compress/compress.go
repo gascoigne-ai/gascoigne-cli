@@ -22,6 +22,12 @@ func Lines(s string) []string {
 	return strings.Split(s, "\n")
 }
 
+// IsFence reports a Markdown code fence line (``` or ~~~, indented or not).
+func IsFence(l string) bool {
+	l = strings.TrimLeft(l, " \t\n\f\r")
+	return strings.HasPrefix(l, "```") || strings.HasPrefix(l, "~~~")
+}
+
 // CleanLines is Lines of s without terminal escapes: how optimizers read output.
 func CleanLines(s string) []string { return Lines(StripANSI(s)) }
 

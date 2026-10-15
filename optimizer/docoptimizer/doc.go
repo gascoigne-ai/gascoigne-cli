@@ -47,7 +47,6 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 
 var (
 	htmlComment = lazyre.New(`(?s)<!--.*?-->`)
-	fence       = lazyre.New("^\\s*(```|~~~)")
 	// Badges: linked images, shields and CI status pictures.
 	badge = lazyre.New(`\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*(shields\.io|badge|/workflows/|codecov|travis-ci|goreportcard|pkg\.go\.dev/badge)[^)]*\)`)
 	image = lazyre.New(`!\[([^\]]*)\]\([^)]*\)`)
@@ -62,7 +61,7 @@ func (o *Optimizer) markdown(lines []string, query string) []string {
 	var out, code []string
 	inCode, toc := false, 0
 	for _, l := range lines {
-		if fence.MatchString(l) {
+		if compress.IsFence(l) {
 			if inCode {
 				out = append(out, o.code(code)...)
 				code = nil

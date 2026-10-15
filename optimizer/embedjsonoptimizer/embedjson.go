@@ -35,7 +35,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 }
 
 func (o *Optimizer) wants(typ string) bool {
-	return slices.Contains(o.cfg.Types, typ) || slices.Contains(o.cfg.Types, detect.Family(typ))
+	return detect.Matches(o.cfg.Types, typ)
 }
 
 func (o *Optimizer) crush(text string, query []string) string {

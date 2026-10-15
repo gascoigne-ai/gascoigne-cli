@@ -10,11 +10,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
-	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
-
-var fence = lazyre.New("^\\s*(```|~~~)")
 
 type Optimizer struct {
 	component.Nop

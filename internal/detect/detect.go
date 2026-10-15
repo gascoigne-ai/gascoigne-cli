@@ -62,6 +62,11 @@ func Family(typ string) string {
 	return family
 }
 
+// Matches reports whether list names typ or its family.
+func Matches(list []string, typ string) bool {
+	return slices.Contains(list, typ) || slices.Contains(list, Family(typ))
+}
+
 // Dialect is the dialect part of a type: "jest" for "test/jest".
 func Dialect(typ string) string {
 	_, dialect, _ := strings.Cut(typ, "/")

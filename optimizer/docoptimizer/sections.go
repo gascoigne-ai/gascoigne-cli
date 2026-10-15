@@ -89,7 +89,7 @@ func split(lines []string) []*part {
 	secs := []*part{{}}
 	inCode := false
 	for _, l := range lines {
-		if fence.MatchString(l) {
+		if compress.IsFence(l) {
 			inCode = !inCode
 		}
 		if m := heading.FindStringSubmatch(l); m != nil && !inCode {

@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
 )
@@ -180,7 +181,7 @@ func (o *Optimizer) prose(lines []string) []string {
 	}
 	for _, l := range lines {
 		switch {
-		case fence.MatchString(l):
+		case compress.IsFence(l):
 			flush()
 			inCode = !inCode
 			out = append(out, l)

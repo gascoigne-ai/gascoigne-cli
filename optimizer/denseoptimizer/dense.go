@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"slices"
 	"strings"
 	"unicode/utf8"
 
@@ -42,7 +41,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 }
 
 func (o *Optimizer) skip(typ string) bool {
-	return slices.Contains(o.cfg.Skip, typ) || slices.Contains(o.cfg.Skip, detect.Family(typ))
+	return detect.Matches(o.cfg.Skip, typ)
 }
 
 func (o *Optimizer) elide(text string) string {
