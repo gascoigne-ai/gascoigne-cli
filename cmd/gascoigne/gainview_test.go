@@ -24,12 +24,13 @@ func TestGainViewSections(t *testing.T) {
 		on    []string // sections shown; nil = all
 		err   string
 	}{
-		{name: "default"},
-		{name: "brief", flags: gainViewFlags{brief: true}, on: []string{"outcome", "trend"}},
+		{name: "default", on: minimalSections},
+		{name: "full", flags: gainViewFlags{full: true}},
 		{name: "only", flags: gainViewFlags{show: "agent, model"}, on: []string{"agent", "model"}},
-		{name: "hide", flags: gainViewFlags{hide: "estimates,dialect"}},
+		{name: "hide", flags: gainViewFlags{full: true, hide: "estimates,dialect"}},
+		{name: "hide default", flags: gainViewFlags{hide: "agent"}, on: []string{"trend", "command", "failing"}},
 		{name: "only then hide", flags: gainViewFlags{show: "agent,model", hide: "model"}, on: []string{"agent"}},
-		{name: "brief and only", flags: gainViewFlags{brief: true, show: "cost"}, on: []string{"cost"}},
+		{name: "full and show", flags: gainViewFlags{full: true, show: "cost"}, on: []string{"cost"}},
 		{name: "unknown", flags: gainViewFlags{show: "agnt"}, err: `unknown section "agnt"`},
 		{name: "bad sort", flags: gainViewFlags{sort: "x"}, err: "unknown -sort"},
 	}
@@ -60,8 +61,8 @@ func TestGainViewSections(t *testing.T) {
 			}
 		})
 	}
-	if _, err := gainFlags(gainViewFlags{brief: true}).build(false); err == nil {
-		t.Error("-brief with -by should fail")
+	if _, err := gainFlags(gainViewFlags{full: true}).build(false); err == nil {
+		t.Error("-full with -by should fail")
 	}
 }
 
@@ -120,19 +121,22 @@ func TestRenderOverviewSections(t *testing.T) {
 		painter{}.renderOverview(&b, o, 0, nil, nil, v)
 		return b.String()
 	}
-	if out := render(gainViewFlags{}); !strings.Contains(out, "OUTCOMES") || !strings.Contains(out, "COMMANDS") ||
-		!strings.Contains(out, "… 5 more (-top 0 shows all)") || strings.Contains(out, "cmd14") {
-		t.Errorf("default overview, top 10 of 15 commands:\n%s", out)
+	out := render(gainViewFlags{})
+	for _, want := range []string{"gascoigne savings", "LAST 7 DAYS", "COMMANDS", "… 5 more (-top 0 shows all)"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("default overview lacks %q:\n%s", want, out)
+		}
 	}
-	brief := render(gainViewFlags{brief: true})
-	if !strings.Contains(brief, "OUTCOMES") || strings.Contains(brief, "COMMANDS") || strings.Contains(brief, "ESTIMATES") {
-		t.Errorf("brief:\n%s", brief)
+	for _, not := range []string{"OUTCOMES", "OPTIMIZERS", "ESTIMATES", "cmd14"} {
+		if strings.Contains(out, not) {
+			t.Errorf("default overview has %q:\n%s", not, out)
+		}
 	}
-	if out := render(gainViewFlags{show: "command"}); strings.Contains(out, "OUTCOMES") || !strings.Contains(out, "COMMANDS") {
-		t.Errorf("-show command:\n%s", out)
+	if full := render(gainViewFlags{full: true}); !strings.Contains(full, "OUTCOMES") || !strings.Contains(full, "ESTIMATES") {
+		t.Errorf("-full:\n%s", full)
 	}
-	if !strings.HasPrefix(brief, "gascoigne savings") || !strings.Contains(brief, "saved") {
-		t.Errorf("the totals header always prints:\n%s", brief)
+	if only := render(gainViewFlags{show: "outcome"}); strings.Contains(only, "COMMANDS") || !strings.Contains(only, "OUTCOMES") {
+		t.Errorf("-show outcome:\n%s", only)
 	}
 }
 

@@ -13,17 +13,21 @@ import (
 // gainSorts are the orders -sort accepts for grouped tables.
 var gainSorts = []string{"saved", "runs", "in", "pct", "name"}
 
+// minimalSections are what the overview prints by default: the week, who
+// saves, where, and a warning when sources went bad. -full prints the rest.
+var minimalSections = []string{"trend", "agent", "command", "failing"}
+
 // gainViewFlags are the flags that control how much gain prints.
 type gainViewFlags struct {
 	show, hide, sort string
-	brief            bool
+	full             bool
 	top, minTokens   int
 }
 
 func (f *gainViewFlags) register(fs *flag.FlagSet) {
 	fs.StringVar(&f.show, "show", "", "print only these overview `sections`, comma separated: "+strings.Join(overviewSectionNames(), ", "))
 	fs.StringVar(&f.hide, "hide", "", "leave these overview `sections` out (same names as -show)")
-	fs.BoolVar(&f.brief, "brief", false, "overview: only outcomes and the trend")
+	fs.BoolVar(&f.full, "full", false, "overview: every section, not just the essentials ("+strings.Join(minimalSections, ", ")+")")
 	fs.IntVar(&f.top, "top", 10, "rows per table, the rest is counted (`n`; 0 shows all)")
 	fs.StringVar(&f.sort, "sort", "saved", "order of grouped tables: "+strings.Join(gainSorts, ", "))
 	fs.IntVar(&f.minTokens, "min-tokens", 0, "hide groups with fewer input tokens (`n`)")
@@ -32,7 +36,7 @@ func (f *gainViewFlags) register(fs *flag.FlagSet) {
 // gainView is what the terminal output shows: which overview sections, how
 // many rows of each table, in which order.
 type gainView struct {
-	sections  map[string]bool // nil: all
+	sections  map[string]bool // overview sections to print
 	top       int
 	sort      string
 	minTokens int
@@ -54,20 +58,15 @@ func (f gainViewFlags) build(overview bool) (gainView, error) {
 		return gainView{}, fmt.Errorf("gain: -top and -min-tokens must not be negative")
 	}
 	v := gainView{top: f.top, sort: f.sort, minTokens: f.minTokens}
-	if f.show == "" && f.hide == "" && !f.brief {
-		return v, nil
-	}
 	if !overview {
-		return gainView{}, fmt.Errorf("gain: -show, -hide and -brief shape the overview, not -by")
+		if f.show != "" || f.hide != "" || f.full {
+			return gainView{}, fmt.Errorf("gain: -show, -hide and -full shape the overview, not -by")
+		}
+		return v, nil
 	}
 	v.sections = map[string]bool{}
 	for _, n := range overviewSectionNames() {
-		v.sections[n] = true
-	}
-	if f.brief {
-		for n := range v.sections {
-			v.sections[n] = n == "outcome" || n == "trend"
-		}
+		v.sections[n] = f.full || slices.Contains(minimalSections, n)
 	}
 	only, err := v.sectionList(f.show)
 	if err != nil {
@@ -106,7 +105,7 @@ func (v gainView) sectionList(s string) ([]string, error) {
 	return out, nil
 }
 
-func (v gainView) show(section string) bool { return v.sections == nil || v.sections[section] }
+func (v gainView) show(section string) bool { return v.sections[section] }
 
 // rows orders and limits a table's groups; more counts the ones left out.
 func (v gainView) rows(rows []mcptool.StatsJSON) (shown []mcptool.StatsJSON, more int) {

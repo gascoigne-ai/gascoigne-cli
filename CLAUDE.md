@@ -23,7 +23,7 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 - `bin/gascoigne probe [-since 7d]` checks recorded runs for error lines/artifacts their output lost
 - `bin/gascoigne replay [-sessions N]` replays Claude Code transcripts through the LLM proxy: savings per tool, prompt-cache stability
 - `bin/gascoigne flush [-older 7d]` deletes stored originals (gzip in `raw`) and vacuums
-- savings: `bin/gascoigne gain [-session ID] [-json]` overview; `gain -by day|week|month|agent|model|session|command|optimizer|family|dialect|outcome|reason`, filters `-agent -model -session -since 7d`
+- savings: `bin/gascoigne gain [-session ID] [-json]` overview (essentials; `-full` all sections); `gain -by day|week|month|agent|model|session|command|optimizer|family|dialect|outcome|reason`, filters `-agent -model -session -since 7d`
 - per agent/run tuning: `-set path=yaml`, `-only`, `-disable` (or `GASCOIGNE_SET/ONLY/DISABLE`); `bin/gascoigne config` shows the result
 
 ## Harness
