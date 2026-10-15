@@ -264,6 +264,9 @@ func (p painter) overviewHeader(w io.Writer, o mcptool.Overview) {
 		p.paint(dim, fmt.Sprintf("%d runs:", t.Runs)),
 		p.paint(green, fmt.Sprintf("%d optimized", t.Optimized)),
 		p.paint(yellow, fmt.Sprintf("%d skipped", skipped)), failed)
+	if c := o.Cost.InContext; c > 0 {
+		fmt.Fprintf(w, " %s ~%s at list prices, rereads from the prompt cache included\n", p.paint(dim, "worth"), dollars(c))
+	}
 }
 
 func (p painter) outcomeTable(w io.Writer, o mcptool.Overview) {

@@ -96,6 +96,7 @@ gascoigne gain -by command -sort runs -min-tokens 1000
 | `-min-tokens n` | Hide groups with fewer input tokens |
 | `-failures` | List failing sources |
 | `-json` | JSON output |
+| `-csv` | CSV with `-by` (the total last) or `-failures`; plain numbers, no colors or bars |
 | `-color auto\|always\|never` | `auto` honors `NO_COLOR` and whether stdout is a terminal |
 
 ## `server` and `dashboard`

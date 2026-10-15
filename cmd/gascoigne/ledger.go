@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -115,6 +116,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		all      bool
 		asJSON   bool
 		oneline  bool
+		asCSV    bool
 		color    string
 		since    string
 		rereads  float64
@@ -126,6 +128,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		fs.BoolVar(&all, "all", false, "ignore session/agent/model from $GASCOIGNE_* (flags still filter)")
 		fs.StringVar(&since, "since", "", "only the last `period`: 24h, 7d, 4w, 6mo")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
+		fs.BoolVar(&asCSV, "csv", false, "print CSV (with -by or -failures) instead of a table")
 		fs.BoolVar(&oneline, "oneline", false, "print one line of totals, for a status line")
 		fs.StringVar(&color, "color", "auto", "`mode`: auto (terminal, no NO_COLOR), always or never")
 		view.register(fs)
@@ -133,11 +136,17 @@ func cmdGain(ctx context.Context, args []string) error {
 	}, func(l *ledger.Ledger, c *common, _ []string) error {
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		defer w.Flush()
+		if asCSV && (asJSON || oneline || (by == "" && !failures)) {
+			return errors.New("gain: -csv needs -by or -failures, and replaces -json and -oneline")
+		}
 		if failures {
 			if asJSON {
 				return failuresJSON(ctx, l)
 			}
-			return printFailures(ctx, w, l)
+			if asCSV {
+				return failuresCSV(ctx, os.Stdout, l)
+			}
+			return printFailures(ctx, w, l, time.Now())
 		}
 		id := c.identity()
 		if all {
@@ -172,6 +181,9 @@ func cmdGain(ctx context.Context, args []string) error {
 		if asJSON {
 			return writeJSON(mcptool.Report(q, stats))
 		}
+		if asCSV {
+			return statsCSV(os.Stdout, mcptool.Report(q, stats))
+		}
 		p.renderStats(os.Stdout, q, stats, v)
 		return nil
 	})
@@ -196,14 +208,14 @@ func printOneline(ctx context.Context, w io.Writer, l *ledger.Ledger, q componen
 	return err
 }
 
-func printFailures(ctx context.Context, w io.Writer, l *ledger.Ledger) error {
+func printFailures(ctx context.Context, w io.Writer, l *ledger.Ledger, now time.Time) error {
 	fs, err := l.FailureList(ctx)
 	if err != nil {
 		return err
 	}
 	fmt.Fprintln(w, "key\tcount\tlast\treason\t")
 	for _, f := range fs {
-		fmt.Fprintf(w, "%s\t%d\t%s\t%s\t\n", f.Key, f.Count, f.Last.Format(time.DateTime), f.Reason)
+		fmt.Fprintf(w, "%s\t%d\t%s\t%s\t\n", f.Key, f.Count, ago(f.Last, now), f.Reason)
 	}
 	return nil
 }
@@ -356,4 +368,44 @@ func cmdReset(ctx context.Context, args []string) error {
 		fmt.Println()
 		return nil
 	})
+}
+
+// ago says how long before now t was, in the largest whole unit; a week or
+// more back it is the date.
+func ago(t, now time.Time) string {
+	d := now.Sub(t)
+	switch {
+	case d < time.Minute:
+		return "just now"
+	case d < time.Hour:
+		return fmt.Sprintf("%dm ago", int(d.Minutes()))
+	case d < 24*time.Hour:
+		return fmt.Sprintf("%dh ago", int(d.Hours()))
+	case d < 7*24*time.Hour:
+		return fmt.Sprintf("%dd ago", int(d.Hours()/24))
+	}
+	return t.Format(time.DateOnly)
+}
+
+func failuresCSV(ctx context.Context, w io.Writer, l *ledger.Ledger) error {
+	fs, err := l.FailureList(ctx)
+	if err != nil {
+		return err
+	}
+	rows := [][]string{{"key", "count", "last", "reason"}}
+	for _, f := range fs {
+		rows = append(rows, []string{f.Key, fmt.Sprint(f.Count), f.Last.Format(time.RFC3339), f.Reason})
+	}
+	return csv.NewWriter(w).WriteAll(rows)
+}
+
+// statsCSV prints a grouping, the total last; the columns are the JSON
+// report's, tokens as plain numbers.
+func statsCSV(w io.Writer, r mcptool.StatsReport) error {
+	rows := [][]string{{r.By, "runs", "optimized", "failed", "in_tokens", "out_tokens", "saved_tokens", "saved_pct"}}
+	for _, g := range append(r.Groups, r.Total) {
+		rows = append(rows, []string{g.Group, fmt.Sprint(g.Runs), fmt.Sprint(g.Optimized), fmt.Sprint(g.Failed),
+			fmt.Sprint(g.RawTokens), fmt.Sprint(g.OutTokens), fmt.Sprint(g.Saved), fmt.Sprint(g.SavedPct)})
+	}
+	return csv.NewWriter(w).WriteAll(rows)
 }

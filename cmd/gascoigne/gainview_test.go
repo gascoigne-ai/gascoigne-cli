@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
@@ -132,5 +133,35 @@ func TestRenderOverviewSections(t *testing.T) {
 	}
 	if !strings.HasPrefix(brief, "gascoigne savings") || !strings.Contains(brief, "saved") {
 		t.Errorf("the totals header always prints:\n%s", brief)
+	}
+}
+
+func TestAgo(t *testing.T) {
+	now := time.Date(2026, 10, 16, 12, 0, 0, 0, time.UTC)
+	for d, want := range map[time.Duration]string{
+		10 * time.Second: "just now", 5 * time.Minute: "5m ago", 3 * time.Hour: "3h ago",
+		50 * time.Hour: "2d ago", 10 * 24 * time.Hour: "2026-10-06",
+	} {
+		if got := ago(now.Add(-d), now); got != want {
+			t.Errorf("ago(-%v) = %q, want %q", d, got, want)
+		}
+	}
+}
+
+func TestGainCSV(t *testing.T) {
+	r := mcptool.Report(component.StatsQuery{By: "command"}, []component.Stat{
+		{Group: `git "log"`, Runs: 2, Optimized: 1, RawTokens: 2000, OutTokens: 500},
+		{Group: "ls", Runs: 1, Failed: 1, RawTokens: 100, OutTokens: 100},
+	})
+	var b strings.Builder
+	if err := statsCSV(&b, r); err != nil {
+		t.Fatal(err)
+	}
+	want := "command,runs,optimized,failed,in_tokens,out_tokens,saved_tokens,saved_pct\n" +
+		"\"git \"\"log\"\"\",2,1,0,2000,500,1500,75\n" +
+		"ls,1,0,1,100,100,0,0\n" +
+		"total,3,1,1,2100,600,1500,71.4\n"
+	if b.String() != want {
+		t.Errorf("csv:\n%s\nwant:\n%s", b.String(), want)
 	}
 }
