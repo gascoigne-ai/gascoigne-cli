@@ -656,3 +656,18 @@ func TestLedgerFilePrivate(t *testing.T) {
 		}
 	}
 }
+
+func TestPruneUsesLedgerClock(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RawTTL: time.Hour})
+	id, err := l.SaveRaw(t.Context(), "", payload.New(payload.Message, "x"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.now = func() time.Time { return time.Now().Add(2 * time.Hour) }
+	if err := l.prune(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := l.GetRaw(t.Context(), id); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("raw older than raw_ttl by the ledger clock not pruned: %v", err)
+	}
+}

@@ -96,7 +96,7 @@ func (l *Ledger) prune(ctx context.Context) error {
 	if l.cfg.RawTTL == 0 {
 		return nil
 	}
-	cutoff := time.Now().Add(-l.cfg.RawTTL).UnixMilli()
+	cutoff := l.now().Add(-l.cfg.RawTTL).UnixMilli()
 	return l.db.WithContext(ctx).Where("created < ?", cutoff).Delete(&raw{}).Error
 }
 
