@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"slices"
 	"strings"
+	"sync"
 	"unicode/utf8"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
@@ -298,10 +299,22 @@ func spans(elide map[int]int) []span {
 // (def f, do: x; if x then y end).
 var oneLiner = lazyre.New(`\bend\b[\s);,]*$|(^|[\s,])do:\s`)
 
+// rowCache holds the patterns of language rows, so each compiles once instead
+// of on every file.
+var rowCache sync.Map // pattern -> *lazyre.Regexp
+
+func rowRe(expr string) *lazyre.Regexp {
+	if re, ok := rowCache.Load(expr); ok {
+		return re.(*lazyre.Regexp)
+	}
+	re, _ := rowCache.LoadOrStore(expr, lazyre.New(expr))
+	return re.(*lazyre.Regexp)
+}
+
 // endOutline elides bodies of functions in languages that close blocks with
 // end (Ruby, Elixir, Lua, Julia): functions nested only in containers.
 func (o *Optimizer) endOutline(lines []string, row detect.Language) []span {
-	open, fn, cont := lazyre.New(row.Open), lazyre.New(row.Func), lazyre.New(row.Container)
+	open, fn, cont := rowRe(row.Open), rowRe(row.Func), rowRe(row.Container)
 	type block struct {
 		line int
 		kind byte // 'f' function, 'c' container, 'o' other
@@ -340,7 +353,7 @@ func (o *Optimizer) endOutline(lines []string, row detect.Language) []span {
 // for languages without block delimiters: Haskell, OCaml, Nim. Declarations
 // nested only in containers (instance, module) are elided.
 func (o *Optimizer) declOutline(lines []string, row detect.Language) []span {
-	fn, cont := lazyre.New(row.Func), lazyre.New(row.Container)
+	fn, cont := rowRe(row.Func), rowRe(row.Container)
 	type scope struct {
 		indent    int
 		container bool
@@ -383,7 +396,7 @@ func (o *Optimizer) declOutline(lines []string, row detect.Language) []span {
 // parenOutline elides the inner lines of top-level forms (defn, define) in
 // Lisp family languages; the first and the closing line stay.
 func (o *Optimizer) parenOutline(lines []string, row detect.Language) []span {
-	fn := lazyre.New(row.Func)
+	fn := rowRe(row.Func)
 	elide := map[int]int{}
 	for i := 0; i < len(lines); i++ {
 		if !fn.MatchString(lines[i]) {
