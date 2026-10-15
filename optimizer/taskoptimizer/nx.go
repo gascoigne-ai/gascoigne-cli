@@ -43,6 +43,7 @@ func nx(lines []string) []string {
 			inTail = len(sections) > 0
 		case nxCached.MatchString(l):
 			sections = append(sections, section{name: nxCached.FindStringSubmatch(l)[1], cached: true})
+			cur = nil
 		case nxTask.MatchString(l):
 			name := nxTask.FindStringSubmatch(l)[1]
 			sections = append(sections, section{name: name, failed: failed[name]})

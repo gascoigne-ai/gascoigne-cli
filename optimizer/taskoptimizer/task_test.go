@@ -45,3 +45,8 @@ func TestComposeUp(t *testing.T) {
 	in := compress.Lines(" ✔ Container a-1  Started\n ✔ Container b-1  Started\nAttaching to a-1, b-1\na-1  | ok 1\na-1  | ERROR boom\nb-1  | ready\n")
 	check(t, composeUp(in), []string{"container started ×2", "a-1:", "ERROR boom", "b-1:"}, []string{"✔ Container"})
 }
+
+func TestNxLineAfterCachedTaskIsNotLost(t *testing.T) {
+	in := compress.Lines("> nx run a:build\n✔  nx run b:build  [local cache]\nstray output line\n")
+	check(t, nx(in), []string{"stray output line"}, nil)
+}
