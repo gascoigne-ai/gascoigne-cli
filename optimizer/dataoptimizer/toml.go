@@ -75,9 +75,11 @@ func (o *Optimizer) toml(text string) string {
 		}
 		key, value := strings.Trim(m[1], `"`), m[2]
 		// Multi-line arrays and inline tables continue to their closing bracket.
-		for open := strings.Count(value, "[") + strings.Count(value, "{") - strings.Count(value, "]") - strings.Count(value, "}"); open > 0 && i+1 < len(lines); open = strings.Count(value, "[") + strings.Count(value, "{") - strings.Count(value, "]") - strings.Count(value, "}") {
+		for open := depth(value); open > 0 && i+1 < len(lines); {
 			i++
-			value += strings.TrimSpace(lines[i])
+			next := strings.TrimSpace(lines[i])
+			value += next
+			open += depth(next)
 		}
 		switch {
 		case sub == "dependencies":
@@ -111,4 +113,9 @@ func depNames(value string) []string {
 		out = append(out, name)
 	}
 	return out
+}
+
+// depth is the net count of opened brackets and braces in s.
+func depth(s string) int {
+	return strings.Count(s, "[") + strings.Count(s, "{") - strings.Count(s, "]") - strings.Count(s, "}")
 }

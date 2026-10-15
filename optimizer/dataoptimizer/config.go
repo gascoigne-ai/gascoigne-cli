@@ -12,7 +12,7 @@ type Config struct {
 	// MaxRows and MaxCell tune CSV/TSV tables.
 	MaxRows int `yaml:"max_rows"`
 	MaxCell int `yaml:"max_cell"`
-	// MaxItems caps repeated XML siblings and TOML array tables.
+	// MaxItems caps repeated XML siblings.
 	MaxItems int `yaml:"max_items"`
 	// MaxOutputLines caps each text output of a notebook cell (head and
 	// tail kept); error tracebacks stay whole.
