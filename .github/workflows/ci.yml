@@ -31,7 +31,8 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
-      - run: make eval
+      # live runs commands in the checkout (shallow clone, small runner disk): it checks tool drift on a dev machine
+      - run: SUITES="fixtures ext scale ledger" make eval
 
   build:
     name: build ${{ matrix.goos }}/${{ matrix.goarch }}
