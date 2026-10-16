@@ -43,6 +43,9 @@ type evalCase struct {
 	Keep []string `yaml:"keep"`
 	// MinSaved is the lowest acceptable saving in percent.
 	MinSaved float64 `yaml:"min_saved"`
+	// MaxMS is the slowest acceptable optimization in milliseconds (wall
+	// time of one run; scale cases use it to catch slowdowns). 0 allows any.
+	MaxMS int `yaml:"max_ms"`
 	// Unchanged inputs must pass through as they are.
 	Unchanged bool `yaml:"unchanged"`
 	// Lossless cases may shrink but lose no error line or artifact (probe.Run).
@@ -264,6 +267,10 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		fail("saved %.1f%% < min %.0f%%", saved, tc.MinSaved)
 	}
 
+	if slow(r.took, tc.MaxMS) {
+		fail("took %s > max %d ms", ms(r.took), tc.MaxMS)
+	}
+
 	if tc.Reference != "" {
 		ref, err := os.ReadFile(filepath.Join(dir, tc.Reference))
 		if err != nil {
@@ -294,6 +301,11 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		fail("differs from golden %s (review, then rerun with -update)", golden)
 	}
 	return r, nil
+}
+
+// slow reports whether took exceeds a case's max_ms; 0 allows any time.
+func slow(took time.Duration, maxMS int) bool {
+	return maxMS > 0 && took > time.Duration(maxMS)*time.Millisecond
 }
 
 // sameText compares block texts only: detection fills in Block.Type on the stored original.

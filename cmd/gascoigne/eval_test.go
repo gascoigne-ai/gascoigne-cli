@@ -5,6 +5,7 @@ import (
 	"maps"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func TestBaselineRoundTrip(t *testing.T) {
@@ -60,6 +61,18 @@ func TestLiveCase(t *testing.T) {
 				t.Errorf("text %q cmd %q", p.Text(), p.Attrs["cmd"])
 			}
 		})
+	}
+}
+
+func TestSlow(t *testing.T) {
+	for _, tt := range []struct {
+		took  time.Duration
+		maxMS int
+		want  bool
+	}{{time.Second, 0, false}, {50 * time.Millisecond, 100, false}, {100 * time.Millisecond, 100, false}, {101 * time.Millisecond, 100, true}} {
+		if got := slow(tt.took, tt.maxMS); got != tt.want {
+			t.Errorf("slow(%v, %d) = %v, want %v", tt.took, tt.maxMS, got, tt.want)
+		}
 	}
 }
 
