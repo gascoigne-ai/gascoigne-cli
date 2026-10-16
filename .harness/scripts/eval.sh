@@ -11,24 +11,29 @@
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 
-declare -A cases=(
-  [fixtures]=testdata/eval/cases.yaml
-  [ext]=testdata/eval-ext/cases.yaml
-  [scale]=testdata/eval-scale/cases.yaml
-  [live]=testdata/eval/live.yaml
-  [ledger]=
-)
+# casesfile prints a suite's cases file (empty for ledger) and fails for an unknown suite.
+# A case statement, not an associative array: macOS ships bash 3.2, which has none.
+casesfile() {
+  case $1 in
+    fixtures) echo testdata/eval/cases.yaml ;;
+    ext) echo testdata/eval-ext/cases.yaml ;;
+    scale) echo testdata/eval-scale/cases.yaml ;;
+    live) echo testdata/eval/live.yaml ;;
+    ledger) echo ;;
+    *) return 1 ;;
+  esac
+}
 suites=${SUITES:-fixtures ext scale live ledger}
 
 go build -o bin/gascoigne ./cmd/gascoigne || exit 1
 failed=()
 for s in $suites; do
-  [[ -v cases[$s] ]] || { echo "unknown suite $s (${!cases[*]})" >&2; exit 2; }
+  file=$(casesfile "$s") || { echo "unknown suite $s (fixtures ext scale live ledger)" >&2; exit 2; }
   echo "== $s"
   if [[ $s == ledger ]]; then
     go test ./extension/ledger -run '^$' -bench . -benchtime 3x || failed+=("$s")
   else
-    bin/gascoigne eval -cases "${cases[$s]}" "$@" || failed+=("$s")
+    bin/gascoigne eval -cases "$file" "$@" || failed+=("$s")
   fi
 done
 if ((${#failed[@]})); then
