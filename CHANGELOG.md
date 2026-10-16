@@ -6,6 +6,11 @@ All notable changes to gascoigne. The format follows
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-16
+
+Many more tools are recognised and shortened (build, test and package managers, stack traces, source outlines for
+dozens of languages), and `gain` prints a short report by default and keeps its history past a year.
+
 ### Added
 
 - `gain -csv` for `-by` views and `-failures`; failing sources show when they last failed as "2d ago"; the overview
@@ -38,6 +43,17 @@ All notable changes to gascoigne. The format follows
   (`trace.min_frames`); the first frame under an exception line stays, and AddressSanitizer's shadow dump folds.
 - Source outline knows D (`.d`, `.di`) and more C++ (`.cxx`, `.hh`, `.hxx`, `.ipp`, `.tpp`, `.inl`, `.cppm`,
   `.ixx`, `.cu`, `.cuh`) and Scala (`.sc`, `.sbt`) extensions; Rust is also recognised without a file name.
+
+- `make eval` runs every suite (fixtures, ext, scale, live, ledger) with one summary; `testdata/eval-scale` adds generated
+outputs of 3k to 50k lines with `max_ms` ceilings, and 22 dialects that had no case now have one.
+
+### Changed
+
+- `gain` prints the essentials by default (totals, last 7 days, agents, commands, failing sources); `-full` prints every
+section as before, and tables stop at 10 rows (`-top 0` for all).
+- New table `daily_stats` / `daily_step_stats` and setting `ledger.rollup_ttl` (default `0s`: forever). Runs older than
+`events_ttl` (still a year) are rolled into daily totals instead of being lost; the tables are created on first start,
+nothing is migrated.
 
 ### Fixed
 
