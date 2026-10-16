@@ -132,8 +132,13 @@ func cmdEval(ctx context.Context, args []string) error {
 	}
 	next := map[string]baseline{}
 	var names []string
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "case\ttype\troute\traw tok\tout tok\tsaved\tlost\tms\tcheck")
+	paint, err := newPainter("auto")
+	if err != nil {
+		return err
+	}
+	header := []string{"case", "type", "route", "raw tok", "out tok", "saved", "", "lost", "ms", "check"}
+	var rows [][]cell
+	var skipped int
 	var rawTotal, outTotal int
 	var took time.Duration
 	var errs, shows []string
@@ -141,7 +146,8 @@ func cmdEval(ctx context.Context, args []string) error {
 	for _, tc := range cases {
 		r, err := runCase(ctx, svc, pl, dir, &tc, ef.update)
 		if errors.Is(err, errNotInstalled) {
-			fmt.Fprintf(w, "%s\t\t\t\t\t\t\t\tskip: not installed\n", tc.name())
+			skipped++
+			rows = append(rows, []cell{{text: tc.name()}, {}, {}, {}, {}, {}, {}, {}, {}, {text: "skip: not installed", style: dim}})
 			continue
 		}
 		if err != nil {
@@ -165,20 +171,44 @@ func cmdEval(ctx context.Context, args []string) error {
 				r.problems = append(r.problems, "baseline: "+d+" (review, then rerun with -update)")
 			}
 		}
-		check := "ok"
+		check, checkStyle := "ok", green
 		if len(r.problems) > 0 {
-			check = "FAIL"
+			check, checkStyle = "FAIL", bold+";"+red
 			for _, p := range r.problems {
 				errs = append(errs, tc.name()+": "+p)
 			}
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\n", tc.name(), r.types, r.route, r.raw, r.out, mcptool.Percent(r.raw-r.out, r.raw), lostCell(r.probes), ms(r.took), check)
+		saved := pct(r.raw-r.out, r.raw)
+		rows = append(rows, []cell{
+			{text: tc.name()}, {text: r.types}, {text: r.route, style: dim},
+			{text: fmt.Sprint(r.raw), right: true}, {text: fmt.Sprint(r.out), right: true},
+			{text: mcptool.Percent(r.raw-r.out, r.raw), style: savedStyle(saved), right: true},
+			{text: bar(saved/100, 10), style: savedStyle(saved)},
+			{text: lostCell(r.probes), right: true}, {text: ms(r.took), right: true},
+			{text: check, style: checkStyle},
+		})
 		if ef.show != "" && strings.Contains(tc.name(), ef.show) {
 			shows = append(shows, fmt.Sprintf("=== %s ===\n%s", tc.name(), r.text))
 		}
 	}
-	fmt.Fprintf(w, "total\t\t\t%d\t%d\t%s\t\t%s\t\n", rawTotal, outTotal, mcptool.Percent(rawTotal-outTotal, rawTotal), ms(took))
-	w.Flush()
+	totalSaved := pct(rawTotal-outTotal, rawTotal)
+	rows = append(rows, []cell{
+		{text: "total", style: bold}, {}, {},
+		{text: fmt.Sprint(rawTotal), right: true, style: bold}, {text: fmt.Sprint(outTotal), right: true, style: bold},
+		{text: mcptool.Percent(rawTotal-outTotal, rawTotal), style: bold + ";" + savedStyle(totalSaved), right: true},
+		{text: bar(totalSaved/100, 10), style: savedStyle(totalSaved)},
+		{}, {text: ms(took), right: true, style: bold}, {},
+	})
+	paint.table(os.Stdout, header, rows)
+	ran := len(rows) - 1 - skipped
+	summary := fmt.Sprintf("%d cases: %d ok", ran, ran-len(errs))
+	if len(errs) > 0 {
+		summary = fmt.Sprintf("%d cases: %d ok, %s", ran, ran-len(errs), paint.paint(bold+";"+red, fmt.Sprintf("%d FAILED", len(errs))))
+	}
+	if skipped > 0 {
+		summary += fmt.Sprintf(", %d skipped (tool not installed)", skipped)
+	}
+	fmt.Println(summary)
 	if len(refs) > 0 {
 		var recall, precision float64
 		for _, o := range refs {

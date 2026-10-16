@@ -39,6 +39,11 @@ Any failing check is a blocker. Rules for optimizer changes: savings must not re
 `raw ok` must never fail. When output changes on purpose, review the golden diff, run
 `eval -update`, and commit the goldens with the code.
 
+`make eval` runs five suites (fixtures, ext, scale, live, ledger). Each starts with a banner: what
+it tests, what a result means, how to read the columns. A summary at the end lists ok/FAIL per
+suite. The `saved` bar fills 10 cells for 100% and is colored green (60%+), yellow (30%+), red
+(below); colors show on a terminal only (`NO_COLOR` turns them off).
+
 Table columns: `type` is the block types after optimization, `route` the chain that ran (`-`
 means a filter bypassed it, e.g. `minsize`).
 
