@@ -1,7 +1,7 @@
 # External-style dataset, kept apart from cases.yaml to compare against published compression evals.
 # Needle/probe cases: JSON arrays with planted errors and anomalies; keep = facts that must survive.
 # Tool cases: small mixed tool outputs; keep = the answer to the question asked of the output.
-# Pure detection (no attrs). Run: gascoigne eval -cases testdata/eval-ext/cases.yaml
+# Pure detection (no attrs). Run: make eval (suite ext)
 
 - file: needle/00.json
   keep: ["ERR-2000", "error", "failed", "999.99"]

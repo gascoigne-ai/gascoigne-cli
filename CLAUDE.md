@@ -8,8 +8,7 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 
 ## Commands
 - `make check` — gofmt check, vet, import boundary, tests (must pass before done)
-- `make eval` — token savings and fact retention on `testdata/eval` fixtures (vs `baseline.tsv`)
-- `make eval-live` — the same checks on live commands in this repo (`testdata/eval/live.yaml`): catches tool output drift
+- `make eval` — every eval suite, one summary: `fixtures` (savings and fact retention vs `baseline.tsv`), `ext`, `scale` (big generated outputs, `max_ms`), `live` (real commands in this repo: catches tool output drift), `ledger` (benchmarks); `SUITES="scale live" make eval` picks some, extra flags go to each run (`-update`, `-show rg`)
 - `make eval-experimental` — opt-in features apart from the default eval (`testdata/eval-experimental/`; today the prose model, needs `gascoigne prose install`, see `docs/prose-model.md`; recorded to your ledger as agent `eval`, so the dashboard shows the runs); never part of `make check`
 - `bin/gascoigne eval -record [-cases file]` — the same run, written to your ledger (agent `eval`, a session per run; each case runs twice, so the counts double) so the dashboard shows it; `reset -agent eval` removes it
 - `.harness/scripts/ab.sh [-n]` — task success with vs without gascoigne on `testdata/ab` tasks (calls the API; `-n` free dry run)

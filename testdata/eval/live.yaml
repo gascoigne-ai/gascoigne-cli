@@ -1,4 +1,4 @@
-# Live cases: real commands run in the repository root (make eval-live).
+# Live cases: real commands run in the repository root (make eval, suite live).
 # They catch tools whose output changed shape since the fixtures were made:
 # a wrong type or a savings drop here, with the fixture case still passing,
 # means the fixture is stale. Output varies with the repository, so floors
@@ -12,7 +12,7 @@
 - run: git diff HEAD~3 HEAD -- cmd/gascoigne
   expect_type: vcs/git-diff
   min_saved: 8
-- run: rg -n "func " compress/
+- run: rg -n "func " internal/compress/
   expect_type: search/rg
   min_saved: 10
 - run: grep -rn "func New" --include=*.go optimizer/
