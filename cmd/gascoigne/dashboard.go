@@ -16,6 +16,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
@@ -24,6 +25,9 @@ var dashboardHTML []byte
 
 //go:embed mcp.html
 var mcpHTML []byte
+
+//go:embed costs.html
+var costsHTML []byte
 
 //go:embed context.html
 var contextHTML []byte
@@ -91,6 +95,19 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Write(pagesJS)
 	})
+	mux.HandleFunc("GET /costs", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Write(costsHTML)
+	})
+	mux.HandleFunc("GET /api/costs", func(w http.ResponseWriter, r *http.Request) {
+		q, err := statsQuery(r.URL.Query())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		c, err := mcptool.BuildCosts(r.Context(), l, q, cost.AgentContext)
+		respond(w, c, err)
+	})
 	mux.HandleFunc("GET /context", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write(contextHTML)
@@ -147,8 +164,14 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		respond(w, nonNil(days), err)
 	})
 	mux.HandleFunc("GET /api/sessions", func(w http.ResponseWriter, r *http.Request) {
-		stats, err := l.Stats(r.Context(), component.StatsQuery{By: component.BySession})
-		respond(w, mcptool.Report(component.StatsQuery{By: component.BySession}, stats).Groups, err)
+		q, err := statsQuery(r.URL.Query())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		q.Session, q.By = "", component.BySession // the list offers every session of the period
+		stats, err := l.Stats(r.Context(), q)
+		respond(w, mcptool.Report(q, stats).Groups, err)
 	})
 	mux.HandleFunc("GET /api/events", func(w http.ResponseWriter, r *http.Request) {
 		q, err := statsQuery(r.URL.Query())

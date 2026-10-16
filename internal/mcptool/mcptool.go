@@ -306,7 +306,7 @@ type Overview struct {
 	Dialects   []StatsJSON          `json:"dialects"`
 	Agents     []StatsJSON          `json:"agents"`
 	Models     []StatsJSON          `json:"models"`
-	Days       []StatsJSON          `json:"days"` // last 7 days (or since filter.Since), oldest first
+	Days       []StatsJSON          `json:"days"` // last 7 days (or since filter.Since), oldest first; weeks or months past 32 days
 	Cost       Costs                `json:"cost"`
 	// Runs not optimized, per stopping component (filter or optimizer) and
 	// command, with the latest recorded reason.
@@ -338,13 +338,16 @@ func BuildOverview(ctx context.Context, l component.Ledger, filter component.Sta
 			y, m, d := time.Now().AddDate(0, 0, -6).Date()
 			q.Since = time.Date(y, m, d, 0, 0, 0, 0, time.Local) // local midnight, 7 days incl. today
 		}
+		if part.by == component.ByDay {
+			q.By = chartBucket(time.Since(q.Since))
+		}
 		stats, err := l.Stats(ctx, q)
 		if err != nil {
 			return o, err
 		}
-		r := Report(component.StatsQuery{By: part.by}, stats)
+		r := Report(component.StatsQuery{By: q.By}, stats)
 		*part.out = r.Groups
-		if part.by == component.ByDay {
+		if part.by == component.ByDay && q.By == component.ByDay {
 			o.Days = fillDays(r.Groups, q.Since, time.Now())
 		}
 		if part.by == component.ByCommand {
@@ -494,6 +497,27 @@ func Named(rows []StatsJSON) []StatsJSON {
 		return nil
 	}
 	return rows
+}
+
+// chartBuckets say how coarse the trend chart gets as the period grows, so
+// its bars stay readable: longest span first-fit, ordered shortest to longest.
+var chartBuckets = []struct {
+	upTo time.Duration
+	by   string
+}{
+	{32 * 24 * time.Hour, component.ByDay},
+	{190 * 24 * time.Hour, component.ByWeek},
+	{1<<63 - 1, component.ByMonth},
+}
+
+// chartBucket is the grouping for a trend chart over the last span.
+func chartBucket(span time.Duration) string {
+	for _, b := range chartBuckets {
+		if span <= b.upTo {
+			return b.by
+		}
+	}
+	return component.ByMonth
 }
 
 // fillDays adds empty days between from and to, so trends show quiet days.

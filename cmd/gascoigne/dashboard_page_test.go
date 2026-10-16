@@ -66,7 +66,7 @@ func TestDashboardTablesSortAndFilter(t *testing.T) {
 	if m := regexp.MustCompile(`\$\("[a-z-]+"\)\.replaceChildren\(table\(`).FindString(page); m != "" {
 		t.Errorf("a table is drawn without sorting and filtering: %s", m)
 	}
-	for _, id := range []string{"outcomes", "commands", "optimizers", "dialects", "reasons", "failures", "families", "models"} {
+	for _, id := range []string{"outcomes", "commands", "optimizers", "dialects", "reasons", "failures"} {
 		if !strings.Contains(page, `lazyTable($("`+id+`")`) {
 			t.Errorf("table %q is not drawn with lazyTable", id)
 		}

@@ -131,6 +131,10 @@ func (m *model) stats(q component.StatsQuery) []component.Stat {
 	}
 	if q.Chronological() {
 		slices.SortFunc(out, func(a, b component.Stat) int { return cmp.Compare(a.Group, b.Group) })
+	} else if q.By == component.BySession { // latest first
+		slices.SortFunc(out, func(a, b component.Stat) int {
+			return cmp.Or(b.Last.Compare(a.Last), cmp.Compare(a.Group, b.Group))
+		})
 	} else {
 		slices.SortFunc(out, func(a, b component.Stat) int {
 			return cmp.Or(cmp.Compare(b.Saved(), a.Saved()), cmp.Compare(a.Group, b.Group))

@@ -106,6 +106,22 @@ select { min-width: 170px; }
 button { cursor: pointer; }
 button:hover, select:hover { border-color: var(--accent); }
 button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* Picker: a select with a line of data under each choice. The select stays the value; this draws it. */
+.picker { position: relative; }
+.picker > select { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.pk-btn { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 190px; max-width: 280px; text-align: left; }
+.pk-btn .pk-cur { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pk-btn::after { content: ""; flex: none; width: 6px; height: 6px; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg) translateY(-2px); }
+.pk-list { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content; max-width: min(380px, 92vw); max-height: 340px; overflow: auto; margin: 0; font-weight: 400; padding: 4px; list-style: none; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: 0 8px 28px rgba(0, 0, 0, .18); }
+.pk-list[hidden] { display: none; }
+.pk-item { display: grid; grid-template-columns: 1fr auto; column-gap: 14px; padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 13px; }
+.pk-item[aria-selected="true"] { background: var(--surface-2); box-shadow: inset 2px 0 0 var(--accent); }
+.pk-item.act, .pk-item:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.pk-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 600; }
+.pk-meta { color: var(--accent); font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.pk-sub { grid-column: 1 / -1; font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.pk-bar { grid-column: 1 / -1; height: 3px; margin-top: 5px; border-radius: 2px; background: var(--track); }
+.pk-bar i { display: block; height: 100%; border-radius: 2px; background: var(--accent); opacity: .75; }
 /* Actions that delete data: their own red group, apart from the rest. */
 .delete-zone { display: inline-flex; gap: 6px; padding: 3px; border: 1px dashed color-mix(in srgb, var(--err) 45%, transparent); border-radius: 9px; background: var(--err-soft); }
 button.danger { color: var(--err); border-color: color-mix(in srgb, var(--err) 40%, transparent); }
@@ -179,6 +195,8 @@ td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-word; }
 .day { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
 .day .col { width: 100%; max-width: 44px; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; opacity: .9; }
 .day .lbl { font-size: 12px; color: var(--faint); margin-top: 4px; white-space: nowrap; }
+.dense { gap: 3px; }
+.dense .day .amt, .day .lbl.skip { visibility: hidden; }
 .day .amt { font-size: 12px; color: var(--muted); margin-bottom: 3px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* Optimized vs rerequested */
@@ -310,6 +328,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     </div>
     <div class="head-right">
       <a class="navlink" href="/" aria-current="page">Dashboard</a>
+      <a class="navlink" href="/costs" title="What the saved tokens are worth per model, and what the proxy measured">Costs</a>
       <a class="navlink" href="/context" title="How big conversations get, and what compacting earlier would save">Context</a>
       <a class="navlink" href="/mcp" title="What each MCP server's tool definitions cost, and which are used">MCP servers</a>
       <span id="version" class="ver" title="gascoigne version"></span>
@@ -386,27 +405,6 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
         <tbody id="feed"><tr><td colspan="7" class="empty">No runs recorded yet.</td></tr></tbody>
       </table>
     </div>
-  </section>
-
-  <section class="panel tabbed" id="cost-panel">
-    <h2>Models and cost</h2>
-    <div class="pane" data-title="By model family">
-      <p class="hint">Estimated savings in each model's own tokens and in dollars, with rereads (models recorded per run; runs without one use the agent's default, marked assumed)</p>
-      <div class="scroll" id="families"></div>
-    </div>
-    <div class="pane" data-title="By model">
-      <p class="hint">The same per model, by tokenizer</p>
-      <div class="scroll" id="models"></div>
-    </div>
-    <div class="pane" data-title="Requests by day">
-      <p class="hint">Measured by the LLM proxy. Each request re-reads the conversation, so requests times context is what drives the bill. (Not available when the agent uses a login the proxy stays out of.)</p>
-      <div class="scroll" id="usage-days"></div>
-    </div>
-    <div class="pane" data-title="Requests by model">
-      <p class="hint">Context: tokens one request carries (input, cache read and cache write), mean and peak</p>
-      <div class="scroll" id="usage-models"></div>
-    </div>
-    <p class="hint" id="pricing"></p>
   </section>
 
   <section class="panel tabbed" id="breakdown-panel">
@@ -690,13 +688,25 @@ function renderKPIs(o) {
     el("div", { class: "kpi " + (cls || "") }, el("div", { class: "name" }, name), el("div", { class: "value" }, value), el("div", { class: "plain" }, plain))));
 }
 
+// Beyond DENSE bars the amounts move into tooltips, and only every Nth label
+// shows, so a long period stays legible; weeks and months keep their year.
+const DENSE = 12, MAX_LABELS = 10;
+const barLabel = (g) => (g.length === 10 ? g.slice(5) : g); // YYYY-MM-DD → MM-DD
+
+function thin(chart, n) {
+  chart.classList.toggle("dense", n > DENSE);
+  const every = Math.ceil(n / MAX_LABELS);
+  chart.querySelectorAll(".lbl").forEach((l, i) => l.classList.toggle("skip", i % every !== 0 && i !== n - 1));
+}
+
 function renderDays(days) {
   const best = Math.max(1, ...days.map((d) => d.saved_tokens));
   $("days").replaceChildren(...days.map((d) => {
     const col = el("div", { class: "col", title: `${d.group}: ${human(d.saved_tokens)} saved in ${d.runs} runs` });
     col.style.height = (100 * d.saved_tokens / best) + "%";
-    return el("div", { class: "day" }, el("div", { class: "amt" }, human(d.saved_tokens)), col, el("div", { class: "lbl" }, d.group.slice(5)));
+    return el("div", { class: "day" }, el("div", { class: "amt" }, human(d.saved_tokens)), col, el("div", { class: "lbl" }, barLabel(d.group)));
   }));
+  thin($("days"), days.length);
   if (days.length === 0) $("days").replaceChildren(el("div", { class: "empty" }, "No data for this period."));
 }
 
@@ -722,45 +732,9 @@ function renderImpact(days) {
     el("div", { class: "pair" },
       col("", d.saved, `${d.day}: ${human(d.saved)} saved by ${d.optimized} optimized runs`),
       col("back", d.wasted, `${d.day}: ${human(d.wasted)} read twice in ${d.rerequested} rerequested runs`)),
-    el("div", { class: "lbl" }, d.day.slice(5)))));
+    el("div", { class: "lbl" }, barLabel(d.day)))));
+  thin($("impact"), days.length);
   if (days.length === 0) $("impact").replaceChildren(el("div", { class: "empty" }, "No data for this period."));
-}
-
-const usd = (n) => "$" + (n >= 100 ? n.toFixed(0) : n.toFixed(2));
-
-// renderModels totals the priced savings per model family (Claude, GPT,
-// Gemini) and lists them per model; unpriced models are named below.
-function renderModels(c) {
-  const rows = c.savings || [];
-  const byFamily = new Map();
-  for (const s of rows) {
-    const f = byFamily.get(s.family) || { family: s.family, models: 0, model_tokens: 0, first_read_usd: 0, in_context_usd: 0 };
-    f.models++;
-    f.model_tokens += s.model_tokens;
-    f.first_read_usd += s.first_read_usd;
-    f.in_context_usd += s.in_context_usd;
-    byFamily.set(s.family, f);
-  }
-  const money = [
-    { title: "Saved", get: (r) => human(r.model_tokens), sort: (r) => r.model_tokens, num: true },
-    { title: "First read", get: (r) => usd(r.first_read_usd), sort: (r) => r.first_read_usd, num: true },
-    { title: "In context", get: (r) => usd(r.in_context_usd), sort: (r) => r.in_context_usd, num: true },
-    { title: "", get: (r) => bar(pct(r.in_context_usd, c.in_context_usd)) },
-  ];
-  const p = c.pricing;
-  $("pricing").replaceChildren(...(p ? [`Dollar figures are ${p.basis}; prices checked ${p.checked}. Sources: `,
-    ...p.sources.flatMap((u, i) => [i ? ", " : "", el("a", { href: u, target: "_blank", rel: "noopener" }, new URL(u).hostname)])] : []));
-  const empty = "No priced savings in this period.";
-  lazyTable($("families"), [
-    { title: "Family", get: (r) => r.family, mono: true },
-    { title: "Models", get: (r) => r.models, num: true },
-    ...money,
-  ], [...byFamily.values()].sort((a, b) => b.in_context_usd - a.in_context_usd), empty);
-  lazyTable($("models"), [
-    { title: "Model", get: (r) => r.model + (r.assumed ? " (assumed)" : ""), mono: true },
-    { title: "Tokenizer", get: (r) => r.tokenizer, mono: true },
-    ...money,
-  ], rows, empty);
 }
 
 function renderReasons(o) {
@@ -779,32 +753,9 @@ function renderReasons(o) {
   ], rows, "All runs in this period were optimized.");
 }
 
-async function refreshUsage() {
-  const u = await getJSON("/api/usage?" + filters());
-  const empty = "No proxied requests in this period.";
-  lazyTable($("usage-days"), [
-    { title: "Day (UTC)", get: (r) => r.day, mono: true },
-    { title: "Requests", get: (r) => human(r.requests), sort: (r) => r.requests, num: true },
-    { title: "Context", get: (r) => human(r.mean_context), sort: (r) => r.mean_context, num: true },
-    { title: "Peak", get: (r) => human(r.peak_context), sort: (r) => r.peak_context, num: true },
-    { title: "Cache read", get: (r) => human(r.cache_read), sort: (r) => r.cache_read, num: true },
-    { title: "Cache write", get: (r) => human(r.cache_write), sort: (r) => r.cache_write, num: true },
-  ], u.days, empty);
-  lazyTable($("usage-models"), [
-    { title: "Agent", get: (r) => r.agent || "—", mono: true },
-    { title: "Model", get: (r) => r.model || "—", mono: true },
-    { title: "Requests", get: (r) => human(r.requests), sort: (r) => r.requests, num: true },
-    { title: "Context", get: (r) => human(r.mean_context), sort: (r) => r.mean_context, num: true },
-    { title: "Peak", get: (r) => human(r.peak_context), sort: (r) => r.peak_context, num: true },
-    { title: "Cache read", get: (r) => human(r.cache_read), sort: (r) => r.cache_read, num: true },
-    { title: "Output", get: (r) => human(r.output), sort: (r) => r.output, num: true },
-  ], u.models, empty);
-}
-
 async function refreshOverview() {
   const o = await getJSON("/api/overview?" + filters());
   getJSON("/api/impact?" + filters()).then(renderImpact).catch(() => {});
-  refreshUsage().catch(() => {}); // a side panel: its failure never blanks the page
   renderKPIs(o);
   renderDays(o.days || []);
   lazyTable($("outcomes"), [
@@ -814,7 +765,6 @@ async function refreshOverview() {
     { title: "Output", get: (r) => human(r.out_tokens), sort: (r) => r.out_tokens, num: true },
     { title: "Share of input", get: (r) => bar(pct(r.raw_tokens, o.total.raw_tokens)), sort: (r) => r.raw_tokens },
   ], o.outcomes);
-  renderModels(o.cost || {});
   lazyTable($("commands"), savedCols("Command", (r) => r.group), o.commands);
   lazyTable($("optimizers"), savedCols("Optimizer", (r) => r.group + (r.family ? " · " + r.family : "")), o.optimizers);
   lazyTable($("dialects"), savedCols("Content type", (r) => r.group), o.dialects);
@@ -870,17 +820,83 @@ async function forget(key) {
   refreshFailures();
 }
 
+// picker draws a select as a button and a list. Each option may carry data-sub (a line of detail), data-meta
+// (the figure shown on the right) and data-share (0-1, a bar under it). The select keeps the value and fires
+// change, so the rest of the page does not know the picker exists; it redraws when the options change.
+function picker(sel) {
+  const box = el("div", { class: "picker" });
+  sel.replaceWith(box);
+  const cur = el("span", { class: "pk-cur" });
+  const btn = el("button", { type: "button", class: "pk-btn", "aria-haspopup": "listbox", "aria-expanded": "false" }, cur);
+  const list = el("ul", { class: "pk-list", role: "listbox", tabindex: "-1", hidden: "" });
+  box.append(sel, btn, list);
+  sel.tabIndex = -1;
+  let act = -1;
+  const items = () => [...list.children];
+  const open = (on) => {
+    list.hidden = !on;
+    btn.setAttribute("aria-expanded", String(on));
+    if (on) { act = sel.selectedIndex; mark(); }
+  };
+  const mark = () => items().forEach((li, i) => { li.classList.toggle("act", i === act); if (i === act) li.scrollIntoView({ block: "nearest" }); });
+  const choose = (i) => {
+    open(false);
+    if (i === sel.selectedIndex) return;
+    sel.selectedIndex = i;
+    sel.dispatchEvent(new Event("change"));
+    draw();
+  };
+  function draw() {
+    const opts = [...sel.options];
+    cur.textContent = opts[sel.selectedIndex] ? opts[sel.selectedIndex].dataset.label || opts[sel.selectedIndex].textContent : "";
+    list.replaceChildren(...opts.map((o, i) => {
+      const d = o.dataset;
+      const li = el("li", { class: "pk-item", role: "option", "aria-selected": String(i === sel.selectedIndex), title: o.title || "" },
+        el("span", { class: "pk-name" }, d.label || o.textContent), el("span", { class: "pk-meta" }, d.meta || ""),
+        d.sub ? el("span", { class: "pk-sub" }, d.sub) : "");
+      if (d.share) { const b = el("span", { class: "pk-bar" }, el("i")); b.firstChild.style.width = Math.round(100 * d.share) + "%"; li.append(b); }
+      li.onclick = () => choose(i);
+      return li;
+    }));
+  }
+  btn.onclick = () => open(list.hidden);
+  btn.onkeydown = (e) => {
+    const n = sel.options.length;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (list.hidden) open(true);
+      else { act = (act + (e.key === "ArrowDown" ? 1 : n - 1)) % n; mark(); }
+    } else if (e.key === "Enter" && !list.hidden) { e.preventDefault(); choose(act); }
+    else if (e.key === "Escape") open(false);
+  };
+  document.addEventListener("click", (e) => { if (!box.contains(e.target)) open(false); });
+  new MutationObserver(draw).observe(sel, { childList: true });
+  draw();
+  return draw;
+}
+
 async function refreshLists() {
-  const sessions = await getJSON("/api/sessions");
+  const sp = filters();
+  sp.delete("session");
+  const sessions = await getJSON("/api/sessions?" + sp);
   const sel = $("f-session"), keep = sel.value;
-  sel.replaceChildren(el("option", { value: "" }, "All sessions"),
-    ...sessions.filter((s) => s.group).map((s) => el("option", { value: s.group, title: s.group === "-" ? "Runs recorded without a session: the LLM proxy cannot see one, and commands started without -session have none" : "" },
-      `${s.group === "-" ? "no session (proxy, manual runs)" : s.group} · ${human(s.saved_tokens)} saved`)));
+  // A selected session without runs in the period stays selectable, so the filter does not change under the user.
+  if (keep && !sessions.some((s) => s.group === keep)) sessions.push({ group: keep, saved_tokens: 0 });
+  sel.replaceChildren(el("option", { value: "", "data-sub": `${sessions.filter((s) => s.group).length} in this period, latest first` }, "All sessions"),
+    ...sessions.filter((s) => s.group).map((s) => el("option", {
+      value: s.group, "data-label": s.group === "-" ? "No session" : s.group, "data-meta": `${human(s.saved_tokens)} saved`,
+      "data-sub": (s.group === "-" ? "Proxy and manual runs · " : "") + `${human(s.runs || 0)} runs` + (s.last ? ` · last ${ago(s.last)}` : ""),
+      title: s.group === "-" ? "Runs recorded without a session: the LLM proxy cannot see one, and commands started without -session have none" : s.group,
+    }, s.group === "-" ? "no session (proxy, manual runs)" : s.group)));
   sel.value = keep;
   const o = await getJSON("/api/overview");
   const asel = $("f-agent"), akeep = asel.value;
+  const abest = Math.max(1, ...o.agents.map((a) => a.saved_tokens));
   asel.replaceChildren(el("option", { value: "" }, "All agents"),
-    ...o.agents.filter((a) => a.group).map((a) => el("option", { value: a.group }, a.group)));
+    ...o.agents.filter((a) => a.group).map((a) => el("option", {
+      value: a.group, "data-meta": `${human(a.saved_tokens)} saved`, "data-sub": `${human(a.runs)} runs, ${fmtPct(a.saved_pct)} of input saved`,
+      "data-share": Math.max(0, a.saved_tokens) / abest,
+    }, a.group)));
   asel.value = akeep;
 }
 
@@ -1254,7 +1270,11 @@ document.querySelectorAll(".tabbed").forEach(tabbed);
 refreshServer();
 setInterval(refreshServer, 60000);
 for (const k of ["session", "agent", "since"]) {
-  $("f-" + k).onchange = () => { connect(); refreshOverview().catch(console.error); };
+  $("f-" + k).onchange = () => {
+    connect();
+    refreshOverview().catch(console.error);
+    if (k !== "session") refreshLists().catch(console.error); // the session list follows the period and agent
+  };
 }
 setInterval(() => {
   for (const td of document.querySelectorAll("td.when")) td.textContent = ago(td.dataset.ts);
@@ -1263,6 +1283,7 @@ setInterval(() => refreshLists().catch(console.error), 30000);
 setInterval(() => refreshOriginals().catch(console.error), 30000);
 refreshOriginals().catch(console.error);
 
+for (const id of ["f-session", "f-agent", "f-since"]) picker($(id));
 refreshLists().catch(console.error);
 refreshOverview().catch(console.error);
 connect();

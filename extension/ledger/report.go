@@ -52,6 +52,9 @@ func (l *Ledger) liveStats(ctx context.Context, q component.StatsQuery) ([]compo
 	if q.Chronological() {
 		order = "1"
 	}
+	if q.By == component.BySession {
+		order = "max(events.ts) DESC, 1" // latest session first
+	}
 	var rows []struct {
 		Group                   string
 		Family                  string

@@ -58,7 +58,7 @@
   // header builds the dashboard's night band, identical on every page: the same brand and links, the page's own link
   // marked. The page's title and subtitle go in a line below it.
   const header = (target, title, subtitle, current) => {
-    const links = [["/", "Dashboard", "dashboard"], ["/context", "Context", "context"], ["/mcp", "MCP servers", "mcp"]];
+    const links = [["/", "Dashboard", "dashboard"], ["/costs", "Costs", "costs"], ["/context", "Context", "context"], ["/mcp", "MCP servers", "mcp"]];
     const theme = el("div", { class: "theme", role: "group", "aria-label": "Theme" });
     const saved = (() => { try { return localStorage.getItem("gascoigne-theme") || "auto"; } catch { return "auto"; } })();
     for (const name of ["auto", "light", "dark"]) {

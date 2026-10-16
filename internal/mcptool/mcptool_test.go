@@ -83,3 +83,19 @@ func TestFillDays(t *testing.T) {
 		t.Fatalf("got %+v", got)
 	}
 }
+
+func TestChartBucket(t *testing.T) {
+	day := 24 * time.Hour
+	for _, tt := range []struct {
+		span time.Duration
+		want string
+	}{
+		{7 * day, component.ByDay}, {29 * day, component.ByDay}, {32 * day, component.ByDay},
+		{33 * day, component.ByWeek}, {180 * day, component.ByWeek},
+		{200 * day, component.ByMonth}, {2000 * day, component.ByMonth},
+	} {
+		if got := chartBucket(tt.span); got != tt.want {
+			t.Errorf("%v: %s, want %s", tt.span, got, tt.want)
+		}
+	}
+}

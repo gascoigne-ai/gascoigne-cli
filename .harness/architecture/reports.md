@@ -59,6 +59,17 @@ sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MC
   clears. The page offers it for tools not called in 14 days and says it applies from the next session
   (the recorded lazy flags lag the choice until then). Reasons and rejected options: `decisions.md`.
 
+## Costs page (`costs.html`, `GET /costs`, `GET /api/costs`)
+
+Own page, shared `pages.css`/`pages.js` and nav, Period filter only. Two parts:
+- Estimated from tokens saved (`mcptool.BuildCosts`, same `overview.cost` data): families (claude/
+  gpt/gemini/other from `cost.Model.Family`, summed in the page) and models. "Saved" is in the
+  tokens.Estimate units the dashboard uses, so a family is the sum of its models; "In model tokens"
+  applies the model's tokenizer factor. Models come from the run (proxy request, Claude transcript);
+  none recorded → the agent's default, marked assumed. Dollars: first read and in context.
+- Measured by the proxy (`/api/usage`: requests, context, cache per day and model); empty when
+  the agent's login bypasses the proxy.
+
 ## Dashboard (`dashboard.go`)
 
 One embedded `dashboard.html`, no build step, serving the ledger live.
@@ -70,11 +81,18 @@ One embedded `dashboard.html`, no build step, serving the ledger live.
   (its hash holds `#run-ID` links). `dashboard_js_test.go` runs the helpers under node.
 - Layout: version in the header, the logo moon's phase = savings rate; tables in equal-height
   boxes, rows rendered as they scroll; deleting data (reset, clear originals) asks twice.
-- Content: totals, days, outcomes, model families and models (estimated savings in the model's
-  tokens and dollars from `overview.cost`; `cost.Model.Family` = claude/gpt/gemini/other, summed
-  in the page), commands, optimizers, dialects, skip/fail/unchanged reasons,
+- Content: totals, days, outcomes, commands, optimizers, dialects, skip/fail/unchanged reasons,
   failing sources (forget button), and a feed of runs over server-sent events (`/api/stream`,
   polls the ledger since other processes write it; `ledger.Recent`).
+- Filters (`picker`): the Session, Agent and Period selects are drawn as a button and list; the
+  select stays the value and fires `change`. An option may carry `data-label`, `data-meta` (figure
+  on the right), `data-sub` (detail line) and `data-share` (bar): sessions show saved tokens, runs,
+  last activity; agents show saved tokens, runs, share saved. Money lives on `/costs` only.
+- Trend charts: `overview.days` is per day up to 32 days, per ISO-like week up to ~190 days,
+  then per month (`mcptool.chartBuckets`); past 12 bars the page hides amounts (tooltips keep
+  them) and shows about 10 labels (`thin`). `/api/impact` stays per day and thins the same way.
+- Session list (`/api/sessions`): follows the Period and Agent filters (not Session), latest
+  session first (`max(ts)`, not savings); a selected session without runs in the period stays listed.
 - Run details compare original and optimized side by side (`/api/raw/{id}`, `/api/out/{id}`; the
   optimized text is `Event.Output`, kept gzip in `raw.output`), with `#run-ID` deep links. A run
   opens its steps and original; viewing an original there does not mark the source as failing.

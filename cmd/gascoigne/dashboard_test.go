@@ -64,6 +64,11 @@ func TestDashboardPages(t *testing.T) {
 		{"overview", "/api/overview?since=7d", `"saved_tokens":1800`},
 		{"model families", "/api/overview", `"family":"claude"`},
 		{"pricing basis", "/api/overview", `official list prices`},
+		{"costs api", "/api/costs?since=7d", `"in_context_usd"`},
+		{"costs api families", "/api/costs", `"family":"claude"`},
+		{"costs page", "/costs", `By model family`},
+		{"costs page nav", "/costs", `/assets/pages.js`},
+		{"dashboard links the costs page", "/", `href="/costs"`},
 		{"sessions", "/api/sessions", `"group":"s1"`},
 	}
 	for _, tt := range tests {
@@ -480,5 +485,41 @@ func TestEnabledExperiments(t *testing.T) {
 		if x.State != want {
 			t.Errorf("%s: state %q, want %q", x.Name, x.State, want)
 		}
+	}
+}
+
+// The session list follows the period and lists the latest session first.
+func TestDashboardSessionsPeriodAndOrder(t *testing.T) {
+	l, h := testDashboard(t)
+	for _, s := range []struct {
+		session string
+		age     time.Duration
+	}{{"old", 72 * time.Hour}, {"mid", 2 * time.Hour}, {"new", time.Minute}} {
+		ev := component.Event{TS: time.Now().Add(-s.age), Session: s.session, Agent: "claude", Command: "ls", Key: "cmd:ls",
+			Outcome: component.Optimized, RawTokens: 1000, OutTokens: 100 + len(s.session)}
+		if s.session == "old" {
+			ev.OutTokens = 10 // saves the most: the order must not follow savings
+		}
+		if err := l.Record(t.Context(), ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	order := func(url string) string {
+		var groups []struct{ Group string }
+		w := get(h, "GET", url)
+		if err := json.Unmarshal(w.Body.Bytes(), &groups); err != nil {
+			t.Fatalf("%s: %v: %s", url, err, w.Body.String())
+		}
+		var names []string
+		for _, g := range groups {
+			names = append(names, g.Group)
+		}
+		return strings.Join(names, ",")
+	}
+	if got := order("/api/sessions"); got != "new,mid,old" {
+		t.Errorf("all time: %q, want new,mid,old", got)
+	}
+	if got := order("/api/sessions?since=24h"); got != "new,mid" {
+		t.Errorf("24h: %q, want new,mid", got)
 	}
 }
