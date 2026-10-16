@@ -1,0 +1,122 @@
+[INFO]
+[INFO]   from pom.xml
+[INFO]
+[INFO] com.example:shop-service:jar:1.4.2
+[INFO] \- org.springframework.boot:spring-boot-starter-web:jar:3.2.4:compile
+[INFO] |  +- io.micrometer:micrometer-observation:jar:2.11.6:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:1.8.1:compile
+[INFO] |  \- org.springframework.boot:spring-boot-starter-web:jar:5.20.2:compile
+[INFO] +- org.springframework:spring-webmvc:jar:6.1.5:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:5.13.8:compile
+[INFO] |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:4.11.6:compile
+[INFO] |  \- org.springframework.boot:spring-boot-starter-web:jar:7.17.8:compile
+[INFO] +- org.springframework:spring-web:jar:6.1.5:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.1.6:compile
+[INFO] |  +- org.slf4j:slf4j-api:jar:3.20.4:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:1.17.2:compile
+[INFO] \- com.fasterxml.jackson.core:jackson-databind:jar:2.16.2:compile
+[INFO] |  +- org.springframework:spring-web:jar:8.13.5:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:5.8.4:compile
+[INFO] |  \- io.micrometer:micrometer-observation:jar:4.9.7:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-core:jar:2.16.2:compile
+[INFO] |  +- ch.qos.logback:logback-classic:jar:7.3.2:compile
+[INFO] |  +- org.springframework:spring-web:jar:2.6.8:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:9.7.7:compile
+[INFO] +- org.apache.tomcat.embed:tomcat-embed-core:jar:10.1.19:compile
+[INFO] |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:8.13.2:compile
+[INFO] |  +- ch.qos.logback:logback-classic:jar:4.7.1:compile
+[INFO] |  \- org.springframework:spring-web:jar:6.17.1:compile
+[INFO] \- io.micrometer:micrometer-observation:jar:1.12.4:compile
+[INFO] |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:4.11.4:compile
+[INFO] |  +- org.hibernate.orm:hibernate-core:jar:4.0.6:compile
+[INFO] |  \- io.micrometer:micrometer-observation:jar:7.16.3:compile
+[INFO] +- org.slf4j:slf4j-api:jar:2.0.12:compile
+[INFO] |  +- io.micrometer:micrometer-observation:jar:5.10.0:compile
+[INFO] |  +- org.slf4j:slf4j-api:jar:5.18.5:compile
+[INFO] |  \- org.springframework:spring-web:jar:9.16.3:compile
+[INFO] +- ch.qos.logback:logback-classic:jar:1.4.14:compile
+[INFO] |  +- org.springframework:spring-webmvc:jar:5.7.6:compile
+[INFO] |  +- io.micrometer:micrometer-observation:jar:8.13.4:compile
+[INFO] |  \- org.springframework.boot:spring-boot-starter-web:jar:3.1.6:compile
+[INFO] \- org.hibernate.orm:hibernate-core:jar:6.4.4.Final:compile
+[INFO] |  +- org.slf4j:slf4j-api:jar:8.0.1:compile
+[INFO] |  +- io.micrometer:micrometer-observation:jar:9.14.7:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-databind:jar:2.7.2:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-web:jar:3.2.4:compile
+[INFO] |  +- org.springframework:spring-web:jar:9.3.7:compile
+[INFO] |  +- org.springframework:spring-webmvc:jar:9.1.0:compile
+[INFO] |  \- org.springframework:spring-web:jar:4.18.0:compile
+[INFO] +- org.springframework:spring-webmvc:jar:6.1.5:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:3.20.4:compile
+[INFO] |  +- ch.qos.logback:logback-classic:jar:7.3.1:compile
+[INFO] |  \- org.springframework:spring-webmvc:jar:5.16.9:compile
+[INFO] \- org.springframework:spring-web:jar:6.1.5:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:7.8.3:compile
+[INFO] |  +- org.hibernate.orm:hibernate-core:jar:1.0.8:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:8.8.5:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.16.2:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:8.16.3:compile
+[INFO] |  +- ch.qos.logback:logback-classic:jar:4.0.6:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:1.0.3:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-core:jar:2.16.2:compile
+[INFO] |  +- org.slf4j:slf4j-api:jar:7.2.4:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:7.11.3:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:1.10.6:compile
+[INFO] \- org.apache.tomcat.embed:tomcat-embed-core:jar:10.1.19:compile
+[INFO] |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:7.6.0:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:9.2.3:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:4.9.3:compile
+[INFO] +- io.micrometer:micrometer-observation:jar:1.12.4:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:8.7.4:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:2.19.7:compile
+[INFO] |  \- org.hibernate.orm:hibernate-core:jar:3.7.7:compile
+[INFO] +- org.slf4j:slf4j-api:jar:2.0.12:compile
+[INFO] |  +- io.micrometer:micrometer-observation:jar:1.19.2:compile (×2)
+[INFO] |  \- org.hibernate.orm:hibernate-core:jar:3.13.0:compile
+[INFO] \- ch.qos.logback:logback-classic:jar:1.4.14:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-web:jar:3.12.7:compile
+[INFO] |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:2.2.2:compile
+[INFO] |  \- org.apache.tomcat.embed:tomcat-embed-core:jar:4.5.8:compile
+[INFO] +- org.hibernate.orm:hibernate-core:jar:6.4.4.Final:compile
+[INFO] |  +- org.slf4j:slf4j-api:jar:1.9.6:compile
+[INFO] |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:6.14.2:compile
+[INFO] |  \- org.springframework:spring-webmvc:jar:1.2.4:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-web:jar:3.2.4:compile
+[INFO] |  +- org.springframework:spring-webmvc:jar:6.13.1:compile
+[INFO] |  +- ch.qos.logback:logback-classic:jar:4.12.5:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:7.2.0:compile
+[INFO] \- org.springframework:spring-webmvc:jar:6.1.5:compile
+[INFO] |  +- org.slf4j:slf4j-api:jar:4.11.8:compile (×2)
+[INFO] |  \- org.slf4j:slf4j-api:jar:1.20.6:compile
+[INFO] +- org.springframework:spring-web:jar:6.1.5:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:7.1.6:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-web:jar:8.2.0:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:4.2.9:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.16.2:compile
+[INFO] |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:6.8.5:compile
+[INFO] |  +- org.hibernate.orm:hibernate-core:jar:1.8.5:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:5.0.9:compile
+[INFO] \- com.fasterxml.jackson.core:jackson-core:jar:2.16.2:compile
+[INFO] |  +- org.springframework:spring-webmvc:jar:1.7.1:compile
+[INFO] |  +- org.slf4j:slf4j-api:jar:8.12.4:compile
+[INFO] |  \- io.micrometer:micrometer-observation:jar:8.4.7:compile
+[INFO] +- org.apache.tomcat.embed:tomcat-embed-core:jar:10.1.19:compile
+[INFO] |  +- org.springframework:spring-web:jar:1.9.2:compile
+[INFO] |  +- org.hibernate.orm:hibernate-core:jar:4.10.5:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:6.19.1:compile
+[INFO] +- io.micrometer:micrometer-observation:jar:1.12.4:compile
+[INFO] |  +- ch.qos.logback:logback-classic:jar:4.12.2:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:7.2.0:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:9.17.5:compile
+[INFO] \- org.slf4j:slf4j-api:jar:2.0.12:compile
+[INFO] |  +- org.springframework:spring-web:jar:7.3.1:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:2.6.1:compile
+[INFO] |  \- io.micrometer:micrometer-observation:jar:8.14.2:compile
+[INFO] +- ch.qos.logback:logback-classic:jar:1.4.14:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:3.13.7:compile
+[INFO] |  +- org.hibernate.orm:hibernate-core:jar:4.17.1:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:5.8.9:compile
+[INFO] +- org.hibernate.orm:hibernate-core:jar:6.4.4.Final:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:6.8.4:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:8.7.2:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-databind:jar:4.4.4:compile

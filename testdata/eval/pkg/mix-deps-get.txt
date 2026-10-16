@@ -1,0 +1,46 @@
+Resolving Hex dependencies...
+Resolution completed in 0.412s
+Unchanged:
+  ecto 3.11.1
+  plug 1.15.3
+New:
+  phoenix 2.9.7
+  phoenix_html 3.14.1
+  phoenix_live_view 1.9.1
+  telemetry 3.0.4
+  jason 3.2.8
+  postgrex 3.8.6
+  db_connection 1.6.1
+  decimal 0.4.8
+  mime 2.11.2
+  plug_crypto 2.3.5
+  cowboy 1.15.7
+  cowlib 3.0.2
+  ranch 0.15.7
+  castore 3.9.2
+  mint 3.11.6
+  finch 2.3.5
+  nimble_options 0.10.5
+  nimble_pool 3.3.3
+  swoosh 0.9.4
+  gettext 2.2.6
+* Getting phoenix (Hex package)
+* Getting phoenix_html (Hex package)
+* Getting phoenix_live_view (Hex package)
+* Getting telemetry (Hex package)
+* Getting jason (Hex package)
+* Getting postgrex (Hex package)
+* Getting db_connection (Hex package)
+* Getting decimal (Hex package)
+* Getting mime (Hex package)
+* Getting plug_crypto (Hex package)
+* Getting cowboy (Hex package)
+* Getting cowlib (Hex package)
+* Getting ranch (Hex package)
+* Getting castore (Hex package)
+* Getting mint (Hex package)
+* Getting finch (Hex package)
+* Getting nimble_options (Hex package)
+* Getting nimble_pool (Hex package)
+* Getting swoosh (Hex package)
+* Getting gettext (Hex package)

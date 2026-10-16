@@ -1,0 +1,32 @@
+LISTEN                                   UNIT                                         ACTIVATES
+audit 1                                  systemd-journald-audit.socket                systemd-journald.service
+kobject-uevent 1                         systemd-udevd-kernel.socket                  systemd-udevd.service
+/dev/rfkill                              systemd-rfkill.socket                        systemd-rfkill.service
+/etc/pacman.d/gnupg/S.dirmngr            dirmngr@etc-pacman.d-gnupg.socket            dirmngr@etc-pacman.d-gnupg.service
+/etc/pacman.d/gnupg/S.gpg-agent          gpg-agent@etc-pacman.d-gnupg.socket          gpg-agent@etc-pacman.d-gnupg.service
+/etc/pacman.d/gnupg/S.gpg-agent.browser  gpg-agent-browser@etc-pacman.d-gnupg.socket  gpg-agent@etc-pacman.d-gnupg.service
+/etc/pacman.d/gnupg/S.gpg-agent.extra    gpg-agent-extra@etc-pacman.d-gnupg.socket    gpg-agent@etc-pacman.d-gnupg.service
+/etc/pacman.d/gnupg/S.gpg-agent.ssh      gpg-agent-ssh@etc-pacman.d-gnupg.socket      gpg-agent@etc-pacman.d-gnupg.service
+/etc/pacman.d/gnupg/S.keyboxd            keyboxd@etc-pacman.d-gnupg.socket            keyboxd@etc-pacman.d-gnupg.service
+/run/avahi-daemon/socket                 avahi-daemon.socket                          avahi-daemon.service
+/run/cups/cups.sock                      cups.socket                                  cups.service
+/run/dbus/system_bus_socket              dbus.socket                                  dbus-broker.service
+/run/dmeventd-client                     dm-event.socket                              dm-event.service
+/run/dmeventd-server                     dm-event.socket                              dm-event.service
+/run/docker.sock                         docker.socket                                docker.service
+/run/polkit/agent-helper.socket          polkit-agent-helper.socket                   -
+/run/ssh-unix-local/socket               sshd-unix-local.socket                       -
+/run/systemd/coredump                    systemd-coredump.socket                      -
+/run/systemd/io.systemd.AskPassword      systemd-ask-password.socket                  -
+/run/systemd/io.systemd.BootControl      systemd-bootctl.socket                       -
+/run/systemd/io.systemd.Credentials      systemd-creds.socket                         -
+/run/systemd/io.systemd.CryptEnroll      systemd-cryptenroll.socket                   -
+/run/systemd/io.systemd.FactoryReset     systemd-factory-reset.socket                 -
+/run/systemd/io.systemd.Hostname         systemd-hostnamed.socket                     systemd-hostnamed.service
+/run/systemd/io.systemd.Import           systemd-importd.socket                       systemd-importd.service
+… 9 items omitted
+/run/systemd/io.systemd.SysUpdate        systemd-sysupdate.socket                     -
+/run/systemd/io.systemd.sysext           systemd-sysext.socket                        -
+/run/systemd/journal/dev-log             systemd-journald-dev-log.socket              systemd-journald.service
+/run/systemd/journal/socket              systemd-journald.socket                      systemd-journald.service
+/run/systemd/journal/stdout              systemd-journald.socket                      systemd-journald.service

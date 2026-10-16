@@ -1,0 +1,9 @@
+10 10 2026 10:15:02.123:INFO [karma-server]: Karma v6.4.3 server started at http://localhost:9876/
+10 10 2026 10:15:02.125:INFO [launcher]: Launching browsers ChromeHeadless with concurrency unlimited
+Chrome Headless 124.0.0.0 (Linux x86_64) CartComponent should show the total FAILED
+	Expected '$10.00' to be '$12.00'.
+	    at <Jasmine>
+	    at UserContext.<anonymous> (src/app/cart/cart.component.spec.ts:31:36)
+Chrome Headless 124.0.0.0 (Linux x86_64): Executed 40 of 40 (1 FAILED) (0.9 secs / 0.8 secs)
+TOTAL: 1 FAILED, 39 SUCCESS
+… 39 passing test lines omitted

@@ -1,0 +1,19 @@
+Cart
+  total
+    rejects negative quantity [✘]
+Pricing
+
+Failures:
+
+  test/CartSpec.hs:28:7:
+  1) Cart.total rejects negative quantity
+       expected: Left NegativeQuantity
+        but got: Right 0
+
+  To rerun use: --match "/Cart/total/rejects negative quantity/"
+
+Randomized with seed 1234567
+
+Finished in 0.0412 seconds
+33 examples, 1 failure
+… 32 passing test lines omitted

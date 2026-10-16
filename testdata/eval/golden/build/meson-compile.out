@@ -1,0 +1,9 @@
+ninja: Entering directory `/work/app/build'
+FAILED: src/libcore.a.p/net7.c.o
+cc -Isrc/libcore.a.p -Isrc -I../src -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -MD -MQ src/libcore.a.p/net7.c.o -MF src/libcore.a.p/net7.c.o.d -o src/libcore.a.p/net7.c.o -c ../src/net7.c
+../src/net7.c
+  88:13 error 'sockaddr_in6' undeclared (first use in this function)
+    88 |     struct sockaddr_in6 addr;
+    |             ^~~~~~~~~~~~
+ninja: build stopped: subcommand failed.
+1 error in 1 file

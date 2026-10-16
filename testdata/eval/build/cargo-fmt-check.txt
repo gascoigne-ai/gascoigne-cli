@@ -1,0 +1,119 @@
+Diff in /work/app/src/main.rs at line 93:
+ fn run_0(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/main.rs at line 40:
+ fn run_1(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/main.rs at line 62:
+ fn run_2(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/parser.rs at line 70:
+ fn run_0(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/parser.rs at line 73:
+ fn run_1(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/parser.rs at line 108:
+ fn run_2(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/eval/mod.rs at line 66:
+ fn run_0(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/eval/mod.rs at line 69:
+ fn run_1(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/eval/mod.rs at line 36:
+ fn run_2(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/eval/value.rs at line 94:
+ fn run_0(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/eval/value.rs at line 71:
+ fn run_1(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/src/eval/value.rs at line 117:
+ fn run_2(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/tests/it.rs at line 117:
+ fn run_0(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/tests/it.rs at line 38:
+ fn run_1(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}
+
+Diff in /work/app/tests/it.rs at line 76:
+ fn run_2(input: &str) -> Result<Value, Error> {
+-    let tokens = lex(input) ?;
++    let tokens = lex(input)?;
+     parse(tokens)
+-  }
++}

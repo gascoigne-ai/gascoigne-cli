@@ -1,0 +1,49 @@
+src/core/buffer.cc
+  187:1 style: The scope of the variable 'cfg' can be reduced. [variableScope]
+  84:14 warning Member variable 'Socket::name' is not initialized in the constructor. [uninitMemberVar]
+  143:17 style: The function 'cfg' is never used. [unusedFunction]
+  124:18 performance: Function parameter 'fd' should be passed by const reference. [passedByValue] (×2, also at 266)
+  319:12 performance: Function parameter 'cfg' should be passed by const reference. [passedByValue]
+src/net/socket.cc
+  252:3 style: The function 'fd' is never used. [unusedFunction]
+  305:15 warning Member variable 'Socket::cfg' is not initialized in the constructor. [uninitMemberVar]
+  116:15 performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+  23:3 warning Member variable 'Socket::opts' is not initialized in the constructor. [uninitMemberVar]
+  255:16 style: The scope of the variable 'len' can be reduced. [variableScope] (×2, also at 215)
+  153:16 style: The function 'tmp' is never used. [unusedFunction]
+src/core/arena.cc
+  133:3 style: The scope of the variable 'name' can be reduced. [variableScope] (×2, also at 352)
+  185:5 performance: Function parameter 'tmp' should be passed by const reference. [passedByValue] (×2, also at 118)
+  322:4 warning Member variable 'Socket::buf' is not initialized in the constructor. [uninitMemberVar]
+  204:8 warning Member variable 'Socket::cfg' is not initialized in the constructor. [uninitMemberVar]
+  334:13 style: The function 'len' is never used. [unusedFunction]
+  51:8 warning Member variable 'Socket::fd' is not initialized in the constructor. [uninitMemberVar]
+  339:3 warning Member variable 'Socket::tmp' is not initialized in the constructor. [uninitMemberVar]
+src/util/strings.cc
+  299:4 style: The scope of the variable 'name' can be reduced. [variableScope]
+  163:8 style: The scope of the variable 'fd' can be reduced. [variableScope] (×2, also at 383)
+  299:11 warning Member variable 'Socket::opts' is not initialized in the constructor. [uninitMemberVar]
+  132:13 performance: Function parameter 'tmp' should be passed by const reference. [passedByValue]
+  288:14 warning Member variable 'Socket::fd' is not initialized in the constructor. [uninitMemberVar]
+src/net/poller.cc
+  83:18 warning Member variable 'Socket::len' is not initialized in the constructor. [uninitMemberVar]
+  304:10 performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+  264:3 style: The scope of the variable 'len' can be reduced. [variableScope] (×2, also at 291)
+  311:6 style: The function 'len' is never used. [unusedFunction]
+  317:2 style: The function 'fd' is never used. [unusedFunction]
+  262:12 performance: Function parameter 'opts' should be passed by const reference. [passedByValue]
+  322:1 style: The scope of the variable 'opts' can be reduced. [variableScope]
+  24:5 performance: Function parameter 'buf' should be passed by const reference. [passedByValue]
+same in several files:
+  error performance: Function parameter 'len' should be passed by const reference. [passedByValue]
+    at src/core/buffer.cc:343, src/net/socket.cc:110, src/core/arena.cc:335
+  error style: The scope of the variable 'tmp' can be reduced. [variableScope]
+    at src/core/buffer.cc:364, src/net/socket.cc:374, src/util/strings.cc:170, src/util/strings.cc:345, src/net/poller.cc:291
+  error style: The function 'opts' is never used. [unusedFunction]
+    at src/core/buffer.cc:374, src/net/socket.cc:87, src/net/socket.cc:393, src/util/strings.cc:115
+  error style: The function 'buf' is never used. [unusedFunction]
+    at src/core/buffer.cc:62, src/core/arena.cc:33, src/core/arena.cc:157, src/util/strings.cc:280, src/net/poller.cc:87
+  error portability: Shifting signed 32-bit value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
+    at src/core/buffer.cc:70, src/core/buffer.cc:306, src/core/buffer.cc:252, src/net/socket.cc:197, src/net/socket.cc:29, src/net/socket.cc:296, src/net/socket.cc:337, src/core/arena.cc:213, src/util/strings.cc:170, src/util/strings.cc:335, src/util/strings.cc:346, src/net/poller.cc:305, src/net/poller.cc:345, src/net/poller.cc:86, src/net/poller.cc:398, src/net/poller.cc:77
+nofile:0:0: information: Active checkers: 242/842 (use --checkers-report=<filename> to see details) [checkersReport]
+60 errors, 10 warnings in 5 files

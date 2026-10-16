@@ -7,6 +7,10 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 `recommendations.md`.
 
 ## Open
+- Dialects the dialect-coverage cases (`testdata/eval`) show saving nothing (0% on 60-130 line fixtures): `search/git-grep`,
+  `table/ss`, `table/sys` (lsmod), `build/fmt` (cargo fmt --check), `build/php` (phpstan), `test/catch`, `test/minitest`
+  (the last two under the 200-token floor). `pkg/mvndeps` keeps the tree head but cuts the tail, so `BUILD SUCCESS` /
+  a failure's error lines are not in the output: fix before trusting it on failing builds.
 - Real fixtures to replace synthetic ones once tools are at hand: terraform/tofu, pulumi, cdk,
   helm diff, kubectl, aws/gcloud/az, mysql, gh (authenticated). Per change: case savings up,
   `keep` strings intact, goldens reviewed.

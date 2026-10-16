@@ -1,0 +1,49 @@
+component/factory.go:38:func NewFactory[C any](kind Kind, typ string, def func() *C, create func(context.Context, Settings, *C) (Component, error), opts ...FactoryOption) Factory {
+exporter/stdoutexporter/factory.go:12:func NewFactory() component.Factory {
+extension/ledger/factory.go:11:func NewFactory() component.Factory {
+extension/ledger/ledger.go:44:func New(cfg *Config) *Ledger {
+filter/bypassfilter/factory.go:11:func NewFactory() component.Factory {
+filter/detectfilter/factory.go:11:func NewFactory() component.Factory {
+filter/historyfilter/factory.go:11:func NewFactory() component.Factory {
+filter/minsizefilter/factory.go:11:func NewFactory() component.Factory {
+internal/lazyre/lazyre.go:29:func New(expr string) *Regexp {
+internal/mcpauth/handler.go:19:func NewHandler(s *Store, serverURL string) *Handler {
+internal/mcptool/mcptool.go:160:func NewSessions(ctx context.Context) *Sessions {
+internal/service/service.go:49:func New(ctx context.Context, cfg *config.Config, factories []component.Factory, opts Options) (*Service, error) {
+internal/version/version.go:52:func Newer(a, b string) bool {
+optimizer/ariaoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/buildoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/catoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/cloudoptimizer/factory.go:15:func NewFactory() component.Factory {
+optimizer/dataoptimizer/factory.go:15:func NewFactory() component.Factory {
+optimizer/dboptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/denseoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/docoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/embedjsonoptimizer/factory.go:15:func NewFactory() component.Factory {
+optimizer/gitoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/grepoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/htmloptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/httpoptimizer/factory.go:15:func NewFactory() component.Factory {
+optimizer/infraoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/jsonoptimizer/factory.go:15:func NewFactory() component.Factory {
+optimizer/k8soptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/logoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/lsoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/passthroughoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/pathsoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/pkgoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/proseoptimizer/factory.go:11:func NewFactory() component.Factory {
+optimizer/rerunoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/tableoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/taskoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/testoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/traceoptimizer/factory.go:14:func NewFactory() component.Factory {
+optimizer/truncateoptimizer/factory.go:14:func NewFactory() component.Factory {
+payload/payload.go:51:func New(kind Kind, text string) *Payload {
+receiver/execreceiver/factory.go:12:func NewFactory() component.Factory {
+receiver/hookreceiver/factory.go:12:func NewFactory() component.Factory {
+receiver/httpproxyreceiver/factory.go:11:func NewFactory() component.Factory {
+receiver/httpproxyreceiver/proxy.go:47:func New(cfg *Config, next component.Pipeline, log *slog.Logger) *Receiver {
+receiver/mcpproxyreceiver/factory.go:13:func NewFactory() component.Factory {
+receiver/mcpreceiver/factory.go:14:func NewFactory() component.Factory {
+receiver/stdinreceiver/factory.go:13:func NewFactory() component.Factory {

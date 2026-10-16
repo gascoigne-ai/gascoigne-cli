@@ -1082,3 +1082,33 @@
   expect_type: build/tsc
   keep: ["12:7 error TS2304 Der Name \"steuersatz\" wurde nicht gefunden.", "src/kasse.ts:72", "29 errors in 7 files"]
   min_saved: 55
+
+# --- dialect coverage: one case per dialect that had none. Real output: grep/git-grep.txt (git grep in this
+# repo), table/lsmod.txt (lsmod), table/ss-tuna.txt (ss -tuna). Synthetic in the tool's real shape:
+# every other file added with these cases (build/cppcheck, mix-compile, cargo-fmt-check, shellcheck, meson-compile,
+# phpstan; pkg/deno-install, mix-deps-get, mvn-dependency-tree; grep/ag; task/just-fail; test/catch, cypress,
+# dub, hspec, karma, minitest; mysql-grid, box-unicode; table/systemctl-sockets.txt is real systemctl list-sockets).
+- { name: search/git-grep, file: grep/git-grep.txt, attrs: { cmd: git grep -n "func New" -- "*.go" }, expect_type: search/git-grep }
+- { name: search/ag, file: grep/ag.txt, attrs: { cmd: ag fetchUser }, expect_type: search/ag, keep: ["src/api/client0.js"], min_saved: 4 }
+- { name: table/ss-tuna, file: table/ss-tuna.txt, attrs: { cmd: ss -tuna }, expect_type: table/ss, keep: ["Netid", "State"] }
+- { name: detect/ss-tuna, file: table/ss-tuna.txt, expect_type: table/ss }
+- { name: table/lsmod, file: table/lsmod.txt, attrs: { cmd: lsmod }, expect_type: table/sys, keep: ["Module"] }
+- { name: table/aligned-sockets, file: table/systemctl-sockets.txt, expect_type: table/aligned, keep: ["LISTEN", "systemd-journald.socket"], min_saved: 18 }
+- { name: db/mysql-grid, file: table/mysql-grid.txt, expect_type: db/mysql, keep: ["customer", "60 rows in set"], min_saved: 57 }
+- { name: table/boxed, file: table/box-unicode.txt, expect_type: table/boxed, keep: ["SERVICE", "worker"], min_saved: 38 }
+- { name: build/cppcheck, file: build/cppcheck.txt, attrs: { cmd: cppcheck --enable=all src }, expect_type: build/cpplint, keep: ["uninitMemberVar", "unusedFunction"], min_saved: 38 }
+- { name: build/mix-compile, file: build/mix-compile.txt, attrs: { cmd: mix compile }, expect_type: build/elixir, keep: ["undefined function discount_for/2", "lib/shop/pricing.ex:57"], min_saved: 52 }
+- { name: build/cargo-fmt-check, file: build/cargo-fmt-check.txt, attrs: { cmd: cargo fmt --check }, expect_type: build/fmt, keep: ["Diff in"] }
+- { name: build/shellcheck, file: build/shellcheck.txt, attrs: { cmd: shellcheck -f gcc deploy.sh }, expect_type: build/lint, keep: ["SC2086", "SC2164"], min_saved: 54 }
+- { name: build/meson-compile, file: build/meson-compile.txt, attrs: { cmd: meson compile -C build }, expect_type: build/meson, keep: ["'sockaddr_in6' undeclared", "net7.c"], min_saved: 77 }
+- { name: build/phpstan, file: build/phpstan.txt, attrs: { cmd: phpstan analyse src }, expect_type: build/php, keep: ["Found 14 errors"] }
+- { name: pkg/deno-install, file: pkg/deno-install.txt, attrs: { cmd: deno install }, expect_type: pkg/deno, min_saved: 89 }
+- { name: pkg/mix-deps-get, file: pkg/mix-deps-get.txt, attrs: { cmd: mix deps.get }, expect_type: pkg/mix, keep: ["phoenix"], min_saved: 33 }
+- { name: pkg/mvn-dependency-tree, file: pkg/mvn-dependency-tree.txt, attrs: { cmd: mvn dependency:tree }, expect_type: pkg/mvndeps, keep: ["spring-boot-starter-web"], min_saved: 4 }
+- { name: task/just-fail, file: task/just-fail.txt, attrs: { cmd: just build }, expect_type: task/just, keep: ["E0308", "src/routes/orders.rs", "Recipe `build` failed"], min_saved: 46 }
+- { name: test/catch-fail, file: test/catch-fail.txt, attrs: { cmd: ./build/tests }, expect_type: test/catch, keep: ["REQUIRE( cart.total() == 90 )", "1 failed"] }
+- { name: test/cypress-fail, file: test/cypress-fail.txt, attrs: { cmd: npx cypress run }, expect_type: test/cypress, keep: ["applies a coupon", "cart.cy.ts:23:8"], min_saved: 4 }
+- { name: test/dub-test, file: test/dub-test.txt, attrs: { cmd: dub test }, expect_type: test/dub, keep: ["AssertError@source/shop/cart.d(87)"], min_saved: 7 }
+- { name: test/hspec-fail, file: test/hspec-fail.txt, attrs: { cmd: stack test }, expect_type: test/hspec, keep: ["rejects negative quantity", "33 examples, 1 failure"], min_saved: 62 }
+- { name: test/karma-fail, file: test/karma-fail.txt, attrs: { cmd: ng test }, expect_type: test/karma, keep: ["Expected '$10.00' to be '$12.00'", "cart.component.spec.ts:31:36", "TOTAL: 1 FAILED, 39 SUCCESS"], min_saved: 78 }
+- { name: test/minitest-fail, file: test/minitest-fail.txt, attrs: { cmd: rake test }, expect_type: test/minitest, keep: ["order.rb:42", "test/models/cart_test.rb:18", "87 runs"] }

@@ -1,0 +1,34 @@
+ ------ ---------------------------------------------------------------------------
+  Line   src/Order/Checkout.php
+ ------ ---------------------------------------------------------------------------
+  168     Call to an undefined method App\Order\Cart::total0().
+         🪪  method.notFound
+  192     Call to an undefined method App\Order\Cart::total1().
+         🪪  method.notFound
+  10     Call to an undefined method App\Order\Cart::items2().
+         🪪  method.notFound
+  205     Call to an undefined method App\Order\Cart::total3().
+         🪪  method.notFound
+  253     Call to an undefined method App\Order\Cart::items4().
+         🪪  method.notFound
+  267     Call to an undefined method App\Order\Cart::discount5().
+         🪪  method.notFound
+  112     Call to an undefined method App\Order\Cart::total6().
+         🪪  method.notFound
+  268     Call to an undefined method App\Order\Cart::total7().
+         🪪  method.notFound
+  56     Call to an undefined method App\Order\Cart::items8().
+         🪪  method.notFound
+  55     Call to an undefined method App\Order\Cart::total9().
+         🪪  method.notFound
+  214     Call to an undefined method App\Order\Cart::discount10().
+         🪪  method.notFound
+  31     Call to an undefined method App\Order\Cart::items11().
+         🪪  method.notFound
+  21     Call to an undefined method App\Order\Cart::items12().
+         🪪  method.notFound
+  165     Call to an undefined method App\Order\Cart::discount13().
+         🪪  method.notFound
+ ------ ---------------------------------------------------------------------------
+
+ [ERROR] Found 14 errors

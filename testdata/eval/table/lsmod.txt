@@ -1,0 +1,125 @@
+Module                  Size  Used by
+ccm                    28672  3
+rfcomm                114688  4
+snd_seq_dummy          16384  0
+snd_hrtimer            16384  1
+snd_seq               147456  7 snd_seq_dummy
+algif_hash             16384  1
+algif_skcipher         12288  1
+af_alg                 32768  6 algif_hash,algif_skcipher
+bnep                   36864  2
+intel_rapl_msr         24576  0
+intel_rapl_common      57344  1 intel_rapl_msr
+mt7921e                28672  0
+mt7921_common          98304  1 mt7921e
+snd_hda_codec_nvhdmi    16384  1
+snd_hda_codec_hdmi     65536  1 snd_hda_codec_nvhdmi
+mt792x_lib             77824  2 mt7921e,mt7921_common
+btusb                  86016  0
+mt76_connac_lib       110592  3 mt792x_lib,mt7921e,mt7921_common
+snd_hda_intel          73728  1
+btmtk                  40960  1 btusb
+vfat                   28672  1
+btrtl                  36864  1 btusb
+mt76                  180224  4 mt792x_lib,mt7921e,mt7921_common,mt76_connac_lib
+kvm_amd               278528  0
+fat                   118784  1 vfat
+snd_hda_codec         237568  3 snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec_nvhdmi
+btbcm                  24576  1 btusb
+snd_usb_audio         667648  1
+btintel                77824  1 btusb
+spd5118                16384  0
+asus_armoury          122880  0
+kvm                  1617920  1 kvm_amd
+snd_hda_core          159744  3 snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec
+snd_usbmidi_lib        57344  1 snd_usb_audio
+mac80211             1912832  4 mt792x_lib,mt76,mt7921_common,mt76_connac_lib
+asus_ec_sensors        40960  0
+snd_ump                45056  1 snd_usb_audio
+snd_intel_dspcfg       49152  1 snd_hda_intel
+eeepc_wmi              12288  0
+firmware_attributes_class    12288  1 asus_armoury
+snd_rawmidi            57344  2 snd_usbmidi_lib,snd_ump
+bluetooth            1277952  34 btrtl,btmtk,btintel,btbcm,bnep,btusb,rfcomm
+snd_intel_sdw_acpi     16384  1 snd_intel_dspcfg
+asus_wmi              151552  2 asus_armoury,eeepc_wmi
+irqbypass              16384  1 kvm
+snd_seq_device         16384  3 snd_seq,snd_ump,snd_rawmidi
+snd_hwdep              24576  2 snd_usb_audio,snd_hda_codec
+sp5100_tco             20480  0
+rapl                   20480  0
+pcspkr                 12288  0
+sparse_keymap          12288  1 asus_wmi
+wmi_bmof               12288  0
+mousedev               28672  0
+joydev                 24576  0
+snd_pcm               253952  5 snd_hda_codec_hdmi,snd_hda_intel,snd_usb_audio,snd_hda_codec,snd_hda_core
+i2c_piix4              40960  0
+cfg80211             1634304  4 mt76,mac80211,mt7921_common,mt76_connac_lib
+ip6t_REJECT            12288  1
+k10temp                12288  0
+i2c_smbus              20480  1 i2c_piix4
+nf_reject_ipv6         20480  1 ip6t_REJECT
+snd_timer              61440  3 snd_seq,snd_hrtimer,snd_pcm
+razeraccessory        135168  0
+razermouse            208896  0
+mc                    110592  1 snd_usb_audio
+cdc_acm                53248  0
+snd                   172032  18 snd_seq,snd_seq_device,snd_hda_codec_hdmi,snd_hwdep,snd_hda_intel,snd_usb_audio,snd_usbmidi_lib,snd_hda_codec,snd_timer,snd_ump,snd_pcm,snd_rawmidi
+xt_hl                  12288  22
+rfkill                 45056  8 mt7921e,asus_wmi,bluetooth,cfg80211
+gpio_amdpt             16384  0
+soundcore              16384  1 snd
+ip6t_rt                16384  3
+libarc4                12288  1 mac80211
+gpio_generic           24576  1 gpio_amdpt
+mac_hid                12288  0
+acpi_pad              184320  0
+ipt_REJECT             12288  1
+nf_reject_ipv4         16384  1 ipt_REJECT
+xt_LOG                 16384  12
+nf_log_syslog          20480  12
+nft_limit              20480  15
+xt_limit               12288  0
+xt_addrtype            12288  4
+xt_tcpudp              20480  60
+xt_conntrack           12288  24
+nf_conntrack          221184  1 xt_conntrack
+nf_defrag_ipv6         24576  1 nf_conntrack
+nf_defrag_ipv4         12288  1 nf_conntrack
+nft_compat             24576  127
+x_tables               77824  10 xt_conntrack,nft_compat,xt_LOG,xt_tcpudp,xt_addrtype,ip6t_rt,ipt_REJECT,xt_limit,xt_hl,ip6t_REJECT
+nf_tables             430080  707 nft_compat,nft_limit
+tcp_bbr                20480  131
+sch_fq                 28672  1
+crypto_user            16384  0
+i2c_dev                28672  0
+zram                   73728  1
+842_decompress         20480  1 zram
+842_compress           24576  1 zram
+lz4hc_compress         20480  1 zram
+dm_crypt               69632  1
+encrypted_keys         32768  1 dm_crypt
+trusted                49152  2 encrypted_keys,dm_crypt
+asn1_encoder           16384  1 trusted
+tee                    69632  1 trusted
+dm_mod                245760  3 dm_crypt
+nvme                   81920  2
+aesni_intel           106496  5
+gf128mul               12288  1 aesni_intel
+nvme_core             307200  3 nvme
+ccp                   241664  1 kvm_amd
+nvme_keyring           20480  1 nvme_core
+nvme_auth              32768  1 nvme_core
+thunderbolt           655360  0
+nvidia_drm            180224  157
+drm_display_helper    327680  1 nvidia_drm
+cec                   118784  1 drm_display_helper
+drm_ttm_helper         20480  1 nvidia_drm
+ttm                   163840  1 drm_ttm_helper
+nvidia_uvm           2592768  4
+nvidia_modeset       2002944  29 nvidia_drm
+video                  81920  2 asus_wmi,nvidia_modeset
+wmi                    45056  4 video,asus_armoury,asus_wmi,wmi_bmof
+nvidia              18771968  838 nvidia_uvm,nvidia_modeset
+aead                   16384  5 dm_crypt,ccm,nvidia,mac80211,aesni_intel

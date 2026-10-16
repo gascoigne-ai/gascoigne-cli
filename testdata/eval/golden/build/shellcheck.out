@@ -1,0 +1,14 @@
+scripts/release.sh
+  149:32 warning FOO appears unused. Verify use (or export if used externally). [SC2034] (×2, also at 59)
+ci/test.sh
+  55:19 warning FOO appears unused. Verify use (or export if used externally). [SC2034]
+same in several files:
+  warning Declare and assign separately to avoid masking return values. [SC2155]
+    at deploy.sh:117, deploy.sh:112, deploy.sh:80, deploy.sh:96, deploy.sh:27, deploy.sh:113, scripts/build.sh:94, scripts/release.sh:111, ci/test.sh:14, ci/test.sh:31, ci/test.sh:82
+  warning Quote this to prevent word splitting. [SC2046]
+    at deploy.sh:34, deploy.sh:83, deploy.sh:44, scripts/build.sh:89, scripts/build.sh:7, scripts/release.sh:41, ci/test.sh:71, ci/test.sh:131
+  note Use cd ... || exit in case cd fails. [SC2164]
+    at deploy.sh:38, scripts/build.sh:144, scripts/build.sh:135, scripts/build.sh:134, scripts/release.sh:25, scripts/release.sh:34, ci/test.sh:15, ci/test.sh:91, ci/test.sh:12
+  warning Double quote to prevent globbing and word splitting. [SC2086]
+    at scripts/build.sh:96, scripts/build.sh:61, scripts/build.sh:70, scripts/build.sh:49, scripts/release.sh:49, scripts/release.sh:71, scripts/release.sh:69, scripts/release.sh:89, ci/test.sh:132
+31 warnings, 9 notes in 4 files

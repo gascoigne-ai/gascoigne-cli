@@ -1,0 +1,32 @@
+source/shop/mod1.d(1): unittest passed
+source/shop/mod2.d(1): unittest passed
+source/shop/mod3.d(1): unittest passed
+source/shop/mod4.d(1): unittest passed
+source/shop/mod5.d(1): unittest passed
+source/shop/mod6.d(1): unittest passed
+source/shop/mod7.d(1): unittest passed
+source/shop/mod8.d(1): unittest passed
+source/shop/mod9.d(1): unittest passed
+source/shop/mod10.d(1): unittest passed
+source/shop/mod11.d(1): unittest passed
+source/shop/mod12.d(1): unittest passed
+source/shop/mod13.d(1): unittest passed
+source/shop/mod14.d(1): unittest passed
+source/shop/mod15.d(1): unittest passed
+source/shop/mod16.d(1): unittest passed
+source/shop/mod17.d(1): unittest passed
+source/shop/mod18.d(1): unittest passed
+source/shop/mod19.d(1): unittest passed
+source/shop/mod20.d(1): unittest passed
+source/shop/mod21.d(1): unittest passed
+source/shop/mod22.d(1): unittest passed
+source/shop/mod23.d(1): unittest passed
+source/shop/mod24.d(1): unittest passed
+source/shop/mod25.d(1): unittest passed
+core.exception.AssertError@source/shop/cart.d(87): Assertion failure
+----------------
+??:? _d_assertp [0x55d0c3a0e1b3]
+source/shop/cart.d:87 void shop.cart.__unittest_L83_C1() [0x55d0c3a0b2f1]
+??:? void shop.cart.__modtest() [0x55d0c3a0c7a2]
+1 modules passed unittests
+Error Program exited with code 1

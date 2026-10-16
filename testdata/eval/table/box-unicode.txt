@@ -1,0 +1,44 @@
+┌──────────┬───────────┬────────┬──────────┐
+│ SERVICE  │ STATE     │ CPU    │ MEMORY   │
+├──────────┼───────────┼────────┼──────────┤
+│ api0     │ running   │ 0.4%   │ 112 MB   │
+│ db1      │ running   │ 2.1%   │ 890 MB   │
+│ cache2   │ running   │ 0.1%   │ 64 MB    │
+│ worker3  │ exited    │ 0.0%   │ 0 B      │
+│ api4     │ running   │ 0.4%   │ 112 MB   │
+│ db5      │ running   │ 2.1%   │ 890 MB   │
+│ cache6   │ running   │ 0.1%   │ 64 MB    │
+│ worker0  │ exited    │ 0.0%   │ 0 B      │
+│ api1     │ running   │ 0.4%   │ 112 MB   │
+│ db2      │ running   │ 2.1%   │ 890 MB   │
+│ cache3   │ running   │ 0.1%   │ 64 MB    │
+│ worker4  │ exited    │ 0.0%   │ 0 B      │
+│ api5     │ running   │ 0.4%   │ 112 MB   │
+│ db6      │ running   │ 2.1%   │ 890 MB   │
+│ cache0   │ running   │ 0.1%   │ 64 MB    │
+│ worker1  │ exited    │ 0.0%   │ 0 B      │
+│ api2     │ running   │ 0.4%   │ 112 MB   │
+│ db3      │ running   │ 2.1%   │ 890 MB   │
+│ cache4   │ running   │ 0.1%   │ 64 MB    │
+│ worker5  │ exited    │ 0.0%   │ 0 B      │
+│ api6     │ running   │ 0.4%   │ 112 MB   │
+│ db0      │ running   │ 2.1%   │ 890 MB   │
+│ cache1   │ running   │ 0.1%   │ 64 MB    │
+│ worker2  │ exited    │ 0.0%   │ 0 B      │
+│ api3     │ running   │ 0.4%   │ 112 MB   │
+│ db4      │ running   │ 2.1%   │ 890 MB   │
+│ cache5   │ running   │ 0.1%   │ 64 MB    │
+│ worker6  │ exited    │ 0.0%   │ 0 B      │
+│ api0     │ running   │ 0.4%   │ 112 MB   │
+│ db1      │ running   │ 2.1%   │ 890 MB   │
+│ cache2   │ running   │ 0.1%   │ 64 MB    │
+│ worker3  │ exited    │ 0.0%   │ 0 B      │
+│ api4     │ running   │ 0.4%   │ 112 MB   │
+│ db5      │ running   │ 2.1%   │ 890 MB   │
+│ cache6   │ running   │ 0.1%   │ 64 MB    │
+│ worker0  │ exited    │ 0.0%   │ 0 B      │
+│ api1     │ running   │ 0.4%   │ 112 MB   │
+│ db2      │ running   │ 2.1%   │ 890 MB   │
+│ cache3   │ running   │ 0.1%   │ 64 MB    │
+│ worker4  │ exited    │ 0.0%   │ 0 B      │
+└──────────┴───────────┴────────┴──────────┘

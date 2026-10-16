@@ -1,0 +1,110 @@
+src/api/client0.js
+  282: const result = await fetchUser(id, { retries: 3 });
+src/api/client2.js
+  259: const result = await fetchUser(id, { retries: 1 });
+src/api/client6.js
+  239: const result = await fetchUser(id, { retries: 1 });
+src/api/client8.js
+  81: const result = await fetchUser(id, { retries: 1 });
+src/api/handler0.js
+  66: const result = await fetchUser(id, { retries: 4 });
+src/api/handler3.js
+  3: const result = await fetchUser(id, { retries: 3 });
+  67: const result = await fetchUser(id, { retries: 2 });
+src/api/handler5.js
+  259: const result = await fetchUser(id, { retries: 4 });
+src/api/router0.js
+  61: const result = await fetchUser(id, { retries: 0 });
+src/api/router4.js
+  259: const result = await fetchUser(id, { retries: 1 });
+  262: const result = await fetchUser(id, { retries: 3 });
+  291: const result = await fetchUser(id, { retries: 2 });
+src/api/router6.js
+  101: const result = await fetchUser(id, { retries: 4 });
+src/api/store3.js
+  131: const result = await fetchUser(id, { retries: 2 });
+  204: const result = await fetchUser(id, { retries: 0 });
+src/api/store4.js
+  6: const result = await fetchUser(id, { retries: 3 });
+src/api/store7.js
+  127: const result = await fetchUser(id, { retries: 3 });
+src/core/client3.js
+  101: const result = await fetchUser(id, { retries: 4 });
+  200: const result = await fetchUser(id, { retries: 3 });
+src/core/client6.js
+  184: const result = await fetchUser(id, { retries: 2 });
+src/core/client7.js
+  235: const result = await fetchUser(id, { retries: 2 });
+src/core/client8.js
+  205: const result = await fetchUser(id, { retries: 3 });
+src/core/handler1.js
+  84: const result = await fetchUser(id, { retries: 4 });
+src/core/handler2.js
+  238: const result = await fetchUser(id, { retries: 2 });
+src/core/handler5.js
+  205: const result = await fetchUser(id, { retries: 1 });
+src/core/handler6.js
+  26: const result = await fetchUser(id, { retries: 1 });
+src/core/handler7.js
+  254: const result = await fetchUser(id, { retries: 1 });
+  56: const result = await fetchUser(id, { retries: 4 });
+src/core/handler8.js
+  288: const result = await fetchUser(id, { retries: 4 });
+src/core/router0.js
+  34: const result = await fetchUser(id, { retries: 0 });
+src/core/router6.js
+  40: const result = await fetchUser(id, { retries: 0 });
+src/core/store2.js
+  8: const result = await fetchUser(id, { retries: 4 });
+src/core/store5.js
+  179: const result = await fetchUser(id, { retries: 2 });
+src/core/store7.js
+  39: const result = await fetchUser(id, { retries: 2 });
+src/db/client1.js
+  188: const result = await fetchUser(id, { retries: 0 });
+src/db/client2.js
+  158: const result = await fetchUser(id, { retries: 2 });
+src/db/client4.js
+  258: const result = await fetchUser(id, { retries: 4 });
+src/db/client5.js
+  191: const result = await fetchUser(id, { retries: 4 });
+  214: const result = await fetchUser(id, { retries: 3 });
+src/db/handler0.js
+  55: const result = await fetchUser(id, { retries: 4 });
+src/db/handler5.js
+  151: const result = await fetchUser(id, { retries: 0 });
+src/db/router2.js
+  73: const result = await fetchUser(id, { retries: 1 });
+src/db/router3.js
+  214: const result = await fetchUser(id, { retries: 1 });
+src/db/store0.js
+  23: const result = await fetchUser(id, { retries: 1 });
+src/db/store1.js
+  20: const result = await fetchUser(id, { retries: 0 });
+src/db/store6.js
+  267: const result = await fetchUser(id, { retries: 3 });
+src/db/store8.js
+  230: const result = await fetchUser(id, { retries: 3 });
+src/web/client1.js
+  282: const result = await fetchUser(id, { retries: 1 });
+src/web/client7.js
+  105: const result = await fetchUser(id, { retries: 0 });
+src/web/client8.js
+  102: const result = await fetchUser(id, { retries: 0 });
+src/web/handler0.js
+  47: const result = await fetchUser(id, { retries: 2 });
+src/web/handler2.js
+  83: const result = await fetchUser(id, { retries: 3 });
+src/web/handler8.js
+  209: const result = await fetchUser(id, { retries: 2 });
+src/web/router1.js
+  126: const result = await fetchUser(id, { retries: 1 });
+  236: const result = await fetchUser(id, { retries: 3 });
+  28: const result = await fetchUser(id, { retries: 2 });
+src/web/router2.js
+  210: const result = await fetchUser(id, { retries: 0 });
+src/web/store4.js
+  230: const result = await fetchUser(id, { retries: 4 });
+  290: const result = await fetchUser(id, { retries: 0 });
+src/web/store5.js
+  12: const result = await fetchUser(id, { retries: 0 });

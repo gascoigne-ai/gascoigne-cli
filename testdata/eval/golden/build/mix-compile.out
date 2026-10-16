@@ -1,0 +1,12 @@
+same in several files:
+  warning variable "opts1" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    at lib/shop/cart.ex:135, lib/shop/cart.ex:126, lib/shop/pricing.ex:174, lib/shop/pricing.ex:30, lib/shop/pricing.ex:134, lib/shopweb/ordercontroller.ex:147
+  warning variable "opts0" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    at lib/shop/cart.ex:194, lib/shopweb/ordercontroller.ex:141, lib/shopweb/ordercontroller.ex:43, lib/shop/orders.ex:179, lib/shop/orders.ex:53, lib/shop/orders.ex:118
+  warning variable "opts2" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    at lib/shopweb/ordercontroller.ex:112, lib/shopweb/ordercontroller.ex:147, lib/shopweb/ordercontroller.ex:148, lib/shopweb/ordercontroller.ex:56, lib/shop/orders.ex:51, lib/shop/accounts.ex:148
+== Compilation error in file lib/shop/pricing.ex ==
+** (CompileError) lib/shop/pricing.ex:57: undefined function discount_for/2 (expected Shop.Pricing to define such a function or for it to be imported, but none are available)
+    (elixir 1.16.2) src/elixir_locals.erl:114: :elixir_locals."-ensure_no_undefined_local/3-lc$^0/1-0-"/2
+    (stdlib 5.2) lists.erl:1706: :lists.foldl/3
+18 warnings in 5 files

@@ -1,0 +1,67 @@
+ninja: Entering directory `/work/app/build'
+[1/60] Compiling C object src/libcore.a.p/arena1.c.o
+[2/60] Compiling C object src/libcore.a.p/str2.c.o
+[3/60] Compiling C object src/libcore.a.p/poll3.c.o
+[4/60] Compiling C object src/libcore.a.p/arena4.c.o
+[5/60] Compiling C object src/libcore.a.p/poll5.c.o
+[6/60] Compiling C object src/libcore.a.p/buf6.c.o
+[7/60] Compiling C object src/libcore.a.p/log7.c.o
+[8/60] Compiling C object src/libcore.a.p/log8.c.o
+[9/60] Compiling C object src/libcore.a.p/poll9.c.o
+[10/60] Compiling C object src/libcore.a.p/log10.c.o
+[11/60] Compiling C object src/libcore.a.p/poll11.c.o
+[12/60] Compiling C object src/libcore.a.p/str12.c.o
+[13/60] Compiling C object src/libcore.a.p/poll13.c.o
+[14/60] Compiling C object src/libcore.a.p/str14.c.o
+[15/60] Compiling C object src/libcore.a.p/net15.c.o
+[16/60] Compiling C object src/libcore.a.p/log16.c.o
+[17/60] Compiling C object src/libcore.a.p/arena17.c.o
+[18/60] Compiling C object src/libcore.a.p/arena18.c.o
+[19/60] Compiling C object src/libcore.a.p/net19.c.o
+[20/60] Compiling C object src/libcore.a.p/arena20.c.o
+[21/60] Compiling C object src/libcore.a.p/log21.c.o
+[22/60] Compiling C object src/libcore.a.p/log22.c.o
+[23/60] Compiling C object src/libcore.a.p/log23.c.o
+[24/60] Compiling C object src/libcore.a.p/arena24.c.o
+[25/60] Compiling C object src/libcore.a.p/poll25.c.o
+[26/60] Compiling C object src/libcore.a.p/net26.c.o
+[27/60] Compiling C object src/libcore.a.p/buf27.c.o
+[28/60] Compiling C object src/libcore.a.p/arena28.c.o
+[29/60] Compiling C object src/libcore.a.p/buf29.c.o
+[30/60] Compiling C object src/libcore.a.p/buf30.c.o
+[31/60] Compiling C object src/libcore.a.p/log31.c.o
+[32/60] Compiling C object src/libcore.a.p/log32.c.o
+[33/60] Compiling C object src/libcore.a.p/net33.c.o
+[34/60] Compiling C object src/libcore.a.p/poll34.c.o
+[35/60] Compiling C object src/libcore.a.p/arena35.c.o
+[36/60] Compiling C object src/libcore.a.p/buf36.c.o
+[37/60] Compiling C object src/libcore.a.p/buf37.c.o
+[38/60] Compiling C object src/libcore.a.p/log38.c.o
+[39/60] Compiling C object src/libcore.a.p/poll39.c.o
+[40/60] Compiling C object src/libcore.a.p/str40.c.o
+[41/60] Compiling C object src/libcore.a.p/log41.c.o
+[42/60] Compiling C object src/libcore.a.p/net42.c.o
+[43/60] Compiling C object src/libcore.a.p/str43.c.o
+[44/60] Compiling C object src/libcore.a.p/arena44.c.o
+[45/60] Compiling C object src/libcore.a.p/log45.c.o
+[46/60] Compiling C object src/libcore.a.p/net46.c.o
+[47/60] Compiling C object src/libcore.a.p/buf47.c.o
+[48/60] Compiling C object src/libcore.a.p/poll48.c.o
+[49/60] Compiling C object src/libcore.a.p/arena49.c.o
+[50/60] Compiling C object src/libcore.a.p/arena50.c.o
+[51/60] Compiling C object src/libcore.a.p/net51.c.o
+[52/60] Compiling C object src/libcore.a.p/poll52.c.o
+[53/60] Compiling C object src/libcore.a.p/buf53.c.o
+[54/60] Compiling C object src/libcore.a.p/net54.c.o
+[55/60] Compiling C object src/libcore.a.p/net55.c.o
+[56/60] Compiling C object src/libcore.a.p/net56.c.o
+[57/60] Compiling C object src/libcore.a.p/str57.c.o
+[58/60] Compiling C object src/libcore.a.p/net58.c.o
+[59/60] Compiling C object src/libcore.a.p/arena59.c.o
+[60/60] Compiling C object src/libcore.a.p/buf60.c.o
+FAILED: src/libcore.a.p/net7.c.o
+cc -Isrc/libcore.a.p -Isrc -I../src -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -MD -MQ src/libcore.a.p/net7.c.o -MF src/libcore.a.p/net7.c.o.d -o src/libcore.a.p/net7.c.o -c ../src/net7.c
+../src/net7.c:88:13: error: 'sockaddr_in6' undeclared (first use in this function)
+   88 |     struct sockaddr_in6 addr;
+      |             ^~~~~~~~~~~~
+ninja: build stopped: subcommand failed.
