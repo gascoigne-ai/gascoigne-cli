@@ -9,7 +9,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -67,11 +66,11 @@ func Server(t *testing.T) (base string, refreshed *int) {
 		}
 		host, ok := loopbackHosts[cb.Hostname()]
 		port, portErr := strconv.Atoi(cb.Port())
-		if cb.Scheme != "http" || !ok || portErr != nil || !strings.HasPrefix(cb.Path, "/") {
-			http.Error(w, "redirect_uri must be an http loopback URL with a port and a path", http.StatusBadRequest)
+		if cb.Scheme != "http" || !ok || portErr != nil || cb.Path != callbackPath {
+			http.Error(w, "redirect_uri must be http://<loopback>:<port>"+callbackPath, http.StatusBadRequest)
 			return
 		}
-		target := "http://" + net.JoinHostPort(host, strconv.Itoa(port)) + cb.EscapedPath()
+		target := "http://" + net.JoinHostPort(host, strconv.Itoa(port)) + callbackPath
 		http.Redirect(w, r, target+"?"+url.Values{"code": {"c1"}, "state": {q.Get("state")}}.Encode(), http.StatusFound)
 	})
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
@@ -89,6 +88,9 @@ func Server(t *testing.T) (base string, refreshed *int) {
 	t.Cleanup(srv.Close)
 	return srv.URL + "/mcp", &n
 }
+
+// callbackPath is where mcpauth.Login listens.
+const callbackPath = "/callback"
 
 // loopbackHosts maps a callback host to the literal the redirect is built from.
 var loopbackHosts = map[string]string{"127.0.0.1": "127.0.0.1", "localhost": "localhost", "::1": "::1"}

@@ -16,12 +16,13 @@ func TestAuthorizeRedirectsOnlyToLoopback(t *testing.T) {
 		status         int
 		location       string
 	}{
-		{"loopback ip", "http://127.0.0.1:8123/cb", http.StatusFound, "http://127.0.0.1:8123/cb?code=c1&state=s1"},
-		{"localhost", "http://localhost:8123/cb", http.StatusFound, "http://localhost:8123/cb?code=c1&state=s1"},
-		{"other host", "http://evil.example/cb", http.StatusBadRequest, ""},
-		{"https loopback", "https://127.0.0.1/cb", http.StatusBadRequest, ""},
+		{"loopback ip", "http://127.0.0.1:8123/callback", http.StatusFound, "http://127.0.0.1:8123/callback?code=c1&state=s1"},
+		{"localhost", "http://localhost:8123/callback", http.StatusFound, "http://localhost:8123/callback?code=c1&state=s1"},
+		{"other host", "http://evil.example/callback", http.StatusBadRequest, ""},
+		{"https loopback", "https://127.0.0.1/callback", http.StatusBadRequest, ""},
 		{"not a url", "%zz", http.StatusBadRequest, ""},
 		{"missing", "", http.StatusBadRequest, ""},
+		{"other path", "http://127.0.0.1:8123/steal", http.StatusBadRequest, ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
