@@ -4,8 +4,10 @@ package authtest
 
 import (
 	"encoding/json"
+	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -53,7 +55,14 @@ func Server(t *testing.T) (base string, refreshed *int) {
 	})
 	mux.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
-		http.Redirect(w, r, q.Get("redirect_uri")+"?code=c1&state="+q.Get("state"), http.StatusFound)
+		// Clients under test listen on a loopback port; refuse to redirect anywhere else.
+		cb, err := url.Parse(q.Get("redirect_uri"))
+		if err != nil || cb.Scheme != "http" || !isLoopback(cb.Hostname()) {
+			http.Error(w, "redirect_uri must be a loopback http URL", http.StatusBadRequest)
+			return
+		}
+		cb.RawQuery = url.Values{"code": {"c1"}, "state": {q.Get("state")}}.Encode()
+		http.Redirect(w, r, cb.String(), http.StatusFound)
 	})
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
@@ -69,4 +78,9 @@ func Server(t *testing.T) (base string, refreshed *int) {
 	srv = httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
 	return srv.URL + "/mcp", &n
+}
+
+func isLoopback(host string) bool {
+	ip := net.ParseIP(host)
+	return host == "localhost" || (ip != nil && ip.IsLoopback())
 }
