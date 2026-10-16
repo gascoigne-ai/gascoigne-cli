@@ -158,8 +158,9 @@ func TestStats(t *testing.T) {
 			{Optimizer: "bun", Family: "js", Dialect: "pkg/bun", RawTokens: 40, OutTokens: 10},
 		}},
 	}
-	for _, ev := range events {
-		ev.TS = time.Now()
+	now := time.Now()
+	for i, ev := range events {
+		ev.TS = now.Add(time.Duration(i) * time.Second) // distinct, so session order (latest first) is deterministic
 		if err := l.Record(ctx, ev); err != nil {
 			t.Fatal(err)
 		}
@@ -173,8 +174,8 @@ func TestStats(t *testing.T) {
 			{Group: "-", Runs: 1, RawTokens: 10, OutTokens: 10},
 		}},
 		{component.StatsQuery{By: component.BySession}, []component.Stat{
-			{Group: "s1", Runs: 2, Optimized: 1, Failed: 1, RawTokens: 150, OutTokens: 70},
 			{Group: "s2", Runs: 2, Optimized: 1, RawTokens: 50, OutTokens: 20},
+			{Group: "s1", Runs: 2, Optimized: 1, Failed: 1, RawTokens: 150, OutTokens: 70},
 		}},
 		{component.StatsQuery{By: component.ByCommand}, []component.Stat{
 			{Group: "npm install", Runs: 2, Optimized: 1, Failed: 1, RawTokens: 150, OutTokens: 70},
