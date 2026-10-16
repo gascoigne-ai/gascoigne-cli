@@ -168,6 +168,9 @@ func watchRelease(ctx context.Context) {
 	}
 }
 
+// openPage opens a release page; a test replaces it.
+var openPage = tryOpenBrowser
+
 // releaseNudge is what a session start does when a newer release than the
 // running one is known (from the file the server saved, no network): open its
 // page once, and tell the agent. A compaction or /clear is not a new session.
@@ -180,12 +183,13 @@ func releaseNudge(source string) string {
 	if !r.newer() || p.SeenRelease == r.ID {
 		return ""
 	}
-	p.SeenRelease = r.ID
-	if p.save() != nil {
-		return ""
-	}
-	if os.Getenv("CI") == "" {
-		openBrowser(r.URL)
+	// Remembered only once the page opened (or opening is off), so a session
+	// without a desktop does not use up the release.
+	if os.Getenv("CI") != "" || openPage(r.URL) {
+		p.SeenRelease = r.ID
+		if p.save() != nil {
+			return ""
+		}
 	}
 	return fmt.Sprintf("gascoigne %s is out (this machine runs %s): %s. After installing it, run gascoigne upgrade.", r.ID, version.Number, r.URL)
 }

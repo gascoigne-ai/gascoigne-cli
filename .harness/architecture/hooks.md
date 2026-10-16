@@ -31,7 +31,9 @@
   (`checkRelease`; a failure is retried in an hour, the last good answer stays) and saves it as
   `release.json` in the state dir. A claude SessionStart hook (`releaseNudge`: startup or resume,
   not compact or clear) opens the page once per release when `version.Newer(id, version.Number)`
-  (`prefs.seen_release`) and adds a note. Hooks never use the network. The id must be a plain
+  (`prefs.seen_release`, saved only once the page opened, so a session without a desktop tries
+  again next time; the browser is started detached, as the hook exits at once) and adds a note.
+  Hooks never use the network. The id must be a plain
   `X.Y.Z`; the page must stay on the site's host and path; the body is cut at 4 KB; the request has
   no query, cookie or version. Off: `GASCOIGNE_RELEASE_CHECK=off`, `prefs.release_check`, or no server.
   The setup question is optional (`on` until answered off). `doctor` and `upgrade` show a newer

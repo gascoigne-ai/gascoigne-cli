@@ -201,3 +201,35 @@ func TestReleaseQuestionIsOptionalAndOnByDefault(t *testing.T) {
 		t.Errorf("saved off: %+v", got)
 	}
 }
+
+// A page that could not open (no desktop session) is tried again at the next
+// session start; one that opened is not.
+func TestReleaseNudgeRetriesWhenThePageDoesNotOpen(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_RELEASE_CHECK", "")
+	t.Setenv("CI", "")
+	var opened []string
+	works := false
+	prev := openPage
+	openPage = func(u string) bool { opened = append(opened, u); return works }
+	t.Cleanup(func() { openPage = prev })
+	if err := (release{ID: "99.0.0", URL: "https://site/releases/99.0.0/", CheckedAt: time.Now()}).save(); err != nil {
+		t.Fatal(err)
+	}
+	if note := releaseNudge("startup"); !strings.Contains(note, "99.0.0 is out") {
+		t.Fatalf("the agent is told even when no page opens: %q", note)
+	}
+	if readPrefs().SeenRelease == "99.0.0" {
+		t.Fatal("an unopened page is not remembered as seen")
+	}
+	works = true
+	if releaseNudge("startup") == "" || len(opened) != 2 {
+		t.Fatalf("tried again: opened %v", opened)
+	}
+	if readPrefs().SeenRelease != "99.0.0" {
+		t.Fatal("remembered once opened")
+	}
+	if releaseNudge("startup") != "" || len(opened) != 2 {
+		t.Fatalf("opens once: %v", opened)
+	}
+}

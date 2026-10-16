@@ -34,6 +34,7 @@ func tryOpenBrowser(url string) bool {
 	if runtime.GOOS == "linux" {
 		cmd := exec.Command(argv[0], argv[1:]...)
 		cmd.Env = env
+		detach(cmd)       // the hook that asked exits at once; its process group may be killed with it
 		return start(cmd) // xdg-open may stay until the browser exits
 	}
 	// open and rundll32 return at once, and with an error when there is no
