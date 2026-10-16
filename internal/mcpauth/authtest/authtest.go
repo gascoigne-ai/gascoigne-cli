@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -56,13 +58,21 @@ func Server(t *testing.T) (base string, refreshed *int) {
 	mux.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		// Clients under test listen on a loopback port; refuse to redirect anywhere else.
+		// The host is one of three literals and the port a number, so the target is
+		// never taken from the request.
 		cb, err := url.Parse(q.Get("redirect_uri"))
-		if err != nil || cb.Scheme != "http" || !isLoopback(cb.Hostname()) {
-			http.Error(w, "redirect_uri must be a loopback http URL", http.StatusBadRequest)
+		if err != nil {
+			http.Error(w, "redirect_uri is not a URL", http.StatusBadRequest)
 			return
 		}
-		cb.RawQuery = url.Values{"code": {"c1"}, "state": {q.Get("state")}}.Encode()
-		http.Redirect(w, r, cb.String(), http.StatusFound)
+		host, ok := loopbackHosts[cb.Hostname()]
+		port, portErr := strconv.Atoi(cb.Port())
+		if cb.Scheme != "http" || !ok || portErr != nil || !strings.HasPrefix(cb.Path, "/") {
+			http.Error(w, "redirect_uri must be an http loopback URL with a port and a path", http.StatusBadRequest)
+			return
+		}
+		target := "http://" + net.JoinHostPort(host, strconv.Itoa(port)) + cb.EscapedPath()
+		http.Redirect(w, r, target+"?"+url.Values{"code": {"c1"}, "state": {q.Get("state")}}.Encode(), http.StatusFound)
 	})
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
@@ -80,7 +90,5 @@ func Server(t *testing.T) (base string, refreshed *int) {
 	return srv.URL + "/mcp", &n
 }
 
-func isLoopback(host string) bool {
-	ip := net.ParseIP(host)
-	return host == "localhost" || (ip != nil && ip.IsLoopback())
-}
+// loopbackHosts maps a callback host to the literal the redirect is built from.
+var loopbackHosts = map[string]string{"127.0.0.1": "127.0.0.1", "localhost": "localhost", "::1": "::1"}
