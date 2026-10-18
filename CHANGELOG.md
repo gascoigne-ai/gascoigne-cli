@@ -6,8 +6,26 @@ All notable changes to gascoigne. The format follows
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-10-19
+
+The release notice checks for a newer version every 15 minutes, the dashboard gains a costs page, and `make eval`
+prints a readable summary.
+
+### Added
+
+- Dashboard: a costs page, readable long periods and session filters.
+- `make eval` prints a banner per suite, savings bars and a final summary.
+
+### Changed
+
 - The release notice reads `latest.json` every 15 minutes, from agent hooks and `dashboard` instead of the
   background server, and a prompt (not only a session start) opens the page of a newer release.
+
+### Fixed
+
+- The release page is retried until it opens.
+- `eval.sh` runs on the bash 3.2 shipped with macOS.
+- The fake MCP authorize endpoint (tests) redirects only to loopback, to the fixed callback path.
 
 ## [0.7.0] - 2026-10-16
 
