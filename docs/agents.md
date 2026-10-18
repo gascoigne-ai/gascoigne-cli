@@ -80,9 +80,9 @@ new session (at most every ten minutes) until you answer; closing it without sav
 
 ### Release notice
 
-gascoigne's background server reads one small file, `latest.json`, from the project website
-(`https://gascoigne-ai.github.io/`) hourly. When it names a release newer
-than the one you run, the next session start opens that release's page once and tells the agent.
+gascoigne reads one small file, `latest.json`, from the project website
+(`https://gascoigne-ai.github.io/`) every 15 minutes (from agent hooks and `gascoigne dashboard`). When it names a release newer
+than the one you run, the next session start or prompt opens that release's page once and tells the agent.
 The request is a plain GET with no query, cookie or version: nothing about you or this machine is
 sent, but the site's host sees your IP address, as for any web page. Hooks never touch the network;
 they read the file the server saved. Turn it off in `gascoigne setup` ("Tell me about new releases"),

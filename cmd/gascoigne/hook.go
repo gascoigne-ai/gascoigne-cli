@@ -63,6 +63,7 @@ func cmdHook(ctx context.Context, args []string) error {
 	}
 	if in.HookEventName == "SessionStart" || in.HookEventName == "UserPromptSubmit" {
 		in.syncNote = syncNote()
+		checkReleaseQuick(ctx)
 		if in.HookEventName == "SessionStart" { // a prompt event leaves asking to the session start
 			setup, release := setupNudge(in.Source), releaseNudge(in.Source)
 			notes := []string{in.syncNote, setup, release, mcpNudge(in.Source, setup != "" || release != "")}
@@ -71,7 +72,9 @@ func cmdHook(ctx context.Context, args []string) error {
 	}
 	if in.HookEventName == "UserPromptSubmit" {
 		// The server exits when idle; a prompt is where an agent starts
-		// talking to its API again, so bring it back first.
+		// talking to its API again, so bring it back first. It is also where a
+		// release that appeared mid-session opens its page (the reply stays empty).
+		releaseNudge("prompt")
 		if !serverOff() {
 			if err := serverUp(); err != nil {
 				fmt.Fprintln(os.Stderr, "gascoigne hook:", err)

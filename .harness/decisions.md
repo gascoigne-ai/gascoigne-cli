@@ -48,8 +48,8 @@ Env vars override where useful (`GASCOIGNE_GUIDE`, `GASCOIGNE_AUTOSYNC`).
 
 ## Release notice
 
-**On by default, minimal, and visible.** The website's `latest.json` (id and page) is read once a day
-by the background server; the next session opens the page once. Chosen over asking first because a
+**On by default, minimal, and visible.** The website's `latest.json` (id and page) is read every 15 min
+by the CLI (hooks, dashboard; never the server, which idles out); the next prompt opens the page once. Chosen over asking first because a
 notice nobody turned on is never seen. The cost is one request that shows the host the user's IP, so:
 plain GET (no query, cookie, version or id), a 4 KB cap, a page that may not leave the site, hooks
 never touch the network, one switch in setup and one env var, and the README says so. Rejected:

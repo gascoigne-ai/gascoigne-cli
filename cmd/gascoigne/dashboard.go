@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -41,6 +42,10 @@ var pagesJS []byte
 // cmdDashboard makes sure the background server runs, prints its address and
 // opens it in a browser.
 func cmdDashboard(ctx context.Context, args []string) error {
+	checkReleaseQuick(ctx)
+	if note := releaseNudge("dashboard"); note != "" {
+		fmt.Fprintln(os.Stderr, note)
+	}
 	return cmdServer(ctx, append([]string{"start", "-open"}, args...))
 }
 

@@ -71,7 +71,7 @@ func diagnose() []finding {
 	case r.newer():
 		add("warn", "gascoigne %s is out (you run %s): %s. After installing it, run gascoigne upgrade.", r.ID, version.Number, r.URL)
 	default:
-		add("ok", "release notice: on, hourly (%s); latest known: %s", releaseBase(), cmp.Or(r.ID, "not checked yet"))
+		add("ok", "release notice: on, every 15 min (%s); latest known: %s", releaseBase(), cmp.Or(r.ID, "not checked yet"))
 	}
 	var waiting []string
 	for _, q := range pendingDecisions(p) {

@@ -20,10 +20,9 @@ import (
 
 // Release notice. The project website keeps a small file, latest.json, with
 // the id of the latest release and the page that tells about it. The
-// background server reads it hourly; the next session start after a
-// newer release appeared opens that page once. The request is a plain GET:
-// nothing identifying is sent, and hooks never touch the network (they read
-// the file the server saved). On by default; $GASCOIGNE_RELEASE_CHECK=off or
+// session and prompt hooks (and the dashboard command) read it every 15
+// minutes; the first one after a newer release appeared opens that page once.
+// The request is a plain GET: nothing identifying is sent. On by default; $GASCOIGNE_RELEASE_CHECK=off or
 // the setup question turns it off.
 
 // releaseSite is the website's address; $GASCOIGNE_RELEASE_URL replaces it
@@ -31,10 +30,10 @@ import (
 const releaseSite = "https://gascoigne-ai.github.io/"
 
 // releaseEvery is how long a result stands before the file is read again.
-const releaseEvery = time.Hour
+const releaseEvery = 15 * time.Minute
 
 // releaseRetry is how soon a failed read is tried again.
-const releaseRetry = time.Hour
+const releaseRetry = 15 * time.Minute
 
 var releaseID = lazyre.New(`^\d+\.\d+\.\d+$`)
 
@@ -130,8 +129,8 @@ func fetchRelease(ctx context.Context, base string) (release, error) {
 	return release{ID: f.ID, Released: f.Released, URL: page.String()}, nil
 }
 
-// checkRelease reads the website when an hour has passed since the last read.
-// A failed read is tried again in an hour; the last good answer stays.
+// checkRelease reads the website when 15 minutes have passed since the last read.
+// A failed read is tried again in 15 minutes; the last good answer stays.
 func checkRelease(ctx context.Context) error {
 	if !releaseCheckOn() {
 		return nil
@@ -150,21 +149,13 @@ func checkRelease(ctx context.Context) error {
 	return got.save()
 }
 
-// watchRelease runs checkRelease in the background server: shortly after it
-// starts, then every hour (each tick reads).
-func watchRelease(ctx context.Context) {
-	t := time.NewTimer(30 * time.Second)
-	defer t.Stop()
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-t.C:
-			if err := checkRelease(ctx); err != nil {
-				fmt.Fprintln(os.Stderr, "gascoigne server: release check:", err)
-			}
-			t.Reset(time.Hour)
-		}
+// checkReleaseQuick is checkRelease for a command a person waits on: a slow
+// site costs at most two seconds, once per releaseEvery.
+func checkReleaseQuick(ctx context.Context) {
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	if err := checkRelease(ctx); err != nil {
+		fmt.Fprintln(os.Stderr, "gascoigne: release check:", err)
 	}
 }
 
@@ -172,7 +163,7 @@ func watchRelease(ctx context.Context) {
 var openPage = tryOpenBrowser
 
 // releaseNudge is what a session start does when a newer release than the
-// running one is known (from the file the server saved, no network): open its
+// running one is known (from the file checkRelease saved): open its
 // page once, and tell the agent. A compaction or /clear is not a new session.
 func releaseNudge(source string) string {
 	if source == "compact" || source == "clear" || !releaseCheckOn() {
@@ -205,7 +196,7 @@ func releaseDecision(p prefs) decision {
 		Title: "Tell me about new releases",
 		Text:  "gascoigne can notice when a new version is out and open its page once.",
 		Options: []option{
-			{"on", "Check hourly", "gascoigne's background server reads " + releaseBase() + "latest.json hourly. It is a plain request: nothing about you or this machine is sent, but the site's host sees your IP address as for any web page. A newer release opens its page once at the next session start."},
+			{"on", "Check every 15 minutes", "gascoigne reads " + releaseBase() + "latest.json hourly. It is a plain request: nothing about you or this machine is sent, but the site's host sees your IP address as for any web page. A newer release opens its page once the next time a session starts or you send a prompt."},
 			{"off", "Never check", "No request is made. Look for releases on the website or on GitHub yourself."},
 		}}
 }

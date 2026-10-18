@@ -6,6 +6,9 @@ All notable changes to gascoigne. The format follows
 
 ## [Unreleased]
 
+- The release notice reads `latest.json` every 15 minutes, from agent hooks and `dashboard` instead of the
+  background server, and a prompt (not only a session start) opens the page of a newer release.
+
 ## [0.7.0] - 2026-10-16
 
 Many more tools are recognised and shortened (build, test and package managers, stack traces, source outlines for

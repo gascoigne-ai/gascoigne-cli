@@ -233,3 +233,32 @@ func TestReleaseNudgeRetriesWhenThePageDoesNotOpen(t *testing.T) {
 		t.Fatalf("opens once: %v", opened)
 	}
 }
+
+// A prompt reads the site at most every releaseEvery and opens a newer
+// release's page once.
+func TestPromptChecksAndOpensNewRelease(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_RELEASE_CHECK", "")
+	t.Setenv("CI", "")
+	base, hits := site(t, `{"id":"99.0.0"}`, 200)
+	t.Setenv("GASCOIGNE_RELEASE_URL", base)
+	var opened []string
+	prev := openPage
+	openPage = func(u string) bool { opened = append(opened, u); return true }
+	t.Cleanup(func() { openPage = prev })
+
+	for range 2 {
+		checkReleaseQuick(t.Context())
+		releaseNudge("prompt")
+	}
+	if hits.Load() != 1 || len(opened) != 1 {
+		t.Fatalf("one read, one page: hits %d, opened %v", hits.Load(), opened)
+	}
+	r := readRelease()
+	r.CheckedAt = time.Now().Add(-releaseEvery - time.Minute)
+	r.save()
+	checkReleaseQuick(t.Context())
+	if releaseNudge("prompt"); hits.Load() != 2 || len(opened) != 1 {
+		t.Fatalf("read again after 15 min, page not reopened: hits %d, opened %v", hits.Load(), opened)
+	}
+}
