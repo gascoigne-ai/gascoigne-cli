@@ -6,6 +6,10 @@ All notable changes to gascoigne. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Hook rewrites keep quoted env assignments (`PG="a b" cmd`) outside `gascoigne exec`, which failed with "executable not found".
+
 ## [0.7.1] - 2026-10-19
 
 The release notice checks for a newer version every 15 minutes, the dashboard gains a costs page, and `make eval`
