@@ -8,11 +8,11 @@ All notable changes to gascoigne. The format follows
 
 ## [0.7.2] - 2026-10-22
 
-Commands with quoted env assignments, like `PG="a b" cmd`, run through the hook again.
+Commands with quoted env assignments, like `NODE_OPTIONS="--max-old-space-size=4096" npm run build`, run through the hook again.
 
 ### Fixed
 
-- Hook rewrites keep quoted env assignments (`PG="a b" cmd`) outside `gascoigne exec`, which failed with "executable not found".
+- Hook rewrites keep quoted env assignments outside `gascoigne exec`, as in `DATABASE_URL="postgres://app@localhost/app?sslmode=disable" go test ./...` or `NODE_OPTIONS="--max-old-space-size=4096" npm run build`. They failed with "executable not found".
 - A line the hook already rewrote is not wrapped a second time when it holds a quoted env value.
 - `command`, `exec` and `time` lines stay unwrapped: they are shell builtins or keywords, there is no program for exec to run.
 
