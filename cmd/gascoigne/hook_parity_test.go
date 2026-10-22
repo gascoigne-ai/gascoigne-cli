@@ -160,7 +160,6 @@ func TestWrapCommandShellParity(t *testing.T) {
 		{"sudo-less wrapper env", `env PG="a b" printenv PG`, true},
 		{"command builtin", `command ls a.txt`, false},
 		{"exec builtin", `exec ls a.txt`, false},
-		{"time keyword", `time ls a.txt`, false},
 	}
 	prefixes := []string{"gascoigne exec", "gascoigne exec -agent cursor -session 'a b' -model m"}
 	for _, prefix := range prefixes {

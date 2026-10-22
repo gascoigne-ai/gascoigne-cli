@@ -24,6 +24,7 @@ func TestWrapCommand(t *testing.T) {
 		{"script", "python3 gen.py", "gascoigne exec -- python3 gen.py"},
 		{"quiet behind sudo", "sudo rm -rf build", ""},
 		{"env only", "FOO=1", ""},
+		{"time keyword", "time go test ./...", ""},
 		{"quoted env", `PG="aaaa" pbbb "hjj"`, `PG="aaaa" gascoigne exec -- pbbb "hjj"`},
 		{"quoted env with space", `PG='a b' FOO=1 pbbb x`, `PG='a b' FOO=1 gascoigne exec -- pbbb x`},
 		{"quoted env only", `PG="a b"`, ""},
