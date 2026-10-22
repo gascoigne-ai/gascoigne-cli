@@ -8,7 +8,7 @@ All notable changes to gascoigne. The format follows
 
 ### Fixed
 
-- Hook rewrites keep quoted env assignments (`PG="a b" cmd`) outside `gascoigne exec`, which failed with "executable not found".
+- Hook rewrites keep quoted env assignments (`PG="a b" cmd`) outside `gascoigne exec`, which failed with "executable not found". `command`, `exec` and `time` lines stay unwrapped (no program to run), and a rewritten line is no longer wrapped a second time.
 
 ## [0.7.1] - 2026-10-19
 

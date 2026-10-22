@@ -83,12 +83,18 @@ var (
 // Argv splits cmd, drops env assignments and wrappers, unwraps package
 // runners and reduces the program to its base name.
 func Argv(cmd string) []string {
-	args := strings.Fields(cmd)
-	for len(args) > 0 && (strings.Contains(args[0], "=") || wrappers[path.Base(args[0])] || runners[path.Base(args[0])] && len(args) > 1) {
+	var args []string
+	for {
+		_, cmd = SplitEnv(cmd)
+		args = strings.Fields(cmd)
+		if len(args) == 0 || !(wrappers[path.Base(args[0])] || runners[path.Base(args[0])] && len(args) > 1) {
+			break
+		}
 		args = args[1:]
 		for len(args) > 1 && strings.HasPrefix(args[0], "-") { // npx --yes nx …
 			args = args[1:]
 		}
+		cmd = strings.Join(args, " ")
 	}
 	if len(args) > 0 {
 		args[0] = path.Base(args[0])

@@ -226,7 +226,7 @@ func wrapCommand(line, prefix string) (string, bool) {
 		if f := strings.Fields(body); len(f) > 0 && shellKeywords[f[0]] {
 			return line, false // loops, conditionals, groups: wrapping a piece could change what runs
 		}
-		env, cmd := splitEnv(body)
+		env, cmd := detect.SplitEnv(body)
 		if passthrough(cmd) {
 			out.WriteString(part)
 			continue
@@ -382,51 +382,6 @@ func ownCommand(line string) bool {
 	return false
 }
 
-var envAssign = lazyre.New(`^[A-Za-z_][A-Za-z0-9_]*=`)
-
-// splitEnv splits leading VAR=value assignments off a command; values may be
-// quoted ("a b", 'x') and stay verbatim.
-func splitEnv(s string) (env, cmd string) {
-	for envAssign.Regexp().MatchString(s) {
-		end := wordEnd(s)
-		if end < 0 {
-			break
-		}
-		env += s[:end] + " "
-		s = strings.TrimLeft(s[end:], " ")
-	}
-	return env, s
-}
-
-// wordEnd is the index of the first space outside quotes in s, len(s) when
-// the word runs to the end, -1 on an unterminated quote.
-func wordEnd(s string) int {
-	var quote byte
-	for i := 0; i < len(s); i++ {
-		switch c := s[i]; {
-		case quote == '\'' && c == '\'':
-			quote = 0
-		case quote == '"':
-			if c == '\\' {
-				i++
-			} else if c == '"' {
-				quote = 0
-			}
-		case quote != 0:
-		case c == '\\':
-			i++
-		case c == '"' || c == '\'':
-			quote = c
-		case c == ' ':
-			return i
-		}
-	}
-	if quote != 0 {
-		return -1
-	}
-	return len(s)
-}
-
 // passthrough reports commands exec should not run: shell builtins (cd,
 // export: they must change this shell), commands that print little or
 // nothing (each would only add a bypassed run to the stats), interactive
@@ -435,6 +390,9 @@ func wordEnd(s string) int {
 func passthrough(cmd string) bool {
 	args := detect.Argv(cmd)
 	if len(args) == 0 {
+		return true
+	}
+	if f := strings.Fields(cmd); quiet[f[0]] { // "command ls": a builtin, no program exec could run
 		return true
 	}
 	name := filepath.Base(args[0])
@@ -462,7 +420,7 @@ var quiet = map[string]bool{
 	"alias": true, "unalias": true, "exit": true, "return": true, "eval": true, "exec": true, "read": true,
 	"wait": true, "trap": true, "ulimit": true, "umask": true, "shift": true, "local": true, "declare": true,
 	"typeset": true, "readonly": true, "shopt": true, "hash": true, "type": true, "command": true, "builtin": true,
-	"jobs": true, "fg": true, "bg": true, "disown": true, ":": true, "true": true, "false": true, "test": true, "[": true, "[[": true,
+	"time": true, "jobs": true, "fg": true, "bg": true, "disown": true, ":": true, "true": true, "false": true, "test": true, "[": true, "[[": true,
 	// little output
 	"echo": true, "printf": true, "sleep": true, "mkdir": true, "rmdir": true, "rm": true, "mv": true, "cp": true,
 	"touch": true, "chmod": true, "chown": true, "ln": true, "which": true, "pwd": true, "clear": true, "kill": true,
