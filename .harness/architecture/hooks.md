@@ -37,14 +37,14 @@
   no query, cookie or version. Off: `GASCOIGNE_RELEASE_CHECK=off`, `prefs.release_check`, or no server.
   The setup question is optional (`on` until answered off). `doctor` and `upgrade` show a newer
   release. The website side is the `gascoigne-webpage` repo: `latest.json` plus `releases/<id>/`.
-- **Weekly MCP review** (`mcpnudge.go`): `mcpNudge` runs after `setupNudge` and `releaseNudge` in a claude
+- **Daily MCP review** (`mcpnudge.go`): `mcpNudge` runs after `setupNudge` and `releaseNudge` in a claude
   SessionStart (startup or resume). It returns nothing when either of them opened a page (one page per
-  start; the week is not used up), on compact or clear, with `GASCOIGNE_MCP_REVIEW=off`,
-  `prefs.mcp_review: off` or `GASCOIGNE_SERVER=off`, or less than 7 days after `prefs.last_mcp_review`
+  start; the day is not used up), on compact or clear, with `GASCOIGNE_MCP_REVIEW=off`,
+  `prefs.mcp_review: off` or `GASCOIGNE_SERVER=off`, or less than 24 hours after `prefs.last_mcp_review`
   (read before any request). Then it asks the running server (`GET /api/mcp`, 1 s timeout, never starts
   it) and, when `reviewWorth` finds at least `mcpNudgeTokens` (1500) per request in unused proxied
-  servers and idle tools not yet chosen to load on request, records the week, opens `/mcp` (not under
-  `CI`) and adds one note. Direct servers and servers seen under a week never count. The setup question
+  servers and idle tools not yet chosen to load on request, records the day, opens `/mcp` (not under
+  `CI`) and adds one note. Direct servers and servers still learning never count. The setup question
   `mcp_review` is optional and on by default, like `release`.
 - **Legacy installs** (`installs.go` `legacyInstalls`): installs made before `installs.json` existed
   (the first release) are found by their config: the user-level file, and this project's, holding

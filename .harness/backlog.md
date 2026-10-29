@@ -136,3 +136,9 @@ Measured; don't retry without new data.
   measured, −16%), and editing the system prompt in the proxy touches what the API and the login terms
   treat as the client's own; session-start context does not. `ab.sh` keeps `AB_HTTPPROXY` for other
   proxy settings.
+
+- Adaptive MCP learning (2026-10-29): derive `skip`/`lazy` rules from observed use (a tool whose results are
+  always re-fetched raw, a tool never called) and propose them on the review page. Not done: the review
+  only judges and the user decides; "Learn now" and `mcp_proxy.rules` cover the manual path. Per-rule
+  optimizer chains (`optimizers: [...]` on a rule) were also left out: nothing needs them yet, and a
+  chain per tool breaks the one deterministic `router.default` the eval measures.

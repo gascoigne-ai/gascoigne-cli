@@ -73,9 +73,11 @@ Tool schemas are compacted on the way (`compact_tools`): titles that restate a p
 two (`max_tools: 40`): `search_tools` finds tools by what they do and returns their schemas,
 `call_tool` runs one. Use it for agents without native tool search; Claude Code has its own.
 
+**Keep results raw, or by pattern.** Some results are better untouched (a tool whose output you read verbatim), some tools are better on request only. Set it on the review page (tick "Keep raw" on a tool, or add a pattern such as `get_*` or `git/delete_*` with the action `skip`, `shrink` or `lazy`) or in the config with `mcp_proxy.rules`; the first matching rule wins and it applies from the next session.
+
 **Load tools on request.** Instead of hiding a whole server, you can list only the tools you use and
 keep the rest on request: on the [MCP review page](cli.md#mcp-review) (`gascoigne mcp-review`) open a
-server and choose "Load these on request" for the tools it never called in 14 days. The proxy then
+server and choose "Load these on request" for the tools it never called in 7 days. The proxy then
 lists the others as usual and adds `search_tools` and `call_tool`; the description of `search_tools`
 names the tools left out (names only), so the agent knows they exist and asks for one when the task
 needs it. Nothing is removed. The choice is read when the agent starts the proxy, so it applies from

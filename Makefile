@@ -1,7 +1,7 @@
 BIN := bin/gascoigne
 PREFIX ?= $(HOME)/.local
 
-.PHONY: build install uninstall test vet fmt fmt-check imports cover eval eval-experimental check clean
+.PHONY: build install uninstall test vet fmt fmt-check imports cover eval eval-mcp eval-experimental check clean
 
 build:
 	go build -o $(BIN) ./cmd/gascoigne
@@ -35,6 +35,10 @@ cover:
 
 eval: build
 	.harness/scripts/eval.sh
+
+# Only the mcp suite: fake MCP server results through the mcp-proxy pipeline (also part of eval).
+eval-mcp: build
+	SUITES=mcp .harness/scripts/eval.sh
 
 # Needs both prose models and ONNX Runtime (gascoigne prose install -name kompress-v2-base, then
 # -name ctxprune-small); not part of check. Each run names its model, so the setup choice does not matter.

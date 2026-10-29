@@ -12,7 +12,7 @@ import (
 
 const (
 	// mcpReviewInterval is how often a session start may open the review page.
-	mcpReviewInterval = 7 * 24 * time.Hour
+	mcpReviewInterval = 24 * time.Hour
 	// mcpNudgeTokens is how many tokens per request of unused tool definitions
 	// make a page worth opening.
 	mcpNudgeTokens = 1500
@@ -21,12 +21,12 @@ const (
 	mcpNudgeTimeout = time.Second
 )
 
-// mcpReviewOn: the weekly review is on unless the user or the environment says off.
+// mcpReviewOn: the daily review is on unless the user or the environment says off.
 func mcpReviewOn() bool {
 	return os.Getenv("GASCOIGNE_MCP_REVIEW") != "off" && readPrefs().MCPReview != "off"
 }
 
-// mcpNudge is what a session start does once a week when MCP tool definitions
+// mcpNudge is what a session start does at most once a day when MCP tool definitions
 // that nobody used are listed to the agent: open the review page and tell
 // the agent. A compaction or /clear is not a new session, and a page another
 // notice just opened comes first (one page per session start; the week is
@@ -59,7 +59,7 @@ func mcpNudge(source string, pageOpened bool) string {
 	if len(labels) > 3 {
 		shown += fmt.Sprintf(" and %d more", len(labels)-3)
 	}
-	return fmt.Sprintf("gascoigne: about %d tokens of MCP tool definitions (%s) were not used in the last 14 days and are listed to the agent. Review them in the browser (%s), or run gascoigne mcp-review. Nothing changes without the user's choice.", tokens, shown, link)
+	return fmt.Sprintf("gascoigne: about %d tokens of MCP tool definitions (%s) were not used in the last %d days and are listed to the agent. Review them in the browser (%s), or run gascoigne mcp-review. Nothing changes without the user's choice.", tokens, shown, unusedDays, link)
 }
 
 // fetchReview asks the running background server for the review; it never
@@ -104,14 +104,14 @@ func reviewWorth(r mcpReview) (tokens int, labels []string) {
 func (s mcpServer) idleUnchosenTokens() int {
 	n := 0
 	for _, t := range s.Tools {
-		if !t.Lazy && t.Calls == 0 && !lazyModeTool(t.Name) && !slices.Contains(s.Chosen, t.Name) {
+		if !t.Lazy && t.Calls7 == 0 && !lazyModeTool(t.Name) && !slices.Contains(s.Chosen, t.Name) {
 			n += t.Tokens
 		}
 	}
 	return n
 }
 
-// mcpReviewDecision is the setup question about the weekly page; optional,
+// mcpReviewDecision is the setup question about the daily page; optional,
 // on until the user says otherwise.
 func mcpReviewDecision(p prefs) decision {
 	current := "on"
@@ -119,10 +119,10 @@ func mcpReviewDecision(p prefs) decision {
 		current = "off"
 	}
 	return decision{ID: "mcp_review", Group: "updates", Optional: true, Current: current, Default: "on",
-		Title: "Review my MCP servers once a week",
+		Title: "Review my MCP servers once a day",
 		Text:  "MCP servers add their tool definitions to the agent's tool list, used or not; most agents send that list with every request.",
 		Options: []option{
-			{"on", "Open the review when it finds something", "At most once a week, at a session start, and only when tools nobody called in 14 days cost over " + fmt.Sprint(mcpNudgeTokens) + " tokens per request. It opens a page on this machine; nothing leaves it, and nothing changes unless you choose something there."},
+			{"on", "Open the review when it finds something", "At most once a day, at a session start, and only when tools nobody called in " + fmt.Sprint(unusedDays) + " days cost over " + fmt.Sprint(mcpNudgeTokens) + " tokens per request. It opens a page on this machine; nothing leaves it, and nothing changes unless you choose something there."},
 			{"off", "Never open it", "You can still run gascoigne mcp-review whenever you like."},
 		}}
 }

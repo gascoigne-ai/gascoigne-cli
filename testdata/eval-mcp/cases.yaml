@@ -1,0 +1,47 @@
+# MCP cases (make eval, suite mcp): results of a fake MCP server (cmd/mcpmock,
+# fake data in the shape real servers return) pushed through the mcp-proxy
+# pipeline as tool results. Each `run:` is a real MCP call over the protocol, so
+# listing, content blocks and the tool attr match what the proxy sees; nothing
+# is committed and no third-party server or network is involved.
+# `attrs.tool` is the mcp__<server>__<tool> name the proxy sets. Floors sit under
+# what was measured; code, directory trees and prose pages shrink 0% (nothing
+# to drop) and stay as measured, not asserted. No golden or baseline: the assertions are the record.
+- name: list-issues
+  run: bin/mcpmock call list_issues
+  kind: tool_result
+  attrs: { tool: mcp__mock__list_issues }
+  min_saved: 70
+  keep: ["Crash on empty cart"]
+- name: search-code
+  run: bin/mcpmock call search_code
+  kind: tool_result
+  attrs: { tool: mcp__mock__search_code }
+  min_saved: 40
+- name: read-file
+  run: bin/mcpmock call read_file
+  kind: tool_result
+  attrs: { tool: mcp__mock__read_file }
+- name: get-logs
+  run: bin/mcpmock call get_logs
+  kind: tool_result
+  attrs: { tool: mcp__mock__get_logs }
+  min_saved: 90
+  keep: ["payment webhook failed: dial tcp 10.0.3.7:443: connect: connection refused"]
+- name: list-directory
+  run: bin/mcpmock call list_directory
+  kind: tool_result
+  attrs: { tool: mcp__mock__list_directory }
+- name: query-rows
+  run: bin/mcpmock call query
+  kind: tool_result
+  attrs: { tool: mcp__mock__query }
+  min_saved: 40
+- name: get-page
+  run: bin/mcpmock call get_page
+  kind: tool_result
+  attrs: { tool: mcp__mock__get_page }
+- name: small-result-untouched
+  run: bin/mcpmock call get_status
+  kind: tool_result
+  attrs: { tool: mcp__mock__get_status }
+  unchanged: true

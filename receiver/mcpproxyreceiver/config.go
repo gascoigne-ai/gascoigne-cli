@@ -25,11 +25,19 @@ type Config struct {
 	// when there are more than this many, so agents without tool search do
 	// not send every schema with every request; 0 always mirrors them.
 	MaxTools int `yaml:"max_tools"`
+	// Rules set by hand what happens to results and tool lists, per tool or
+	// pattern; the first match wins. See Rule.
+	Rules []Rule `yaml:"rules"`
 }
 
 func (c *Config) Validate() error {
 	if c.MaxTools < 0 {
 		return errors.New("max_tools must not be negative")
+	}
+	for _, rule := range c.Rules {
+		if err := rule.Validate(); err != nil {
+			return err
+		}
 	}
 	if c.URL != "" {
 		if u, err := url.Parse(c.URL); err != nil || u.Host == "" || u.Scheme != "http" && u.Scheme != "https" {

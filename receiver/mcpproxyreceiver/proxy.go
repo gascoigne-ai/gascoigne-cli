@@ -206,7 +206,8 @@ func (r *Receiver) populate(ctx context.Context, s *mcp.Server, cs *mcp.ClientSe
 // tools that reach lazy ones.
 func (r *Receiver) splitLazy(ctx context.Context, tools []*mcp.Tool) (direct, lazy []*mcp.Tool) {
 	chosen := lazyChoices(ctx)[r.server]
-	if len(chosen) == 0 {
+	rules := r.rulesFor(ctx)
+	if len(chosen) == 0 && len(rules) == 0 {
 		return tools, nil
 	}
 	for _, t := range tools {
@@ -216,7 +217,7 @@ func (r *Receiver) splitLazy(ctx context.Context, tools []*mcp.Tool) (direct, la
 		}
 	}
 	for _, t := range tools {
-		if slices.Contains(chosen, t.Name) {
+		if Resolve(rules, r.server, t.Name) == ActionLazy || slices.Contains(chosen, t.Name) {
 			lazy = append(lazy, t)
 		} else {
 			direct = append(direct, t)
@@ -407,9 +408,13 @@ func (r *Receiver) forward(cs *mcp.ClientSession, name string) mcp.ToolHandler {
 // call runs a downstream tool and optimizes its text results.
 func (r *Receiver) call(ctx context.Context, cs *mcp.ClientSession, name string, args any, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	r.recordCall(ctx, req, name)
+	rules := r.rulesFor(ctx)
 	res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: name, Arguments: args})
 	if err != nil {
 		return nil, err
+	}
+	if Resolve(rules, r.server, name) == ActionSkip {
+		return res, nil
 	}
 	for i, c := range res.Content {
 		tc, ok := c.(*mcp.TextContent)

@@ -93,7 +93,7 @@ func TestReviewShowsWhereAServerIsConfigured(t *testing.T) {
 	if err := l.RecordToolList(t.Context(), "claude", "other#00000000", map[string]int{"x": 100}, nil); err != nil {
 		t.Fatal(err)
 	}
-	review, err := loadReview(t.Context(), l, time.Now(), nil)
+	review, err := loadReview(t.Context(), l, time.Now(), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

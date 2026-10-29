@@ -156,12 +156,12 @@ gascoigne mcp-review -json
 Most agents send the definitions of all their tools with every request, so an MCP server that is never
 called is paid for all week. An agent with its own tool search (Claude Code defers many tools behind
 one) may send only names, so treat the numbers as an upper bound for it. The page lists each server with its definition tokens,
-the tokens of tools not called in 14 days, calls in the last 7 days and the 7 before, and a verdict:
+the tokens of tools not called in 7 days, calls in the last 7 days and the 7 before, and a verdict:
 `used`, `rarely used` (at most two calls a week for a server whose definitions are 1,500 tokens or more),
-`unused` (no call in 14 days), `learning` (seen for less than a week, so no verdict) or `not seen
-lately` (its tools were last listed over a week ago: probably removed, so it is neither called unused nor
-counted for the weekly note).
-Click a server for its tools and for the one action the page offers: loading the tools it never uses on
+`unused` (no call in 7 days), `learning` (seen for less than two days, so no verdict; the "Learn now" button on the page, or `gascoigne mcp-review -learn`, gives it from what is recorded so far) or `not seen
+lately` (its tools were last listed over 3 days ago: probably removed, so it is neither called unused nor
+counted for the daily note).
+Click a server for its tools and for the actions the page offers: manual rules (keep a tool's results raw, or a pattern; see [MCP](mcp.md)), and loading the tools it never uses on
 request instead of listing them (see [mcp](mcp.md#proxy-gascoigne-mcp-proxy)). Without a display, under `CI`, or with `GASCOIGNE_SERVER=off` the
 table is printed instead; `-open=false` only prints the page's address.
 
@@ -219,7 +219,7 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 | `GASCOIGNE_SERVER_ADDR` | Server address (default `127.0.0.1:7878`). |
 | `GASCOIGNE_MCP_LAZY` | `off`: `mcp-proxy` ignores the tools chosen to load on request (see [mcp](mcp.md#proxy-gascoigne-mcp-proxy)); the saved choice stays. |
 | `GASCOIGNE_PROXY` | `off`: agents never use the LLM proxy. `on`: Claude uses it even with a claude.ai login (see [agents](agents.md#the-llm-proxy-and-a-claudeai-login)). Unset: Claude only with an API key or gateway token. |
-| `GASCOIGNE_MCP_REVIEW=off` | A session start never opens the weekly MCP review page (see [agents](agents.md#weekly-mcp-review)). |
+| `GASCOIGNE_MCP_REVIEW=off` | A session start never opens the daily MCP review page (see [agents](agents.md#daily-mcp-review)). |
 | `GASCOIGNE_RELEASE_CHECK=off` | Never read the website for a newer release (see [agents](agents.md#release-notice)). |
 | `GASCOIGNE_RELEASE_URL` | Another site address to read `latest.json` from (a mirror, a test). |
 | `GASCOIGNE_GUIDE` | Usage text for agents: `off`, `short` or `full` (overrides `install -guide`). |

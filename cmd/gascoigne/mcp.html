@@ -62,6 +62,19 @@ const open = new Set();
 let busy = false, problem = "";
 
 // Saving a choice: the proxy reads it when a session starts, so it reaches the next session.
+async function post(path, body) {
+  busy = true; problem = ""; render();
+  try {
+    const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error((await r.text()).trim() || r.statusText);
+    data = await r.json();
+  } catch (e) { problem = "Could not save: " + e.message; }
+  busy = false; render();
+}
+
+// Learn now: judge a server on what is recorded so far instead of waiting for its first days.
+const learnNow = (id) => post("/api/mcp/learn", { id });
+
 async function choose(id, tools) {
   busy = true; problem = ""; render();
   try {
@@ -90,7 +103,14 @@ function configLines(s) {
 
 function actions(s) {
   const box = el("div", { class: "actions" });
-  if (s.verdict === "unused") box.append(el("p", { text: "Nothing called this server in 14 days, so its definitions are listed for nothing. Switching it off saves them." }));
+  if (s.verdict === "learning") {
+    box.append(el("p", { text: "Seen for less than two days, so there is no verdict yet. It is given on its own after that; you can ask for it now, from what is recorded so far." }));
+    const b = G.button("check", "Learn now", { class: "primary" });
+    b.disabled = busy;
+    b.addEventListener("click", () => learnNow(s.id));
+    box.append(b);
+  }
+  if (s.verdict === "unused") { const d = Math.min(s.seen_days, 7); box.append(el("p", { text: `Nothing called this server in ${d} day${d === 1 ? "" : "s"}, so its definitions are listed for nothing. Switching it off saves them.` })); }
   box.append(...configLines(s));
   if (s.sized && s.config.length === 0 && s.verdict === "unused") box.append(el("p", { class: "muted", text: "Its configuration was not found in the places gascoigne looks (Claude's user and project files, Cursor's mcp.json); remove it where you set it up." }));
   if (!s.sized) {
@@ -98,11 +118,11 @@ function actions(s) {
     return box;
   }
   const chosen = new Set(s.lazy_chosen);
-  const idle = s.tools.filter((t) => !t.lazy && !meta(t) && t.calls_14d === 0 && !chosen.has(t.name));
+  const idle = s.tools.filter((t) => !t.lazy && !meta(t) && t.calls_7d === 0 && !chosen.has(t.name));
   const idleTokens = idle.reduce((n, t) => n + t.tokens, 0);
   const effective = new Set(s.tools.filter((t) => t.lazy).map((t) => t.name));
   if (idle.length) {
-    box.append(el("p", { text: `${idle.length} of its tools were not called in 14 days; their definitions are ${num(idleTokens)} tokens of the tool list. Loaded on request, they are not listed: the agent is told they exist and asks for one by name when it needs it.` }));
+    box.append(el("p", { text: `${idle.length} of its tools were not called in 7 days; their definitions are ${num(idleTokens)} tokens of the tool list. Loaded on request, they are not listed: the agent is told they exist and asks for one by name when it needs it.` }));
     const b = G.button("load", "Load these on request", { class: "primary" });
     b.disabled = busy;
     b.addEventListener("click", () => choose(s.id, [...new Set([...chosen, ...idle.map((t) => t.name)])]));
@@ -116,9 +136,46 @@ function actions(s) {
     box.append(b);
   }
   if (chosen.size !== effective.size || [...chosen].some((n) => !effective.has(n))) box.append(el("p", { class: "note", text: "Applies from the next session of your agent." }));
-  if (!idle.length && !chosen.size) box.append(el("p", { class: "muted", text: "Every tool was called in the last 14 days." }));
+  if (!idle.length && !chosen.size) box.append(el("p", { class: "muted", text: "Every tool was called in the last 7 days." }));
+  box.append(rulesBlock(s));
   if (problem) box.append(el("p", { class: "err", role: "alert", text: problem }));
   return box;
+}
+
+// Manual rules: a tool (or a glob, or "server/tool") whose results stay untouched, are always
+// shrunk, or load on request. The first match wins; they reach the next session like the
+// lazy choice. mcp_proxy.rules in the config comes before these.
+const actionHelp = { skip: "keep results as they are", shrink: "shrink results (overrides a later skip)", lazy: "load on request" };
+function rulesBlock(s) {
+  const box = el("div", { class: "rules" }, el("h3", { text: "Rules" }));
+  const save = (rules) => post("/api/mcp/rules", { id: s.id, rules });
+  if (!s.rules.length) box.append(el("p", { class: "muted", text: "No rules. Tick “Keep raw” on a tool below, or add a pattern such as get_* or git/delete_*." }));
+  s.rules.forEach((r, i) => {
+    const rm = G.button("undo", "Remove", { title: "Remove this rule" });
+    rm.disabled = busy;
+    rm.addEventListener("click", () => save(s.rules.filter((_, j) => j !== i)));
+    box.append(el("div", { class: "cmdline" }, el("code", { text: `${r.match}  →  ${r.action}` }), el("span", { class: "muted", text: actionHelp[r.action] }), rm));
+  });
+  const pattern = el("input", { type: "text", placeholder: "get_*  or  server/tool", "aria-label": "Tool name pattern" });
+  const action = el("select", { "aria-label": "Action" }, ...Object.keys(actionHelp).map((a) => el("option", { value: a, text: a })));
+  const add = G.button("check", "Add rule");
+  add.disabled = busy;
+  add.addEventListener("click", () => { const m = pattern.value.trim(); if (m) save([...s.rules, { match: m, action: action.value }]); });
+  box.append(el("div", { class: "cmdline" }, pattern, action, add));
+  if (s.rules.length) box.append(el("p", { class: "note", text: "Applies from the next session of your agent." }));
+  return box;
+}
+
+// A tick adds the exact-name rule "skip", clearing it removes that rule. A tool that only a
+// glob covers shows unticked: the glob is changed in the rules above.
+function rawCell(s, t) {
+  const own = s.rules.findIndex((r) => r.match === t.name && r.action === "skip");
+  const box = el("input", { type: "checkbox", "aria-label": `Keep results of ${t.name} raw` });
+  box.checked = own >= 0;
+  box.disabled = busy;
+  box.addEventListener("click", (e) => e.stopPropagation());
+  box.addEventListener("change", () => post("/api/mcp/rules", { id: s.id, rules: own >= 0 ? s.rules.filter((_, j) => j !== own) : [{ match: t.name, action: "skip" }, ...s.rules] }));
+  return el("td", {}, box);
 }
 
 function trend(s) {
@@ -151,11 +208,11 @@ function serverRows(s, max) {
   const rows = [main];
   if (open.has(s.id)) {
     const inner = el("table", {}, el("thead", {}, el("tr", {},
-      el("th", { text: "Tool" }), el("th", { class: "num", text: "Tokens" }), el("th", { class: "num", text: "Calls, 7 days" }), el("th", { class: "num", text: "Calls, 14 days" }))),
+      el("th", { text: "Tool" }), el("th", { class: "num", text: "Tokens" }), el("th", { class: "num", text: "Calls, 7 days" }), el("th", { class: "num", text: "Calls, 14 days" }), s.sized ? el("th", { text: "Keep raw" }) : null)),
       el("tbody", {}, ...s.tools.map((t) => el("tr", {},
-        el("td", {}, t.name, t.lazy ? el("span", { class: "muted", text: "  loads on request" }) : t.calls_14d === 0 && s.sized && !meta(t) ? el("span", { class: "muted", text: "  not called" }) : null),
+        el("td", {}, t.name, t.lazy ? el("span", { class: "muted", text: "  loads on request" }) : t.calls_7d === 0 && s.sized && !meta(t) ? el("span", { class: "muted", text: "  not called" }) : null),
         el("td", { class: "num", title: t.lazy ? "what it would cost if listed" : "", text: t.tokens ? num(t.tokens) : "–" }),
-        el("td", { class: "num", text: num(t.calls_7d) }), el("td", { class: "num", text: num(t.calls_14d) })))));
+        el("td", { class: "num", text: num(t.calls_7d) }), el("td", { class: "num", text: num(t.calls_14d) }), s.sized && !meta(t) ? rawCell(s, t) : null))));
     rows.push(el("tr", { class: "detail" }, el("td", { colspan: String(columns.length) }, actions(s), inner)));
   }
   return rows;
@@ -170,7 +227,7 @@ function render() {
   const listed = sized.reduce((n, s) => n + s.tokens, 0), idle = sized.reduce((n, s) => n + s.idle_tokens, 0), lazy = sized.reduce((n, s) => n + s.lazy_tokens, 0);
   const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
     kpi("Servers", String(data.servers.length), sized.length + " through mcp-proxy"), kpi("Definition tokens", human(listed), "listed to the agent"),
-    kpi("Idle tokens", human(idle), "tools not called in 14 days", idle > 0), kpi("Loaded on request", human(lazy), "kept out of the tool list"));
+    kpi("Idle tokens", human(idle), "tools not called in 7 days", idle > 0), kpi("Loaded on request", human(lazy), "kept out of the tool list"));
 
   const c = columns[sort.col];
   const servers = [...data.servers].sort((a, b) => {

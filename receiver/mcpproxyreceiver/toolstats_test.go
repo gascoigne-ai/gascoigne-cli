@@ -62,7 +62,7 @@ func fixtureServer(n int) *mcp.Server {
 	return srv
 }
 
-// TestToolStatsRecorded is the eval for the stats the weekly MCP review is
+// TestToolStatsRecorded is the eval for the stats the MCP review is
 // built on: the sizes the ledger gets are the sizes of the definitions the
 // agent receives, and every call is counted once.
 func TestToolStatsRecorded(t *testing.T) {

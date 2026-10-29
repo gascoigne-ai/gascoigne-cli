@@ -18,12 +18,13 @@ casesfile() {
     fixtures) echo testdata/eval/cases.yaml ;;
     ext) echo testdata/eval-ext/cases.yaml ;;
     scale) echo testdata/eval-scale/cases.yaml ;;
+    mcp) echo testdata/eval-mcp/cases.yaml ;;
     live) echo testdata/eval/live.yaml ;;
     ledger) echo ;;
     *) return 1 ;;
   esac
 }
-suites=${SUITES:-fixtures ext scale live ledger}
+suites=${SUITES:-fixtures ext scale mcp live ledger}
 
 # Banner styling: colors only on a terminal without NO_COLOR.
 if [[ -t 1 && -z ${NO_COLOR:-} ]]; then B=$'\e[1m' D=$'\e[2m' C=$'\e[36m' R=$'\e[0m'; else B= D= C= R=; fi
@@ -44,6 +45,10 @@ describe() {
       title="Scale - big outputs, time limits"
       tests="Generated outputs up to 2M tokens (logs, find, ndjson, csv)."
       means="Savings hold at size and each case stays under its max_ms ceiling. A FAIL means a slowdown or a savings drop at volume." ;;
+    mcp)
+      title="MCP - results of a fake MCP server"
+      tests="Fake-data tool results (issues, code hits, logs, rows, pages) fetched over the MCP protocol from cmd/mcpmock, through the mcp-proxy pipeline."
+      means="MCP results shrink by the floor and small ones stay untouched. A FAIL means the proxy path lost savings or a fact on MCP output." ;;
     live)
       title="Live - real commands in this repo"
       tests="go test, git log/diff, rg, find, ls, ... run now, not replayed."
@@ -59,15 +64,17 @@ describe() {
     "$B$C" "$title" "$R" "$D" "$tests" "$means" "$read" "$R"
 }
 
-go build -o bin/gascoigne ./cmd/gascoigne || exit 1
+go build -o bin/gascoigne ./cmd/gascoigne && go build -o bin/mcpmock ./cmd/mcpmock || exit 1
 failed=()
 for s in $suites; do
-  file=$(casesfile "$s") || { echo "unknown suite $s (fixtures ext scale live ledger)" >&2; exit 2; }
+  file=$(casesfile "$s") || { echo "unknown suite $s (fixtures ext scale mcp live ledger)" >&2; exit 2; }
   describe "$s"
   if [[ $s == ledger ]]; then
     go test ./extension/ledger -run '^$' -bench . -benchtime 3x || failed+=("$s")
   else
-    bin/gascoigne eval -cases "$file" "$@" || failed+=("$s")
+    pipeline=cli
+    [[ $s == mcp ]] && pipeline=mcp-proxy
+    bin/gascoigne eval -pipeline "$pipeline" -cases "$file" "$@" || failed+=("$s")
   fi
 done
 printf '\n%sSummary%s\n' "$B" "$R"

@@ -16,22 +16,25 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/mcpproxyreceiver"
 )
 
-// The weekly MCP review: which MCP servers add tokens to the agent's tool list and
+// The MCP review: which MCP servers add tokens to the agent's tool list and
 // which of them earn it. It reads two things the ledger keeps for two weeks:
 // the table mcp-proxy fills (definition sizes and calls) and the hook's runs
 // named mcp__server__tool (calls to servers that stay direct, no sizes).
 
 const (
-	// observeDays is how long a server must have been seen before the review
-	// calls it unused: a week of silence on a server seen for a day says nothing.
-	observeDays = 7
+	// observeDays is how many days of data (the first one counts) a server needs
+	// before the review gives a verdict: one day of silence says nothing, a
+	// second day does. The review page can end the wait early (learn now).
+	observeDays = 2
 	// staleDays: a proxied server not listed for this long is probably removed
 	// or its agent unused; it must not be called unused, nor trigger a nudge.
-	staleDays = 7
-	// unusedDays is the silence that makes a server unused.
-	unusedDays = 14
+	staleDays = 3
+	// unusedDays is the silence that makes a server or a tool unused. It is the
+	// window of the Calls7 counters: change both together.
+	unusedDays = 7
 	// rarelyCalls and rarelyTokens: a server with at most this many calls in
 	// a week whose definitions are at least this many tokens of the tool list.
 	rarelyCalls  = 2
@@ -41,7 +44,7 @@ const (
 // Verdicts of a server.
 const (
 	verdictStale    = "not seen lately" // listed last more than staleDays ago: probably no longer configured
-	verdictLearning = "learning"        // seen for less than observeDays
+	verdictLearning = "learning"        // seen on fewer than observeDays days
 	verdictUnused   = "unused"
 	verdictRarely   = "rarely used"
 	verdictUsed     = "used"
@@ -58,23 +61,24 @@ type mcpTool struct {
 
 // mcpServer is one server in the review.
 type mcpServer struct {
-	ID        string           `json:"id"`    // name#hash of the command line for proxied servers: the key of its stats
-	Name      string           `json:"name"`  // what the server reports (a proxied one) or the agent's key for it (a direct one)
-	Label     string           `json:"label"` // Name, with the id's hash when two servers share it
-	Verdict   string           `json:"verdict"`
-	Sized     bool             `json:"sized"`       // false: only calls are known (the server stays direct)
-	Tokens    int              `json:"tokens"`      // what its definitions add to the tool list
-	IdleToks  int              `json:"idle_tokens"` // of those, tools not called in unusedDays
-	LazyToks  int              `json:"lazy_tokens"` // what the tools offered on request only would cost if listed
-	Calls7    int              `json:"calls_7d"`
-	CallsPrev int              `json:"calls_prev_7d"` // the 7 days before
-	LastUsed  string           `json:"last_used,omitempty"`
-	Seen      int              `json:"seen_days"`
-	Listed    int              `json:"listed_days_ago"` // days since a proxy last listed its tools; -1 when none did
-	Agents    []string         `json:"agents"`
-	Config    []mcpConfigEntry `json:"config"`      // where the agent's config starts it, found by the command hash
-	Chosen    []string         `json:"lazy_chosen"` // tools the user chose to load on request: they take effect from the next session
-	Tools     []mcpTool        `json:"tools"`
+	ID        string                  `json:"id"`    // name#hash of the command line for proxied servers: the key of its stats
+	Name      string                  `json:"name"`  // what the server reports (a proxied one) or the agent's key for it (a direct one)
+	Label     string                  `json:"label"` // Name, with the id's hash when two servers share it
+	Verdict   string                  `json:"verdict"`
+	Sized     bool                    `json:"sized"`       // false: only calls are known (the server stays direct)
+	Tokens    int                     `json:"tokens"`      // what its definitions add to the tool list
+	IdleToks  int                     `json:"idle_tokens"` // of those, tools not called in unusedDays
+	LazyToks  int                     `json:"lazy_tokens"` // what the tools offered on request only would cost if listed
+	Calls7    int                     `json:"calls_7d"`
+	CallsPrev int                     `json:"calls_prev_7d"` // the 7 days before
+	LastUsed  string                  `json:"last_used,omitempty"`
+	Seen      int                     `json:"seen_days"`
+	Listed    int                     `json:"listed_days_ago"` // days since a proxy last listed its tools; -1 when none did
+	Agents    []string                `json:"agents"`
+	Config    []mcpConfigEntry        `json:"config"`      // where the agent's config starts it, found by the command hash
+	Rules     []mcpproxyreceiver.Rule `json:"rules"`       // manual rules set on the page; they take effect from the next session
+	Chosen    []string                `json:"lazy_chosen"` // tools the user chose to load on request: they take effect from the next session
+	Tools     []mcpTool               `json:"tools"`
 }
 
 // mcpReview is the whole review.
@@ -85,7 +89,8 @@ type mcpReview struct {
 }
 
 // buildReview turns the ledger's rows into the review as of now. Days are UTC.
-func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Time) mcpReview {
+// learned are the server ids judged before observeDays.
+func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Time, learned map[string]bool) mcpReview {
 	today := now.UTC().Truncate(24 * time.Hour)
 	age := func(day string) int { // days ago, 0 for today
 		d, err := time.Parse("2006-01-02", day)
@@ -135,7 +140,7 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 		case a < 14:
 			s.CallsPrev += n
 		}
-		if a < unusedDays {
+		if a < 14 {
 			t.Calls += n
 		}
 		if n > 0 && (s.LastUsed == "" || day > s.LastUsed) {
@@ -191,11 +196,11 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 				continue
 			}
 			s.Tokens += t.Tokens
-			if t.Calls == 0 && !lazyModeTool(t.Name) { // the lazy-mode tools are the price of lazy tools, never idle
+			if t.Calls7 == 0 && !lazyModeTool(t.Name) { // the lazy-mode tools are the price of lazy tools, never idle
 				s.IdleToks += t.Tokens
 			}
 		}
-		s.Verdict = verdict(s)
+		s.Verdict = verdict(s, learned[s.ID])
 		review.Servers = append(review.Servers, *s)
 	}
 	labelDuplicates(review.Servers)
@@ -206,12 +211,14 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 	return review
 }
 
-func verdict(s *mcpServer) string {
-	calls := s.Calls7 + s.CallsPrev
+// verdict judges a server; learned (the user's "learn now") skips the wait
+// for observeDays.
+func verdict(s *mcpServer, learned bool) string {
+	calls := s.Calls7 // the last unusedDays
 	switch {
 	case s.Sized && s.Listed >= staleDays:
 		return verdictStale
-	case s.Seen < observeDays:
+	case s.Seen < observeDays && !learned:
 		return verdictLearning
 	case calls == 0:
 		return verdictUnused
@@ -315,7 +322,8 @@ func printReview(w io.Writer, r mcpReview) {
 }
 
 // loadReview reads the last two weeks from the ledger.
-func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map[string][]string) (mcpReview, error) {
+func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map[string][]string, learned []string) (mcpReview, error) {
+	rules := readPrefs().MCPRules
 	since := now.AddDate(0, 0, -2*7)
 	stats, err := l.ToolStats(ctx, since)
 	if err != nil {
@@ -325,7 +333,7 @@ func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map
 	if err != nil {
 		return mcpReview{}, err
 	}
-	review := buildReview(stats, cmds, now)
+	review := buildReview(stats, cmds, now, idSet(learned))
 	home, _ := os.UserHomeDir()
 	configs := proxiedConfigs(home, projectDirs())
 	for i, s := range review.Servers {
@@ -333,6 +341,7 @@ func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map
 		if _, hash, ok := strings.Cut(s.ID, "#"); ok {
 			review.Servers[i].Config = append(review.Servers[i].Config, configs[hash]...)
 		}
+		review.Servers[i].Rules = append([]mcpproxyreceiver.Rule{}, rules[s.ID]...)
 		review.Servers[i].Chosen = []string{}
 		if c := chosen[s.ID]; len(c) > 0 {
 			review.Servers[i].Chosen = c
@@ -344,13 +353,19 @@ func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map
 // cmdMCPReview opens the review page; the table is the fallback for a
 // terminal without a browser.
 func cmdMCPReview(ctx context.Context, args []string) error {
-	var asJSON, text bool
+	var asJSON, text, learn bool
 	open := true
 	return withLedger(ctx, "mcp-review", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&asJSON, "json", false, "print the review as JSON")
 		fs.BoolVar(&text, "text", false, "print the table instead of opening the page")
+		fs.BoolVar(&learn, "learn", false, "judge the servers still learning now, without waiting for the observation days")
 		fs.BoolVar(&open, "open", true, "open the page in a browser; false only prints its address")
 	}, func(l *ledger.Ledger, _ *common, _ []string) error {
+		if learn {
+			if _, err := learnServers(ctx, l, ""); err != nil {
+				return err
+			}
+		}
 		if !asJSON && !text && canBrowse() {
 			link := "http://" + serverAddr() + "/mcp"
 			fmt.Println(link)
@@ -359,7 +374,7 @@ func cmdMCPReview(ctx context.Context, args []string) error {
 			}
 			return nil
 		}
-		review, err := loadReview(ctx, l, time.Now(), lazyChoices())
+		review, err := loadReview(ctx, l, time.Now(), lazyChoices(), readPrefs().LearnedMCP)
 		if err != nil {
 			return err
 		}
@@ -405,7 +420,7 @@ func setLazy(l *ledger.Ledger) http.HandlerFunc {
 			http.Error(w, "want {id, tools}: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		review, err := loadReview(r.Context(), l, time.Now(), nil)
+		review, err := loadReview(r.Context(), l, time.Now(), nil, nil)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -439,7 +454,113 @@ func setLazy(l *ledger.Ledger) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		review, err = loadReview(r.Context(), l, time.Now(), p.LazyTools)
+		review, err = loadReview(r.Context(), l, time.Now(), p.LazyTools, p.LearnedMCP)
 		respond(w, review, err)
 	}
 }
+
+func idSet(ids []string) map[string]bool {
+	m := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		m[id] = true
+	}
+	return m
+}
+
+// learnServers saves the servers that are still learning as judged now, all
+// of them when id is empty, else only that one. It reports the review as it
+// is afterwards. An unknown id is an error; one already judged is a no-op.
+func learnServers(ctx context.Context, l *ledger.Ledger, id string) (mcpReview, error) {
+	p := readPrefs()
+	review, err := loadReview(ctx, l, time.Now(), p.LazyTools, p.LearnedMCP)
+	if err != nil {
+		return review, err
+	}
+	if id != "" && !slices.ContainsFunc(review.Servers, func(s mcpServer) bool { return s.ID == id }) {
+		return review, fmt.Errorf("unknown server %q", id)
+	}
+	for _, s := range review.Servers {
+		if s.Verdict == verdictLearning && (id == "" || s.ID == id) {
+			p.LearnedMCP = append(p.LearnedMCP, s.ID)
+		}
+	}
+	slices.Sort(p.LearnedMCP)
+	p.LearnedMCP = slices.Compact(p.LearnedMCP)
+	if err := p.save(); err != nil {
+		return review, err
+	}
+	return loadReview(ctx, l, time.Now(), p.LazyTools, p.LearnedMCP)
+}
+
+// learnNow is POST /api/mcp/learn {id}: judge one still-learning server now,
+// or every one when id is left out.
+func learnNow(l *ledger.Ledger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			ID string `json:"id"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&in); err != nil {
+			http.Error(w, "want {id}: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		review, err := learnServers(r.Context(), l, in.ID)
+		if err != nil && strings.HasPrefix(err.Error(), "unknown server") {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		respond(w, review, err)
+	}
+}
+
+// setRules is POST /api/mcp/rules {id, rules}: it replaces the manual rules of
+// one server, an empty list clears them. Like setLazy it takes only a server
+// started through mcp-proxy: the others never see a rule.
+func setRules(l *ledger.Ledger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			ID    string                  `json:"id"`
+			Rules []mcpproxyreceiver.Rule `json:"rules"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&in); err != nil {
+			http.Error(w, "want {id, rules}: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		if len(in.Rules) > maxRules {
+			http.Error(w, fmt.Sprintf("at most %d rules per server", maxRules), http.StatusBadRequest)
+			return
+		}
+		for _, rule := range in.Rules {
+			if err := rule.Validate(); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+		p := readPrefs()
+		review, err := loadReview(r.Context(), l, time.Now(), p.LazyTools, p.LearnedMCP)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if i := slices.IndexFunc(review.Servers, func(s mcpServer) bool { return s.ID == in.ID && s.Sized }); i < 0 {
+			http.Error(w, "unknown server: only servers started through mcp-proxy take rules", http.StatusBadRequest)
+			return
+		}
+		if len(in.Rules) == 0 {
+			delete(p.MCPRules, in.ID)
+		} else {
+			if p.MCPRules == nil {
+				p.MCPRules = map[string][]mcpproxyreceiver.Rule{}
+			}
+			p.MCPRules[in.ID] = in.Rules
+		}
+		if err := p.save(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		review, err = loadReview(r.Context(), l, time.Now(), p.LazyTools, p.LearnedMCP)
+		respond(w, review, err)
+	}
+}
+
+// maxRules bounds a server's saved rules: the page offers a handful.
+const maxRules = 50

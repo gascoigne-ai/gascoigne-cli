@@ -295,8 +295,17 @@ func cmdMCPProxy(ctx context.Context, args []string) error {
 		} else {
 			ctx = mcpproxyreceiver.With(ctx, command)
 		}
-		return mcpproxyreceiver.WithLazy(ctx, lazyChoices())
+		return mcpproxyreceiver.WithRules(mcpproxyreceiver.WithLazy(ctx, lazyChoices()), savedRules())
 	})
+}
+
+// savedRules are the rules set on the review page, by server id; GASCOIGNE_MCP_LAZY=off
+// ignores them with the lazy choices.
+func savedRules() map[string][]mcpproxyreceiver.Rule {
+	if os.Getenv("GASCOIGNE_MCP_LAZY") == "off" {
+		return nil
+	}
+	return readPrefs().MCPRules
 }
 
 // lazyChoices are the tools to load on request, by server id. GASCOIGNE_MCP_LAZY=off

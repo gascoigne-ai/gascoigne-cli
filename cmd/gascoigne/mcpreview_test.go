@@ -11,13 +11,14 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/mcpproxyreceiver"
 )
 
 // reviewFixture is two weeks of a realistic setup, today being 2026-10-14:
 //   - github: 30 tools, 6k tokens, used every few days
 //   - linear: 12 tools, 4k tokens, seen for 12 days, never called
-//   - sentry: 5 tools, 2.4k tokens, one call in two weeks
-//   - figma: 8 tools, seen since yesterday, never called yet
+//   - sentry: 5 tools, 2.4k tokens, one call in the last week
+//   - figma: 8 tools, seen since today, never called yet
 //   - db: stays direct, called through the hook only
 func reviewFixture() ([]ledger.ToolStat, []ledger.CommandDay, time.Time) {
 	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
@@ -33,14 +34,14 @@ func reviewFixture() ([]ledger.ToolStat, []ledger.CommandDay, time.Time) {
 	list("github", 30, 6000, 13)
 	list("linear", 12, 4000, 11)
 	list("sentry", 5, 2400, 13)
-	list("figma", 8, 1600, 1)
+	list("figma", 8, 1600, 0)
 	call := func(server, tool string, ago, n int) {
 		stats = append(stats, ledger.ToolStat{Day: day(ago), Agent: "claude", Server: server, Tool: tool, Calls: n})
 	}
 	call("github", "tool_00", 0, 5)
 	call("github", "tool_00", 3, 4)
 	call("github", "tool_07", 9, 2) // the week before
-	call("sentry", "tool_01", 10, 1)
+	call("sentry", "tool_01", 3, 1)
 	cmds := []ledger.CommandDay{
 		{Day: day(1), Agent: "claude", Command: "mcp__db__query", Runs: 7},
 		{Day: day(8), Agent: "claude", Command: "mcp__db__query", Runs: 3},
@@ -52,7 +53,7 @@ func reviewFixture() ([]ledger.ToolStat, []ledger.CommandDay, time.Time) {
 
 func TestBuildReview(t *testing.T) {
 	stats, cmds, now := reviewFixture()
-	r := buildReview(stats, cmds, now)
+	r := buildReview(stats, cmds, now, nil)
 	got := map[string]mcpServer{}
 	for _, s := range r.Servers {
 		got[s.Name] = s
@@ -66,9 +67,9 @@ func TestBuildReview(t *testing.T) {
 		prev    int
 		sized   bool
 	}{
-		{"github", verdictUsed, 6000, 5600, 9, 2, true}, // the hook's 4 calls of tool_00 are not counted twice
+		{"github", verdictUsed, 6000, 5800, 9, 2, true}, // the hook's 4 calls of tool_00 are not counted twice
 		{"linear", verdictUnused, 3996, 3996, 0, 0, true},
-		{"sentry", verdictRarely, 2400, 1920, 0, 1, true},
+		{"sentry", verdictRarely, 2400, 1920, 1, 0, true},
 		{"figma", verdictLearning, 1600, 1600, 0, 0, true},
 		{"db", verdictUsed, 0, 0, 7, 3, false},
 	}
@@ -97,10 +98,14 @@ func TestBuildReview(t *testing.T) {
 
 func TestBuildReviewYoungLedger(t *testing.T) {
 	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
-	stats := []ledger.ToolStat{{Day: "2026-10-13", Agent: "claude", Server: "linear", Tool: "a", Tokens: 3000}}
-	r := buildReview(stats, nil, now)
+	stats := []ledger.ToolStat{{Day: "2026-10-14", Agent: "claude", Server: "linear", Tool: "a", Tokens: 3000}}
+	r := buildReview(stats, nil, now, nil)
 	if len(r.Servers) != 1 || r.Servers[0].Verdict != verdictLearning {
 		t.Fatalf("got %+v", r.Servers)
+	}
+	stats[0].Day = "2026-10-13" // a day later the verdict is given
+	if r := buildReview(stats, nil, now, nil); r.Servers[0].Verdict != verdictUnused {
+		t.Fatalf("after one day: %+v", r.Servers)
 	}
 	if len(r.Notes) == 0 || !strings.Contains(r.Notes[0], "day(s) of data") {
 		t.Fatalf("notes %v", r.Notes)
@@ -108,7 +113,7 @@ func TestBuildReviewYoungLedger(t *testing.T) {
 }
 
 func TestBuildReviewEmpty(t *testing.T) {
-	r := buildReview(nil, nil, time.Now())
+	r := buildReview(nil, nil, time.Now(), nil)
 	if len(r.Servers) != 0 || len(r.Notes) != 1 {
 		t.Fatalf("got %+v", r)
 	}
@@ -122,7 +127,7 @@ func TestBuildReviewEmpty(t *testing.T) {
 func TestPrintReview(t *testing.T) {
 	stats, cmds, now := reviewFixture()
 	var b bytes.Buffer
-	printReview(&b, buildReview(stats, cmds, now))
+	printReview(&b, buildReview(stats, cmds, now, nil))
 	out := b.String()
 	for _, want := range []string{"SERVER", "github", "used", "linear", "unused", "db", "?", "stay direct"} {
 		if !strings.Contains(out, want) {
@@ -162,7 +167,7 @@ func TestBuildReviewCommonToolNames(t *testing.T) {
 		{Day: today, Agent: "claude", Command: "mcp__db__query", Runs: 2},
 	}
 	got := map[string]mcpServer{}
-	for _, s := range buildReview(stats, cmds, now).Servers {
+	for _, s := range buildReview(stats, cmds, now, nil).Servers {
 		got[s.ID] = s
 	}
 	if len(got) != 2 {
@@ -186,7 +191,7 @@ func TestBuildReviewDuplicateNames(t *testing.T) {
 		{Day: today, Agent: "claude", Server: "github#cccc3333", Tool: "search", Tokens: 300},
 	}
 	labels := map[string]string{}
-	for _, s := range buildReview(stats, nil, now).Servers {
+	for _, s := range buildReview(stats, nil, now, nil).Servers {
 		labels[s.ID] = s.Label
 	}
 	want := map[string]string{"postgres#aaaa1111": "postgres (aaaa1111)", "postgres#bbbb2222": "postgres (bbbb2222)", "github#cccc3333": "github"}
@@ -211,7 +216,7 @@ func TestBuildReviewLazy(t *testing.T) {
 		)
 	}
 	cmds := []ledger.CommandDay{{Day: day(1), Agent: "claude", Command: "mcp__kube__call_tool", Runs: 3}} // the proxy counts the real tool
-	r := buildReview(stats, cmds, now)
+	r := buildReview(stats, cmds, now, nil)
 	if len(r.Servers) != 1 {
 		t.Fatalf("servers %+v", r.Servers)
 	}
@@ -321,7 +326,7 @@ func TestBuildReviewRemovedServer(t *testing.T) {
 	for d := 13; d >= 0; d-- {
 		stats = append(stats, ledger.ToolStat{Day: day(d), Agent: "claude", Server: "live#bbbb2222", Tool: "b", Tokens: 600, Calls: 1})
 	}
-	r := buildReview(stats, nil, now)
+	r := buildReview(stats, nil, now, nil)
 	got := map[string]mcpServer{}
 	for _, s := range r.Servers {
 		got[s.Name] = s
@@ -335,4 +340,169 @@ func TestBuildReviewRemovedServer(t *testing.T) {
 	if tokens, labels := reviewWorth(r); tokens != 0 || len(labels) != 0 {
 		t.Fatalf("a removed server counts: %d %v", tokens, labels)
 	}
+}
+
+func TestBuildReviewLearned(t *testing.T) {
+	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
+	stats := []ledger.ToolStat{{Day: "2026-10-14", Agent: "claude", Server: "linear", Tool: "a", Tokens: 3000}}
+	if v := buildReview(stats, nil, now, nil).Servers[0].Verdict; v != verdictLearning {
+		t.Fatalf("verdict %q, want learning", v)
+	}
+	if v := buildReview(stats, nil, now, map[string]bool{"linear": true}).Servers[0].Verdict; v != verdictUnused {
+		t.Fatalf("learned: verdict %q, want unused", v)
+	}
+	if v := buildReview(stats, nil, now, map[string]bool{"other": true}).Servers[0].Verdict; v != verdictLearning {
+		t.Fatalf("another server learned: verdict %q, want learning", v)
+	}
+}
+
+func TestLearnNow(t *testing.T) {
+	sandbox(t)
+	l, h := testDashboard(t)
+	ctx := t.Context()
+	const a, b = "kube#aaaa1111", "docs#bbbb2222"
+	for _, id := range []string{a, b} {
+		if err := l.RecordToolList(ctx, "claude", id, map[string]int{"get": 200}, nil); err != nil { // listed just now: still learning
+			t.Fatal(err)
+		}
+	}
+	post := func(body string, header ...string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest("POST", "/api/mcp/learn", strings.NewReader(body))
+		r.Host = "127.0.0.1:7878"
+		for i := 0; i+1 < len(header); i += 2 {
+			r.Header.Set(header[i], header[i+1])
+		}
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	verdicts := func(w *httptest.ResponseRecorder) map[string]string {
+		var r mcpReview
+		if err := json.Unmarshal(w.Body.Bytes(), &r); err != nil {
+			t.Fatalf("%v: %s", err, w.Body.String())
+		}
+		m := map[string]string{}
+		for _, s := range r.Servers {
+			m[s.ID] = s.Verdict
+		}
+		return m
+	}
+
+	t.Run("refuses an unknown server", func(t *testing.T) {
+		if w := post(`{"id":"other#00000000"}`); w.Code != 400 {
+			t.Fatalf("%d: %s", w.Code, w.Body.String())
+		}
+		if len(readPrefs().LearnedMCP) != 0 {
+			t.Fatalf("prefs written: %v", readPrefs().LearnedMCP)
+		}
+	})
+	t.Run("refuses another origin", func(t *testing.T) {
+		if w := post(`{"id":"`+a+`"}`, "Origin", "http://evil.example"); w.Code != 403 {
+			t.Fatalf("%d", w.Code)
+		}
+	})
+	t.Run("one server is judged, the other keeps learning", func(t *testing.T) {
+		w := post(`{"id":"` + a + `"}`)
+		if w.Code != 200 {
+			t.Fatalf("%d: %s", w.Code, w.Body.String())
+		}
+		if got := verdicts(w); got[a] != verdictUnused || got[b] != verdictLearning {
+			t.Fatalf("verdicts %v", got)
+		}
+		if got := readPrefs().LearnedMCP; !slices.Equal(got, []string{a}) {
+			t.Fatalf("prefs hold %v", got)
+		}
+	})
+	t.Run("no id judges every server still learning, once", func(t *testing.T) {
+		w := post(`{}`)
+		if w.Code != 200 {
+			t.Fatalf("%d: %s", w.Code, w.Body.String())
+		}
+		if got := verdicts(w); got[a] != verdictUnused || got[b] != verdictUnused {
+			t.Fatalf("verdicts %v", got)
+		}
+		if got := readPrefs().LearnedMCP; !slices.Equal(got, []string{b, a}) && !slices.Equal(got, []string{a, b}) {
+			t.Fatalf("prefs hold %v", got)
+		}
+	})
+}
+
+func TestSetRules(t *testing.T) {
+	sandbox(t)
+	l, h := testDashboard(t)
+	ctx := t.Context()
+	const kube = "kube#aaaa1111"
+	if err := l.RecordToolList(ctx, "claude", kube, map[string]int{"get": 200, "drain": 400}, nil); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.RecordToolCall(ctx, "claude", "direct-db", "query"); err != nil {
+		t.Fatal(err)
+	}
+	post := func(body string, header ...string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest("POST", "/api/mcp/rules", strings.NewReader(body))
+		r.Host = "127.0.0.1:7878"
+		for i := 0; i+1 < len(header); i += 2 {
+			r.Header.Set(header[i], header[i+1])
+		}
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+
+	t.Run("saves the rules in order and reports them", func(t *testing.T) {
+		w := post(`{"id":"` + kube + `","rules":[{"match":"drain","action":"lazy"},{"match":"get_*","action":"skip"}]}`)
+		if w.Code != 200 {
+			t.Fatalf("%d: %s", w.Code, w.Body.String())
+		}
+		want := []mcpproxyreceiver.Rule{{Match: "drain", Action: "lazy"}, {Match: "get_*", Action: "skip"}}
+		if got := readPrefs().MCPRules[kube]; !slices.Equal(got, want) {
+			t.Fatalf("prefs hold %v", got)
+		}
+		var r mcpReview
+		json.Unmarshal(w.Body.Bytes(), &r)
+		if i := slices.IndexFunc(r.Servers, func(s mcpServer) bool { return s.ID == kube }); i < 0 || !slices.Equal(r.Servers[i].Rules, want) {
+			t.Fatalf("review does not report the rules: %+v", r.Servers)
+		}
+		if got := savedRules()[kube]; !slices.Equal(got, want) {
+			t.Fatalf("mcp-proxy would read %v", got)
+		}
+	})
+	t.Run("GASCOIGNE_MCP_LAZY=off ignores them for a run", func(t *testing.T) {
+		t.Setenv("GASCOIGNE_MCP_LAZY", "off")
+		if got := savedRules(); got != nil {
+			t.Fatalf("got %v", got)
+		}
+	})
+	t.Run("an empty list clears them", func(t *testing.T) {
+		if w := post(`{"id":"` + kube + `","rules":[]}`); w.Code != 200 {
+			t.Fatalf("%d: %s", w.Code, w.Body.String())
+		}
+		if _, ok := readPrefs().MCPRules[kube]; ok {
+			t.Fatal("rules kept")
+		}
+	})
+	bad := map[string]string{
+		"unknown server":         `{"id":"other#00000000","rules":[{"match":"a","action":"skip"}]}`,
+		"a server with no sizes": `{"id":"direct-db","rules":[{"match":"a","action":"skip"}]}`,
+		"unknown action":         `{"id":"` + kube + `","rules":[{"match":"a","action":"drop"}]}`,
+		"empty match":            `{"id":"` + kube + `","rules":[{"match":"","action":"skip"}]}`,
+		"bad glob":               `{"id":"` + kube + `","rules":[{"match":"a[","action":"skip"}]}`,
+		"too many":               `{"id":"` + kube + `","rules":[` + strings.Repeat(`{"match":"a","action":"skip"},`, maxRules) + `{"match":"a","action":"skip"}]}`,
+		"not json":               `rules please`,
+	}
+	for name, body := range bad {
+		t.Run("refuses "+name, func(t *testing.T) {
+			if w := post(body); w.Code != 400 {
+				t.Fatalf("%d: %s", w.Code, w.Body.String())
+			}
+			if len(readPrefs().MCPRules) != 0 {
+				t.Fatalf("prefs written: %v", readPrefs().MCPRules)
+			}
+		})
+	}
+	t.Run("refuses another origin", func(t *testing.T) {
+		if w := post(`{"id":"`+kube+`","rules":[{"match":"a","action":"skip"}]}`, "Origin", "http://evil.example"); w.Code != 403 {
+			t.Fatalf("%d", w.Code)
+		}
+	})
 }

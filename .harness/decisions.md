@@ -120,6 +120,8 @@ needs it. Rejected: hiding for good (an agent that is never told cannot ask) and
 notification when the agent asks (a changed tool set busts the prompt cache); the lazy set is read at
 start and never changes inside a session.
 
+**Short windows, and "learn now".** The review waited 7 days before a verdict and called a tool idle after 14, so a new MCP server cost its tokens unnoticed for two weeks. Now a server is judged from its second day of data (`observeDays` 2, the first day counts), idle after 7 days (`unusedDays`, the `Calls7` window), stale after 3 (`staleDays`) and the session nudge is daily. Rejected: a settings knob per threshold (constants are named in one place, and the review is a nudge, never an action). Users who do not want to wait press "Learn now" (`prefs.learned_mcp`): it only skips the wait for verdict, with the same data, so nothing is learned that the ledger lacks. Cost accepted: a server used less often than weekly shows as `unused`; the only action on it is loading its tools on request, which keeps them reachable.
+
 **The choice needs no setup token.** It is saved from the review page with the dashboard's own guards
 (loopback Host, same-origin writes) and no one-time token, unlike the setup page. The setup page changes
 other programs' settings; this changes gascoigne's own `prefs.json` and is reversible in one click.

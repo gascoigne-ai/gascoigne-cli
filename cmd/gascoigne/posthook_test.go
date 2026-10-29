@@ -108,7 +108,7 @@ func TestResultHooksOtherAgents(t *testing.T) {
 	}
 }
 
-// The weekly MCP review counts calls to servers that stay direct from the
+// The MCP review counts calls to servers that stay direct from the
 // events their hooked results leave: every call, big or small, must show the
 // tool's name as its command.
 func TestHookedMCPCallsLeaveEvents(t *testing.T) {

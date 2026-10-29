@@ -403,7 +403,11 @@ func (c *evalCase) live(ctx context.Context) (*payload.Payload, error) {
 	if err != nil && !failed {
 		return nil, err
 	}
-	p := &payload.Payload{Blocks: []payload.Block{{Kind: payload.CmdOutput, Text: string(out)}}, Attrs: map[string]string{payload.AttrCmd: c.Run}}
+	kind := cmp.Or(c.Kind, payload.CmdOutput)
+	p := &payload.Payload{Blocks: []payload.Block{{Kind: kind, Text: string(out)}}, Attrs: map[string]string{}}
+	if kind == payload.CmdOutput { // a tool result carries the tool, as the proxy sets it, not the command that made it
+		p.Set(payload.AttrCmd, c.Run)
+	}
 	for k, v := range c.Attrs {
 		p.Set(k, v)
 	}

@@ -176,6 +176,7 @@ Routes you add replace the `routes` list as a whole, like any list.
 | `mcp_proxy.retrieve` | `gascoigne_retrieve` | Added tool's name; must not clash with downstream tools. |
 | `mcp_proxy.compact_tools` | true | Drop titles restating names and `$schema`/`$id` from tool schemas. |
 | `mcp_proxy.max_tools` | 0 | More downstream tools than this → `search_tools` + `call_tool`; 0 mirrors them all. |
+| `mcp_proxy.rules` | — | Manual rules, first match wins: `{match, action}` with `match` a tool-name glob or `server/tool`, `action` `skip` (results pass untouched), `shrink` (optimize; overrides a later skip) or `lazy` (listed on request only). Rules set on the [MCP review page](cli.md#mcp-review) follow these. |
 | `httpproxy.compact_tools` | true | The same for the tools of proxied API requests. |
 | `httpproxy.skill_code_lines` | 30 | Code blocks of invoked skill bodies longer than this keep their head and a pointer; 0 off. |
 | `httpproxy.max_image_pixels` | 0 | Downscale tool-result screenshots above this many pixels (e.g. 1024000); 0 off. |

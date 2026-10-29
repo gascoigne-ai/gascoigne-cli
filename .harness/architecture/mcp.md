@@ -53,6 +53,14 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
 
 MCP pipelines have no exporters: stdout is the protocol channel.
 
+### Manual rules
+
+`mcp_proxy.rules` (config) and the rules saved from the review page (`prefs.mcp_rules`, per server id) are one list, the config's first: `Rule{Match, Action}` (`receiver/mcpproxyreceiver/rules.go`), first match wins. `Match` is a `path.Match` glob on the tool name, or on `server/tool` when it has a slash. `skip` returns the downstream result untouched (no optimizer, no ledger entry), `shrink` is the default and ends the search (so it overrides a later `skip`), `lazy` lists the tool on request only, like a lazy choice (`splitLazy`); `skip` and `shrink` leave the lazy choices alone. Rules are read at proxy start.
+
+### Testing with a fake server
+
+`internal/mcpmock` is a deterministic fake MCP server (`cmd/mcpmock`: `serve` on stdio, `call <tool>` prints one result). Its tools return fake data in the shape real servers return. The `mcp` eval suite runs those results through the `mcp-proxy` pipeline; `gascoigne mcp-proxy -- bin/mcpmock serve` gives a manual end-to-end check. It stands in for third-party servers, so numbers are floors, not claims about a particular server.
+
 ## SDK API (`cmd/gascoigne/sdk.go`)
 
 Stable loopback contract for gascoigne-sdk (agent frameworks), mounted in the background server beside

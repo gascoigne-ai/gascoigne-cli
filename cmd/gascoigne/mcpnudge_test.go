@@ -38,7 +38,7 @@ var unusedServer = mcpServer{ID: "linear#aaaa1111", Name: "linear", Label: "line
 	Tools: []mcpTool{tool("a", 1200, 0), tool("b", 800, 0)}, Chosen: []string{}}
 
 func TestMCPNudge(t *testing.T) {
-	t.Run("an unused server opens the review, once a week", func(t *testing.T) {
+	t.Run("an unused server opens the review, once a day", func(t *testing.T) {
 		nudgeEnv(t)
 		reviewServer(t, mcpReview{Servers: []mcpServer{unusedServer}}, 0)
 		note := mcpNudge("startup", false)
@@ -161,7 +161,7 @@ func TestMCPReviewQuestionIsOptionalAndOnByDefault(t *testing.T) {
 	}
 	for _, p := range pendingDecisions(prefs{}) {
 		if p.ID == "mcp_review" {
-			t.Error("the weekly review never counts as an open question")
+			t.Error("the daily review never counts as an open question")
 		}
 	}
 	if got := mcpReviewDecision(prefs{MCPReview: "off"}); got.Current != "off" {

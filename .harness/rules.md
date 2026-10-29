@@ -16,6 +16,7 @@ Adds to the shared `common/rules.md` and `common/commit-style.md`. Breaking one 
 ## Verification
 - `make check` (gofmt, vet, imports, tests) must pass before you call work done.
 - Optimizer changes: run `make eval`; savings must not regress and `raw ok` must never be `NO`.
+- MCP changes (`receiver/mcpproxyreceiver`, `internal/mcptool`, MCP review, anything that shrinks an MCP tool result or tool list): also run the `mcp` eval suite (`make eval-mcp`). A new result shape or tool gets a generator in `internal/mcpmock` and a case in `testdata/eval-mcp/cases.yaml`; check against a real MCP server by hand (`gascoigne mcp-proxy -- <server>`) before release when one is at hand.
 
 ## Architecture
 - Extend by adding a component (receiver, filter, optimizer, exporter, extension) + config.

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/mcpproxyreceiver"
 	"os"
 	"path/filepath"
 	"time"
@@ -54,9 +55,15 @@ type prefs struct {
 	// reaches these through search_tools and call_tool. Set on the review page.
 	LazyTools map[string][]string `json:"lazy_tools,omitempty"`
 	// MCPReview (on or off; unset = on) lets a session start open the MCP review
-	// page; LastMCPReview is when it last did, at most once a week.
-	MCPReview     string    `json:"mcp_review,omitempty"`
-	LastMCPReview time.Time `json:"last_mcp_review,omitzero"`
+	// page; LastMCPReview is when it last did, at most once a day.
+	// LearnedMCP are the review's server ids the user asked to judge now, without
+	// waiting for observeDays.
+	LearnedMCP []string `json:"learned_mcp,omitempty"`
+	// MCPRules are the manual rules set on the review page, by server id; the
+	// config's mcp_proxy.rules come first.
+	MCPRules      map[string][]mcpproxyreceiver.Rule `json:"mcp_rules,omitempty"`
+	MCPReview     string                             `json:"mcp_review,omitempty"`
+	LastMCPReview time.Time                          `json:"last_mcp_review,omitzero"`
 }
 
 func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }

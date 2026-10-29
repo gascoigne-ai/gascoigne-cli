@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 func TestBaselineRoundTrip(t *testing.T) {
@@ -61,6 +63,19 @@ func TestLiveCase(t *testing.T) {
 				t.Errorf("text %q cmd %q", p.Text(), p.Attrs["cmd"])
 			}
 		})
+	}
+}
+
+func TestLiveCaseKind(t *testing.T) {
+	p, err := (&evalCase{Run: "echo hi", Kind: payload.ToolResult, Attrs: map[string]string{"tool": "mcp__mock__echo"}}).live(t.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.Blocks[0].Kind != payload.ToolResult || p.Attrs["tool"] != "mcp__mock__echo" {
+		t.Errorf("kind %s attrs %v", p.Blocks[0].Kind, p.Attrs)
+	}
+	if _, ok := p.Attrs["cmd"]; ok {
+		t.Errorf("a tool result carries the command that made it: %v", p.Attrs)
 	}
 }
 

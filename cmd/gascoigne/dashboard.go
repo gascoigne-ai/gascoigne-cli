@@ -127,10 +127,12 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		respond(w, report, err)
 	})
 	mux.HandleFunc("GET /api/mcp", func(w http.ResponseWriter, r *http.Request) {
-		review, err := loadReview(r.Context(), l, time.Now(), lazyChoices())
+		review, err := loadReview(r.Context(), l, time.Now(), lazyChoices(), readPrefs().LearnedMCP)
 		respond(w, review, err)
 	})
 	mux.HandleFunc("POST /api/mcp/lazy", setLazy(l))
+	mux.HandleFunc("POST /api/mcp/learn", learnNow(l))
+	mux.HandleFunc("POST /api/mcp/rules", setRules(l))
 	newLoginFlows(authStore(), tryOpenBrowser).handlers(mux)
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")

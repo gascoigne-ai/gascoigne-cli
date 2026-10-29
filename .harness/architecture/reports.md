@@ -36,10 +36,12 @@ session id and per-turn usage (the LLM proxy has no session).
 
 `GET /mcp` (one embedded page, same design tokens as `setup.html`, DOM built without `innerHTML`,
 sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MCPCommands, now)`:
-- Per server: definition tokens (last listing), tokens of tools not called in 14 days, calls in the
-  last 7 days and the 7 before, last use, and a verdict. `learning` below `observeDays` (7) of
-  observation, `not seen lately` when a proxied server was last listed `staleDays` (7) or more days ago (probably
-  removed: never unused, never in the nudge), `unused` with no call in `unusedDays` (14), `rarely used` for at most `rarelyCalls`
+- Per server: definition tokens (last listing), tokens of tools not called in `unusedDays` (7), calls in the
+  last 7 days and the 7 before, last use, and a verdict. `learning` below `observeDays` (2: the first day counts) of
+  observation unless the user asked "learn now" (`prefs.learned_mcp`, set by `POST /api/mcp/learn {id}`, no id = all
+  still learning, or `mcp-review -learn`; same loopback-only, cross-origin-refused rules as the lazy choice),
+  `not seen lately` when a proxied server was last listed `staleDays` (3) or more days ago (probably
+  removed: never unused, never in the nudge), `unused` with no call in `unusedDays` (7, the `Calls7` window), `rarely used` for at most `rarelyCalls`
   calls a week at `rarelyTokens` or more per request, else `used`. The constants are named in the
   file; days are UTC.
 - Calls to servers that stay direct come from the hook's runs named `mcp__server__tool`
@@ -56,8 +58,12 @@ sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MC
 - The one action: `POST /api/mcp/lazy {id, tools}` (`setLazy`) saves `prefs.lazy_tools[id]`, which
   `cmdMCPProxy` passes to the proxy (`lazyChoices`; `GASCOIGNE_MCP_LAZY=off` ignores it). It accepts only a
   server with sizes (started through `mcp-proxy`) and tool names the review shows for it; an empty list
-  clears. The page offers it for tools not called in 14 days and says it applies from the next session
+  clears. The page offers it for tools not called in 7 days and says it applies from the next session
   (the recorded lazy flags lag the choice until then). Reasons and rejected options: `decisions.md`.
+  Manual rules: `POST /api/mcp/rules {id, rules:[{match, action}]}` (`setRules`) replaces one proxied server's
+  `prefs.mcp_rules` (validated by `Rule.Validate`, at most `maxRules`, empty clears); the review reports them as
+  `rules`, `mcp-proxy` reads them with `WithRules(savedRules())` (`GASCOIGNE_MCP_LAZY=off` ignores them), and the
+  page's "Keep raw" tick is the exact-name `skip` rule.
 
 ## Costs page (`costs.html`, `GET /costs`, `GET /api/costs`)
 
