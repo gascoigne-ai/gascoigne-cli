@@ -84,6 +84,24 @@ func TestFillDays(t *testing.T) {
 	}
 }
 
+// A period that is not a whole number of days (36h at 11:00 starts the day
+// before yesterday at 23:00) must still end with today: its data is in the
+// groups and must not be dropped by the fill.
+func TestFillDaysEndsWithToday(t *testing.T) {
+	now := time.Date(2026, 10, 29, 11, 0, 0, 0, time.Local)
+	for _, span := range []time.Duration{36 * time.Hour, 25 * time.Hour, 47 * time.Hour, 7*24*time.Hour + time.Hour} {
+		got := fillDays([]StatsJSON{{Group: "2026-10-29", Runs: 5}}, now.Add(-span), now)
+		if last := got[len(got)-1]; last.Group != "2026-10-29" || last.Runs != 5 {
+			t.Errorf("%v: last day %+v, want today with its 5 runs; days %v", span, last, got)
+		}
+		for i := 1; i < len(got); i++ {
+			if got[i].Group <= got[i-1].Group {
+				t.Errorf("%v: days out of order or repeated: %v", span, got)
+			}
+		}
+	}
+}
+
 func TestChartBucket(t *testing.T) {
 	day := 24 * time.Hour
 	for _, tt := range []struct {

@@ -527,7 +527,10 @@ func fillDays(days []StatsJSON, from, to time.Time) []StatsJSON {
 		have[d.Group] = d
 	}
 	out := []StatsJSON{}
-	for day := from; !day.After(to); day = day.AddDate(0, 0, 1) {
+	// Calendar days from the start's midnight: stepping 24h from the start itself
+	// stops a day short of to when the period is not a whole number of days.
+	y, m, d := from.Date()
+	for day := time.Date(y, m, d, 0, 0, 0, 0, from.Location()); !day.After(to); day = day.AddDate(0, 0, 1) {
 		key := day.Format(time.DateOnly)
 		if d, ok := have[key]; ok {
 			out = append(out, d)
