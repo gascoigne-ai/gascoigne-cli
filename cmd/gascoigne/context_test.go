@@ -167,8 +167,9 @@ func TestContextEndpoint(t *testing.T) {
 	dir := filepath.Join(home, ".claude", "projects", "-work-shop")
 	os.MkdirAll(dir, 0o755)
 	var lines []string
+	recent := time.Now().Add(-time.Hour).UTC().Format(time.RFC3339) // the report looks back from now: a fixed date ages out of its window
 	for i := range 30 {
-		lines = append(lines, line(fmt.Sprint("m", i), "claude-opus-5-5", 5, 40_000+i*5_000, 5_000, 300, ""))
+		lines = append(lines, lineAt(fmt.Sprint("m", i), recent, "claude-opus-5-5", 5, 40_000+i*5_000, 5_000, 300, ""))
 	}
 	os.WriteFile(filepath.Join(dir, "a.jsonl"), []byte(strings.Join(lines, "\n")), 0o644)
 	os.WriteFile(filepath.Join(dir, "old.jsonl"), []byte(strings.Join(lines, "\n")), 0o644)
