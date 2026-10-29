@@ -15,6 +15,7 @@ Adds to the shared `common/rules.md` and `common/commit-style.md`. Breaking one 
 
 ## Verification
 - `make check` (gofmt, vet, imports, tests) must pass before you call work done.
+- Every bug found (by you, the user or a failing run) starts with a regression test: write it first, run it and see it fail for the reported reason, only then fix. Report that it failed before and passes after. A bug that cannot be reproduced in a test is not understood yet: keep investigating or say so; do not ship a guess as a fix. Put the test beside the code it covers, named for the behavior (`TestFillDaysEndsWithToday`), with a comment saying what went wrong; a data bug also gets an eval or fixture case when a suite fits.
 - Optimizer changes: run `make eval`; savings must not regress and `raw ok` must never be `NO`.
 - MCP changes (`receiver/mcpproxyreceiver`, `internal/mcptool`, MCP review, anything that shrinks an MCP tool result or tool list): also run the `mcp` eval suite (`make eval-mcp`). A new result shape or tool gets a generator in `internal/mcpmock` and a case in `testdata/eval-mcp/cases.yaml`; check against a real MCP server by hand (`gascoigne mcp-proxy -- <server>`) before release when one is at hand.
 
