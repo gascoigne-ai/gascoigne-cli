@@ -151,22 +151,38 @@ type whatIf struct {
 	Sessions    int     `json:"sessions"` // sessions that would have compacted
 }
 
+// compactionEconomics is what the compactions the transcripts show cost and
+// saved, by the same simple model as the what-if: later requests re-read the
+// shorter context instead of the old one, and the compaction itself is one
+// request that writes the new context to the cache plus a summary of output.
+type compactionEconomics struct {
+	Count      int     `json:"count"`
+	MeanBefore int     `json:"mean_before"` // context of the request before it
+	MeanAfter  int     `json:"mean_after"`  // context of the first request after it
+	CostUSD    float64 `json:"cost_usd"`    // cache write of the new context plus the summary
+	SavedUSD   float64 `json:"saved_usd"`   // cache reads avoided until the next compaction or the end
+	NetUSD     float64 `json:"net_usd"`
+	sumBefore  int
+	sumAfter   int
+}
+
 // contextReport is the whole analysis.
 type contextReport struct {
-	Hours         int              `json:"hours"` // the period the report covers
-	Sessions      []sessionCost    `json:"sessions"`
-	Turns         int              `json:"turns"`
-	CostUSD       float64          `json:"cost_usd"`
-	ModelUSD      float64          `json:"model_usd"` // the baseline of the what-if, by the same simple model
-	Days          []contextDay     `json:"days"`      // cost per local day, quiet days included
-	Buckets       []contextBucket  `json:"buckets"`
-	WhatIf        []whatIf         `json:"what_if"`
-	Rewrites      []cacheRewrite   `json:"cache_rewrites"`
-	Injected      []injectedSource `json:"injected"`
-	SubagentUSD   float64          `json:"subagent_usd"` // not in the figures above: subagents have conversations of their own
-	SubagentTurns int              `json:"subagent_turns"`
-	Unpriced      int              `json:"unpriced_sessions"`
-	Assumptions   []string         `json:"assumptions"`
+	Hours         int                 `json:"hours"` // the period the report covers
+	Sessions      []sessionCost       `json:"sessions"`
+	Turns         int                 `json:"turns"`
+	CostUSD       float64             `json:"cost_usd"`
+	ModelUSD      float64             `json:"model_usd"` // the baseline of the what-if, by the same simple model
+	Days          []contextDay        `json:"days"`      // cost per local day, quiet days included
+	Buckets       []contextBucket     `json:"buckets"`
+	WhatIf        []whatIf            `json:"what_if"`
+	Rewrites      []cacheRewrite      `json:"cache_rewrites"`
+	Compactions   compactionEconomics `json:"compactions"`
+	Injected      []injectedSource    `json:"injected"`
+	SubagentUSD   float64             `json:"subagent_usd"` // not in the figures above: subagents have conversations of their own
+	SubagentTurns int                 `json:"subagent_turns"`
+	Unpriced      int                 `json:"unpriced_sessions"`
+	Assumptions   []string            `json:"assumptions"`
 }
 
 // usageLine is the part of a transcript line this needs.
@@ -309,6 +325,33 @@ func (s *sessionCost) finish() {
 		}
 	}
 	s.Series = downsample(s.turns, sparkPoints)
+}
+
+// add counts the compactions of one priced session.
+func (c *compactionEconomics) add(turns []turn, m cost.Model) {
+	for i := 1; i < len(turns); i++ {
+		prev, t := turns[i-1], turns[i]
+		if !compacted(prev.ctx, t.ctx) {
+			continue
+		}
+		later := 1 // requests that re-read the shorter context, the first included
+		for j := i + 1; j < len(turns) && !compacted(turns[j-1].ctx, turns[j].ctx); j++ {
+			later++
+		}
+		c.Count++
+		c.sumBefore += prev.ctx
+		c.sumAfter += t.ctx
+		c.CostUSD += (float64(t.ctx)*m.CacheWrite + summaryTokens*m.Output) / 1e6
+		c.SavedUSD += float64(prev.ctx-t.ctx) * float64(later) * m.CacheRead / 1e6
+	}
+}
+
+// done fills what follows from the sums.
+func (c *compactionEconomics) done() {
+	if c.Count > 0 {
+		c.MeanBefore, c.MeanAfter = c.sumBefore/c.Count, c.sumAfter/c.Count
+	}
+	c.NetUSD = c.SavedUSD - c.CostUSD
 }
 
 // rewrites finds the turns whose cache read fell short of the previous
@@ -607,6 +650,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 			src.CostUSD += float64(in.tokens) * (m.CacheWrite + float64(later)*m.CacheRead) / 1e6
 			sessionsOf[in.label][s.ID] = true
 		}
+		r.Compactions.add(s.turns, m)
 		for _, w := range rewrites(s.turns) {
 			rw := rewriteOf(byCause, w.cause)
 			rw.Turns++
@@ -630,6 +674,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 			}
 		}
 	}
+	r.Compactions.done()
 	r.Days = fillContextDays(byDay)
 	for i := range r.Buckets {
 		if r.CostUSD > 0 {
@@ -857,6 +902,10 @@ func printContext(w io.Writer, r contextReport) {
 			fmt.Fprintf(tw, "%s\t%d\t%s\t%s\t%.1f%%\n", x.Source, x.Times, human(x.PerTime), dollars(x.CostUSD), 100*x.Share)
 		}
 		tw.Flush()
+	}
+	if c := r.Compactions; c.Count > 0 {
+		fmt.Fprintf(w, "\n%d compactions, from %s to %s of context: cost %s, saved %s of cache reads, net %s\n",
+			c.Count, human(c.MeanBefore), human(c.MeanAfter), dollars(c.CostUSD), dollars(c.SavedUSD), dollars(c.NetUSD))
 	}
 	fmt.Fprintln(w, "\nIf conversations had been compacted when they reached:")
 	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)

@@ -535,3 +535,32 @@ func TestBuildContextDays(t *testing.T) {
 		t.Errorf("session extras %+v", got)
 	}
 }
+
+// A compaction costs a cache write of the new context plus the summary, and saves
+// the reads of the difference by every request until the next one.
+func TestCompactionEconomics(t *testing.T) {
+	at := time.Date(2026, 10, 10, 10, 0, 0, 0, time.UTC)
+	mk := func(ctx int, min int) turn {
+		return turn{ctx: ctx, read: ctx, ts: at.Add(time.Duration(min) * time.Minute)}
+	}
+	ts := []turn{mk(200_000, 0), mk(210_000, 1), mk(50_000, 2), mk(55_000, 3), mk(60_000, 4)}
+	m, _ := cost.Lookup("claude-opus-5-5")
+	var c compactionEconomics
+	c.add(ts, m)
+	c.done()
+	if c.Count != 1 || c.MeanBefore != 210_000 || c.MeanAfter != 50_000 {
+		t.Fatalf("got %+v", c)
+	}
+	wantSaved := float64(160_000) * 3 * m.CacheRead / 1e6
+	if d := c.SavedUSD - wantSaved; d > 1e-9 || d < -1e-9 {
+		t.Fatalf("saved %.6f, want %.6f", c.SavedUSD, wantSaved)
+	}
+	if c.NetUSD != c.SavedUSD-c.CostUSD {
+		t.Fatalf("net %+v", c)
+	}
+	var none compactionEconomics
+	none.add(ts[:2], m)
+	if none.Count != 0 {
+		t.Fatal("counted a compaction in a growing session")
+	}
+}

@@ -16,6 +16,9 @@ session id and per-turn usage (the LLM proxy has no session).
   12k summary per compaction, growth as it was; a real reset is followed, not compacted twice. The same model
   prices the baseline, so thresholds compare with each other (within 5% of the actual cost on a real
   month). More compactions are not always cheaper.
+- Compaction economics (`compactionEconomics`, JSON `compactions`, a line in `context -text`): per compaction the cost (write of the new
+  context plus a `summaryTokens` summary) and the saving (cache reads of the shorter context by every request until the next
+  compaction); by the same simple model as `simulate`, priced sessions only. Measures what compaction paid, not what it forgot.
 - Cache rewrites (`rewrites`): a turn whose cache read fell short of the previous request's context by over 5%
   (and 2k tokens) rewrote the difference, priced at write minus read. Cause from the transcript's timestamps:
   compaction, a pause over an hour, a pause of 5 to 60 minutes; within the cache lifetime: another model
