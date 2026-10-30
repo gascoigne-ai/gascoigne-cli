@@ -186,20 +186,67 @@ func lastArg(args []string) string {
 }
 
 // lastCommand is the command of a line that does the work: "cd api && go
-// test ./..." names go test, not cd. Leading cd/pushd/export steps of an
-// && or ; list are skipped.
+// test ./..." names go test, not cd. Setup steps of a list (cd, export,
+// VAR=x, loop headers) are skipped, and "do"/"then" lead into the command.
 func lastCommand(line string) string {
-	for {
-		i := strings.IndexAny(line, "&;")
-		if i < 0 {
-			return line
+	for line != "" {
+		var seg string
+		seg, line = splitList(line)
+		fields := strings.Fields(seg)
+		for len(fields) > 0 && leadIn[fields[0]] {
+			fields = fields[1:]
 		}
-		first := strings.Fields(line[:i])
-		if len(first) == 0 || !setup[first[0]] {
-			return line
+		if len(fields) == 0 || isSetup(fields) {
+			continue
 		}
-		line = strings.TrimLeft(line[i:], "&; ")
+		return strings.Join(fields, " ")
 	}
+	return ""
+}
+
+// leadIn are shell keywords that only introduce the command after them.
+var leadIn = map[string]bool{"do": true, "then": true, "else": true, "{": true}
+
+// skipWords start or end a loop or condition: nothing ran yet, or it is over.
+var skipWords = map[string]bool{"for": true, "while": true, "until": true, "if": true, "elif": true, "case": true, "select": true,
+	"done": true, "fi": true, "esac": true, "}": true}
+
+// isSetup reports a list element that prepares rather than does the work.
+func isSetup(fields []string) bool {
+	if setup[fields[0]] || skipWords[fields[0]] {
+		return true
+	}
+	for _, f := range fields { // only assignments: A=1 B=2
+		if name, _, ok := strings.Cut(f, "="); !ok || name == "" || strings.ContainsAny(name, "/.-\"'$ ") {
+			return false
+		}
+	}
+	return true
+}
+
+// splitList cuts the first command off a list at the first &&, ||, ; or
+// newline outside quotes.
+func splitList(line string) (first, rest string) {
+	var quote byte
+	for i := 0; i < len(line); i++ {
+		switch c := line[i]; {
+		case quote != 0:
+			if c == quote {
+				quote = 0
+			} else if c == '\\' && quote == '"' {
+				i++
+			}
+		case c == '\'' || c == '"':
+			quote = c
+		case c == '\\':
+			i++
+		case c == ';' || c == '\n':
+			return line[:i], line[i+1:]
+		case (c == '&' || c == '|') && i+1 < len(line) && line[i+1] == c:
+			return line[:i], line[i+2:]
+		}
+	}
+	return line, ""
 }
 
 // firstStage is the command a line's output starts with: cut at the first
@@ -227,4 +274,4 @@ func firstStage(line string) string {
 	return line
 }
 
-var setup = map[string]bool{"cd": true, "pushd": true, "export": true, "source": true, ".": true, "set": true}
+var setup = map[string]bool{"cd": true, "pushd": true, "popd": true, "export": true, "source": true, ".": true, "set": true, "unset": true, "exit": true, "return": true, "true": true, "false": true, ":": true}

@@ -78,7 +78,16 @@ func TestCommand(t *testing.T) {
 		"FOO=1 sudo npm ci":        "npm ci",
 		"cd api && go test ./...":  "go test",
 		"cd a; export X=1; make":   "make",
-		"":                         "",
+		// Chains the dashboard's command breakdown once labelled "cd" or "for":
+		"S=/tmp/x; cd api && go test ./...":           "go test",
+		"A=1 B=2; cd api; make eval":                  "make eval",
+		"for f in a b; do go vet $f; done":            "go vet",
+		"cd x && for f in *.go; do gofmt -l $f; done": "gofmt",
+		`git commit -m "fix a && b"`:                  "git commit",
+		"cd a 2>&1 && ls -la":                         "ls",
+		"cd a || exit 1; go build ./...":              "go build",
+		"cd a\ngo test ./...":                         "go test",
+		"":                                            "",
 	}
 	for in, want := range tests {
 		if got := Command(in); got != want {
