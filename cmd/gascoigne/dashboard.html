@@ -136,7 +136,7 @@ button:has(.icon) { display: inline-flex; align-items: center; gap: 6px; }
 /* Cards */
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-top: 16px; box-shadow: var(--shadow); }
 h2 { margin: 0; font-size: 15px; font-weight: 650; }
-.status { display: flex; align-items: center; gap: 12px; margin: 14px 0 0; padding: 7px 8px 7px 12px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; font-size: 12.5px; color: var(--muted);
+.status { display: flex; align-items: center; gap: 12px; margin: 18px 0 0; padding: 7px 8px 7px 12px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; font-size: 12.5px; color: var(--muted);
   background: linear-gradient(90deg, var(--accent-soft), var(--surface) 55%); }
 .status[hidden] { display: none; }
 .status-label { display: inline-flex; align-items: center; gap: 6px; flex: none; font-weight: 700; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
@@ -378,12 +378,6 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     </div>
   </div>
 
-  <div class="status" id="experiments-panel" role="status" aria-label="Experimental features that are switched on" hidden>
-    <span class="status-label" id="status-label">Experimental</span>
-    <span class="status-items" id="experiments"></span>
-    <a class="status-link" href="/setup" title="Switch experiments on or off (config experimental, or gascoigne setup)">change</a>
-  </div>
-
   <section class="kpis" id="kpis" aria-label="Summary"></section>
 
   <div class="grid">
@@ -452,6 +446,12 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
       <div class="scroll" id="failures"></div>
     </div>
   </section>
+
+  <div class="status" id="experiments-panel" role="status" aria-label="Experimental features that are switched on" hidden>
+    <span class="status-label" id="status-label">Experimental</span>
+    <span class="status-items" id="experiments"></span>
+    <a class="status-link" href="/setup" title="Switch experiments on or off (config experimental, or gascoigne setup)">change</a>
+  </div>
 
   <footer><span id="server-info">gascoigne server</span><br>
     Data is read from the local ledger and never leaves this machine. Any gascoigne command, or <code>gascoigne dashboard</code>, starts the server.</footer>

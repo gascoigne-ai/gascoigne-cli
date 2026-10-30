@@ -123,8 +123,8 @@ assert.strictEqual(proseFact(off), null);
 	}
 }
 
-// The page reads: summary first, the breakdown last and opening on the
-// optimizer tab; experiments are a status line, not a panel of their own.
+// The page reads: summary first, the breakdown opening on the optimizer tab;
+// experiments are a status line at the bottom, not a panel of their own.
 func TestDashboardLayout(t *testing.T) {
 	page := string(dashboardHTML)
 	at := func(s string) int {
@@ -134,8 +134,8 @@ func TestDashboardLayout(t *testing.T) {
 		}
 		return i
 	}
-	if !(at(`id="experiments-panel"`) < at(`id="kpis"`) && at(`id="kpis"`) < at(`id="feed"`) && at(`id="feed"`) < at(`id="breakdown-panel"`)) {
-		t.Error("want experiments status line, summary, runs, breakdown in that order")
+	if !(at(`id="kpis"`) < at(`id="feed"`) && at(`id="feed"`) < at(`id="breakdown-panel"`) && at(`id="breakdown-panel"`) < at(`id="experiments-panel"`) && at(`id="experiments-panel"`) < at(`<footer>`)) {
+		t.Error("want summary, runs, breakdown, experiments status line, footer in that order")
 	}
 	if strings.Contains(page[at(`id="breakdown-panel"`):], `class="panel"`) {
 		t.Error("something follows the breakdown as a panel of its own")
