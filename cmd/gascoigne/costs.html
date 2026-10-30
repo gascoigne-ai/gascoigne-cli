@@ -14,8 +14,10 @@
     <label>Period
       <select id="since">
         <option value="24h">Last 24 hours</option>
-        <option value="7d" selected>Last 7 days</option>
-        <option value="4w">Last 4 weeks</option>
+        <option value="7d">Last 7 days</option>
+        <option value="14d" selected>Last 14 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="90d">Last 90 days</option>
         <option value="">All time</option>
       </select>
     </label>
@@ -23,7 +25,7 @@
     <p class="hint" id="pricing"></p>
   </div>
   <div id="body"><p class="empty">Loading…</p></div>
-  <footer>API-equivalent estimates, not what you pay: a subscription does not bill per token. The measured tables come from requests that went through gascoigne's LLM proxy.</footer>
+  <footer>API-equivalent estimates, not what you pay: a subscription does not bill per token. Requests measured through the LLM proxy are on the Context page.</footer>
 </div>
 <script>
 "use strict";
@@ -39,30 +41,14 @@ const table = (head, rows, empty) => rows.length
   : el("p", { class: "empty", text: empty });
 const kpi = (name, value, plain, accent) => el("div", { class: "kpi" + (accent ? " accent" : "") }, el("div", { class: "name", text: name }), el("div", { class: "value", text: value }), el("div", { class: "plain", text: plain || "" }));
 
-// Saved is in the units of the dashboard's other numbers, so a family is the sum of its models; "In model tokens"
-// counts them the way that model's tokenizer does.
-function families(rows) {
-  const by = new Map();
-  for (const s of rows) {
-    const f = by.get(s.family) || { family: s.family, models: 0, tokens: 0, model_tokens: 0, first: 0, ctx: 0 };
-    f.models++; f.tokens += s.tokens; f.model_tokens += s.model_tokens; f.first += s.first_read_usd; f.ctx += s.in_context_usd;
-    by.set(s.family, f);
-  }
-  return [...by.values()].sort((a, b) => b.ctx - a.ctx);
-}
-
-function render(c, u) {
+function render(c) {
   const rows = c.savings || [];
   const none = "No priced savings in this period.";
-  const head = (first) => [first, ["Saved", true], ["In model tokens", true], ["First read", true], ["In context", true]];
   const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
-    kpi("Worth in context", usd(c.in_context_usd || 0), "saved tokens re-read by later requests", true),
-    kpi("Worth as first read", usd(c.first_read_usd || 0), "each saved token counted once"),
-    kpi("Rereads assumed", String(c.rereads || 0), "later requests that read a result again"));
-  const fam = panel("By model family", "Models of one vendor line added together", table([["Family"], ["Models", true], ...head(["", false]).slice(1)],
-    families(rows).map((f) => [f.family, f.models, human(f.tokens), human(f.model_tokens), usd(f.first), usd(f.ctx)]), none));
-  const mod = panel("By model", "The same per model. Runs that recorded no model use the agent's default, marked assumed.", table([["Model"], ["Tokenizer"], ...head(["", false]).slice(1)],
-    rows.map((s) => [s.model + (s.assumed ? " (assumed)" : ""), s.tokenizer + (s.family === "gemini" ? " (factor not measured)" : ""), human(s.tokens), human(s.model_tokens), usd(s.first_read_usd), usd(s.in_context_usd)]), none));
+    kpi("Worth in context", usd(c.in_context_usd || 0), "saved tokens re-read by later requests, assuming " + (c.rereads || 0) + " rereads each", true),
+    kpi("Worth as first read", usd(c.first_read_usd || 0), "each saved token counted once"));
+  const mod = panel("By model", "Saved is counted the way that model's tokenizer counts it. Runs that recorded no model use the agent's default, marked assumed.", table([["Model"], ["Tokenizer"], ["Saved", true], ["First read", true], ["In context", true]],
+    rows.map((s) => [s.model + (s.assumed ? " (assumed)" : ""), s.tokenizer + (s.family === "gemini" ? " (factor not measured)" : ""), human(s.model_tokens), usd(s.first_read_usd), usd(s.in_context_usd)]), none));
   const assumedUSD = rows.filter((s) => s.assumed).reduce((n, s) => n + s.in_context_usd, 0);
   const assumedNote = assumedUSD > 0 && c.in_context_usd > 0
     ? el("p", { class: "hint", text: Math.round(100 * assumedUSD / c.in_context_usd) + "% of the in-context figure is for runs that recorded no model, priced as the agent's usual model." }) : null;
@@ -70,19 +56,10 @@ function render(c, u) {
   const how = panel("How to read this", "",
     el("ul", { class: "plain" },
       el("li", { text: "Model: the model a run used. The proxy sees it in the API request, the Claude hook reads it from the transcript; with neither, the agent's usual model is assumed." }),
-      el("li", { text: "Family: the vendor line the model belongs to (claude, gpt, gemini, other), worked out from the model name." }),
-      el("li", { text: "Tokenizer: each vendor counts tokens differently, so the same text is a different number of tokens per model. Saved uses gascoigne's own count, shared with the dashboard; In model tokens is that count in the model's units." }),
+      el("li", { text: "Tokenizer: each vendor counts tokens differently, so the same text is a different number of tokens per model. Saved is in that model's units." }),
       el("li", { text: "First read: what the saved tokens would have cost once. In context: plus the later requests that read them again from the cache." }),
       el("li", { text: "Every dollar figure is API-equivalent: what the tokens cost at list prices, not what a plan or invoice charges." })));
-  const days = panel("Requests by day (measured)", "Each request re-reads the conversation, so requests times context is what drives the bill. Days are UTC. Not available when the agent uses a login the proxy stays out of.",
-    table([["Day (UTC)"], ["Requests", true], ["Context", true], ["Peak", true], ["Cache read", true], ["Cache write", true]],
-      u.days.map((r) => [r.day, human(r.requests), human(r.mean_context), human(r.peak_context), human(r.cache_read), human(r.cache_write)]), "No proxied requests in this period."));
-  const um = panel("Requests by model (measured)", "Context: tokens one request carries (input, cache read and cache write), mean and peak",
-    table([["Agent"], ["Model"], ["Requests", true], ["Context", true], ["Peak", true], ["Cache read", true], ["Output", true]],
-      u.models.map((r) => [r.agent || "—", r.model || "—", human(r.requests), human(r.mean_context), human(r.peak_context), human(r.cache_read), human(r.output)]), "No proxied requests in this period."));
-  document.getElementById("body").replaceChildren(kpis,
-    el("h3", { class: "section", text: "Estimated from tokens saved" }), el("div", { class: "grid" }, fam, mod), assumedNote, unpriced,
-    el("h3", { class: "section", text: "Measured by the proxy" }), el("div", { class: "grid" }, days, um), how);
+  document.getElementById("body").replaceChildren(kpis, mod, assumedNote, unpriced, how);
   const p = c.pricing;
   document.getElementById("pricing").replaceChildren(...(p ? [`Dollar figures are ${p.basis}; prices checked ${p.checked}. Sources: `,
     ...p.sources.flatMap((s, i) => [i ? ", " : "", el("a", { href: s, target: "_blank", rel: "noopener", text: new URL(s).hostname })])] : []));
@@ -93,8 +70,7 @@ async function load() {
   const since = document.getElementById("since").value;
   if (since) q.set("since", since);
   try {
-    const [c, u] = await Promise.all([getJSON("/api/costs?" + q), getJSON("/api/usage?" + q).catch(() => ({ models: [], days: [] }))]);
-    render(c, u);
+    render(await getJSON("/api/costs?" + q));
   } catch (e) {
     document.getElementById("body").replaceChildren(el("p", { class: "empty", text: "Could not load: " + e.message }));
   }

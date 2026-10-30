@@ -69,7 +69,7 @@ function idCell(id) {
   return el("span", { class: "share" }, el("code", { title: id, text: id.slice(0, 8) }), copy);
 }
 
-let report = null, sort = { col: 6, dir: "desc" };
+let report = null, usage = { days: [], models: [] }, sort = { col: 6, dir: "desc" };
 // Columns sort by an accessor, never by the displayed text.
 const cols = [
   { title: "Project", get: (s) => (s.project || "").toLowerCase(), show: (s) => s.project || "–", first: "asc" },
@@ -128,16 +128,21 @@ function render() {
   const how = panel("How this is computed", "", el("ul", { class: "plain" }, ...r.assumptions.map((a) => el("li", { text: a }))),
     r.unpriced_sessions ? el("p", { class: "hint", text: r.unpriced_sessions + " sessions use a model without a known price and are left out of the dollars." }) : null);
 
-  root.replaceChildren(kpis, el("div", { class: "grid" }, buckets, rewrites), whatIf, injected, sessionsPanel, how);
+  const um = usage.models.length ? panel("Requests through the proxy", "Any agent whose requests went through gascoigne's LLM proxy, not only Claude Code. Days are UTC. Context: tokens one request carries, mean and peak.",
+    table(el("tr", {}, th("Agent"), th("Model"), th("Requests", true), th("Context", true), th("Peak", true), th("Cache read", true), th("Output", true)),
+      usage.models.map((m) => el("tr", {}, el("td", { text: m.agent || "–" }), el("td", { text: m.model || "–" }), el("td", { class: "num", text: human(m.requests) }), el("td", { class: "num", text: human(m.mean_context) }),
+        el("td", { class: "num", text: human(m.peak_context) }), el("td", { class: "num", text: human(m.cache_read) }), el("td", { class: "num", text: human(m.output) }))))) : null;
+  root.replaceChildren(kpis, el("div", { class: "grid" }, buckets, rewrites), whatIf, injected, sessionsPanel, ...(um ? [um] : []), how);
 }
 
 async function load() {
   const since = document.getElementById("since").value;
   history.replaceState(null, "", "?since=" + since);
   try {
-    const res = await fetch("/api/context?since=" + since);
+    const [res, ures] = await Promise.all([fetch("/api/context?since=" + since), fetch("/api/usage?since=" + since).catch(() => null)]);
     if (!res.ok) throw new Error((await res.text()).trim() || res.statusText);
     report = await res.json();
+    usage = ures && ures.ok ? await ures.json() : { days: [], models: [] };
     render();
   } catch (e) { document.getElementById("body").replaceChildren(el("p", { class: "empty", text: "Could not read transcripts: " + e.message })); }
 }
