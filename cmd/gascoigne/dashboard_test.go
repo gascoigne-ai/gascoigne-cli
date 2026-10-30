@@ -67,7 +67,7 @@ func TestDashboardPages(t *testing.T) {
 		{"pricing basis", "/api/overview", `official list prices`},
 		{"costs api", "/api/costs?since=7d", `"in_context_usd"`},
 		{"costs api families", "/api/costs", `"family":"claude"`},
-		{"costs page", "/costs", `By model family`},
+		{"costs page", "/costs", `By model`},
 		{"costs page nav", "/costs", `/assets/pages.js`},
 		{"dashboard links the costs page", "/", `href="/costs"`},
 		{"sessions", "/api/sessions", `"group":"s1"`},
