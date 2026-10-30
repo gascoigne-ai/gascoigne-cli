@@ -207,3 +207,26 @@ func TestRecentRuns(t *testing.T) {
 		t.Fatalf("unknown session: %+v", got)
 	}
 }
+
+// MCP calls per day are counted by local day like the other charts: a call at
+// 00:30 in UTC+2 belongs to that local day, not to the UTC day before.
+func TestMCPCommandsAreLocalDays(t *testing.T) {
+	old := time.Local
+	time.Local = time.FixedZone("CEST", 2*3600)
+	t.Cleanup(func() { time.Local = old })
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RawTTL: time.Hour})
+	ctx := t.Context()
+	at := time.Date(2026, 10, 11, 0, 30, 0, 0, time.Local)
+	err := l.Record(ctx, component.Event{TS: at, Agent: "claude", Pipeline: "hook", Key: "k", Route: "default",
+		Command: "mcp__db__query", RawTokens: 10, OutTokens: 10, Outcome: component.Unchanged})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := l.MCPCommands(ctx, time.Date(2026, 10, 11, 0, 0, 0, 0, time.Local))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].Day != "2026-10-11" {
+		t.Fatalf("got %+v, want one call on 2026-10-11", got)
+	}
+}

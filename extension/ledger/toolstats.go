@@ -101,12 +101,12 @@ type CommandDay struct {
 func (l *Ledger) MCPCommands(ctx context.Context, since time.Time) ([]CommandDay, error) {
 	var out []CommandDay
 	tx := l.db.WithContext(ctx).Model(&event{}).
-		Select(`strftime('%Y-%m-%d', ts / 1000, 'unixepoch') AS day, agent,
+		Select(dayLocal + ` AS day, agent,
 			CASE WHEN instr(command, ' ') > 0 THEN substr(command, 1, instr(command, ' ') - 1) ELSE command END AS command,
 			count(*) AS runs`).
 		Where(`command LIKE 'mcp\_\_%' ESCAPE '\'`)
 	if !since.IsZero() {
-		tx = tx.Where("ts >= ?", since.UTC().Truncate(24*time.Hour).UnixMilli())
+		tx = tx.Where("ts >= ?", time.Date(since.Year(), since.Month(), since.Day(), 0, 0, 0, 0, since.Location()).UnixMilli())
 	}
 	err := tx.Group("day, agent, 3").Order("day, agent, command").Scan(&out).Error
 	return out, err

@@ -84,7 +84,7 @@ Read lines match by text, with a uniform line-number shift.
   (table `usage`, no session).
 - `gain` section "api usage", priced by `cost.Lookup`; JSON `api_usage`; `reset` filters apply. Each row also
   carries the mean and peak context of a request (input + cache read + cache write: the conversation it
-  re-read), and `UsageDays` sums per UTC day (`gain` table "api requests by day" from two days on, JSON
+  re-read), and `UsageDays` sums per local day (`gain` table "api requests by day" from two days on, JSON
   `api_days`, the dashboard panels "API requests by day|model" over `GET /api/usage`). No session id: see above.
 
 ## Registration with agents

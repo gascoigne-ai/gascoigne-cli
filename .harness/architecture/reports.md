@@ -43,7 +43,7 @@ sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MC
   `not seen lately` when a proxied server was last listed `staleDays` (3) or more days ago (probably
   removed: never unused, never in the nudge), `unused` with no call in `unusedDays` (7, the `Calls7` window), `rarely used` for at most `rarelyCalls`
   calls a week at `rarelyTokens` or more per request, else `used`. The constants are named in the
-  file; days are UTC.
+  file; days are local days.
 - Calls to servers that stay direct come from the hook's runs named `mcp__server__tool`
   (`MCPCommands`); a direct server is dropped only when every tool the hook saw it call is a tool one
   proxied server lists (`coveredByProxy`: the proxy already counted those calls); gascoigne's own

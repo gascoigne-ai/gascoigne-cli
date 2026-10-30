@@ -128,7 +128,7 @@ function render() {
   const how = panel("How this is computed", "", el("ul", { class: "plain" }, ...r.assumptions.map((a) => el("li", { text: a }))),
     r.unpriced_sessions ? el("p", { class: "hint", text: r.unpriced_sessions + " sessions use a model without a known price and are left out of the dollars." }) : null);
 
-  const um = usage.models.length ? panel("Requests through the proxy", "Any agent whose requests went through gascoigne's LLM proxy, not only Claude Code. Days are UTC. Context: tokens one request carries, mean and peak.",
+  const um = usage.models.length ? panel("Requests through the proxy", "Any agent whose requests went through gascoigne's LLM proxy, not only Claude Code. Context: tokens one request carries, mean and peak.",
     table(el("tr", {}, th("Agent"), th("Model"), th("Requests", true), th("Context", true), th("Peak", true), th("Cache read", true), th("Output", true)),
       usage.models.map((m) => el("tr", {}, el("td", { text: m.agent || "–" }), el("td", { text: m.model || "–" }), el("td", { class: "num", text: human(m.requests) }), el("td", { class: "num", text: human(m.mean_context) }),
         el("td", { class: "num", text: human(m.peak_context) }), el("td", { class: "num", text: human(m.cache_read) }), el("td", { class: "num", text: human(m.output) }))))) : null;

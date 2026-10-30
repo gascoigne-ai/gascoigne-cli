@@ -514,7 +514,7 @@ func (p painter) usageDaysTable(w io.Writer, days []ledger.UsageDay) {
 			{text: human(d.CacheRead), right: true}, {text: human(d.CacheWrite), right: true},
 		})
 	}
-	p.table(w, []string{"day (UTC)", "requests", "context", "peak", "cache read", "cache write"}, rows)
+	p.table(w, []string{"day", "requests", "context", "peak", "cache read", "cache write"}, rows)
 }
 
 func dollars(v float64) string {

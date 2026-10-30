@@ -13,7 +13,7 @@ func TestMoneyPagesSayWhatTheyShow(t *testing.T) {
 		html []byte
 		want []string
 	}{
-		{"costs", costsHTML, []string{"API-equivalent", "recorded no model", "factor not measured"}},
+		{"costs", costsHTML, []string{"API-equivalent", "recorded no model", "factor not measured", "Not subtracted"}},
 		{"context", contextHTML, []string{"Claude Code only", "main conversation", "Likely cause", "Total with subagents"}},
 	} {
 		for _, w := range c.want {

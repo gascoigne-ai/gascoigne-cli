@@ -114,3 +114,24 @@ func TestUsageKeepsTheHourWrites(t *testing.T) {
 		t.Fatalf("%+v %v", days, err)
 	}
 }
+
+// Days on every chart are local days. Usage was grouped by UTC day, so a
+// request at 00:30 in UTC+2 (22:30 UTC the day before) landed under yesterday.
+func TestUsageDaysAreLocalDays(t *testing.T) {
+	old := time.Local
+	time.Local = time.FixedZone("CEST", 2*3600)
+	t.Cleanup(func() { time.Local = old })
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RawTTL: time.Hour})
+	ctx := t.Context()
+	at := time.Date(2026, 10, 11, 0, 30, 0, 0, time.Local) // 22:30 UTC on the 10th
+	if err := l.RecordUsage(ctx, component.Usage{TS: at, Agent: "claude", Model: "m", Input: 1, CacheRead: 100, Output: 1}); err != nil {
+		t.Fatal(err)
+	}
+	got, err := l.UsageDays(ctx, component.StatsQuery{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].Day != "2026-10-11" {
+		t.Fatalf("got %+v, want day 2026-10-11", got)
+	}
+}

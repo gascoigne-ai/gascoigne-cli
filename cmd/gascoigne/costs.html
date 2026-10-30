@@ -45,7 +45,7 @@ function render(c) {
   const rows = c.savings || [];
   const none = "No priced savings in this period.";
   const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
-    kpi("Worth in context", usd(c.in_context_usd || 0), "saved tokens re-read by later requests, assuming " + (c.rereads || 0) + " rereads each", true),
+    kpi("Worth in context", usd(c.in_context_usd || 0), "saved tokens re-read by later requests, assuming " + (c.rereads || 0) + " rereads each (a median; the mean is higher)", true),
     kpi("Worth as first read", usd(c.first_read_usd || 0), "each saved token counted once"));
   const mod = panel("By model", "Saved is counted the way that model's tokenizer counts it. Runs that recorded no model use the agent's default, marked assumed.", table([["Model"], ["Tokenizer"], ["Saved", true], ["First read", true], ["In context", true]],
     rows.map((s) => [s.model + (s.assumed ? " (assumed)" : ""), s.tokenizer + (s.family === "gemini" ? " (factor not measured)" : ""), human(s.model_tokens), usd(s.first_read_usd), usd(s.in_context_usd)]), none));
@@ -58,6 +58,7 @@ function render(c) {
       el("li", { text: "Model: the model a run used. The proxy sees it in the API request, the Claude hook reads it from the transcript; with neither, the agent's usual model is assumed." }),
       el("li", { text: "Tokenizer: each vendor counts tokens differently, so the same text is a different number of tokens per model. Saved is in that model's units." }),
       el("li", { text: "First read: what the saved tokens would have cost once. In context: plus the later requests that read them again from the cache." }),
+      el("li", { text: "Not subtracted: the text gascoigne itself adds to a session (hook and server notes, a few hundred tokens). The Context page lists it under text added besides your prompts." }),
       el("li", { text: "Every dollar figure is API-equivalent: what the tokens cost at list prices, not what a plan or invoice charges." })));
   document.getElementById("body").replaceChildren(kpis, mod, assumedNote, unpriced, how);
   const p = c.pricing;
