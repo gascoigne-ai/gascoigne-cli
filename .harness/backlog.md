@@ -19,7 +19,10 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 - Continuity snapshot (`experimental: [continuity]`): the A/B is built, not run (costs up to $5 a run):
   `AB_BUDGET_USD=5 AB_CLAUDE_ENV=CLAUDE_CODE_AUTO_COMPACT_WINDOW=100000 AB_TAG=base .harness/scripts/ab.sh -a on -r 5 compact-continue`,
   then again with `AB_EXPERIMENTAL=continuity AB_TAG=continuity`. Compare pass rate, cost and turns of arms
-  `on-base` and `on-continuity`; runs with 0 compactions do not count. Note the task's answer survives most
+  `on-base` and `on-continuity`; runs with 0 compactions do not count. Pilot (2026-10-30): a run takes about 8
+  minutes and $3 (about 160 reads, one per turn: several per turn make the context refill and Claude Code stops with
+  "Autocompact is thrashing"). One base run passed with 9 compactions; no run with `continuity` finished, so it is
+  still unmeasured. Not run further: two runs per arm are too noisy to settle it. Note the task's answer survives most
   summaries (the snapshot lists only the agent's own calls, never read results), so expect a small effect: a
   null result means keep it experimental or drop it.
 
