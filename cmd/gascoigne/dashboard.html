@@ -136,6 +136,13 @@ button:has(.icon) { display: inline-flex; align-items: center; gap: 6px; }
 /* Cards */
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-top: 16px; box-shadow: var(--shadow); }
 h2 { margin: 0; font-size: 15px; font-weight: 650; }
+.status { display: flex; align-items: center; gap: 10px; margin: 12px 0 0; padding: 6px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; color: var(--muted); }
+.status[hidden] { display: none; }
+.status-label { font-weight: 600; text-transform: uppercase; letter-spacing: .04em; font-size: 11px; color: var(--faint); }
+.status-items { display: flex; flex-wrap: wrap; gap: 6px 14px; flex: 1; }
+.chip b { color: var(--text); font-weight: 600; }
+.chip-fact { margin-left: 8px; color: var(--accent); }
+.status-link { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
 .hint { margin: 2px 0 12px; color: var(--muted); font-size: 13px; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); margin-top: 16px; }
 .grid > .panel { margin-top: 0; display: flex; flex-direction: column; }
@@ -362,6 +369,12 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
     </div>
   </div>
 
+  <div class="status" id="experiments-panel" role="status" aria-label="Experimental features that are switched on" hidden>
+    <span class="status-label">Experimental</span>
+    <span class="status-items" id="experiments"></span>
+    <a class="status-link" href="/setup" title="Switch experiments on or off (config experimental, or gascoigne setup)">change</a>
+  </div>
+
   <section class="kpis" id="kpis" aria-label="Summary"></section>
 
   <div class="grid">
@@ -409,13 +422,13 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 
   <section class="panel tabbed" id="breakdown-panel">
     <h2>Breakdown</h2>
-    <div class="pane" data-title="By command">
-      <p class="hint">Savings per command</p>
-      <div class="scroll" id="commands"></div>
-    </div>
     <div class="pane" data-title="By optimizer">
       <p class="hint">Savings per optimizer</p>
       <div class="scroll" id="optimizers"></div>
+    </div>
+    <div class="pane" data-title="By command">
+      <p class="hint">Savings per command</p>
+      <div class="scroll" id="commands"></div>
     </div>
     <div class="pane" data-title="By content type">
       <p class="hint">Savings per detected content type</p>
@@ -429,12 +442,6 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
       <p class="hint">Sources passed through unmodified because their optimized output was insufficient. Re-enable a source to optimize it again.</p>
       <div class="scroll" id="failures"></div>
     </div>
-  </section>
-
-  <section class="panel" id="experiments-panel" hidden>
-    <h2>Experiments</h2>
-    <p class="hint">Experimental features that are switched on (config <code>experimental</code>, or gascoigne setup)</p>
-    <div class="scroll" id="experiments"></div>
   </section>
 
   <footer><span id="server-info">gascoigne server</span><br>
@@ -777,7 +784,7 @@ async function refreshOverview() {
 // panel in this browser.
 function tabbed(panel) {
   const panes = [...panel.querySelectorAll(":scope > .pane")];
-  const key = "gascoigne-tab-" + panel.id;
+  const key = "gascoigne-tab2-" + panel.id; // 2: the breakdown now opens on the optimizer tab
   let saved = null;
   try { saved = localStorage.getItem(key); } catch {}
   const bar = el("div", { class: "tabs", role: "tablist" });
@@ -792,15 +799,16 @@ function tabbed(panel) {
   show(panes.some((p) => p.dataset.title === saved) ? saved : panes[0].dataset.title);
 }
 
-// renderExperiments lists the experimental features that are on, with the
-// prose model's savings from the optimizer table.
+// renderExperiments is the status line of the experimental features that are
+// on: one chip each, the prose model's savings from the optimizer table
+// beside it, the feature's own description as the tooltip.
 function renderExperiments(list, optimizers) {
   $("experiments-panel").hidden = !list.length;
   const prose = (optimizers || []).find((r) => r.group === "prose");
-  $("experiments").replaceChildren(el("table", {}, el("tbody", {}, ...list.map((x) => {
-    const saved = x.name === "prose" && prose ? ` · saved ${human(prose.raw_tokens - prose.out_tokens)} tokens in ${human(prose.runs)} runs` : "";
-    return el("tr", {}, el("td", {}, x.title), el("td", {}, el("strong", {}, x.state)), el("td", { class: "hint" }, x.detail + saved));
-  }))));
+  $("experiments").replaceChildren(...list.map((x) => {
+    const saved = x.name === "prose" && prose ? `saved ${human(prose.raw_tokens - prose.out_tokens)} in ${human(prose.runs)} runs` : "";
+    return el("span", { class: "chip", title: x.detail }, el("b", {}, x.title), " ", x.state, saved ? el("span", { class: "chip-fact" }, saved) : null);
+  }));
 }
 
 async function refreshFailures() {

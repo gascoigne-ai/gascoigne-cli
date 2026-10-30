@@ -122,3 +122,28 @@ assert.strictEqual(proseFact(off), null);
 		}
 	}
 }
+
+// The page reads: summary first, the breakdown last and opening on the
+// optimizer tab; experiments are a status line, not a panel of their own.
+func TestDashboardLayout(t *testing.T) {
+	page := string(dashboardHTML)
+	at := func(s string) int {
+		i := strings.Index(page, s)
+		if i < 0 {
+			t.Fatalf("the page lost %s", s)
+		}
+		return i
+	}
+	if !(at(`id="experiments-panel"`) < at(`id="kpis"`) && at(`id="kpis"`) < at(`id="feed"`) && at(`id="feed"`) < at(`id="breakdown-panel"`)) {
+		t.Error("want experiments status line, summary, runs, breakdown in that order")
+	}
+	if strings.Contains(page[at(`id="breakdown-panel"`):], `class="panel"`) {
+		t.Error("something follows the breakdown as a panel of its own")
+	}
+	if !(at(`data-title="By optimizer"`) < at(`data-title="By command"`)) {
+		t.Error("the breakdown should open on the optimizer tab")
+	}
+	if strings.Contains(page, `<h2>Experiments</h2>`) {
+		t.Error("experiments came back as a panel")
+	}
+}
