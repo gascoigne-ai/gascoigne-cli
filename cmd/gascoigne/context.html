@@ -7,7 +7,8 @@
 <link rel="stylesheet" href="/assets/pages.css">
 <script src="/assets/pages.js"></script>
 <style>
-td.wrap { white-space: normal; min-width: 14em; vertical-align: middle; line-height: 1.35; }
+.grid { align-items: start; } /* a short box must not stretch to its taller neighbour */
+td.cause { white-space: normal; min-width: 14em; vertical-align: middle; line-height: 1.35; }
 svg.spark { vertical-align: middle; }
 svg.spark polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; }
 </style>
@@ -118,7 +119,7 @@ function render() {
       r.buckets.map((b) => el("tr", {}, el("td", { text: b.label }), el("td", { class: "num", text: num(b.turns) }), el("td", { class: "num", text: usd(b.cost_usd) }), el("td", {}, share(b.share))))));
   const rewrites = panel("Cache written again", "Context the previous request carried that this one did not read from the cache: the extra is what a rewrite cost over a read",
     table(el("tr", {}, th("Likely cause"), th("Requests", true), th("Tokens", true), th("Extra cost", true), th("Share", true)),
-      r.cache_rewrites.map((w) => el("tr", {}, el("td", { class: "wrap", text: w.cause }), el("td", { class: "num", text: num(w.turns) }), el("td", { class: "num", text: human(w.tokens) }),
+      r.cache_rewrites.map((w) => el("tr", {}, el("td", { class: "cause", text: w.cause }), el("td", { class: "num", text: num(w.turns) }), el("td", { class: "num", text: human(w.tokens) }),
         el("td", { class: "num", text: usd(w.cost_usd) }), el("td", { class: "num", text: (100 * w.share).toFixed(1) + "%" })))));
 
   const whatIf = panel("What compacting earlier would have saved", "Re-priced as if each conversation had been compacted when it reached the size",

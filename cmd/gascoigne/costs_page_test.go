@@ -60,3 +60,12 @@ func TestPagesDrawChartsAndSkipEmptyNotes(t *testing.T) {
 		}
 	}
 }
+
+// pages.css gives .wrap to the page container (a bottom padding of 40px), so a
+// table cell must not reuse the name: the cache-rewrite causes were pushed to
+// the top of rows 60px tall.
+func TestContextCellsDoNotReusePageClasses(t *testing.T) {
+	if strings.Contains(string(contextHTML), `class: "wrap"`) || strings.Contains(string(contextHTML), "td.wrap") {
+		t.Error("a context table cell uses the page container's .wrap class")
+	}
+}

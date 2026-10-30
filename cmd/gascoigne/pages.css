@@ -71,7 +71,7 @@ h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: .01em; }
 .toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 18px 0 4px; }
 .toolbar label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
 .toolbar .spacer { flex: 1; }
-.toolbar .hint { margin: 0; align-self: center; }
+.toolbar .hint { margin: 0; flex: 1 1 100%; } /* the description always has a full line, below the controls */
 select, button { font: 13px var(--sans); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 10px; }
 select { min-width: 170px; }
 button { cursor: pointer; }
