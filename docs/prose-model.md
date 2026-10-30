@@ -44,8 +44,8 @@ for both). Compare on your own text before switching.
 2. Enable it: `experimental: [prose]`, or answer yes in `gascoigne setup`, which also asks which model to use (saved as a preference that wins over `optimizers.prose.model`) and runs step 1 for it, checking the files of the chosen model (in the terminal it waits for the download; in the browser it downloads in the background). The server loads the
    model at start (`optimizers.prose.warm`), so the first request does not wait for it. After `optimizers.prose.idle` (default 5m, 0 keeps it) without a paragraph the model is unloaded, freeing GPU memory; the next paragraph loads it again, which takes a few seconds.
 
-Status: `gascoigne prose status` and the dashboard (*Experiments* panel, shown when any experiment is on) say `off`, `not-installed` or `ready`. The pass has its own optimizer id, `prose`, so its savings are the `prose` row of
-`gain -by optimizer` and of the *By optimizer* tab; the Experiments panel adds them to the model's state.
+Status: `gascoigne prose status` and the dashboard (the *Experimental* status line, shown when any experiment is on) say `off`, `not-installed` or `ready`. The pass has its own optimizer id, `prose`, so its savings are the `prose` row of
+`gain -by optimizer` and of the *By optimizer* tab; the status line adds them to the model's state.
 
 Device: `optimizers.prose.device`, `auto`, `cuda`, `coreml` or `cpu`. Auto tries CUDA
 (Linux, Windows) or CoreML (macOS, which uses Metal and the Neural Engine; ONNX Runtime has no

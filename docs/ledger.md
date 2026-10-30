@@ -218,8 +218,8 @@ remembered per browser.
 | Outcomes | runs and share of input tokens per outcome |
 | Recent runs | live feed, newest first: agent, command, content type (a *prose −N* tag when the prose model shortened it), tokens, saved, outcome |
 | Models and cost (tabs) | savings by model family and by model, and the proxy's API requests by day and by model |
-| Breakdown (tabs) | savings by command, by optimizer and by content type; runs not optimized (by stopping component and command, with the most recent reason); excluded sources, each with a *Re-enable* button (`forget`) |
-| Experiments | only when an experimental feature is on: each one's state (the prose model also its savings) |
+| Breakdown (tabs, last panel, opens on optimizer) | savings by optimizer, by command and by content type; runs not optimized (by stopping component and command, with the most recent reason); excluded sources, each with a *Re-enable* button (`forget`) |
+| Experiments (status line under the filters) | only when an experimental feature is on: one chip each with its state (the prose model also its savings) |
 
 The tabbed panels keep the tab you chose, per browser.
 
@@ -255,7 +255,7 @@ The page is built on a small JSON API you can also script against:
 | `GET /api/context?days=` | the context report behind the `/context` page and `gascoigne context -json`, read from Claude Code's transcripts, not the ledger |
 | `GET /api/mcp` | the MCP review behind the `/mcp` page and `gascoigne mcp-review -json` |
 | `POST /api/mcp/lazy` | `{id, tools}`: load these tools of one proxied server on request from the next session; `[]` lists them all again |
-| `GET /api/impact?session=&agent=&model=&since=` | per day: optimized runs and tokens saved, rerequested runs and tokens read twice (the dashboard's "Optimizing vs rerequesting" chart) |
+| `GET /api/impact?session=&agent=&model=&since=` | per day: optimized runs and tokens saved, rerequested runs and tokens read twice (the dashboard's "Optimizing vs rerequesting" chart; quiet days of the period are included as empty days) |
 | `GET /api/events?after=<id>&session=&agent=&model=&since=&outcome=&raw=1` (`outcome=rerequested`: optimized runs after which the agent asked for the original; `raw=1`: runs where it asked for the original straight away) | up to 200 runs newer than `after`, newest first, with steps |
 | `GET /api/stream?…` | server-sent events: the latest 100 runs, then each new batch |
 | `GET /api/raw/<id>` | an original as text (does not mark the source) |
