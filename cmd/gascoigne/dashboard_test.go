@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -521,5 +522,30 @@ func TestDashboardSessionsPeriodAndOrder(t *testing.T) {
 	}
 	if got := order("/api/sessions?since=24h"); got != "new,mid" {
 		t.Errorf("24h: %q, want new,mid", got)
+	}
+}
+
+// The impact chart showed only the days that had runs, so a quiet day vanished
+// from the period instead of showing as an empty bar like in the daily chart.
+func TestFillImpact(t *testing.T) {
+	now := time.Date(2026, 10, 29, 11, 0, 0, 0, time.Local)
+	have := []ledger.ImpactDay{{Day: "2026-10-26", Optimized: 4, Saved: 900}, {Day: "2026-10-29", Optimized: 2, Saved: 50}}
+	got := fillImpact(have, now.Add(-4*24*time.Hour), now)
+	var days []string
+	for _, d := range got {
+		days = append(days, d.Day)
+	}
+	want := []string{"2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29"}
+	if !slices.Equal(days, want) {
+		t.Fatalf("days %v, want %v", days, want)
+	}
+	if got[1].Saved != 900 || got[4].Optimized != 2 || got[2].Saved != 0 {
+		t.Errorf("data moved: %+v", got)
+	}
+	if all := fillImpact(have, time.Time{}, now); len(all) != 4 || all[0].Day != "2026-10-26" || all[3].Day != "2026-10-29" {
+		t.Errorf("all time runs from the first day with data: %+v", all)
+	}
+	if none := fillImpact(nil, time.Time{}, now); len(none) != 0 {
+		t.Errorf("no data and no period: %+v", none)
 	}
 }

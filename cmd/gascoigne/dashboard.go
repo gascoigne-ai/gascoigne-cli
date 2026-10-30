@@ -168,7 +168,7 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 			return
 		}
 		days, err := l.Impact(r.Context(), q)
-		respond(w, nonNil(days), err)
+		respond(w, nonNil(fillImpact(days, q.Since, time.Now())), err)
 	})
 	mux.HandleFunc("GET /api/sessions", func(w http.ResponseWriter, r *http.Request) {
 		q, err := statsQuery(r.URL.Query())
@@ -341,6 +341,34 @@ func statsQuery(v url.Values) (component.StatsQuery, error) {
 		q.Since = time.Now().Add(-d)
 	}
 	return q, nil
+}
+
+// fillImpact adds the quiet days of the period, as the daily chart does. With
+// no start (all time) the period begins at the first day that has data.
+func fillImpact(days []ledger.ImpactDay, since, now time.Time) []ledger.ImpactDay {
+	if since.IsZero() {
+		if len(days) == 0 {
+			return days
+		}
+		first, err := time.ParseInLocation(time.DateOnly, days[0].Day, time.Local)
+		if err != nil {
+			return days
+		}
+		since = first
+	}
+	have := map[string]ledger.ImpactDay{}
+	for _, d := range days {
+		have[d.Day] = d
+	}
+	out := []ledger.ImpactDay{}
+	for _, key := range mcptool.Days(since, now) {
+		d, ok := have[key]
+		if !ok {
+			d = ledger.ImpactDay{Day: key}
+		}
+		out = append(out, d)
+	}
+	return out
 }
 
 func respond(w http.ResponseWriter, v any, err error) {
