@@ -143,8 +143,16 @@ func TestBuildContext(t *testing.T) {
 	if r.Buckets[3].Turns == 0 || r.Buckets[0].Turns == 0 {
 		t.Fatalf("buckets %+v", r.Buckets)
 	}
-	if len(r.WhatIf) != len(thresholds) || r.WhatIf[0].SavedUSD <= 0 || r.WhatIf[1].SavedUSD <= 0 || r.WhatIf[0].SavedPct <= 0 {
+	// Compacting at 100k thrashes this session (a loss); the middle thresholds save.
+	if len(r.WhatIf) != len(thresholds) || r.WhatIf[0].SavedUSD >= 0 {
 		t.Fatalf("what-if %+v", r.WhatIf)
+	}
+	for _, w := range r.WhatIf {
+		if w.Threshold == 150_000 || w.Threshold == 250_000 {
+			if w.SavedUSD <= 0 || w.SavedPct <= 0 {
+				t.Fatalf("what-if %+v", r.WhatIf)
+			}
+		}
 	}
 	if len(r.Assumptions) < 3 || !strings.Contains(strings.Join(r.Assumptions, " "), "detail") {
 		t.Fatalf("assumptions %v", r.Assumptions)

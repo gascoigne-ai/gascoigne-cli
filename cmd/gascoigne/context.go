@@ -46,7 +46,7 @@ const (
 )
 
 // thresholds are the contexts a what-if compacts at.
-var thresholds = []int{150_000, 250_000, 400_000}
+var thresholds = []int{100_000, 150_000, 200_000, 250_000, 300_000, 400_000}
 
 // turn is one model request of a session.
 type turn struct {
@@ -928,7 +928,7 @@ func printContext(w io.Writer, r contextReport) {
 	}
 	tw.Flush()
 	if r.BestWindow > 0 {
-		fmt.Fprintf(w, "\nThe best of these what-ifs is %dk. Experimental: gascoigne setup -experimental can make claude compact at 250k.\n", r.BestWindow/1000)
+		fmt.Fprintf(w, "\nThe best of these what-ifs is %dk. The experimental switch in gascoigne setup -experimental compacts claude at %dk.\n", r.BestWindow/1000, compactWindow/1000)
 	}
 	fmt.Fprintln(w, "\nLargest sessions:")
 	top := slices.Clone(r.Sessions)

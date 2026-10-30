@@ -11,7 +11,7 @@ session id and per-turn usage (the LLM proxy has no session).
   Model names are normalized (`anthropic/claude-sonnet-5.5` → `claude-sonnet-5-5`) before `cost.Lookup`.
 - Cost at list prices, 5-minute cache writes. Buckets split the cost by the context of the request.
 - `simulate(turns, limit, floor, model)` re-prices a session as if compacted when its context passed `limit`
-  (150k, 250k, 400k; a conversation restarts at `floor`, the smallest context of the whole session even before the
+  (100k to 400k: 100k, 150k, 200k, 250k, 300k, 400k, `thresholds`; a conversation restarts at `floor`, the smallest context of the whole session even before the
   period, and a limit it could not shrink below is skipped): reads for what was cached, writes for what is new, one full-context request plus a
   12k summary per compaction, growth as it was; a real reset is followed, not compacted twice. The same model
   prices the baseline, so thresholds compare with each other (within 5% of the actual cost on a real

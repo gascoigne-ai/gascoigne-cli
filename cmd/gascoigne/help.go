@@ -183,8 +183,8 @@ func init() {
 			summary: "how big conversations get, where the money goes, what compacting earlier would save",
 			about: "Reads Claude Code's own transcripts (they hold the usage of every request, with a session id\n" +
 				"the LLM proxy never sees) and shows, at API list prices, how the cost splits by the size of the\n" +
-				"conversation each request re-read, your biggest sessions, and what compacting at 150k, 250k and\n" +
-				"400k tokens would have saved. Opens a page in the dashboard; -text prints the table, -json the\n" +
+				"conversation each request re-read, your biggest sessions, and what compacting at 100k to 400k\n" +
+				"tokens would have saved. Opens a page in the dashboard; -text prints the table, -json the\n" +
 				"report. Nothing leaves the machine and nothing is changed; compacting saves tokens, not detail.",
 			examples: []string{"gascoigne context", "gascoigne context -since 30d -text"},
 			run:      cmdContext},

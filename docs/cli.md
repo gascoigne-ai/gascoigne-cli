@@ -129,8 +129,8 @@ re-read, how much of it was written to the cache again instead of read (after a 
 the cache lives, after a compaction, or when the cached start of the conversation changed), the text added to conversations besides your prompts (instruction files, the skill listing and what hooks and
 plugins print, named by the command they ran, with its cost), your largest
 sessions with their session id (copy it to check a session: `claude --resume <id>` opens it, and the id
-names the transcript under `~/.claude/projects`) and the context over time, what the compactions you made cost and saved, and what compacting at 150k, 250k or
-400k tokens would have saved. On one real machine 42% of a month's cost came from requests above 400k
+names the transcript under `~/.claude/projects`) and the context over time, what the compactions you made cost and saved, and what compacting at 100k to 400k tokens would have saved
+(100k loses money: the conversation cannot shrink below what it restarts at, so it compacts again and again). On one real machine 42% of a month's cost came from requests above 400k
 tokens of context.
 
 The what-if uses one simple model for every threshold (cache reads for what was cached, writes for what
