@@ -136,13 +136,22 @@ button:has(.icon) { display: inline-flex; align-items: center; gap: 6px; }
 /* Cards */
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-top: 16px; box-shadow: var(--shadow); }
 h2 { margin: 0; font-size: 15px; font-weight: 650; }
-.status { display: flex; align-items: center; gap: 10px; margin: 12px 0 0; padding: 6px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; color: var(--muted); }
+.status { display: flex; align-items: center; gap: 12px; margin: 14px 0 0; padding: 7px 8px 7px 12px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; font-size: 12.5px; color: var(--muted);
+  background: linear-gradient(90deg, var(--accent-soft), var(--surface) 55%); }
 .status[hidden] { display: none; }
-.status-label { font-weight: 600; text-transform: uppercase; letter-spacing: .04em; font-size: 11px; color: var(--faint); }
-.status-items { display: flex; flex-wrap: wrap; gap: 6px 14px; flex: 1; }
+.status-label { display: inline-flex; align-items: center; gap: 6px; flex: none; font-weight: 700; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.status-label .icon { width: 15px; height: 15px; }
+.status-items { display: flex; flex-wrap: wrap; gap: 6px 8px; flex: 1; min-width: 0; }
+.chip { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; padding: 3px 10px 3px 9px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; line-height: 1.4; white-space: nowrap; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+.chip.on::before, .chip.ready::before { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.chip.not-installed::before { background: var(--warn); box-shadow: 0 0 0 3px var(--warn-soft); }
 .chip b { color: var(--text); font-weight: 600; }
-.chip-fact { margin-left: 8px; color: var(--accent); }
-.status-link { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.chip .state { color: var(--faint); font-size: 11.5px; }
+.chip-fact { padding: 0 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: 11.5px; }
+.status-link { flex: none; padding: 3px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; border: 1px solid transparent; }
+.status-link:hover { color: var(--accent); border-color: var(--border-strong); background: var(--surface); }
+@media (max-width: 640px) { .status { flex-wrap: wrap; } }
 .hint { margin: 2px 0 12px; color: var(--muted); font-size: 13px; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); margin-top: 16px; }
 .grid > .panel { margin-top: 0; display: flex; flex-direction: column; }
@@ -370,7 +379,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
   </div>
 
   <div class="status" id="experiments-panel" role="status" aria-label="Experimental features that are switched on" hidden>
-    <span class="status-label">Experimental</span>
+    <span class="status-label" id="status-label">Experimental</span>
     <span class="status-items" id="experiments"></span>
     <a class="status-link" href="/setup" title="Switch experiments on or off (config experimental, or gascoigne setup)">change</a>
   </div>
@@ -496,6 +505,7 @@ const ICON_SHAPES = {
   skip: [["polygon", { points: "5 4 15 12 5 20 5 4" }], ["path", { d: "M19 5v14" }]],
   alert: [["path", { d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" }], ["path", { d: "M12 9v4M12 17h.01" }]],
   x: [["path", { d: "M18 6 6 18M6 6l12 12" }]],
+  flask: [["path", { d: "M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" }], ["path", { d: "M8.5 2h7M7 16h10" }]],
   down: [["path", { d: "m7 6 5 5 5-5" }], ["path", { d: "m7 13 5 5 5-5" }]],
 };
 function icon(name) {
@@ -509,6 +519,7 @@ function icon(name) {
   return svg;
 }
 for (const b of document.querySelectorAll("button[data-icon]")) b.prepend(icon(b.dataset.icon));
+$("status-label").prepend(icon("flask"));
 
 function human(n) {
   n = n || 0;
@@ -807,7 +818,7 @@ function renderExperiments(list, optimizers) {
   const prose = (optimizers || []).find((r) => r.group === "prose");
   $("experiments").replaceChildren(...list.map((x) => {
     const saved = x.name === "prose" && prose ? `saved ${human(prose.raw_tokens - prose.out_tokens)} in ${human(prose.runs)} runs` : "";
-    return el("span", { class: "chip", title: x.detail }, el("b", {}, x.title), " ", x.state, saved ? el("span", { class: "chip-fact" }, saved) : null);
+    return el("span", { class: "chip " + x.state, title: x.detail }, el("b", {}, x.title), el("span", { class: "state" }, x.state), saved ? el("span", { class: "chip-fact" }, saved) : null);
   }));
 }
 

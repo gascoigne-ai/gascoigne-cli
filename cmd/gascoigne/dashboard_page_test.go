@@ -143,6 +143,9 @@ func TestDashboardLayout(t *testing.T) {
 	if !(at(`data-title="By optimizer"`) < at(`data-title="By command"`)) {
 		t.Error("the breakdown should open on the optimizer tab")
 	}
+	for _, want := range []string{`icon("flask")`, `class: "chip " + x.state`, `.chip.ready::before`, `.chip.not-installed::before`} {
+		at(want) // the status line draws a flask, and a chip per state
+	}
 	if strings.Contains(page, `<h2>Experiments</h2>`) {
 		t.Error("experiments came back as a panel")
 	}
