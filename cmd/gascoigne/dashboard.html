@@ -149,7 +149,7 @@ h2 { margin: 0; font-size: 15px; font-weight: 650; }
 .chip b { color: var(--text); font-weight: 600; }
 .chip .state { color: var(--faint); font-size: 11.5px; }
 .chip-fact { padding: 0 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: 11.5px; }
-.status-link { flex: none; padding: 3px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; border: 1px solid transparent; }
+.status-link { flex: none; }
 .status-link:hover { color: var(--accent); border-color: var(--border-strong); background: var(--surface); }
 @media (max-width: 640px) { .status { flex-wrap: wrap; } }
 .hint { margin: 2px 0 12px; color: var(--muted); font-size: 13px; }
@@ -243,6 +243,8 @@ dialog::backdrop { background: rgba(15, 18, 24, .5); }
 .tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--muted); padding: 7px 12px; font-weight: 600; }
 .tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
 .panel > .tabs { padding: 0; margin: -4px 0 12px; flex-wrap: wrap; }
+.tabbed > .pane > .hint { display: none; } /* the description sits in the head, beside the tabs */
+.seg { flex-wrap: wrap; }
 .pane[hidden] { display: none; }
 .dlg-body { padding: 14px 18px 18px; overflow: auto; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .dlg-body .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 0; margin-bottom: 10px; font-size: 12.5px; color: var(--muted); }
@@ -425,23 +427,23 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 
   <section class="panel tabbed" id="breakdown-panel">
     <h2>Breakdown</h2>
-    <div class="pane" data-title="By optimizer">
+    <div class="pane" data-title="By optimizer" data-icon="sliders">
       <p class="hint">Savings per optimizer</p>
       <div class="scroll" id="optimizers"></div>
     </div>
-    <div class="pane" data-title="By command">
+    <div class="pane" data-title="By command" data-icon="terminal">
       <p class="hint">Savings per command</p>
       <div class="scroll" id="commands"></div>
     </div>
-    <div class="pane" data-title="By content type">
+    <div class="pane" data-title="By content type" data-icon="file">
       <p class="hint">Savings per detected content type</p>
       <div class="scroll" id="dialects"></div>
     </div>
-    <div class="pane" data-title="Not optimized">
+    <div class="pane" data-title="Not optimized" data-icon="skip">
       <p class="hint">Skipped by a filter, failed, or left unchanged, with the most recent reason</p>
       <div class="scroll" id="reasons"></div>
     </div>
-    <div class="pane" data-title="Excluded sources">
+    <div class="pane" data-title="Excluded sources" data-icon="x">
       <p class="hint">Sources passed through unmodified because their optimized output was insufficient. Re-enable a source to optimize it again.</p>
       <div class="scroll" id="failures"></div>
     </div>
@@ -450,7 +452,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
   <div class="status" id="experiments-panel" role="status" aria-label="Experimental features that are switched on" hidden>
     <span class="status-label" id="status-label">Experimental</span>
     <span class="status-items" id="experiments"></span>
-    <a class="status-link" href="/setup" title="Switch experiments on or off (config experimental, or gascoigne setup)">change</a>
+    <button type="button" class="status-link" data-icon="sliders" onclick="location.href='/setup'" title="Switch experiments on or off (config experimental, or gascoigne setup)">Change</button>
   </div>
 
   <footer><span id="server-info">gascoigne server</span><br>
@@ -506,6 +508,9 @@ const ICON_SHAPES = {
   alert: [["path", { d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" }], ["path", { d: "M12 9v4M12 17h.01" }]],
   x: [["path", { d: "M18 6 6 18M6 6l12 12" }]],
   flask: [["path", { d: "M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" }], ["path", { d: "M8.5 2h7M7 16h10" }]],
+  sliders: [["path", { d: "M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" }]],
+  terminal: [["path", { d: "m4 17 6-6-6-6" }], ["path", { d: "M12 19h8" }]],
+  file: [["path", { d: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" }], ["path", { d: "M14 2v6h6" }]],
   down: [["path", { d: "m7 6 5 5 5-5" }], ["path", { d: "m7 13 5 5 5-5" }]],
 };
 function icon(name) {
@@ -798,15 +803,20 @@ function tabbed(panel) {
   const key = "gascoigne-tab2-" + panel.id; // 2: the breakdown now opens on the optimizer tab
   let saved = null;
   try { saved = localStorage.getItem(key); } catch {}
-  const bar = el("div", { class: "tabs", role: "tablist" });
+  const hint = el("p", { class: "hint" });
+  const bar = el("span", { class: "seg", role: "group", "aria-label": "Breakdown by" });
+  const head = el("div", { class: "feed-head" }, hint, bar);
   const show = (title) => {
-    for (const b of bar.children) b.setAttribute("aria-selected", b.textContent === title);
-    for (const p of panes) p.hidden = p.dataset.title !== title;
+    for (const b of bar.children) b.setAttribute("aria-pressed", b.textContent === title);
+    for (const p of panes) {
+      p.hidden = p.dataset.title !== title;
+      if (!p.hidden) hint.textContent = p.querySelector(".hint")?.textContent || "";
+    }
     try { localStorage.setItem(key, title); } catch {}
   };
   bar.replaceChildren(...panes.map((p) =>
-    el("button", { role: "tab", onclick: () => show(p.dataset.title) }, p.dataset.title)));
-  panel.querySelector("h2").after(bar);
+    el("button", { type: "button", "aria-pressed": "false", onclick: () => show(p.dataset.title) }, icon(p.dataset.icon), p.dataset.title)));
+  panel.querySelector("h2").after(head);
   show(panes.some((p) => p.dataset.title === saved) ? saved : panes[0].dataset.title);
 }
 

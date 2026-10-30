@@ -146,6 +146,14 @@ func TestDashboardLayout(t *testing.T) {
 	for _, want := range []string{`icon("flask")`, `class: "chip " + x.state`, `.chip.ready::before`, `.chip.not-installed::before`} {
 		at(want) // the status line draws a flask, and a chip per state
 	}
+	// The breakdown reads like Recent runs: a description beside a segmented control with icons.
+	for _, want := range []string{`class: "feed-head"`, `class: "seg", role: "group", "aria-label": "Breakdown by"`, `icon(p.dataset.icon)`, `data-icon="sliders" onclick`} {
+		at(want)
+	}
+	if strings.Contains(page, `class: "tabs", role: "tablist" });
+  const show`) || strings.Contains(page, `>change</a>`) {
+		t.Error("the breakdown tabs or the change link came back")
+	}
 	if strings.Contains(page, `<h2>Experiments</h2>`) {
 		t.Error("experiments came back as a panel")
 	}

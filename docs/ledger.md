@@ -218,8 +218,8 @@ remembered per browser.
 | Outcomes | runs and share of input tokens per outcome |
 | Recent runs | live feed, newest first: agent, command, content type (a *prose −N* tag when the prose model shortened it), tokens, saved, outcome |
 | Models and cost (tabs) | savings by model family and by model, and the proxy's API requests by day and by model |
-| Breakdown (tabs, opens on optimizer) | savings by optimizer, by command and by content type; runs not optimized (by stopping component and command, with the most recent reason); excluded sources, each with a *Re-enable* button (`forget`) |
-| Experiments (status line at the bottom) | only when an experimental feature is on: one chip each with its state (the prose model also its savings) |
+| Breakdown (icon tabs beside a description like Recent runs, opens on optimizer) | savings by optimizer, by command and by content type; runs not optimized (by stopping component and command, with the most recent reason); excluded sources, each with a *Re-enable* button (`forget`) |
+| Experiments (status line at the bottom) | only when an experimental feature is on: one chip each with its state (the prose model also its savings), and a *Change* button to `/setup` |
 
 The tabbed panels keep the tab you chose, per browser.
 
