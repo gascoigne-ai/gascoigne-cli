@@ -16,6 +16,12 @@
 # Variants: -a picks arms ("on" alone to compare builds), AB_TAG labels the
 # rows (arm "on-<tag>"), so a change to gascoigne itself can be A/B tested
 # by running once per build, or a change to the worktree with AB_PREPARE.
+# Compaction: AB_CLAUDE_ENV (space-separated NAME=value) is set for both arms, e.g.
+# "CLAUDE_CODE_AUTO_COMPACT_WINDOW=100000" to force compactions, and AB_EXPERIMENTAL
+# (a GASCOIGNE_EXPERIMENTAL list, e.g. continuity) for the "on" arm only; compare
+# "-a on" runs with and without it using AB_TAG. The compactions column counts the
+# run's compact summaries in its transcript: a run with 0 did not test compaction.
+# Task compact-continue needs AB_BUDGET_USD=5 (it reads a hundred thousand tokens).
 # Usage: .harness/scripts/ab.sh [-n] [-r repeats=3] [-m model] [-a "off on"] [task...]
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -68,12 +74,13 @@ fi
 # gascoigne's own proxy, whose upstream is OpenRouter.
 penv=()
 providerEnv() {
-	penv=()
+	penv=(${AB_CLAUDE_ENV:-})
+	[ "$1" = on ] && [ -n "${AB_EXPERIMENTAL:-}" ] && penv+=(GASCOIGNE_EXPERIMENTAL="$AB_EXPERIMENTAL")
 	[ -n "$key" ] || return 0
 	if [ "$1" = off ]; then
-		penv=(ANTHROPIC_BASE_URL=$openrouter ANTHROPIC_AUTH_TOKEN="$key" ANTHROPIC_API_KEY=)
+		penv+=(ANTHROPIC_BASE_URL=$openrouter ANTHROPIC_AUTH_TOKEN="$key" ANTHROPIC_API_KEY=)
 	else
-		penv=(GASCOIGNE_CONFIG="$tmp/ab.yaml" GASCOIGNE_SERVER_ADDR=$abaddr ANTHROPIC_AUTH_TOKEN="$key" ANTHROPIC_API_KEY=)
+		penv+=(GASCOIGNE_CONFIG="$tmp/ab.yaml" GASCOIGNE_SERVER_ADDR=$abaddr ANTHROPIC_AUTH_TOKEN="$key" ANTHROPIC_API_KEY=)
 	fi
 }
 
@@ -93,6 +100,15 @@ setup() {
 	# AB_PREPARE (a shell command, $gascoigne set) changes the worktree for a
 	# variant, e.g. pruned instruction files.
 	[ -z "${AB_PREPARE:-}" ] || (cd "$dir" && gascoigne=$gascoigne sh -c "$AB_PREPARE" > /dev/null)
+}
+
+# compactions counts the compact summaries in the transcript of the run in run.json.
+compactions() {
+	local sid transcript
+	sid=$(jq -r ".session_id // empty" "$1" 2>/dev/null) || { echo 0; return; }
+	[ -n "$sid" ] || { echo 0; return; }
+	transcript=$(find "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/projects" -name "$sid.jsonl" -print -quit 2>/dev/null)
+	[ -n "$transcript" ] && grep -c '"isCompactSummary":true' "$transcript" || echo 0
 }
 
 check() {
@@ -118,7 +134,7 @@ fi
 flags=(-p --output-format json --model "$model" --max-budget-usd "$budget"
 	--setting-sources project,local --strict-mcp-config
 	--permission-mode acceptEdits --allowedTools "Bash Read Edit Write Grep Glob")
-[ -f "$results" ] || printf 'time\ttask\tarm\tpass\tcost_usd\tinput\tcache_read\tcache_write\toutput\tturns\tseconds\n' > "$results"
+[ -f "$results" ] || printf 'time\ttask\tarm\tpass\tcost_usd\tinput\tcache_read\tcache_write\toutput\tturns\tseconds\tcompactions\n' > "$results"
 for ((rep = 1; rep <= repeats; rep++)); do
 	for task in "${tasks[@]}"; do
 		prompt=$(cat "testdata/ab/$task/prompt.txt")
@@ -138,18 +154,19 @@ for ((rep = 1; rep <= repeats; rep++)); do
 			git -C "$dir" diff --stat >> "$out/$task-$label.check"
 			cp "$tmp/run.err" "$out/$task-$label.err" # last run's stderr, for failed runs
 			cp "$tmp/run.json" "$out/$task-$label.json"
-			[ -s "$tmp/run.json" ] && jq -r --arg t "$task" --arg a "$label" --arg p $pass '[(now|todate), $t, $a, $p, .total_cost_usd, .usage.input_tokens,
+			comp=$(compactions "$tmp/run.json")
+			[ -s "$tmp/run.json" ] && jq -r --arg t "$task" --arg a "$label" --arg p $pass --arg c "$comp" '[(now|todate), $t, $a, $p, .total_cost_usd, .usage.input_tokens,
 				.usage.cache_read_input_tokens, .usage.cache_creation_input_tokens, .usage.output_tokens, .num_turns,
-				(.duration_ms/1000|floor)] | @tsv' "$tmp/run.json" >> "$results" ||
-				printf '%s\t%s\t%s\t0\t\t\t\t\t\t\t\n' "$(date -Is)" "$task" "$label" >> "$results"
-			echo "$task $label #$rep: pass=$pass"
+				(.duration_ms/1000|floor), $c] | @tsv' "$tmp/run.json" >> "$results" ||
+				printf '%s\t%s\t%s\t0\t\t\t\t\t\t\t\t\n' "$(date -Is)" "$task" "$label" >> "$results"
+			echo "$task $label #$rep: pass=$pass compactions=${comp:-0}"
 			git worktree remove --force "$dir"
 		done
 	done
 done
 
 echo
-awk -F'\t' 'NR > 1 { n[$3]++; p[$3] += $4; c[$3] += $5; i[$3] += $6 + $7 + $8; t[$3] += $10 }
-	END { printf "arm\truns\tpass\tmean cost\tmean input tok\tmean turns\n"
-		for (a in n) printf "%s\t%d\t%.0f%%\t$%.3f\t%.0f\t%.1f\n", a, n[a], 100*p[a]/n[a], c[a]/n[a], i[a]/n[a], t[a]/n[a] }' "$results" | column -t -s $'\t'
+awk -F'\t' 'NR > 1 { n[$3]++; p[$3] += $4; c[$3] += $5; i[$3] += $6 + $7 + $8; t[$3] += $10; k[$3] += $12 }
+	END { printf "arm\truns\tpass\tmean cost\tmean input tok\tmean turns\tmean compactions\n"
+		for (a in n) printf "%s\t%d\t%.0f%%\t$%.3f\t%.0f\t%.1f\t%.1f\n", a, n[a], 100*p[a]/n[a], c[a]/n[a], i[a]/n[a], t[a]/n[a], k[a]/n[a] }' "$results" | column -t -s $'\t'
 echo "(all runs so far in $results)"

@@ -16,8 +16,12 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   `keep` strings intact, goldens reviewed.
 - Usage: compare measured input with tokens saved per agent (the 1h vs 5-minute cache-write split is done).
 
-- Continuity snapshot (`experimental: [continuity]`): A/B on a task that forces a compaction (tokens
-  added at each compaction vs rework avoided) is not run; keep it experimental until it is.
+- Continuity snapshot (`experimental: [continuity]`): the A/B is built, not run (costs up to $5 a run):
+  `AB_BUDGET_USD=5 AB_CLAUDE_ENV=CLAUDE_CODE_AUTO_COMPACT_WINDOW=100000 AB_TAG=base .harness/scripts/ab.sh -a on -r 5 compact-continue`,
+  then again with `AB_EXPERIMENTAL=continuity AB_TAG=continuity`. Compare pass rate, cost and turns of arms
+  `on-base` and `on-continuity`; runs with 0 compactions do not count. Note the task's answer survives most
+  summaries (the snapshot lists only the agent's own calls, never read results), so expect a small effect: a
+  null result means keep it experimental or drop it.
 
 - `learn` (experimental): the two habits are the ones the ledger can show; value on real ledgers is
   unmeasured (do the proposed lines change agent behavior?). Failed-command repeats need the exit code,
