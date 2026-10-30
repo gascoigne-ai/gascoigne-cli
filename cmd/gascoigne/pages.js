@@ -89,7 +89,7 @@
   const bars = (host, items) => {
     const best = Math.max(...items.map((i) => i.value), 0);
     host.classList.add("days");
-    host.classList.toggle("dense", items.length > 12);
+    host.classList.toggle("dense", items.length > 16);
     const every = Math.ceil(items.length / 10);
     host.replaceChildren(...items.map((it, n) => {
       const col = el("div", { class: "col" + (it.value > 0 ? "" : " quiet"), title: it.title || "" });

@@ -175,3 +175,12 @@ svg.area .grid { stroke: var(--border-strong); stroke-width: 1; stroke-dasharray
 svg.area .limit { stroke: var(--warn); stroke-width: 1; stroke-dasharray: 4 3; }
 svg.area text { fill: var(--faint); font-size: 10.5px; font-family: var(--sans); }
 @media (max-width: 640px) { .hbar { grid-template-columns: 1fr; gap: 4px; } .hbar .fig { text-align: left; } }
+ul.plain.cols { max-width: none; columns: 2 420px; column-gap: 40px; }
+ul.plain.cols li { break-inside: avoid; margin-bottom: 6px; }
+td.cause { white-space: normal; min-width: 12em; line-height: 1.35; }
+.stack { display: flex; height: 18px; border-radius: 9px; overflow: hidden; background: var(--track); margin: 4px 0 6px; }
+.stack span { display: block; height: 100%; background: var(--accent); border-right: 2px solid var(--surface); }
+.stack span:last-child { border-right: 0; }
+.grid > .panel > .alert-box { margin-top: auto; }
+.grid > .panel { display: flex; flex-direction: column; }
+.grid > .panel > .scroll { margin-top: 6px; }

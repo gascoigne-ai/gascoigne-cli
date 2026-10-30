@@ -22,6 +22,7 @@
       </select>
     </label>
     <div class="spacer"></div>
+    <p class="hint">What the tokens gascoigne saved would have cost: once when read, and again each time a later request re-reads them from the cache.</p>
     <p class="hint" id="pricing"></p>
   </div>
   <div id="body"><p class="empty">Loading…</p></div>
@@ -55,7 +56,7 @@ function render(c) {
     ? el("p", { class: "hint", text: Math.round(100 * assumedUSD / c.in_context_usd) + "% of the in-context figure is for runs that recorded no model, priced as the agent's usual model." }) : null;
   const unpriced = c.unpriced && c.unpriced.length ? el("p", { class: "hint", text: "No known price, left out of the dollars: " + c.unpriced.join(", ") }) : null;
   const how = panel("How to read this", "",
-    el("ul", { class: "plain" },
+    el("ul", { class: "plain cols" },
       el("li", { text: "Model: the model a run used. The proxy sees it in the API request, the Claude hook reads it from the transcript; with neither, the agent's usual model is assumed." }),
       el("li", { text: "Tokenizer: each vendor counts tokens differently, so the same text is a different number of tokens per model. Saved is in that model's units." }),
       el("li", { text: "First read: what the saved tokens would have cost once. In context: plus the later requests that read them again from the cache." }),
@@ -68,9 +69,8 @@ function render(c) {
       fig: el("span", {}, el("b", { text: usd(s.in_context_usd) }), " · " + Math.round(100 * s.in_context_usd / (c.in_context_usd || 1)) + "%"),
     }))),
     el("p", { class: "legend" }, el("span", {}, el("i", { class: "legend-dot" }), "model recorded"), el("span", {}, el("i", { class: "legend-dot warn" }), "model assumed"))) : null;
-  const intro = el("p", { class: "hint", text: "What the tokens gascoigne saved would have cost: once when read, and again each time a later request re-reads them from the cache." });
   // replaceChildren turns a null into the text "null": leave the empty ones out.
-  document.getElementById("body").replaceChildren(...[intro, kpis, worth, mod, assumedNote, unpriced, how].filter(Boolean));
+  document.getElementById("body").replaceChildren(...[kpis, el("div", { class: "grid" }, ...[worth, mod].filter(Boolean)), assumedNote, unpriced, how].filter(Boolean));
   const p = c.pricing;
   document.getElementById("pricing").replaceChildren(...(p ? [`Dollar figures are ${p.basis}; prices checked ${p.checked}. Sources: `,
     ...p.sources.flatMap((s, i) => [i ? ", " : "", el("a", { href: s, target: "_blank", rel: "noopener", text: new URL(s).hostname })])] : []));

@@ -7,8 +7,6 @@
 <link rel="stylesheet" href="/assets/pages.css">
 <script src="/assets/pages.js"></script>
 <style>
-.grid { align-items: start; } /* a short box must not stretch to its taller neighbour */
-td.cause { white-space: normal; min-width: 14em; vertical-align: middle; line-height: 1.35; }
 svg.spark { vertical-align: middle; }
 svg.spark polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; }
 </style>
@@ -114,7 +112,13 @@ function render() {
   const dayBars = el("div", {});
   G.bars(dayBars, r.days.map((d) => ({ label: d.day.slice(5), text: usd(d.cost_usd), value: d.cost_usd, title: `${d.day}: ${usd(d.cost_usd)} over ${num(d.turns)} requests` })));
   const daily = panel("Cost per day", "What the main conversations cost each day at API list prices; quiet days stay on the axis. Subagents are not in it.", dayBars);
-  const buckets = panel("Where the money goes", "Cost by the size of the conversation each request re-read",
+  const stack = el("div", { class: "stack", role: "img", "aria-label": "cost share by context size" }, ...r.buckets.map((b, i) => {
+    const seg = el("span", { title: `${b.label}: ${usd(b.cost_usd)} (${Math.round(100 * b.share)}%)` });
+    seg.style.width = (100 * b.share) + "%"; seg.style.opacity = String(0.3 + 0.7 * i / Math.max(r.buckets.length - 1, 1));
+    return seg;
+  }));
+  const stackKey = el("p", { class: "legend" }, ...r.buckets.map((b, i) => el("span", {}, el("i", { class: "legend-dot", style: "opacity:" + (0.3 + 0.7 * i / Math.max(r.buckets.length - 1, 1)) }), b.label)));
+  const buckets = panel("Where the money goes", "Cost by the size of the conversation each request re-read", stack, stackKey,
     table(el("tr", {}, th("Context of a request"), th("Requests", true), th("Cost", true), th("Share of cost")),
       r.buckets.map((b) => el("tr", {}, el("td", { text: b.label }), el("td", { class: "num", text: num(b.turns) }), el("td", { class: "num", text: usd(b.cost_usd) }), el("td", {}, share(b.share))))));
   const rewrites = panel("Cache written again", "Context the previous request carried that this one did not read from the cache: the extra is what a rewrite cost over a read",
@@ -130,7 +134,7 @@ function render() {
 
   const injected = panel("Text added besides your prompts", "Instruction files, the skill listing and what hooks and plugins print. It is written to the cache once and read again by every later request of the session",
     r.injected.length ? table(el("tr", {}, th("Source"), th("Times", true), th("Per time", true), th("Cost", true), th("Share of cost", true)),
-      r.injected.slice(0, 12).map((x) => el("tr", {}, el("td", { text: x.source }), el("td", { class: "num", text: num(x.times) }), el("td", { class: "num", text: human(x.per_time) + " tokens" }),
+      r.injected.slice(0, 12).map((x) => el("tr", {}, el("td", { class: "cause", text: x.source }), el("td", { class: "num", text: num(x.times) }), el("td", { class: "num", text: human(x.per_time) + " tokens" }),
         el("td", { class: "num", text: usd(x.cost_usd) }), el("td", { class: "num", text: (100 * x.share).toFixed(1) + "%" })))) : el("p", { class: "empty", text: "Nothing recorded in this period." }));
 
   const c = cols[sort.col];
@@ -152,14 +156,14 @@ function render() {
       return opened.has(s.id) ? [row, detail(s)] : [row];
     })));
 
-  const how = panel("How this is computed", "", el("ul", { class: "plain" }, ...r.assumptions.map((a) => el("li", { text: a }))),
+  const how = panel("How this is computed", "", el("ul", { class: "plain cols" }, ...r.assumptions.map((a) => el("li", { text: a }))),
     r.unpriced_sessions ? el("p", { class: "hint", text: r.unpriced_sessions + " sessions use a model without a known price and are left out of the dollars." }) : null);
 
   const um = usage.models.length ? panel("Requests through the proxy", "Any agent whose requests went through gascoigne's LLM proxy, not only Claude Code. Context: tokens one request carries, mean and peak.",
     table(el("tr", {}, th("Agent"), th("Model"), th("Requests", true), th("Context", true), th("Peak", true), th("Cache read", true), th("Output", true)),
       usage.models.map((m) => el("tr", {}, el("td", { text: m.agent || "–" }), el("td", { text: m.model || "–" }), el("td", { class: "num", text: human(m.requests) }), el("td", { class: "num", text: human(m.mean_context) }),
         el("td", { class: "num", text: human(m.peak_context) }), el("td", { class: "num", text: human(m.cache_read) }), el("td", { class: "num", text: human(m.output) }))))) : null;
-  root.replaceChildren(kpis, daily, el("div", { class: "grid" }, buckets, rewrites), whatIf, injected, sessionsPanel, ...(um ? [um] : []), how);
+  root.replaceChildren(kpis, daily, el("div", { class: "grid" }, buckets, rewrites), el("div", { class: "grid" }, whatIf, injected), sessionsPanel, ...(um ? [um] : []), how);
 }
 
 async function load() {
