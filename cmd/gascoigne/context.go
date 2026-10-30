@@ -176,6 +176,7 @@ type contextReport struct {
 	Days          []contextDay        `json:"days"`      // cost per local day, quiet days included
 	Buckets       []contextBucket     `json:"buckets"`
 	WhatIf        []whatIf            `json:"what_if"`
+	BestWindow    int                 `json:"best_window"` // the what-if threshold that saved most, 0 when none saved anything
 	Rewrites      []cacheRewrite      `json:"cache_rewrites"`
 	Compactions   compactionEconomics `json:"compactions"`
 	Injected      []injectedSource    `json:"injected"`
@@ -713,6 +714,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		}
 	}
 	r.WhatIf = wi
+	r.BestWindow = bestWindow(wi)
 	r.Assumptions = []string{
 		"Dollars are what the tokens would cost at API list prices, cache writes at the 5-minute or 1-hour rate the transcript records; a subscription does not bill per token.",
 		fmt.Sprintf("A compaction is assumed to cost one request over the whole context plus a %dk-token summary; later turns grow as they did.", summaryTokens/1000),
@@ -862,6 +864,17 @@ func cmdContext(ctx context.Context, args []string) error {
 	return nil
 }
 
+// bestWindow is the threshold of the what-if that saved most, 0 when none did.
+func bestWindow(wi []whatIf) int {
+	best, saved := 0, 0.0
+	for _, x := range wi {
+		if x.SavedUSD > saved {
+			best, saved = x.Threshold, x.SavedUSD
+		}
+	}
+	return best
+}
+
 // periodLabel says a number of hours the way a person would: "24 hours", "14 days".
 func periodLabel(hours int) string {
 	if hours < 48 {
@@ -914,6 +927,9 @@ func printContext(w io.Writer, r contextReport) {
 		fmt.Fprintf(tw, "%dk\t%d\t%d\t%s (%.0f%%)\n", x.Threshold/1000, x.Sessions, x.Compactions, dollars(x.SavedUSD), x.SavedPct)
 	}
 	tw.Flush()
+	if r.BestWindow > 0 {
+		fmt.Fprintf(w, "\nBest of the what-ifs above is %dk; to make Claude Code compact there: gascoigne install -g -window %dk\n", r.BestWindow/1000, r.BestWindow/1000)
+	}
 	fmt.Fprintln(w, "\nLargest sessions:")
 	top := slices.Clone(r.Sessions)
 	slices.SortFunc(top, func(a, b sessionCost) int { return cmp.Compare(b.CostUSD, a.CostUSD) })

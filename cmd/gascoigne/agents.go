@@ -28,13 +28,15 @@ type agent struct {
 	sync func(exe string, global bool) ([]string, error)
 	// addProxy points the agent at the LLM API proxy for good (install -proxy).
 	addProxy func(global bool) ([]string, error)
-	remove   func() ([]string, error) // undoes install: what it removed
-	hook     hookFunc
+	// addWindow sets the agent's auto-compact window for good (install -window); 0 removes it.
+	addWindow func(global bool, tokens int) ([]string, error)
+	remove    func() ([]string, error) // undoes install: what it removed
+	hook      hookFunc
 }
 
 var agents = map[string]agent{
 	"claude": {bin: "claude", launch: claudeArgs, env: func(string) ([]string, error) { return proxyForClaude(), nil },
-		install: claudeInstall, add: addClaude, sync: syncClaude, addProxy: addClaudeProxy, remove: removeClaude,
+		install: claudeInstall, add: addClaude, sync: syncClaude, addProxy: addClaudeProxy, addWindow: addClaudeWindow, remove: removeClaude,
 		hook: withResults(withGuide(rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil

@@ -105,6 +105,7 @@ func removeClaudeSettings(root *object) []string {
 		what = append(what, "UserPromptSubmit hook")
 	}
 	what = append(what, removeClaudeProxy(root)...)
+	what = append(what, removeClaudeWindow(root)...)
 	if env, ok := root.get("env").(*object); ok && env.get("GASCOIGNE_AGENT") == "claude" {
 		env.del("GASCOIGNE_AGENT")
 		pruneEmpty(root, "env")

@@ -414,3 +414,48 @@ func TestCursorRemoteServerRoundTrip(t *testing.T) {
 		t.Errorf("not restored:\n%s", after)
 	}
 }
+
+func TestParseWindow(t *testing.T) {
+	for in, want := range map[string]int{"300k": 300_000, "300000": 300_000, "1M": 1_000_000, "1m": 1_000_000, "auto": 0, "off": 0} {
+		if got, err := parseWindow(in); err != nil || got != want {
+			t.Errorf("parseWindow(%q) = %d, %v; want %d", in, got, err, want)
+		}
+	}
+	for _, in := range []string{"", "99k", "2M", "x", "-5k", "200"} {
+		if _, err := parseWindow(in); err == nil {
+			t.Errorf("parseWindow(%q) accepted", in)
+		}
+	}
+}
+
+// install -window writes claude's autoCompactWindow; auto and unwrap take out
+// only the size gascoigne wrote, never a value the user set.
+func TestInstallWindowRoundTrip(t *testing.T) {
+	sandbox(t)
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	write(t, ".claude/settings.json", `{"env": {"FOO": "1"}}`)
+	if _, err := addClaudeWindow(false, 300_000); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, ".claude/settings.json"); !strings.Contains(got, `"autoCompactWindow": 300000`) || !strings.Contains(got, `"FOO": "1"`) {
+		t.Fatalf("settings:\n%s", got)
+	}
+	if _, err := addClaudeWindow(false, 0); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, ".claude/settings.json"); strings.Contains(got, "autoCompactWindow") || !strings.Contains(got, `"FOO": "1"`) {
+		t.Fatalf("after auto:\n%s", got)
+	}
+
+	// The user changes the size by hand: unwrap leaves their value.
+	if _, err := addClaudeWindow(false, 300_000); err != nil {
+		t.Fatal(err)
+	}
+	write(t, ".claude/settings.json", `{"autoCompactWindow": 500000}`)
+	if _, err := removeClaude(); err != nil {
+		t.Fatal(err)
+	}
+	if got := read(t, ".claude/settings.json"); !strings.Contains(got, `"autoCompactWindow": 500000`) {
+		t.Fatalf("unwrap removed the user's own window:\n%s", got)
+	}
+}

@@ -48,6 +48,7 @@ Options saved for later installs:
 ```sh
 gascoigne install -permissions local   # claude runs retrieve, show, stats, compress without asking
 gascoigne install -guide short         # less usage text for agents (off removes it)
+gascoigne install -g -window 250k      # claude compacts at 250k tokens (autoCompactWindow, 100k-1M); -window auto undoes it
 gascoigne install -autosync on         # hooks update installs after a gascoigne upgrade
 gascoigne upgrade                      # after installing a new version: hooks, config, open choices
 gascoigne setup                        # the same questions, asked in the terminal

@@ -45,6 +45,9 @@ type prefs struct {
 	// was already opened.
 	ReleaseCheck string `json:"release_check,omitempty"`
 	SeenRelease  string `json:"seen_release,omitempty"`
+	// Window is the auto-compact window (tokens) install -window wrote into
+	// claude's settings; unwrap removes the key only while it still holds it.
+	Window int `json:"window,omitempty"`
 	// Declined are agents found on PATH that the user chose not to integrate.
 	Declined []string `json:"declined,omitempty"`
 	// UpdateDeclined is the registrationVersion whose hook update the user

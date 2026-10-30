@@ -564,3 +564,15 @@ func TestCompactionEconomics(t *testing.T) {
 		t.Fatal("counted a compaction in a growing session")
 	}
 }
+
+// The recommended window is the what-if threshold that saved most, and none when no
+// threshold saved anything.
+func TestBestWindow(t *testing.T) {
+	wi := []whatIf{{Threshold: 150_000, SavedUSD: 4}, {Threshold: 250_000, SavedUSD: 9}, {Threshold: 400_000, SavedUSD: 2}}
+	if got := bestWindow(wi); got != 250_000 {
+		t.Fatalf("best %d", got)
+	}
+	if got := bestWindow([]whatIf{{Threshold: 150_000, SavedUSD: -1}}); got != 0 {
+		t.Fatalf("best %d for a loss", got)
+	}
+}
