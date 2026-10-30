@@ -8,6 +8,7 @@ Everything an agent needs to work on gascoigne consistently. `CLAUDE.md` imports
 | `common/` | submodule `gascoigne-harness`: shared rules, commit style, `verify` skill, `loop.sh` (see its README) |
 | `rules.md` | hard rules specific to this repo (deps, architecture), on top of `common/rules.md` |
 | `code-style.md` | how code should read |
+| `visual-style.md` | how the dashboard and its pages look: tokens, page anatomy, blocks, pitfalls, how to screenshot (not loaded) |
 | `architecture.md` | layout + index of `architecture/*.md`: flow, detection, families and dialects, mcp, llm-proxy, agents, hooks, ledger, server, reports, config, one file per area |
 | `recommendations.md` | practices every change follows (loaded) |
 | `backlog.md` | open ideas, measured results, dropped ideas with numbers (not loaded) |
@@ -15,6 +16,7 @@ Everything an agent needs to work on gascoigne consistently. `CLAUDE.md` imports
 | `tasks/` | work queue for the autonomous loop (empty when idle) |
 | `scripts/loop.sh` | wraps `common/scripts/loop.sh` with `make check && make eval` |
 | `scripts/eval.sh` | token savings benchmark |
+| `scripts/shot.sh` | headless Firefox screenshot of a dashboard page, to check UI changes by eye |
 | `logs/` | loop transcripts (gitignored) |
 
 ## Tasks

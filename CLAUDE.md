@@ -33,6 +33,9 @@ Shared with the other gascoigne repos: submodule `.harness/common` (`git submodu
 @.harness/code-style.md
 @.harness/recommendations.md
 
+UI (dashboard and its pages): read `.harness/visual-style.md` (not loaded) before changing one, and look at the result with
+`.harness/scripts/shot.sh`.
+
 Why things are as they are: `.harness/decisions.md` (not loaded). Open ideas, measured results, dropped ideas:
 `.harness/backlog.md` (not loaded; read before proposing or retrying an optimization).
 Architecture reference: `.harness/architecture.md` (index, layout; loaded on demand) links one file per area in
