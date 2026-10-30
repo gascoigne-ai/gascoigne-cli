@@ -1,4 +1,4 @@
 Do these steps in order, without skipping any.
 1. Choose the non-test Go file under optimizer/log/ with the most lines and append the line `// ab-marker` at its end.
-2. Read, with the Read tool, every .go file under optimizer/ and compress/ (test files included; one Read per file, several in one turn are fine). Do not use shell commands or Grep for this step.
+2. Read, with the Read tool, every .go file under optimizer/ and compress/ (test files included; exactly one Read per turn, never several at once, so the context grows file by file). Do not use shell commands or Grep for this step.
 3. Reply with exactly two lines: the path of the file you edited in step 1, then the number of those files that contain the word lazyre.
