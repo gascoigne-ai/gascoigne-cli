@@ -3,60 +3,31 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
-// Claude Code accepts an auto-compact window from 100k to 1M tokens
-// (settings key autoCompactWindow); install -window writes it.
-const (
-	minWindow = 100_000
-	maxWindow = 1_000_000
-)
+// compactWindow is the auto-compact window (tokens) the compaction experiment
+// sets for claude: a middle value of the what-ifs in `gascoigne context`.
+// Claude Code accepts 100k to 1M (settings key autoCompactWindow).
+const compactWindow = 250_000
 
-// parseWindow reads a window size: 300000, 300k or 1M. "auto" and "off" give 0,
-// which removes what gascoigne wrote so the agent's own default applies again.
-func parseWindow(s string) (int, error) {
-	s = strings.ToLower(strings.TrimSpace(s))
-	if s == "auto" || s == "off" {
-		return 0, nil
-	}
-	mult := 1
-	switch {
-	case strings.HasSuffix(s, "k"):
-		mult, s = 1_000, strings.TrimSuffix(s, "k")
-	case strings.HasSuffix(s, "m"):
-		mult, s = 1_000_000, strings.TrimSuffix(s, "m")
-	}
-	n, err := strconv.Atoi(s)
-	if err != nil || n <= 0 || n*mult < minWindow || n*mult > maxWindow {
-		return 0, fmt.Errorf("install: -window wants auto or a size from 100k to 1M tokens (300k, 1M, 300000)")
-	}
-	return n * mult, nil
-}
-
-// addClaudeWindow sets claude's auto-compact window for good, or with 0 removes
-// the one gascoigne set. The size is kept in the prefs so that unwrap and a later
-// -window auto take out only what gascoigne wrote, never the user's own value.
-func addClaudeWindow(global bool, tokens int) ([]string, error) {
-	settings, err := scoped(global, ".claude/settings.json", ".claude/settings.json")
-	if err != nil {
-		return nil, err
-	}
-	var done []string
-	if tokens == 0 {
-		done, err = editJSON(settings, removeClaudeWindow)
-	} else {
-		var d string
-		d, err = addJSON(settings, removeClaudeWindow, map[string]any{"autoCompactWindow": tokens},
-			fmt.Sprintf("autoCompactWindow=%d (claude compacts when the context reaches it)", tokens), nil)
-		done = []string{d}
-	}
-	if err != nil {
-		return done, err
-	}
+// syncClaudeWindow makes claude's autoCompactWindow match the compaction
+// experiment: set while it is on, gone while it is off. The size gascoigne wrote
+// is kept in the prefs, so only that value is ever removed (removeClaudeWindow,
+// also run by unwrap), never one the user set. It runs inside syncClaude, after
+// removeClaudeSettings has dropped the old value.
+func syncClaudeWindow(settings string) (string, error) {
 	p := readPrefs()
-	p.Window = tokens
-	return done, p.save()
+	if !experimentalOn("compaction") {
+		p.Window = 0
+		return "", p.save()
+	}
+	d, err := addJSON(settings, removeClaudeWindow, map[string]any{"autoCompactWindow": compactWindow},
+		fmt.Sprintf("autoCompactWindow=%d (experimental: claude compacts when the context reaches it)", compactWindow), nil)
+	if err != nil {
+		return "", err
+	}
+	p.Window = compactWindow
+	return d, p.save()
 }
 
 // removeClaudeWindow drops autoCompactWindow when it is the size gascoigne wrote.

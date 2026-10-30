@@ -928,7 +928,7 @@ func printContext(w io.Writer, r contextReport) {
 	}
 	tw.Flush()
 	if r.BestWindow > 0 {
-		fmt.Fprintf(w, "\nBest of the what-ifs above is %dk; to make Claude Code compact there: gascoigne install -g -window %dk\n", r.BestWindow/1000, r.BestWindow/1000)
+		fmt.Fprintf(w, "\nThe best of these what-ifs is %dk. Experimental: gascoigne setup -experimental can make claude compact at 250k.\n", r.BestWindow/1000)
 	}
 	fmt.Fprintln(w, "\nLargest sessions:")
 	top := slices.Clone(r.Sessions)

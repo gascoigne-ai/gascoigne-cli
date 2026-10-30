@@ -20,7 +20,6 @@ func cmdInstall(_ context.Context, args []string) error {
 	fset := newFlags("install")
 	global := fset.Bool("g", false, "register for every project (user config) instead of this one")
 	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through the background server's LLM proxy (claude); a stopped server stops the agent until its SessionStart hook starts it")
-	window := fset.String("window", "", "claude: compact when the context reaches this size, 100k to 1M tokens (300k, 1M), or auto for claude's own default; saves the autoCompactWindow setting")
 	allow := fset.String("permissions", "", "which gascoigne tools claude runs without asking: none, local (retrieve, show, stats, compress) or all (adds fetch, which reaches the network) (saved; default none)")
 	auto := fset.String("autosync", "", "let agent hooks update user-scope installs after a gascoigne upgrade: "+strings.Join(autosyncChoices, ", ")+" (saved; default: not decided, nothing is updated)")
 	level := fset.String("guide", "", "how much usage text agents get: "+strings.Join(guideLevels, ", ")+" (saved; default full)")
@@ -29,13 +28,6 @@ func cmdInstall(_ context.Context, args []string) error {
 	}
 	if err := errors.Join(saveGuideLevel(*level), saveAllowLevel(*allow), saveAutosync(*auto)); err != nil {
 		return err
-	}
-	tokens, windowSet := 0, *window != ""
-	if windowSet {
-		var err error
-		if tokens, err = parseWindow(*window); err != nil {
-			return err
-		}
 	}
 	names := fset.Args()
 	if len(names) == 0 {
@@ -62,12 +54,6 @@ func cmdInstall(_ context.Context, args []string) error {
 			done, errs = append(done, d...), append(errs, err)
 		} else if *proxy {
 			done = append(done, "LLM proxy: not available for this agent; gascoigne wrap "+name+" uses it per run where it can")
-		}
-		if windowSet && a.addWindow != nil && err == nil {
-			d, err := a.addWindow(*global, tokens)
-			done, errs = append(done, d...), append(errs, err)
-		} else if windowSet {
-			done = append(done, "-window: no compaction setting known for this agent")
 		}
 		for _, d := range done {
 			fmt.Printf("%s: %s\n", name, d)
@@ -214,8 +200,16 @@ func syncClaude(exe string, global bool) ([]string, error) {
 	if err := allowRules.record(settings, allowed); err != nil {
 		return nil, err
 	}
+	w, err := syncClaudeWindow(settings)
+	if err != nil {
+		return nil, err
+	}
+	done = append(done, d)
+	if w != "" {
+		done = append(done, w)
+	}
 	skills, err := addClaudeSkills(global)
-	return append(append(done, d), skills...), err
+	return append(done, skills...), err
 }
 
 func addCursor(exe string, global bool) ([]string, error) {

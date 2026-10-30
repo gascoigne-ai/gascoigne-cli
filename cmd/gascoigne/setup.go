@@ -189,6 +189,12 @@ var experiments = []struct{ name, title, text, example, how, impact string }{
 			"- recent failed commands: `go test ./...`",
 		"A session-start hook reads the session's transcript when claude compacts or resumes, and adds a summary to the session context. It uses only the agent's own calls (never tool output) and cuts secrets from command lines.",
 		"Adds up to about 500 tokens at each compaction or resume, so the agent keeps its place instead of rediscovering it. Not yet measured against the rework it saves."},
+	{"compaction", "Compact claude's conversation earlier",
+		"Makes claude compact its conversation at 250k tokens of context instead of near the model's limit.",
+		"$ gascoigne context\n27 compactions, from 553.3k to 198.9k of context: cost $25, saved $183 of cache reads, net $158\n\n" +
+			"~/.claude/settings.json:  \"autoCompactWindow\": 250000",
+		"Writes claude's autoCompactWindow setting (user settings, where gascoigne is installed for every project) and removes it again when you turn this off. A value you set yourself is never touched. Claude only; other agents have no such setting here.",
+		"Every request re-reads the whole conversation, so long sessions cost most of their money at large contexts. Compacting earlier cuts that, but a summary forgets detail the full conversation had, and each compaction writes the new context to the cache once. On one real machine compacting paid off ($158 net over 30 days); yours may differ, see gascoigne context. Takes effect in claude sessions started afterwards."},
 	{"learn", "Learn from your sessions",
 		"Adds the learn command: it proposes instruction lines from habits that cost context.",
 		"$ gascoigne learn\nhabit  command   sessions  runs\nrerun  go test   3         7\n\n" +
@@ -349,7 +355,7 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 			rewrite = true
 		}
 	}
-	for _, id := range []string{"allow", "autosync"} {
+	for _, id := range []string{"allow", "autosync", experimentPrefix + "compaction"} {
 		if _, ok := answers[id]; ok {
 			rewrite = true // a changed choice reaches the installed configs
 		}

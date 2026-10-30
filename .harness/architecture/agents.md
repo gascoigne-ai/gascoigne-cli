@@ -44,10 +44,11 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
 - `install` rewrites `.mcp.json`, `~/.claude.json`, codex tables and cursor `mcp.json`.
 - `unwrap` restores the original commands from the kept args.
 
-## Compaction window (`window.go`, `install -window`)
+## Compaction window (`window.go`, experimental: `compaction`)
 
-`install [-g] -window 300k|1M|300000|auto` writes claude's `autoCompactWindow` (100k-1M, Claude Code caps it at the
-model's window) through `agent.addWindow`; `auto` removes it. The size gascoigne wrote is kept in prefs (`window`), so
-`-window auto` and `unwrap` drop the key only while it still holds that size, never a value the user set. `context -text`
-names the what-if threshold that saved most (`contextReport.BestWindow`) with this command. `PreCompact` cannot steer a
-summary (it can only block; `systemMessage` is discarded), so continuity stays on SessionStart `compact`.
+One switch, in `gascoigne setup -experimental` (the `experiments` table in `setup.go`). While it is on, `syncClaude`
+(install, autosync, setup's rewrite) writes claude's `autoCompactWindow` = `compactWindow` (250k; Claude Code accepts
+100k-1M and caps it at the model's window); turning it off removes it on the next sync. No flag, no size to pick.
+The size gascoigne wrote is kept in prefs (`window`): `removeClaudeWindow` (also run by `unwrap`) drops the key only
+while it still holds that size, never a value the user set. `context -text` points at the switch. `PreCompact` cannot
+steer a summary (it can only block; `systemMessage` is discarded), so continuity stays on SessionStart `compact`.

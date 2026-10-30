@@ -145,6 +145,13 @@ Nothing leaves the machine and nothing is changed. Without a display, under `CI`
 `GASCOIGNE_SERVER=off` the table is printed; `-open=false` only prints the page's address. Claude Code
 only: other agents keep no transcripts of this shape.
 
+**Compact earlier (experimental).** `gascoigne setup -experimental` has a switch, *Compact claude's conversation earlier*, that
+sets claude's `autoCompactWindow` to 250k tokens, so claude compacts there instead of near the model's limit. Turn it
+off in the same place and the setting is removed; a window you set yourself is never touched. Implications: long sessions
+cost less because each request re-reads a smaller conversation, but the summary forgets detail, each compaction writes the
+new context to the cache once, and the change applies to every claude session started afterwards. Claude only. Check the
+numbers above for your own sessions first.
+
 ## `mcp-review`
 
 ```sh
