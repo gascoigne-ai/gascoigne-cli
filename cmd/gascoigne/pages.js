@@ -85,5 +85,47 @@
       el("div", { class: "pagehead" }, el("h2", { text: title }), el("span", { class: "hint", text: subtitle })));
   };
 
-  window.G = { el, human, usd, num, header, icon, button, setButton };
+  // bars fills host with one column per item ({label, text, value, title}); a long series shows fewer labels.
+  const bars = (host, items) => {
+    const best = Math.max(...items.map((i) => i.value), 0);
+    host.classList.add("days");
+    host.classList.toggle("dense", items.length > 12);
+    const every = Math.ceil(items.length / 10);
+    host.replaceChildren(...items.map((it, n) => {
+      const col = el("div", { class: "col" + (it.value > 0 ? "" : " quiet"), title: it.title || "" });
+      col.style.height = best ? (100 * it.value / best) + "%" : "0";
+      const lbl = el("div", { class: "lbl" + (n % every !== 0 && n !== items.length - 1 ? " skip" : ""), text: it.label });
+      return el("div", { class: "day" }, el("div", { class: "amt", text: it.value > 0 ? it.text : "" }), col, lbl);
+    }));
+  };
+  // hbars draws a row per item ({name, parts: [{value, cls}], fig}) with bars on one scale.
+  const hbars = (rows) => {
+    const best = Math.max(...rows.map((r) => r.parts.reduce((n, p) => n + p.value, 0)), 0);
+    return el("div", { class: "hbars" }, ...rows.map((r) => el("div", { class: "hbar" },
+      el("div", { class: "name", title: r.name, text: r.name }),
+      el("div", { class: "track" }, ...r.parts.map((p) => { const b = el("span", { class: p.cls || "", title: p.title || "" }); b.style.width = best ? (100 * p.value / best) + "%" : "0"; return b; })),
+      el("div", { class: "fig" }, r.fig))));
+  };
+  // area draws a series as a line over a filled area with labelled guide lines; limit is an optional dashed line.
+  const area = (series, { limit, label, left, right }) => {
+    const NS2 = "http://www.w3.org/2000/svg", W = 900, H = 170, L = 40, B = 16, T = 8;
+    const svg = document.createElementNS(NS2, "svg");
+    svg.setAttribute("class", "area"); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.setAttribute("role", "img"); svg.setAttribute("aria-label", label || "");
+    const add = (tag, attrs, text) => { const e = document.createElementNS(NS2, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text) e.textContent = text; svg.append(e); };
+    const top = Math.max(...series, limit || 0, 1), y = (v) => (H - B - (v / top) * (H - B - T)).toFixed(1);
+    const x = (i) => (L + (series.length > 1 ? i * (W - L - 4) / (series.length - 1) : 0)).toFixed(1);
+    for (const v of [0, top]) { add("line", { class: "grid", x1: L, x2: W - 4, y1: y(v), y2: y(v) }); add("text", { x: 2, y: Number(y(v)) + 3 }, human(Math.round(v))); }
+    if (limit && limit < top) { add("line", { class: "limit", x1: L, x2: W - 4, y1: y(limit), y2: y(limit) }); add("text", { x: 2, y: Number(y(limit)) + 3 }, human(limit)); }
+    if (series.length > 1) {
+      const pts = series.map((v, i) => `${x(i)},${y(v)}`).join(" ");
+      add("polygon", { class: "fill", points: `${x(0)},${y(0)} ${pts} ${x(series.length - 1)},${y(0)}` });
+      add("polyline", { class: "line", points: pts });
+    }
+    if (left) add("text", { x: L, y: H - 3 }, left);
+    if (right) { add("text", { x: W - 4, y: H - 3, "text-anchor": "end" }, right); }
+    return svg;
+  };
+
+  window.G = { el, human, usd, num, header, icon, button, setButton, bars, hbars, area };
 })();

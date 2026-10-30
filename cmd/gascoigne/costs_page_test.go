@@ -43,3 +43,20 @@ func TestCostsPageLayout(t *testing.T) {
 		t.Error("context page lacks the proxy requests table")
 	}
 }
+
+// replaceChildren writes a null as the text "null": the Costs page showed
+// "null null" when two optional notes were empty. The pages filter them out
+// and draw their data as charts, not only tables.
+func TestPagesDrawChartsAndSkipEmptyNotes(t *testing.T) {
+	costs, context := string(costsHTML), string(contextHTML)
+	for _, want := range []string{".filter(Boolean)", "G.hbars(", "Where the worth comes from"} {
+		if !strings.Contains(costs, want) {
+			t.Errorf("costs page lacks %q", want)
+		}
+	}
+	for _, want := range []string{"G.bars(", "Cost per day", "G.area(", `class: "click"`, "Share of cost"} {
+		if !strings.Contains(context, want) {
+			t.Errorf("context page lacks %q", want)
+		}
+	}
+}

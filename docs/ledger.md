@@ -252,7 +252,7 @@ The page is built on a small JSON API you can also script against:
 | `GET /api/overview?session=&agent=&model=&since=` | the same data as `gain -json` |
 | `GET /api/sessions` | sessions with their savings |
 | `GET /api/usage?agent=&model=&since=` | what the LLM proxy saw: `models` (requests, tokens including the hour-long part of cache writes, mean and peak context per request) and `days` (local days), the same as `gain -json`'s `api_usage` and `api_days` |
-| `GET /api/context?days=` | the context report behind the `/context` page and `gascoigne context -json`, read from Claude Code's transcripts, not the ledger |
+| `GET /api/context?days=` | the context report behind the `/context` page and `gascoigne context -json` (cost per local `days`, buckets, per-session figures), read from Claude Code's transcripts, not the ledger |
 | `GET /api/mcp` | the MCP review behind the `/mcp` page and `gascoigne mcp-review -json` |
 | `POST /api/mcp/lazy` | `{id, tools}`: load these tools of one proxied server on request from the next session; `[]` lists them all again |
 | `GET /api/impact?session=&agent=&model=&since=` | per day: optimized runs and tokens saved, rerequested runs and tokens read twice (the dashboard's "Optimizing vs rerequesting" chart; quiet days of the period are included as empty days) |

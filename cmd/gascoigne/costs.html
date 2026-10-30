@@ -46,7 +46,8 @@ function render(c) {
   const none = "No priced savings in this period.";
   const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
     kpi("Worth in context", usd(c.in_context_usd || 0), "saved tokens re-read by later requests, assuming " + (c.rereads || 0) + " rereads each (a median; the mean is higher)", true),
-    kpi("Worth as first read", usd(c.first_read_usd || 0), "each saved token counted once"));
+    kpi("Worth as first read", usd(c.first_read_usd || 0), "each saved token counted once"),
+    kpi("Priced from an assumed model", (c.in_context_usd ? Math.round(100 * rows.filter((s) => s.assumed).reduce((n, s) => n + s.in_context_usd, 0) / c.in_context_usd) : 0) + "%", "runs that recorded no model"));
   const mod = panel("By model", "Saved is counted the way that model's tokenizer counts it. Runs that recorded no model use the agent's default, marked assumed.", table([["Model"], ["Tokenizer"], ["Saved", true], ["First read", true], ["In context", true]],
     rows.map((s) => [s.model + (s.assumed ? " (assumed)" : ""), s.tokenizer + (s.family === "gemini" ? " (factor not measured)" : ""), human(s.model_tokens), usd(s.first_read_usd), usd(s.in_context_usd)]), none));
   const assumedUSD = rows.filter((s) => s.assumed).reduce((n, s) => n + s.in_context_usd, 0);
@@ -60,7 +61,16 @@ function render(c) {
       el("li", { text: "First read: what the saved tokens would have cost once. In context: plus the later requests that read them again from the cache." }),
       el("li", { text: "Not subtracted: the text gascoigne itself adds to a session (hook and server notes, a few hundred tokens). The Context page lists it under text added besides your prompts." }),
       el("li", { text: "Every dollar figure is API-equivalent: what the tokens cost at list prices, not what a plan or invoice charges." })));
-  document.getElementById("body").replaceChildren(kpis, mod, assumedNote, unpriced, how);
+  const worth = rows.length ? panel("Where the worth comes from", "In-context dollars per model: what the tokens gascoigne saved are worth once later requests re-read them. Orange bars are runs that recorded no model, priced as the agent's usual model.",
+    G.hbars([...rows].sort((a, b) => b.in_context_usd - a.in_context_usd).map((s) => ({
+      name: s.model + (s.assumed ? " (assumed)" : ""),
+      parts: [{ value: s.in_context_usd, cls: s.assumed ? "assumed" : "", title: s.model }],
+      fig: el("span", {}, el("b", { text: usd(s.in_context_usd) }), " · " + Math.round(100 * s.in_context_usd / (c.in_context_usd || 1)) + "%"),
+    }))),
+    el("p", { class: "legend" }, el("span", {}, el("i", { class: "legend-dot" }), "model recorded"), el("span", {}, el("i", { class: "legend-dot warn" }), "model assumed"))) : null;
+  const intro = el("p", { class: "hint", text: "What the tokens gascoigne saved would have cost: once when read, and again each time a later request re-reads them from the cache." });
+  // replaceChildren turns a null into the text "null": leave the empty ones out.
+  document.getElementById("body").replaceChildren(...[intro, kpis, worth, mod, assumedNote, unpriced, how].filter(Boolean));
   const p = c.pricing;
   document.getElementById("pricing").replaceChildren(...(p ? [`Dollar figures are ${p.basis}; prices checked ${p.checked}. Sources: `,
     ...p.sources.flatMap((s, i) => [i ? ", " : "", el("a", { href: s, target: "_blank", rel: "noopener", text: new URL(s).hostname })])] : []));

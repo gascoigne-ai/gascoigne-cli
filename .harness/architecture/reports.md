@@ -75,6 +75,7 @@ Own page, shared `pages.css`/`pages.js` and nav, Period filter only (same period
   spend); the reread count is stated in the KPI note. Gemini's tokenizer factor is marked as not measured.
   Recorded eval runs (agent `eval`) are left out. The proxy's measured requests (`/api/usage`) moved to
   the Context page ("Requests through the proxy", shown when any exist).
+- Charts (`G.hbars`, `G.bars`, `G.area` in `pages.js`): Costs draws the in-context dollars per model as bars (orange = assumed model); Context draws cost per local day (`days` in the report, quiet days included), a share-of-cost bar per session, and a detail row per session (click) with its facts and a context-over-time area chart marked at 200k. Optional notes are filtered before `replaceChildren` (a null prints as "null").
 - The Context page says it covers Claude Code only, its Cost is the main conversation (the total with
   subagents is a tile beside it), and cache-rewrite causes are "likely".
 

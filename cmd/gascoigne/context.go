@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -18,6 +19,7 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
@@ -68,11 +70,16 @@ type sessionCost struct {
 	CostUSD     float64   `json:"cost_usd"`
 	Priced      bool      `json:"priced"`
 	Series      []int     `json:"series"` // the context over the session, downsampled
-	turns       []turn
-	inj         []injection
-	subUSD      float64 // what subagent requests in this file cost: they run in conversations of their own
-	subTurns    int
-	floor       int // the smallest context of the whole session, also before the period: what a restart begins at
+	// What the page says about one session besides its cost.
+	SubagentUSD    float64 `json:"subagent_usd"`
+	SubagentTurns  int     `json:"subagent_turns"`
+	InjectedTokens int     `json:"injected_tokens"` // text added besides the prompts
+	RewriteUSD     float64 `json:"rewrite_usd"`     // extra paid for cache written again
+	turns          []turn
+	inj            []injection
+	subUSD         float64 // what subagent requests in this file cost: they run in conversations of their own
+	subTurns       int
+	floor          int // the smallest context of the whole session, also before the period: what a restart begins at
 }
 
 // injection is text added to a conversation besides the user's prompts: what a
@@ -94,6 +101,13 @@ type injectedSource struct {
 	Rereads  int     `json:"reread_tokens"` // tokens re-read by the requests that followed
 	CostUSD  float64 `json:"cost_usd"`      // written once, then read by every later request
 	Share    float64 `json:"share"`         // of all the cost
+}
+
+// contextDay is what the main conversations cost on one local day.
+type contextDay struct {
+	Day     string  `json:"day"`
+	Turns   int     `json:"turns"`
+	CostUSD float64 `json:"cost_usd"`
 }
 
 // contextBucket is the share of the cost spent at one conversation size.
@@ -144,6 +158,7 @@ type contextReport struct {
 	Turns         int              `json:"turns"`
 	CostUSD       float64          `json:"cost_usd"`
 	ModelUSD      float64          `json:"model_usd"` // the baseline of the what-if, by the same simple model
+	Days          []contextDay     `json:"days"`      // cost per local day, quiet days included
 	Buckets       []contextBucket  `json:"buckets"`
 	WhatIf        []whatIf         `json:"what_if"`
 	Rewrites      []cacheRewrite   `json:"cache_rewrites"`
@@ -554,7 +569,10 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 	for i, t := range thresholds {
 		wi[i].Threshold = t
 	}
-	for _, s := range r.Sessions {
+	byDay := map[string]*contextDay{}
+	for i := range r.Sessions {
+		s := &r.Sessions[i]
+		s.SubagentUSD, s.SubagentTurns = s.subUSD, s.subTurns
 		r.Turns += s.Turns
 		if !s.Priced {
 			r.Unpriced++
@@ -581,6 +599,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 				bySource[in.label] = src
 				sessionsOf[in.label] = map[string]bool{}
 			}
+			s.InjectedTokens += in.tokens
 			later := max(s.Turns-in.before, 0)
 			src.Times++
 			src.Tokens += in.tokens
@@ -593,13 +612,25 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 			rw.Turns++
 			rw.Tokens += w.tokens
 			rw.CostUSD += float64(w.tokens) * (m.CacheWrite - m.CacheRead) / 1e6
+			s.RewriteUSD += float64(w.tokens) * (m.CacheWrite - m.CacheRead) / 1e6
 		}
 		for _, t := range s.turns {
 			b := &r.Buckets[bucketOf(t.ctx)]
 			b.Turns++
 			b.CostUSD += t.cost(exact)
+			if !t.ts.IsZero() {
+				k := t.ts.Local().Format(time.DateOnly)
+				d := byDay[k]
+				if d == nil {
+					d = &contextDay{Day: k}
+					byDay[k] = d
+				}
+				d.Turns++
+				d.CostUSD += t.cost(exact)
+			}
 		}
 	}
+	r.Days = fillContextDays(byDay)
 	for i := range r.Buckets {
 		if r.CostUSD > 0 {
 			r.Buckets[i].Share = r.Buckets[i].CostUSD / r.CostUSD
@@ -646,6 +677,26 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		"A cache rewrite is context that the previous request carried but this one did not read from the cache; the cost shown is the extra over a read. The causes are read from the pauses between requests, so \"changed within the cache lifetime\" means the cached start of the conversation changed while it was warm (an edited instruction file, a changed tool set, another model); a transcript cannot say which.",
 	}
 	return r
+}
+
+// fillContextDays lists the days from the first to the last with a request,
+// the quiet ones at zero, so a chart shows the gaps.
+func fillContextDays(by map[string]*contextDay) []contextDay {
+	out := []contextDay{}
+	if len(by) == 0 {
+		return out
+	}
+	keys := slices.Sorted(maps.Keys(by))
+	first, _ := time.ParseInLocation(time.DateOnly, keys[0], time.Local)
+	last, _ := time.ParseInLocation(time.DateOnly, keys[len(keys)-1], time.Local)
+	for _, k := range mcptool.Days(first, last) {
+		if d := by[k]; d != nil {
+			out = append(out, *d)
+		} else {
+			out = append(out, contextDay{Day: k})
+		}
+	}
+	return out
 }
 
 func rewriteOf(m map[string]*cacheRewrite, cause string) *cacheRewrite {

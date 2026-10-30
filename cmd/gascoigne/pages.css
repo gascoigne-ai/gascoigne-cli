@@ -137,3 +137,41 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
 
 h3.section { margin: 22px 0 -4px; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+
+/* Daily bars, as on the dashboard */
+.days { display: flex; align-items: flex-end; gap: 10px; height: 160px; padding-top: 8px; }
+.day { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+.day .col { width: 100%; max-width: 44px; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; opacity: .9; }
+.day .col.quiet { background: var(--track); min-height: 2px; }
+.day .lbl { font-size: 12px; color: var(--faint); margin-top: 4px; white-space: nowrap; }
+.day .amt { font-size: 12px; color: var(--muted); margin-bottom: 3px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dense { gap: 3px; }
+.dense .day .amt, .day .lbl.skip { visibility: hidden; }
+
+/* One horizontal bar per row: name, bar, figure */
+.hbars { display: grid; gap: 2px; }
+.hbar { display: grid; grid-template-columns: minmax(110px, 240px) 1fr 150px; gap: 12px; align-items: center; padding: 5px 0; font-size: 13px; }
+.hbar .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hbar .track { height: 12px; background: var(--track); border-radius: 6px; overflow: hidden; display: flex; }
+.hbar .track span { display: block; height: 100%; background: var(--accent); }
+.hbar .track span.assumed { background: var(--warn); }
+.hbar .fig { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.hbar .fig b { color: var(--text); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 8px 0 0; font-size: 12.5px; color: var(--muted); }
+.legend-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; background: var(--accent); }
+.legend-dot.warn { background: var(--warn); }
+
+/* A table row that opens a detail row */
+tr.click { cursor: pointer; }
+tr.click:hover td { background: var(--surface-2); }
+tr.detail > td { white-space: normal; background: var(--surface-2); padding: 14px 16px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 20px; margin-bottom: 12px; }
+.fact .k { font-size: 12px; color: var(--muted); }
+.fact .v { font-size: 18px; font-variant-numeric: tabular-nums; }
+svg.area { width: 100%; height: auto; max-height: 230px; display: block; }
+svg.area .fill { fill: var(--accent); opacity: .14; }
+svg.area .line { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+svg.area .grid { stroke: var(--border-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+svg.area .limit { stroke: var(--warn); stroke-width: 1; stroke-dasharray: 4 3; }
+svg.area text { fill: var(--faint); font-size: 10.5px; font-family: var(--sans); }
+@media (max-width: 640px) { .hbar { grid-template-columns: 1fr; gap: 4px; } .hbar .fig { text-align: left; } }

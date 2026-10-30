@@ -503,3 +503,35 @@ func TestSubagentsAreCountedApart(t *testing.T) {
 		t.Fatalf("sessions %d, subagent %d $%.4f", len(r.Sessions), r.SubagentTurns, r.SubagentUSD)
 	}
 }
+
+// The report charts the cost per local day, quiet days included, and each
+// session carries what the page shows about it: subagent cost and added text.
+func TestBuildContextDays(t *testing.T) {
+	day := func(d, h int) time.Time { return time.Date(2026, 10, d, h, 30, 0, 0, time.Local) }
+	ts := []turn{
+		{ctx: 20_000, write: 20_000, output: 100, ts: day(10, 23)},
+		{ctx: 21_000, read: 20_000, write: 1_000, output: 100, ts: day(10, 23)},
+		{ctx: 22_000, read: 21_000, write: 1_000, output: 100, ts: day(12, 0)},
+	}
+	s := sessionCost{ID: "s", Model: "claude-opus-5-5", Priced: true, turns: ts, End: day(12, 1), subUSD: 1.5, subTurns: 4,
+		inj: []injection{{label: "skill listing", tokens: 500, before: 0}}}
+	s.finish()
+	r := buildContext([]sessionCost{s}, 14*24*time.Hour)
+	if len(r.Days) != 3 || r.Days[0].Day != "2026-10-10" || r.Days[1].Day != "2026-10-11" || r.Days[2].Day != "2026-10-12" {
+		t.Fatalf("days %+v", r.Days)
+	}
+	if r.Days[0].Turns != 2 || r.Days[1].Turns != 0 || r.Days[1].CostUSD != 0 || r.Days[2].Turns != 1 {
+		t.Errorf("days %+v", r.Days)
+	}
+	sum := 0.0
+	for _, d := range r.Days {
+		sum += d.CostUSD
+	}
+	if d := sum - r.CostUSD; d > 1e-6 || d < -1e-6 {
+		t.Errorf("days add up to %.4f, the report says %.4f", sum, r.CostUSD)
+	}
+	got := r.Sessions[0]
+	if got.SubagentUSD != 1.5 || got.SubagentTurns != 4 || got.InjectedTokens != 500 {
+		t.Errorf("session extras %+v", got)
+	}
+}
