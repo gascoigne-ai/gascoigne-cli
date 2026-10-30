@@ -72,7 +72,10 @@ Own page, shared `pages.css`/`pages.js` and nav, Period filter only. Two parts:
   gpt/gemini/other from `cost.Model.Family`, summed in the page) and models. "Saved" is in the
   tokens.Estimate units the dashboard uses, so a family is the sum of its models; "In model tokens"
   applies the model's tokenizer factor. Models come from the run (proxy request, Claude transcript);
-  none recorded → the agent's default, marked assumed. Dollars: first read and in context.
+  none recorded → the agent's default, marked assumed; the page states what share of the in-context dollars
+  is assumed. Dollars: first read and in context, API-equivalent (not spend). Gemini's tokenizer factor is
+  marked as not measured. The Context page says it covers Claude Code only, its Cost is the main
+  conversation, and cache-rewrite causes are "likely".
 - Measured by the proxy (`/api/usage`: requests, context, cache per day and model); empty when
   the agent's login bypasses the proxy.
 

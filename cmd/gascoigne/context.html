@@ -26,7 +26,7 @@ svg.spark polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; }
       </select>
     </label>
     <div class="spacer"></div>
-    <p class="hint">Read from Claude Code's own transcripts on this machine, at API list prices. Nothing leaves it and nothing is changed.</p>
+    <p class="hint">Claude Code only: read from its own transcripts on this machine, at API list prices. Nothing leaves it and nothing is changed.</p>
   </div>
   <div id="body"><p class="empty">Reading transcripts…</p></div>
   <footer>Every request re-reads the whole conversation, so a session costs mostly requests times context, not the size of any one tool result.</footer>
@@ -89,14 +89,14 @@ function render() {
   const over200 = r.buckets.slice(2).reduce((n, b) => n + b.share, 0);
   const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
     kpi("Sessions", num(r.sessions.length), "last " + label), kpi("Requests", num(r.turns), "model calls"),
-    kpi("Cost", usd(r.cost_usd), "at API list prices", true), kpi("Above 200k context", Math.round(100 * over200) + "%", "of the cost"),
+    kpi("Cost, main conversation", usd(r.cost_usd), "API-equivalent at list prices; subagents apart", true), kpi("Above 200k context", Math.round(100 * over200) + "%", "of the cost"),
     ...(r.subagent_turns ? [kpi("Subagents", usd(r.subagent_usd), num(r.subagent_turns) + " requests, not counted above")] : []));
 
   const buckets = panel("Where the money goes", "Cost by the size of the conversation each request re-read",
     table(el("tr", {}, th("Context of a request"), th("Requests", true), th("Cost", true), th("Share of cost")),
       r.buckets.map((b) => el("tr", {}, el("td", { text: b.label }), el("td", { class: "num", text: num(b.turns) }), el("td", { class: "num", text: usd(b.cost_usd) }), el("td", {}, share(b.share))))));
   const rewrites = panel("Cache written again", "Context the previous request carried that this one did not read from the cache: the extra is what a rewrite cost over a read",
-    table(el("tr", {}, th("Cause"), th("Requests", true), th("Tokens", true), th("Extra cost", true), th("Share", true)),
+    table(el("tr", {}, th("Likely cause"), th("Requests", true), th("Tokens", true), th("Extra cost", true), th("Share", true)),
       r.cache_rewrites.map((w) => el("tr", {}, el("td", { class: "wrap", text: w.cause }), el("td", { class: "num", text: num(w.turns) }), el("td", { class: "num", text: human(w.tokens) }),
         el("td", { class: "num", text: usd(w.cost_usd) }), el("td", { class: "num", text: (100 * w.share).toFixed(1) + "%" })))));
 
