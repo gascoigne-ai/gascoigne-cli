@@ -14,7 +14,7 @@ func TestMoneyPagesSayWhatTheyShow(t *testing.T) {
 		want []string
 	}{
 		{"costs", costsHTML, []string{"API-equivalent", "recorded no model", "factor not measured"}},
-		{"context", contextHTML, []string{"Claude Code only", "main conversation", "Likely cause"}},
+		{"context", contextHTML, []string{"Claude Code only", "main conversation", "Likely cause", "Total with subagents"}},
 	} {
 		for _, w := range c.want {
 			if !strings.Contains(string(c.html), w) {

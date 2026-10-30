@@ -90,7 +90,8 @@ function render() {
   const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
     kpi("Sessions", num(r.sessions.length), "last " + label), kpi("Requests", num(r.turns), "model calls"),
     kpi("Cost, main conversation", usd(r.cost_usd), "API-equivalent at list prices; subagents apart", true), kpi("Above 200k context", Math.round(100 * over200) + "%", "of the cost"),
-    ...(r.subagent_turns ? [kpi("Subagents", usd(r.subagent_usd), num(r.subagent_turns) + " requests, not counted above")] : []));
+    ...(r.subagent_turns ? [kpi("Subagents", usd(r.subagent_usd), num(r.subagent_turns) + " requests, not counted above"),
+      kpi("Total with subagents", usd(r.cost_usd + r.subagent_usd), "main conversation plus subagents")] : []));
 
   const buckets = panel("Where the money goes", "Cost by the size of the conversation each request re-read",
     table(el("tr", {}, th("Context of a request"), th("Requests", true), th("Cost", true), th("Share of cost")),

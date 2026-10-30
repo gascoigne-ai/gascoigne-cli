@@ -50,8 +50,8 @@ func BuildCosts(ctx context.Context, l component.Ledger, filter component.StatsQ
 	for _, a := range agents {
 		mq := filter
 		mq.By, mq.Agent = component.ByModel, a.Group
-		if a.Group == "-" {
-			continue // runs without an agent: no default model to assume
+		if a.Group == "-" || a.Group == "eval" {
+			continue // no agent: no default model to assume; eval: recorded benchmark runs, not work
 		}
 		models, err := l.Stats(ctx, mq)
 		if err != nil {

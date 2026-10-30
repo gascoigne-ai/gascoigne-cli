@@ -49,3 +49,32 @@ func TestBuildCosts(t *testing.T) {
 		t.Errorf("no rereads, yet in context %v != first read %v", c.InContext, c.FirstRead)
 	}
 }
+
+// evalLedger: recorded eval runs (agent "eval") beside a real agent. Eval runs
+// are synthetic, so they are neither priced nor listed as an unpriced agent.
+type evalLedger struct{ component.Ledger }
+
+func (evalLedger) Stats(_ context.Context, q component.StatsQuery) ([]component.Stat, error) {
+	switch {
+	case q.By == component.ByAgent:
+		return []component.Stat{{Group: "claude"}, {Group: "eval"}}, nil
+	case q.By == component.ByModel && q.Agent == "claude":
+		return []component.Stat{{Group: "claude-sonnet-5-5", RawTokens: 3000, OutTokens: 1000}}, nil
+	case q.By == component.ByModel && q.Agent == "eval":
+		return []component.Stat{{Group: "-", RawTokens: 9000, OutTokens: 1000}}, nil
+	}
+	return nil, nil
+}
+
+func TestBuildCostsSkipsEvalRuns(t *testing.T) {
+	c, err := BuildCosts(t.Context(), evalLedger{}, component.StatsQuery{}, cost.Context{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(c.Unpriced) != 0 {
+		t.Errorf("eval listed as unpriced: %v", c.Unpriced)
+	}
+	if len(c.Savings) != 1 || c.Savings[0].Tokens != 2000 {
+		t.Errorf("savings %+v", c.Savings)
+	}
+}
