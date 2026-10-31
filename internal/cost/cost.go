@@ -69,7 +69,7 @@ func written(id, tok string, in, out, read float64) Model {
 }
 
 // PricesChecked is the day Models was last compared with PriceSources.
-const PricesChecked = "2026-10-11"
+const PricesChecked = "2026-10-31"
 
 // PriceSources are the providers' official pricing pages Models is read from.
 var PriceSources = []string{
@@ -104,10 +104,16 @@ var Models = []Model{
 	claude("claude-sonnet-4-5", "claude-legacy", 3, 15, 0.30),
 	claude("claude-haiku-5-5", "claude", 0.10, 0.50, 0.01),
 	claude("claude-haiku-4-5", "claude-legacy", 1, 5, 0.10),
+	claude("claude-opus-4-1", "claude-legacy", 15, 75, 1.50),
+	claude("claude-opus-4", "claude-legacy", 15, 75, 1.50), // dated IDs (claude-opus-4-2025...); the versioned IDs above are longer, so they win
+	claude("claude-sonnet-4", "claude-legacy", 3, 15, 0.30),
+	claude("claude-3-5-haiku", "claude-legacy", 0.80, 4, 0.08), // Anthropic names this one with the version first
 	written("gpt-6-astra", "o200k", 10, 50, 1.00),
 	written("gpt-6.1-sol", "o200k", 2, 10, 0.10),
 	written("gpt-6-sol", "o200k", 2, 10, 0.20),
+	written("gpt-6.1-terra", "o200k", 1, 5, 0.05),
 	written("gpt-6-luna", "o200k", 0.10, 0.50, 0.01),
+	written("gpt-5.6-cyber", "o200k", 12.5, 75, 1.25),
 	written("gpt-5.6-sol", "o200k", 4, 20, 0.40),
 	written("gpt-5.6-terra", "o200k", 2, 12, 0.20),
 	written("gpt-5.6-luna", "o200k", 0.20, 1.20, 0.02),
@@ -125,6 +131,9 @@ var Models = []Model{
 	automatic("gpt-5-mini", "o200k", 0.25, 2, 0.025),
 	automatic("gpt-5-nano", "o200k", 0.05, 0.40, 0.005),
 	automatic("gpt-5", "o200k", 1.25, 10, 0.125),
+	// Promotional until 2026-11-30; from 2026-12-01 it is 4, 20, 0.20.
+	automatic("gemini-4-argon", "gemini", 2, 10, 0.10),
+	// Promotional until 2026-12-31; from 2027-01-01 the two Flash models are 1.50, 7.50, 0.15.
 	automatic("gemini-3.8-flash", "gemini", 0.75, 3.75, 0.075),
 	automatic("gemini-3.6-flash", "gemini", 0.75, 3.75, 0.075),
 	automatic("gemini-3.5-flash-lite", "gemini", 0.30, 2.50, 0.03),

@@ -20,6 +20,17 @@ func TestLookup(t *testing.T) {
 		{"gemini-2.5-flash-lite", "gemini-2.5-flash-lite"},
 		{"claude-haiku-5-5", "claude-haiku-5-5"},
 		{"gpt-6.1-sol", "gpt-6.1-sol"},
+		{"gpt-6.1-terra", "gpt-6.1-terra"},
+		{"gpt-5.6-cyber", "gpt-5.6-cyber"},
+		{"gemini-4-argon", "gemini-4-argon"},
+		// Old models answer to their dated IDs, and the shorter claude-opus-4 must not
+		// take the versioned ones.
+		{"claude-opus-4-20250514", "claude-opus-4"},
+		{"claude-opus-4-1-20250805", "claude-opus-4-1"},
+		{"claude-opus-4-8", "claude-opus-4-8"},
+		{"claude-sonnet-4-20250514", "claude-sonnet-4"},
+		{"claude-sonnet-4-6", "claude-sonnet-4-6"},
+		{"claude-3-5-haiku-20241022", "claude-3-5-haiku"},
 		{"llama-4", ""},
 	}
 	for _, tt := range tests {
