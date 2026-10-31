@@ -58,7 +58,8 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   - Deferred MCP tools in `mcp-proxy` [15]: one-line summaries plus a search tool, full schemas on demand.
   - Session fetch cache [16]: the same URL again returns "unchanged since <id>" or a diff.
   - Guide lines [17 each]: never restate tool output; delegate wide exploration to a subagent.
-  - Context-size nudge at prompt time [17]: needs the numbers from the compaction economics task first.
+  - Context-size nudge at prompt time [17]: shipped (`contextnudge.go`, threshold 250k); its effect on cost is
+    not measured yet: run `ab.sh` with the `compaction` experiment and `AB_CLAUDE_ENV`, compare cost with and without.
   - Exit codes in events [15]: lets `learn` and the hint see repeated failures.
   - Pasted logs, JSON and diffs in user prompts through the proxy pipeline [17].
   - Resume vs fresh session price in `gain` [17]; waste report per session in `replay` [17].

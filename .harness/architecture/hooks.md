@@ -47,6 +47,12 @@
   servers and idle tools not yet chosen to load on request, records the day, opens `/mcp` (not under
   `CI`) and adds one note. Direct servers and servers still learning never count. The setup question
   `mcp_review` is optional and on by default, like `release`.
+- **Context-size nudge** (`contextnudge.go`): a UserPromptSubmit hook reads the transcript tail
+  (`transcriptEnd`, 256 KB), takes the latest main-conversation request's input + cache read + cache
+  write (as `readSession` counts it; subagents and synthetic turns skipped) and, at or above 250k
+  tokens (`$GASCOIGNE_CONTEXT_NUDGE` in tokens, `0` or `off` never), answers with one
+  `additionalContext` line: "context is Nk tokens: finish or /compact". Signal only, on every prompt
+  above the threshold; nothing is forced. A transcript without `usage` lines gives no note.
 - **Legacy installs** (`installs.go` `legacyInstalls`): installs made before `installs.json` existed
   (the first release) are found by their config: the user-level file, and this project's, holding
   `hook <agent>` while nothing records it. `readInstalls` returns them as registration 0, so the

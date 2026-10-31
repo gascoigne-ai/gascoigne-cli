@@ -81,7 +81,11 @@ func cmdHook(ctx context.Context, args []string) error {
 				fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
 			}
 		}
-		return nil
+		note := contextNudge(in.TranscriptPath)
+		if note == "" {
+			return nil
+		}
+		return json.NewEncoder(os.Stdout).Encode(map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "UserPromptSubmit", "additionalContext": note}})
 	}
 	if c.agent == "" && os.Getenv("GASCOIGNE_AGENT") == "" {
 		c.agent = name
@@ -477,25 +481,30 @@ const transcriptTail = 256 << 10
 
 var modelField = lazyre.New(`"model"\s*:\s*"([a-z][a-z0-9.\-]+[a-z0-9])"`)
 
-// transcriptModel is the model of the latest request an agent logged in
-// its transcript (Claude Code and Gemini CLI give hooks its path), so runs
-// are priced with the model that reads them. Only the file's tail is read.
-func transcriptModel(path string) string {
+// transcriptEnd is the last transcriptTail bytes of a transcript, nil when unreadable.
+func transcriptEnd(path string) []byte {
 	f, err := os.Open(path)
 	if err != nil {
-		return ""
+		return nil
 	}
 	defer f.Close()
 	st, err := f.Stat()
 	if err != nil {
-		return ""
+		return nil
 	}
 	off := max(0, st.Size()-transcriptTail)
 	buf := make([]byte, st.Size()-off)
 	if _, err := f.ReadAt(buf, off); err != nil && !errors.Is(err, io.EOF) {
-		return ""
+		return nil
 	}
-	ms := modelField.Regexp().FindAllSubmatch(buf, -1)
+	return buf
+}
+
+// transcriptModel is the model of the latest request an agent logged in
+// its transcript (Claude Code and Gemini CLI give hooks its path), so runs
+// are priced with the model that reads them. Only the file's tail is read.
+func transcriptModel(path string) string {
+	ms := modelField.Regexp().FindAllSubmatch(transcriptEnd(path), -1)
 	if len(ms) == 0 {
 		return ""
 	}
