@@ -18,6 +18,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
 // withLedger parses flags, starts the service and hands the ledger to fn.
@@ -69,9 +70,26 @@ func cmdRaw(ctx context.Context, args []string) error {
 		if err != nil {
 			return err
 		}
-		_, err = io.WriteString(os.Stdout, text)
+		_, err = io.WriteString(os.Stdout, rawHeader(text, sl.Partial())+text)
 		return err
 	})
+}
+
+// rawHeaderMin is the size in tokens from which a whole original gets a size header,
+// so an agent that sees the cost can read part of it instead of all.
+const rawHeaderMin = 2000
+
+// rawHeader is one line ahead of a whole original over rawHeaderMin tokens. The text
+// still follows in full, so nothing is withheld.
+func rawHeader(text string, partial bool) string {
+	if partial {
+		return ""
+	}
+	n := tokens.Estimate(text)
+	if n < rawHeaderMin {
+		return ""
+	}
+	return fmt.Sprintf("[gascoigne: %d tokens; -grep RE, -lines A-B, -query WORDS read part]\n", n)
 }
 
 func cmdFail(ctx context.Context, args []string) error {
