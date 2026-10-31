@@ -29,7 +29,8 @@ type hookInput struct {
 	HookEventName  string          `json:"hook_event_name"`
 	ToolName       string          `json:"tool_name"`
 	TranscriptPath string          `json:"transcript_path"`
-	Source         string          `json:"source"` // SessionStart: startup, resume, clear or compact
+	Source         string          `json:"source"`   // SessionStart: startup, resume, clear or compact
+	AgentID        string          `json:"agent_id"` // set inside a subagent
 	ToolInput      map[string]any  `json:"tool_input"`
 	ToolResponse   json.RawMessage `json:"tool_response"`
 
@@ -62,6 +63,7 @@ func cmdHook(ctx context.Context, args []string) error {
 		fmt.Fprintln(os.Stderr, "gascoigne hook: read event:", err)
 		return nil
 	}
+	forgetReads(in)
 	if in.HookEventName == "SessionStart" || in.HookEventName == "UserPromptSubmit" {
 		in.syncNote = syncNote()
 		checkReleaseQuick(ctx)

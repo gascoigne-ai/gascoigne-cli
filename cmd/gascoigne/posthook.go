@@ -72,6 +72,9 @@ func optimizeResult(ctx context.Context, c *common, in hookInput) (any, error) {
 		pattern, _ := in.ToolInput["pattern"].(string)
 		return replaceField(ctx, c, resp, "content", map[string]string{payload.AttrCmd: "rg -n " + shellQuote(pattern)})
 	case name == "Read":
+		if out := foldRead(in, resp); out != nil {
+			return out, nil
+		}
 		return readImage(ctx, c, resp)
 	case isOtherMCP(name):
 		return mcpResult(ctx, c, resp, mcptool.Attrs(name, in.ToolInput))

@@ -77,6 +77,12 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   text with holes in it, and Edit fails when `old_string` does not match the file. Not built: the reads are
   targeted (the agent asked for those lines). What is left is a size guard for whole-file reads of big files
   (deferred above: it can break Edit flows) and, with the LLM proxy on, its `renumber`d Read path.
+- Identical Read re-reads (2026-11-01, main-conversation Reads without offset/limit in all local transcripts, 1598
+  results, 3.9 MB): 414 (26%) were byte-identical to an earlier Read of the same path in the session, 1.02 MB.
+  Of those 277 (67%, 0.51 MB = 50% of the bytes) had no compaction between the two reads, so most do not follow
+  a compaction and a pointer is worth building (built: `readfold.go`, `hooks.md`). The other 137 follow a
+  compaction: there the agent no longer holds the text and must get it whole, hence the reset on SessionStart
+  `compact|clear|resume`. Not measured: results Claude Code drops by itself; the one-hour age limit covers it.
 
 - Subagents (`gascoigne context`, 2026-10-12, 90 days, one machine): 346 requests, about $6.5 of $485 (1.3%).
   Their hooks run like the main conversation's; there is little to gain from a guide line about them.
