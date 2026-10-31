@@ -12,6 +12,7 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -193,7 +194,7 @@ func TestAttrsFromCalls(t *testing.T) {
 		{call{"mcp__db__query", map[string]any{"sql": "select 1"}}, map[string]string{"tool": "mcp__db__query"}},
 	}
 	for _, tt := range tests {
-		got := attrsOf(tt.call)
+		got := mcptool.Attrs(tt.call.name, tt.call.input)
 		for k, v := range tt.want {
 			if got[k] != v {
 				t.Errorf("%s %v: %s = %q, want %q", tt.call.name, tt.call.input, k, got[k], v)
@@ -214,7 +215,7 @@ func TestAttrsQueryFromDescription(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := attrsOf(call{name: "Bash", input: tt.input})[payload.AttrQuery]; got != tt.want {
+			if got := mcptool.Attrs("Bash", tt.input)[payload.AttrQuery]; got != tt.want {
 				t.Errorf("query = %q, want %q", got, tt.want)
 			}
 		})

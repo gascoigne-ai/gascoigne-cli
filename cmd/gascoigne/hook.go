@@ -17,6 +17,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/hookreceiver"
 )
@@ -137,7 +138,7 @@ func optimizeHook(reply func(text string) any) hookFunc {
 			if !ok {
 				return nil, nil
 			}
-			out, err := optimizeText(ctx, c, text, map[string]string{payload.AttrTool: in.ToolName})
+			out, err := optimizeText(ctx, c, text, mcptool.Attrs(in.ToolName, in.ToolInput))
 			if err != nil || out == "" {
 				return nil, err
 			}

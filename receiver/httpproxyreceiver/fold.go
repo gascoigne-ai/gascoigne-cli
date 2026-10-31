@@ -10,6 +10,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
@@ -167,7 +168,7 @@ func clip(s string, n int) string {
 
 // label names a call for pointers: Read main.go, Bash "go test ./...".
 func label(c call) string {
-	a := attrsOf(c)
+	a := mcptool.Attrs(c.name, c.input)
 	if f := a[payload.AttrFile]; f != "" {
 		return c.name + " " + clip(f, 60)
 	}
@@ -189,7 +190,7 @@ func (r *Receiver) keep(ctx context.Context, c call, before, folded string, m me
 		return out
 	}
 	p := payload.New(payload.ToolResult, before)
-	for k, v := range attrsOf(c) {
+	for k, v := range mcptool.Attrs(c.name, c.input) {
 		p.Set(k, v)
 	}
 	out, err := r.save(ctx, p, folded, m)

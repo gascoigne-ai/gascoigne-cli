@@ -30,7 +30,7 @@
 
 ## Tool results
 
-- One payload per tool result, with attrs from the matching call (`attrsOf`):
+- One payload per tool result, with attrs from the matching call (`mcptool.Attrs`):
   - built-in tools are described as the shell command that prints the same thing: Read →
     `cat <path>` (or `sed -n <offset>,$p` for slices), Grep → `rg -n|-l|-c`, Glob/list → `find`
   - `query`/`prompt` → query attr; url; tool; model from the body; agent from the User-Agent

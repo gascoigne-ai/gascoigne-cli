@@ -45,3 +45,14 @@
   kind: tool_result
   attrs: { tool: mcp__mock__get_status }
   unchanged: true
+# A fetch-like call's url and query reach the pipeline from the proxy and from
+# the PostToolUse hook (mcptool.Attrs): a long page is typed web and sampled
+# for the query. Real page snapshot from testdata/eval/web.
+- name: fetch-page-query
+  file: ../eval/web/browser-snapshot.md
+  kind: tool_result
+  attrs:
+    tool: mcp__web__fetch
+    url: https://example.com/shop
+    query: battery fusion
+  min_saved: 50

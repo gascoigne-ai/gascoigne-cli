@@ -188,3 +188,32 @@ func TestResultHooksKeepHTMLSource(t *testing.T) {
 		})
 	}
 }
+
+// An MCP fetch call's url and query reach the pipeline in the hook, as in the
+// LLM proxy; without them the page was not typed web and never sampled for the query.
+func TestHookedMCPCallPassesArgs(t *testing.T) {
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	t.Setenv("GASCOIGNE_LEDGER", filepath.Join(t.TempDir(), "l.db"))
+	cfg := filepath.Join(t.TempDir(), "c.yaml")
+	os.WriteFile(cfg, []byte("{}\n"), 0o644)
+	t.Setenv("GASCOIGNE_CONFIG", cfg)
+	data, err := os.ReadFile("../../testdata/eval/web/browser-snapshot.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, _ := json.Marshal(map[string]any{"content": []any{map[string]any{"type": "text", "text": string(data)}}})
+	run := func(input map[string]any) string {
+		in := hookInput{HookEventName: "PostToolUse", ToolName: "mcp__web__fetch", ToolInput: input, ToolResponse: resp}
+		reply, err := agents["claude"].hook(t.Context(), &common{attrs: attrFlag{}}, in, "gascoigne exec")
+		if err != nil || reply == nil {
+			t.Fatalf("reply %v, err %v", reply, err)
+		}
+		out := reply.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)
+		return out["content"].([]any)[0].(map[string]any)["text"].(string)
+	}
+	bare := run(nil)
+	withArgs := run(map[string]any{"url": "https://example.com/shop", "query": "battery fusion"})
+	if n := strings.Count(strings.ToLower(withArgs), "fusion"); n <= strings.Count(strings.ToLower(bare), "fusion") {
+		t.Errorf("query kept no more matching lines: %d with args, %d without", n, strings.Count(strings.ToLower(bare), "fusion"))
+	}
+}

@@ -1,19 +1,17 @@
 package httpproxyreceiver
 
 import (
-	"cmp"
 	"container/list"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
 	"sync"
 
-	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -57,76 +55,9 @@ func (r *Receiver) shorten(ctx context.Context, c call, text string, m meta) str
 
 func cacheKey(c call, text string) string {
 	h := sha256.New()
-	fmt.Fprintf(h, "%s\x00%v\x00", c.name, attrsOf(c))
+	fmt.Fprintf(h, "%s\x00%v\x00", c.name, mcptool.Attrs(c.name, c.input))
 	h.Write([]byte(text))
 	return hex.EncodeToString(h.Sum(nil))
-}
-
-// attrsOf gives the payload what the tool call says about its output, so
-// detection picks the right engine: the built-in tools of each agent are
-// described as the shell command that prints the same thing.
-func attrsOf(c call) map[string]string {
-	a := map[string]string{payload.AttrTool: c.name}
-	str := func(keys ...string) string {
-		for _, k := range keys {
-			if v, ok := c.input[k].(string); ok && v != "" {
-				return v
-			}
-		}
-		return ""
-	}
-	if q := str("query", "q", "search", "prompt"); q != "" {
-		a[payload.AttrQuery] = q // relevance for long pages, search results, JSON
-	} else if q := sample.Intent(str("description")); q != "" {
-		a[payload.AttrQuery] = q // what a shell call is for, in the agent's words
-	}
-	if u := str("url"); u != "" {
-		a[payload.AttrURL] = u
-	}
-	switch strings.ToLower(c.name) {
-	case "read", "read_file", "view", "view_file", "fs_read":
-		f := str("file_path", "path", "absolute_path")
-		if f == "" {
-			break
-		}
-		a[payload.AttrFile] = f
-		// A whole file reads like cat (gaps name file lines); a slice like
-		// sed -n (gaps counted), since its first line is not line 1.
-		a[payload.AttrCmd] = "cat " + f
-		if offset, _ := c.input["offset"].(json.Number); offset != "" && offset != "0" && offset != "1" {
-			a[payload.AttrCmd] = "sed -n " + string(offset) + ",$p " + f
-		}
-	case "grep", "grep_search", "search_file_content":
-		args := "rg -n"
-		if mode := str("output_mode"); mode == "files_with_matches" {
-			args = "rg -l"
-		} else if mode == "count" {
-			args = "rg -c"
-		}
-		a[payload.AttrCmd] = args + " " + shellQuote(str("pattern", "query")) + " " + str("path")
-	case "glob", "find", "list_dir", "ls", "list_directory":
-		a[payload.AttrCmd] = "find " + cmp.Or(str("path"), ".") + " -name " + shellQuote(cmp.Or(str("pattern", "glob"), "*"))
-	default:
-		if cmd := str("command", "cmd"); cmd != "" {
-			a[payload.AttrCmd] = cmd
-		} else if f := str("file_path"); f != "" {
-			a[payload.AttrFile] = f
-			a[payload.AttrCmd] = "cat " + f
-		}
-	}
-	a[payload.AttrCmd] = strings.TrimSpace(a[payload.AttrCmd])
-	if a[payload.AttrCmd] == "" {
-		delete(a, payload.AttrCmd)
-	}
-	return a
-}
-
-// shellQuote quotes s for display in a command line.
-func shellQuote(s string) string {
-	if s != "" && !strings.ContainsAny(s, " \t'\"$`\\|&;<>()*?[]{}") {
-		return s
-	}
-	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }
 
 func (r *Receiver) optimize(ctx context.Context, c call, original string, m meta) string {
@@ -136,7 +67,7 @@ func (r *Receiver) optimize(ctx context.Context, c call, original string, m meta
 		text = plain
 	}
 	p := payload.New(payload.ToolResult, text)
-	for k, v := range attrsOf(c) {
+	for k, v := range mcptool.Attrs(c.name, c.input) {
 		p.Set(k, v)
 	}
 	if m.model != "" {

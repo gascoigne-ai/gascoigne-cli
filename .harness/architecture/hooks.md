@@ -8,6 +8,7 @@
   - claude PostToolUse `updatedToolOutput` in the tool's shape (Bash stdout, Grep content mode, `mcp__*`)
   - codex PostToolUse `decision: block` + `reason` (`^Bash$|^mcp__.*`)
   - gemini AfterTool `decision: deny` + `reason` (shell, `mcp_*`)
+  - MCP results get the call's attrs from `mcptool.Attrs(name, input)`, shared with the LLM proxy: `tool`, `query` (query/q/search/prompt, else the description's intent) and `url`, so fetch-like results are typed web and sampled for the query
   - skipped: hinted output (`hintRe`) and gascoigne's own MCP tools. Read is never replaced
     (Claude numbers its lines).
 - **Permission rules** (`rules.go`): `install claude` adds deny rules like wrap (Grep, Glob,

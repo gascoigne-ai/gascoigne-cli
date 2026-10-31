@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -45,7 +46,7 @@ func geminiAfter(h hookFunc) hookFunc {
 		if in.HookEventName != "AfterTool" {
 			return h(ctx, c, in, prefix)
 		}
-		attrs := map[string]string{payload.AttrTool: in.ToolName}
+		attrs := mcptool.Attrs(in.ToolName, in.ToolInput)
 		if in.ToolName == "run_shell_command" {
 			cmd, _ := in.ToolInput["command"].(string)
 			if ownCommand(cmd) {

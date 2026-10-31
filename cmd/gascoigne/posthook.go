@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -59,7 +60,7 @@ func optimizeResult(ctx context.Context, c *common, in hookInput) (any, error) {
 		pattern, _ := in.ToolInput["pattern"].(string)
 		return replaceField(ctx, c, resp, "content", map[string]string{payload.AttrCmd: "rg -n " + shellQuote(pattern)})
 	case isOtherMCP(name):
-		return mcpResult(ctx, c, resp, map[string]string{payload.AttrTool: name})
+		return mcpResult(ctx, c, resp, mcptool.Attrs(name, in.ToolInput))
 	}
 	return nil, nil
 }
