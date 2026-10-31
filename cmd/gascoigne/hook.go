@@ -98,7 +98,7 @@ func cmdHook(ctx context.Context, args []string) error {
 		model = transcriptModel(in.TranscriptPath)
 		c.model = model
 	}
-	reply, err := a.hook(ctx, &c, in, execPrefix(self(), name, in.SessionID, model))
+	reply, err := a.hook(ctx, &c, in, execPrefix(self(), name, in.SessionID, model, lastContext(transcriptEnd(in.TranscriptPath))))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
 		return nil
@@ -462,7 +462,7 @@ func streams(cmd string) bool {
 // good (wrap -print) do not set GASCOIGNE_AGENT and GASCOIGNE_SESSION for
 // their shells the way wrap does, so the hook passes what it knows as flags
 // and the run is still tagged with its agent and session.
-func execPrefix(gascoigne, agent, session, model string) string {
+func execPrefix(gascoigne, agent, session, model string, context int) string {
 	out := gascoigne + " exec"
 	if os.Getenv("GASCOIGNE_AGENT") == "" {
 		out += " -agent " + shellQuote(agent)
@@ -473,8 +473,20 @@ func execPrefix(gascoigne, agent, session, model string) string {
 	if model != "" {
 		out += " -model " + shellQuote(model)
 	}
+	if context >= tightContextTokens {
+		out += tightBudgets
+	}
 	return out
 }
+
+// tightContextTokens is the context size from which output budgets shrink:
+// every token a hook result adds is re-read on each later turn. The hint still
+// points to the original.
+const tightContextTokens = 150_000
+
+// tightBudgets: head and tail shrink with max_tokens, which must stay above their sum.
+const tightBudgets = " -set optimizers.truncate.max_tokens=4000 -set optimizers.truncate.head_tokens=1300" +
+	" -set optimizers.truncate.tail_tokens=1300 -set optimizers.log.max_lines=100 -set optimizers.grep.max_files=40"
 
 // transcriptTail is how much of a transcript is read for its model.
 const transcriptTail = 256 << 10

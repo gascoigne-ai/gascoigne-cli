@@ -210,10 +210,40 @@ func TestExecPrefix(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("GASCOIGNE_AGENT", tt.envAgent)
 			t.Setenv("GASCOIGNE_SESSION", tt.envSession)
-			if got := execPrefix("gascoigne", "cursor", tt.hookSession, tt.model); got != tt.want {
+			if got := execPrefix("gascoigne", "cursor", tt.hookSession, tt.model, 0); got != tt.want {
 				t.Fatalf("got %q, want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+// A large context makes every hook result costlier to re-read, so budgets
+// shrink; truncate's head and tail must stay below its max or the config is rejected.
+func TestExecPrefixTightBudgets(t *testing.T) {
+	t.Setenv("GASCOIGNE_AGENT", "claude")
+	t.Setenv("GASCOIGNE_SESSION", "s")
+	tests := []struct {
+		name    string
+		context int
+		tight   bool
+	}{
+		{"unknown context", 0, false},
+		{"small context", tightContextTokens - 1, false},
+		{"large context", tightContextTokens, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := execPrefix("gascoigne", "claude", "", "", tt.context)
+			if want := "gascoigne exec"; !tt.tight && got != want {
+				t.Fatalf("got %q, want %q", got, want)
+			}
+			if tt.tight && got != "gascoigne exec"+tightBudgets {
+				t.Fatalf("got %q", got)
+			}
+		})
+	}
+	if !strings.Contains(tightBudgets, "max_tokens=4000") {
+		t.Fatal("truncate max_tokens not tightened")
 	}
 }
 

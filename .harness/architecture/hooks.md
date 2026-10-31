@@ -53,6 +53,11 @@
   tokens (`$GASCOIGNE_CONTEXT_NUDGE` in tokens, `0` or `off` never), answers with one
   `additionalContext` line: "context is Nk tokens: finish or /compact". Signal only, on every prompt
   above the threshold; nothing is forced. A transcript without `usage` lines gives no note.
+- **Tight budgets at large context** (`execPrefix`, `tightBudgets`): when the transcript's latest request
+  (`lastContext`, as above) is at or above 150k tokens, the rewritten `gascoigne exec` gets `-set`
+  overrides: `truncate.max_tokens=4000` (head/tail 1300 each, they must stay below max),
+  `log.max_lines=100`, `grep.max_files=40`. Decided once per hook call, so no cache concern; the hint
+  still points to the original. The LLM proxy is not keyed on context size (its cache key is content).
 - **Legacy installs** (`installs.go` `legacyInstalls`): installs made before `installs.json` existed
   (the first release) are found by their config: the user-level file, and this project's, holding
   `hook <agent>` while nothing records it. `readInstalls` returns them as registration 0, so the
