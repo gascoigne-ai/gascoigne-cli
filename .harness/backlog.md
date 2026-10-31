@@ -149,3 +149,12 @@ Measured; don't retry without new data.
   only judges and the user decides; "Learn now" and `mcp_proxy.rules` cover the manual path. Per-rule
   optimizer chains (`optimizers: [...]` on a rule) were also left out: nothing needs them yet, and a
   chain per tool breaks the one deterministic `router.default` the eval measures.
+- Rewriting history in the LLM proxy (2026-11-01): on one real ledger cache writes were 1.5% of reads; any
+  byte change in the prefix turns a cheap read into a write for everything after it. Only a cold-cache
+  variant is sane.
+- Lowering `minsize` (2026-11-01): bypassed commands sum to about 450k tokens a month at 50-70 tokens each;
+  the 20-token hint floor (`pipeline.go`) eats most of any saving.
+- PreToolUse deny on big Reads (2026-11-01): a deny costs a turn and can break Edit flows. A data-file type
+  guard (`.lock`, `.jsonl`, `.min.js`, `.map`, `.ipynb`) is the only shape worth an A/B.
+- Shortening the hint wording (2026-11-01): about $0.7 a month on one ledger; reconsider after per-family
+  Claude token factors price it (task 013).
