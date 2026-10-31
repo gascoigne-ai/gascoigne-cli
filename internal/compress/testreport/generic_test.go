@@ -5,7 +5,22 @@ import (
 	"testing"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
+
+// Every rule must match its own examples and none of its near misses.
+func TestRulesVerify(t *testing.T) {
+	for name, r := range dialects {
+		tables := map[string]pcomb.Rules{"keep": r.keep, "pass": r.pass, "noise": r.noise, "frames": r.frames}
+		for table, rs := range tables {
+			t.Run(name+"/"+table, func(t *testing.T) {
+				if err := rs.Verify(); err != nil {
+					t.Error(err)
+				}
+			})
+		}
+	}
+}
 
 func TestCompressDialects(t *testing.T) {
 	tests := []struct {

@@ -368,5 +368,5 @@ test/catch-fail	148	0	0
 test/cypress-fail	377	0	0
 test/dub-test	433	0	0
 test/hspec-fail	101	0	0
-test/karma-fail	192	0	0
+test/karma-fail	130	0	1
 test/minitest-fail	176	0	0
