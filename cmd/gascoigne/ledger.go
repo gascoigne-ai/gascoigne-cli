@@ -213,9 +213,9 @@ func printFailures(ctx context.Context, w io.Writer, l *ledger.Ledger, now time.
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(w, "key\tcount\tlast\treason\t")
+	fmt.Fprintln(w, "key\tcount\tlast\treason\traw tokens\t")
 	for _, f := range fs {
-		fmt.Fprintf(w, "%s\t%d\t%s\t%s\t\n", f.Key, f.Count, ago(f.Last, now), f.Reason)
+		fmt.Fprintf(w, "%s\t%d\t%s\t%s\t%d\t\n", f.Key, f.Count, ago(f.Last, now), f.Reason, f.RawTokens)
 	}
 	return nil
 }
@@ -230,10 +230,11 @@ func failuresJSON(ctx context.Context, l *ledger.Ledger) error {
 		Count  int       `json:"count"`
 		Last   time.Time `json:"last"`
 		Reason string    `json:"reason"`
+		Raw    int       `json:"raw_tokens"`
 	}
 	out := []failure{}
 	for _, f := range fs {
-		out = append(out, failure{f.Key, f.Count, f.Last, f.Reason})
+		out = append(out, failure{f.Key, f.Count, f.Last, f.Reason, f.RawTokens})
 	}
 	return writeJSON(map[string]any{"failures": out})
 }
@@ -392,9 +393,9 @@ func failuresCSV(ctx context.Context, w io.Writer, l *ledger.Ledger) error {
 	if err != nil {
 		return err
 	}
-	rows := [][]string{{"key", "count", "last", "reason"}}
+	rows := [][]string{{"key", "count", "last", "reason", "raw_tokens"}}
 	for _, f := range fs {
-		rows = append(rows, []string{f.Key, fmt.Sprint(f.Count), f.Last.Format(time.RFC3339), f.Reason})
+		rows = append(rows, []string{f.Key, fmt.Sprint(f.Count), f.Last.Format(time.RFC3339), f.Reason, fmt.Sprint(f.RawTokens)})
 	}
 	return csv.NewWriter(w).WriteAll(rows)
 }

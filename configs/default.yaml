@@ -29,7 +29,7 @@ receivers:
 filters:
   bypass: { env: GASCOIGNE_RAW }               # attr raw=true or this env set to 1
   minsize: { min_tokens: 200 } # small payloads are not worth it
-  history: { ledger: ledger, max_failures: 1 } # skip sources that optimized badly before
+  history: { ledger: ledger, max_failures: 2, fetch_max_failures: 3, failure_ttl: 24h } # skip sources that optimized badly within failure_ttl
   # edit_safe: files of these families read from disk (cat, sed -n, Read) and under
   # edit_safe_max_tokens are typed fs/code: kept in their own syntax, only comment lines drop
   detect: { edit_safe: [data, k8s, cloud, infra], edit_safe_max_tokens: 4000 } # tag each block with its content type

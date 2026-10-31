@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
@@ -41,11 +42,26 @@ func (f *Filter) Filter(ctx context.Context, p *payload.Payload) (component.Deci
 	if err != nil {
 		return component.Continue, fmt.Errorf("failures %s: %w", key, err)
 	}
-	if info.Count >= f.cfg.MaxFailures {
+	limit := f.limit(key, info)
+	if info.Count >= limit && !f.expired(info) {
 		f.log.Debug("known bad key", "key", key, "failures", info.Count)
 		p.Set(payload.AttrSkip, fmt.Sprintf("%s failed %d× (max_failures %d), last: %s at %s; reset: gascoigne forget %q",
-			key, info.Count, f.cfg.MaxFailures, info.Reason, info.Last.Format(time.DateTime), key))
+			key, info.Count, limit, info.Reason, info.Last.Format(time.DateTime), key))
 		return component.Bypass, nil
 	}
 	return component.Continue, nil
+}
+
+// limit is the failure count that bypasses key: a whole read of a fetched
+// page is how docs are meant to be read, so it takes more of them.
+func (f *Filter) limit(key string, info component.FailureInfo) int {
+	if strings.HasPrefix(key, "url:") && info.Reason == component.ReasonRawRequested {
+		return f.cfg.FetchMaxFailures
+	}
+	return f.cfg.MaxFailures
+}
+
+// expired reports a last failure older than failure_ttl.
+func (f *Filter) expired(info component.FailureInfo) bool {
+	return f.cfg.FailureTTL > 0 && time.Since(info.Last) > f.cfg.FailureTTL
 }

@@ -62,7 +62,9 @@
 #   minsize: { min_tokens: 200 }      ## smaller payloads are not worth it
 #   history:                          ## skip sources that optimized badly before
 #     ledger: ledger
-#     max_failures: 1                 ## reset one with: gascoigne forget <key>
+#     max_failures: 2                 ## failures that bypass a source; reset one with: gascoigne forget <key>
+#     fetch_max_failures: 3           ## same for fetched pages read whole on purpose
+#     failure_ttl: 24h                ## failures older than this are ignored
 
 ## One engine per family. Limits keep what an agent acts on first and mark every gap.
 # optimizers:

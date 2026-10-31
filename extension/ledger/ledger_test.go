@@ -144,6 +144,31 @@ func TestFailures(t *testing.T) {
 	}
 }
 
+// gain -failures must show what a failing key cost: raw tokens of runs the
+// history filter bypassed since the failure, not other bypasses or older runs.
+func TestFailureListCountsRawTokensSinceFailure(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	run := func(key, filter string, tokens int) {
+		t.Helper()
+		ev := component.Event{TS: time.Now().Add(time.Second), Key: key, RawTokens: tokens, OutTokens: tokens, Outcome: component.Bypassed, Filter: filter}
+		if err := l.Record(ctx, ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := l.MarkFailure(ctx, "cmd:ls", component.ReasonError); err != nil {
+		t.Fatal(err)
+	}
+	run("cmd:ls", "history", 300)
+	run("cmd:ls", "history", 200)
+	run("cmd:ls", "minsize", 50)
+	run("cmd:other", "history", 900)
+	fs, err := l.FailureList(ctx)
+	if err != nil || len(fs) != 1 || fs[0].RawTokens != 500 {
+		t.Fatalf("FailureList = %+v, %v; want 500 raw tokens", fs, err)
+	}
+}
+
 func TestStats(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()

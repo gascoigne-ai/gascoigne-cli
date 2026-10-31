@@ -75,7 +75,7 @@ A source is marked as failing when:
 | you said so: `gascoigne fail <key or raw id>` | `manual` (or `-reason`) |
 
 The `history` filter then passes that source through untouched once it reached
-`max_failures` (1 by default). Fetching an original is the signal: the optimized output was
+`max_failures` (2 by default; fetched pages: `fetch_max_failures`, 3) within `failure_ttl` (24h). Fetching an original is the signal: the optimized output was
 not enough for that command, file or URL, so next time the agent gets it whole.
 
 ```sh
@@ -148,7 +148,7 @@ Every run that was not optimized records a factual reason:
 |---|---|
 | bypassed by `bypass` | `raw requested: attr raw=true`, `env GASCOIGNE_RAW=1` |
 | bypassed by `minsize` | `45 tokens < min_tokens 200` |
-| bypassed by `history` | `cmd:go test ./... failed 1× (max_failures 1), last: raw_requested at …; reset: gascoigne forget cmd:go test ./...` |
+| bypassed by `history` | `cmd:go test ./... failed 2× (max_failures 2), last: raw_requested at …; reset: gascoigne forget cmd:go test ./...` |
 | error | the first line of the optimizer's error, or `save original: …` |
 | unchanged | the optimizer's own note (`cat: 590 tokens < clean_min_tokens 800`), or `no optimizer changed it` with the detected types |
 

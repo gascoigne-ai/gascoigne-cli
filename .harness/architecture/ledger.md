@@ -102,4 +102,4 @@ Filters and no-op optimizers explain themselves via the `skip_reason` attr (`pay
 
 Signals → `MarkFailure(key, reason)`: optimizer error (`error`), agent fetched the raw original
 (`raw_requested`), `gascoigne fail` (`manual`). The `history` filter bypasses a key once
-`count >= max_failures`; `gascoigne forget <key>` resets it.
+`count >= max_failures` and its last failure is younger than `failure_ttl` (24h; 0 never expires). A fetch URL whose last failure was `raw_requested` needs `fetch_max_failures` (3): a doc page is read whole by design. `gain -failures` shows the raw tokens passed since the last failure (history-bypassed runs of the key). `gascoigne forget <key>` resets it.

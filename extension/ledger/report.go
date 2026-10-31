@@ -133,6 +133,9 @@ type Failure struct {
 	Count  int
 	Last   time.Time
 	Reason string
+	// RawTokens passed unoptimized because the history filter bypassed the
+	// key since its last failure.
+	RawTokens int
 }
 
 func (l *Ledger) FailureList(ctx context.Context) ([]Failure, error) {
@@ -142,7 +145,13 @@ func (l *Ledger) FailureList(ctx context.Context) ([]Failure, error) {
 	}
 	fs := make([]Failure, len(rows))
 	for i, r := range rows {
-		fs[i] = Failure{r.Key, r.Count, time.UnixMilli(r.LastTS), r.Reason}
+		fs[i] = Failure{Key: r.Key, Count: r.Count, Last: time.UnixMilli(r.LastTS), Reason: r.Reason}
+		err := l.db.WithContext(ctx).Model(&event{}).
+			Where("key = ? AND filter = 'history' AND outcome = ? AND ts >= ?", r.Key, component.Bypassed, r.LastTS).
+			Select("coalesce(sum(raw_tokens), 0)").Scan(&fs[i].RawTokens).Error
+		if err != nil {
+			return nil, err
+		}
 	}
 	return fs, nil
 }
