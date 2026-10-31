@@ -9,7 +9,7 @@
 - run: git log --stat -n 30
   expect_type: vcs/git-log
   min_saved: 20
-- run: git diff HEAD~3 HEAD -- cmd/gascoigne
+- run: git diff 9552750 eb1ebb5 -- cmd/gascoigne
   expect_type: vcs/git-diff
   min_saved: 8
 - run: rg -n "func " internal/compress/
