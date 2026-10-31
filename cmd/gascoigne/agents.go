@@ -150,9 +150,9 @@ func claudeSettings(exe string) map[string]any {
 				"hooks":   []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
 			}},
 			// Optimizes what the rewrite could not reach: Bash left as it was,
-			// Grep's content, every MCP server's results.
+			// Grep's content, every MCP server's results, image Reads (downscaled).
 			"PostToolUse": []any{map[string]any{
-				"matcher": "Bash|Grep|mcp__.*",
+				"matcher": "Bash|Grep|Read|mcp__.*",
 				"hooks":   []any{map[string]any{"type": "command", "command": hookCommand(exe, "claude")}},
 			}},
 			// Starts the background server again before the first request

@@ -1,23 +1,35 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"maps"
 	"strings"
+	"time"
 
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/imgscale"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/httpproxyreceiver"
 )
 
 // Claude Code lets a PostToolUse hook replace any tool's result
 // (updatedToolOutput, which must keep the tool's output shape), so what
 // the PreToolUse rewrite cannot reach is optimized after it ran: Bash
 // commands left as they were (pipes, redirects, loops, background runs),
-// Grep's content mode, and every MCP server's results, remote and plugin
-// ones included. Read stays untouched: Claude numbers its lines itself, and
-// dropped lines would shift the numbers it shows.
+// Grep's content mode, every MCP server's results, remote and plugin
+// ones included, and image Reads (downscaled). A text Read stays untouched:
+// Claude numbers its lines itself, and dropped lines would shift the numbers
+// it shows.
 
 // hintRe finds output gascoigne already optimized: exec's hint and the MCP
 // server's and proxy's.
@@ -59,6 +71,8 @@ func optimizeResult(ctx context.Context, c *common, in hookInput) (any, error) {
 		}
 		pattern, _ := in.ToolInput["pattern"].(string)
 		return replaceField(ctx, c, resp, "content", map[string]string{payload.AttrCmd: "rg -n " + shellQuote(pattern)})
+	case name == "Read":
+		return readImage(ctx, c, resp)
 	case isOtherMCP(name):
 		return mcpResult(ctx, c, resp, mcptool.Attrs(name, in.ToolInput))
 	}
@@ -148,6 +162,82 @@ func optimizeText(ctx context.Context, c *common, text string, attrs map[string]
 		return "", err
 	}
 	return hinted(p), nil
+}
+
+// readImage downscales the screenshot an image Read returns when it is above
+// the LLM proxy's max_image_pixels (one knob for both): Claude sends the image
+// as it comes, so a hook is the only place to shrink it without the proxy. The
+// shape stays: only file.base64 and the display size change. The original goes
+// to the ledger first; if it cannot be kept the image stays.
+func readImage(ctx context.Context, c *common, resp any) (any, error) {
+	obj, _ := resp.(map[string]any)
+	file, _ := obj["file"].(map[string]any)
+	data, _ := file["base64"].(string)
+	if obj["type"] != "image" || data == "" {
+		return nil, nil
+	}
+	maxPixels, err := c.maxImagePixels()
+	if err != nil || maxPixels <= 0 {
+		return nil, err
+	}
+	mt, _ := file["type"].(string)
+	out, before, after, ok := imgscale.Shrink(data, mt, maxPixels)
+	if !ok {
+		return nil, nil
+	}
+	if err := c.keepImage(ctx, data, mt, before, after); err != nil {
+		return nil, err
+	}
+	nf := maps.Clone(file)
+	nf["base64"] = out
+	if dims, ok := file["dimensions"].(map[string]any); ok {
+		nf["dimensions"] = scaledDims(dims, out)
+	}
+	no := maps.Clone(obj)
+	no["file"] = nf
+	return no, nil
+}
+
+// scaledDims sets displayWidth/Height to the size of the downscaled image
+// (Claude reports them when it resizes an image itself); the original stays.
+func scaledDims(dims map[string]any, b64 string) map[string]any {
+	raw, _ := base64.StdEncoding.DecodeString(b64)
+	cfg, _, err := image.DecodeConfig(bytes.NewReader(raw))
+	if err != nil {
+		return dims
+	}
+	out := maps.Clone(dims)
+	out["displayWidth"], out["displayHeight"] = cfg.Width, cfg.Height
+	return out
+}
+
+// maxImagePixels is receivers.httpproxy.max_image_pixels of the config.
+func (c *common) maxImagePixels() (int, error) {
+	cfg, err := c.load()
+	if err != nil {
+		return 0, err
+	}
+	rc, _ := httpproxyreceiver.NewFactory().DefaultConfig().(*httpproxyreceiver.Config)
+	if err := config.DecodeNode(cfg.Receivers["httpproxy"], rc); err != nil {
+		return 0, fmt.Errorf("receivers.httpproxy: %w", err)
+	}
+	return rc.MaxImagePixels, nil
+}
+
+// keepImage saves the original of a downscaled image in the ledger.
+func (c *common) keepImage(ctx context.Context, data, mediaType string, before, after int) error {
+	run := *c
+	run.server, run.pipeline = true, "hook"
+	svc, err := run.start(ctx)
+	if svc != nil {
+		defer svc.Shutdown(context.WithoutCancel(ctx))
+	}
+	if err != nil {
+		return err
+	}
+	id := c.identity()
+	ev := component.Event{TS: time.Now(), Session: id.Session, Agent: id.Agent, Model: id.Model, Pipeline: "hook"}
+	return imgscale.Keep(ctx, svc.Ledger(), ev, data, mediaType, before, after)
 }
 
 // isOtherMCP: a tool of an MCP server other than gascoigne's own, whose

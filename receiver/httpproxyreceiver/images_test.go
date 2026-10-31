@@ -24,29 +24,6 @@ func pngOf(t *testing.T, w, h int) string {
 	return base64.StdEncoding.EncodeToString(b.Bytes())
 }
 
-func TestShrinkImage(t *testing.T) {
-	big := pngOf(t, 400, 200)
-	out, ok := shrinkImage(big, "image/png", 20000)
-	if !ok {
-		t.Fatal("big image not shrunk")
-	}
-	raw, _ := base64.StdEncoding.DecodeString(out)
-	cfg, _, err := image.DecodeConfig(bytes.NewReader(raw))
-	if err != nil || cfg.Width != 200 || cfg.Height != 100 {
-		t.Fatalf("got %dx%d (%v), want 200x100", cfg.Width, cfg.Height, err)
-	}
-	if again, _ := shrinkImage(big, "image/png", 20000); again != out {
-		t.Fatal("not deterministic")
-	}
-	small := pngOf(t, 50, 50)
-	if out, ok := shrinkImage(small, "image/png", 20000); ok || out != small {
-		t.Fatal("small image changed")
-	}
-	if out, ok := shrinkImage("not base64!", "image/png", 10); ok || out != "not base64!" {
-		t.Fatal("bad data changed")
-	}
-}
-
 func TestShrinkImagesInResult(t *testing.T) {
 	r, _, _, _, _ := setup(t)
 	r.cfg.MaxImagePixels = 20000

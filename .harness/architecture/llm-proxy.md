@@ -67,7 +67,7 @@ Read lines match by text, with a uniform line-number shift.
   - With `skill_code_lines`, longer code blocks keep their head plus
     `… N more lines: gascoigne raw <id> -lines a-b`. HTML comments go.
   - Measured: a 30k-token bundled skill is prose and tables (−0.3%).
-- **Images** (`images.go`, `max_image_pixels`, 0 = off): base64 PNG/JPEG blocks in tool results
+- **Images** (`images.go`, `max_image_pixels`, default 600000, 0 = off; shared with the Claude Read hook, `internal/compress/imgscale`): base64 PNG/JPEG blocks in tool results
   above the cap are box-downscaled (deterministic, cached by hash). The original is saved (`raw`)
   and the event counted in image tokens (pixels/750, route `image`).
 

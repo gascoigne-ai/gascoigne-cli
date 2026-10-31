@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
+
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/imgscale"
 )
 
 // anthropic shortens tool_result blocks of a Messages request; the tool_use
@@ -239,7 +241,7 @@ func (r *Receiver) shrinkImages(ctx context.Context, b map[string]any) bool {
 	if !ok {
 		var before, after int
 		var shrunk bool
-		out, before, after, shrunk = shrink(data, mt, r.cfg.MaxImagePixels)
+		out, before, after, shrunk = imgscale.Shrink(data, mt, r.cfg.MaxImagePixels)
 		if shrunk {
 			r.keepImage(ctx, data, mt, before, after)
 		}

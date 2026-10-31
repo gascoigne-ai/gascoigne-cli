@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
+	"image"
+	_ "image/png"
 	"os"
 	"path/filepath"
 	"strings"
@@ -66,6 +70,81 @@ func TestPostToolUse(t *testing.T) {
 				t.Fatalf("not optimized: %.200s", text)
 			}
 		})
+	}
+}
+
+// An image Read comes back as {type: image, file: {base64, type, originalSize,
+// dimensions}} (the toolUseResult Claude Code writes to its transcript). Above
+// max_image_pixels the hook shrinks file.base64, keeps every other key, and
+// leaves the original in the ledger; text Reads and small images stay as they are.
+func TestPostToolUseReadImage(t *testing.T) {
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	db := filepath.Join(t.TempDir(), "l.db")
+	t.Setenv("GASCOIGNE_LEDGER", db)
+	cfg := filepath.Join(t.TempDir(), "c.yaml")
+	os.WriteFile(cfg, []byte("{}\n"), 0o644)
+	t.Setenv("GASCOIGNE_CONFIG", cfg)
+	shot, err := os.ReadFile("../../docs/images/dashboard-light.png") // 1600×1319
+	if err != nil {
+		t.Fatal(err)
+	}
+	b64 := base64.StdEncoding.EncodeToString(shot)
+	read := func(file map[string]any) hookInput {
+		resp, _ := json.Marshal(map[string]any{"type": "image", "file": file})
+		return hookInput{HookEventName: "PostToolUse", ToolName: "Read", ToolResponse: resp}
+	}
+	big := map[string]any{"base64": b64, "type": "image/png", "originalSize": len(shot),
+		"dimensions": map[string]any{"originalWidth": 1600, "originalHeight": 1319, "displayWidth": 1600, "displayHeight": 1319}}
+	small := map[string]any{"base64": "iVBORw0KGgo=", "type": "image/png", "originalSize": 8}
+	for _, tt := range []struct {
+		name   string
+		in     hookInput
+		shrunk bool
+	}{
+		{"big image", read(big), true},
+		{"small image", read(small), false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			reply, err := agents["claude"].hook(t.Context(), &common{attrs: attrFlag{}}, tt.in, "gascoigne exec")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !tt.shrunk {
+				if reply != nil {
+					t.Fatalf("replied %v", reply)
+				}
+				return
+			}
+			out := reply.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)
+			file := out["file"].(map[string]any)
+			data := file["base64"].(string)
+			raw, _ := base64.StdEncoding.DecodeString(data)
+			got, _, err := image.DecodeConfig(bytes.NewReader(raw))
+			if err != nil || got.Width*got.Height > 600000 || len(data) >= len(b64) {
+				t.Fatalf("not shrunk: %dx%d, %d of %d bytes (%v)", got.Width, got.Height, len(data), len(b64), err)
+			}
+			dims := file["dimensions"].(map[string]any)
+			if out["type"] != "image" || file["type"] != "image/png" || file["originalSize"] != float64(len(shot)) ||
+				dims["originalWidth"] != float64(1600) || dims["displayWidth"] != got.Width || dims["displayHeight"] != got.Height {
+				t.Fatalf("shape changed: %v", file)
+			}
+			again, _ := agents["claude"].hook(t.Context(), &common{attrs: attrFlag{}}, tt.in, "gascoigne exec")
+			if again.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)["file"].(map[string]any)["base64"] != data {
+				t.Fatal("not deterministic")
+			}
+		})
+	}
+	l := ledger.New(&ledger.Config{Path: db})
+	if err := l.Start(t.Context(), nil); err != nil {
+		t.Fatal(err)
+	}
+	defer l.Shutdown(t.Context())
+	entries, err := l.Recent(t.Context(), component.StatsQuery{}, 0, 10)
+	if err != nil || len(entries) == 0 || entries[0].Route != "image" || entries[0].RawID == "" {
+		t.Fatalf("no image event: %v (%v)", entries, err)
+	}
+	if _, p, err := l.GetRaw(t.Context(), entries[0].RawID); err != nil || p.Text() != b64 {
+		t.Fatalf("original not kept: %v", err)
 	}
 }
 

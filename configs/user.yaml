@@ -51,7 +51,7 @@
 #     fold_min_chars: 80              ## fewest bytes such a run must have
 #     compact_tools: true             ## tool schemas: drop titles restating names, $schema markers
 #     skill_code_lines: 30            ## skill bodies: longer code blocks keep head + pointer (raw -lines); 0: off
-#     max_image_pixels: 0             ## >0: downscale tool-result screenshots above this many pixels
+#     max_image_pixels: 600000        ## >0: downscale tool-result screenshots above this many pixels
 
 ## Continue or bypass optimization.
 # filters:

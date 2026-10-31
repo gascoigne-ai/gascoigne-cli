@@ -9,7 +9,7 @@
   - codex PostToolUse `decision: block` + `reason` (`^Bash$|^mcp__.*`)
   - gemini AfterTool `decision: deny` + `reason` (shell, `mcp_*`)
   - MCP results get the call's attrs from `mcptool.Attrs(name, input)`, shared with the LLM proxy: `tool`, `query` (query/q/search/prompt, else the description's intent) and `url`, so fetch-like results are typed web and sampled for the query
-  - skipped: hinted output (`hintRe`) and gascoigne's own MCP tools. Read is never replaced
+  - skipped: hinted output (`hintRe`) and gascoigne's own MCP tools. Text Read is never replaced (image Reads are downscaled, see the Read row)
     (Claude numbers its lines).
 - **Permission rules** (`rules.go`): `install claude` adds deny rules like wrap (Grep, Glob,
   WebFetch) and, by the saved level (`install -permissions none|local|all`, `prefs.json`), allow
@@ -100,7 +100,7 @@
 | shell | rewrite (PreToolUse) | PostToolUse replaces result | rewrite (BeforeTool), AfterTool replaces what the rewrite missed | rewrite before the call |
 | Grep, Glob | denied → `rg`/`find` through the shell | shell only | shell only | shell only |
 | WebFetch | denied → gascoigne `fetch` (MCP) | no hook | no hook | no hook |
-| Read | not replaced: the hooks accept a replaced result of the tool's shape, but Claude numbers the lines itself, so only line-preserving changes are safe, and they save under 1% (see backlog); the LLM proxy shortens it when on | no hook | no hook | no hook |
+| Read | image Reads above `max_image_pixels` are downscaled (shape kept, original in the ledger); text not replaced: the hooks accept a replaced result of the tool's shape, but Claude numbers the lines itself, so only line-preserving changes are safe, and they save under 1% (see backlog); the LLM proxy shortens it when on | no hook | no hook | no hook |
 | MCP tools | PostToolUse `mcp__*`, plus `mcp-proxy` | PostToolUse `mcp__*` | AfterTool `mcp_*` | `mcp-proxy` only |
 | Subagents | hooks run there too: gascoigne's own PreToolUse and PostToolUse show in subagent transcripts (13 files, 2026-10-12) | unverified | unverified | unverified |
 

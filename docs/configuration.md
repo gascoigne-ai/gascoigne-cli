@@ -179,7 +179,7 @@ Routes you add replace the `routes` list as a whole, like any list.
 | `mcp_proxy.rules` | — | Manual rules, first match wins: `{match, action}` with `match` a tool-name glob or `server/tool`, `action` `skip` (results pass untouched), `shrink` (optimize; overrides a later skip) or `lazy` (listed on request only). Rules set on the [MCP review page](cli.md#mcp-review) follow these. |
 | `httpproxy.compact_tools` | true | The same for the tools of proxied API requests. |
 | `httpproxy.skill_code_lines` | 30 | Code blocks of invoked skill bodies longer than this keep their head and a pointer; 0 off. |
-| `httpproxy.max_image_pixels` | 0 | Downscale tool-result screenshots above this many pixels (e.g. 1024000); 0 off. |
+| `httpproxy.max_image_pixels` | 600000 | Downscale tool-result screenshots above this many pixels (proxy and the Claude Read hook); 0 off. |
 
 ### Filters
 

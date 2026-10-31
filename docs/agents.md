@@ -180,7 +180,7 @@ dashboard):
   renumbered, and each gap is a marker naming the lines to read back.
 - It also shrinks what is not a tool result but costs the same: tool schemas lose redundant
   keys (`compact_tools`), invoked skill bodies fold long code blocks (`skill_code_lines`), and
-  screenshots above `max_image_pixels` (off by default) are downscaled. System prompts, CLAUDE.md,
+  screenshots above `max_image_pixels` are downscaled. System prompts, CLAUDE.md,
   the skill list and reminders are recorded with their text, once per distinct block, so `gain
   -by command` shows what instructions cost.
 - The proxy also records what each request was billed, as the API reports it in the response
