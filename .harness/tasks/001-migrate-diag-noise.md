@@ -1,4 +1,5 @@
 status: todo
+# refactor(testreport): migrate rule tables to pcomb
 
 Move the remaining regex rule tables to `internal/pcomb`: `internal/compress/testreport` (`pass`,
 `noise`, `frames`, `keep` per runner in `generic.go`), then `internal/compress/detect`-style tables
