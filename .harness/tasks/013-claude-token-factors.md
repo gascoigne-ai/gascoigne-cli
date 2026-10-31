@@ -1,4 +1,5 @@
 status: todo
+# feat(cost): per-family Claude token factors
 
 `tokens.Estimate` is calibrated to o200k (mean +-10%, worst 30% on tables, `tokens/tokens.go:9-12`).
 Claude is priced with one global factor 1.58 (`internal/cost/cost.go:33`). The exact counter

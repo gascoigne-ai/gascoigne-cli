@@ -1,4 +1,5 @@
 status: todo
+# feat(pkg): package inventory list dialects
 
 Package inventories (`pip list|freeze`, `npm ls --depth=0`, `apt list --installed`, `pacman -Q`,
 `brew list --versions`, `gem list`, `go list -m all` text form) are not matched: `pip list` has a

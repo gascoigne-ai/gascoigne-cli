@@ -1,4 +1,5 @@
 status: todo
+# fix(fs): find fold keeps directory names
 
 `fs/find` and `tree` fold past `max_per_dir: 12` into `… 16 more: (none) ×16`
 (`internal/optimizer/lsoptimizer/paths.go:18-33,69`). The hidden entries were package/directory names, so

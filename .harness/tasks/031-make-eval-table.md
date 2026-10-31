@@ -1,4 +1,5 @@
 status: todo
+# feat(table): make eval table dialect
 
 `make eval` output in this repo is about 8.5k tokens per run (94k tokens a month unchanged): a table
 nothing handles.

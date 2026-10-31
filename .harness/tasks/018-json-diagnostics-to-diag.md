@@ -1,4 +1,5 @@
 status: todo
+# feat(diag): JSON diagnostics from linters and compilers
 
 JSON diagnostics (`cargo build --message-format=json`, `eslint -f json`, `ruff --output-format json`,
 `golangci-lint --out-format json`, `mypy --output json`, `pylint -f json`) hit the ndjson/json crusher,

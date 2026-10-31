@@ -1,4 +1,5 @@
 status: todo
+# fix(history): failure decay in the history filter
 
 The `history` filter bypasses a source forever after one failure. On this machine one fetch URL that
 needed a full `raw` read once passed through unoptimized on two later fetches and cost 2M tokens, 13%

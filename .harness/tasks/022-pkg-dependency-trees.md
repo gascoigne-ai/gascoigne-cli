@@ -1,4 +1,5 @@
 status: todo
+# feat(pkg): dependency tree dialects
 
 Only `mvn dependency:tree` has a dialect (`pkg/mvndeps`). Large trees from `npm ls --all`,
 `pnpm list|why`, `yarn why`, `cargo tree`, `go mod graph`, `pipdeptree`, `uv tree`,

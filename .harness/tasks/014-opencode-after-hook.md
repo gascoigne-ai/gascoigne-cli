@@ -1,4 +1,5 @@
 status: todo
+# feat(opencode): tool.execute.after hook
 
 The opencode integration has only `tool.execute.before` (`cmd/gascoigne/opencode.go:33-40`), so
 unwrapped commands and MCP results are never shortened. Codex already has a post hook. Cursor

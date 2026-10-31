@@ -1,4 +1,5 @@
 status: todo
+# feat(infra): terraform init and state dialects
 
 `detect/infra.go:14-18` has only plan/apply/destroy/refresh. `terraform init` prints provider download
 chatter; `state list` is a long path list; `validate` and `output` are unhandled.

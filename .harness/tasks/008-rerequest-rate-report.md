@@ -1,4 +1,5 @@
 status: todo
+# feat(gain): rerequest rate columns
 
 `gain` nets give-back into every grouping (`extension/ledger/report.go:108`) but shows no rate, and
 `Impact` is per day only (`report.go:341-353`). There is no way to see which dialect or optimizer is too

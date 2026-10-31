@@ -1,4 +1,5 @@
 status: todo
+# feat(learn): surface the top lesson at session start
 
 `learn.go` already finds `big` outputs (>= 1500 tokens left unchanged, line 29) and reruns, but its value
 is unmeasured. `make eval` in this repo is one (8.5k tokens a run).

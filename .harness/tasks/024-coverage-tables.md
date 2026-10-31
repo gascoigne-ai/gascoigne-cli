@@ -1,4 +1,5 @@
 status: todo
+# feat(test): coverage table dialects
 
 Coverage is handled only for `go tool cover -func` and lcov. Others (`pytest --cov` term report
 `Name Stmts Miss Cover`, `jest --coverage` boxed table, nyc/c8, simplecov, `coverage report`) go to

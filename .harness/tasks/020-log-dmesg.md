@@ -1,4 +1,5 @@
 status: todo
+# feat(log): dmesg dialect
 
 `dmesg` / `dmesg -T` (`[12345.678] usb 1-1: …`) falls to `doc/text`: the log sniffs need ISO dates or
 levels (`detect/log.go:35-36`), so only exact-duplicate folding applies. Driver messages repeat heavily.

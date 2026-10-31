@@ -1,4 +1,5 @@
 status: todo
+# feat(trace): Node stack frames
 
 `trace` handles JVM, Python, Rust, Ruby, .NET, PHP, gdb/sanitizers, D, but not Node
 (`architecture/families.md:83` leaves Node frames to family engines). A plain `node app.js` or

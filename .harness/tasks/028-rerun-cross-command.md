@@ -1,4 +1,5 @@
 status: todo
+# feat(rerun): cross-command folding
 
 `rerun` folds only runs of the same command key (`rerunoptimizer/rerun.go:53`, `p.Key()`). A
 `go test ./...` followed by `go test -run X ./pkg` showing the same failure prints it twice.

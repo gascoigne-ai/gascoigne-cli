@@ -1,4 +1,5 @@
 status: todo
+# feat(k8s): kubectl apply and rollout dialects
 
 `kubectl apply|delete|rollout status` print hundreds of `deployment.apps/x unchanged|configured|created`
 lines or repeating progress lines. They are not in `detect/k8s.go:16-30`.

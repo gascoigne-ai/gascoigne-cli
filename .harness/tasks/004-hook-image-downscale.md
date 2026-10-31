@@ -1,4 +1,5 @@
 status: todo
+# feat(hook): downscale images in tool results
 
 Images are 88% of tool-result bytes in 30 days of local transcripts (418 image Reads, 137.7 MB base64).
 Most are 1280x720 and 1500x850 screenshots. Nothing shrinks them without the proxy, and

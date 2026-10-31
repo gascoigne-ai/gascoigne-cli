@@ -1,4 +1,5 @@
 status: todo
+# feat(mcp-proxy): trim tool descriptions
 
 Backlog [16]: MCP tool schemas cost about 35k tokens per request. The `mcp-proxy` could cap tool
 descriptions with `compress/terse`.

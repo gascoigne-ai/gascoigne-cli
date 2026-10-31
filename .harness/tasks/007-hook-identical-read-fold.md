@@ -1,4 +1,5 @@
 status: todo
+# feat(hook): fold identical Read results to a pointer
 
 28.8% of Read bytes in local transcripts are byte-identical re-reads of the same path (662 repeat Reads,
 1.69 MB). The proxy fold covers this only when the proxy is on; login users get nothing.

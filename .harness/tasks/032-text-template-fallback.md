@@ -1,4 +1,5 @@
 status: todo
+# feat(doc): template folding fallback for text
 
 Unknown output (`wc -l` lists, `sort | uniq -c`, `stat`, `openssl x509 -text`, `nmap`, `dig`, `strace`)
 lands in `doc/text` and gets only exact-duplicate folding (`logoptimizer/log.go:33-34`). Risky: backlog

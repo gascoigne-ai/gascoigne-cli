@@ -1,4 +1,5 @@
 status: todo
+# feat(pkg): docker pull and push dialects
 
 `docker pull|push` and `docker compose pull` print layer progress (`Pulling fs layer`,
 `Waiting`, `Download complete`, `Already exists` x N). No Spec covers them.

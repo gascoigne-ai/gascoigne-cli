@@ -1,4 +1,5 @@
 status: todo
+# feat(vcs): git refs and diff --stat dialects
 
 `detect/vcs.go:17-28` has no `git reflog`, `stash list`, `tag`, `worktree list`, `remote -v`
 (fetch/push duplicate lines), `shortlog`, `for-each-ref`, `submodule status`. A bare `git diff --stat`

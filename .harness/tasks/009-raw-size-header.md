@@ -1,4 +1,5 @@
 status: todo
+# feat(raw): size header on large originals
 
 73% of `gascoigne raw` calls in local transcripts read the whole original (107 full vs 39 partial).
 Each is an extra turn plus the full text.

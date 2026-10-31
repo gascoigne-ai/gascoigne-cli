@@ -1,4 +1,5 @@
 status: todo
+# feat(cat): lower the comment-strip floor after an A/B
 
 `cat.clean_min_tokens` is 800 (`configs/default.yaml:66`). About 1.5M tokens a month of 200-800 token
 `sed`/`cat` source reads stay whole. Comment stripping saves 14-50% of source tokens (recommendations.md),

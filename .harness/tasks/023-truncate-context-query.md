@@ -1,4 +1,5 @@
 status: todo
+# feat(truncate): error context and query selection
 
 `truncate` keeps bare error lines with no context and ignores `query`
 (`internal/optimizer/truncateoptimizer/truncate.go:57-68`). Backlog [16] also scores `max_tokens`

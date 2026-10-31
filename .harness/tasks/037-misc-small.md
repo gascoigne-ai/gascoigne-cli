@@ -1,4 +1,5 @@
 status: todo
+# chore(misc): small dialect and show fixes
 
 Small items, split into separate commits (or separate task files if one grows):
 - `show` supports only Go, Python, C-like (`internal/compress/symbols/symbols.go:34-40`): add Ruby, Elixir,

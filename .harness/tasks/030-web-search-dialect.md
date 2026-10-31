@@ -1,4 +1,5 @@
 status: todo
+# feat(web): WebSearch dialect
 
 `WebSearch` results stay unchanged: about 98k tokens a month locally, no dialect.
 

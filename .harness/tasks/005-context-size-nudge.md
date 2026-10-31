@@ -1,4 +1,5 @@
 status: todo
+# feat(hook): context size nudge on prompt submit
 
 About 60% of spend is context re-read: mean context 275k tokens, requests above 400k were 42% of cost.
 Backlog item [17] waited for compaction economics, which `cmd/gascoigne/context.go` now has.

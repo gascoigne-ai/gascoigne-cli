@@ -1,4 +1,5 @@
 status: todo
+# feat(config): project config overlay
 
 `configPath` (`cmd/gascoigne/userconfig.go:109-118`) knows only `-config`, `$GASCOIGNE_CONFIG` and XDG.
 A repo cannot set its own `truncate.max_tokens`, `router.default`, `mcp_proxy.rules` or `-disable`.

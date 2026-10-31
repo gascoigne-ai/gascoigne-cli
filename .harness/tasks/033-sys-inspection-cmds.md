@@ -1,4 +1,5 @@
 status: todo
+# feat(table): system inspection command dialects
 
 `table/sys` covers ps, ss, lsof, top, systemctl list, lsblk, lsmod, docker ps. Not covered: `free`,
 `vmstat`, `iostat`, `lscpu`, `lspci`, `lsusb`, `ip addr|route`, `ifconfig`, `mount`/`findmnt`,

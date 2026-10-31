@@ -1,4 +1,5 @@
 status: todo
+# feat(hook): wrap piped commands
 
 The Claude PreToolUse hook wraps a piped command only when the last stage is `head` or `tail`
 (`cmd/gascoigne/hook.go:209-245`). `cmd | grep x`, `| jq .`, `| sort | uniq -c`, `| wc -l` are left

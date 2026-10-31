@@ -1,4 +1,5 @@
 status: todo
+# feat(hook): shrink output budgets when context is large
 
 A token costs more late in a session (large context re-read each turn). Output budgets are static.
 

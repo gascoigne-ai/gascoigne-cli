@@ -1,4 +1,5 @@
 status: todo
+# feat(data): text lockfile dialects
 
 `dataoptimizer/lock.go:24-33` knows only go.sum, Gemfile.lock and yarn.lock, and `detect/data.go:36`
 globs only TOML locks. Agents `cat` other lockfiles whole.

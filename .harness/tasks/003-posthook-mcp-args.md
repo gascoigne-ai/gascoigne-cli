@@ -1,4 +1,5 @@
 status: todo
+# feat(hook): pass MCP call args to the PostToolUse pipeline
 
 The PostToolUse hook gives the pipeline only `AttrTool` (`cmd/gascoigne/posthook.go:61-62`). The proxy
 also sets `query` (query/q/search/prompt, or `Intent(description)`) and `url`

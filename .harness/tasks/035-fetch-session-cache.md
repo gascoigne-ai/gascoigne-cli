@@ -1,4 +1,5 @@
 status: todo
+# feat(mcp): fetch session cache
 
 Backlog [16]: the `fetch` tool refetches and re-optimizes the same URL in a session. Repeat fetches should
 return `unchanged since <id>` or a diff.

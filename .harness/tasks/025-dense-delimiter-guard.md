@@ -1,4 +1,5 @@
 status: todo
+# fix(dense): skip delimited lists
 
 `dense` treats any line of 300+ bytes under `maxSpaceRatio` as minified
 (`internal/optimizer/denseoptimizer/dense.go:68-77`). A `|`- or `,`-joined list of names got
