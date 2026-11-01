@@ -375,6 +375,10 @@
 
 - { file: git/blame.txt, attrs: { cmd: git blame detect/detect.go }, expect_type: vcs/git-blame, keep: ["54c53fae dev 2026-10-10", "func Detect(text string, h Hints) string {"], min_saved: 30 }
 - { file: git/branch-a.txt, attrs: { cmd: git branch -a }, expect_type: vcs/git-branch, keep: ["* feature/router", "remotes/origin/HEAD -> origin/main", "mirrored locally"], min_saved: 30 }
+- { file: git/reflog.txt, attrs: { cmd: git reflog }, expect_type: vcs/git-refs, keep: ["checkout: 7 moves between main, feature/router", "commit (initial)"], min_saved: 20 }
+- { file: git/remote-v.txt, attrs: { cmd: git remote -v }, expect_type: vcs/git-refs, keep: ["alice\tgit@code.example.com:alice/shop.git (fetch, push)", "git@push.example.com:heidi/shop.git (push)"], min_saved: 20 }
+- { file: git/for-each-ref.txt, attrs: { cmd: git for-each-ref }, expect_type: vcs/git-refs, keep: ["refs/backup/pre-anon/master"], min_saved: 15 }
+- { file: git/diff-stat.txt, attrs: { cmd: git diff --stat HEAD~12 }, expect_type: vcs/git-diff, keep: ["files changed"], min_saved: 5 }
 - { file: git/gh-pr-list.tsv, attrs: { cmd: gh pr list --limit 60 }, expect_type: vcs/gh-list, keep: ["STATE=OPEN", "4210", "items omitted"], min_saved: 30 }
 - { file: git/gh-pr-view.txt, attrs: { cmd: gh pr view 4187 }, expect_type: vcs/gh-view, keep: ["monalisa (Changes requested)", "Adds tiered volume discounts", "- [ ] Docs updated"] }
 - { name: detect/git-blame, file: git/blame.txt, expect_type: vcs/git-blame }

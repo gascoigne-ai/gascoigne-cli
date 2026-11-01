@@ -8,8 +8,9 @@ const (
 	GitRemote = "vcs/git-remote" // push, pull, fetch, clone
 	GitBlame  = "vcs/git-blame"
 	GitBranch = "vcs/git-branch"
-	GHList    = "vcs/gh-list" // gh pr/issue/run/release/repo list
-	GHView    = "vcs/gh-view" // gh pr/issue view
+	GitRefs   = "vcs/git-refs" // reflog, tag, worktree, remote -v, for-each-ref, submodule, shortlog, stash list
+	GHList    = "vcs/gh-list"  // gh pr/issue/run/release/repo list
+	GHView    = "vcs/gh-view"  // gh pr/issue view
 )
 
 func init() {
@@ -23,6 +24,7 @@ func init() {
 		Spec{Type: GitBlame, Cmds: []string{"git blame", "git annotate"}, Priority: 43,
 			Sniff: ratio(`^\^?[0-9a-f]{7,40} (\S+ )?\(.+ \d{4}-\d\d-\d\d \d\d:\d\d:\d\d [+-]\d{4} +\d+\) `, 0.8)},
 		Spec{Type: GitBranch, Cmds: []string{"git branch"}},
+		Spec{Type: GitRefs, Cmds: []string{"git reflog", "git stash list", "git tag", "git worktree list", "git remote -v", "git remote --verbose", "git shortlog", "git for-each-ref", "git submodule status"}},
 		Spec{Type: GHList, Cmds: []string{"gh pr list", "gh issue list", "gh run list", "gh release list", "gh repo list", "gh workflow list", "gh pr status", "gh search prs", "gh search issues", "gh pr checks", "gh gist list", "gh label list", "gh secret list", "gh cache list", "gh codespace list", "glab mr list", "glab issue list", "glab ci list"}},
 		Spec{Type: GHView, Cmds: []string{"gh pr view", "gh issue view"}, Priority: 44,
 			Sniff: all(firstLine(`^title:\t`), anyLine(`^state:\t`), anyLine(`^--$`))},

@@ -113,6 +113,7 @@ var cmdExamples = map[string]string{
 	"vcs/git-branch":  "git branch -a",
 	"vcs/git-diff":    "git diff HEAD~12",
 	"vcs/git-log":     "git log",
+	"vcs/git-refs":    "git reflog",
 	"vcs/git-remote":  "git push -u origin feature/router",
 	"vcs/git-status":  "git status",
 	"web/http":        "curl -si https://api.github.com/repos/golang/go/tags?per_page=30",

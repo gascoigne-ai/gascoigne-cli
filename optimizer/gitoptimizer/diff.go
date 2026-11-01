@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
 // diff shrinks unified diffs: one header line per file, index lines dropped,
@@ -19,6 +20,9 @@ func (o *Optimizer) diff(lines []string) []string {
 			end++
 		}
 		return append(o.log(lines[:end]), o.diff(lines[end:])...)
+	}
+	if n := statEnd(lines); n > 0 {
+		return append(statLines(lines[:n]), o.diff(lines[n:])...)
 	}
 	lines = o.moves(lines)
 	var out, file []string
@@ -33,6 +37,31 @@ func (o *Optimizer) diff(lines []string) []string {
 		file = append(file, l)
 	}
 	flush()
+	return out
+}
+
+var statSummary = lazyre.New(`^\s*\d+ files? changed`)
+
+// statEnd is the length of a leading --stat block (git diff --stat, alone or
+// before a patch), 0 when the lines do not start with one. It must end in the
+// summary line, which keeps a stray "a | b" line from qualifying.
+func statEnd(lines []string) int {
+	for i, l := range lines {
+		if statSummary.MatchString(l) {
+			return i + 1
+		}
+		if !statCol.MatchString(l) {
+			return 0
+		}
+	}
+	return 0
+}
+
+func statLines(lines []string) []string {
+	out := make([]string, len(lines))
+	for i, l := range lines {
+		out[i] = statLine(l)
+	}
 	return out
 }
 

@@ -35,13 +35,15 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 			lines = blame(lines)
 		case detect.GitBranch:
 			lines = o.branch(lines)
+		case detect.GitRefs:
+			lines = refs(lines)
 		case detect.GHList:
 			lines = o.ghList(lines, query)
 		case detect.GHView:
 			lines = ghView(compress.StripANSI(b.Text))
 		}
 		return compress.Join(lines), nil
-	}, detect.GitStatus, detect.GitLog, detect.Diff, detect.GitRemote, detect.GitBlame, detect.GitBranch, detect.GHList, detect.GHView)
+	}, detect.GitStatus, detect.GitLog, detect.Diff, detect.GitRemote, detect.GitBlame, detect.GitBranch, detect.GitRefs, detect.GHList, detect.GHView)
 }
 
 var progress = lazyre.New(`^(remote: )?(Enumerating|Counting|Compressing|Writing|Receiving|Resolving|Delta compression|Total \d+|Unpacking|Updating files|Checking out files)\b|^remote:\s*$`)

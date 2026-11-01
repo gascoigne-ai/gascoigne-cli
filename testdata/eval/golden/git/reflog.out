@@ -1,0 +1,6 @@
+3ee3be3 HEAD@{0}: commit: fix: thing
+d90f38f HEAD@{1}: reset: moving to HEAD
+d90f38f HEAD@{2..8}: checkout: 7 moves between main, feature/router
+d90f38f HEAD@{9}: commit: feat(cart): step 3
+99a863d HEAD@{10}: commit: feat(cart): step 2
+d61b857 HEAD@{11}: commit (initial): feat(cart): step 1

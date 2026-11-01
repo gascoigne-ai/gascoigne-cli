@@ -177,6 +177,10 @@ detect/git-log	1151	2	8
 detect/git-diff	2386	1	15
 git/blame	2829	0	0
 git/branch-a	395	0	41
+git/reflog	107	0	0
+git/remote-v	250	0	0
+git/for-each-ref	435	0	0
+git/diff-stat	2100	0	0
 git/gh-pr-list	1187	0	0
 git/gh-pr-view	141	0	0
 detect/git-blame	2829	0	0
