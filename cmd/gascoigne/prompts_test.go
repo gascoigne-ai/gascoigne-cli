@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -72,11 +73,63 @@ func TestPromptFindings(t *testing.T) {
 		{Path: "SKILL.md", Via: "skill", Tokens: 200},
 	}
 	var got []string
-	for _, f := range promptFindings(srcs, 2000, 1) {
+	for _, f := range promptFindings(srcs, 2000, 1, usage{}) {
 		got = append(got, f.Kind+" "+f.Path)
 	}
 	want := []string{"large-import big.md", "long-description SKILL.md", "duplicate big.md"}
 	if !slices.Equal(got, want) {
 		t.Errorf("findings = %q, want %q", got, want)
+	}
+}
+
+// A skill or subagent nobody called in many sessions is listed with every
+// request for nothing; plugin ones count, and a plugin:name call is the name.
+func TestUnusedAndPluginSources(t *testing.T) {
+	home := t.TempDir()
+	write := func(path, text string) {
+		t.Helper()
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	plug := filepath.Join(home, ".claude", "plugins", "cache", "m", "p", "1.0")
+	write(filepath.Join(home, ".claude", "plugins", "installed_plugins.json"),
+		`{"plugins":{"p@m":[{"installPath":"`+plug+`"}]}}`)
+	write(filepath.Join(plug, "skills", "used", "SKILL.md"), "---\nname: used\ndescription: d\n---\n")
+	write(filepath.Join(plug, "skills", "idle", "SKILL.md"), "---\nname: idle\ndescription: d\n---\n")
+	write(filepath.Join(plug, "agents", "helper.md"), "---\nname: helper\ndescription: d\n---\n")
+	// An old cached version is not an installed one.
+	write(filepath.Join(home, ".claude", "plugins", "cache", "m", "p", "0.9", "skills", "old", "SKILL.md"), "---\nname: old\ndescription: d\n---\n")
+	proj := filepath.Join(home, ".claude", "projects", "-work")
+	slash := `{"type":"user","message":{"role":"user","content":"<command-name>/p:slashed</command-name>\n<command-message>slashed</command-message>"}}`
+	write(filepath.Join(plug, "skills", "slashed", "SKILL.md"), "---\nname: slashed\ndescription: d\n---\n")
+	call := `{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill":"p:used"}},{"type":"tool_use","name":"Task","input":{"subagent_type":"helper"}},{"type":"tool_use","name":"Bash","input":{"skill":"idle"}}]}}`
+	for i := range usedMinSessions {
+		write(filepath.Join(proj, fmt.Sprintf("s%d.jsonl", i)), slash+"\n"+call+"\n")
+	}
+
+	srcs := claudeSources(filepath.Join(home, "repo"), home)
+	var names []string
+	for _, s := range srcs {
+		names = append(names, sourceName(s.text))
+	}
+	slices.Sort(names)
+	if want := []string{"helper", "idle", "slashed", "used"}; !slices.Equal(names, want) {
+		t.Fatalf("sources %q, want %q", names, want)
+	}
+	var got []string
+	for _, f := range promptFindings(srcs, 2000, 1, claudeUsage(home)) {
+		if f.Kind == "unused" {
+			got = append(got, filepath.Base(filepath.Dir(f.Path)))
+		}
+	}
+	if want := []string{"idle"}; !slices.Equal(got, want) {
+		t.Errorf("unused = %q, want %q", got, want)
+	}
+	if fewer := promptFindings(srcs, 2000, 1, usage{names: map[string]bool{}, sessions: usedMinSessions - 1}); slices.ContainsFunc(fewer, func(f promptFinding) bool { return f.Kind == "unused" }) {
+		t.Error("claimed unused from too few sessions")
 	}
 }

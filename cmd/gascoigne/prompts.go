@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"cmp"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -30,6 +33,8 @@ var (
 	importRe  = lazyre.New(`(?:^|\s)@((?:~/|\.{0,2}/)?[\w.\-/]+\.\w+)`)
 	commentRe = lazyre.New(`(?s)<!--.*?-->`)
 	codeRe    = lazyre.New("`[^`\n]*`")
+	// slashRe is a slash command as a transcript records it: skills are run this way too.
+	slashRe = lazyre.New(`<command-name>/([^<\s]+)</command-name>`)
 )
 
 // promptSource is one instruction text an agent sends with every request.
@@ -43,7 +48,7 @@ type promptSource struct {
 
 // promptFinding is a fact about instruction text worth changing.
 type promptFinding struct {
-	Kind   string `json:"kind"` // large-import, duplicate, long-description
+	Kind   string `json:"kind"` // large-import, duplicate, long-description, unused
 	Path   string `json:"path"`
 	Tokens int    `json:"tokens"` // model tokens it costs per request
 	Detail string `json:"detail"`
@@ -92,7 +97,11 @@ func cmdPrompts(_ context.Context, args []string) error {
 			srcs[i].Via = "@import from " + shortPath(from, dir, home)
 		}
 	}
-	findings := promptFindings(srcs, *large, factor)
+	var used usage
+	if *agent == "claude" {
+		used = claudeUsage(home)
+	}
+	findings := promptFindings(srcs, *large, factor, used)
 	s := cost.Estimate(m, int(float64(total)/factor+0.5), cost.AgentContext)
 	perRequest := float64(s.ModelTokens) * m.CacheRead / 1e6
 	if *asJSON {
@@ -123,7 +132,38 @@ func claudeSources(dir, home string) []promptSource {
 		l.descriptions(filepath.Join(base, "skills", "*", "SKILL.md"), "skill")
 		l.descriptions(filepath.Join(base, "agents", "*.md"), "agent")
 	}
+	for _, base := range pluginDirs(home) {
+		l.descriptions(filepath.Join(base, "skills", "*", "SKILL.md"), "skill")
+		l.descriptions(filepath.Join(base, "agents", "*.md"), "agent")
+	}
 	return l.srcs
+}
+
+// pluginDirs are the install directories of the installed plugins (only the
+// current version of each: the cache keeps older ones too).
+func pluginDirs(home string) []string {
+	data, err := os.ReadFile(filepath.Join(home, ".claude", "plugins", "installed_plugins.json"))
+	if err != nil {
+		return nil
+	}
+	var f struct {
+		Plugins map[string][]struct {
+			InstallPath string `json:"installPath"`
+		} `json:"plugins"`
+	}
+	if json.Unmarshal(data, &f) != nil {
+		return nil
+	}
+	var out []string
+	for _, installs := range f.Plugins {
+		for _, in := range installs {
+			if in.InstallPath != "" {
+				out = append(out, in.InstallPath)
+			}
+		}
+	}
+	slices.Sort(out)
+	return slices.Compact(out)
 }
 
 // codexSources are the user's AGENTS.md and each one from the repository
@@ -229,6 +269,16 @@ func imports(text string) []string {
 
 // frontmatter returns the name and description lines of a file's YAML
 // frontmatter.
+// sourceName is the name: line of a description text.
+func sourceName(text string) string {
+	for line := range strings.Lines(text) {
+		if v, ok := strings.CutPrefix(line, "name:"); ok {
+			return strings.Trim(strings.TrimSpace(v), `"'`)
+		}
+	}
+	return ""
+}
+
 func frontmatter(text string) string {
 	body, ok := strings.CutPrefix(text, "---\n")
 	if !ok {
@@ -286,9 +336,80 @@ const (
 	descMaxTokens = 120
 )
 
+// usedMinSessions is how many transcripts must have been read before "never
+// used" means anything.
+const usedMinSessions = 20
+
+// usage is which skills and subagents the transcripts show being used.
+type usage struct {
+	names    map[string]bool // base name: "frontend-design:frontend-design" is "frontend-design"
+	sessions int
+}
+
+// claudeUsage reads the skills (Skill tool) and subagents (Agent or Task tool)
+// the Claude Code transcripts under home called.
+func claudeUsage(home string) usage {
+	u := usage{names: map[string]bool{}}
+	files, _ := filepath.Glob(filepath.Join(home, ".claude", "projects", "*", "*.jsonl"))
+	for _, f := range files {
+		u.sessions++
+		fh, err := os.Open(f)
+		if err != nil {
+			continue
+		}
+		sc := bufio.NewScanner(fh)
+		sc.Buffer(nil, 64<<20)
+		for sc.Scan() {
+			line := sc.Bytes()
+			if bytes.Contains(line, []byte(`"type":"tool_use"`)) {
+				u.add(line)
+			}
+			if bytes.Contains(line, []byte("<command-name>/")) {
+				for _, m := range slashRe.Regexp().FindAllSubmatch(line, -1) {
+					u.names[baseName(string(m[1]))] = true
+				}
+			}
+		}
+		fh.Close()
+	}
+	return u
+}
+
+// baseName drops a plugin prefix: "caveman:caveman-help" is "caveman-help".
+func baseName(name string) string { return name[strings.LastIndex(name, ":")+1:] }
+
+// add records the Skill and Agent calls of one transcript line.
+func (u usage) add(line []byte) {
+	var l struct {
+		Message struct {
+			Content json.RawMessage `json:"content"`
+		} `json:"message"`
+	}
+	var calls []struct {
+		Type  string `json:"type"`
+		Name  string `json:"name"`
+		Input struct {
+			Skill        string `json:"skill"`
+			SubagentType string `json:"subagent_type"`
+		} `json:"input"`
+	}
+	if json.Unmarshal(line, &l) != nil || json.Unmarshal(l.Message.Content, &calls) != nil {
+		return
+	}
+	for _, c := range calls {
+		if c.Type != "tool_use" {
+			continue
+		}
+		name := cmp.Or(c.Input.Skill, c.Input.SubagentType)
+		if name != "" && (c.Name == "Skill" || c.Name == "Agent" || c.Name == "Task") {
+			u.names[baseName(name)] = true
+		}
+	}
+}
+
 // promptFindings reports large imports, lines sent twice and long
 // descriptions.
-func promptFindings(srcs []promptSource, large int, factor float64) []promptFinding {
+func promptFindings(srcs []promptSource, large int, factor float64, used usage) []promptFinding {
 	var out []promptFinding
 	model := func(s string) int { return int(float64(tokens.Estimate(s))*factor + 0.5) }
 	first := map[string]string{} // normalized line → path that sent it first
@@ -300,6 +421,10 @@ func promptFindings(srcs []promptSource, large int, factor float64) []promptFind
 			if s.Tokens > descMaxTokens {
 				out = append(out, promptFinding{"long-description", s.Path, s.Tokens,
 					"listed with every request; say when to use it, the body loads on use"})
+			}
+			if name := sourceName(s.text); used.sessions >= usedMinSessions && name != "" && !used.names[name] {
+				out = append(out, promptFinding{"unused", s.Path, s.Tokens,
+					fmt.Sprintf("%s %q never called in %d sessions; listed with every request", s.Via, name, used.sessions)})
 			}
 			continue
 		}
