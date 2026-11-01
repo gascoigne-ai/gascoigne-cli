@@ -210,8 +210,9 @@ func hinted(p *payload.Payload) string {
 // "cd api && gascoigne exec -- go test ./...", and "go test ./... | tail -5"
 // becomes "gascoigne exec -- go test ./... | tail -5" (before head, exec
 // prints its hint first). Commands may be joined by && or ;, and only
-// head/tail may follow a pipe: other filters would see optimized text instead
-// of what they search. Redirects, subshells, other lists, loops and
+// head/tail may follow a pipe there; any other pipeline ending the line gets
+// gascoigne run appended (wrapPipeline), so a filter never sees optimized
+// text. Redirects, subshells, other lists, loops and
 // conditionals are left alone.
 func wrapCommand(line, prefix string) (string, bool) {
 	line = strings.TrimSpace(line)
@@ -228,6 +229,10 @@ func wrapCommand(line, prefix string) (string, bool) {
 		body, pipe := splitPipe(part)                    // this command's own trailing | head, | tail
 		body, merged := strings.CutSuffix(body, " 2>&1") // exec merges stderr anyway
 		if hasShellOperator(body) {
+			if piped, ok := wrapPipeline(part, prefix); ok && i == len(parts)-1 && !strings.Contains(line, "pipefail") {
+				out.WriteString(piped)
+				return out.String(), true
+			}
 			return line, false
 		}
 		if f := strings.Fields(body); len(f) > 0 && shellKeywords[f[0]] {
@@ -256,6 +261,31 @@ func wrapCommand(line, prefix string) (string, bool) {
 		return line, false
 	}
 	return out.String(), true
+}
+
+// wrapPipeline appends gascoigne run to a pipeline of plain commands, so each
+// stage sees raw text and only the final output is optimized. The line's
+// status stays the last original stage's (bash PIPESTATUS, zsh pipestatus),
+// not that of gascoigne run. Streaming stages and anything beyond
+// plain stages (redirects, substitutions, loops) are left alone.
+func wrapPipeline(part, prefix string) (string, bool) {
+	stages := splitStages(part)
+	if len(stages) < 2 {
+		return "", false
+	}
+	var last string
+	for _, s := range stages {
+		s, _ = strings.CutSuffix(strings.TrimSpace(s), " 2>&1")
+		f := strings.Fields(s)
+		_, last = detect.SplitEnv(s)
+		if len(f) == 0 || hasShellOperator(s) || shellKeywords[f[0]] || passthrough(last) {
+			return "", false
+		}
+	}
+	run := strings.Replace(prefix, " exec", " run", 1)
+	n := len(stages) - 1
+	return fmt.Sprintf("%s | %s -attr cmd=%s; (exit ${PIPESTATUS[%d]:-${pipestatus[%d]}})",
+		part, run, shellQuote(last), n, n+1), true
 }
 
 // hasShellOperator reports whether s holds something that makes a piece of a

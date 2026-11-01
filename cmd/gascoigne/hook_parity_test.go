@@ -138,7 +138,6 @@ func TestWrapCommandShellParity(t *testing.T) {
 		{"tail pipe", `ls -a | tail -n 2`, true},
 		{"head and tail", `ls -a | head -4 | tail -2`, true},
 		{"head after quoted env", `A="x y" sh -c 'seq 1 20; echo "$A"' | tail -2`, true},
-		{"grep pipe untouched", `ls | grep txt`, false},
 		{"quoted pipe in arg", `sh -c 'echo "$0"' "a|b"`, true},
 		{"quoted && in arg", `sh -c 'echo "$0"' "a && b"`, true},
 		{"quoted semicolon in arg", `sh -c 'echo "$0"' "a; b"`, true},

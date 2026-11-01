@@ -337,7 +337,9 @@ The hook rewrites every command it can rewrite safely:
 - **`2>&1`** is kept; exec merges stderr anyway.
 - **`| head` / `| tail`.** Trailing head/tail stages are kept and cut the optimized text. Before
   `head`, exec prints its hint first (`-attr hint=top`) so the cut keeps the retrieve id.
-- **Left alone:** other pipes (`| grep` would search optimized text), redirects, `$(…)`,
+- **Other pipelines** at the end of a line (`| grep`, `| jq .`) get `| gascoigne run` appended, so each stage
+  sees raw text; the exit status stays the pipeline's.
+- **Left alone:** pipes before the end of a list, redirects, `$(…)`,
   backticks, `||`, background runs (`&`, `run_in_background`), multi-line scripts, commands
   that run gascoigne itself or set `GASCOIGNE_RAW`, and commands that run until stopped:
   `-f`/`--follow` on logs, `--watch`, `watch`, `dev`, `serve`, `start`, `up`, plain `vite`.

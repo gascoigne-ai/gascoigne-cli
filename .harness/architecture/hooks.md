@@ -149,10 +149,18 @@ registration (SessionStart is already installed). Gemini's `PreCompress` has no 
   commands (`passthrough`; unknown programs are detected by content).
 - **Kept pipes**: `| head` / `| tail` stages at the end of any command of a list (they then cut
   optimized text). Before `head`, exec gets `-attr hint=top`: the stdout exporter prints the hint first so
-  the cut keeps it. Other pipes stay as they are, since other filters would search the optimized text; one
-  such command leaves the whole line alone. `| & < >` inside quotes are literal (`grep 'a\|b'`); a `$(` or
-  backtick inside double quotes still runs, and a quote that never closes leaves the line alone
-  (`hasShellOperator`). Replayed on 306 commands of one real session this wraps 93 instead of 56.
+  the cut keeps it.
+- **Pipelines** (`wrapPipeline`): any other pipeline in the last command of the line (`| grep`, `| jq .`,
+  `| sort | uniq -c`, `| wc -l`) is not wrapped at the first stage, since later stages would search optimized
+  text. Instead ` | gascoigne run -attr cmd='<last stage>'` is appended, so every stage sees raw text and
+  only the final output is optimized. `; (exit ${PIPESTATUS[n]:-${pipestatus[n+1]}})` follows, so the
+  line keeps the last original stage's exit status (bash and zsh; `run` would return 0). Skipped: a pipeline
+  before the end of a list, `pipefail`, a stage that is a builtin, quiet, interactive or streaming command,
+  and stages with redirects, substitutions or loops. A first stage like `echo` skips it (nothing to shorten).
+  `| & < >` inside quotes are literal (`grep 'a\|b'`); a `$(` or backtick inside double quotes still runs,
+  and a quote that never closes leaves the line alone (`hasShellOperator`). Replayed on 306 commands of one
+  real session the head/tail rule alone wrapped 93 instead of 56; the pipeline rule is covered by
+  `TestWrapPipelineBashParity` (exit status and output compared under bash) and the `TestWrapCommand` cases.
 - **Left as they are**:
   - lines with loops, conditionals or `{ }` groups
   - redirects (except `2>&1`), subshells, `||`, background runs
