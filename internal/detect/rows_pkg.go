@@ -23,6 +23,8 @@ func init() {
 			Sniff: `^(copying path '/nix/store|building '/nix/store/\S+\.drv'|these \d+ (derivations|paths) will be (built|fetched))`, Sample: "these 3 derivations will be built:\n  /nix/store/abc-shop.drv\nbuilding '/nix/store/abc-shop.drv'...\n"},
 		Row{Type: "pkg/flatpak", Cmds: []string{"flatpak install", "flatpak update", "snap install", "snap refresh"}, Cmd: "flatpak install flathub org.gimp.GIMP"},
 		Row{Type: "pkg/mvndeps", Cmds: []string{"mvn dependency:tree", "mvn dependency:resolve", "mvn dependency:go-offline", "mvnw dependency:tree"}, Cmd: "mvn dependency:tree"},
+		Row{Type: "pkg/docker", Priority: 55, Cmds: []string{"docker pull", "docker push", "docker image pull", "docker image push", "docker compose pull", "docker-compose pull", "podman pull", "podman push"}, Cmd: "docker pull alpine",
+			Sniff: `^[0-9a-f]{12}: (Pulling fs layer|Preparing)|^The push refers to repository `, Sample: "latest: Pulling from library/alpine\n3f4ca61aafcd: Pulling fs layer\n3f4ca61aafcd: Pull complete\nDigest: sha256:3f4ca61aafcd\n"},
 		// Glyph trees; the engine reads any of them, so only tools with a real fixture are listed.
 		Row{Type: "pkg/tree", Priority: 55, Cmds: []string{"npm ls", "npm list", "npm ll", "pnpm ls", "pnpm list", "pnpm why", "pipdeptree", "uv tree", "poetry show --tree"}, Cmd: "npm ls --all"},
 		Row{Type: "pkg/gomodgraph", Priority: 55, Cmds: []string{"go mod graph"}, Cmd: "go mod graph"},

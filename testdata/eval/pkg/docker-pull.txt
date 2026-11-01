@@ -1,0 +1,24 @@
+Using default tag: latest
+latest: Pulling from acme/shop
+3f4ca61aafcd: Pulling fs layer
+a1b2c3d4e5f6: Pulling fs layer
+0123456789ab: Pulling fs layer
+fedcba987654: Pulling fs layer
+a1b2c3d4e5f6: Waiting
+0123456789ab: Waiting
+fedcba987654: Waiting
+3f4ca61aafcd: Verifying Checksum
+3f4ca61aafcd: Download complete
+a1b2c3d4e5f6: Verifying Checksum
+a1b2c3d4e5f6: Download complete
+0123456789ab: Verifying Checksum
+0123456789ab: Download complete
+fedcba987654: Verifying Checksum
+fedcba987654: Download complete
+3f4ca61aafcd: Pull complete
+a1b2c3d4e5f6: Pull complete
+0123456789ab: Pull complete
+fedcba987654: Pull complete
+Digest: sha256:9b0dd4a1c5e8f1d2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f80912
+Status: Downloaded newer image for acme/shop:latest
+docker.io/acme/shop:latest

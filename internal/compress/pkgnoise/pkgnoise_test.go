@@ -19,7 +19,7 @@ func TestCompress(t *testing.T) {
 }
 
 func TestEveryRuleCompiles(t *testing.T) {
-	for _, d := range []string{"npm", "pnpm", "yarn", "bun", "pip", "uv", "poetry", "go-mod", "cargo", "os"} {
+	for _, d := range []string{"npm", "pnpm", "yarn", "bun", "pip", "uv", "poetry", "go-mod", "cargo", "os", "docker"} {
 		if _, ok := For(d); !ok {
 			t.Errorf("no rules for %s", d)
 		}

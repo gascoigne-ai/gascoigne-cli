@@ -339,6 +339,22 @@ var rules = map[string]Rules{
 			},
 		},
 	},
+	"docker": {
+		Noise: pcomb.Rules{
+			{
+				Name:  "layer progress",
+				Match: pcomb.Re(`^\s*[0-9a-f]{12}:? (Pulling fs layer|Waiting|Verifying Checksum|Download complete|Pull complete|Already exists|Preparing|Layer already exists|Pushed|Mounted from \S+|(Downloading|Extracting|Pushing)\b.*)\s*$`),
+				Yes:   []string{"3f4ca61aafcd: Pulling fs layer", "3f4ca61aafcd: Waiting", "3f4ca61aafcd: Verifying Checksum", "3f4ca61aafcd: Download complete", "3f4ca61aafcd: Pull complete", "3f4ca61aafcd: Already exists", "3f4ca61aafcd: Preparing", "3f4ca61aafcd: Layer already exists", "3f4ca61aafcd: Pushed", "3f4ca61aafcd: Mounted from library/alpine", "3f4ca61aafcd: Downloading [==>   ]  1.2MB/5.6MB", "3f4ca61aafcd: Extracting [=>  ]  32.77kB/3.4MB", " 3f4ca61aafcd Pulling fs layer", " 3f4ca61aafcd Download complete"},
+				No:    []string{"3f4ca61aafcd: Pull failed", "Digest: sha256:3f4ca61aafcd", "latest: Pulling from library/alpine", "3f4ca61: Waiting"},
+			},
+			{
+				Name:  "preamble",
+				Match: pcomb.Prefix("Using default tag: ", "The push refers to repository "),
+				Yes:   []string{"Using default tag: latest", "The push refers to repository [docker.io/acme/shop]"},
+				No:    []string{"Using tag latest"},
+			},
+		},
+	},
 	"mvndeps": {
 		Noise: pcomb.Rules{
 			{

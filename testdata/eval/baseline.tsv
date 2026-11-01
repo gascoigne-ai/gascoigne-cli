@@ -255,6 +255,8 @@ pkg/bundle-install	276	0	1
 detect/bundle-install	276	0	1
 pkg/dotnet-restore	95	0	41
 detect/dotnet-restore	95	0	41
+pkg/docker-pull	90	0	4
+detect/docker-pull	90	0	4
 pkg/conda-install	272	1	0
 detect/conda-install	272	1	0
 pkg/nix-build-fail	244	0	38

@@ -695,6 +695,15 @@
 - name: detect/dotnet-restore
   file: pkg/dotnet-restore.txt
   expect_type: pkg/nuget
+- name: pkg/docker-pull
+  file: pkg/docker-pull.txt
+  attrs: { cmd: docker pull acme/shop }
+  expect_type: pkg/docker
+  keep: ["Digest: sha256:9b0dd4a1", "Status: Downloaded newer image for acme/shop:latest"]
+  min_saved: 50
+- name: detect/docker-pull
+  file: pkg/docker-pull.txt
+  expect_type: pkg/docker
 - name: pkg/conda-install
   file: pkg/conda-install.txt
   attrs: { cmd: conda install numpy pandas scikit-learn }
