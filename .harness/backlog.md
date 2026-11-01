@@ -62,7 +62,6 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   - Cache lint for instruction files [16]: `prompts` flags volatile text early in the prefix.
   - Gemini `PreCompress` resume snapshot [14].
   - Deferred MCP tools in `mcp-proxy` [15]: one-line summaries plus a search tool, full schemas on demand.
-  - Session fetch cache [16]: the same URL again returns "unchanged since <id>" or a diff.
   - Guide lines [17 each]: never restate tool output; delegate wide exploration to a subagent.
   - Context-size nudge at prompt time [17]: shipped (`contextnudge.go`, threshold 250k); its effect on cost is
     not measured yet: run `ab.sh` with the `compaction` experiment and `AB_CLAUDE_ENV`, compare cost with and without.

@@ -28,6 +28,7 @@ type Receiver struct {
 	transport mcp.Transport
 	http      *http.Client
 	sessions  *mcptool.Sessions
+	fetched   fetchCache
 }
 
 func (r *Receiver) Start(_ context.Context, host component.Host) error {
@@ -54,7 +55,7 @@ func (r *Receiver) server() *mcp.Server {
 	})
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "fetch",
-		Description: "GET a URL and return its content compactly: HTML as markdown, JSON compressed. raw=true skips optimization.",
+		Description: "GET a URL and return its content compactly: HTML as markdown, JSON compressed. A repeat in the session returns unchanged or a diff. raw=true skips optimization.",
 	}, r.fetch)
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "compress",
@@ -95,21 +96,47 @@ func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in Fetc
 	if truncated {
 		body = body[:r.cfg.FetchMaxBytes]
 	}
+	head := fmt.Sprintf("HTTP %d %s\n", resp.StatusCode, u)
+	if truncated {
+		head += fmt.Sprintf("[body truncated at %d bytes]\n", r.cfg.FetchMaxBytes)
+	}
 	p := payload.New(payload.ToolResult, string(body))
 	p.Set(payload.AttrURL, u.String())
 	p.Set(payload.AttrTool, "fetch")
 	p.Set("mime", resp.Header.Get("Content-Type"))
 	p.Set(payload.AttrQuery, in.Query)
 	r.sessions.Tag(p, call)
-	text, err := r.process(ctx, p, in.Raw)
+	if in.Raw {
+		text, err := r.process(ctx, p, true)
+		if err != nil {
+			return nil, nil, err
+		}
+		return mcptool.Result(head + text), nil, nil
+	}
+	key := fetchKey(p.Attrs[payload.AttrSession], u.String(), in.Query)
+	hash := fetchHash(resp.StatusCode, body)
+	prev, seen := r.fetched.get(key)
+	if seen && prev.hash == hash {
+		return mcptool.Result(fmt.Sprintf("%sunchanged since earlier fetch in this session · full: %s id=%s", head, r.cfg.Retrieve, prev.rawID)), nil, nil
+	}
+	out, err := r.next.Process(ctx, p)
 	if err != nil {
 		return nil, nil, err
 	}
-	head := fmt.Sprintf("HTTP %d %s\n", resp.StatusCode, u)
-	if truncated {
-		head += fmt.Sprintf("[body truncated at %d bytes]\n", r.cfg.FetchMaxBytes)
+	// Only optimized results are cached: they carry the id a pointer needs.
+	// A bypassed one (failed key, skip) leaves the entry alone, so it never
+	// turns later fetches into permanent full results.
+	id := out.Attrs[payload.AttrRawID]
+	if id == "" {
+		return mcptool.Result(head + mcptool.Text(out, r.cfg.Retrieve)), nil, nil
 	}
-	return mcptool.Result(head + text), nil, nil
+	r.fetched.put(key, fetchEntry{hash: hash, rawID: id, text: out.Text()})
+	if seen {
+		if d, ok := lineDiff(prev.text, out.Text()); ok {
+			return mcptool.Result(fmt.Sprintf("%schanged since earlier fetch in this session (full: %s id=%s):\n%s", head, r.cfg.Retrieve, id, d)), nil, nil
+		}
+	}
+	return mcptool.Result(head + mcptool.Text(out, r.cfg.Retrieve)), nil, nil
 }
 
 type CompressInput struct {

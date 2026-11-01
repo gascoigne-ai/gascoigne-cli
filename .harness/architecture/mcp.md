@@ -12,6 +12,14 @@
 | `retrieve id` | the original; optional `lines`/`grep`/`query` read a part (not a failure). A full read marks the source as badly optimized |
 | `stats` | savings (see Ledger → Reports) |
 
+`fetch` keeps a session cache (`receiver/mcpreceiver/fetchcache.go`, in memory, 32 entries) keyed by session,
+url and query: hash of status and body, ledger raw id, optimized text. Same hash → `unchanged since earlier
+fetch` plus the raw id, no pipeline run. Changed body → the result is optimized as usual and, when a line
+diff of the optimized texts is at most 40 lines and under half the new text, `changed since …` with the
+`- old`/`+ new` lines and the new raw id; else the full result. Only optimized results (with a raw id) are
+cached: a bypass (failed key, skip) leaves the entry alone, so it never turns later fetches into permanent
+full results. `raw: true` bypasses the cache and does not update it.
+
 **`gascoigne mcp-proxy -- <server cmd>`** mirrors a downstream server's tools, optimizes their text
 results and adds `gascoigne_retrieve`. Non-text content passes untouched.
 - Remote servers: `mcp-proxy -url <url> [-sse|-auto] [-header "Name: value"]...` (or config `url`/`sse`/`headers`)
