@@ -6,6 +6,56 @@ All notable changes to gascoigne. The format follows
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-01
+
+Fewer tokens from the session itself, not only from tool output: screenshots are downscaled in the Claude hook,
+piped commands are optimized, output budgets tighten when the context grows large, and a failed source no longer
+bypasses optimization forever. 30 new dialects and fixes, a costs and context view in the dashboard, and a project
+config file.
+
+### Added
+
+- Claude hook: image Reads above `max_image_pixels` are downscaled, keeping the result's shape and the original
+  in the ledger. Pipelines that end in `grep`, `jq`, `sort`, `wc` and the like are optimized, with the exit status
+  of the whole pipeline kept.
+- Claude hook: a context-size note on prompt submit above a threshold (`$GASCOIGNE_CONTEXT_NUDGE`, `off` to
+  disable; nothing is forced), and tighter truncate, log and grep budgets once the context is large.
+- MCP results from the PostToolUse hook carry the call's `url` and `query`, as in the LLM proxy, so fetch-like
+  results are typed and sampled for the query. `mcp-proxy` can trim tool descriptions (`trim_descriptions`) and
+  takes manual `rules`; `fetch` answers a repeated URL with a pointer or a diff.
+- opencode: `tool.execute.after` shortens what the rewrite missed.
+- `.gascoigne.yaml`, searched from the working directory up to the git root, lays over the user config for
+  `exec` and the hooks; each repo gets its own warm pipeline.
+- Dialects: Node/Deno/Bun stack frames; JSON diagnostics from cargo, eslint, ruff, golangci-lint, mypy and
+  pylint; `kubectl apply|delete|rollout status`; `dmesg`; text lockfiles (pnpm, pubspec, mix, Podfile,
+  Package.resolved, bun); dependency trees (`npm ls`, `pnpm why`, `cargo tree`, `pipdeptree`, `uv tree`, gradle
+  and more); coverage tables (`coverage report`, `nyc report`, `c8 report`, jest); `docker pull|push`; git `reflog`, `stash list`,
+  `tag`, `remote -v` and a bare `diff --stat`; terraform `init`, `state list`, `validate`; web search results;
+  system commands (`free`, `vmstat`, `findmnt`, `w`); package inventories (`pip list`,
+  `pacman -Q`, `brew list`); the `make eval` table; `show` for more languages.
+- `truncate` keeps lines after each error and picks middle lines for the query. Repetitive unknown text is folded
+  by the log engine's templates.
+- `gain` shows rerequest and wasted tokens per dialect, optimizer and command; `raw` prints a size header for
+  large originals; `learn` names its top lesson at session start; per-family Claude token factors price the
+  markers.
+- Dashboard: costs and context pages with charts, one model table and a detail row per session; `install -window`
+  sets Claude's auto-compact window; `context` reports what compactions cost and saved.
+
+### Changed
+
+- `max_image_pixels` is 600000 (was 0, off): screenshots above it are downscaled by the proxy and the hook. Set
+  it to 0 to keep images whole.
+- `history` bypasses a source after 2 failures (3 for fetch URLs) inside `failure_ttl` (24h); before, one failure
+  bypassed it for good.
+- `find` and `tree` folds keep directory and package names; `dense` leaves delimited lists alone.
+- Test runner rule tables moved to `pcomb`.
+
+### Fixed
+
+- Usage and MCP calls are counted by local day; the day trend keeps today for periods that are not whole days.
+- Chained commands are named by the work they do.
+- Recorded eval runs stay out of the unpriced agents.
+
 ## [0.7.2] - 2026-10-22
 
 Commands with quoted env assignments, like `NODE_OPTIONS="--max-old-space-size=4096" npm run build`, run through the hook again.
