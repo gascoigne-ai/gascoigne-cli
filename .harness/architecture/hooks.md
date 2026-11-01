@@ -8,6 +8,7 @@
   - claude PostToolUse `updatedToolOutput` in the tool's shape (Bash stdout, Grep content mode, `mcp__*`)
   - codex PostToolUse `decision: block` + `reason` (`^Bash$|^mcp__.*`)
   - gemini AfterTool `decision: deny` + `reason` (shell, `mcp_*`)
+  - opencode plugin `tool.execute.after`: sends a `PostToolUse` event (tool, args, result text) and sets `output.output` from the reply `{output}` (`opencodeAfter`; bash and MCP tools; MCP tools carry no marker, so every tool outside `opencodeBuiltin` and `gascoigne_*` counts)
   - MCP results get the call's attrs from `mcptool.Attrs(name, input)`, shared with the LLM proxy: `tool`, `query` (query/q/search/prompt, else the description's intent) and `url`, so fetch-like results are typed web and sampled for the query
   - skipped: hinted output (`hintRe`) and gascoigne's own MCP tools. A text Read is never shortened (image Reads
     are downscaled, see the Read row; Claude numbers its lines), only replaced by a pointer when identical, see below.
@@ -119,14 +120,14 @@
 
 | Tool | claude | codex | gemini | opencode / pi / cursor |
 |---|---|---|---|---|
-| shell | rewrite (PreToolUse) | PostToolUse replaces result | rewrite (BeforeTool), AfterTool replaces what the rewrite missed | rewrite before the call |
+| shell | rewrite (PreToolUse) | PostToolUse replaces result | rewrite (BeforeTool), AfterTool replaces what the rewrite missed | rewrite before the call; opencode also `tool.execute.after` for what the rewrite missed |
 | Grep, Glob | denied → `rg`/`find` through the shell | shell only | shell only | shell only |
 | WebFetch | denied → gascoigne `fetch` (MCP) | no hook | no hook | no hook |
 | Read | image Reads above `max_image_pixels` are downscaled (shape kept, original in the ledger); text not shortened, an identical re-read becomes a pointer (above): the hooks accept a replaced result of the tool's shape, but Claude numbers the lines itself, so only line-preserving changes are safe, and they save under 1% (see backlog); the LLM proxy shortens it when on | no hook | no hook | no hook |
-| MCP tools | PostToolUse `mcp__*`, plus `mcp-proxy` | PostToolUse `mcp__*` | AfterTool `mcp_*` | `mcp-proxy` only |
+| MCP tools | PostToolUse `mcp__*`, plus `mcp-proxy` | PostToolUse `mcp__*` | AfterTool `mcp_*` | opencode: `tool.execute.after` plus `mcp-proxy`; pi, cursor: `mcp-proxy` only |
 | Subagents | hooks run there too: gascoigne's own PreToolUse and PostToolUse show in subagent transcripts (13 files, 2026-10-12) | unverified | unverified | unverified |
 
-Cursor has the preToolUse hook only: no result replacement is known. A status line can show the
+Cursor has the preToolUse hook only: no result replacement is known (`postToolUse` unverified, not built). A status line can show the
 savings: `gascoigne gain -oneline -since 1d` (`docs/agents.md`).
 
 ## Resume snapshot (`continuity.go`, experimental: `continuity`)

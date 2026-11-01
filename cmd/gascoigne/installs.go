@@ -15,7 +15,7 @@ import (
 // registrationVersion numbers what install writes into agent configs: hooks,
 // matchers, guide text, rules. Bump it whenever that set changes, so installs
 // made by an older gascoigne are re-registered (syncInstalls, gascoigne upgrade).
-const registrationVersion = 5
+const registrationVersion = 6
 
 // registrationNotes say what a registration version changed, for the
 // question that offers the update.
@@ -23,6 +23,7 @@ var registrationNotes = map[int]string{
 	2: "claude commands /gascoigne-stats and /gascoigne-doctor, and allow rules for gascoigne's own tools when chosen",
 	3: "one more line in the usage guide: issue independent tool calls together in one turn",
 	5: "claude hook also covers image Reads: screenshots above max_image_pixels are downscaled",
+	6: "opencode plugin also shortens results of commands left unwrapped and of MCP tools (tool.execute.after)",
 }
 
 // An install is one agent registered for good (gascoigne install), recorded

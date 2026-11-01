@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
+	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
 // opencode: a plugin rewrites bash tool calls through gascoigne exec (its
@@ -38,17 +43,65 @@ export const Gascoigne = async () => {
         if (out.trim()) output.args.command = JSON.parse(out).command;
       } catch {}
     },
+    // Replaces the result of commands left unwrapped and of MCP tools.
+    "tool.execute.after": async (input: any, output: any) => {
+      if (typeof output.output !== "string") return;
+      try {
+        const event = { hook_event_name: "PostToolUse", session_id: input.sessionID, tool_name: input.tool, tool_input: input.args, tool_response: output.output };
+        const out = hook(event);
+        if (out.trim()) output.output = JSON.parse(out).output;
+      } catch {}
+    },
   };
 };
 `, compactJSON(exe))
 }
 
-var opencodeHook = rewriteHook(func(updated map[string]any) any {
+var opencodeHook = opencodeAfter(rewriteHook(func(updated map[string]any) any {
 	if updated == nil {
 		return nil
 	}
 	return map[string]any{"command": updated["command"]}
-})
+}))
+
+// opencodeBuiltin are opencode's own tools; any other tool is an MCP server's
+// (named <server>_<tool>, no marker), except gascoigne's own.
+var opencodeBuiltin = map[string]bool{
+	"bash": true, "read": true, "edit": true, "write": true, "patch": true, "grep": true, "glob": true,
+	"list": true, "webfetch": true, "websearch": true, "codesearch": true, "task": true, "todowrite": true,
+	"todoread": true, "skill": true, "lsp": true, "question": true,
+}
+
+// opencodeAfter answers the plugin's tool.execute.after: the result of a
+// command the before hook left alone, or of an MCP tool, is optimized and
+// sent back as {"output": text}. Other events go to h.
+func opencodeAfter(h hookFunc) hookFunc {
+	return func(ctx context.Context, c *common, in hookInput, prefix string) (any, error) {
+		if in.HookEventName != "PostToolUse" {
+			return h(ctx, c, in, prefix)
+		}
+		var text string
+		if json.Unmarshal(in.ToolResponse, &text) != nil {
+			return nil, nil
+		}
+		attrs := mcptool.Attrs(in.ToolName, in.ToolInput)
+		switch {
+		case in.ToolName == "bash":
+			cmd, _ := in.ToolInput["command"].(string)
+			if ownCommand(cmd) {
+				return nil, nil
+			}
+			attrs = map[string]string{payload.AttrCmd: cmd}
+		case opencodeBuiltin[in.ToolName] || strings.HasPrefix(in.ToolName, "gascoigne_"):
+			return nil, nil
+		}
+		out, err := optimizeText(ctx, c, text, attrs)
+		if err != nil || out == "" {
+			return nil, err
+		}
+		return map[string]any{"output": out}, nil
+	}
+}
 
 func opencodeServer(exe string) map[string]any {
 	return map[string]any{"mcp": map[string]any{"gascoigne": map[string]any{"type": "local", "command": []string{exe, "mcp"}}}}

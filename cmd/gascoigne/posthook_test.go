@@ -157,11 +157,17 @@ func TestResultHooksOtherAgents(t *testing.T) {
 	data, _ := os.ReadFile("../../testdata/eval/go/test-panic-trace.txt")
 	mcp, _ := json.Marshal(map[string]any{"content": []any{map[string]any{"type": "text", "text": string(data)}}})
 	gem, _ := json.Marshal(map[string]any{"llmContent": string(data), "returnDisplay": "x"})
+	plain, _ := json.Marshal(string(data))
 	tests := []struct {
 		agent string
 		in    hookInput
 		key   string // reply field holding the optimized text
 	}{
+		{"opencode", hookInput{HookEventName: "PostToolUse", ToolName: "db_query", ToolResponse: plain}, "output"},
+		{"opencode", hookInput{HookEventName: "PostToolUse", ToolName: "bash", ToolInput: map[string]any{"command": "go test ./... | cat"}, ToolResponse: plain}, "output"},
+		{"opencode", hookInput{HookEventName: "PostToolUse", ToolName: "bash", ToolInput: map[string]any{"command": "gascoigne raw abc"}, ToolResponse: plain}, ""},
+		{"opencode", hookInput{HookEventName: "PostToolUse", ToolName: "read", ToolResponse: plain}, ""},
+		{"opencode", hookInput{HookEventName: "PostToolUse", ToolName: "gascoigne_fetch", ToolResponse: plain}, ""},
 		{"codex", hookInput{HookEventName: "PostToolUse", ToolName: "mcp__db__query", ToolResponse: mcp}, "reason"},
 		{"gemini", hookInput{HookEventName: "AfterTool", ToolName: "mcp_db_query", ToolResponse: gem}, "reason"},
 		{"gemini", hookInput{HookEventName: "AfterTool", ToolName: "run_shell_command", ToolInput: map[string]any{"command": "go test ./... | cat"}, ToolResponse: gem}, "reason"},
