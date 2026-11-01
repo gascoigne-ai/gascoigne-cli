@@ -584,3 +584,50 @@ func TestBestWindow(t *testing.T) {
 		t.Fatalf("best %d for a loss", got)
 	}
 }
+
+// The 1-hour cache is advised only when the rewrites after pauses of 5 to 60
+// minutes cost more than its dearer writes, with a margin and enough requests.
+func TestCacheTTL(t *testing.T) {
+	at := time.Date(2026, 10, 10, 10, 0, 0, 0, time.UTC)
+	m, ok := priceOf("claude-opus-5-5")
+	if !ok {
+		t.Fatal("no price")
+	}
+	// n pairs of requests: a warm one, then one after a pause that rewrites 100k.
+	session := func(n int, pause time.Duration) []turn {
+		var ts []turn
+		for i := range n {
+			start := at.Add(time.Duration(i) * 3 * time.Hour)
+			ts = append(ts,
+				turn{ctx: 100_000, read: 100_000, ts: start},
+				turn{ctx: 100_000, write: 100_000, ts: start.Add(pause)})
+		}
+		return ts
+	}
+	tests := []struct {
+		name  string
+		turns []turn
+		worth bool
+		pause bool // some tokens counted as rewritten after a pause
+	}{
+		{"pauses of 20 minutes rewrite the context", session(150, 20*time.Minute), true, true},
+		{"pauses over an hour are not helped", session(150, 90*time.Minute), false, false},
+		{"too few requests", session(50, 20*time.Minute), false, true},
+		{"no pauses, writes only cost more", []turn{{ctx: 1000, write: 1000, ts: at}}, false, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var c cacheTTL
+			c.add(tt.turns, m)
+			c.done()
+			if c.Worth != tt.worth || (c.PauseTokens > 0) != tt.pause {
+				t.Fatalf("%+v, want worth %v, pause %v", c, tt.worth, tt.pause)
+			}
+		})
+	}
+	var buf strings.Builder
+	printCacheTTL(&buf, cacheTTL{Turns: 10})
+	if !strings.Contains(buf.String(), "too few") {
+		t.Fatalf("%q", buf.String())
+	}
+}

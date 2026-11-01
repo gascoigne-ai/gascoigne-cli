@@ -26,6 +26,10 @@ session id and per-turn usage (the LLM proxy has no session).
   removed or rewritten), only a fixed start read (the rest rewritten), a change recorded between the requests
   (tool set, instruction files, skill, agent or MCP listing: evidence, not proof), else unexplained.
   Request bodies (the proxy) would name the system prompt or tool-set divergence; transcripts cannot.
+- 1-hour cache advice (`cacheTTL`, JSON `cache_ttl`, a line in `context -text`; no page yet): the tokens rewritten after
+  a pause of 5 to 60 minutes would have been read (saved: write minus read price) against every 5-minute write
+  priced as an hour write (extra: 2x input minus the 5-minute write). `worth` from `ttlMinTurns` (200) requests when
+  saved is at least `ttlMinGain` (1.15) times extra. Advice only; exact price per session, not the blended one.
 - Injected text (`injectedText`): from `attachment` lines. A hook's `content` (SessionStart, named by the command it ran:
   the last two parts of its first path), a prompt or tool hook's `additional context` (the event only: the
   transcript does not name the hook), instruction files, the skill listing, agent listing and MCP instructions.

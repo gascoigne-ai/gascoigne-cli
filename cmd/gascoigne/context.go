@@ -129,6 +129,44 @@ type cacheRewrite struct {
 	Share   float64 `json:"share"`    // of all the cost
 }
 
+// cacheTTL weighs the 1-hour cache against the 5-minute one over the priced
+// requests: a pause of 5 to 60 minutes rewrites the context (SavedUSD is what
+// reading it from an hour cache would have saved), but every 5-minute write
+// would cost more as an hour write (ExtraUSD). Advice only: nothing is changed.
+type cacheTTL struct {
+	Turns       int     `json:"turns"`
+	PauseTokens int     `json:"pause_tokens"` // rewritten after a pause of 5 to 60 minutes
+	SavedUSD    float64 `json:"saved_usd"`
+	ExtraUSD    float64 `json:"extra_usd"`
+	Worth       bool    `json:"worth"`
+}
+
+// The 1-hour cache is advised from ttlMinTurns requests, when it saves
+// ttlMinGain times what its dearer writes cost (a margin for pauses that stay
+// over the hour, and for the estimate itself).
+const (
+	ttlMinTurns = 200
+	ttlMinGain  = 1.15
+)
+
+// add counts one session; m is the exact price of its model.
+func (c *cacheTTL) add(turns []turn, m cost.Model) {
+	c.Turns += len(turns)
+	for _, w := range rewrites(turns) {
+		if w.cause == causeFive {
+			c.PauseTokens += w.tokens
+			c.SavedUSD += float64(w.tokens) * (m.CacheWrite - m.CacheRead) / 1e6
+		}
+	}
+	for _, t := range turns {
+		c.ExtraUSD += float64(t.write-t.write1h) * (oneHourWrite*m.Input - m.CacheWrite) / 1e6
+	}
+}
+
+func (c *cacheTTL) done() {
+	c.Worth = c.Turns >= ttlMinTurns && c.ExtraUSD > 0 && c.SavedUSD >= ttlMinGain*c.ExtraUSD
+}
+
 // Causes of a cache rewrite, told apart by what the transcript shows.
 const (
 	causeCompaction = "compaction or /clear"
@@ -178,6 +216,7 @@ type contextReport struct {
 	WhatIf        []whatIf            `json:"what_if"`
 	BestWindow    int                 `json:"best_window"` // the what-if threshold that saved most, 0 when none saved anything
 	Rewrites      []cacheRewrite      `json:"cache_rewrites"`
+	CacheTTL      cacheTTL            `json:"cache_ttl"`
 	Compactions   compactionEconomics `json:"compactions"`
 	Injected      []injectedSource    `json:"injected"`
 	SubagentUSD   float64             `json:"subagent_usd"` // not in the figures above: subagents have conversations of their own
@@ -652,6 +691,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 			sessionsOf[in.label][s.ID] = true
 		}
 		r.Compactions.add(s.turns, m)
+		r.CacheTTL.add(s.turns, exact)
 		for _, w := range rewrites(s.turns) {
 			rw := rewriteOf(byCause, w.cause)
 			rw.Turns++
@@ -676,6 +716,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		}
 	}
 	r.Compactions.done()
+	r.CacheTTL.done()
 	r.Days = fillContextDays(byDay)
 	for i := range r.Buckets {
 		if r.CostUSD > 0 {
@@ -907,6 +948,7 @@ func printContext(w io.Writer, r contextReport) {
 		fmt.Fprintf(tw, "%s\t%d\t%s\t%s\t%.1f%%\n", x.Cause, x.Turns, human(x.Tokens), dollars(x.CostUSD), 100*x.Share)
 	}
 	tw.Flush()
+	printCacheTTL(w, r.CacheTTL)
 	if len(r.Injected) > 0 {
 		fmt.Fprintln(w, "\nText added to conversations besides your prompts (every later request re-reads it):")
 		tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
@@ -941,5 +983,19 @@ func printContext(w io.Writer, r contextReport) {
 	tw.Flush()
 	for _, a := range r.Assumptions {
 		fmt.Fprintln(w, "\n"+a)
+	}
+}
+
+// printCacheTTL says whether the 1-hour cache would have paid, with the figures.
+func printCacheTTL(w io.Writer, c cacheTTL) {
+	switch {
+	case c.Turns < ttlMinTurns:
+		fmt.Fprintf(w, "\n1-hour cache: too few requests (%d, from %d) to tell.\n", c.Turns, ttlMinTurns)
+	case c.Worth:
+		fmt.Fprintf(w, "\n1-hour cache would have paid: reading the %s tokens rewritten after pauses of 5 to 60 minutes saves %s, its dearer writes cost %s more (net %s).\n",
+			human(c.PauseTokens), dollars(c.SavedUSD), dollars(c.ExtraUSD), dollars(c.SavedUSD-c.ExtraUSD))
+	default:
+		fmt.Fprintf(w, "\n1-hour cache would not have paid: it saves %s on pauses of 5 to 60 minutes, its dearer writes cost %s more.\n",
+			dollars(c.SavedUSD), dollars(c.ExtraUSD))
 	}
 }
