@@ -69,7 +69,7 @@ on the way back. It adds one tool, `gascoigne_retrieve` (name configurable with
 resources) passes through untouched.
 
 Tool schemas are compacted on the way (`compact_tools`): titles that restate a property name and
-`$schema`/`$id` markers go, every constraint stays. A server with many tools can hide them behind
+`$schema`/`$id` markers go, every constraint stays. A `trim_descriptions: 0.4` (off by default) also drops that share of filler words from tool descriptions; names and schemas stay. server with many tools can hide them behind
 two (`max_tools: 40`): `search_tools` finds tools by what they do and returns their schemas,
 `call_tool` runs one. Use it for agents without native tool search; Claude Code has its own.
 

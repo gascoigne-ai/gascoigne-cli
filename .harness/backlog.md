@@ -54,8 +54,6 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   - Cold-cache history diet [17]: shrink old tool results only on requests whose prefix is rewritten
     anyway (after the TTL, compaction, or a changed system prompt or tool set); warm requests stay
     byte-identical. Measure cold vs warm cost with `replay`.
-  - Tool description trimming [16]: cap long MCP tool descriptions with `internal/compress/terse`; tool sets
-    are about 35k tokens per request, mostly descriptions.
   - Stronger default truncation [16]: `truncate.max_tokens` 10000 to 4000 where the hint reads the rest.
   - Read line numbers on every 5th line in the proxy [12]: risky for edits, needs an edit-task A/B.
   - `max_image_pixels` on by default [17]: measure on sessions with browser tools.
@@ -72,6 +70,13 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
     headless task runner [14]; plugin hook pricing [16] (also covered by the settings audit task).
 
 ## Measured
+- MCP tool description trimming (2026-11-01): `mcp_proxy.trim_descriptions` runs `terse.Prune` on descriptions
+  only (names, schemas untouched; same text → same output, so the tool list stays cache-stable). Shipped off by
+  default. Offline: on the 8-tool code-hosting fixture (`TestTrimDescriptions`, ratio 0.5) the list falls
+  1501 → 1485 tokens (about 1%): terse drops only articles and hedges, and descriptions of real servers are
+  mostly nouns and parameter docs, so the lever is small. The tool-choice A/B (`testdata/ab/`, needs the API
+  and an MCP server task) has not been run, so the default stays 0; run it with a ratio of 0.3–0.5 before
+  turning it on. A larger cut would need a description summarizer, which risks tool choice more.
 - Replacing a Read result from the PostToolUse hook (2026-10-12, 456 Read results across all transcripts on one
   machine, 1.1 MB): allowed (the hooks docs: `updatedToolOutput` works for every tool, but for built-in tools it
   must match the tool's output shape or it is ignored). Read's shape is `{type: "text", file: {filePath,

@@ -23,6 +23,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/schema"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/terse"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcpauth"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
@@ -152,6 +153,9 @@ func (r *Receiver) populate(ctx context.Context, s *mcp.Server, cs *mcp.ClientSe
 		}
 		if r.cfg.CompactTools {
 			tool.InputSchema = compactSchema(tool.Name, tool.InputSchema)
+		}
+		if r.cfg.TrimDescriptions > 0 {
+			tool.Description = terse.Prune(tool.Description, r.cfg.TrimDescriptions)
 		}
 		tools = append(tools, tool)
 	}

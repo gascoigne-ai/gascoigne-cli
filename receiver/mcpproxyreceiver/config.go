@@ -21,6 +21,11 @@ type Config struct {
 	// CompactTools drops what downstream tool schemas say twice (titles
 	// restating names, $schema markers); constraints stay.
 	CompactTools bool `yaml:"compact_tools"`
+	// TrimDescriptions drops up to this share (0..1) of the filler words
+	// (articles, hedges) from tool descriptions; 0 leaves them alone. The cut is
+	// a pure function of the text, so the tool list, which sits in the prompt
+	// prefix, is the same on every request.
+	TrimDescriptions float64 `yaml:"trim_descriptions"`
 	// MaxTools hides the downstream tools behind search_tools and call_tool
 	// when there are more than this many, so agents without tool search do
 	// not send every schema with every request; 0 always mirrors them.
@@ -31,6 +36,9 @@ type Config struct {
 }
 
 func (c *Config) Validate() error {
+	if c.TrimDescriptions < 0 || c.TrimDescriptions > 1 {
+		return errors.New("trim_descriptions must be between 0 and 1")
+	}
 	if c.MaxTools < 0 {
 		return errors.New("max_tools must not be negative")
 	}

@@ -42,6 +42,10 @@ results and adds `gascoigne_retrieve`. Non-text content passes untouched.
   records no tool stats for that session. `gascoigne mcp-login <url>` does the same ahead of time, for
   headless machines, and `-logout` forgets it. `install`/`wrap` need no probe: OAuth servers are proxied like any other.
 - `compact_tools` drops redundant schema keys.
+- `trim_descriptions` (0..1, off by default) drops that share of filler words (`compress/terse`) from tool
+  descriptions at start (`populate`), before lazy split. Names and schemas never change; the cut is a pure
+  function of the text, so the tool list in the prompt prefix is byte-stable across requests and restarts.
+  The added retrieve tool is not trimmed. Saves about 1% of a tool list; A/B pending (backlog → Measured).
 - `max_tools` > 0 (off by default) hides more tools than that behind `search_tools` (BM25 over
   names and descriptions, top 5 with schemas) and `call_tool`, for agents without native tool
   search.
