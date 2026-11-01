@@ -70,6 +70,37 @@ func TestTextOnlyLosesRepeats(t *testing.T) {
 	}
 }
 
+// Unknown text with many lines of one shape folds to the first plus a count;
+// prose and short text stay whole.
+func TestTextFoldsRepeatedTemplates(t *testing.T) {
+	var rep, rows, prose strings.Builder
+	for i := range 30 {
+		fmt.Fprintf(&rep, "2026-01-02T03:04:%02dZ connect to 10.0.0.1 port 80 ok\n", i)
+		fmt.Fprintf(&rows, "INSERT INTO t VALUES (%d, %d);\n", i, i*7)
+		fmt.Fprintf(&prose, "Sentence %s about %s.\n", strings.Repeat("w", i+1), strings.Repeat("z", 30-i))
+	}
+	tests := []struct {
+		name, in string
+		folds    bool
+	}{
+		{"repeated", rep.String(), true},
+		{"prose", prose.String(), false},
+		{"data rows", rows.String(), false},
+		{"short", "[1] a ok\n[2] a ok\n[3] a ok\n[4] a ok\n", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := run(detect.Text, tt.in)
+			if folded := strings.Contains(got, "×30"); folded != tt.folds {
+				t.Fatalf("folded=%v, want %v:\n%s", folded, tt.folds, got)
+			}
+			if !tt.folds && got != tt.in {
+				t.Fatalf("changed:\n%s", got)
+			}
+		})
+	}
+}
+
 func TestLimitKeepsErrors(t *testing.T) {
 	var b strings.Builder
 	for i := range 2000 {

@@ -8,6 +8,7 @@ package logoptimizer
 import (
 	"context"
 	"fmt"
+	"math"
 	"slices"
 	"strings"
 
@@ -21,6 +22,15 @@ import (
 type Optimizer struct {
 	component.Nop
 	cfg *Config
+	// norm maps a line to its template; nil means compress.Normalize.
+	norm func(string) string
+}
+
+func (o *Optimizer) normalize(l string) string {
+	if o.norm == nil {
+		return compress.Normalize(l)
+	}
+	return o.norm(l)
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
@@ -31,7 +41,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		lines := compress.CleanLines(b.Text)
 		switch {
 		case b.Type == detect.Text:
-			lines = compress.SqueezeBlank(dedupeExact(lines))
+			lines = compress.SqueezeBlank(o.foldText(dedupeExact(lines)))
 		case b.Type == detect.Access:
 			lines = o.access(lines)
 		default:
@@ -128,7 +138,7 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 
 	norms := make([]string, len(lines))
 	for i, l := range lines {
-		norms[i] = compress.Normalize(l)
+		norms[i] = o.normalize(l)
 	}
 	for _, i := range outliers(lines, norms, important) {
 		important[i] = true
@@ -174,7 +184,7 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 	if dropped > 0 {
 		out = append(out, entry{text: gap(dropped, repeats)})
 	}
-	return o.limit(dedupeRuns(out))
+	return o.limit(o.dedupeRuns(out))
 }
 
 // gap marks dropped lines. When each repeats a line shown above (and counted
@@ -192,10 +202,10 @@ func gap(dropped, repeats int) string {
 
 // dedupeRuns collapses consecutive entries equal after Normalize into the
 // first one suffixed with "(×N)", like compress.DedupeRuns.
-func dedupeRuns(es []entry) []entry {
+func (o *Optimizer) dedupeRuns(es []entry) []entry {
 	norms := make([]string, len(es))
 	for i, e := range es {
-		norms[i] = compress.Normalize(e.text)
+		norms[i] = o.normalize(e.text)
 	}
 	var out []entry
 	for i := 0; i < len(es); {
@@ -244,6 +254,40 @@ func (o *Optimizer) limit(es []entry) []entry {
 		dropped++
 	}
 	return out
+}
+
+const (
+	// textMinLines is the fewest lines worth a template pass on unknown text.
+	textMinLines = 20
+	// textMaxRatio is the most distinct templates per line: prose is near 1,
+	// repetitive listings and traces well below.
+	textMaxRatio = 0.5
+)
+
+// stampRe is what varies between repeats of one text event. Plain numbers and
+// hashes do not count: rows of data (dumps, checksum lists) differ by them.
+var stampRe = lazyre.New(`\d{4}-\d\d-\d\d[T ]\d\d:\d\d:\d\d(\.\d+)?(Z|[+-]\d\d:?\d\d)?|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b`)
+
+// foldText runs the template engine on unknown text, only when it is long and
+// repetitive in timestamps and ids alone. Debug lines and the line cap do not
+// apply: text is not a log.
+func (o *Optimizer) foldText(lines []string) []string {
+	t := &Optimizer{
+		cfg:  &Config{Context: o.cfg.Context, MaxLines: math.MaxInt},
+		norm: func(l string) string { return stampRe.ReplaceAllString(l, "#") },
+	}
+	norms := map[string]bool{}
+	n := 0
+	for _, l := range lines {
+		if strings.TrimSpace(l) != "" {
+			norms[t.normalize(l)] = true
+			n++
+		}
+	}
+	if n < textMinLines || float64(len(norms)) > textMaxRatio*float64(n) {
+		return lines
+	}
+	return texts(t.template(lines, nil))
 }
 
 // dedupeExact collapses runs of identical lines; text keeps every distinct line.
