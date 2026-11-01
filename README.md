@@ -281,7 +281,7 @@ Output is detected as `family/dialect` and handled by one engine per family.
 
 | | |
 |---|---|
-| **test** | go · jest · vitest · bun · mocha · deno · pytest · cargo · rspec · maven · dotnet · JUnit XML · coverage (lcov, `go tool cover`) |
+| **test** | go · jest · vitest · bun · mocha · deno · pytest · cargo · rspec · maven · dotnet · JUnit XML · coverage (lcov, `go tool cover`, coverage.py, istanbul tables) |
 | **build** | go · tsc · eslint · golangci · ruff · mypy · rustc · gcc · clang · javac · dotnet · vite/webpack · docker · SARIF |
 | **pkg** | npm · pnpm · yarn · bun · pip · uv · poetry · go mod · cargo · apt/dnf/brew |
 | **task** | nx · turbo · make · just · gradle · compose · CI logs |

@@ -14,6 +14,9 @@ func TestFromCmd(t *testing.T) {
 		{"cat a.html; cat b.go", Code},
 		{"sed -n 10,20p main.go | head -5", Code},
 		{"go test ./... | tail -5", GoTest},
+		{"coverage report -m", Coverage},
+		{"npx nyc report", Coverage},
+		{"pytest --cov=shop", Pytest},                // failures matter more than the table
 		{`grep -n "a|b" x.go | head`, "search/grep"}, // a pipe inside quotes is not a stage
 		{"sed -n 10,20p main.go", Code},
 		{"go test -json ./...", GoTestJSON},
@@ -147,6 +150,11 @@ func TestSniff(t *testing.T) {
 		{"python", "import os\n\ndef main():\n    pass\n", Code},
 		{"ansi go test", "\x1b[32m=== RUN   TestX\x1b[0m\n", GoTest},
 		{"prose", "Hello there.\nJust some words.\n", Text},
+		{"coverage.py table", "Name        Stmts   Miss  Cover\n-------------------------------\nshop/a.py      10      2    80%\nTOTAL          10      2    80%\n", Coverage},
+		{"istanbul table", "-----|---------|---------\nFile | % Stmts | % Lines\n-----|---------|---------\nAll files | 80 | 80\n", Coverage},
+		// the runner's dialect keeps failures that sit next to the table
+		{"pytest with coverage", "=== test session starts ===\ncollected 1 item\nName        Stmts   Miss  Cover\nTOTAL          10      2    80%\n=== 1 passed in 0.1s ===\n", Pytest},
+		{"jest with coverage", "PASS src/a.test.ts\nFile | % Stmts | % Lines\nTests:       1 passed, 1 total\n", JSTest},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

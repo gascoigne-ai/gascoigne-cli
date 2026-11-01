@@ -1,0 +1,16 @@
+total: 83.6% of 40 files
+src/payments/refunds.js 0.0% uncovered: 2-41
+src/shipping.js 20.0% uncovered: 10-46
+src/emails.js 29.4% uncovered: 10-30
+src/fulfilment/warehouse.js 35.1% uncovered: 26-70
+src/reports.js 42.9% uncovered: 18-38
+src/tax.js 42.9% uncovered: 18-38
+src/inventory.js 44.8% uncovered: 26-54
+src/payments/stripe.js 45.9% uncovered: 34-70
+src/orders.js 78.8% uncovered: 14,30,46,58-62
+31 files at or above 80.0%
+
+Test Suites: 39 passed, 39 total
+Tests:       184 passed, 184 total
+Snapshots:   0 total
+Time:        0.645 s, estimated 1 s

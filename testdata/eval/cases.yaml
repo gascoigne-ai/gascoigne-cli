@@ -1001,6 +1001,13 @@
     keep: ["CodeQL: 36 results", "internal/orders/repo.go", "20:5", "[go/sql-injection]", "internal/auth/login.go"], min_saved: 85 }
 - { file: test/lcov.info, attrs: { file: coverage/lcov.info }, expect_type: test/coverage, keep: ["total: 74.7%", "src/tax.ts 41.1%", "4 files at or above"], min_saved: 90 }
 - { file: test/go-cover-func.txt, attrs: { cmd: go tool cover -func=cover.out }, expect_type: test/coverage, keep: ["total: 73.4%", "price/price.go"], min_saved: 60 }
+- { file: test/coverage-report.txt, attrs: { cmd: coverage report }, expect_type: test/coverage,
+    keep: ["total: 83.0% of 44 files", "shop/payments/refunds.py 0.0%", "shop/shipping.py 27.0%", "33 files at or above"], min_saved: 80 }
+- { name: detect/coverage-report, file: test/coverage-report.txt, expect_type: test/coverage }
+- { file: test/pytest-cov-fail.txt, attrs: { cmd: pytest --cov=shop --cov-branch --cov-report=term-missing }, expect_type: test/pytest,
+    keep: ["test_cart_total_matches_ledger", "assert 10 == 31", "total: 83.0% of 44 files", "shop/payments/refunds.py 0.0% uncovered: 1-34", "FAILED tests/test_zz_totals.py"], min_saved: 70 }
+- { file: test/jest-coverage.txt, attrs: { cmd: npx jest --coverage }, expect_type: test/jest,
+    keep: ["total: 83.6% of 40 files", "src/payments/refunds.js 0.0% uncovered: 2-41", "src/shipping.js 20.0%", "Tests:       184 passed"], min_saved: 70 }
 - { file: data/Cargo.lock, attrs: { cmd: cat Cargo.lock }, expect_type: data/toml, keep: ["[[package]] ×", "core_arch", "deps: "], min_saved: 30 }
 - { name: detect/csv, file: data/orders-export.csv, expect_type: data/csv }
 - { name: detect/xml, file: data/blog-feed.xml, expect_type: data/xml }

@@ -46,7 +46,7 @@ dropped. Go output is parsed; the others follow rules.
 | `test/phpunit`, `test/minitest`, `test/unittest` | `phpunit`, `pest`, `php artisan test`; `rake test`, `rails test`; `unittest`, `nosetests` |
 | `test/tap`, `test/playwright`, `test/cypress`, `test/karma` | `node --test`, `tap`, `ava`; `playwright test`; `cypress run`; `karma start`, `ng test` |
 | `test/junit` | JUnit XML reports (`junit*.xml`, `TEST-*.xml`, sniffed) | count line per suite; failing and erroring cases with message, details and output; skipped cases with reason |
-| `test/coverage` | lcov (`lcov.info`), `go tool cover -func` | total, then files under `coverage_below` (80%) worst first with uncovered line ranges or weak functions |
+| `test/coverage` | lcov (`lcov.info`), `go tool cover -func`, `coverage report`, `nyc report`, coverage.py and istanbul (jest, nyc, c8, vitest) tables; also inside `pytest --cov` / `jest --coverage` output | total, then files under `coverage_below` (80%) worst first with uncovered line ranges or weak functions |
 
 ```
 --- FAIL: TestTotal (0.00s)

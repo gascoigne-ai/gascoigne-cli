@@ -319,6 +319,10 @@ data/blog-feed	2279	0	42
 build/codeql	1065	1	38
 test/lcov	285	0	2
 test/go-cover-func	184	0	4
+test/coverage-report	142	0	20
+detect/coverage-report	142	0	20
+test/pytest-cov-fail	602	0	20
+test/jest-coverage	203	0	0
 data/Cargo	2222	0	124
 detect/csv	1175	0	0
 detect/xml	2279	0	42

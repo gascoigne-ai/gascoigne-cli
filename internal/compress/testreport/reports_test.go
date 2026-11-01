@@ -52,6 +52,30 @@ func TestCoverage(t *testing.T) {
 			want: "total: 70.0% of 2 files\nx/a.go 60.0%: parse 20.0%\n1 files at or above 80.0%",
 		},
 		{
+			name: "coverage.py with missing column",
+			in: "Name          Stmts   Miss Branch BrPart  Cover   Missing\n---------------------------------------------------------\n" +
+				"shop/a.py        20      2      4      1    88%   12-13\nshop/b.py        30     20      6      0    33%   1-5, 9, 12-40\nTOTAL            50     22     10      1    55%",
+			want: "total: 55.0% of 2 files\nshop/b.py 33.0% uncovered: 1-5,9,12-40\n1 files at or above 80.0%",
+		},
+		{
+			name: "coverage.py without total keeps the mean",
+			in:   "Name       Stmts   Miss  Cover\n--------------------------------\nshop/a.py     20      2    90%\nshop/b.py     30     20    70%",
+			want: "total: 80.0% of 2 files\nshop/b.py 70.0%\n1 files at or above 80.0%",
+		},
+		{
+			name: "istanbul puts directory rows before their files",
+			in: "-------------|---------|----------|---------|---------|------------------\n" +
+				"File         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s\n" +
+				"-------------|---------|----------|---------|---------|------------------\n" +
+				"All files    |   70.00 |       50 |      60 |   70.00 |                   \n" +
+				" index.js    |     100 |      100 |     100 |     100 |                   \n" +
+				" src         |   55.00 |       40 |      50 |   55.00 |                   \n" +
+				"  tax.js     |   41.17 |       25 |      25 |   41.17 | 10-30,44          \n" +
+				"  cart.js    |     100 |      100 |     100 |     100 |                   \n" +
+				"-------------|---------|----------|---------|---------|------------------",
+			want: "total: 70.0% of 3 files\nsrc/tax.js 41.2% uncovered: 10-30,44\n2 files at or above 80.0%",
+		},
+		{
 			name: "not a report",
 			in:   "hello\nworld",
 			want: "hello\nworld",
@@ -63,5 +87,20 @@ func TestCoverage(t *testing.T) {
 				t.Fatalf("got\n%s\nwant\n%s", got, tt.want)
 			}
 		})
+	}
+}
+
+// A test run with a coverage table keeps what is around the table (the
+// failures) and only shortens the table.
+func TestCoverageTablesKeepsTheRun(t *testing.T) {
+	in := "FAILED tests/test_a.py::test_x - assert 1 == 2\n" +
+		"Name       Stmts   Miss  Cover   Missing\n----------------------------------------\n" +
+		"shop/a.py     20      2    90%   12-13\nshop/b.py     30     20    33%   1-20\nTOTAL         50     22    56%\n" +
+		"1 failed, 3 passed in 0.1s"
+	want := "FAILED tests/test_a.py::test_x - assert 1 == 2\n" +
+		"total: 56.0% of 2 files\nshop/b.py 33.0% uncovered: 1-20\n1 files at or above 80.0%\n" +
+		"1 failed, 3 passed in 0.1s"
+	if got := strings.Join(CoverageTables(strings.Split(in, "\n"), 80), "\n"); got != want {
+		t.Fatalf("got\n%s\nwant\n%s", got, want)
 	}
 }

@@ -17,6 +17,7 @@ type fileCover struct {
 	pct        float64
 	hit, total int      // lines (lcov); 0 when only a percentage is known
 	uncovered  []int    // uncovered line numbers (lcov)
+	missing    string   // uncovered ranges as the tool printed them (tables)
 	weak       []string // functions under the threshold with their percent (go)
 }
 
@@ -32,8 +33,13 @@ func Coverage(lines []string, below float64) []string {
 		files, total = goCover(lines, below)
 	}
 	if len(files) == 0 {
-		return lines
+		return CoverageTables(lines, below)
 	}
+	return render(files, total, below)
+}
+
+// render lists the files under the threshold, worst first, after the total.
+func render(files []fileCover, total, below float64) []string {
 	slices.SortStableFunc(files, func(a, b fileCover) int { return cmp.Or(cmp.Compare(a.pct, b.pct), strings.Compare(a.name, b.name)) })
 	out := []string{fmt.Sprintf("total: %s of %d files", pct(total), len(files))}
 	low := 0
@@ -46,7 +52,7 @@ func Coverage(lines []string, below float64) []string {
 		if f.total > 0 {
 			l += fmt.Sprintf(" (%d/%d lines)", f.hit, f.total)
 		}
-		if r := ranges(f.uncovered); r != "" {
+		if r := cmp.Or(f.missing, ranges(f.uncovered)); r != "" {
 			l += " uncovered: " + r
 		}
 		if len(f.weak) > 0 {
@@ -156,6 +162,11 @@ func ranges(nums []int) string {
 		}
 		i = j + 1
 	}
+	return capRanges(parts)
+}
+
+// capRanges joins the first 12 ranges and counts the rest.
+func capRanges(parts []string) string {
 	if len(parts) > 12 {
 		return strings.Join(parts[:12], ",") + " " + compress.Omitted(len(parts)-12, "ranges")
 	}

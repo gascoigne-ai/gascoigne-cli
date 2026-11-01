@@ -39,7 +39,7 @@ func (o *Optimizer) compressBlock(b payload.Block) ([]string, error) {
 	case "go":
 		return testreport.Go(compress.CleanLines(b.Text)), nil
 	default:
-		lines := compress.CleanLines(b.Text)
+		lines := testreport.CoverageTables(compress.CleanLines(b.Text), o.cfg.CoverageBelow)
 		out, ok := testreport.Compress(dialect, lines)
 		if !ok {
 			return lines, nil

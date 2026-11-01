@@ -1,0 +1,114 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.9, pytest-9.2.0, pluggy-1.7.0
+rootdir: /work/shop
+plugins: cov-7.1.0
+collected 195 items
+
+tests/test_shop_accounts_addresses.py ....                               [  2%]
+tests/test_shop_accounts_audit.py ....                                   [  4%]
+tests/test_shop_accounts_login.py ....                                   [  6%]
+tests/test_shop_accounts_profile.py ....                                 [  8%]
+tests/test_shop_accounts_reset.py ....                                   [ 10%]
+tests/test_shop_accounts_roles.py ....                                   [ 12%]
+tests/test_shop_accounts_signup.py ....                                  [ 14%]
+tests/test_shop_accounts_tokens.py ....                                  [ 16%]
+tests/test_shop_cart.py ......                                           [ 19%]
+tests/test_shop_catalog_brands.py .....                                  [ 22%]
+tests/test_shop_catalog_categories.py .....                              [ 24%]
+tests/test_shop_catalog_images.py .....                                  [ 27%]
+tests/test_shop_catalog_import_feed.py ......                            [ 30%]
+tests/test_shop_catalog_products.py .....                                [ 32%]
+tests/test_shop_catalog_stock.py .....                                   [ 35%]
+tests/test_shop_catalog_variants.py .....                                [ 37%]
+tests/test_shop_config.py ......                                         [ 41%]
+tests/test_shop_coupons.py ......                                        [ 44%]
+tests/test_shop_emails.py .                                              [ 44%]
+tests/test_shop_fulfilment_carriers.py .....                             [ 47%]
+tests/test_shop_fulfilment_labels.py .....                               [ 49%]
+tests/test_shop_fulfilment_packing.py .....                              [ 52%]
+tests/test_shop_fulfilment_picking.py .....                              [ 54%]
+tests/test_shop_fulfilment_returns.py .....                              [ 57%]
+tests/test_shop_fulfilment_routing.py .....                              [ 60%]
+tests/test_shop_fulfilment_warehouse.py ...                              [ 61%]
+tests/test_shop_inventory.py ...                                         [ 63%]
+tests/test_shop_orders.py .......                                        [ 66%]
+tests/test_shop_payments_stripe.py ....                                  [ 68%]
+tests/test_shop_pricing.py ......                                        [ 71%]
+tests/test_shop_promos.py ......                                         [ 74%]
+tests/test_shop_ratings.py ......                                        [ 77%]
+tests/test_shop_reports.py ..                                            [ 78%]
+tests/test_shop_reviews.py ......                                        [ 82%]
+tests/test_shop_search.py .......                                        [ 85%]
+tests/test_shop_sessions.py ......                                       [ 88%]
+tests/test_shop_shipping.py .                                            [ 89%]
+tests/test_shop_tax.py ..                                                [ 90%]
+tests/test_shop_users.py ......                                          [ 93%]
+tests/test_shop_utils.py ......                                          [ 96%]
+tests/test_shop_wishlist.py ......                                       [ 99%]
+tests/test_zz_totals.py F                                                [100%]
+
+=================================== FAILURES ===================================
+________________________ test_cart_total_matches_ledger ________________________
+
+    def test_cart_total_matches_ledger():
+        expected = 31
+>       assert cart.f2(3) == expected
+E       assert 10 == 31
+E        +  where 10 = <function f2 at 0x7f474ee5b950>(3)
+E        +    where <function f2 at 0x7f474ee5b950> = cart.f2
+
+tests/test_zz_totals.py:8: AssertionError
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.9-final-0 ________________
+
+Name                           Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------
+shop/__init__.py                   0      0      0      0   100%
+shop/accounts/addresses.py        24      0      8      0   100%
+shop/accounts/audit.py            36     14     12      2    58%   12-13, 26-27, 30-34, 37-41
+shop/accounts/login.py            24      0      8      0   100%
+shop/accounts/profile.py          24      0      8      0   100%
+shop/accounts/reset.py            24      0      8      0   100%
+shop/accounts/roles.py            24      0      8      0   100%
+shop/accounts/signup.py           24      0      8      0   100%
+shop/accounts/tokens.py           24      0      8      0   100%
+shop/cart.py                      36      6     12      3    81%   12-13, 26-27, 40-41
+shop/catalog/brands.py            30      0     10      0   100%
+shop/catalog/categories.py        30      0     10      0   100%
+shop/catalog/images.py            30      0     10      0   100%
+shop/catalog/import_feed.py       48     16     16      3    64%   12-13, 26-27, 40-41, 44-48, 51-55
+shop/catalog/products.py          30      0     10      0   100%
+shop/catalog/stock.py             30      0     10      0   100%
+shop/catalog/variants.py          30      0     10      0   100%
+shop/config.py                    36      0     12      0   100%
+shop/coupons.py                   36      0     12      0   100%
+shop/emails.py                    24     15      8      0    34%   9-13, 16-20, 23-27
+shop/fulfilment/carriers.py       30      0     10      0   100%
+shop/fulfilment/labels.py         30      0     10      0   100%
+shop/fulfilment/packing.py        30      0     10      0   100%
+shop/fulfilment/picking.py        30      0     10      0   100%
+shop/fulfilment/returns.py        30      0     10      0   100%
+shop/fulfilment/routing.py        30      0     10      0   100%
+shop/fulfilment/warehouse.py      54     30     18      0    42%   23-27, 30-34, 37-41, 44-48, 51-55, 58-62
+shop/inventory.py                 42     20     14      0    50%   23-27, 30-34, 37-41, 44-48
+shop/orders.py                    48     11     16      3    75%   12-13, 26-27, 40-41, 51-55
+shop/payments/__init__.py          0      0      0      0   100%
+shop/payments/refunds.py          30     30     10      0     0%   1-34
+shop/payments/stripe.py           54     25     18      0    51%   30-34, 37-41, 44-48, 51-55, 58-62
+shop/pricing.py                   36      0     12      0   100%
+shop/promos.py                    36      0     12      0   100%
+shop/ratings.py                   36      0     12      0   100%
+shop/reports.py                   30     15     10      0    48%   16-20, 23-27, 30-34
+shop/reviews.py                   36      0     12      0   100%
+shop/search.py                    42      6     14      3    84%   12-13, 26-27, 40-41
+shop/sessions.py                  36      0     12      0   100%
+shop/shipping.py                  36     25     12      0    27%   9-13, 16-20, 23-27, 30-34, 37-41
+shop/tax.py                       30     15     10      0    48%   16-20, 23-27, 30-34
+shop/users.py                     36      0     12      0   100%
+shop/utils.py                     36      0     12      0   100%
+shop/wishlist.py                  36      0     12      0   100%
+--------------------------------------------------------------------------
+TOTAL                           1398    228    466     14    83%
+=========================== short test summary info ============================
+FAILED tests/test_zz_totals.py::test_cart_total_matches_ledger
+======================== 1 failed, 194 passed in 0.25s ========================

@@ -1,0 +1,35 @@
+============================= test session starts ==============================
+
+tests/test_zz_totals.py F                                                [100%]
+
+=================================== FAILURES ===================================
+________________________ test_cart_total_matches_ledger ________________________
+
+    def test_cart_total_matches_ledger():
+        expected = 31
+>       assert cart.f2(3) == expected
+E       assert 10 == 31
+E        +  where 10 = <function f2 at 0x7f474ee5b950>(3)
+E        +    where <function f2 at 0x7f474ee5b950> = cart.f2
+
+tests/test_zz_totals.py:8: AssertionError
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.9-final-0 ________________
+
+total: 83.0% of 44 files
+shop/payments/refunds.py 0.0% uncovered: 1-34
+shop/shipping.py 27.0% uncovered: 9-13,16-20,23-27,30-34,37-41
+shop/emails.py 34.0% uncovered: 9-13,16-20,23-27
+shop/fulfilment/warehouse.py 42.0% uncovered: 23-27,30-34,37-41,44-48,51-55,58-62
+shop/reports.py 48.0% uncovered: 16-20,23-27,30-34
+shop/tax.py 48.0% uncovered: 16-20,23-27,30-34
+shop/inventory.py 50.0% uncovered: 23-27,30-34,37-41,44-48
+shop/payments/stripe.py 51.0% uncovered: 30-34,37-41,44-48,51-55,58-62
+shop/accounts/audit.py 58.0% uncovered: 12-13,26-27,30-34,37-41
+shop/catalog/import_feed.py 64.0% uncovered: 12-13,26-27,40-41,44-48,51-55
+shop/orders.py 75.0% uncovered: 12-13,26-27,40-41,51-55
+33 files at or above 80.0%
+=========================== short test summary info ============================
+FAILED tests/test_zz_totals.py::test_cart_total_matches_ledger
+======================== 1 failed, 194 passed in 0.25s ========================
+… 41 passing test lines omitted

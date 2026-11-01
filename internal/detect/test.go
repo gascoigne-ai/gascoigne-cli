@@ -3,6 +3,8 @@ package detect
 import (
 	"slices"
 	"strings"
+
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
 // Test runners.
@@ -30,10 +32,11 @@ func init() {
 				head := t[:min(len(t), 4096)]
 				return strings.Contains(head, "<testsuite") && strings.Contains(t, "<testcase")
 			}},
-		Spec{Type: Coverage, Cmds: []string{"go tool cover -func"}, Files: []string{"lcov.info", "*.lcov"}, Priority: 47,
-			Sniff: func(_ string, l []string) bool {
+		Spec{Type: Coverage, Cmds: []string{"go tool cover -func", "coverage report", "nyc report", "c8 report"}, Files: []string{"lcov.info", "*.lcov"}, Priority: 47,
+			Sniff: func(t string, l []string) bool {
 				return len(l) > 1 && (strings.HasPrefix(l[0], "TN:") || strings.HasPrefix(l[0], "SF:")) ||
-					slices.ContainsFunc(l, func(s string) bool { return strings.HasPrefix(s, "total:\t") && strings.HasSuffix(s, "%") })
+					slices.ContainsFunc(l, func(s string) bool { return strings.HasPrefix(s, "total:\t") && strings.HasSuffix(s, "%") }) ||
+					coverageTable(t, l)
 			}},
 		Spec{Type: GoTestJSON, Cmds: []string{"go test -json"}, Priority: 10,
 			Sniff: func(_ string, l []string) bool {
@@ -58,4 +61,16 @@ func init() {
 		Spec{Type: DenoTest, Cmds: []string{"deno test"}, Priority: 48,
 			Sniff: anyLine(`^(ok|FAILED) \| \d+ passed|^running \d+ tests? from `)},
 	)
+}
+
+var (
+	coverageHeader = lazyre.New(`(?m)^(Name\s+Stmts\s+Miss\s|File\s*\|\s*% Stmts\s*\|)`)
+	// a test run printing a coverage table is the runner's output, not a coverage report.
+	testRunHeader = lazyre.New(`(?m)^=+ test session starts =+$|^\s*(PASS|FAIL)\s+\S+\.(test|spec)\.\w+|^Tests:\s+\d|^\s*RUN\s+v\d`)
+)
+
+// coverageTable: a coverage.py/pytest-cov or istanbul table (jest, nyc, c8, vitest)
+// on its own; with a test run around it the runner's dialect keeps the failures.
+func coverageTable(t string, _ []string) bool {
+	return coverageHeader.MatchString(t) && !testRunHeader.MatchString(t)
 }
