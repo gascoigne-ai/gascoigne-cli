@@ -78,6 +78,9 @@
   deleted after one answer; constant-time compare); only the offered ids and values are accepted;
   the usual loopback-Host and cross-origin checks apply. An answer saves the prefs and writes
   user-scope installs again; project installs are listed ("run gascoigne install there").
+  A new release (`prefs.setup_version` differs from `version.Number`) opens the page once more at the next
+  session start, even with no open question, to finish the update. The dashboard's Change button POSTs
+  `/api/setup/link` (same-origin only) to get a tokened URL; it never links to bare `/setup`.
   `gascoigne setup [-y] [-all] [-t]` opens the page, or asks the same in the terminal. The page
   (`setup.html`) first shows what was found (`buildSetupView`: each install connected or older, agents
   on PATH not connected or declined, the version), then the questions in sections by `decision.Group`

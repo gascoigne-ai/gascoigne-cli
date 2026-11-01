@@ -6,6 +6,16 @@
 <title>gascoigne · Token Savings</title>
 <link rel="icon" id="favicon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Ccircle cx=%2224%22 cy=%2224%22 r=%2219%22 fill=%22%23ece4e2%22/%3E%3C/svg%3E">
 <script>
+async function openSetup() {
+  try {
+    const r = await fetch("/api/setup/link", { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    location.href = (await r.json()).url;
+  } catch (e) {
+    alert("Could not open setup: " + e.message + "\nRun gascoigne setup instead.");
+  }
+}
+
 // Apply the saved theme before first paint to avoid a flash.
 try { const t = localStorage.getItem("gascoigne-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}
 </script>
@@ -452,7 +462,7 @@ footer { margin-top: 24px; color: var(--faint); font-size: 12.5px; text-align: c
   <div class="status" id="experiments-panel" role="status" aria-label="Experimental features that are switched on" hidden>
     <span class="status-label" id="status-label">Experimental</span>
     <span class="status-items" id="experiments"></span>
-    <button type="button" class="status-link" data-icon="sliders" onclick="location.href='/setup'" title="Switch experiments on or off (config experimental, or gascoigne setup)">Change</button>
+    <button type="button" class="status-link" data-icon="sliders" onclick="openSetup()" title="Switch experiments on or off (config experimental, or gascoigne setup)">Change</button>
   </div>
 
   <footer><span id="server-info">gascoigne server</span><br>

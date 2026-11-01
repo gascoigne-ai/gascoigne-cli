@@ -48,6 +48,9 @@ type prefs struct {
 	// Window is the auto-compact window (tokens) install -window wrote into
 	// claude's settings; unwrap removes the key only while it still holds it.
 	Window int `json:"window,omitempty"`
+	// SetupVersion is the release whose setup page a session start opened;
+	// a new release opens it once more, to finish the update.
+	SetupVersion string `json:"setup_version,omitempty"`
 	// Declined are agents found on PATH that the user chose not to integrate.
 	Declined []string `json:"declined,omitempty"`
 	// UpdateDeclined is the registrationVersion whose hook update the user

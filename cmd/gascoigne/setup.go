@@ -552,11 +552,13 @@ const askInterval = 10 * time.Minute
 func setupNudge(source string) string {
 	p := readPrefs()
 	pending := pendingDecisions(p)
-	if len(pending) == 0 || len(readInstalls()) == 0 || source == "compact" || source == "clear" ||
+	upgraded := p.SetupVersion != version.Number
+	if (len(pending) == 0 && !upgraded) || len(readInstalls()) == 0 || source == "compact" || source == "clear" ||
 		time.Since(p.AskedAt) < askInterval {
 		return ""
 	}
 	p.AskedAt = time.Now()
+	p.SetupVersion = version.Number
 	if p.save() != nil {
 		return ""
 	}
@@ -570,6 +572,8 @@ func setupNudge(source string) string {
 		}
 	}
 	switch {
+	case len(pending) == 0:
+		return "gascoigne was upgraded to " + version.Number + "; the setup page was opened in a browser to finish the update (or run gascoigne setup -all)."
 	case len(agentsNew) > 0:
 		return "gascoigne found " + strings.Join(agentsNew, ", ") + " on PATH without a gascoigne install; it asks the user (browser, or gascoigne setup) and installs nothing by itself."
 	case slices.ContainsFunc(pending, func(d decision) bool { return d.ID == "update" }):
@@ -583,6 +587,12 @@ func setupHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("GET /setup", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write(setupHTML)
+	})
+	// The dashboard's Change button: the page needs a token, which only a
+	// same-origin POST (localOnly) may mint.
+	mux.HandleFunc("POST /api/setup/link", func(w http.ResponseWriter, _ *http.Request) {
+		link, err := setupLink()
+		respond(w, map[string]string{"url": link}, err)
 	})
 	mux.HandleFunc("GET /api/setup", func(w http.ResponseWriter, r *http.Request) {
 		if !validSetupToken(r.URL.Query().Get("token")) {

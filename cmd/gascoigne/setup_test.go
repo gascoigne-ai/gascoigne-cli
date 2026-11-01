@@ -504,3 +504,43 @@ func TestProseModelChoice(t *testing.T) {
 		t.Fatal("chosen model not downloaded: setup must fetch it")
 	}
 }
+
+func TestSetupNudgeAfterUpgradeOpensPageOnce(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	if err := recordInstall("claude", true, "gascoigne", false); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := applyAnswers(map[string]string{"allow": "none", "autosync": "off"}); err != nil {
+		t.Fatal(err)
+	}
+	p := readPrefs()
+	p.SetupVersion = "0.0.1" // set up by an older release
+	p.AskedAt = time.Time{}
+	if err := p.save(); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(setupNudge("startup"), "upgraded") {
+		t.Fatal("a new release opens the setup page to finish the update")
+	}
+	p = readPrefs()
+	p.AskedAt = time.Time{}
+	if err := p.save(); err != nil {
+		t.Fatal(err)
+	}
+	if setupNudge("startup") != "" {
+		t.Fatal("once per release")
+	}
+}
+
+func TestSetupLinkEndpointNeedsServer(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	mux := http.NewServeMux()
+	setupHandlers(mux)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, httptest.NewRequest("POST", "/api/setup/link", nil))
+	if rec.Code != http.StatusInternalServerError {
+		t.Fatalf("server off: want an error, got %d", rec.Code)
+	}
+}
