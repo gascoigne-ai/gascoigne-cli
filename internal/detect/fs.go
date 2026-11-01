@@ -12,8 +12,11 @@ const (
 
 func init() {
 	register(
-		Spec{Type: LS, Cmds: []string{"ls", "eza", "exa"}, Priority: 71,
-			Sniff: all(anyLine(`^total \d+`), ratio(`^[-dlcbps][rwxsStT-]{9}[.+@]?\s`, 0.5))},
+		Spec{Type: LS, Cmds: []string{"ls", "eza", "exa", "find -ls"}, Priority: 71,
+			Sniff: either(
+				all(anyLine(`^total \d+`), ratio(`^[-dlcbps][rwxsStT-]{9}[.+@]?\s`, 0.5)),
+				// find -ls: inode and block count before the mode
+				ratio(`^\s*\d+\s+\d+\s+[-dlcbps][rwxsStT-]{9}[.+@]?\s`, 0.9))},
 		Spec{Type: Tree, Cmds: []string{"tree", "eza --tree", "exa --tree", "lsd --tree"}, Priority: 70,
 			Sniff: all(anyLine(`^(│   |    )*(├──|└──) `), ratio(`^(│   |    )*(├──|└──) |^\S+$|^\d+ director(y|ies)|^$`, 0.9))},
 		Spec{Type: Paths, Cmds: []string{"find", "fd", "fdfind", "git ls-files", "rg --files", "locate", "plocate"}, Priority: 86,

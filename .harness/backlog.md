@@ -9,8 +9,7 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 ## Open
 - Dialects the dialect-coverage cases (`testdata/eval`) show saving nothing (0% on 60-130 line fixtures): `search/git-grep`,
   `table/ss`, `table/sys` (lsmod), `build/fmt` (cargo fmt --check), `build/php` (phpstan), `test/catch`, `test/minitest`
-  (the last two under the 200-token floor). `pkg/mvndeps` keeps the tree head but cuts the tail, so `BUILD SUCCESS` /
-  a failure's error lines are not in the output: fix before trusting it on failing builds.
+  (the last two under the 200-token floor).
 - `pkg/tree` covers npm ls, pnpm list/why, pipdeptree, uv tree, poetry show --tree (real fixtures in
   `testdata/eval/pkg`). Still unrouted for lack of real output: `cargo tree`, `gradle dependencies`,
   `composer show --tree`, `yarn why` (berry). Capture each, add the command to the `pkg/tree` row in

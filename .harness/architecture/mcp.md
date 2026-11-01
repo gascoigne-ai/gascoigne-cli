@@ -8,7 +8,7 @@
 |---|---|
 | `fetch` | web pages → markdown, API JSON compressed; http/https only, timeout, size cap. The cheap way to read web data |
 | `compress` | any text, with optional `cmd`/`file` hints |
-| `show {file, symbol?}` | one definition with doc comment and line numbers, or the outline without a symbol. Also `gascoigne show file[:symbol]`; `mcptool.Show` on `internal/compress/symbols` (Go parser, Python indent, C-like braces) |
+| `show {file, symbol?}` | one definition with doc comment and line numbers, or the outline without a symbol. Also `gascoigne show file[:symbol]`; `mcptool.Show` on `internal/compress/symbols` (Go parser, Python indent, C-like braces, `end`-closed blocks of ruby/elixir/lua…, Markdown headings) |
 | `retrieve id` | the original; optional `lines`/`grep`/`query` read a part (not a failure). A full read marks the source as badly optimized |
 | `stats` | savings (see Ledger → Reports) |
 

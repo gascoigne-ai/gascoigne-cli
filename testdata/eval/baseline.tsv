@@ -179,6 +179,7 @@ detect/http-verbose	3160	3	55
 git/status	128	0	0
 git/status-big	149	0	0
 git/log	1151	2	8
+git/log-graph	338	0	12
 git/show-lockfile	4330	1	42
 git/log-stat	776	1	1
 git/diff	2386	1	15
@@ -207,6 +208,8 @@ ls/usr-lib	787	0	0
 ls/many-same-ext	3302	0	0
 ls/repo	343	0	0
 detect/ls	343	0	0
+ls/find-ls	760	0	0
+detect/find-ls	760	0	0
 ls/tree-x-net	1924	0	0
 ls/find-x-net	1628	0	416
 ls/find-dirs	162	0	0
@@ -407,7 +410,8 @@ build/meson-compile	213	0	60
 build/phpstan	412	0	0
 pkg/deno-install	9	0	85
 pkg/mix-deps-get	252	0	0
-pkg/mvn-dependency-tree	3313	0	0
+pkg/mvn-dependency-tree	3319	0	0
+pkg/mvn-dependency-tree-fail	258	0	2
 pkg/npm-ls-all	5949	0	0
 pkg/npm-ls-all-query	5996	0	0
 pkg/pnpm-list-depth	4671	0	0

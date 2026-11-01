@@ -31,13 +31,20 @@ var ErrLang = fmt.Errorf("symbols: unsupported language")
 // Defs lists the definitions of text, in file order.
 func Defs(text string, h detect.Hints) ([]Def, error) {
 	lines := strings.Split(strings.TrimSuffix(text, "\n"), "\n")
-	switch detect.Lang(text, h) {
+	if slices.Contains([]string{".md", ".markdown", ".mdx"}, detect.SourceExt(h)) {
+		return mdDefs(lines), nil
+	}
+	row, _ := detect.Source(text, h)
+	switch row.Class {
 	case detect.LangGo:
 		return goDefs(text)
 	case detect.LangPython:
 		return pyDefs(lines), nil
 	case detect.LangCLike:
 		return braceDefs(lines), nil
+	}
+	if row.Style == detect.StyleEnd {
+		return endDefs(lines, row), nil
 	}
 	return nil, ErrLang
 }

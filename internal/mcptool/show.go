@@ -54,7 +54,7 @@ type ShowInput struct {
 func AddShow(s *mcp.Server) {
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "show",
-		Description: "Read one function, method or type of a source file with line numbers (Go, Python, JS/TS, Java, C#, Rust, C…); without symbol, list its definitions.",
+		Description: "Read one function, method or type of a source file with line numbers (Go, Python, Ruby, Elixir, Lua, JS/TS, Java, C#, Rust, C…, Markdown headings); without symbol, list its definitions.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, in ShowInput) (*mcp.CallToolResult, any, error) {
 		text, err := Show(in.File, in.Symbol)
 		if err != nil {

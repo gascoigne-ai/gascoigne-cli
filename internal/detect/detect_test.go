@@ -5,6 +5,8 @@ import "testing"
 func TestFromCmd(t *testing.T) {
 	tests := []struct{ cmd, want string }{
 		{"go test ./...", GoTest},
+		{"find . -ls", LS}, // inode and blocks before the mode
+		{"find . -name x", Paths},
 		{"cat web/index.html", Code}, // a page when fetched, source when read from disk
 		{"sed -n 1,40p templates/base.html", Code},
 		// a pipe's later stages only filter the output: the first one says what it is

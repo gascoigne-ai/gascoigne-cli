@@ -85,6 +85,18 @@ func all(sniffers ...Sniffer) Sniffer {
 	}
 }
 
+// either matches when some sniffer matches.
+func either(sniffers ...Sniffer) Sniffer {
+	return func(text string, lines []string) bool {
+		for _, s := range sniffers {
+			if s(text, lines) {
+				return true
+			}
+		}
+		return false
+	}
+}
+
 // firstLine matches the first non-blank line.
 func firstLine(pattern string) Sniffer {
 	re := lazyre.New(pattern)

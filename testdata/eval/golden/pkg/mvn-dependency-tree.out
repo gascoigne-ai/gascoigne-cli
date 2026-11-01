@@ -120,3 +120,4 @@
 [INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:6.8.4:compile
 [INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:8.7.2:compile
 [INFO] |  \- com.fasterxml.jackson.core:jackson-databind:jar:4.4.4:compile
+[INFO] BUILD SUCCESS

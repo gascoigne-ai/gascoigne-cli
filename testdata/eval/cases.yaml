@@ -356,6 +356,7 @@
   expect_type: vcs/git-log
   keep: ["adbc881", "fix: resolve macOS test link failure"]
   min_saved: 65
+- { name: git/log-graph, file: git/log-graph.txt, attrs: { cmd: git log --graph }, expect_type: vcs/git-log, keep: ["feat(mcp-proxy): trim tool descriptions"], min_saved: 60 }
 - file: git/show-lockfile.txt
   attrs: { cmd: git show 296f93b }
   expect_type: vcs/git-diff
@@ -447,6 +448,8 @@
   file: ls/repo.txt
   expect_type: fs/ls
 
+- { file: ls/find-ls.txt, attrs: { cmd: find optimizer/lsoptimizer optimizer/catoptimizer internal/compress/symbols internal/detect internal/compress/diag -ls }, expect_type: fs/ls, keep: ["dirs: ", "ls.go"], min_saved: 40 }
+- { name: detect/find-ls, file: ls/find-ls.txt, expect_type: fs/ls }
 - { file: ls/tree-x-net.txt, attrs: { cmd: eza --tree --level 3 }, expect_type: fs/tree, keep: ["html/", "  dnsmessage/", "more: .go"], min_saved: 40 }
 - { file: ls/find-x-net.txt, attrs: { cmd: find . -type f -name "*.go" }, expect_type: fs/find, keep: ["http2/: ", "bpf/: asm.go", "more: .go"], min_saved: 50 }
 - { file: ls/find-dirs.txt, attrs: { cmd: find testdata/eval testdata/eval-ext testdata/eval-mcp -maxdepth 2 -mindepth 1 -type d }, expect_type: fs/find, keep: ["testdata/eval/: ", "trace", "search"] }
@@ -1203,7 +1206,8 @@
 - { name: build/phpstan, file: build/phpstan.txt, attrs: { cmd: phpstan analyse src }, expect_type: build/php, keep: ["Found 14 errors"] }
 - { name: pkg/deno-install, file: pkg/deno-install.txt, attrs: { cmd: deno install }, expect_type: pkg/deno, min_saved: 89 }
 - { name: pkg/mix-deps-get, file: pkg/mix-deps-get.txt, attrs: { cmd: mix deps.get }, expect_type: pkg/mix, keep: ["phoenix"], min_saved: 33 }
-- { name: pkg/mvn-dependency-tree, file: pkg/mvn-dependency-tree.txt, attrs: { cmd: mvn dependency:tree }, expect_type: pkg/mvndeps, keep: ["spring-boot-starter-web"], min_saved: 4 }
+- { name: pkg/mvn-dependency-tree, file: pkg/mvn-dependency-tree.txt, attrs: { cmd: mvn dependency:tree }, expect_type: pkg/mvndeps, keep: ["spring-boot-starter-web", "BUILD SUCCESS"], min_saved: 4 }
+- { name: pkg/mvn-dependency-tree-fail, file: pkg/mvn-dependency-tree-fail.txt, attrs: { cmd: mvn dependency:tree }, expect_type: pkg/mvndeps, keep: ["BUILD FAILURE", "shop-core:jar:9.9.9 was not found", "[Help 1]", "POM for com.example:shop-core"] }
 - { name: pkg/npm-ls-all, file: pkg/npm-ls-all.txt, attrs: { cmd: npm ls --all }, expect_type: pkg/tree, keep: ["wrappy@1.0.2", "@webassemblyjs/leb128@1.13.2", "UNMET OPTIONAL DEPENDENCY jiti@*", "argparse@3.0.4 extraneous"], min_saved: 60 }
 - { name: pkg/npm-ls-all-query, file: pkg/npm-ls-all.txt, attrs: { cmd: npm ls --all, query: jackspeak }, expect_type: pkg/tree, keep: ["jackspeak@3.4.3", "glob@10.5.0", "test-exclude@7.0.2"], min_saved: 60 }
 - { name: pkg/pnpm-list-depth, file: pkg/pnpm-list-depth.txt, attrs: { cmd: pnpm list --depth 3 }, expect_type: pkg/tree, keep: ["brace-expansion@1.1.21", "747 packages", "webpack@5.112.2 peer"], min_saved: 55 }

@@ -365,9 +365,9 @@ var rules = map[string]Rules{
 			},
 			{
 				Name:  "separators and summary",
-				Match: pcomb.Prefixed("[INFO] ", pcomb.Any(pcomb.Prefix("---", "BUILD SUCCESS", "Total time", "Finished at"), pcomb.Re(`^\s*$`), pcomb.Re(`^-+$`))),
-				Yes:   []string{"[INFO] --- maven-dependency-plugin:3.6.0:tree (default-cli) @ app ---", "[INFO] ", "[INFO] ------------------------------------------------------------------------", "[INFO] BUILD SUCCESS", "[INFO] Total time:  1.2 s", "[INFO] Finished at: 2024-05-01T10:00:00+02:00"},
-				No:    []string{"[ERROR] ", "[INFO] BUILD FAILURE"},
+				Match: pcomb.Prefixed("[INFO] ", pcomb.Any(pcomb.Prefix("---", "Total time", "Finished at"), pcomb.Re(`^\s*$`), pcomb.Re(`^-+$`))),
+				Yes:   []string{"[INFO] --- maven-dependency-plugin:3.6.0:tree (default-cli) @ app ---", "[INFO] ", "[INFO] ------------------------------------------------------------------------", "[INFO] Total time:  1.2 s", "[INFO] Finished at: 2024-05-01T10:00:00+02:00"},
+				No:    []string{"[ERROR] ", "[INFO] BUILD SUCCESS", "[INFO] BUILD FAILURE"},
 			},
 			{
 				Name:  "maven chatter",

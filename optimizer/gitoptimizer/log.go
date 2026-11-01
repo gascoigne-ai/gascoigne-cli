@@ -2,6 +2,7 @@ package gitoptimizer
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 // lists (--stat, --name-only, --name-status) stay under their commit.
 // Patches (git log -p) go through the diff compressor.
 func (o *Optimizer) log(lines []string) []string {
+	lines = stripGraph(lines)
 	var out, patch []string
 	var c commit
 	emit := func() {
@@ -51,6 +53,30 @@ func (o *Optimizer) log(lines []string) []string {
 		}
 	}
 	emit()
+	return out
+}
+
+var (
+	graphFirst  = lazyre.New(`^\*\s+commit [0-9a-f]{7,}`)
+	graphPrefix = lazyre.New(`^(?:(?: {2})*[*|\\/] ?)+`)
+)
+
+// stripGraph drops the graph columns of git log --graph, which is flat
+// otherwise: a log not starting with a graph commit line is returned as is.
+// The topology is not kept; the original is in the ledger.
+func stripGraph(lines []string) []string {
+	if i := slices.IndexFunc(lines, func(l string) bool { return l != "" }); i < 0 || !graphFirst.MatchString(lines[i]) {
+		return lines
+	}
+	out := make([]string, len(lines))
+	for i, l := range lines {
+		l = graphPrefix.ReplaceAllString(l, "")
+		if t := strings.TrimLeft(l, " "); strings.HasPrefix(t, "commit ") || strings.HasPrefix(t, "Merge: ") ||
+			strings.HasPrefix(t, "Author: ") || strings.HasPrefix(t, "Date: ") {
+			l = t
+		}
+		out[i] = l
+	}
 	return out
 }
 

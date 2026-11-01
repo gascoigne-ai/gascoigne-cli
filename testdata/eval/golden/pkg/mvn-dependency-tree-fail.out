@@ -1,0 +1,12 @@
+[INFO]
+[INFO]   from pom.xml
+[WARNING] The POM for com.example:shop-core:jar:9.9.9 is missing, no dependency information available
+[INFO]
+[INFO] BUILD FAILURE
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-dependency-plugin:3.6.1:tree (default-cli) on project shop-service: Could not resolve dependencies for project com.example:shop-service:jar:1.4.2: com.example:shop-core:jar:9.9.9 was not found in https://repo.maven.apache.org/maven2 during a previous attempt. -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
