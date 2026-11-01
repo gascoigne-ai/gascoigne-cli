@@ -4,11 +4,13 @@
 package truncateoptimizer
 
 import (
+	"cmp"
 	"context"
 	"slices"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
@@ -30,7 +32,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if o.skip(b.Type) || tokens.Estimate(b.Text) <= o.cfg.MaxTokens {
 			continue
 		}
-		p.Blocks[i].Text = o.cut(b.Text)
+		p.Blocks[i].Text = o.cut(b.Text, p.Attrs[payload.AttrQuery])
 	}
 	return nil
 }
@@ -39,7 +41,7 @@ func (o *Optimizer) skip(typ string) bool {
 	return detect.Matches(o.cfg.Skip, typ)
 }
 
-func (o *Optimizer) cut(text string) string {
+func (o *Optimizer) cut(text, query string) string {
 	lines := compress.Lines(text)
 	for i, l := range lines {
 		if len(l) > maxLine {
@@ -53,23 +55,64 @@ func (o *Optimizer) cut(text string) string {
 	if head >= tail {
 		return compress.Join(lines)
 	}
+	keep := o.middle(lines[head:tail], sample.Terms(query))
 	out := slices.Clone(lines[:head])
-	gap, errs := 0, 0
-	for _, l := range lines[head:tail] {
-		if errs < o.cfg.MaxErrors && errorRe.MatchString(l) {
-			if gap > 0 {
-				out = append(out, compress.Omitted(gap, ""))
-			}
-			out, gap = append(out, l), 0
-			errs++
+	gap := 0
+	for i, l := range lines[head:tail] {
+		if !keep[i] {
+			gap++
 			continue
 		}
-		gap++
+		if gap > 0 {
+			out = append(out, compress.Omitted(gap, ""))
+		}
+		out, gap = append(out, l), 0
 	}
 	if gap > 0 {
 		out = append(out, compress.Omitted(gap, ""))
 	}
 	return compress.Join(append(out, lines[tail:]...))
+}
+
+// middle marks the cut middle lines worth keeping: error lines with the
+// ErrorContext lines after them (the got/want of a failure) and the lines
+// that best match the query.
+func (o *Optimizer) middle(mid, query []string) []bool {
+	keep := make([]bool, len(mid))
+	errs, after := 0, 0
+	for i, l := range mid {
+		switch {
+		case errs < o.cfg.MaxErrors && errorRe.MatchString(l):
+			keep[i], after = true, o.cfg.ErrorContext
+			errs++
+		case after > 0:
+			keep[i] = true
+			after--
+		}
+	}
+	if len(query) == 0 || o.cfg.QueryLines == 0 {
+		return keep
+	}
+	docs := make([][]string, len(mid))
+	for i, l := range mid {
+		docs[i] = sample.Terms(l)
+	}
+	for _, i := range topScored(sample.BM25(docs, query), o.cfg.QueryLines) {
+		keep[i] = true
+	}
+	return keep
+}
+
+// topScored is the indexes of the n best positive scores; ties go to the earlier line.
+func topScored(scores []float64, n int) []int {
+	idx := make([]int, 0, len(scores))
+	for i, s := range scores {
+		if s > 0 {
+			idx = append(idx, i)
+		}
+	}
+	slices.SortStableFunc(idx, func(a, b int) int { return cmp.Compare(scores[b], scores[a]) })
+	return idx[:min(n, len(idx))]
 }
 
 // fits is how many leading lines stay within budget tokens.

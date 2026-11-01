@@ -65,6 +65,40 @@ func TestCut(t *testing.T) {
 	}
 }
 
+func TestErrorContext(t *testing.T) {
+	cfg := &Config{MaxTokens: 1000, HeadTokens: 200, TailTokens: 200, MaxErrors: 5, ErrorContext: 2}
+	big := numbered(1000, map[int]string{400: "error: TestX", 401: "got 1", 402: "want 2"})
+	got := run(t, cfg, "log/app", big)
+	for _, k := range []string{"error: TestX", "got 1", "want 2"} {
+		if !strings.Contains(got, k) {
+			t.Errorf("lost %q", k)
+		}
+	}
+	if strings.Contains(got, "line 0403") {
+		t.Error("kept more than error_context lines")
+	}
+}
+
+func TestQuery(t *testing.T) {
+	cfg := &Config{MaxTokens: 1000, HeadTokens: 200, TailTokens: 200, QueryLines: 2}
+	big := numbered(1000, map[int]string{300: "connecting to zebra host", 700: "zebra handshake done"})
+	p := payload.New(payload.CmdOutput, big)
+	p.Blocks[0].Type = "log/app"
+	p.Attrs = map[string]string{payload.AttrQuery: "zebra"}
+	if err := (&Optimizer{cfg: cfg}).Optimize(t.Context(), p); err != nil {
+		t.Fatal(err)
+	}
+	got := p.Text()
+	for _, k := range []string{"connecting to zebra host", "zebra handshake done"} {
+		if !strings.Contains(got, k) {
+			t.Errorf("lost %q", k)
+		}
+	}
+	if strings.Contains(run(t, cfg, "log/app", big), "zebra") {
+		t.Error("kept query lines without a query")
+	}
+}
+
 func TestLongLines(t *testing.T) {
 	cfg := defaults()
 	got := run(t, cfg, "doc/text", strings.Repeat("ab+", 30000)+"\n")

@@ -118,7 +118,7 @@ optimizers:
   # paths: long path prefixes repeated in test/build/search/log/task output → §1/file.go, legend on top
   paths: { families: [test, build, search, log, task], min_prefix: 20, min_saving: 30, max_aliases: 9 }
   # truncate: last resort, a block still over max_tokens keeps head, tail and error lines between
-  truncate: { max_tokens: 10000, head_tokens: 3200, tail_tokens: 3200, max_errors: 20, skip: [fs/code, data, k8s, cloud] }
+  truncate: { max_tokens: 10000, head_tokens: 3200, tail_tokens: 3200, max_errors: 20, error_context: 2, query_lines: 20, skip: [fs/code, data, k8s, cloud] }
   # rerun: runs of lines the last runs of the same command in the session showed (within max_age) → one pointer
   rerun: { ledger: ledger, families: [test, build, task, pkg, log, search, vcs], max_age: 20m, runs: 3, min_lines: 4, min_chars: 200 }
   doc: { max_code_lines: 40, max_tokens: 5200, man_drop: [SEE ALSO, AUTHOR, AUTHORS, REPORTING BUGS, COPYRIGHT, HISTORY, COLOPHON] }

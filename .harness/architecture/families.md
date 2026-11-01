@@ -93,7 +93,9 @@ lives in public libs so engines and composite families can reuse it. Families ar
    never fs/data. Legend lines are written, detected and expanded
    by `internal/compress/legend` (also used by `rerun` and the probe).
 6. **`truncate`** (`optimizer/truncateoptimizer`): blocks still over `max_tokens` keep
-   head/tail token budgets + `max_errors` error lines from the middle; long lines are cut.
+   head/tail token budgets + `max_errors` error lines from the middle, each with `error_context`
+   lines after it (got/want); with a `query` attr, the `query_lines` best BM25 matches
+   (`sample.Terms`/`sample.BM25`) of the middle stay too; long lines are cut.
    `skip`: fs/code, data, k8s, cloud.
 
 ## Shared libraries

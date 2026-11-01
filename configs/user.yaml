@@ -242,6 +242,8 @@
 #     head_tokens: 3200                           ## kept from the start
 #     tail_tokens: 3200                           ## kept from the end
 #     max_errors: 20                              ## error lines kept from the cut middle
+#     error_context: 2                            ## lines kept after each kept error (got/want)
+#     query_lines: 20                             ## cut-middle lines kept for the query attr (BM25)
 #     skip: [fs/code, data, k8s, cloud]             ## types or families never cut: source, structured data
 #   rerun:                                        ## a re-run: lines the last runs of the command in the session showed → one pointer
 #     ledger: ledger                              ## extension keeping earlier outputs; "" off

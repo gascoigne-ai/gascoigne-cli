@@ -163,39 +163,59 @@ Options:
   --maglev-inline-api-calls (Inline CallApiCallback builtin into generated code)
 … 739 lines omitted
   --experimental-wasm-legacy-eh (enable legacy exception handling opcodes for Wasm)
-… 109 lines omitted
+        type: bool  default: --experimental-wasm-legacy-eh
+  --experimental-wasm-branch-hinting (enable branch hinting for Wasm)
+… 107 lines omitted
   --wasm-allow-mixed-eh-for-testing (Allow mixed legacy and new exception handling instructions in the same wasm module)
-… 127 lines omitted
+        type: bool  default: --no-wasm-allow-mixed-eh-for-testing
+  --wasm-code-coverage (enable Wasm code coverage)
+… 125 lines omitted
   --detect-ineffective-gcs-near-heap-limit (trigger out-of-memory failure to avoid GC storm near heap limit)
-… 1 line omitted
+        type: bool  default: --detect-ineffective-gcs-near-heap-limit
   --ineffective-gc-includes-global (includes global size in out-of-memory failure near heap limit)
-… 3 lines omitted
-  --ineffective-gc-size-threshold (Threshold on heap size to trigger out-of-memory failure near heap limit.)
+        type: bool  default: --no-ineffective-gc-includes-global
+  --ineffective-gcs-forces-last-resort (force a last resort GC when we're near heap limit)
 … 1 line omitted
+  --ineffective-gc-size-threshold (Threshold on heap size to trigger out-of-memory failure near heap limit.)
+        type: float  default: --ineffective-gc-size-threshold=0.95
   --ineffective-gc-mutator-utilization-threshold (Threshold on mutator utilization to trigger out-of-memory failure near heap limit.)
-… 167 lines omitted
+        type: float  default: --ineffective-gc-mutator-utilization-threshold=0.4
+  --trace-incremental-marking (trace progress of the incremental marking)
+… 165 lines omitted
   --late-heap-limit-check (skips heap limit check for early GCs on allocation failure.)
-… 87 lines omitted
+        type: bool  default: --late-heap-limit-check
+  --debug-code ()
+… 85 lines omitted
   --expose-trigger-failure (expose trigger-failure extension)
         type: bool  default: --no-expose-trigger-failure
-… 86 lines omitted
+  --expose-ignition-statistics (expose ignition-statistics extension (requires building with v8_enable_ignition_dispatch_counting))
+        type: bool  default: --no-expose-ignition-statistics
+… 84 lines omitted
   --inspector-live-edit (Enable the Debugger.setScriptSource CDP command, otherwise it'll always fail with an error)
-… 7 lines omitted
+        type: bool  default: --no-inspector-live-edit
+  --stack-size (default size of stack region v8 is allowed to use (in kBytes))
+… 5 lines omitted
   --use-original-message-for-stack-trace (use the message with which the Error constructor was called rather than the value of the "message" property for Error.stack)
-… 67 lines omitted
+        type: bool  default: --use-original-message-for-stack-trace
+  --histogram-interval (time interval in ms for aggregating memory histograms)
+… 65 lines omitted
   --async-stack-traces (include async stack traces in Error.stack)
-… 1 line omitted
+        type: bool  default: --async-stack-traces
   --stack-trace-on-illegal (print stack trace when an illegal exception is thrown)
-… 1 line omitted
+        type: bool  default: --no-stack-trace-on-illegal
   --abort-on-uncaught-exception (abort program (dump core) when an uncaught exception is thrown)
         type: bool  default: --no-abort-on-uncaught-exception
   --correctness-fuzzer-suppressions (Suppress certain unspecified behaviors to ease correctness fuzzing: Abort program when the stack overflows or a string exceeds maximum length (as opposed to throwing RangeError). Use a fixed suppression string for error messages.)
-… 11 lines omitted
+        type: bool  default: --no-correctness-fuzzer-suppressions
+  --rehash-snapshot (rehash strings from the snapshot to override the baked-in seed)
+… 9 lines omitted
   --print-all-exceptions (print exception object and stack trace on each thrown exception)
-… 1 line omitted
+        type: bool  default: --no-print-all-exceptions
   --detailed-error-stack-trace (includes arguments for each function call in the error stack frames array)
         type: bool  default: --no-detailed-error-stack-trace
-… 184 lines omitted
+  --adjust-os-scheduling-parameters (adjust OS specific scheduling params for the isolate)
+        type: bool  default: --adjust-os-scheduling-parameters
+… 182 lines omitted
   --gdbjit-dump (dump elf objects with debug info to disk)
         type: bool  default: --no-gdbjit-dump
   --gdbjit-dump-filter (dump only objects containing this substring)
