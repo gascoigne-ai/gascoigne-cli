@@ -15,6 +15,7 @@ file: /home/user/src/shop/apps/web/src/app/checkout/Checkout.tsx:42:18
                      ^
 43:
 44: export function Checkout() {
+… 9 framework stack frames omitted
 Warning: command "vite build" exited with non-zero status code
 
  NX   Ran target build for 7 projects and 3 tasks they depend on (21s)

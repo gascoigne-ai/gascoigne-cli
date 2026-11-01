@@ -79,8 +79,9 @@ lives in public libs so engines and composite families can reuse it. Families ar
    stack once, and runs of at least `min_frames` runtime or framework frames as one count
    (`frames.go`: a table of runtimes, each with a frame regex, a noise regex, an optional detail line
    under a frame, a marker wording and `keepTop` for the throw site of JVM and .NET traces). Rows
-   for JVM, Python, Rust, Ruby, .NET, PHP, gdb/lldb/sanitizers/valgrind (plus ASan's shadow dump) and D.
-   Node frames stay with the family engines. Adding a runtime is a row.
+   for JVM, Python, Rust, Ruby, .NET, Node/Deno/Bun (`at fn (file:line:col)`; noise `node:`, `ext:`,
+   `node_modules/`, `(native)`, `(<anonymous>)`; `keepTop`), PHP, gdb/lldb/sanitizers/valgrind (plus
+   ASan's shadow dump) and D. Adding a runtime is a row.
 3. *Family engines.*
 4. **`dense`** (`optimizer/denseoptimizer`): long space-free lines (minified code, base64,
    data URIs) keep head/tail bytes around `…[N bytes dense]…`, once a block holds `min_total`

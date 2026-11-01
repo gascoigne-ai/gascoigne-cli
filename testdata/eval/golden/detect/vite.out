@@ -5,3 +5,4 @@ file: /home/user/src/vapp/src/main.js:1:9
 1: import { formatPrice } from './util.js';
             ^
 2: document.getElementById('app').textContent = formatPrice(20);
+… 9 framework stack frames omitted

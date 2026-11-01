@@ -47,6 +47,11 @@ var runtimes = []runtime{
 		frame:   re(`^\s+at [\w.` + "`" + `<>+\[\],]+\(.*\)( in .+:line \d+)?$`),
 		noise:   re(`^\s+at (System\.|Microsoft\.|Xunit\.|NUnit\.)`),
 	},
+	{ // Node, Deno, Bun: "at fn (file:line:col)", "at async fn (...)", "at file:line:col"
+		keepTop: true,
+		frame:   re(`^\s+at (async )?(\S.* \(.+\)|\S+:\d+(:\d+)?)$`),
+		noise:   re(`^\s+at (async )?(.+ \()?(node:|ext:)\w|^\s+at .*node_modules/|^\s+at .+ \((native|<anonymous>)\)$|^\s+at .+ \(native:\d`),
+	},
 	{ // PHP
 		frame: re(`^#\d+ \S+\(\d+\): |^#\d+ \[internal function\]`),
 		noise: re(`^#\d+ \S*vendor/|^#\d+ \[internal function\]`),
@@ -67,8 +72,8 @@ var runtimes = []runtime{
 }
 
 // Frames drops runs of at least minRun frames that lie inside a language
-// runtime or framework (JVM, Python, Rust, Ruby, .NET, PHP, native
-// debuggers, D), one marker per run. Frames of the program stay, so does
+// runtime or framework (JVM, Python, Rust, Ruby, .NET, Node/Deno/Bun, PHP,
+// native debuggers, D), one marker per run. Frames of the program stay, so does
 // every frame that is not part of such a run.
 func Frames(lines []string, minRun int) []string {
 	var out []string

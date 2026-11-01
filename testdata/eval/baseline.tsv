@@ -34,7 +34,7 @@ build/clang-errors	497	12	0
 build/javac-errors	360	0	0
 build/ruff	3284	0	0
 build/mypy	323	0	0
-build/vite-fail	107	1	2
+build/vite-fail	114	1	2
 build/webpack-warnings	104	0	3
 build/cargo-build	457	0	1
 build/dotnet-build	201	4	3
@@ -48,7 +48,7 @@ detect/gcc	537	12	0
 detect/javac	360	0	0
 detect/ruff	3284	0	0
 detect/mypy	323	0	0
-detect/vite	107	1	2
+detect/vite	114	1	2
 detect/webpack	104	0	3
 detect/cargo-build	457	0	1
 detect/dotnet-build	201	4	3
@@ -243,6 +243,7 @@ test/flutter-test-fail	80	0	0
 detect/flutter-test-fail	80	0	0
 trace/jvm-crash	199	0	0
 trace/rust-panic	198	0	5
+trace/node-crash	178	0	3
 trace/asan-uaf	409	0	4
 pkg/composer-install	263	0	0
 detect/composer-install	263	0	0
@@ -288,9 +289,9 @@ npm/test-jest-fail	418	0	0
 npm/tsc-errors	174	1	0
 detect/npm-verbose	76	8	1115
 detect/jest	418	0	0
-nx/run-many-build	324	1	61
-nx/run-many-test	329	0	35
-detect/nx	324	1	61
+nx/run-many-build	330	1	61
+nx/run-many-test	313	0	35
+detect/nx	330	1	61
 bun/install-verbose	154	0	0
 bun/test-fail	209	0	0
 detect/bun	209	0	0

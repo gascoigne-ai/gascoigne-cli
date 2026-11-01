@@ -1,0 +1,14 @@
+/app/src/cart.js:3
+  return pool.sum(pool.each(items, (i) => i.price * i.qty.value));
+                                                          ^
+
+TypeError: Cannot read properties of null (reading 'value')
+    at /app/src/cart.js:3:59
+    at Array.map (<anonymous>)
+    at exports.each (/app/node_modules/pool/index.js:1:31)
+    at total (/app/src/cart.js:3:24)
+    at main (/app/app.js:2:26)
+    at Object.<anonymous> (/app/app.js:3:1)
+… 7 framework stack frames omitted
+
+Node.js v26.13.0

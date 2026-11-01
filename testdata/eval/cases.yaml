@@ -651,6 +651,10 @@
   file: trace/rust-panic.txt
   attrs: { cmd: cargo run }
   keep: ["panicked at src/lru.rs:41:9", "shop::lru::Lru<K,V>::get", "./src/main.rs:9:5"]
+- name: trace/node-crash
+  file: trace/node-crash.txt
+  attrs: { cmd: node app.js }
+  keep: ["Cannot read properties of null", "/app/src/cart.js:3:59", "at total (/app/src/cart.js:3:24)", "at main (/app/app.js:2:26)", "Node.js v26.13.0"]
 - name: trace/asan-uaf
   file: trace/asan-uaf.txt
   attrs: { cmd: ./build/shop }
