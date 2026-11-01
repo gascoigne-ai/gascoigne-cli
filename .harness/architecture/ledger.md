@@ -48,7 +48,9 @@ runs the command again instead of `gascoigne raw <id> -grep`) and `big` (output 
 that no optimizer shortened). Proposed lines are deterministic, at most 10, printed by default;
 `-apply` writes a marked block (`<!-- gascoigne:learned:start/end -->`) to `CLAUDE.local.md` or
 `-target`, `-remove` takes it out (the file goes if nothing else is in it). Proxy folds do not
-count. Nothing is written otherwise.
+count. Nothing is written otherwise. With `learn` enabled, a SessionStart hook (not compact or clear)
+also adds the top lesson as one note (`learnNudge`, default ledger, last 30 days, read only), so the
+habit is named where it starts; compare the `big` count of that command in `learn` before and after.
 
 ## Reports: `gascoigne gain`
 

@@ -55,6 +55,9 @@
   servers and idle tools not yet chosen to load on request, records the day, opens `/mcp` (not under
   `CI`) and adds one note. Direct servers and servers still learning never count. The setup question
   `mcp_review` is optional and on by default, like `release`.
+- **Top lesson** (`learn.go`, experimental `learn`): on SessionStart other than compact or clear,
+  `learnNudge` reads the default ledger and adds the top `gascoigne learn` lesson as one note (see
+  ledger.md, Lessons). No state, no page; empty without a lesson.
 - **Context-size nudge** (`contextnudge.go`): a UserPromptSubmit hook reads the transcript tail
   (`transcriptEnd`, 256 KB), takes the latest main-conversation request's input + cache read + cache
   write (as `readSession` counts it; subagents and synthetic turns skipped) and, at or above 250k

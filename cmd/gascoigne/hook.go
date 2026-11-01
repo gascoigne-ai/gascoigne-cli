@@ -69,7 +69,7 @@ func cmdHook(ctx context.Context, args []string) error {
 		checkReleaseQuick(ctx)
 		if in.HookEventName == "SessionStart" { // a prompt event leaves asking to the session start
 			setup, release := setupNudge(in.Source), releaseNudge(in.Source)
-			notes := []string{in.syncNote, setup, release, mcpNudge(in.Source, setup != "" || release != "")}
+			notes := []string{in.syncNote, setup, release, mcpNudge(in.Source, setup != "" || release != ""), learnNudge(ctx, in.Source)}
 			in.syncNote = strings.Join(slices.DeleteFunc(notes, func(n string) bool { return n == "" }), " ")
 		}
 	}

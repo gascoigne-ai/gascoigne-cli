@@ -29,6 +29,8 @@ const (
 	learnBigTokens   = 1500 // output no optimizer shortened, worth a note
 	learnMaxLessons  = 10
 
+	learnNudgeWindow = 30 * 24 * time.Hour // history the session start note reads
+
 	learnStart = "<!-- gascoigne:learned:start -->"
 	learnEnd   = "<!-- gascoigne:learned:end -->"
 )
@@ -186,4 +188,34 @@ func cmdLearn(ctx context.Context, args []string) error {
 		fmt.Println(d)
 		return err
 	})
+}
+
+// learnNote is the SessionStart note for the top lesson, empty without one.
+func learnNote(ls []lesson) string {
+	if len(ls) == 0 {
+		return ""
+	}
+	return "gascoigne learned from past sessions: " + strings.TrimPrefix(ls[0].Line, "- ")
+}
+
+// learnNudge names the top lesson at a session start, where the habit begins.
+// Experimental (learn); a compaction or /clear is not a new session. The
+// default ledger is read (a custom path in the config is not followed), and
+// nothing is written.
+func learnNudge(ctx context.Context, source string) string {
+	if source == "compact" || source == "clear" || !experimentalOn("learn") {
+		return ""
+	}
+	l := ledger.New(&ledger.Config{})
+	if l.Start(ctx, nil) != nil {
+		return ""
+	}
+	defer l.Shutdown(ctx)
+	q := component.StatsQuery{Since: time.Now().Add(-learnNudgeWindow)}
+	entries, err := l.Page(ctx, q, ledger.Page{Limit: 5000})
+	if err != nil {
+		return ""
+	}
+	slices.Reverse(entries) // oldest first
+	return learnNote(lessons(entries))
 }

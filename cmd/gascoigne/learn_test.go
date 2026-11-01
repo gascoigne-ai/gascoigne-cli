@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -54,6 +55,34 @@ func TestLessonsNeedRepeats(t *testing.T) {
 	}
 	if got := lessons(nil); got != nil && len(got) != 0 {
 		t.Errorf("nothing: %+v", got)
+	}
+}
+
+func TestLearnNote(t *testing.T) {
+	if got := learnNote(nil); got != "" {
+		t.Errorf("no lesson: %q", got)
+	}
+	got := learnNote([]lesson{{Line: "- `make eval` prints 8500 tokens."}, {Line: "- second."}})
+	if want := "gascoigne learned from past sessions: `make eval` prints 8500 tokens."; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+// The note is experimental and only for a new session: off by default, and
+// silent on compact and clear even when enabled.
+func TestLearnNudgeGates(t *testing.T) {
+	sandbox(t)
+	t.Setenv(ledger.EnvPath, filepath.Join(t.TempDir(), "ledger.db"))
+	ctx := t.Context()
+	t.Setenv("GASCOIGNE_EXPERIMENTAL", "")
+	if got := learnNudge(ctx, "startup"); got != "" {
+		t.Errorf("not enabled: %q", got)
+	}
+	t.Setenv("GASCOIGNE_EXPERIMENTAL", "learn")
+	for _, src := range []string{"compact", "clear", "startup"} {
+		if got := learnNudge(ctx, src); got != "" {
+			t.Errorf("%s with an empty ledger: %q", src, got)
+		}
 	}
 }
 
