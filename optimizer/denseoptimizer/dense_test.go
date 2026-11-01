@@ -1,6 +1,7 @@
 package denseoptimizer
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -27,6 +28,14 @@ func TestElide(t *testing.T) {
 	tsv := strings.Repeat("a\tbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\t", 120)
 	prose := strings.Repeat("the quick brown fox jumps over the lazy dog ", 80)
 
+	names := make([]string, 300)
+	for i := range names {
+		names[i] = fmt.Sprintf("user_%03d", i)
+	}
+	pipes := strings.Join(names, "|")
+	commas := strings.Join(names, ",")
+	css := strings.Repeat("a.b{color:red;margin:0 auto}.c>d{padding:0;border:1px solid}", 40)
+
 	tests := []struct {
 		name, typ, in string
 		attrs         []string
@@ -38,6 +47,9 @@ func TestElide(t *testing.T) {
 		{"fetched code", "fs/code", minified + "\n", []string{"cmd", "curl -s https://cdn.example.com/app.min.js"}, true},
 		{"code read with cat", "fs/code", minified + "\n", []string{"cmd", "cat dist/app.min.js"}, false},
 		{"code with file attr", "fs/code", minified + "\n", []string{"file", "dist/app.min.js"}, false},
+		{"pipe-joined names", "log/app", pipes + "\n", nil, false},
+		{"comma-joined names", "log/app", commas + "\n", nil, false},
+		{"minified css", "doc/text", css + "\n", nil, true},
 		{"json line", "log/app", json + "\n", nil, false},
 		{"labelled json", "log/app", "response: " + json + "\n", nil, false},
 		{"tsv rows", "table/aligned", tsv + "\n", nil, false},

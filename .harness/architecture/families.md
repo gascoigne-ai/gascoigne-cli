@@ -86,7 +86,8 @@ lives in public libs so engines and composite families can reuse it. Families ar
 3. *Family engines.*
 4. **`dense`** (`optimizer/denseoptimizer`): long space-free lines (minified code, base64,
    data URIs) keep head/tail bytes around `…[N bytes dense]…`, once a block holds `min_total`
-   such bytes. JSON lines and fs/code read from disk (file attr, `detect.ReadsFile`) are untouched.
+   such bytes. Lines of names joined by `|`, `,` or `;` (≥8 fields, ≥80% short words) are kept whole.
+   JSON lines and fs/code read from disk (file attr, `detect.ReadsFile`) are untouched.
 5. **`paths`** (`optimizer/pathsoptimizer`): long path prefixes repeated in
    test/build/search/log/task blocks → `§1/file.go`, with a legend `[paths: §1=…]` on top of the
    first such block. Greedy by bytes saved, kept only when ≥ `min_saving` tokens, idempotent,

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
@@ -20,6 +21,14 @@ import (
 // maxSpaceRatio is the share of spaces below which a line reads as machine
 // output: prose and code sit well above it.
 const maxSpaceRatio = 0.06
+
+// A delimited list has at least minFields fields, minWordShare of them words
+// of up to maxWord bytes.
+const (
+	minFields    = 8
+	minWordShare = 0.8
+	maxWord      = 40
+)
 
 const codeType = "fs/code"
 
@@ -72,8 +81,40 @@ func (o *Optimizer) dense(l string) bool {
 	if float64(strings.Count(l, " "))/float64(len(l)) >= maxSpaceRatio {
 		return false
 	}
+	if delimitedList(l) {
+		return false
+	}
 	i := strings.IndexAny(l, "{[")
 	return i < 0 || !json.Valid([]byte(l[i:]))
+}
+
+// delimitedList reports a line of names joined by one delimiter (`a|b|c`,
+// `x,y,z`): most fields are short words, which minified code (calls, braces,
+// operators) and base64 (no delimiters) never are. Folding it loses content.
+func delimitedList(l string) bool {
+	for _, sep := range "|,;" {
+		fields := strings.Split(l, string(sep))
+		if len(fields) < minFields {
+			continue
+		}
+		words := 0
+		for _, f := range fields {
+			if wordLike(f) {
+				words++
+			}
+		}
+		if float64(words)/float64(len(fields)) >= minWordShare {
+			return true
+		}
+	}
+	return false
+}
+
+func wordLike(f string) bool {
+	f = strings.TrimSpace(f)
+	return f != "" && len(f) <= maxWord && !strings.ContainsFunc(f, func(r rune) bool {
+		return !unicode.IsLetter(r) && !unicode.IsDigit(r) && !strings.ContainsRune("_-.@", r)
+	})
 }
 
 func (o *Optimizer) cut(l string) string {
