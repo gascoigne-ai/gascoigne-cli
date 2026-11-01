@@ -45,7 +45,8 @@ func TestEditSafe(t *testing.T) {
 		{"cat config.yaml", small, detect.Code},
 		{"sed -n 1,40p deploy/values.yaml", small, detect.Code},
 		{"cat pnpm-lock.yaml", big, detect.YAML},
-		{"kubectl get cm x -o yaml", small, detect.YAML}, // command output, not a file
+		{"cat Package.resolved", "{\n  \"pins\" : [\n", detect.Lock}, // generated, never edited
+		{"kubectl get cm x -o yaml", small, detect.YAML},             // command output, not a file
 	}
 	f := &Filter{cfg: NewFactory().DefaultConfig().(*Config), log: slog.New(slog.DiscardHandler)}
 	for _, tt := range tests {

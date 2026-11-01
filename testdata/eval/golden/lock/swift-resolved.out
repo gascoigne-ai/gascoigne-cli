@@ -1,0 +1,11 @@
+Package.resolved: 10 packages (hashes, sources and dependency lists dropped)
+aexml 4.7.0
+filekit 6.1.0
+pathkit 1.0.1
+rainbow 4.2.1
+spectre 0.10.1
+stencil 0.15.1
+swift-argument-parser 1.7.0
+swift-syntax 601.0.1
+tomlkit 0.6.0
+xcodeproj 9.14.0

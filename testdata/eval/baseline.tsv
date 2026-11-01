@@ -267,6 +267,12 @@ lock/yarn	338	0	109
 detect/yarn-lock	338	0	109
 detect/go-sum	464	2	4
 detect/gemfile-lock	315	0	0
+lock/pnpm	7014	0	220
+lock/pubspec	957	0	101
+lock/mix	343	0	80
+lock/podfile	1719	0	167
+lock/swift-resolved	93	0	31
+lock/bun	3100	0	92
 build/gcc-template-real	263	0	0
 build/clang-template-real	191	0	0
 cat/server.go	11420	88	28

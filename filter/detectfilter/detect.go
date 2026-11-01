@@ -30,10 +30,11 @@ func (f *Filter) Filter(_ context.Context, p *payload.Payload) (component.Decisi
 	return component.Continue, nil
 }
 
-// editSafe types a config-sized file read from disk as source, so it is
+// editSafe types a config-sized file read from disk as source (never a lockfile:
+// generated, not edited), so it is
 // shrunk only by dropping whole comment lines.
 func (f *Filter) editSafe(typ, text string, h detect.Hints) string {
-	if !detect.ReadsFile(h.Cmd) || !slices.Contains(f.cfg.EditSafe, detect.Family(typ)) ||
+	if typ == detect.Lock || !detect.ReadsFile(h.Cmd) || !slices.Contains(f.cfg.EditSafe, detect.Family(typ)) ||
 		tokens.Estimate(text) >= f.cfg.EditSafeMaxTokens {
 		return typ
 	}

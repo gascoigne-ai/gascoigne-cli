@@ -752,6 +752,42 @@
   expect_type: data/lock
   keep: ["  rails ", "PLATFORMS", "BUNDLED WITH", "   2.5.3"]
   min_saved: 50
+- name: lock/pnpm
+  file: lock/pnpm-lock.yaml
+  attrs: { cmd: cat pnpm-lock.yaml }
+  expect_type: data/lock
+  keep: ["pnpm-lock.yaml: ", "@pnpm/exe.android-arm64 12.11.2"]
+  min_saved: 60
+- name: lock/pubspec
+  file: lock/pubspec.lock
+  attrs: { cmd: cat pubspec.lock }
+  expect_type: data/lock
+  keep: ["pubspec.lock: ", "adaptive_breakpoints 0.1.7"]
+  min_saved: 60
+- name: lock/mix
+  file: lock/mix.lock
+  attrs: { cmd: cat mix.lock }
+  expect_type: data/lock
+  keep: ["mix.lock: ", "bandit 1.12.4", "castore 1.0.20"]
+  min_saved: 60
+- name: lock/podfile
+  file: lock/Podfile.lock
+  attrs: { cmd: cat Podfile.lock }
+  expect_type: data/lock
+  keep: ["Podfile.lock: ", "boost 1.84.0", "hermes-engine/Pre-built 260318099.0.1"]
+  min_saved: 60
+- name: lock/swift-resolved
+  file: lock/Package.resolved
+  attrs: { cmd: cat Package.resolved }
+  expect_type: data/lock
+  keep: ["Package.resolved: ", "aexml 4.7.0", "filekit 6.1.0"]
+  min_saved: 60
+- name: lock/bun
+  file: lock/bun.lock
+  attrs: { cmd: cat bun.lock }
+  expect_type: data/lock
+  keep: ["bun.lock: ", "@ark/schema 0.55.0", "@ark/util 0.55.0"]
+  min_saved: 60
 
 
 

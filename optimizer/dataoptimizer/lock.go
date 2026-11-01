@@ -16,7 +16,7 @@ var (
 )
 
 // lock lists the packages of a text lockfile (yarn.lock, go.sum,
-// Gemfile.lock) as name and version, without hashes, URLs and dependency
+// Gemfile.lock, the textLocks) as name and version, without hashes, URLs and dependency
 // edges. Text of another shape stays as it is.
 func lock(text string) string {
 	lines := compress.Lines(text)
@@ -29,7 +29,9 @@ func lock(text string) string {
 	case strings.Contains(text, "# yarn lockfile"):
 		out = yarnLock(lines)
 	default:
-		return text
+		if out = textLock(text, lines); out == nil {
+			return text
+		}
 	}
 	if res := compress.Join(out); len(res) < len(text) {
 		return res
