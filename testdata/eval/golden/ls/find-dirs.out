@@ -1,0 +1,6 @@
+testdata/eval/: adversarial  build  bun  cat  cloud  data  db  doc  git  go  grep  html  i18n  infra  json  k8s  log  ls
+  npm  nx  pkg  table  task  test  web  lock  trace
+testdata/eval/golden/: adversarial  build  bun  cat  cloud  data  db  dense  detect  doc  git  go  grep  html  i18n
+  infra  json  k8s  log  ls  mixed  npm  nx  pkg  table  task  test  web  lock  trace  search
+testdata/eval-ext/golden/: needle  probe  tool
+testdata/eval-ext/: needle  probe  tool

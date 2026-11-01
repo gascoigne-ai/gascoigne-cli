@@ -14,25 +14,46 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
-// fold summarizes names past max: "… 40 more: .go ×38, .md ×2".
+// minFold is how many hidden files must share an extension to be summarized.
+const minFold = 3
+
+// fold lists names up to max, then the rest through spill.
 func fold(names []string, max int) []string {
 	if len(names) <= max {
 		return names
 	}
-	return append(names[:max:max], more(names[max:]))
+	return append(names[:max:max], spill(names[max:])...)
 }
 
-func more(names []string) string {
+// spill summarizes names past the limit by extension ("… 38 more: .go ×38")
+// when 3 or more share one. Names without an extension (directories,
+// packages) and rare extensions stay listed: hiding them costs the agent a
+// second query, more than the saving.
+func spill(names []string) []string {
 	exts := map[string]int{}
 	for _, n := range names {
-		exts[cmp.Or(path.Ext(n), "(none)")]++
+		exts[path.Ext(n)]++
 	}
-	keys := slices.SortedFunc(maps.Keys(exts), func(a, b string) int { return cmp.Or(cmp.Compare(exts[b], exts[a]), cmp.Compare(a, b)) })
+	var kept []string
+	folded, total := map[string]int{}, 0
+	for _, n := range names {
+		e := path.Ext(n)
+		if e == "" || exts[e] < minFold {
+			kept = append(kept, n)
+			continue
+		}
+		folded[e]++
+		total++
+	}
+	if total == 0 {
+		return kept
+	}
+	keys := slices.SortedFunc(maps.Keys(folded), func(a, b string) int { return cmp.Or(cmp.Compare(folded[b], folded[a]), cmp.Compare(a, b)) })
 	var parts []string
 	for _, k := range keys {
-		parts = append(parts, fmt.Sprintf("%s ×%d", k, exts[k]))
+		parts = append(parts, fmt.Sprintf("%s ×%d", k, folded[k]))
 	}
-	return fmt.Sprintf("… %d more: %s", len(names), strings.Join(parts, ", "))
+	return append(kept, fmt.Sprintf("… %d more: %s", total, strings.Join(parts, ", ")))
 }
 
 // paths groups path lists by directory: "dir/: a.go  b.go", long ones folded.
@@ -81,8 +102,8 @@ func (o *Optimizer) tree(lines []string) []string {
 	var hidden [][]string // files past the limit per depth
 	close := func(depth int) {
 		for d := len(files) - 1; d >= depth; d-- {
-			if len(hidden[d]) > 0 {
-				out = append(out, strings.Repeat("  ", d)+more(hidden[d]))
+			for _, h := range spill(hidden[d]) {
+				out = append(out, strings.Repeat("  ", d)+h)
 			}
 		}
 		files, hidden = files[:min(depth, len(files))], hidden[:min(depth, len(hidden))]

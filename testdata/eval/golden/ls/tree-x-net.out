@@ -100,7 +100,8 @@ http2/
     static_table.go
     tables.go
     tables_test.go
-  … 57 more: .go ×56, .md ×1
+  README.md
+  … 56 more: .go ×56
 icmp/
   diag_test.go
   dstunreach.go
@@ -301,7 +302,7 @@ webdav/
   webdav.go
   webdav_test.go
   xml.go
-  … 1 more: .go ×1
+  xml_test.go
 websocket/
   client.go
   dial.go

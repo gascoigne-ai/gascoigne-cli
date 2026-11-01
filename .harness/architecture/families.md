@@ -14,7 +14,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 | `task` | sections; ok/cached ones collapse; failing ones via `internal/compress/compose` | nx, turbo, make, just, gradle, compose, ci |
 | `vcs` | git engine (see below) | git-status, git-log, git-diff, git-remote, git-blame, git-branch, gh-list, gh-view |
 | `search` | grep engine: matches grouped by file (with or without line numbers), identical lines in a file merged (`3,9: text`, `2× text`); with a `query`, the per-file cap keeps the best BM25 matches | grep, rg, ag, git-grep |
-| `fs` | ls engine: listings, tree, paths by directory, du largest, df real disks. cat: comments dropped, outlines (see Source files) | ls, tree, find, du, df, code |
+| `fs` | ls engine: listings, tree, paths by directory (past `max_per_dir` only 3+ files sharing an extension fold to `… N more: .go ×N`; extension-less names stay listed), du largest, df real disks. cat: comments dropped, outlines (see Source files) | ls, tree, find, du, df, code |
 | `table` | `internal/compress/table`: parses boxed/aligned/ruled/fixed-width tables, hoists constants, cuts cells; rows via `internal/compress/sample` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, sys, aligned, boxed |
 | `data` | json: `internal/compress/jsonx` crusher. YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry; text lockfiles (`lock.go`: yarn.lock, go.sum, Gemfile.lock) as `name@version` lists | json, ndjson, yaml, csv, xml, toml, ipynb, lock |
 | `log` | log engine (see below) | app, journal, syslog, docker, kubectl, access, cloudwatch, gcp, azure |

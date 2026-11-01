@@ -187,12 +187,13 @@ ls/usr-lib	787	0	0
 ls/many-same-ext	3302	0	0
 ls/repo	343	0	0
 detect/ls	343	0	0
-ls/tree-x-net	1929	0	0
-ls/find-x-net	1632	0	416
+ls/tree-x-net	1924	0	0
+ls/find-x-net	1628	0	416
+ls/find-dirs	162	0	0
 ls/du-x-net	189	0	13
 ls/df-h	161	0	4
-detect/tree	1929	0	0
-detect/find	1632	0	416
+detect/tree	1924	0	0
+detect/find	1628	0	416
 detect/du	189	0	13
 detect/df	161	0	4
 build/cmake-fail	177	0	1

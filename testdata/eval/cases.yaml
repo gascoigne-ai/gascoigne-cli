@@ -423,6 +423,7 @@
 
 - { file: ls/tree-x-net.txt, attrs: { cmd: eza --tree --level 3 }, expect_type: fs/tree, keep: ["html/", "  dnsmessage/", "more: .go"], min_saved: 40 }
 - { file: ls/find-x-net.txt, attrs: { cmd: find . -type f -name "*.go" }, expect_type: fs/find, keep: ["http2/: ", "bpf/: asm.go", "more: .go"], min_saved: 50 }
+- { file: ls/find-dirs.txt, attrs: { cmd: find testdata/eval testdata/eval-ext testdata/eval-mcp -maxdepth 2 -mindepth 1 -type d }, expect_type: fs/find, keep: ["testdata/eval/: ", "trace", "search"] }
 - { file: ls/du-x-net.txt, attrs: { cmd: du -h --max-depth=2 . }, expect_type: fs/du, keep: ["largest:", "./http2", "smaller entries omitted"], min_saved: 20 }
 - { file: ls/df-h.txt, attrs: { cmd: df -h }, expect_type: fs/df, keep: ["/dev/mapper/root", "/boot"] }
 - { name: detect/tree, file: ls/tree-x-net.txt, expect_type: fs/tree }

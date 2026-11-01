@@ -61,7 +61,7 @@ func fsOptimizer() *Optimizer {
 func TestTree(t *testing.T) {
 	in := ".\n├── a\n│   ├── 1.go\n│   ├── sub\n│   │   └── x.md\n│   ├── 2.go\n│   ├── 3.go\n│   └── 4.go\n└── README.md\n\n2 directories, 6 files\n"
 	got := compress.Join(fsOptimizer().tree(compress.Lines(in)))
-	want := ".\na/\n  1.go\n  sub/\n    x.md\n  2.go\n  3.go\n  … 1 more: .go ×1\nREADME.md\n\n2 directories, 6 files\n"
+	want := ".\na/\n  1.go\n  sub/\n    x.md\n  2.go\n  3.go\n  4.go\nREADME.md\n\n2 directories, 6 files\n"
 	if got != want {
 		t.Fatalf("got:\n%s", got)
 	}
@@ -70,8 +70,19 @@ func TestTree(t *testing.T) {
 func TestPathsGroupByDir(t *testing.T) {
 	in := "./a\n./a/1.go\n./a/2.go\n./a/3.go\n./a/4.txt\n./b/c.go\n"
 	got := compress.Join(fsOptimizer().paths(compress.Lines(in)))
-	if got != "a/: 1.go  2.go  3.go  … 1 more: .txt ×1\nb/: c.go\n" {
+	if got != "a/: 1.go  2.go  3.go  4.txt\nb/: c.go\n" {
 		t.Fatalf("got %q", got)
+	}
+}
+
+// Past the limit, extension-less names (packages, directories) and rare
+// extensions were hidden as "(none) ×16", forcing a second query.
+func TestFoldKeepsNames(t *testing.T) {
+	names := []string{"a.go", "b.go", "c.go", "pkg1", "pkg2", "d.go", "e.go", "f.go", "x.md", "y.go", "Makefile"}
+	got := strings.Join(fold(names, 3), " ")
+	want := "a.go b.go c.go pkg1 pkg2 x.md Makefile … 4 more: .go ×4"
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
 	}
 }
 
