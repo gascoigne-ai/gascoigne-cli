@@ -250,6 +250,7 @@ their prefixes, so `go1.27` matches `go1.27.2`.
 | `web/html` | `*.html`, `text/html` | converted to markdown (navigation, scripts, styles and layout dropped), then the `doc` engine |
 | `web/http` | `curl -i`/`-v` output (sniffed) | transport headers and TLS chatter dropped, body by its type |
 | `web/aria` | browser automation accessibility snapshots (`- link "Home" [ref=e3]`, sniffed) | grouping wrappers unwrapped, `[cursor=pointer]` dropped on clickable roles, runs of like siblings keep head, tail and `query` matches; every kept `ref` stays (6,569 → 2,601) |
+| `web/search` | an agent's web search result as text (`Web search results for query: "…"` + `Links: [{"title","url"}]`, sniffed; reaches gascoigne through the LLM proxy) | each `Links:` JSON list becomes one `title: url` line per hit (a title that is only the host and repeated URLs dropped); over `max_links` the hits matching the `query` best stay, in the engine's order; the model's summary and the closing `REMINDER:` stay byte-exact (605 → 557) |
 
 `curl -v https://go.dev`: 13,565 → 3,322 (75.5%). A go.dev blog page: 10,722 → 2,020.
 

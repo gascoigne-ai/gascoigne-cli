@@ -15,12 +15,19 @@ const (
 	HTML = "web/html"
 	HTTP = "web/http" // responses with headers: curl -i/-v/-I, httpie -v
 	ARIA = "web/aria" // accessibility snapshots of browser automation tools: role trees with [ref=eN]
+	// SEARCH is what an agent's web search tool returns as text: a header with the query, a
+	// Links: line holding a JSON list of {title,url}, then the model's summary.
+	SEARCH = "web/search"
 )
 
 func init() {
 	register(
 		Spec{Type: ARIA, Priority: 16, Refines: []string{"data/yaml", Markdown, Text},
 			Sniff: func(t string, _ []string) bool { return len(ariaNode.FindAllStringIndex(t, 8)) >= 8 }},
+		Spec{Type: SEARCH, Priority: 15, Refines: []string{Markdown, Text},
+			Sniff: func(t string, _ []string) bool {
+				return strings.HasPrefix(t, `Web search results for query: "`) && strings.Contains(t, "\nLinks: [")
+			}},
 		Spec{Type: HTTP, Priority: 17,
 			CmdFunc: func(args []string) bool {
 				switch args[0] {

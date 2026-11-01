@@ -19,7 +19,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 | `data` | json: `internal/compress/jsonx` crusher. YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry; text lockfiles (`lock.go`: yarn.lock, go.sum, Gemfile.lock; `lockfiles.go` table: pnpm-lock.yaml, pubspec.lock, mix.lock, Podfile.lock, Package.resolved, bun.lock) as `name@version` / `name version` lists | json, ndjson, yaml, csv, xml, toml, ipynb, lock |
 | `log` | log engine (see below) | app, journal, syslog, dmesg, docker, kubectl, access, cloudwatch, gcp, azure |
 | `doc` | markdown/rst and man/help (see below) | markdown, rst, man, help (+ text: dedupe) |
-| `web` | html: `internal/compress/htmlx` → markdown (see below). http: transport headers and TLS chatter dropped, body by type | html, http |
+| `web` | html: `internal/compress/htmlx` → markdown (see below). http: transport headers and TLS chatter dropped, body by type. aria: accessibility snapshots, runs of like siblings capped. search (`websearchoptimizer`, see below) | html, http, aria, search |
 | `db` | results via `internal/compress/table`, EXPLAIN pruned to costly nodes, redis keys folded, mongo docs as JSON rows | psql, mysql, sqlite, explain, redis, mongosh, migrate |
 | `k8s` | `internal/compress/yamlx` prune rules (managedFields, last-applied, defaults); lists keep unhealthy items; describe/events/helm; apply (`apply.go`): `unchanged` lines fold to one count by kind, other results/errors stay; rollout: progress lines collapse to the final state | get, manifest, describe, events, helm, apply, rollout |
 | `infra` | plans: refresh/progress folded, known-after-apply listed, count/for_each siblings "(like above)". terraform/tofu/terragrunt `init` (providers on one line, modules and status kept), `validate` (boxes dropped, repeated warnings folded with their places), `state list` (addresses by module, instances `[×N]`; own grouping, since addresses are dotted not paths), `output` (plain lists on one line; `tfcmds.go`). ansible: quiet tasks counted, failures and recap kept | terraform, terraform-init, terraform-validate, terraform-state, terraform-output, pulumi, ansible, cdk, helm-diff |
@@ -70,6 +70,22 @@ lives in public libs so engines and composite families can reuse it. Families ar
   links and labels of 50 bytes on average, and only when the page keeps 1,500 bytes of text outside such blocks
   (a page that is itself a list of links, or whose links are long titles, keeps them). Benchmark
   (`html-bench.sh`, 181 articles): recall 98.3% → 98.8%, precision 59.3% → 64.5%.
+
+**web (search)**
+- Shape of Claude's WebSearch, checked in session transcripts (`toolUseResult`, not captured from a live
+  hook): `{query, results: [{content: [{title, url}], tool_use_id}, "summary text", …], durationSeconds}`.
+  The model sees a text render of it: `Web search results for query: "Q"`, a `Links: [{…}]` JSON line,
+  the summary, `REMINDER: You MUST include the sources…`. There is **no snippet per hit**, only title and URL.
+- A PostToolUse hook must return that structure unchanged and Claude renders the links itself, so a compact
+  list cannot be produced there: WebSearch is not in the hook matcher. The LLM proxy sees the rendered text
+  (typed `web/search` by its first line + a `Links: [` line), so only API-key sessions are covered (a claude.ai
+  login stays direct).
+- Each `Links:` line (there can be several) becomes `- title: url` lines; a title equal to the host is dropped,
+  repeated URLs once. Summary and reminder untouched (the reminder is an instruction). Over `max_links` (12;
+  real results have 9–10) the best BM25 matches of title + URL against the `query` stay, earlier (better ranked)
+  hits first on ties, output in the engine's order, `- … N more links dropped` last. A `Links:` line that is not
+  a JSON list of objects with a `url` stays as written. Measured on a real result: 605 → 557 tokens (the summary
+  is the bulk).
 
 ## Core optimizers (in default chain order)
 

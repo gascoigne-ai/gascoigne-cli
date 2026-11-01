@@ -37,7 +37,7 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
-  default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, doc, prose, dense, paths, truncate, rerun]
+  default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun]
 
 optimizers:
   test: { coverage_below: 80 } # coverage reports list files under this percent
@@ -105,6 +105,8 @@ optimizers:
   html: { links: true }
   # aria: browser accessibility snapshots; wrappers unwrapped, runs of like siblings keep head, tail and query matches
   aria: { max_items: 20, head: 10, tail: 4 }
+  # websearch: web search results as text; Links as one line per hit, over max_links the query's best stay
+  websearch: { max_links: 12 }
   # embedjson: JSON values holding record arrays inside log/test/build/task/text, crushed in place
   embedjson:
     types: [log, test, build, task, doc/text]

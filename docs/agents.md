@@ -153,7 +153,9 @@ tool ran, by replacing the result the model sees:
 Output gascoigne already optimized (exec, its MCP server, the proxy) is recognized by its hint and
 left alone, as are gascoigne's own MCP tools. **Read** is never replaced: Claude numbers the lines
 it shows, and dropped lines would shift those numbers. **WebSearch** is left too: its results
-(a median of 608 tokens in measured sessions) are rendered by Claude Code from a fixed structure.
+(a median of 608 tokens in measured sessions) are rendered by Claude Code from a fixed structure
+(`{query, results: [{content: [{title, url}], tool_use_id}, "summary text"], durationSeconds}`), which a hook
+must give back unchanged. The LLM proxy sees the rendered text and lists each hit on one line (`web/search`).
 
 ### LLM API proxy
 

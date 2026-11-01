@@ -1,0 +1,33 @@
+Web search results for query: "opencode plugin tool.execute.before modify bash command args"
+
+Links: [{"title":"plugin api","url":"https://www.mintlify.com/anomalyco/opencode/sdk/plugin-api"},{"title":"mintlify.com","url":"https://mintlify.com/anomalyco/opencode/plugins"},{"title":"tessl.io","url":"https://tessl.io/registry/pantheon-ai/opencode-toolkit/0.2.0"},{"title":"tessl.io","url":"https://tessl.io/registry/pantheon-ai/opencode-toolkit/files"},{"title":"hook patterns","url":"https://tessl.io/registry/pantheon-ai/opencode-toolkit/0.2.0/files/build-plugins/references/hook-patterns.md"},{"title":"tessl.io","url":"https://tessl.io/registry/pantheon-ai/opencode-toolkit/0.2.0/files"},{"title":"opencode build plugins","url":"https://tessl.io/registry/skills/github/pantheon-org/tekhne/opencode-build-plugins"},{"title":"opencode toolkit","url":"https://tessl.io/registry/pantheon-ai/opencode-toolkit"},{"title":"12b plugins advanced","url":"https://learnopencode.com/en/5-advanced/12b-plugins-advanced"},{"title":"Hook Tutorial","url":"https://learnopencode.com/en/5-advanced/12c-hooks"}]
+
+Based on the search results, here's information about the `tool.execute.before` hook in OpenCode plugins and how to modify bash command arguments:
+
+## Overview
+
+The `tool.execute.before` hook is called before tool execution and allows you to modify arguments.
+
+## Modifying Bash Command Arguments
+
+You can use the `tool.execute.before` hook in a plugin to intercept bash tool calls and modify the command arguments. Here's how to modify bash command arguments:
+
+```typescript
+"tool.execute.before": async (input, output) => {
+  if (input.tool === "bash") {
+    output.args.command = escape(output.args.command)
+  }
+}
+```
+
+## Input and Output Parameters
+
+The input object contains the tool name, sessionID, and callID, while the output object contains the tool arguments (which are modifiable or interceptable).
+
+## Common Use Cases
+
+The `tool.execute.before` hook can be used to intercept/block tool calls, including bash commands. You can throw an error to block execution of dangerous commands.
+
+The hook receives the command in `output.args.command` where you can read, validate, or modify the bash command before it executes.
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.

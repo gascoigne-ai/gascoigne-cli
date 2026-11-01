@@ -1056,6 +1056,11 @@
   expect_type: web/aria
   keep: ["Page URL: https://news.example.org/", "searchbox \"Search news\" [ref=e10]", "Battery recycling", "Fusion startups", "button \"Load more stories\"", "Keyboard switches"]
   min_saved: 50
+- file: web/websearch-opencode.txt
+  attrs: { tool: WebSearch, query: opencode plugin tool.execute.before modify bash command args }
+  expect_type: web/search
+  keep: ["https://www.mintlify.com/anomalyco/opencode/sdk/plugin-api", "https://learnopencode.com/en/5-advanced/12c-hooks", "hook patterns: https://tessl.io", "output.args.command", "REMINDER: You MUST include the sources"]
+  min_saved: 5
 
 # --- log
 - file: log/app.log

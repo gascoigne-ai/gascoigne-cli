@@ -192,6 +192,8 @@
 #     max_items: 20                               ## longest run of like siblings kept whole
 #     head: 10                                    ## kept from the start of a longer run (query matches too)
 #     tail: 4                                     ## kept from its end
+#   websearch:                                    ## web search results as text (Links: as one line per hit)
+#     max_links: 12                               ## most links kept per search; over it the query's best stay
 #   doc:
 #     max_code_lines: 40                          ## longer code blocks keep head and tail
 #     max_tokens: 5200                            ## longer markdown keeps whole sections, query first
@@ -260,7 +262,7 @@
 ## Which optimizers run. Each picks the blocks whose type it knows, so one chain serves all.
 # router:
 #   routes: []                        ## e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
-#   default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, doc, prose, dense, paths, truncate, rerun]
+#   default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun]
 
 ## Experimental commands to enable: prompts, or all. GASCOIGNE_EXPERIMENTAL adds to the list.
 # experimental: []

@@ -37,6 +37,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/testoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/traceoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/truncateoptimizer"
+	"github.com/gascoigne-ai/gascoigne-cli/optimizer/websearchoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/execreceiver"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/hookreceiver"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/httpproxyreceiver"
@@ -86,6 +87,7 @@ func Factories() []component.Factory {
 		httpoptimizer.NewFactory(),
 		htmloptimizer.NewFactory(),
 		ariaoptimizer.NewFactory(),
+		websearchoptimizer.NewFactory(),
 		docoptimizer.NewFactory(),
 		proseoptimizer.NewFactory(),
 		// exporters

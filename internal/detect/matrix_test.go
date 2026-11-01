@@ -214,6 +214,7 @@ var sniffFixtures = map[string]string{
 	"test/coverage":   "test/lcov.info",
 	"build/sarif":     "build/codeql.sarif",
 	"web/aria":        "web/browser-snapshot.md",
+	"web/search":      "web/websearch-opencode.txt",
 	"log/docker":      "log/compose-logs.txt",
 	"log/kubectl":     "log/kubectl-logs-prefix.txt",
 	"test/pytest":     "test/pytest-fail.txt",

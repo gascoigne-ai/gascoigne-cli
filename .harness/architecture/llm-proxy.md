@@ -33,6 +33,7 @@
 - One payload per tool result, with attrs from the matching call (`mcptool.Attrs`):
   - built-in tools are described as the shell command that prints the same thing: Read →
     `cat <path>` (or `sed -n <offset>,$p` for slices), Grep → `rg -n|-l|-c`, Glob/list → `find`
+  - WebSearch has no command: its text is typed `web/search` by content (families.md, web search)
   - `query`/`prompt` → query attr; url; tool; model from the body; agent from the User-Agent
 - `skip` tools, `is_error` results and hinted output stay untouched.
 - Read's `N\t` prefixes are split off, the text is optimized like `cat`, and kept lines get their

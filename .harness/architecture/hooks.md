@@ -10,6 +10,7 @@
   - gemini AfterTool `decision: deny` + `reason` (shell, `mcp_*`)
   - opencode plugin `tool.execute.after`: sends a `PostToolUse` event (tool, args, result text) and sets `output.output` from the reply `{output}` (`opencodeAfter`; bash and MCP tools; MCP tools carry no marker, so every tool outside `opencodeBuiltin` and `gascoigne_*` counts)
   - MCP results get the call's attrs from `mcptool.Attrs(name, input)`, shared with the LLM proxy: `tool`, `query` (query/q/search/prompt, else the description's intent) and `url`, so fetch-like results are typed web and sampled for the query
+  - WebSearch is not matched: its `tool_response` is a structure Claude renders itself (families.md, web search), so only the LLM proxy shortens it
   - skipped: hinted output (`hintRe`) and gascoigne's own MCP tools. A text Read is never shortened (image Reads
     are downscaled, see the Read row; Claude numbers its lines), only replaced by a pointer when identical, see below.
 - **Identical Read fold** (`readfold.go`, claude PostToolUse `Read`): a text Read whose file, offset/limit and
