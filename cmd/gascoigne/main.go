@@ -78,6 +78,9 @@ type common struct {
 	// plain: the config as the files and -set say it, without what the
 	// experimental settings switch on (eval must not depend on the user's choices).
 	plain bool
+	// project: the repo's .gascoigne.yaml (cwd up to the git root) is laid
+	// over the user's config (exec, hook).
+	project bool
 	// pipeline, when set, is the only one this run builds: a remote run has
 	// no ledger for the other pipelines' receivers (MCP) to start with.
 	pipeline string
@@ -180,7 +183,11 @@ func (c *common) configData() ([]byte, error) {
 	if c.plain {
 		return configFile(c.config)
 	}
-	return configData(c.config)
+	data, err := configData(c.config)
+	if err != nil || !c.project {
+		return data, err
+	}
+	return withProject(data)
 }
 
 func (c *common) load() (*config.Config, error) {
@@ -250,7 +257,7 @@ func cmdExec(ctx context.Context, args []string) error {
 	if *raw {
 		c.attrs[payload.AttrRaw] = "true"
 	}
-	c.server, c.useServer, c.pipeline = true, true, *pipeline
+	c.server, c.useServer, c.project, c.pipeline = true, true, true, *pipeline
 	svc, err := c.start(ctx)
 	if err != nil {
 		return err

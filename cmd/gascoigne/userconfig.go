@@ -13,6 +13,7 @@ import (
 	"go.yaml.in/yaml/v3"
 
 	"github.com/gascoigne-ai/gascoigne-cli/configs"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
 )
 
@@ -104,6 +105,68 @@ func configExperimental() []string {
 		return nil
 	}
 	return c.Experimental
+}
+
+// projectConfigName is the per-repo settings file, laid over the user's.
+const projectConfigName = ".gascoigne.yaml"
+
+// projectConfigPath finds projectConfigName from dir up to the git root (the
+// first directory holding .git); without a git root only dir is searched, so
+// a stray file in a parent of a plain directory never applies. "" if none.
+func projectConfigPath(dir string) string {
+	inRepo := gitRootAbove(dir)
+	for {
+		p := filepath.Join(dir, projectConfigName)
+		if fileExists(p) {
+			return p
+		}
+		up := filepath.Dir(dir)
+		if !inRepo || fileExists(filepath.Join(dir, ".git")) || up == dir {
+			return ""
+		}
+		dir = up
+	}
+}
+
+// gitRootAbove reports whether dir or a parent holds .git.
+func gitRootAbove(dir string) bool {
+	for {
+		if fileExists(filepath.Join(dir, ".git")) {
+			return true
+		}
+		up := filepath.Dir(dir)
+		if up == dir {
+			return false
+		}
+		dir = up
+	}
+}
+
+// withProject lays the project file found from the working directory over
+// data. The result is what the server hashes, so repos with different files
+// get different warm pipelines. The file is decoded strictly on its own
+// first, so an error names it instead of the merged document.
+func withProject(data []byte) ([]byte, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return data, nil
+	}
+	path := projectConfigPath(dir)
+	if path == "" {
+		return data, nil
+	}
+	over, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("project config %s: %w", path, err)
+	}
+	alone, err := overlay(configs.Default, over)
+	if err == nil {
+		_, err = config.Parse(alone)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("project config %s: %w", path, err)
+	}
+	return overlay(data, over)
 }
 
 // configPath is the config file to read (-config, $GASCOIGNE_CONFIG, else

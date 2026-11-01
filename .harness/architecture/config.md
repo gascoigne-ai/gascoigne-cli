@@ -6,6 +6,11 @@
 - The first config file found is laid over it: `-config` > `$GASCOIGNE_CONFIG` >
   `$XDG_CONFIG_HOME/gascoigne/config.yaml` (`cmd/gascoigne/userconfig.go` `overlay`: maps merge,
   values and lists replace, empty keys keep the default).
+- `exec` and the hooks then lay `.gascoigne.yaml` over that (`withProject`): searched from the cwd up
+  to the git root (nearest wins; without a git root only the cwd), same merge rules, decoded strictly
+  on its own so an error names the file. The merged YAML is what the server hashes, so each repo gets
+  its own warm pipeline (`server.md`). `-set`/`-only`/`-disable` still win. Not applied to eval
+  (`plain`) or other commands.
 - With neither flag nor env, the first run writes `configs/user.yaml` there: every setting of
   every component commented out (`##` docs, `#` settings).
 - Upgrades: a later version refreshes a file that sets nothing. `config -upgrade`

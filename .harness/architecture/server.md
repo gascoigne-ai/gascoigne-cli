@@ -20,7 +20,7 @@
 **Server mode** (`remote.go`): `exec`, `run` and the codex hook (`common.useServer`) build only
 their pipeline's receivers and exporters (`service.Options.Remote`) and POST the payload to
 `/api/optimize`.
-- There a warm service per config hash (defaults + user file + overrides; receivers and exporters
+- There a warm service per config hash (defaults + user file + project `.gascoigne.yaml` + overrides; receivers and exporters
   stripped; ≤ 8 kept; one payload at a time) runs `Pipeline.Optimize`.
 - Same build and ledger path required (409 otherwise). Refused, 409 or a broken server → the full
   pipeline is built locally for that payload (which also starts or replaces the server). Pipeline
