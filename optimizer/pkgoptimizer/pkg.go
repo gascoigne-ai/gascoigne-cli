@@ -1,7 +1,8 @@
 // Package pkgoptimizer is the package manager family engine (npm, pnpm,
 // yarn, bun, pip, uv, poetry, go mod, cargo, apt/dnf/brew/pacman): progress
 // and downloads go, warnings fold by kind, summaries and errors stay.
-// Dependency trees (`tree`, `gomodgraph`) go through internal/compress/tree.
+// Dependency trees (`tree`, `gomodgraph`) go through internal/compress/tree,
+// inventories (`list`) through internal/compress/pkglist.
 package pkgoptimizer
 
 import (
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/pkglist"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/pkgnoise"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/tree"
@@ -28,6 +30,8 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		switch dialect {
 		case "tree":
 			return compress.Join(tree.Compress(compress.CleanLines(b.Text), topts)), nil
+		case "list":
+			return compress.Join(pkglist.Compress(compress.CleanLines(b.Text))), nil
 		case "gomodgraph":
 			return compress.Join(tree.Edges(compress.CleanLines(b.Text))), nil
 		}

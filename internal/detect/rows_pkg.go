@@ -25,6 +25,10 @@ func init() {
 		Row{Type: "pkg/mvndeps", Cmds: []string{"mvn dependency:tree", "mvn dependency:resolve", "mvn dependency:go-offline", "mvnw dependency:tree"}, Cmd: "mvn dependency:tree"},
 		Row{Type: "pkg/docker", Priority: 55, Cmds: []string{"docker pull", "docker push", "docker image pull", "docker image push", "docker compose pull", "docker-compose pull", "podman pull", "podman push"}, Cmd: "docker pull alpine",
 			Sniff: `^[0-9a-f]{12}: (Pulling fs layer|Preparing)|^The push refers to repository `, Sample: "latest: Pulling from library/alpine\n3f4ca61aafcd: Pulling fs layer\n3f4ca61aafcd: Pull complete\nDigest: sha256:3f4ca61aafcd\n"},
+		// Inventories, one package per line; pacman -Q, brew list --versions and go list -m all have no sniffable header.
+		Row{Type: "pkg/list", Cmds: []string{"pip list", "pip3 list", "pip freeze", "pip3 freeze", "uv pip list", "uv pip freeze", "apt list", "pacman -Q", "pacman -Qe", "pacman -Qm", "yay -Q", "paru -Q",
+			"brew list", "gem list"}, Cmd: "pip list", // go list -m: CmdFunc in pkg.go
+			Sniff: `^Package\s+Version(\s|$)|^Listing\.\.\.( Done)?$|^\*\*\* LOCAL GEMS \*\*\*`, Sample: "Package    Version\n---------- -------\nflask      3.0.3\nrequests   2.32.3\n"},
 		// Glyph trees; the engine reads any of them, so only tools with a real fixture are listed.
 		Row{Type: "pkg/tree", Priority: 55, Cmds: []string{"npm ls", "npm list", "npm ll", "pnpm ls", "pnpm list", "pnpm why", "pipdeptree", "uv tree", "poetry show --tree"}, Cmd: "npm ls --all"},
 		Row{Type: "pkg/gomodgraph", Priority: 55, Cmds: []string{"go mod graph"}, Cmd: "go mod graph"},

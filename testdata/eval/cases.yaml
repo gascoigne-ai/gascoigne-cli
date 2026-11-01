@@ -177,6 +177,14 @@
 - { name: detect/poetry, file: pkg/poetry-install.txt, expect_type: pkg/poetry }
 - { name: detect/apt, file: pkg/apt-install.txt, expect_type: pkg/os }
 - { name: detect/brew, file: pkg/brew-install.txt, expect_type: pkg/os }
+- { name: pkg/pip-list, file: pkg/pip-list.txt, attrs: { cmd: pip list }, expect_type: pkg/list, keep: ["flask 3.0.3", "pydantic_core 2.23.4"], min_saved: 14 }
+- { name: pkg/apt-list, file: pkg/apt-list.txt, attrs: { cmd: apt list --installed }, expect_type: pkg/list, keep: ["curl 8.5.0-2ubuntu10.4 amd64", "ca-certificates 20240203 all automatic"], min_saved: 20 }
+- { name: pkg/gem-list, file: pkg/gem-list.txt, attrs: { cmd: gem list }, expect_type: pkg/list, keep: ["rspec 3.13.2", "json 2.9.1"], min_saved: 20 }
+- { name: pkg/pacman-q, file: pkg/pacman-q.txt, attrs: { cmd: pacman -Q }, expect_type: pkg/list, keep: ["5.87-2: bluez bluez-libs", "blender 17:5.2.3-5", "amazon-fonts Mar2020-2"], min_saved: 6 }
+- { name: pkg/go-list-m-all, file: pkg/go-list-m-all.txt, attrs: { cmd: go list -m all }, expect_type: pkg/list, keep: ["github.com/golang-jwt/jwt/v5 v5.3.1", "golang.org/x/net v0.61.0"] }
+- { name: detect/pip-list, file: pkg/pip-list.txt, expect_type: pkg/list }
+- { name: detect/apt-list, file: pkg/apt-list.txt, expect_type: pkg/list }
+- { name: detect/gem-list, file: pkg/gem-list.txt, expect_type: pkg/list }
 
 # --- task family (composite: failing parts compressed by their own family)
 - { file: task/make-fail.txt, attrs: { cmd: make -k }, expect_type: task/make,

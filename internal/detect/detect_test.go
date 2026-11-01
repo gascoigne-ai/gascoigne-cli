@@ -20,6 +20,11 @@ func TestFromCmd(t *testing.T) {
 		{`grep -n "a|b" x.go | head`, "search/grep"}, // a pipe inside quotes is not a stage
 		{"sed -n 10,20p main.go", Code},
 		{"go test -json ./...", GoTestJSON},
+		{"go list -m all", "pkg/list"},
+		{"go list -m -u all", "pkg/list"},
+		{"go list -m -json all", ""}, // JSON stream: sniffed as data/json, not a name-version list
+		{"pacman -Qe", "pkg/list"},
+		{"pip3 freeze", "pkg/list"},
 		{"CGO_ENABLED=0 go build ./cmd/x", GoBuild},
 		{"/usr/bin/git -C repo status", GitStatus},
 		{"git log --oneline", GitLog},

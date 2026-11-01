@@ -99,6 +99,7 @@ removed or failed kept.
 | `pkg/npm`, `pkg/pnpm`, `pkg/yarn`, `pkg/bun` | `npm install/ci/…`, `pnpm …`, `yarn …`, `bun install/add/…` |
 | `pkg/pip`, `pkg/uv`, `pkg/poetry` | `pip install`, `uv pip/sync/add/lock`, `poetry install/add/…` |
 | `pkg/go-mod`, `pkg/cargo` | `go mod`, `go get`; `cargo add/update/fetch/install` |
+| `pkg/list` | `pip list/freeze`, `uv pip list`, `apt list`, `pacman -Q`, `brew list`, `gem list`, `go list -m` (not `-json`/`-f`): one `name version` line per package, same-version runs share a line |
 | `pkg/os` | `apt`, `apt-get`, `dnf`, `yum`, `brew`, `pacman`, `apk`, `zypper`, … |
 | `pkg/composer`, `pkg/gem`, `pkg/mix`, `pkg/pub`, `pkg/swift` | `composer install/update/require`; `gem install`, `bundle install/update/add`; `mix deps.get`; `dart/flutter pub`; `swift package` |
 | `pkg/nuget`, `pkg/conda`, `pkg/deno`, `pkg/nix`, `pkg/flatpak`, `pkg/docker` (pull/push layer progress), `pkg/mvndeps`, `pkg/tree`, `pkg/gomodgraph` | `dotnet restore/add/remove/list`, `nuget`; `conda`, `mamba`, `micromamba`; `deno install/add`; `nix build/develop/profile`, `nix-build`, `nix-shell`; `flatpak`, `snap`; `mvn dependency:tree/resolve`; `pkg/tree`: `npm ls/list/ll`, `pnpm ls/list/why`, `pipdeptree`, `uv tree`, `poetry show --tree` (glyph trees: leaves of a package share a line, `deduped`/`(*)` repeats dropped, a version written at its first use, a package expanded once, deeper than `tree_depth` counted, `query` matches kept); `pkg/gomodgraph`: `go mod graph` grouped by module |

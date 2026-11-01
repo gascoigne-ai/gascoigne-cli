@@ -74,6 +74,14 @@ detect/yarn	155	0	0
 detect/poetry	781	0	0
 detect/apt	196	0	2
 detect/brew	323	0	26
+pkg/pip-list	271	0	0
+pkg/apt-list	390	0	0
+pkg/gem-list	444	1	0
+pkg/pacman-q	685	0	0
+pkg/go-list-m-all	535	0	0
+detect/pip-list	271	0	0
+detect/apt-list	390	0	0
+detect/gem-list	444	1	0
 task/make-fail	714	12	1
 task/turbo-build-fail	315	0	53
 task/gradle-fail	203	1	33

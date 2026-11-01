@@ -36,9 +36,17 @@ func init() {
 		Spec{Type: GoMod, Cmds: []string{"go mod", "go get"}, Priority: 56, Sniff: anyLine(`^go: (downloading|added|upgraded) \S+ v\d`)},
 		Spec{Type: CargoPkg, Cmds: []string{"cargo add", "cargo update", "cargo fetch", "cargo install", "cargo remove"}, Priority: 57,
 			Sniff: anyLine(`^\s+Adding \S+ v[\d.]+ to (dev-)?dependencies|^\s+Installed package `)},
+		Spec{Type: "pkg/list", CmdFunc: goListModules, Priority: 57},
 		Spec{Type: OSPkg, Cmds: []string{"apt", "apt-get", "dnf", "yum", "brew", "pacman", "yay", "paru", "apk", "zypper"}, Priority: 57,
 			Sniff: anyLine(`^(Get|Hit):\d+ https?://|^Reading package lists|^==> (Downloading|Pouring) |^:: Synchronizing package databases|^Last metadata expiration check|^\(\d+/\d+\) Installing `)},
 	)
+}
+
+// goListModules: `go list -m all` prints "path version" lines; with -json or
+// a -f template the output is another format.
+func goListModules(args []string) bool {
+	pos := positional(args)
+	return args[0] == "go" && len(pos) > 0 && pos[0] == "list" && hasFlag(args, "-m") && !hasFlag(args, "-json") && !hasFlag(args, "-f")
 }
 
 // bare matches prog with flags only: no subcommand or script name.
