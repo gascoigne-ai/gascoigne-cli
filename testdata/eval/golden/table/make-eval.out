@@ -1,0 +1,85 @@
+go build -o bin/gascoigne ./cmd/gascoigne
+.harness/scripts/eval.sh
+
+== Fixtures - real tool output, before and after
+   Tests: Captured output of hundreds of cases across tools (go, pytest, git, rg, npm, ...) goes through the cli pipeline.
+   Means: Detected type is right, key facts survive, savings stay above the floor, output matches the golden, raw comes back byte-exact. A FAIL means an optimizer change lost or altered something.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                            type                            route    raw tok  out tok  saved                 lost      ms  check
+ total                                                                    2367916   450559  81.0%  ████████▏            1635.4
+ … 408 ok
+
+== Ext - needles in a haystack
+   Tests: External-style dataset: JSON arrays with planted errors/anomalies, small mixed tool outputs.
+   Means: Savings must not cost the facts you would ask about. A FAIL means a planted needle was compressed away.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                type        route    raw tok  out tok  saved              lost    ms  check
+ total                                      78862    29578  62.5%  ██████▎           60.7
+ … 89 ok
+
+== Scale - big outputs, time limits
+   Tests: Generated outputs up to 2M tokens (logs, find, ndjson, csv).
+   Means: Savings hold at size and each case stays under its max_ms ceiling. A FAIL means a slowdown or a savings drop at volume.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                  type         route    raw tok  out tok   saved                  lost      ms  check
+ total                                       6587975    24033   99.6%  ██████████            1807.0
+ … 12 ok
+
+== MCP - results of a fake MCP server
+   Tests: Fake-data tool results (issues, code hits, logs, rows, pages) fetched over the MCP protocol from cmd/mcpmock, through the mcp-proxy pipeline.
+   Means: MCP results shrink by the floor and small ones stay untouched. A FAIL means the proxy path lost savings or a fact on MCP output.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                    type         route    raw tok  out tok  saved               lost    ms  check
+ total                                           35140     9787  72.1%  ███████▎           52.0
+ … 10 ok
+
+== Live - real commands in this repo
+   Tests: go test, git log/diff, rg, find, ls, ... run now, not replayed.
+   Means: Catches stale fixtures: a wrong type or a savings drop here, while Fixtures still pass, means a tool changed its output shape. Missing tools are skipped.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                                                                      type          route    raw tok  out tok  saved               lost    ms  check
+ tree -L 2 optimizer                                                                                                                                skip: not installed
+ kubectl get pods -A                                                                                                                                skip: not installed
+ total                                                                                              88179    25254  71.4%  ███████▏           29.9
+12 cases: 12 ok, 2 skipped (tool not installed)
+ … 12 ok
+
+== Ledger - bookkeeping speed
+   Tests: Go benchmarks: rollup and Stats on a seeded 20k-run ledger.
+   Means: Not pass/fail; compare ns/op between runs to spot regressions in the dashboard's data path.
+   Read:  ns/op = time per operation, lower is better.
+
+goos: linux
+goarch: amd64
+pkg: github.com/gascoigne-ai/gascoigne-cli/extension/ledger
+cpu: AMD Ryzen 7 9800X3D 8-Core Processor           
+BenchmarkRollUp-16    	       3	  87390644 ns/op
+BenchmarkStats/rolled=false/day-16         	       3	  21424646 ns/op
+BenchmarkStats/rolled=false/month-16       	       3	  19026176 ns/op
+BenchmarkStats/rolled=false/command-16     	       3	  12944437 ns/op
+BenchmarkStats/rolled=false/agent-16       	       3	   8632026 ns/op
+BenchmarkStats/rolled=false/optimizer-16   	       3	   8444972 ns/op
+BenchmarkStats/rolled=false/dialect-16     	       3	   7765133 ns/op
+BenchmarkStats/rolled=false/session-16     	       3	  10738824 ns/op
+BenchmarkStats/rolled=true/day-16          	       3	  14987249 ns/op
+BenchmarkStats/rolled=true/month-16        	       3	  18053694 ns/op
+BenchmarkStats/rolled=true/command-16      	       3	  13380658 ns/op
+BenchmarkStats/rolled=true/agent-16        	       3	   9985576 ns/op
+BenchmarkStats/rolled=true/optimizer-16    	       3	   7837650 ns/op
+BenchmarkStats/rolled=true/dialect-16      	       3	   7969911 ns/op
+BenchmarkStats/rolled=true/session-16      	       3	   5780562 ns/op
+PASS
+ok  	github.com/gascoigne-ai/gascoigne-cli/extension/ledger	1.752s
+
+Summary
+  fixtures  ok
+  ext       ok
+  scale     ok
+  mcp       ok
+  live      ok
+  ledger    ok

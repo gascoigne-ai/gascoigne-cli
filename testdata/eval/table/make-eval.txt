@@ -1,0 +1,611 @@
+go build -o bin/gascoigne ./cmd/gascoigne
+.harness/scripts/eval.sh
+
+== Fixtures - real tool output, before and after
+   Tests: Captured output of hundreds of cases across tools (go, pytest, git, rg, npm, ...) goes through the cli pipeline.
+   Means: Detected type is right, key facts survive, savings stay above the floor, output matches the golden, raw comes back byte-exact. A FAIL means an optimizer change lost or altered something.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                            type                            route    raw tok  out tok  saved                 lost      ms  check
+ go/test-pass                    test/go                         default      417       80  80.8%  ████████▏       0/3     1.1  ok
+ go/test-v-pass                  test/go                         default     1404       72  94.9%  █████████▌      0/1     1.3  ok
+ go/test-fail                    test/go                         default      417      185  55.6%  █████▋          1/2     0.6  ok
+ go/test-fail-v                  test/go                         default     2086      187  91.0%  █████████▏      1/2     1.6  ok
+ go/test-panic-trace             test/go                         default     1519      186  87.8%  ████████▊      1/15     1.1  ok
+ go/test-timeout-goroutines      test/go                         default     7478      388  94.8%  █████████▌      0/5     1.6  ok
+ test/python-recursion           doc/text                        default    25543      218  99.1%  █████████▉        -    14.5  ok
+ go/test-json                    test/go-json                    default    16208      175  98.9%  █████████▉      0/8     6.4  ok
+ go/build-errors                 build/go                        -            129      129   0.0%                    -     0.1  ok
+ detect/go-test-fail-v           test/go                         default     2086      187  91.0%  █████████▏      1/2     3.4  ok
+ detect/go-test-json             test/go-json                    default    16208      175  98.9%  █████████▉      0/8     6.8  ok
+ test/pytest-fail                test/pytest                     default      899      652  27.5%  ██▊             0/1     1.4  ok
+ test/pytest-v-fail              test/pytest                     default     2689      683  74.6%  ███████▌        0/2     2.3  ok
+ test/vitest-fail                test/vitest                     default      731      429  41.3%  ████▏           0/1     0.8  ok
+ test/mocha-fail                 test/mocha                      default      436      205  53.0%  █████▎            -     0.9  ok
+ test/deno-fail                  test/deno                       default      723      185  74.4%  ███████▌          -     0.9  ok
+ test/rspec-fail                 test/rspec                      default      428      279  34.8%  ███▌            0/1     0.6  ok
+ test/cargo-test-fail            test/cargo                      default      827      226  72.7%  ███████▎        0/3     1.0  ok
+ test/maven-test-fail            test/maven                      default     1656      421  74.6%  ███████▌       4/11     1.3  ok
+ test/dotnet-test-fail           test/dotnet                     default      843      195  76.9%  ███████▋        0/1     0.8  ok
+ detect/pytest                   test/pytest                     default      899      652  27.5%  ██▊             0/1     1.8  ok
+ detect/vitest                   test/vitest                     default      731      429  41.3%  ████▏           0/1     2.0  ok
+ detect/mocha                    test/mocha                      default      436      205  53.0%  █████▎            -     1.0  ok
+ detect/deno                     test/deno                       default      723      185  74.4%  ███████▌          -     1.4  ok
+ detect/rspec                    test/rspec                      default      428      279  34.8%  ███▌            0/1     1.0  ok
+ detect/cargo-test               test/cargo                      default      827      226  72.7%  ███████▎        0/3     1.2  ok
+ detect/maven-test               test/maven                      default     1656      421  74.6%  ███████▌       4/11     2.5  ok
+ detect/dotnet-test              test/dotnet                     default      843      195  76.9%  ███████▋        0/1     1.6  ok
+ build/tsc-watch                 build/tsc                       default      475      180  62.1%  ██████▎         4/2     1.1  ok
+ build/tsc-many                  build/tsc                       default     1910      722  62.2%  ██████▎        36/0     2.0  ok
+ build/gcc-errors                build/gcc                       default     1207      537  55.5%  █████▌         12/0     1.8  ok
+ build/clang-errors              build/clang                     default     1164      497  57.3%  █████▊         12/0     1.9  ok
+ build/javac-errors              build/javac                     default      671      360  46.3%  ████▋             -     1.6  ok
+ build/ruff                      build/ruff                      default     6383     3284  48.6%  ████▉             -     6.2  ok
+ build/mypy                      build/mypy                      default      759      323  57.4%  █████▊            -     1.3  ok
+ build/vite-fail                 build/bundler                   default      536      114  78.7%  ███████▉        1/2     0.6  ok
+ build/webpack-warnings          build/bundler                   default     2744      104  96.2%  █████████▋      0/3     2.4  ok
+ build/cargo-build               build/rustc                     default      850      457  46.2%  ████▋           0/1     1.7  ok
+ build/dotnet-build              build/dotnet                    default      644      201  68.8%  ██████▉         4/3     1.1  ok
+ build/docker-build-fail         build/docker                    default     1508      531  64.8%  ██████▌        4/24     1.7  ok
+ build/golangci                  build/golangci                  default     1691     1018  39.8%  ████            6/0     2.0  ok
+ build/eslint                    build/eslint                    default     1073      661  38.4%  ███▉              -     2.0  ok
+ build/maven-compile             build/maven                     default     1481      165  88.9%  ████████▉      0/24     1.5  ok
+ detect/tsc                      build/tsc                       default     1910      722  62.2%  ██████▎        36/0     3.7  ok
+ detect/yarn-tsc                 build/tsc                       default     1910      722  62.2%  ██████▎        36/0     3.8  ok
+ detect/gcc                      build/gcc                       default     1207      537  55.5%  █████▌         12/0     3.2  ok
+ detect/javac                    build/javac                     default      671      360  46.3%  ████▋             -     2.2  ok
+ detect/ruff                     build/ruff                      default     6383     3284  48.6%  ████▉             -     7.6  ok
+ detect/mypy                     build/mypy                      default      759      323  57.4%  █████▊            -     1.5  ok
+ detect/vite                     build/bundler                   default      536      114  78.7%  ███████▉        1/2     1.3  ok
+ detect/webpack                  build/bundler                   default     2744      104  96.2%  █████████▋      0/3     5.3  ok
+ detect/cargo-build              build/rustc                     default      850      457  46.2%  ████▋           0/1     2.1  ok
+ detect/dotnet-build             build/dotnet                    default      644      201  68.8%  ██████▉         4/3     1.7  ok
+ detect/docker-build             build/docker                    default     1508      531  64.8%  ██████▌        4/24     2.5  ok
+ detect/golangci                 build/golangci                  default     1691     1018  39.8%  ████            6/0     2.9  ok
+ detect/eslint                   build/eslint                    default     1073      661  38.4%  ███▉              -     3.2  ok
+ detect/maven-compile            build/maven                     default     1481      165  88.9%  ████████▉      0/24     3.3  ok
+ pkg/pip-install                 pkg/pip                         default     1895      159  91.6%  █████████▏      0/3     0.8  ok
+ pkg/uv-pip-install              pkg/uv                          default      392      171  56.4%  █████▋            -     0.7  ok
+ pkg/go-get                      pkg/go-mod                      default     1044      448  57.1%  █████▊            -     0.8  ok
+ pkg/pnpm-install                pkg/pnpm                        default      767      144  81.2%  ████████▏         -     0.5  ok
+ pkg/yarn-install                pkg/yarn                        default      367      155  57.8%  █████▊            -     0.7  ok
+ pkg/poetry-install              pkg/poetry                      default     1181      781  33.9%  ███▍              -     1.0  ok
+ pkg/cargo-add                   pkg/cargo                       default      316      100  68.4%  ██████▉           -     0.4  ok
+ pkg/apt-install                 pkg/os                          default     1535      196  87.2%  ████████▊       0/2     1.1  ok
+ pkg/brew-install                pkg/os                          default     1079      323  70.1%  ███████        0/26     0.9  ok
+ pkg/pacman-install              pkg/os                          default      577      166  71.2%  ███████▏          -     0.4  ok
+ detect/pip                      pkg/pip                         default     1895      159  91.6%  █████████▏      0/3     3.5  ok
+ detect/uv                       pkg/uv                          default      392      171  56.4%  █████▋            -     1.4  ok
+ detect/go-get                   pkg/go-mod                      default     1044      448  57.1%  █████▊            -     2.1  ok
+ detect/pnpm                     pkg/pnpm                        default      767      144  81.2%  ████████▏         -     2.0  ok
+ detect/yarn                     pkg/yarn                        default      367      155  57.8%  █████▊            -     1.3  ok
+ detect/poetry                   pkg/poetry                      default     1181      781  33.9%  ███▍              -     2.4  ok
+ detect/apt                      pkg/os                          default     1535      196  87.2%  ████████▊       0/2     3.6  ok
+ detect/brew                     pkg/os                          default     1079      323  70.1%  ███████        0/26     2.9  ok
+ task/make-fail                  task/make                       default     1422      714  49.8%  █████          12/1     3.5  ok
+ task/turbo-build-fail           task/turbo                      default     1730      315  81.8%  ████████▏      0/53     1.3  ok
+ task/gradle-fail                task/gradle                     default     1025      203  80.2%  ████████       1/33     1.2  ok
+ task/compose-up                 task/compose                    default     3386      188  94.4%  █████████▌        -     2.7  ok
+ task/gh-run-log                 task/ci                         default     4116      275  93.3%  █████████▍      6/1     1.8  ok
+ detect/make                     task/make                       default     1422      714  49.8%  █████          12/1     4.1  ok
+ detect/turbo                    task/turbo                      default     1730      315  81.8%  ████████▏      0/53     2.3  ok
+ detect/gradle                   task/gradle                     default     1025      203  80.2%  ████████       1/33     1.7  ok
+ detect/compose-up               task/compose                    default     3386      188  94.4%  █████████▌        -     3.6  ok
+ detect/gh-run-log               task/ci                         default     4116      275  93.3%  █████████▍      6/1     3.8  ok
+ table/ps-aux                    table/ps                        default    12783     1473  88.5%  ████████▉      0/44     2.9  ok
+ table/lsof                      table/lsof                      default    10471     1385  86.8%  ████████▋    98/114     3.2  ok
+ table/top                       table/top                       default     2545     1483  41.7%  ████▏             -     1.2  ok
+ table/systemctl-units           table/systemctl                 default     2820      877  68.9%  ██████▉         0/1     1.6  ok
+ table/docker-ps                 table/docker                    default     2077     1326  36.2%  ███▋           0/15     1.3  ok
+ detect/ps                       table/ps                        default    12783     1473  88.5%  ████████▉      0/44    19.3  ok
+ detect/lsof                     table/lsof                      default    10471     1385  86.8%  ████████▋    98/114    27.0  ok
+ detect/top                      table/top                       default     2545     1483  41.7%  ████▏             -     7.1  ok
+ detect/systemctl                table/systemctl                 default     2820      877  68.9%  ██████▉         0/1    17.0  ok
+ detect/docker-ps                table/docker                    default     2077     1326  36.2%  ███▋           0/15     7.8  ok
+ db/psql-select                  db/psql                         default     4233     1048  75.2%  ███████▌          -     1.9  ok
+ db/mysql-select                 db/mysql                        default     1493      393  73.7%  ███████▍          -     0.8  ok
+ db/sqlite-column                db/sqlite                       default     7242      752  89.6%  █████████         -     2.8  ok
+ db/sqlite-box                   db/sqlite                       default      997      421  57.8%  █████▊            -     1.0  ok
+ db/explain-analyze              db/explain                      default      768      320  58.3%  █████▉            -     0.6  ok
+ db/redis-keys                   db/redis                        default     8351      101  98.8%  █████████▉        -     1.9  ok
+ db/mongosh-find                 db/mongosh                      default     4872     2345  51.9%  █████▏         0/10     2.2  ok
+ db/alembic-upgrade              db/migrate                      default      912      739  19.0%  █▉             0/10     1.0  ok
+ detect/psql                     db/psql                         default     4233     1048  75.2%  ███████▌          -     9.1  ok
+ detect/mysql                    db/mysql                        default     1493      393  73.7%  ███████▍          -     4.4  ok
+ detect/explain                  db/explain                      default      768      320  58.3%  █████▉            -     2.4  ok
+ detect/redis                    db/redis                        default     8351      101  98.8%  █████████▉        -     8.0  ok
+ detect/mongosh                  db/mongosh                      default     4872     2345  51.9%  █████▏         0/10     6.6  ok
+ detect/alembic                  db/migrate                      default      912      739  19.0%  █▉             0/10     2.5  ok
+ k8s/pods                        k8s/manifest                    default    37330     9609  74.3%  ███████▍      0/267    15.3  ok
+ k8s/deploy                      k8s/manifest                    default     1636      403  75.4%  ███████▌        0/3     1.3  ok
+ k8s/get-pods                    k8s/get                         default      675      611   9.5%  █                 -     0.5  ok
+ k8s/describe-pod                k8s/describe                    default     1027      715  30.4%  ███             0/3     0.8  ok
+ k8s/events                      k8s/events                      default     1447      849  41.3%  ████▏          0/20     1.0  ok
+ k8s/helm-status                 k8s/helm                        default      352      210  40.3%  ████            0/2     0.8  ok
+ k8s/apply                       k8s/apply                       default      411      152  63.0%  ██████▎           -     0.9  ok
+ k8s/rollout-status              k8s/rollout                     default      278       16  94.2%  █████████▍        -     0.8  ok
+ detect/k8s-apply                k8s/apply                       default      411      152  63.0%  ██████▎           -     1.0  ok
+ detect/k8s-rollout              k8s/rollout                     default      278       16  94.2%  █████████▍        -     0.9  ok
+ detect/k8s-yaml                 k8s/manifest                    default    37330     9609  74.3%  ███████▍      0/267    15.8  ok
+ detect/k8s-json                 k8s/manifest                    default     1636      403  75.4%  ███████▌        0/3     1.4  ok
+ detect/k8s-get                  k8s/get                         default      675      611   9.5%  █                 -     0.8  ok
+ detect/k8s-describe             k8s/describe                    default     1027      715  30.4%  ███             0/3     1.4  ok
+ detect/k8s-events               k8s/events                      default     1447      849  41.3%  ████▏          0/20     1.9  ok
+ detect/helm                     k8s/helm                        default      352      210  40.3%  ████            0/2     1.0  ok
+ cloud/aws-ec2-describe          cloud/aws                       default    33835     4275  87.4%  ████████▊      0/96     7.0  ok
+ cloud/aws-cfn-events            cloud/aws                       default    10273     1119  89.1%  ████████▉     0/268     2.2  ok
+ cloud/aws-s3-ls                 cloud/aws-s3                    default    41148      298  99.3%  █████████▉   0/2334     7.3  ok
+ cloud/gcloud-instances-list     cloud/gcp                       default     1172      950  18.9%  █▉                -     1.1  ok
+ cloud/gcloud-run-describe       cloud/gcp                       default      869      640  26.4%  ██▋             0/8     1.0  ok
+ cloud/az-vm-list                cloud/azure                     default    16124     2136  86.8%  ████████▋      0/42     2.6  ok
+ cloud/az-resource-table         cloud/azure                     default      930      405  56.5%  █████▋            -     0.6  ok
+ detect/aws-json                 cloud/aws                       default    33835     4275  87.4%  ████████▊      0/96    10.6  ok
+ detect/aws-s3                   cloud/aws-s3                    default    41148      298  99.3%  █████████▉   0/2334    19.2  ok
+ detect/gcp-yaml                 cloud/gcp                       default      869      640  26.4%  ██▋             0/8     1.1  ok
+ detect/azure-json               cloud/azure                     default    16124     2136  86.8%  ████████▋      0/42     3.5  ok
+ infra/terraform-plan            infra/terraform                 default    10663     1697  84.1%  ████████▍      1/41     4.6  ok
+ infra/terraform-apply-error     infra/terraform                 default     2194      312  85.8%  ████████▋      0/30     0.9  ok
+ infra/terraform-init            infra/terraform-init            default      757      357  52.8%  █████▎            -     0.5  ok
+ infra/terraform-state-list      infra/terraform-state           default     1074      516  52.0%  █████▎            -     0.6  ok
+ infra/terraform-validate-error  infra/terraform-validate        default      402      220  45.3%  ████▌             -     0.8  ok
+ infra/terraform-output          infra/terraform-output          default      384      353   8.1%  ▊                 -     0.8  ok
+ infra/pulumi-up                 infra/pulumi                    default      802      372  53.6%  █████▍            -     0.8  ok
+ infra/ansible-playbook          infra/ansible                   default     1557      646  58.5%  █████▉          1/1     0.9  ok
+ infra/cdk-deploy                infra/cdk                       default     1602      604  62.3%  ██████▎         0/2     1.1  ok
+ infra/helm-diff                 infra/helm-diff                 default     1985      538  72.9%  ███████▎       0/52     0.6  ok
+ detect/terraform                infra/terraform                 default    10663     1697  84.1%  ████████▍      1/41     5.5  ok
+ detect/pulumi                   infra/pulumi                    default      802      372  53.6%  █████▍            -     0.6  ok
+ detect/ansible                  infra/ansible                   default     1557      646  58.5%  █████▉          1/1     1.3  ok
+ detect/cdk                      infra/cdk                       default     1602      604  62.3%  ██████▎         0/2     1.2  ok
+ detect/helm-diff                infra/helm-diff                 default     1985      538  72.9%  ███████▎       0/52     0.7  ok
+ doc/go-sqlite3-README           doc/markdown                    default     8501     5149  39.4%  ████          12/95     5.9  ok
+ doc/go-sqlite3-README-query     doc/markdown                    default     8501     5205  38.8%  ███▉           7/83     6.6  ok
+ doc/node-v8-options             doc/text                        default    38130     7413  80.6%  ████████       11/3    49.8  ok
+ doc/man-ls                      doc/man                         default     2107     1812  14.0%  █▍              0/8     2.3  ok
+ doc/curl-help-query             doc/help                        default     4423      709  84.0%  ████████▍      11/2     4.4  ok
+ doc/curl-help                   doc/help                        default     4423     4423   0.0%                    -     3.5  ok
+ doc/ls-help                     doc/help                        default     4370     1786  59.1%  █████▉          0/6     3.1  ok
+ doc/ngtcp2-README               doc/rst                         default     3630     3630   0.0%                    -     2.3  ok
+ detect/markdown                 doc/markdown                    default     8501     5149  39.4%  ████          12/95    21.4  ok
+ detect/man                      doc/man                         default     2107     1812  14.0%  █▍              0/8     2.7  ok
+ detect/help                     doc/help                        default     4370     1786  59.1%  █████▉          0/6    10.9  ok
+ doc/vdf-README                  doc/rst                         default     1564     1084  30.7%  ███▏           0/17     1.1  ok
+ detect/rst                      doc/rst                         default     3630     3630   0.0%                    -     8.8  ok
+ web/curl-i-github.json          web/http                        default     6828     2019  70.4%  ███████        0/91     1.9  ok
+ web/curl-v-go-dev               web/http                        default    13565     3160  76.7%  ███████▋       3/55     5.4  ok
+ web/curl-il-redirect-429        web/http                        default      239      155  35.1%  ███▌            0/1     0.8  ok
+ detect/http                     web/http                        default     6828     2019  70.4%  ███████        0/91     2.3  ok
+ detect/http-verbose             web/http                        default    13565     3160  76.7%  ███████▋       3/55     6.3  ok
+ git/status                      vcs/git-status                  default      252      128  49.2%  ████▉             -     0.4  ok
+ git/status-big                  vcs/git-status                  default      301      149  50.5%  █████             -     0.6  ok
+ git/log                         vcs/git-log                     default     4173     1151  72.4%  ███████▎        2/8     1.1  ok
+ git/show-lockfile               vcs/git-diff                    default     7794     4330  44.4%  ████▌          1/42     2.1  ok
+ git/log-stat                    vcs/git-log                     default     1889      776  58.9%  █████▉          1/1     1.0  ok
+ git/diff                        vcs/git-diff                    default     3430     2386  30.4%  ███            1/15     1.4  ok
+ git/show-move                   vcs/git-diff                    default     4180     2867  31.4%  ███▏           2/13     1.2  ok
+ git/show                        vcs/git-diff                    default     1514     1236  18.4%  █▉              0/5     0.7  ok
+ git/push                        vcs/git-remote                  default      414       88  78.7%  ███████▉          -     0.3  ok
+ detect/git-log                  vcs/git-log                     default     4173     1151  72.4%  ███████▎        2/8     1.5  ok
+ detect/git-diff                 vcs/git-diff                    default     3430     2386  30.4%  ███            1/15     1.8  ok
+ git/blame                       vcs/git-blame                   default     6062     2829  53.3%  █████▍            -     1.8  ok
+ git/branch-a                    vcs/git-branch                  default      939      395  57.9%  █████▊         0/41     0.5  ok
+ git/reflog                      vcs/git-refs                    default      218      107  50.9%  █████▏            -     0.5  ok
+ git/remote-v                    vcs/git-refs                    default      392      250  36.2%  ███▋              -     0.3  ok
+ git/for-each-ref                vcs/git-refs                    default      916      435  52.5%  █████▎            -     0.4  ok
+ git/diff-stat                   vcs/git-diff                    default     2241     2100   6.3%  ▋                 -     0.9  ok
+ git/gh-pr-list                  vcs/gh-list                     default     2465     1187  51.8%  █████▏            -     1.1  ok
+ git/gh-pr-view                  vcs/gh-view                     default      202      141  30.2%  ███               -     0.8  ok
+ detect/git-blame                vcs/git-blame                   default     6062     2829  53.3%  █████▍            -     3.2  ok
+ detect/gh-view                  vcs/gh-view                     default      202      141  30.2%  ███               -     0.7  ok
+ grep/grep-rn                    search/grep                     default     7176     2947  58.9%  █████▉         19/0     2.4  ok
+ grep/rg                         search/rg                       default     3161     2655  16.0%  █▋             57/0     1.6  ok
+ grep/rg-plain                   search/rg                       default     3613     1210  66.5%  ██████▋           -     1.1  ok
+ grep/rg-errors                  search/rg                       default    25987     6974  73.2%  ███████▍      123/0     5.5  ok
+ grep/rg-errors-query            search/rg                       default    25987     6990  73.1%  ███████▎      125/0     6.7  ok
+ detect/grep                     search/grep                     default     7176     2947  58.9%  █████▉         19/0    19.2  ok
+ ls/usr-lib                      fs/ls                           default     2409      787  67.3%  ██████▊           -     1.3  ok
+ ls/many-same-ext                fs/ls                           default    10312     3302  68.0%  ██████▊           -     2.0  ok
+ ls/repo                         fs/ls                           default      990      343  65.4%  ██████▌           -     0.5  ok
+ detect/ls                       fs/ls                           default      990      343  65.4%  ██████▌           -     3.1  ok
+ ls/tree-x-net                   fs/tree                         default     6778     1924  71.6%  ███████▏          -     1.8  ok
+ ls/find-x-net                   fs/find                         default     7209     1628  77.4%  ███████▊      0/416     1.5  ok
+ ls/find-dirs                    fs/find                         default      486      162  66.7%  ██████▋           -     0.9  ok
+ ls/du-x-net                     fs/du                           default      365      189  48.2%  ████▉          0/13     0.7  ok
+ ls/df-h                         fs/df                           default      331      161  51.4%  █████▏          0/4     0.6  ok
+ detect/tree                     fs/tree                         default     6778     1924  71.6%  ███████▏          -     7.7  ok
+ detect/find                     fs/find                         default     7209     1628  77.4%  ███████▊      0/416     6.8  ok
+ detect/du                       fs/du                           default      365      189  48.2%  ████▉          0/13     1.5  ok
+ detect/df                       fs/df                           default      331      161  51.4%  █████▏          0/4     1.5  ok
+ build/cmake-fail                build/cmake                     default      242      177  26.9%  ██▋             0/1     0.8  ok
+ detect/cmake-fail               build/cmake                     default      242      177  26.9%  ██▋             0/1     1.7  ok
+ build/ninja-gcc-fail            build/ninja                     default      824      423  48.7%  ████▉          0/15     1.4  ok
+ build/bazel-fail                build/bazel                     default     1655      200  87.9%  ████████▊      0/31     2.1  ok
+ build/msvc-errors               build/msvc                      default      345      211  38.8%  ███▉              -     1.0  ok
+ detect/msvc-errors              build/msvc                      default      345      211  38.8%  ███▉              -     1.8  ok
+ build/dub-errors                build/dmd                       default      215      150  30.2%  ███             5/1     0.7  ok
+ detect/dub-errors               build/dmd                       default      215      150  30.2%  ███             5/1     1.3  ok
+ build/sbt-errors                build/scala                     default      517      303  41.4%  ████▏           0/2     1.2  ok
+ detect/sbt-errors               build/scala                     default      517      303  41.4%  ████▏           0/2     2.5  ok
+ build/swift-errors              build/swift                     default      309      217  29.8%  ███               -     0.9  ok
+ detect/swift-errors             build/swift                     default      309      217  29.8%  ███               -     2.0  ok
+ build/zig-errors                build/zig                       default      246      223   9.3%  ▉                 -     0.8  ok
+ detect/zig-errors               build/zig                       default      246      223   9.3%  ▉                 -     1.5  ok
+ build/rubocop                   build/rubocop                   default      304      180  40.8%  ████▏             -     0.9  ok
+ detect/rubocop                  build/rubocop                   default      304      180  40.8%  ████▏             -     1.8  ok
+ build/pylint                    build/pylint                    default      290      140  51.7%  █████▏            -     0.8  ok
+ detect/pylint                   build/pylint                    default      290      140  51.7%  █████▏            -     1.8  ok
+ build/dart-analyze              build/dart                      default      266      190  28.6%  ██▉             6/0     0.8  ok
+ detect/dart-analyze             build/dart                      default      266      190  28.6%  ██▉             6/0     1.3  ok
+ build/ghc-errors                build/haskell                   default      379      127  66.5%  ██████▋         0/1     0.8  ok
+ detect/ghc-errors               build/haskell                   default      379      127  66.5%  ██████▋         0/1     2.1  ok
+ build/kotlinc-errors            build/kotlin                    default      226      133  41.2%  ████▏             -     0.9  ok
+ detect/kotlinc-errors           build/kotlin                    default      226      133  41.2%  ████▏             -     1.4  ok
+ detect/unknown-tool-errors      build/generic                   default      490      416  15.1%  █▌                -     2.3  ok
+ adversarial/errors-in-prose     doc/text                        -            164      164   0.0%                    -     0.9  ok
+ test/ctest-fail                 test/ctest                      default      465      273  41.3%  ████▏           0/1     0.8  ok
+ detect/ctest-fail               test/ctest                      default      465      273  41.3%  ████▏           0/1     1.9  ok
+ test/gtest-fail                 test/gtest                      default      484       89  81.6%  ████████▏         -     1.8  ok
+ detect/gtest-fail               test/gtest                      default      484       89  81.6%  ████████▏         -     2.0  ok
+ test/sbt-test-fail              test/sbt                        default      434      218  49.8%  █████           0/2     0.8  ok
+ detect/sbt-test-fail            test/sbt                        default      434      218  49.8%  █████           0/2     1.8  ok
+ test/phpunit-fail               test/phpunit                    default      208      164  21.2%  ██▏             0/1     0.7  ok
+ test/swift-test-fail            test/swift                      default      469      117  75.1%  ███████▌          -     0.5  ok
+ detect/swift-test-fail          test/swift                      default      469      117  75.1%  ███████▌          -     1.8  ok
+ test/mix-test-fail              test/mix                        default      292      133  54.5%  █████▌          0/1     0.5  ok
+ detect/mix-test-fail            test/mix                        default      292      133  54.5%  █████▌          0/1     1.2  ok
+ test/unittest-fail              test/unittest                   default      552      111  79.9%  ████████          -     0.6  ok
+ detect/unittest-fail            test/unittest                   default      552      111  79.9%  ████████          -     1.9  ok
+ test/node-test-fail             test/tap                        default      628      144  77.1%  ███████▊          -     0.6  ok
+ detect/node-test-fail           test/tap                        default      628      144  77.1%  ███████▊          -     1.6  ok
+ test/playwright-fail            test/playwright                 default      517      171  66.9%  ██████▊         0/1     0.6  ok
+ detect/playwright-fail          test/playwright                 default      517      171  66.9%  ██████▊         0/1     1.5  ok
+ test/flutter-test-fail          test/dart                       default      652       80  87.7%  ████████▊         -     0.6  ok
+ detect/flutter-test-fail        test/dart                       default      652       80  87.7%  ████████▊         -     2.0  ok
+ trace/jvm-crash                 build/scala                     default      755      199  73.6%  ███████▍          -     0.5  ok
+ trace/rust-panic                doc/text                        default      476      198  58.4%  █████▉          0/5     2.0  ok
+ trace/node-crash                doc/text                        default      332      178  46.4%  ████▋           0/3     1.5  ok
+ trace/asan-uaf                  doc/text                        default     1425      409  71.3%  ███████▏        0/4     4.1  ok
+ pkg/composer-install            pkg/composer                    default      739      263  64.4%  ██████▌           -     0.5  ok
+ detect/composer-install         pkg/composer                    default      739      263  64.4%  ██████▌           -     1.4  ok
+ pkg/bundle-install              pkg/gem                         default      417      276  33.8%  ███▍            0/1     0.4  ok
+ detect/bundle-install           pkg/gem                         default      417      276  33.8%  ███▍            0/1     1.6  ok
+ pkg/dotnet-restore              pkg/nuget                       default     1002       95  90.5%  █████████      0/41     0.4  ok
+ detect/dotnet-restore           pkg/nuget                       default     1002       95  90.5%  █████████      0/41     3.2  ok
+ pkg/docker-pull                 pkg/docker                      default      297       90  69.7%  ███████         0/4     0.7  ok
+ detect/docker-pull              pkg/docker                      default      297       90  69.7%  ███████         0/4     0.7  ok
+ pkg/conda-install               pkg/conda                       default      494      272  44.9%  ████▌           1/0     0.4  ok
+ detect/conda-install            pkg/conda                       default      494      272  44.9%  ████▌           1/0     1.1  ok
+ pkg/nix-build-fail              pkg/nix                         default     2015      244  87.9%  ████████▊      0/38     0.6  ok
+ detect/nix-build-fail           pkg/nix                         default     2015      244  87.9%  ████████▊      0/38     0.9  ok
+ pkg/pub-get                     pkg/pub                         default      293      265   9.6%  █                 -     0.4  ok
+ detect/pub-get                  pkg/pub                         default      293      265   9.6%  █                 -     1.0  ok
+ pkg/swift-package-resolve       pkg/swift                       default     1090       54  95.0%  █████████▌     0/16     0.5  ok
+ detect/swift-package-resolve    pkg/swift                       default     1090       54  95.0%  █████████▌     0/16     3.7  ok
+ lock/yarn                       data/lock                       default     4097      338  91.8%  █████████▏    0/109     0.6  ok
+ detect/yarn-lock                data/lock                       default     4097      338  91.8%  █████████▏    0/109     0.8  ok
+ detect/go-sum                   data/lock                       default     2103      464  77.9%  ███████▊        2/4     0.5  ok
+ detect/gemfile-lock             data/lock                       default      775      315  59.4%  █████▉            -     0.4  ok
+ lock/pnpm                       data/lock                       default    77493     7014  90.9%  █████████▏    0/220    14.5  ok
+ lock/pubspec                    data/lock                       default     9556      957  90.0%  █████████     0/101     1.3  ok
+ lock/mix                        data/lock                       default     6298      343  94.6%  █████████▌     0/80     1.1  ok
+ lock/podfile                    data/lock                       default    24741     1719  93.1%  █████████▎    0/167     2.2  ok
+ lock/swift-resolved             data/lock                       default     1157       93  92.0%  █████████▎     0/31     0.9  ok
+ lock/bun                        data/lock                       default    27164     3100  88.6%  ████████▉      0/92     4.7  ok
+ build/gcc-template-real         build/gcc                       default      547      263  51.9%  █████▎            -     1.2  ok
+ build/clang-template-real       build/clang                     default      379      191  49.6%  █████             -     1.2  ok
+ cat/server.go                   fs/code                         default    42277    11420  73.0%  ███████▎      88/28    13.5  ok
+ cat/router.go                   fs/code                         default      854      854   0.0%                    -     0.2  ok
+ cat/args.go                     fs/code                         default     1372     1177  14.2%  █▍              0/2     0.8  ok
+ cat/decoder.py                  fs/code                         default     3645     2865  21.4%  ██▏             3/0     1.3  ok
+ cat/decoder-outline             fs/code                         default     3645      774  78.8%  ███████▉        3/0     1.2  ok
+ cat/benchmark.rb                fs/code                         default     6390     1746  72.7%  ███████▎          -     1.8  ok
+ cat/deep-eql.js                 fs/code                         default     4759     1041  78.1%  ███████▉        7/0     1.3  ok
+ cat/lru-rust-outline            fs/code                         default     1164      631  45.8%  ████▋             -     0.6  ok
+ cat/ring-cpp-outline            fs/code                         default      594      410  31.0%  ███▏              -     0.4  ok
+ cat/queue-scala-outline         fs/code                         default      462      410  11.3%  █▏                -     0.4  ok
+ cat/cache-d-outline             fs/code                         default      519      344  33.7%  ███▍              -     0.4  ok
+ detect/rust-code                fs/code                         default     1164     1134   2.6%  ▎                 -     4.3  ok
+ cat/cart-elixir-outline         fs/code                         default      586      398  32.1%  ███▎              -     0.5  ok
+ cat/cart-lua-outline            fs/code                         default      578      269  53.5%  █████▍            -     0.4  ok
+ cat/cart-haskell-outline        fs/code                         default      606      467  22.9%  ██▎               -     0.4  ok
+ cat/cart-clojure-outline        fs/code                         default      533      339  36.4%  ███▋              -     0.4  ok
+ cat/dump-sql                    doc/text                        default    17660     6378  63.9%  ██████▍           -    26.5  ok
+ detect/go-code                  fs/code                         default    42277    11420  73.0%  ███████▎      88/28    24.3  ok
+ npm/install                     pkg/npm                         default      318       76  76.1%  ███████▋        0/2     0.4  ok
+ npm/install-verbose             pkg/npm                         default    24655       76  99.7%  ██████████   8/1115     3.5  ok
+ npm/test-jest-fail              test/jest                       default      495      418  15.6%  █▌                -     1.7  ok
+ npm/tsc-errors                  build/tsc                       default      219      174  20.5%  ██              1/0     0.8  ok
+ detect/npm-verbose              pkg/npm                         default    24655       76  99.7%  ██████████   8/1115    11.7  ok
+ detect/jest                     test/jest                       default      495      418  15.6%  █▌                -     1.8  ok
+ nx/run-many-build               task/nx                         default     4352      330  92.4%  █████████▎     1/61     3.1  ok
+ nx/run-many-test                task/nx                         default     1216      313  74.3%  ███████▍       0/35     2.0  ok
+ detect/nx                       task/nx                         default     4352      330  92.4%  █████████▎     1/61     4.2  ok
+ bun/install-verbose             pkg/bun                         default     3605      154  95.7%  █████████▋        -     1.2  ok
+ bun/test-fail                   test/bun                        default     1027      209  79.6%  ████████          -     1.0  ok
+ detect/bun                      test/bun                        default     1027      209  79.6%  ████████          -     2.0  ok
+ json/github-repos               data/json                       default    42270     5183  87.7%  ████████▊     0/988     6.9  ok
+ json/package-lock               data/json                       default    65456    27475  58.0%  █████▊        0/845    14.3  ok
+ json/go-list-m                  data/json                       default     3193     1272  60.2%  ██████         0/33     1.4  ok
+ json/orders-query               data/json                       default    19800      256  98.7%  █████████▉        -     4.6  ok
+ log/structured                  log/kubectl                     default    26725      809  97.0%  █████████▊    0/285    13.2  ok
+ data/churn                      data/ipynb                      default    20144      896  95.6%  █████████▌    3/183     5.3  ok
+ data/catalog                    data/yaml                       default     4323     1595  63.1%  ██████▎           -     2.3  ok
+ data/compose                    data/yaml                       -             93       93   0.0%                    -     0.1  ok
+ data/orders-export              data/csv                        default    16029     1175  92.7%  █████████▎        -     2.7  ok
+ data/junit-report               test/junit                      default     3263      514  84.2%  ████████▍       3/0     1.9  ok
+ data/blog-feed                  data/xml                        default     4715     2279  51.7%  █████▏         0/42     1.2  ok
+ build/codeql                    build/sarif                     default    15590     1065  93.2%  █████████▍     1/38    15.9  ok
+ test/lcov                       test/coverage                   default     5818      285  95.1%  █████████▌      0/2     1.5  ok
+ test/go-cover-func              test/coverage                   default     1420      184  87.0%  ████████▊       0/4     0.8  ok
+ test/coverage-report            test/coverage                   default      848      142  83.3%  ████████▍      0/20     0.7  ok
+ detect/coverage-report          test/coverage                   default      848      142  83.3%  ████████▍      0/20     1.4  ok
+ test/pytest-cov-fail            test/pytest                     default     2080      602  71.1%  ███████▏       0/20     1.6  ok
+ test/jest-coverage              test/jest                       default     1291      203  84.3%  ████████▍         -     0.9  ok
+ data/Cargo                      data/toml                       default    14031     2222  84.2%  ████████▍     0/124     1.8  ok
+ detect/csv                      data/csv                        default    16029     1175  92.7%  █████████▎        -    22.7  ok
+ detect/xml                      data/xml                        default     4715     2279  51.7%  █████▏         0/42     2.1  ok
+ detect/junit                    test/junit                      default     3263      514  84.2%  ████████▍       3/0     2.3  ok
+ detect/json                     data/json                       default    42270     5183  87.7%  ████████▊     0/988     8.0  ok
+ html/go-dev-layout              doc/markdown                    default     9152     1972  78.5%  ███████▉       1/53     3.1  ok
+ html/go-dev-blog                doc/markdown                    default    10722     2020  81.2%  ████████▏      3/53     2.7  ok
+ detect/html                     doc/markdown                    default    10722     2020  81.2%  ████████▏      3/53     4.0  ok
+ web/browser-snapshot            web/aria                        default     6569     2601  60.4%  ██████         1/25     2.0  ok
+ web/websearch-opencode          web/search                      default      605      557   7.9%  ▊                 -     0.5  ok
+ log/app                         log/app                         default    52988     1099  97.9%  █████████▊   59/593    66.6  ok
+ log/mailer-base64               log/app                         default    14451      846  94.1%  █████████▍    0/139    12.1  ok
+ dense/curl-bundle               fs/code                         default    20300      821  96.0%  █████████▋        -    38.9  ok
+ log/sync-json-bodies            log/app                         default     5922      926  84.4%  ████████▍       0/1     1.8  ok
+ detect/log                      log/app                         default    52988     1099  97.9%  █████████▊   59/593    45.7  ok
+ log/journalctl                  log/journal                     default    11709     3800  67.5%  ██████▊        0/13    33.3  ok
+ log/nginx-access                log/access                      default    73148      436  99.4%  ██████████    0/510    21.6  ok
+ log/cloudwatch-events           log/cloudwatch                  default    34924      486  98.6%  █████████▉    1/234    19.4  ok
+ log/gcloud-logging              log/gcp                         default    14998     1254  91.6%  █████████▏    1/181     8.7  ok
+ log/az-activity-log             log/azure                       default    31205      273  99.1%  █████████▉    4/367    14.7  ok
+ log/kubectl-logs                log/kubectl                     default    23171     2159  90.7%  █████████▏    0/256    14.1  ok
+ log/docker-logs-postgres        log/docker                      default    11781      466  96.0%  █████████▋        -    11.8  ok
+ log/compose-logs                log/docker                      default     7367     1340  81.8%  ████████▏      0/22     6.3  ok
+ log/kubectl-logs-prefix         log/kubectl                     default    10493      807  92.3%  █████████▎    2/108     5.9  ok
+ detect/compose-logs             log/docker                      default     7367     1340  81.8%  ████████▏      0/22    20.9  ok
+ detect/kubectl-prefix           log/kubectl                     default    10493      807  92.3%  █████████▎    2/108    26.6  ok
+ log/dmesg                       log/dmesg                       default    22365     4172  81.3%  ████████▏       0/3    25.8  ok
+ detect/dmesg                    log/dmesg                       default    22365     4172  81.3%  ████████▏       0/3    25.4  ok
+ detect/syslog                   log/syslog                      default    11709     3800  67.5%  ██████▊        0/13    35.9  ok
+ detect/access                   log/access                      default    73148      436  99.4%  ██████████    0/510    51.6  ok
+ mixed/json-log-diff             data/json+log/app+vcs/git-diff  default    98688     8668  91.2%  █████████▏  60/1559    55.4  ok
+ adversarial/sha256sums          doc/text                        default     3262     3262   0.0%                    -     7.8  ok
+ adversarial/tickets             data/json                       default     2980      922  69.1%  ██████▉           -     1.2  ok
+ adversarial/tiny-fail           test/go                         -             42       42   0.0%                    -     0.2  ok
+ adversarial/diff-constants      vcs/git-diff                    default      566      495  12.5%  █▎              0/2     0.4  ok
+ adversarial/errors-near-dup     log/kubectl                     default     3410      819  76.0%  ███████▋          -     2.6  ok
+ adversarial/prose               doc/markdown                    default      261      261   0.0%                    -     0.3  ok
+ i18n/pytest-fail-ja             test/pytest                     default      489      450   8.0%  ▊                 -     0.8  ok
+ i18n/app-zh                     log/app                         default     5118      789  84.6%  ████████▌         -     3.5  ok
+ i18n/readme-ja                  doc/markdown                    default      875      675  22.9%  ██▎            0/10     0.9  ok
+ i18n/products-pl                data/json                       default     6114     1570  74.3%  ███████▍          -     1.3  ok
+ i18n/tsc-de                     build/tsc                       default     1014      378  62.7%  ██████▎        15/0     1.2  ok
+ search/git-grep                 search/git-grep                 default     1067     1067   0.0%                    -     0.5  ok
+ search/ag                       search/ag                       default     1740     1650   5.2%  ▌                 -     1.2  ok
+ table/ss-tuna                   table/ss                        default      469      469   0.0%                    -     0.2  ok
+ detect/ss-tuna                  table/ss                        default      469      469   0.0%                    -     1.4  ok
+ table/lsmod                     table/sys                       default     1674     1674   0.0%                    -     0.7  ok
+ table/aligned-sockets           table/aligned                   default      927      742  20.0%  ██              0/9     5.4  ok
+ db/mysql-grid                   db/mysql                        default     1627      596  63.4%  ██████▍           -     3.2  ok
+ table/boxed                     table/boxed                     default      707      402  43.1%  ████▍             -     2.7  ok
+ build/cppcheck                  build/cpplint                   default     2351     1356  42.3%  ████▎           4/0     2.8  ok
+ build/mix-compile               build/elixir                    default     1020      420  58.8%  █████▉            -     1.3  ok
+ build/cargo-fmt-check           build/fmt                       default     1152     1152   0.0%                    -     1.2  ok
+ build/shellcheck                build/lint                      default     1137      445  60.9%  ██████▏           -     1.8  ok
+ build/meson-compile             build/meson                     default     1588      213  86.6%  ████████▋      0/60     1.8  ok
+ build/phpstan                   build/php                       default      412      412   0.0%                    -     0.7  ok
+ pkg/deno-install                pkg/deno                        default      955        9  99.1%  █████████▉     0/85     0.7  ok
+ pkg/mix-deps-get                pkg/mix                         default      403      252  37.5%  ███▊              -     0.7  ok
+ pkg/mvn-dependency-tree         pkg/mvndeps                     default     3501     3313   5.4%  ▌                 -     2.1  ok
+ pkg/npm-ls-all                  pkg/tree                        default    17716     5949  66.4%  ██████▋           -     4.6  ok
+ pkg/npm-ls-all-query            pkg/tree                        default    17716     5996  66.2%  ██████▋           -     4.8  ok
+ pkg/pnpm-list-depth             pkg/tree                        default    11433     4671  59.1%  █████▉            -     3.4  ok
+ pkg/pipdeptree                  pkg/tree                        default     3371      815  75.8%  ███████▋          -     1.5  ok
+ pkg/uv-tree                     pkg/tree                        default     1135      693  38.9%  ███▉              -     0.9  ok
+ pkg/poetry-show-tree            pkg/tree                        default      941      767  18.5%  █▉                -     1.0  ok
+ pkg/go-mod-graph                pkg/gomodgraph                  default     2542     1534  39.7%  ████              -     0.8  ok
+ task/just-fail                  task/just                       default      289      141  51.2%  █████▏            -     0.9  ok
+ test/catch-fail                 test/catch                      -            148      148   0.0%                    -     0.6  ok
+ test/cypress-fail               test/cypress                    default      397      377   5.0%  ▌                 -     0.8  ok
+ test/dub-test                   test/dub                        default      472      433   8.3%  ▉                 -     0.6  ok
+ test/hspec-fail                 test/hspec                      default      334      101  69.8%  ███████           -     0.6  ok
+ test/karma-fail                 test/karma                      default     1512      130  91.4%  █████████▏      0/1     1.0  ok
+ test/minitest-fail              test/minitest                   -            176      176   0.0%                    -     0.2  ok
+ total                                                                    2367916   450559  81.0%  ████████▏            1635.4
+407 cases: 407 ok
+
+== Ext - needles in a haystack
+   Tests: External-style dataset: JSON arrays with planted errors/anomalies, small mixed tool outputs.
+   Means: Savings must not cost the facts you would ask about. A FAIL means a planted needle was compressed away.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                type        route    raw tok  out tok  saved              lost    ms  check
+ needle/00           data/json   default      888      323  63.6%  ██████▍        -   1.1  ok
+ needle/01           data/json   default      888      323  63.6%  ██████▍        -   0.6  ok
+ needle/02           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/03           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/04           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/05           data/json   default      888      323  63.6%  ██████▍        -   0.6  ok
+ needle/06           data/json   default      888      323  63.6%  ██████▍        -   0.5  ok
+ needle/07           data/json   default      888      323  63.6%  ██████▍        -   0.5  ok
+ needle/08           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/09           data/json   default      888      323  63.6%  ██████▍        -   0.5  ok
+ needle/10           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/11           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/12           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/13           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/14           data/json   default      888      323  63.6%  ██████▍        -   0.4  ok
+ needle/15           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/16           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/17           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/18           data/json   default      888      323  63.6%  ██████▍        -   0.9  ok
+ needle/19           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/20           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/21           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/22           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/23           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/24           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/25           data/json   default      888      323  63.6%  ██████▍        -   0.6  ok
+ needle/26           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/27           data/json   default      888      323  63.6%  ██████▍        -   0.9  ok
+ needle/28           data/json   default      888      323  63.6%  ██████▍        -   0.5  ok
+ needle/29           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/30           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/31           data/json   default      888      323  63.6%  ██████▍        -   0.6  ok
+ needle/32           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/33           data/json   default      888      323  63.6%  ██████▍        -   1.0  ok
+ needle/34           data/json   default      888      323  63.6%  ██████▍        -   0.6  ok
+ needle/35           data/json   default      888      323  63.6%  ██████▍        -   0.6  ok
+ needle/36           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/37           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/38           data/json   default      888      323  63.6%  ██████▍        -   0.6  ok
+ needle/39           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/40           data/json   default      888      323  63.6%  ██████▍        -   0.4  ok
+ needle/41           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ needle/42           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/43           data/json   default      888      323  63.6%  ██████▍        -   0.6  ok
+ needle/44           data/json   default      888      323  63.6%  ██████▍        -   0.4  ok
+ needle/45           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/46           data/json   default      888      323  63.6%  ██████▍        -   0.5  ok
+ needle/47           data/json   default      888      323  63.6%  ██████▍        -   0.6  ok
+ needle/48           data/json   default      888      323  63.6%  ██████▍        -   0.7  ok
+ needle/49           data/json   default      888      323  63.6%  ██████▍        -   0.8  ok
+ probe/00            data/json   default     1084      405  62.6%  ██████▎        -   0.8  ok
+ probe/01            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/02            data/json   default     1084      405  62.6%  ██████▎        -   0.8  ok
+ probe/03            data/json   default     1084      405  62.6%  ██████▎        -   0.9  ok
+ probe/04            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/05            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/06            data/json   default     1084      405  62.6%  ██████▎        -   0.5  ok
+ probe/07            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/08            data/json   default     1084      405  62.6%  ██████▎        -   0.8  ok
+ probe/09            data/json   default     1084      405  62.6%  ██████▎        -   0.5  ok
+ probe/10            data/json   default     1084      405  62.6%  ██████▎        -   0.6  ok
+ probe/11            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/12            data/json   default     1084      405  62.6%  ██████▎        -   0.8  ok
+ probe/13            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/14            data/json   default     1084      405  62.6%  ██████▎        -   0.6  ok
+ probe/15            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/16            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/17            data/json   default     1084      405  62.6%  ██████▎        -   0.8  ok
+ probe/18            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/19            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/20            data/json   default     1084      405  62.6%  ██████▎        -   0.4  ok
+ probe/21            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/22            data/json   default     1084      405  62.6%  ██████▎        -   0.9  ok
+ probe/23            data/json   default     1084      405  62.6%  ██████▎        -   0.5  ok
+ probe/24            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/25            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/26            data/json   default     1084      405  62.6%  ██████▎        -   0.6  ok
+ probe/27            data/json   default     1084      405  62.6%  ██████▎        -   0.8  ok
+ probe/28            data/json   default     1084      405  62.6%  ██████▎        -   0.7  ok
+ probe/29            data/json   default     1084      405  62.6%  ██████▎        -   0.8  ok
+ tool/github-search  data/json   default      301      150  50.2%  █████          -   0.6  ok
+ tool/k8s-events     k8s/events  -            163      163   0.0%                 -   0.4  ok
+ tool/traceback      doc/text    -            150      150   0.0%                 -   1.4  ok
+ tool/db-query       data/json   default      314      142  54.8%  █████▌         -   0.7  ok
+ tool/metrics        data/json   -            126      126   0.0%                 -   0.1  ok
+ tool/git-log        doc/text    default      283      283   0.0%                 -   1.4  ok
+ tool/aws-ec2        cloud/aws   default      353      141  60.1%  ██████         -   0.6  ok
+ tool/complex-api    data/json   default      252      123  51.2%  █████▏         -   0.3  ok
+ total                                      78862    29578  62.5%  ██████▎           60.7
+88 cases: 88 ok
+
+== Scale - big outputs, time limits
+   Tests: Generated outputs up to 2M tokens (logs, find, ndjson, csv).
+   Means: Savings hold at size and each case stays under its max_ms ceiling. A FAIL means a slowdown or a savings drop at volume.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                  type         route    raw tok  out tok   saved                  lost      ms  check
+ go-test-v-5000        test/go      default   103019       17  100.0%  ██████████         -    38.3  ok
+ go-test-fail-in-3000  test/go      default    61051       47   99.9%  ██████████         -    23.2  ok
+ go-build-errors-3000  build/go     default    60000     3395   94.3%  █████████▍  3000/270    48.1  ok
+ rg-matches-20000      search/rg    default   440000     6394   98.5%  █████████▉    0/1088    55.0  ok
+ find-paths-30000      fs/find      default   509001     6366   98.7%  █████████▉   0/29100    50.4  ok
+ ls-la-10000           fs/ls        default   228851     6381   97.2%  █████████▊         -    34.4  ok
+ app-log-50000         log/app      default  2049030      127  100.0%  ██████████         -  1092.6  ok
+ json-array-20000      data/json    default   538004      260  100.0%  ██████████         -   101.1  ok
+ ndjson-50000          data/ndjson  default  1349001      249  100.0%  ██████████         -   194.0  ok
+ csv-50000             data/csv     default  1047013      652   99.9%  ██████████         -   118.5  ok
+ minified-json-1mb     data/json    default   203005      145   99.9%  ██████████         -    51.4  ok
+ total                                       6587975    24033   99.6%  ██████████            1807.0
+11 cases: 11 ok
+
+== MCP - results of a fake MCP server
+   Tests: Fake-data tool results (issues, code hits, logs, rows, pages) fetched over the MCP protocol from cmd/mcpmock, through the mcp-proxy pipeline.
+   Means: MCP results shrink by the floor and small ones stay untouched. A FAIL means the proxy path lost savings or a fact on MCP output.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                    type         route    raw tok  out tok  saved               lost    ms  check
+ list-issues             data/json    default    10417     1678  83.9%  ████████▍   0/202   2.9  ok
+ search-code             search/grep  default     1849      786  57.5%  █████▊          -   7.1  ok
+ read-file               fs/code      default     2183     2183   0.0%                  -   5.6  ok
+ get-logs                log/app      default    10505      171  98.4%  █████████▉   0/40  26.6  ok
+ list-directory          doc/text     default      564      564   0.0%                  -   2.2  ok
+ query-rows              data/json    default     2279     1030  54.8%  █████▌          -   1.1  ok
+ get-page                doc/text     default      762      762   0.0%                  -   4.3  ok
+ small-result-untouched  data/json    -             12       12   0.0%                  -   0.1  ok
+ fetch-page-query        web/aria     default     6569     2601  60.4%  ██████       1/25   2.1  ok
+ total                                           35140     9787  72.1%  ███████▎           52.0
+9 cases: 9 ok
+
+== Live - real commands in this repo
+   Tests: go test, git log/diff, rg, find, ls, ... run now, not replayed.
+   Means: Catches stale fixtures: a wrong type or a savings drop here, while Fixtures still pass, means a tool changed its output shape. Missing tools are skipped.
+   Read:  saved = tokens removed (bar: 10 cells = 100%); lost = error lines/artifacts dropped, as errors/artifacts, held at the baseline; ms = optimize time.
+
+ case                                                                      type          route    raw tok  out tok  saved               lost    ms  check
+ go test -v -count=1 ./internal/compress/... ./internal/lazyre/ ./tokens/  test/go       default     9605      137  98.6%  █████████▉  0/105   5.5  ok
+ git log --stat -n 30                                                      vcs/git-log   default     8305     6271  24.5%  ██▌             -   3.5  ok
+ git diff 9552750 eb1ebb5 -- cmd/gascoigne                                 vcs/git-diff  default     4381     3124  28.7%  ██▉          2/24   1.7  ok
+ rg -n "func " internal/compress/                                          search/rg     default    10251     7438  27.4%  ██▊           2/0   4.1  ok
+ grep -rn "func New" --include=*.go optimizer/                             search/grep   default      574      574   0.0%                  -   0.4  ok
+ find . -name "*.go" -not -path "./.git/*"                                 fs/find       default     5160     2259  56.2%  █████▋       0/86   1.7  ok
+ ls -la cmd/gascoigne                                                      fs/ls         default     2444      545  77.7%  ███████▊        -   1.4  ok
+ tree -L 2 optimizer                                                                                                                                skip: not installed
+ du -ah optimizer | sort -h                                                fs/du         default     2455      202  91.8%  █████████▏  0/156   0.8  ok
+ df -h                                                                     fs/df         default      329      161  51.1%  █████▏        0/4   0.6  ok
+ ps aux                                                                    table/ps      default    32583     1537  95.3%  █████████▌  4/202   6.1  ok
+ cat cmd/gascoigne/eval.go                                                 fs/code       default     6313     1671  73.5%  ███████▍     23/1   2.4  ok
+ go list -m -json all                                                      data/json     default     5779     1335  76.9%  ███████▊     0/80   1.8  ok
+ kubectl get pods -A                                                                                                                                skip: not installed
+ total                                                                                              88179    25254  71.4%  ███████▏           29.9
+12 cases: 12 ok, 2 skipped (tool not installed)
+
+== Ledger - bookkeeping speed
+   Tests: Go benchmarks: rollup and Stats on a seeded 20k-run ledger.
+   Means: Not pass/fail; compare ns/op between runs to spot regressions in the dashboard's data path.
+   Read:  ns/op = time per operation, lower is better.
+
+goos: linux
+goarch: amd64
+pkg: github.com/gascoigne-ai/gascoigne-cli/extension/ledger
+cpu: AMD Ryzen 7 9800X3D 8-Core Processor           
+BenchmarkRollUp-16    	       3	  87390644 ns/op
+BenchmarkStats/rolled=false/day-16         	       3	  21424646 ns/op
+BenchmarkStats/rolled=false/month-16       	       3	  19026176 ns/op
+BenchmarkStats/rolled=false/command-16     	       3	  12944437 ns/op
+BenchmarkStats/rolled=false/agent-16       	       3	   8632026 ns/op
+BenchmarkStats/rolled=false/optimizer-16   	       3	   8444972 ns/op
+BenchmarkStats/rolled=false/dialect-16     	       3	   7765133 ns/op
+BenchmarkStats/rolled=false/session-16     	       3	  10738824 ns/op
+BenchmarkStats/rolled=true/day-16          	       3	  14987249 ns/op
+BenchmarkStats/rolled=true/month-16        	       3	  18053694 ns/op
+BenchmarkStats/rolled=true/command-16      	       3	  13380658 ns/op
+BenchmarkStats/rolled=true/agent-16        	       3	   9985576 ns/op
+BenchmarkStats/rolled=true/optimizer-16    	       3	   7837650 ns/op
+BenchmarkStats/rolled=true/dialect-16      	       3	   7969911 ns/op
+BenchmarkStats/rolled=true/session-16      	       3	   5780562 ns/op
+PASS
+ok  	github.com/gascoigne-ai/gascoigne-cli/extension/ledger	1.752s
+
+Summary
+  fixtures  ok
+  ext       ok
+  scale     ok
+  mcp       ok
+  live      ok
+  ledger    ok

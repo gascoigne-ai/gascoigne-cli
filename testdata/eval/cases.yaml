@@ -1177,6 +1177,8 @@
 - { name: detect/ss-tuna, file: table/ss-tuna.txt, expect_type: table/ss }
 - { name: table/lsmod, file: table/lsmod.txt, attrs: { cmd: lsmod }, expect_type: table/sys, keep: ["Module"] }
 - { name: table/aligned-sockets, file: table/systemctl-sockets.txt, expect_type: table/aligned, keep: ["LISTEN", "systemd-journald.socket"], min_saved: 18 }
+- { name: table/make-eval, file: table/make-eval.txt, attrs: { cmd: make eval }, expect_type: table/eval, keep: ["== Fixtures", "total", "Summary", "ledger    ok"], min_saved: 70 }
+- { name: detect/make-eval, file: table/make-eval.txt, expect_type: table/eval }
 - { name: db/mysql-grid, file: table/mysql-grid.txt, expect_type: db/mysql, keep: ["customer", "60 rows in set"], min_saved: 57 }
 - { name: table/boxed, file: table/box-unicode.txt, expect_type: table/boxed, keep: ["SERVICE", "worker"], min_saved: 38 }
 - { name: build/cppcheck, file: build/cppcheck.txt, attrs: { cmd: cppcheck --enable=all src }, expect_type: build/cpplint, keep: ["uninitMemberVar", "unusedFunction"], min_saved: 38 }

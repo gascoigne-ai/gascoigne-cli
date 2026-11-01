@@ -16,6 +16,7 @@ const (
 	DockerPS  = "table/docker" // docker/podman ps, images, volume/network ls
 	Aligned   = "table/aligned"
 	Boxed     = "table/boxed"
+	Eval      = "table/eval" // gascoigne eval report: a row per case, a check column
 )
 
 func init() {
@@ -29,6 +30,7 @@ func init() {
 		Spec{Type: DockerPS, Cmds: []string{"docker ps", "docker images", "docker image ls", "docker container ls", "docker volume ls", "docker network ls",
 			"podman ps", "podman images", "docker compose ps", "docker stats", "podman stats", "nerdctl ps", "nerdctl images", "crictl ps", "crictl images"}, Priority: 60,
 			Sniff: firstLine(`^(CONTAINER ID\s+IMAGE|CONTAINER ID\s+NAME\s+CPU %|REPOSITORY\s+TAG\s+IMAGE ID|DRIVER\s+VOLUME NAME|NETWORK ID\s+NAME|NAME\s+IMAGE\s+COMMAND\s+SERVICE)`)},
+		Spec{Type: Eval, Refines: []string{Make}, Priority: 45, Sniff: anyLine(`^\s*case\s{2,}type\s{2,}.*\bout tok\s.*\scheck\s*$`)},
 		Spec{Type: Boxed, Priority: 61, Sniff: all(anyLine(`^\s*[+┌╔][-─═]{3,}`), ratio(`[|│]`, 0.6))},
 		Spec{Type: Aligned, Priority: 85, Sniff: alignedTable},
 	)

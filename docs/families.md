@@ -176,6 +176,7 @@ query matches and both ends stay.
 | `table/docker` | `docker ps/images/volume ls/network ls/stats`, `podman ps/stats`, `nerdctl ps`, `crictl ps` |
 | `table/sys` | `lsblk`, `lsmod`, `w` |
 | `table/aligned`, `table/boxed` | any aligned or box-drawn table (sniffed) |
+| `table/eval` | `gascoigne eval` report, also under `make eval` (header `case  type … out tok … check`): rows that are `ok` fold to `… N ok` per table; failing and skipped rows, totals and the text between tables stay (`make eval`: 19,485 → 1,345) |
 
 `ps aux`: 12,762 → 1,473 (88.5%). `lsof`: 10,471 → 1,385 (86.8%).
 

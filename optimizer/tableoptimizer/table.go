@@ -23,6 +23,9 @@ type Optimizer struct {
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	query := sample.Terms(p.Attrs[payload.AttrQuery])
 	return p.RewriteFamily(func(b payload.Block) (string, error) {
+		if b.Type == detect.Eval {
+			return compress.Join(table.FoldReport(compress.CleanLines(b.Text))), nil
+		}
 		t, ok := table.Parse(compress.CleanLines(b.Text))
 		if !ok {
 			p.Set(payload.AttrSkip, "table: no table found")

@@ -192,6 +192,7 @@ var sniffFixtures = map[string]string{
 	"table/docker":    "table/docker-ps.txt",
 	"table/lsof":      "table/lsof.txt",
 	"table/ps":        "table/ps-aux.txt",
+	"table/eval":      "table/make-eval.txt",
 	"table/ss":        "table/ss-tuna.txt",
 	"table/systemctl": "table/systemctl-units.txt",
 	"table/top":       "table/top.txt",
