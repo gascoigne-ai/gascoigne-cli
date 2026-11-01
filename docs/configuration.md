@@ -251,7 +251,8 @@ rows, query matches) and mark every gap.
 | | `min_frames` | 3 | Shortest run of runtime or framework frames shown as a count. |
 | `rerun` | `max_age`, `runs` | 20m, 3 | A re-run in the same session folds lines the last runs showed into a pointer. |
 | | `min_lines`, `min_chars` | 4, 200 | Smallest run folded. |
-| `pkg`, `task` | — | | No options. |
+| `pkg` | `tree_depth` | 5 | Dependency trees: packages deeper than this are counted, not listed; packages leading to a query term stay. |
+| `task` | — | | No options. |
 
 #### The JSON crusher (`json`, and `json:` under `data`, `cloud`, `http`)
 

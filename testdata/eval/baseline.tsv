@@ -377,6 +377,13 @@ build/phpstan	412	0	0
 pkg/deno-install	9	0	85
 pkg/mix-deps-get	252	0	0
 pkg/mvn-dependency-tree	3313	0	0
+pkg/npm-ls-all	5949	0	0
+pkg/npm-ls-all-query	5996	0	0
+pkg/pnpm-list-depth	4671	0	0
+pkg/pipdeptree	815	0	0
+pkg/uv-tree	693	0	0
+pkg/poetry-show-tree	767	0	0
+pkg/go-mod-graph	1534	0	0
 task/just-fail	141	0	0
 test/catch-fail	148	0	0
 test/cypress-fail	377	0	0

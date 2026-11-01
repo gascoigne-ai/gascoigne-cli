@@ -1,0 +1,171 @@
+[repeats (deduped) omitted. name alone: the version listed first]
+Legend: production dependency, optional only, dev only
+
+shop-web@1.0.0 /srv/shop-web (PRIVATE): dependencies:
+  eslint@9.39.5: @eslint-community/regexpp@4.12.2, @eslint/js@9.39.5, @humanwhocodes/module-importer@1.0.1,
+      @humanwhocodes/retry@0.4.3, @types/estree@1.0.10, escape-string-regexp@4.0.0, eslint-visitor-keys@4.2.1,
+      esutils@2.0.3, fast-deep-equal@3.1.3, ignore@5.3.2, imurmurhash@0.1.4,
+      json-stable-stringify-without-jsonify@1.0.1, lodash.merge@4.6.2, natural-compare@1.4.0
+    @eslint-community/eslint-utils@4.10.1: eslint@9.39.5 peer, eslint-visitor-keys@3.4.3
+    @eslint/config-array@0.21.2: @eslint/object-schema@2.1.7
+      debug@4.4.3: ms@2.1.3
+      minimatch@3.1.5: brace-expansion@1.1.21
+    @eslint/config-helpers@0.4.2
+      @eslint/core@0.17.0: @types/json-schema@7.0.15
+    @eslint/core
+    @eslint/eslintrc@3.3.7: globals@14.0.0, ignore, strip-json-comments@3.1.1
+      ajv@6.15.0: fast-deep-equal, fast-json-stable-stringify@2.1.0, json-schema-traverse@0.4.1, uri-js@4.4.1
+      espree@10.4.0: acorn@8.19.0, acorn-jsx@5.3.2, eslint-visitor-keys@4.2.1
+      import-fresh@3.3.1: parent-module@1.0.1, resolve-from@4.0.0
+      js-yaml@4.3.2: argparse@2.0.1
+    @eslint/plugin-kit@0.4.1
+      levn@0.4.1: prelude-ls@1.2.1, type-check@0.4.0
+    @humanfs/node@0.16.8: @humanfs/types@0.15.0, @humanwhocodes/retry
+      @humanfs/core@0.19.2: @humanfs/types
+    ajv@6.15.0
+    chalk@4.1.2
+      ansi-styles@4.3.0: color-convert@2.0.1
+      supports-color@7.2.0: has-flag@4.0.0
+    cross-spawn@7.0.6: path-key@3.1.1
+      shebang-command@2.0.0: shebang-regex@3.0.0
+      which@2.0.2: isexe@2.0.0
+    debug
+    eslint-scope@8.4.0: estraverse@5.3.0
+      esrecurse@4.3.0: estraverse
+    espree
+    esquery@1.7.0: estraverse
+    file-entry-cache@8.0.0
+      flat-cache@4.0.1: flatted@3.4.4, keyv@4.5.4
+    find-up@5.0.0: path-exists@4.0.0
+      locate-path@6.0.0: p-locate@5.0.0
+    glob-parent@6.0.2
+      is-glob@4.0.3: is-extglob@2.1.1
+    is-glob
+    minimatch
+    optionator@0.9.4: deep-is@0.1.4, fast-levenshtein@2.0.6, prelude-ls, word-wrap@1.2.5
+      type-check: prelude-ls
+  express@5.3.0: content-disposition@2.0.1, content-type@2.1.0, cookie@0.7.2, cookie-signature@1.2.2,
+      depd@2.0.0, encodeurl@2.0.1, escape-html@1.0.3, etag@1.8.1, fresh@2.0.0, merge-descriptors@2.0.0,
+      parseurl@1.3.3, range-parser@1.3.0, statuses@2.0.2, vary@1.1.2
+    accepts@2.0.0
+      mime-types@3.0.2: mime-db@1.54.0
+      negotiator@1.1.0: content-type
+    body-parser@2.4.0: bytes@3.1.2, content-type
+      http-errors@2.0.1: depd, inherits@2.0.4, setprototypeof@1.2.0, statuses, toidentifier@1.0.1
+      iconv-lite@0.7.3: safer-buffer@2.1.2
+      on-finished@2.4.2: ee-first@1.1.1
+      qs@6.17.1: es-define-property@1.0.1, side-channel@1.1.1
+      raw-body@3.0.2: bytes, http-errors, iconv-lite, unpipe@1.0.0
+      type-is@2.1.0: content-type, media-typer@1.1.1, mime-types
+    finalhandler@2.1.1: encodeurl, escape-html, parseurl, statuses
+    http-errors
+    mime-types
+    on-finished
+    once@1.4.0: wrappy@1.0.2
+    proxy-addr@2.0.8: forwarded@0.2.0, ipaddr.js@1.9.1
+    qs
+    router@2.2.0: depd, is-promise@4.0.0, parseurl, path-to-regexp@8.4.2
+    send@1.2.1: encodeurl, escape-html, etag, fresh, ms, range-parser, statuses
+    serve-static@2.2.1: encodeurl, escape-html, parseurl, send
+    type-is
+  jest@30.5.2
+    @jest/core@30.5.2: chalk, ci-info@4.4.0, exit-x@0.2.2, fast-json-stable-stringify, graceful-fs@4.2.11,
+        jest-regex-util@30.5.0, slash@3.0.0
+      @jest/console@30.5.2: @jest/types@30.5.1, @types/node@26.6.6, chalk, jest-message-util@30.5.1,
+          jest-util@30.5.1, slash
+      @jest/pattern@30.5.0: @types/node, jest-regex-util
+      @jest/reporters@30.5.2: @bcoe/v8-coverage@0.2.3, @jest/console, @jest/test-result@30.5.2,
+          @jest/transform@30.5.2, @jest/types, @jridgewell/trace-mapping@0.3.31, @types/node, chalk,
+          collect-v8-coverage@1.0.3, exit-x, glob@13.0.6, graceful-fs, istanbul-lib-coverage@3.2.2,
+          istanbul-lib-instrument@6.0.3, istanbul-lib-report@3.0.1, istanbul-lib-source-maps@5.0.6,
+          istanbul-reports@3.2.0, jest-message-util, jest-util, jest-worker@30.5.1, slash, string-length@4.0.2,
+          v8-to-istanbul@9.3.0
+      @jest/test-result: @jest/console, @jest/types, @types/istanbul-lib-coverage@2.0.6, collect-v8-coverage
+      @jest/transform: @babel/core@7.29.7, @jest/types, @jridgewell/trace-mapping, babel-plugin-istanbul@8.0.0,
+          chalk, convert-source-map@2.0.0, fast-json-stable-stringify, graceful-fs, jest-haste-map@30.5.1,
+          jest-regex-util, jest-util, pirates@4.0.7, slash, write-file-atomic@5.0.1
+      @jest/types: @jest/pattern, @jest/schemas@30.5.0, @types/istanbul-lib-coverage,
+          @types/istanbul-reports@3.0.4, @types/node, @types/yargs@17.0.35, chalk
+      @types/node: undici-types@8.9.0
+      ansi-escapes@4.3.2: type-fest@0.21.3
+      jest-changed-files@30.5.1: execa@5.1.1, jest-util, p-limit@3.1.0
+      jest-config@30.5.2: @babel/core, @jest/get-type@30.5.0, @jest/pattern, @jest/test-sequencer@30.5.2,
+          @jest/types, @types/node@26.6.6 peer, babel-jest@30.5.2, chalk, ci-info, deepmerge@4.3.1, glob,
+          graceful-fs, jest-circus@30.5.2, jest-docblock@30.5.0, jest-environment-node@30.5.2, jest-regex-util,
+          jest-resolve@30.5.1, jest-runner@30.5.2, jest-util, jest-validate@30.5.1, parse-json@5.2.0,
+          pretty-format@30.5.1, slash, strip-json-comments
+      jest-haste-map: @jest/types, @parcel/watcher@2.6.0, @types/node, anymatch@3.1.3, fb-watchman@2.0.4,
+          fdir@6.5.0, graceful-fs, jest-regex-util, jest-util, jest-worker@30.5.1, picomatch@4.0.7
+      jest-message-util: @babel/code-frame@7.29.7, @jest/types, @types/stack-utils@2.0.3, chalk, graceful-fs,
+          jest-util, picomatch, pretty-format, slash, stack-utils@2.0.6
+      jest-resolve: chalk, graceful-fs, jest-haste-map, jest-util, jest-validate, slash, unrs-resolver@1.13.0
+      jest-resolve-dependencies@30.5.2: jest-regex-util, jest-snapshot@30.5.2
+      jest-runner: @jest/console, @jest/environment@30.5.2, @jest/source-map@30.5.2, @jest/test-result,
+          @jest/transform, @jest/types, @types/node, chalk, emittery@0.13.1, exit-x, graceful-fs,
+          jest-docblock, jest-environment-node, jest-haste-map, jest-leak-detector@30.5.1, jest-message-util,
+          jest-resolve, jest-runtime@30.5.2, jest-util, jest-watcher@30.5.2, jest-worker@30.5.1, p-limit
+      jest-runtime: @jest/environment, @jest/fake-timers@30.5.2, @jest/globals@30.5.2, @jest/source-map,
+          @jest/test-result, @jest/transform, @jest/types, @types/node, chalk, cjs-module-lexer@2.3.0,
+          collect-v8-coverage, es-module-lexer@2.3.2, glob, graceful-fs, jest-haste-map, jest-message-util,
+          jest-mock@30.5.2, jest-regex-util, jest-resolve, jest-snapshot, jest-util, slash, strip-bom@4.0.0
+      jest-snapshot: @babel/core, @babel/generator@7.29.12, @babel/plugin-syntax-jsx@7.29.7,
+          @babel/plugin-syntax-typescript@7.29.7, @babel/types@7.29.11, @jest/expect-utils@30.5.2,
+          @jest/get-type, @jest/snapshot-utils@30.5.1, @jest/transform, @jest/types,
+          babel-preset-current-node-syntax@1.2.0, chalk, expect@30.5.2, graceful-fs, jest-diff@30.5.2,
+          jest-matcher-utils@30.5.2, jest-message-util, jest-util, pretty-format, semver@7.8.5,
+          synckit@0.11.13
+      jest-util: @jest/types, @types/node, chalk, ci-info, graceful-fs, picomatch
+      jest-validate: @jest/get-type, @jest/types, camelcase@6.3.0, chalk, leven@3.1.0, pretty-format
+      jest-watcher: @jest/test-result, @jest/types, @types/node, ansi-escapes, chalk, emittery, jest-util,
+          string-length
+      pretty-format: @jest/schemas, ansi-styles@5.2.0, @jest/react-is-18@npm:react-is@18.3.1,
+          @jest/react-is-19@npm:react-is@19.3.1
+    @jest/types
+    import-local@3.2.0
+      pkg-dir@4.2.0: find-up@4.1.0
+      resolve-cwd@3.0.0: resolve-from@5.0.0
+    jest-cli@30.5.2: @jest/core, exit-x, import-local
+      yargs@17.7.3: cliui@8.0.1, escalade@3.2.0, get-caller-file@2.0.5, require-directory@2.1.1,
+          string-width@4.2.3, y18n@5.0.8, yargs-parser@21.1.1
+  webpack@5.112.2: @types/estree, @types/json-schema, chrome-trace-event@1.0.4, es-module-lexer, events@3.3.0,
+      graceful-fs, mime-db, tapable@2.3.3, webpack-sources@3.7.0
+    @webassemblyjs/ast@1.14.1: @webassemblyjs/helper-wasm-bytecode@1.13.2
+      @webassemblyjs/helper-numbers@1.13.2: @webassemblyjs/floating-point-hex-parser@1.13.2,
+          @webassemblyjs/helper-api-error@1.13.2, @xtuc/long@4.2.2
+    @webassemblyjs/wasm-edit@1.14.1: @webassemblyjs/ast, @webassemblyjs/helper-buffer@1.14.1,
+        @webassemblyjs/helper-wasm-bytecode
+      @webassemblyjs/helper-wasm-section@1.14.1: @webassemblyjs/ast, @webassemblyjs/helper-buffer,
+          @webassemblyjs/helper-wasm-bytecode, @webassemblyjs/wasm-gen@1.14.1
+      @webassemblyjs/wasm-gen: @webassemblyjs/ast, @webassemblyjs/helper-wasm-bytecode,
+          @webassemblyjs/ieee754@1.13.2, @webassemblyjs/leb128@1.13.2, @webassemblyjs/utf8@1.13.2
+      @webassemblyjs/wasm-opt@1.14.1: @webassemblyjs/ast, @webassemblyjs/helper-buffer,
+          @webassemblyjs/wasm-gen, @webassemblyjs/wasm-parser@1.14.1
+      @webassemblyjs/wasm-parser: @webassemblyjs/ast, @webassemblyjs/helper-api-error,
+          @webassemblyjs/helper-wasm-bytecode, @webassemblyjs/ieee754, @webassemblyjs/leb128,
+          @webassemblyjs/utf8
+      @webassemblyjs/wast-printer@1.14.1: @webassemblyjs/ast, @xtuc/long
+    @webassemblyjs/wasm-parser
+    browserslist@4.29.5: baseline-browser-mapping@2.11.34, caniuse-lite@1.0.30001820,
+        electron-to-chromium@1.5.472, node-releases@2.0.63
+      update-browserslist-db@1.3.4: browserslist@4.29.5 peer, escalade, picocolors@1.1.1
+    enhanced-resolve@5.26.0: graceful-fs, tapable
+    minimizer-webpack-plugin@5.14.0: webpack@5.112.2 peer
+      jest-worker@27.5.1: @types/node, merge-stream@2.0.0, supports-color@8.1.1
+      schema-utils@4.8.2: @types/json-schema, ajv@8.20.0, ajv-formats@3.0.1, ajv-keywords@5.1.0, webpack peer
+      terser@5.51.2: @jridgewell/source-map@0.3.11, acorn, commander@2.20.3, source-map-support@0.5.21
+    schema-utils
+    watchpack@2.6.3: graceful-fs
+    webpack-cli@6.0.1 peer: @discoveryjs/json-ext@0.6.3, colorette@2.0.20, commander@12.1.0, cross-spawn,
+        envinfo@7.21.0, fastest-levenshtein@1.0.16, interpret@3.1.1, webpack peer
+      @webpack-cli/configtest@3.0.1: webpack peer, webpack-cli peer
+      @webpack-cli/info@3.0.1: webpack peer, webpack-cli peer
+      @webpack-cli/serve@3.0.1: webpack peer, webpack-cli peer
+      rechoir@0.8.0: resolve@1.22.13
+      webpack-merge@6.0.1: clone-deep@4.0.1, flat@5.0.2, wildcard@2.0.1
+  webpack-cli@6.0.1: @discoveryjs/json-ext, @webpack-cli/configtest, @webpack-cli/info, @webpack-cli/serve,
+      colorette, commander@12.1.0, envinfo, fastest-levenshtein, interpret, rechoir, webpack-merge
+    webpack peer: @types/estree, @types/json-schema, @webassemblyjs/wasm-edit, browserslist,
+        chrome-trace-event, enhanced-resolve, es-module-lexer, events, graceful-fs, mime-db,
+        minimizer-webpack-plugin, tapable, watchpack, webpack-cli peer, webpack-sources
+
+747 packages

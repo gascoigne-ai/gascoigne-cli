@@ -1155,7 +1155,14 @@
 - { name: pkg/deno-install, file: pkg/deno-install.txt, attrs: { cmd: deno install }, expect_type: pkg/deno, min_saved: 89 }
 - { name: pkg/mix-deps-get, file: pkg/mix-deps-get.txt, attrs: { cmd: mix deps.get }, expect_type: pkg/mix, keep: ["phoenix"], min_saved: 33 }
 - { name: pkg/mvn-dependency-tree, file: pkg/mvn-dependency-tree.txt, attrs: { cmd: mvn dependency:tree }, expect_type: pkg/mvndeps, keep: ["spring-boot-starter-web"], min_saved: 4 }
-- { name: task/just-fail, file: task/just-fail.txt, attrs: { cmd: just build }, expect_type: task/just, keep: ["E0308", "src/routes/orders.rs", "Recipe `build` failed"], min_saved: 46 }
+- { name: pkg/npm-ls-all, file: pkg/npm-ls-all.txt, attrs: { cmd: npm ls --all }, expect_type: pkg/tree, keep: ["wrappy@1.0.2", "@webassemblyjs/leb128@1.13.2", "UNMET OPTIONAL DEPENDENCY jiti@*", "argparse@3.0.4 extraneous"], min_saved: 60 }
+- { name: pkg/npm-ls-all-query, file: pkg/npm-ls-all.txt, attrs: { cmd: npm ls --all, query: jackspeak }, expect_type: pkg/tree, keep: ["jackspeak@3.4.3", "glob@10.5.0", "test-exclude@7.0.2"], min_saved: 60 }
+- { name: pkg/pnpm-list-depth, file: pkg/pnpm-list-depth.txt, attrs: { cmd: pnpm list --depth 3 }, expect_type: pkg/tree, keep: ["brace-expansion@1.1.21", "747 packages", "webpack@5.112.2 peer"], min_saved: 55 }
+- { name: pkg/pipdeptree, file: pkg/pipdeptree.txt, attrs: { cmd: pipdeptree }, expect_type: pkg/tree, keep: ["celery==5.6.3", "pycparser 3.12", "s3transfer 0.19.3"], min_saved: 70 }
+- { name: pkg/uv-tree, file: pkg/uv-tree.txt, attrs: { cmd: uv tree }, expect_type: pkg/tree, keep: ["uvicorn[standard] v0.54.0", "websockets v17.4 (extra: standard)", "ruff v0.17.3 (group: dev)"], min_saved: 35 }
+- { name: pkg/poetry-show-tree, file: pkg/poetry-show-tree.txt, attrs: { cmd: poetry show --tree }, expect_type: pkg/tree, keep: ["celery 5.6.3", "wcwidth >=0.1.4"], min_saved: 15 }
+- { name: pkg/go-mod-graph, file: pkg/go-mod-graph.txt, attrs: { cmd: go mod graph }, expect_type: pkg/gomodgraph, keep: ["github.com/ebitengine/purego@v0.11.1"], min_saved: 35 }
+- { name: task/just-fail,file: task/just-fail.txt, attrs: { cmd: just build }, expect_type: task/just, keep: ["E0308", "src/routes/orders.rs", "Recipe `build` failed"], min_saved: 46 }
 - { name: test/catch-fail, file: test/catch-fail.txt, attrs: { cmd: ./build/tests }, expect_type: test/catch, keep: ["REQUIRE( cart.total() == 90 )", "1 failed"] }
 - { name: test/cypress-fail, file: test/cypress-fail.txt, attrs: { cmd: npx cypress run }, expect_type: test/cypress, keep: ["applies a coupon", "cart.cy.ts:23:8"], min_saved: 4 }
 - { name: test/dub-test, file: test/dub-test.txt, attrs: { cmd: dub test }, expect_type: test/dub, keep: ["AssertError@source/shop/cart.d(87)"], min_saved: 7 }

@@ -1,0 +1,43 @@
+[repeats (deduped) omitted. name alone: the version listed first]
+boto3==1.43.123: jmespath 1.1.0, s3transfer 0.19.3
+  botocore 1.43.123: jmespath, urllib3 2.8.0
+    python-dateutil 2.9.0.post0: six 1.17.0
+celery==5.6.3: billiard 4.3.1, click 8.5.0, python-dateutil, tzlocal 5.4.5, vine 5.1.0
+  click-didyoumean 0.3.1: click
+  click-plugins 1.1.1.2: click
+  click-repl 0.4.1: click, typing_extensions 4.16.0
+    prompt_toolkit 3.0.53: wcwidth 0.9.4
+  kombu 5.6.2: packaging 26.3, tzdata 2026.6, vine
+    amqp 5.4.1: vine
+Django==6.1.2: asgiref 3.13.0, sqlparse 0.6.0
+pandas==3.1.0: numpy 2.5.4, python-dateutil
+pip==26.2.2
+pipdeptree==4.2.13
+  nab 0.0.23: nab-resolver 0.0.23, tomli 2.5.0, typing_extensions
+    nab-index 0.0.23: nab-resolver, packaging, truststore 0.10.5, typing_extensions, urllib3
+      nab-provider 0.0.23: nab-resolver, typing_extensions
+        nab-markersets 0.0.23: nab-resolver
+    nab-project 0.0.23: installer 1.1.0, nab-resolver, packaging, pyproject_hooks 1.3.3, tomli, tomli_w 1.2.0,
+        typing_extensions
+      build 1.6.1: packaging, pyproject_hooks
+poetry==2.5.1: build, fastjsonschema 2.22.2, installer, packaging, pkginfo 1.13.3, platformdirs 4.14.2,
+    poetry-core 2.5.0, pyproject_hooks, requests-toolbelt 1.0.0, shellingham 1.5.4, tomlkit 0.15.2,
+    trove-classifiers 2026.9.21.13
+  CacheControl 0.14.4: filelock 4.2.6 (extra: filecache), msgpack 1.2.4
+    requests 2.34.2: certifi 2026.10.23, charset-normalizer 3.5.2, idna 3.20, urllib3
+  cleo 2.1.0: crashtest 0.4.1, RapidFuzz 3.14.6
+  dulwich 1.2.20: urllib3
+  findpython 0.8.0: packaging, platformdirs
+  keyring 25.7.0: jaraco.context 6.1.2, jeepney 0.9.0
+    jaraco.classes 3.4.0: more-itertools 11.2.1
+    jaraco.functools 4.6.0: more-itertools
+    SecretStorage 3.5.0: jeepney
+      cryptography 50.0.2
+        cffi 2.1.1: pycparser 3.12
+  pbs-installer 2026.10.25
+    httpx2 2.16.0 (extra: download): idna, truststore
+      anyio 4.15.1: idna, typing_extensions
+      httpcore2 2.16.0: h11 0.16.0, truststore
+  virtualenv 21.15.2: distlib 0.4.4, filelock 4.2.6, packaging, platformdirs
+    python-discovery 1.9.0: filelock
+uv==0.13.6

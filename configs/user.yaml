@@ -124,7 +124,8 @@
 #     clean_min_tokens: 800                       ## smaller files untouched
 #     outline_min_tokens: 4000                    ## bigger files outlined
 #     min_body: 4                                 ## shorter bodies kept in outlines
-#   pkg: {}
+#   pkg:
+#     tree_depth: 5                               ## dependency trees: deeper packages are counted, query matches stay
 #   table:
 #     max_rows: 30                                ## unhealthy rows, anomalies, matches and ends stay
 #     max_cell: 60

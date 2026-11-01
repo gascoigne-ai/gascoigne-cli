@@ -23,5 +23,8 @@ func init() {
 			Sniff: `^(copying path '/nix/store|building '/nix/store/\S+\.drv'|these \d+ (derivations|paths) will be (built|fetched))`, Sample: "these 3 derivations will be built:\n  /nix/store/abc-shop.drv\nbuilding '/nix/store/abc-shop.drv'...\n"},
 		Row{Type: "pkg/flatpak", Cmds: []string{"flatpak install", "flatpak update", "snap install", "snap refresh"}, Cmd: "flatpak install flathub org.gimp.GIMP"},
 		Row{Type: "pkg/mvndeps", Cmds: []string{"mvn dependency:tree", "mvn dependency:resolve", "mvn dependency:go-offline", "mvnw dependency:tree"}, Cmd: "mvn dependency:tree"},
+		// Glyph trees; the engine reads any of them, so only tools with a real fixture are listed.
+		Row{Type: "pkg/tree", Priority: 55, Cmds: []string{"npm ls", "npm list", "npm ll", "pnpm ls", "pnpm list", "pnpm why", "pipdeptree", "uv tree", "poetry show --tree"}, Cmd: "npm ls --all"},
+		Row{Type: "pkg/gomodgraph", Priority: 55, Cmds: []string{"go mod graph"}, Cmd: "go mod graph"},
 	)
 }

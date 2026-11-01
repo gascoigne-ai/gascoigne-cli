@@ -11,6 +11,12 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   `table/ss`, `table/sys` (lsmod), `build/fmt` (cargo fmt --check), `build/php` (phpstan), `test/catch`, `test/minitest`
   (the last two under the 200-token floor). `pkg/mvndeps` keeps the tree head but cuts the tail, so `BUILD SUCCESS` /
   a failure's error lines are not in the output: fix before trusting it on failing builds.
+- `pkg/tree` covers npm ls, pnpm list/why, pipdeptree, uv tree, poetry show --tree (real fixtures in
+  `testdata/eval/pkg`). Still unrouted for lack of real output: `cargo tree`, `gradle dependencies`,
+  `composer show --tree`, `yarn why` (berry). Capture each, add the command to the `pkg/tree` row in
+  `internal/detect/rows_pkg.go` plus an eval case. Gradle's `+---`/`\---` glyphs and `->` resolution marks and
+  composer's `|--` are already read by the glyph parser, untested. `pkg/gomodgraph` saves ~40% on this repo's small
+  graph; a graph of hundreds of modules is untested.
 - Real fixtures to replace synthetic ones once tools are at hand: terraform/tofu, pulumi, cdk,
   helm diff, kubectl, aws/gcloud/az, mysql, gh (authenticated). Per change: case savings up,
   `keep` strings intact, goldens reviewed.

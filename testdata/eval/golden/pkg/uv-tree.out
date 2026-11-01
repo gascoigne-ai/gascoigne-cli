@@ -1,0 +1,33 @@
+[repeats (deduped) omitted. name alone: the version listed first]
+shop-api v0.1.0: ruff v0.17.3 (group: dev)
+  alembic v1.20.1: typing-extensions v4.16.0
+    mako v1.4.3: markupsafe v3.0.4
+    sqlalchemy v2.1.6: typing-extensions
+  boto3 v1.43.123: jmespath v1.1.0, s3transfer v0.19.3
+    botocore v1.43.123: jmespath, urllib3 v2.8.0
+      python-dateutil v2.9.0.post0: six v1.17.0
+  celery v5.6.3: billiard v4.3.1, click v8.5.0, tzlocal v5.4.5, vine v5.1.0
+    click-didyoumean v0.3.1: click
+    click-plugins v1.1.1.2: click
+    click-repl v0.4.1: click, typing-extensions
+      prompt-toolkit v3.0.53: wcwidth v0.9.4
+    kombu v5.6.2: packaging v26.3, tzdata v2026.6, vine
+      amqp v5.4.1: vine
+  fastapi v0.162.0: annotated-doc v0.0.5, typing-extensions
+    opentelemetry-api v1.45.2: typing-extensions
+    pydantic v2.14.2: annotated-types v0.8.0, typing-extensions
+      pydantic-core v2.50.2: typing-extensions
+      typing-inspection v0.4.4: typing-extensions
+    starlette v1.10.0: typing-extensions
+      anyio v4.15.1: idna v3.20, typing-extensions
+  httpx v0.28.1: certifi v2026.10.23, idna
+    httpcore v1.0.9: certifi, h11 v0.16.0
+  pydantic-settings v2.16.2: python-dotenv v1.2.4, typing-extensions
+  uvicorn[standard] v0.54.0: click, h11, httptools v0.9.0 (extra: standard),
+      python-dotenv v1.2.4 (extra: standard), pyyaml v6.0.3 (extra: standard),
+      uvloop v0.23.0 (extra: standard), watchfiles v1.3.0 (extra: standard),
+      websockets v17.4 (extra: standard)
+  mypy v2.4.1 (group: dev): ast-serialize v0.13.1, librt v0.16.0, mypy-extensions v1.1.0, pathspec v1.1.1,
+      typing-extensions
+  pytest v9.2.0 (group: dev): iniconfig v2.3.1, packaging, pluggy v1.7.0, pygments v2.21.0
+(*) Package tree already displayed

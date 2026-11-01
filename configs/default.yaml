@@ -64,7 +64,7 @@ optimizers:
   log: { context: 2, drop_debug: true, max_lines: 300 }
   # mode auto|full|clean|outline; per run: -attr cat_mode=full or GASCOIGNE_CAT_MODE
   cat: { mode: auto, clean_min_tokens: 800, outline_min_tokens: 4000, min_body: 4 }
-  pkg: {}
+  pkg: { tree_depth: 5 } # dependency trees: packages deeper than this are counted, query matches stay
   # yaml, csv, xml, toml; json: crusher settings for yaml
   data:
     max_rows: 30
