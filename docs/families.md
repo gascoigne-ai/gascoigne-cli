@@ -174,7 +174,7 @@ query matches and both ends stay.
 | `table/ss`, `table/lsof` | `ss`, `netstat`; `lsof` |
 | `table/systemctl` | `systemctl list-units/list-unit-files/list-timers`, `--failed` |
 | `table/docker` | `docker ps/images/volume ls/network ls/stats`, `podman ps/stats`, `nerdctl ps`, `crictl ps` |
-| `table/sys` | `lsblk`, `lsmod`, `w` |
+| `table/sys` | `lsblk`, `lsmod`, `w`, `free`, `vmstat`, `findmnt` (tree prefix kept in the first cell; `free`, `vmstat` are already compact and pass through) |
 | `table/aligned`, `table/boxed` | any aligned or box-drawn table (sniffed) |
 | `table/eval` | `gascoigne eval` report, also under `make eval` (header `case  type … out tok … check`): rows that are `ok` fold to `… N ok` per table; failing and skipped rows, totals and the text between tables stay (`make eval`: 19,485 → 1,345) |
 

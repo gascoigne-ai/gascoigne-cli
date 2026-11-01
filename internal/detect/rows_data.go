@@ -12,7 +12,7 @@ func init() {
 // Columnar system tools declared as rows; the table engine reads any header.
 func init() {
 	registerRows(
-		Row{Type: "table/sys", Cmds: []string{"lsblk", "lsmod", "w"}, Cmd: "lsblk -f",
-			Sniff: `^NAME\s+MAJ:MIN\s+RM\s+SIZE|^Module\s+Size\s+Used by|^\s*USER\s+TTY\s+FROM\s+LOGIN@`, Sample: "NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS\nsda           8:0    0 465.8G  0 disk\n"},
+		Row{Type: "table/sys", Cmds: []string{"lsblk", "lsmod", "w", "free", "vmstat", "findmnt"}, Cmd: "lsblk -f",
+			Sniff: `^NAME\s+MAJ:MIN\s+RM\s+SIZE|^Module\s+Size\s+Used by|^\s*USER\s+TTY\s+FROM\s+LOGIN@|^procs -+memory-+|^TARGET\s+SOURCE\s+FSTYPE\s+OPTIONS|^\s+total\s+used\s+free\s+shared\s+buff/cache`, Sample: "NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS\nsda           8:0    0 465.8G  0 disk\n"},
 	)
 }

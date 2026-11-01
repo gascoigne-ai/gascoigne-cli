@@ -120,7 +120,7 @@ func parseAligned(lines []string) (Table, bool) {
 	header := lines[h]
 	byGap := gapRe.Split(strings.TrimSpace(header), -1)
 	byWord := strings.Fields(header)
-	body := lines[h+1:]
+	body := glueTree(lines[h+1:])
 	end := len(body)
 	for i, l := range body {
 		if strings.TrimSpace(l) == "" {
@@ -131,6 +131,8 @@ func parseAligned(lines []string) (Table, bool) {
 	// Prefer columns separated by 2+ spaces (docker, kubectl): names may contain spaces.
 	if r, ok := split(body[:end], len(byGap), func(l string) []string { return gapRe.Split(strings.TrimSpace(l), -1) }); ok && len(byGap) > 1 {
 		t.Header, t.Rows = byGap, r
+	} else if r, ok := split(body[:end], len(byWord), strings.Fields); ok && len(byWord) > 2 {
+		t.Header, t.Rows = byWord, r // every row has one word per column: no empty cells to place
 	} else if starts := columnStarts(header); len(starts) > 2 && len(starts) == len(byWord) || len(byGap) > 2 && len(starts) == len(byGap) {
 		// Fixed-width columns with empty cells (docker ps PORTS, lsof TID).
 		t.Header = slice(header, starts)
@@ -144,6 +146,18 @@ func parseAligned(lines []string) (Table, bool) {
 	}
 	t.After = body[end:]
 	return t, len(t.Rows) >= 2
+}
+
+var treePrefix = lazyre.New(`^[│ ]*│[│ ]*`)
+
+// glueTree closes the spaces inside a tree prefix ("│   └─/a" → "│└─/a", as
+// findmnt draws mounts) so the prefix stays part of the first cell.
+func glueTree(lines []string) []string {
+	out := make([]string, len(lines))
+	for i, l := range lines {
+		out[i] = treePrefix.ReplaceAllStringFunc(l, func(p string) string { return strings.ReplaceAll(p, " ", "") })
+	}
+	return out
 }
 
 func split(lines []string, n int, f func(string) []string) ([][]string, bool) {

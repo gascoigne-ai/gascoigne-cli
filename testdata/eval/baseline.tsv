@@ -86,12 +86,12 @@ detect/compose-up	188	0	0
 detect/gh-run-log	275	6	1
 table/ps-aux	1473	0	44
 table/lsof	1385	98	114
-table/top	1483	0	0
+table/top	1303	0	0
 table/systemctl-units	877	0	1
 table/docker-ps	1326	0	15
 detect/ps	1473	0	44
 detect/lsof	1385	98	114
-detect/top	1483	0	0
+detect/top	1303	0	0
 detect/systemctl	877	0	1
 detect/docker-ps	1326	0	15
 db/psql-select	1048	0	0
@@ -380,6 +380,12 @@ search/ag	1650	0	0
 table/ss-tuna	469	0	0
 detect/ss-tuna	469	0	0
 table/lsmod	1674	0	0
+table/vmstat	236	0	0
+detect/vmstat	236	0	0
+table/findmnt	933	2	0
+detect/findmnt	933	2	0
+table/free	48	0	0
+detect/free	48	0	0
 table/aligned-sockets	742	0	9
 table/make-eval	1345	85	4
 detect/make-eval	1345	85	4

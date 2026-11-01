@@ -1176,6 +1176,12 @@
 - { name: table/ss-tuna, file: table/ss-tuna.txt, attrs: { cmd: ss -tuna }, expect_type: table/ss, keep: ["Netid", "State"] }
 - { name: detect/ss-tuna, file: table/ss-tuna.txt, expect_type: table/ss }
 - { name: table/lsmod, file: table/lsmod.txt, attrs: { cmd: lsmod }, expect_type: table/sys, keep: ["Module"] }
+- { name: table/vmstat, file: table/vmstat.txt, attrs: { cmd: vmstat 1 5 }, expect_type: table/sys, keep: ["swpd", "13626480"] }
+- { name: detect/vmstat, file: table/vmstat.txt, expect_type: table/sys }
+- { name: table/findmnt, file: table/findmnt.txt, attrs: { cmd: findmnt }, expect_type: table/sys, keep: ["TARGET", "/run/user/1000/doc", "subvol=/@home"] }
+- { name: detect/findmnt, file: table/findmnt.txt, expect_type: table/sys }
+- { name: table/free, file: table/free.txt, attrs: { cmd: free -h }, expect_type: table/sys, keep: ["Mem:", "Swap:", "buff/cache"] }
+- { name: detect/free, file: table/free.txt, expect_type: table/sys }
 - { name: table/aligned-sockets, file: table/systemctl-sockets.txt, expect_type: table/aligned, keep: ["LISTEN", "systemd-journald.socket"], min_saved: 18 }
 - { name: table/make-eval, file: table/make-eval.txt, attrs: { cmd: make eval }, expect_type: table/eval, keep: ["== Fixtures", "total", "Summary", "ledger    ok"], min_saved: 70 }
 - { name: detect/make-eval, file: table/make-eval.txt, expect_type: table/eval }

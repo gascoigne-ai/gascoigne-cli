@@ -1,0 +1,31 @@
+TARGET                                        SOURCE                   FSTYPE          OPTIONS
+/                                             /dev/mapper/root[/@]     btrfs           rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=438,subvol=/@
+├─/proc                                       proc                     proc            rw,nosuid,nodev,noexec,relatime
+│ └─/proc/sys/fs/binfmt_misc                  systemd-1                autofs          rw,relatime,fd=43,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=353
+│   └─/proc/sys/fs/binfmt_misc                binfmt_misc              binfmt_misc     rw,nosuid,nodev,noexec,relatime
+├─/sys                                        sys                      sysfs           rw,nosuid,nodev,noexec,relatime
+│ ├─/sys/firmware/efi/efivars                 efivarfs                 efivarfs        rw,nosuid,nodev,noexec,relatime
+│ ├─/sys/kernel/security                      securityfs               securityfs      rw,nosuid,nodev,noexec,relatime
+│ ├─/sys/fs/cgroup                            cgroup2                  cgroup2         rw,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting
+│ ├─/sys/fs/pstore                            none                     pstore          rw,nosuid,nodev,noexec,relatime
+│ ├─/sys/fs/bpf                               bpf                      bpf             rw,nosuid,nodev,noexec,relatime,mode=700
+│ ├─/sys/kernel/tracing                       tracefs                  tracefs         rw,nosuid,nodev,noexec,relatime
+│ ├─/sys/kernel/debug                         debugfs                  debugfs         rw,nosuid,nodev,noexec,relatime
+│ ├─/sys/fs/fuse/connections                  fusectl                  fusectl         rw,nosuid,nodev,noexec,relatime
+│ └─/sys/kernel/config                        configfs                 configfs        rw,nosuid,nodev,noexec,relatime
+├─/dev                                        dev                      devtmpfs        rw,nosuid,relatime,size=32570876k,nr_inodes=8142719,mode=755,inode64,huge=advise
+│ ├─/dev/pts                                  devpts                   devpts          rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000
+│ ├─/dev/shm                                  tmpfs                    tmpfs           rw,nosuid,nodev,inode64,huge=advise,usrquota
+│ ├─/dev/hugepages                            hugetlbfs                hugetlbfs       rw,nosuid,nodev,relatime,pagesize=2M
+│ └─/dev/mqueue                               mqueue                   mqueue          rw,nosuid,nodev,noexec,relatime
+├─/run                                        run                      tmpfs           rw,nosuid,nodev,relatime,mode=755,inode64,huge=advise
+│ ├─/run/credentials/systemd-journald.service none                     tmpfs           ro,nosuid,nodev,noexec,relatime,nosymfollow,size=1024k,nr_inodes=1024,mode=700,inode64,huge=advise,noswap
+│ ├─/run/credentials/systemd-resolved.service none                     tmpfs           ro,nosuid,nodev,noexec,relatime,nosymfollow,size=1024k,nr_inodes=1024,mode=700,inode64,huge=advise,noswap
+│ └─/run/user/1000                            tmpfs                    tmpfs           rw,nosuid,nodev,relatime,size=6547436k,nr_inodes=1636859,mode=700,uid=1000,gid=1000,inode64,huge=advise
+│   ├─/run/user/1000/gvfs                     gvfsd-fuse               fuse.gvfsd-fuse rw,nosuid,nodev,relatime,user_id=1000,group_id=1000
+│   └─/run/user/1000/doc                      portal                   fuse.portal     rw,nosuid,nodev,relatime,user_id=1000,group_id=1000
+├─/home                                       /dev/mapper/root[/@home] btrfs           rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@home
+├─/var/cache/pacman/pkg                       /dev/mapper/root[/@pkg]  btrfs           rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@pkg
+├─/var/log                                    /dev/mapper/root[/@log]  btrfs           rw,relatime,compress=zstd:3,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@log
+├─/boot                                       /dev/nvme2n1p1           vfat            rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro
+└─/tmp                                        tmpfs                    tmpfs           rw,nosuid,nodev,size=32737196k,nr_inodes=1048576,inode64,huge=advise,usrquota

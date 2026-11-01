@@ -18,6 +18,23 @@ func render(t *testing.T, in string, max int) string {
 	return compress.Join(Render(tb, Options{MaxRows: max, MaxCell: 30, Rows: sample.Options{HeadShare: 0.3, TailShare: 0.15, AnomalyStd: 2}}))
 }
 
+// findmnt draws a tree with │ in the first column and has SOURCE values
+// that touch the next column ("/dev/mapper/root[/@home] btrfs"): parsing
+// used to fail, so the padded output reached the model untouched.
+func TestFindmntTree(t *testing.T) {
+	in := "TARGET                     SOURCE                   FSTYPE  OPTIONS\n" +
+		"/                          /dev/mapper/root[/@]     btrfs   rw,relatime,subvol=/@\n" +
+		"├─/proc                    proc                     proc    rw,nosuid\n" +
+		"│ └─/proc/sys/fs/binfmt_misc systemd-1               autofs  rw,relatime\n" +
+		"├─/home                    /dev/mapper/root[/@home] btrfs   rw,relatime,subvol=/@home\n"
+	got := render(t, in, 30)
+	for _, w := range []string{"/dev/mapper/root[/@home]  btrfs", "└─/proc/sys/fs/binfmt_misc  systemd-1", "subvol=/@home"} {
+		if !strings.Contains(got, w) {
+			t.Errorf("missing %q in:\n%s", w, got)
+		}
+	}
+}
+
 func TestPsql(t *testing.T) {
 	in := " id | name  | status\n----+-------+--------\n  1 | alice | active\n  2 | bob   | active\n  3 | carol | banned\n(3 rows)\n"
 	got := render(t, in, 30)
