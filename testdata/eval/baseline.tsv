@@ -338,6 +338,8 @@ log/compose-logs	1340	0	22
 log/kubectl-logs-prefix	807	2	108
 detect/compose-logs	1340	0	22
 detect/kubectl-prefix	807	2	108
+log/dmesg	4172	0	3
+detect/dmesg	4172	0	3
 detect/syslog	3800	0	13
 detect/access	436	0	510
 mixed/json-log-diff	8668	60	1559

@@ -17,7 +17,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 | `fs` | ls engine: listings, tree, paths by directory (past `max_per_dir` only 3+ files sharing an extension fold to `… N more: .go ×N`; extension-less names stay listed), du largest, df real disks. cat: comments dropped, outlines (see Source files) | ls, tree, find, du, df, code |
 | `table` | `internal/compress/table`: parses boxed/aligned/ruled/fixed-width tables, hoists constants, cuts cells; rows via `internal/compress/sample` (unhealthy statuses kept) | ps, ss, lsof, top, systemctl, docker, sys, aligned, boxed |
 | `data` | json: `internal/compress/jsonx` crusher. YAML via jsonx when smaller, CSV via table, XML sibling runs sampled (failures kept), TOML lockfiles one line per entry; text lockfiles (`lock.go`: yarn.lock, go.sum, Gemfile.lock) as `name@version` lists | json, ndjson, yaml, csv, xml, toml, ipynb, lock |
-| `log` | log engine (see below) | app, journal, syslog, docker, kubectl, access, cloudwatch, gcp, azure |
+| `log` | log engine (see below) | app, journal, syslog, dmesg, docker, kubectl, access, cloudwatch, gcp, azure |
 | `doc` | markdown/rst and man/help (see below) | markdown, rst, man, help (+ text: dedupe) |
 | `web` | html: `internal/compress/htmlx` → markdown (see below). http: transport headers and TLS chatter dropped, body by type | html, http |
 | `db` | results via `internal/compress/table`, EXPLAIN pruned to costly nodes, redis keys folded, mongo docs as JSON rows | psql, mysql, sqlite, explain, redis, mongosh, migrate |
@@ -39,6 +39,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 - Numeric outliers are kept: ≥ 10× the template's median at a place, for templates of 8+ lines.
 - Container prefixes (kubectl `--prefix`, compose) are cut before and put back as labels
   (`A+B| `, with a legend).
+- `dmesg` (`[ 12.345] ` kernel lines, by command or sniff) uses the same template engine.
 - Structured cloud events → lines. Access logs → a traffic summary.
 
 **doc**

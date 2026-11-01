@@ -11,6 +11,7 @@ const (
 	CloudWatch = "log/cloudwatch"
 	GCPLogs    = "log/gcp" // gcloud logging read
 	AzureLogs  = "log/azure"
+	Dmesg      = "log/dmesg" // kernel ring buffer, "[12345.678] usb 1-1: …"
 )
 
 // syslogLine is "Oct 10 07:00:01 host unit[pid]: message".
@@ -32,6 +33,7 @@ func init() {
 		Spec{Type: CloudWatch, Cmds: []string{"aws logs tail", "aws logs filter-log-events", "aws logs get-log-events", "saw get", "saw watch"}},
 		Spec{Type: GCPLogs, Cmds: []string{"gcloud logging read", "gcloud logging tail", "gcloud beta logging tail", "gcloud app logs read", "gcloud functions logs read"}},
 		Spec{Type: AzureLogs, Cmds: []string{"az monitor activity-log list", "az monitor log-analytics query", "az webapp log tail", "az containerapp logs show"}},
+		Spec{Type: Dmesg, Cmds: []string{"dmesg"}, Sniff: ratio(`^\[\s*\d+\.\d+\] `, 0.6)},
 		Spec{Type: Log, Files: []string{"*.log"}, Priority: 80,
 			Sniff: ratio(`^\[?(\d{4}-\d\d-\d\d[T ]\d\d:\d\d|\d\d:\d\d:\d\d|[A-Z][a-z]{2} [ \d]\d \d\d:\d\d)|^\[?(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL)\b|\blevel=(debug|info|warn|error)`, 0.5)},
 	)

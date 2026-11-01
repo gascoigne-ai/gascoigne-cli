@@ -1031,6 +1031,9 @@
     keep: ["[sources: A=pod/shop-api-7d9f8b6c5-2xkqp/api", "Unable to acquire JDBC Connection", "OrderService.java:58", "cache warm-up took 1457ms"], min_saved: 50 }
 - { name: detect/compose-logs, file: log/compose-logs.txt, expect_type: log/docker }
 - { name: detect/kubectl-prefix, file: log/kubectl-logs-prefix.txt, expect_type: log/kubectl }
+- { file: log/dmesg.txt, attrs: { cmd: dmesg }, expect_type: log/dmesg,
+    keep: ["Linux version", "Command line: quiet splash", "usb usb1: Product"], min_saved: 20 }
+- { name: detect/dmesg, file: log/dmesg.txt, expect_type: log/dmesg }
 - { name: detect/syslog, file: log/journalctl.txt, expect_type: log/syslog }
 - { name: detect/access, file: log/nginx-access.log, expect_type: log/access }
 

@@ -218,6 +218,7 @@ replicas shows all of them (`A+B+C| … (×3)`).
 |---|---|
 | `log/app` | `*.log`, sniffing |
 | `log/journal` | `journalctl` |
+| `log/dmesg` | `dmesg`, sniffing of `[12345.678] ` lines |
 | `log/syslog` | `syslog`, `messages`, `auth.log`, … |
 | `log/docker`, `log/kubectl` | `docker logs`, `docker compose logs`; `kubectl logs`, `stern`; sniffing of prefixed lines |
 | `log/access` | `access.log`, sniffing |
