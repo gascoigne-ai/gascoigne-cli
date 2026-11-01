@@ -1,0 +1,24 @@
+Warning: Argument is deprecated (×3, also storage.tf:18, storage.tf:31)
+
+  with aws_s3_bucket.logs,
+  on storage.tf line 4, in resource "aws_s3_bucket" "logs":
+   4:   acl = "private"
+
+Use the aws_s3_bucket_acl resource instead
+
+(and 3 more similar warnings elsewhere)
+
+Error: Missing required argument
+
+  on compute.tf line 22, in resource "aws_instance" "web":
+  22: resource "aws_instance" "web" {
+
+The argument "ami" is required, but no definition was found.
+
+Error: Reference to undeclared input variable
+
+  on compute.tf line 27, in resource "aws_instance" "web":
+  27:   subnet_id = var.subnet
+
+An input variable with the name "subnet" has not been declared. Did you mean
+"subnet_id"?

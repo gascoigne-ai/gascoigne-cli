@@ -276,6 +276,14 @@
            "\"0.0.0.0/0\"", "\"10.0.0.0/16\"", "Plan: 25 to add, 2 to change, 1 to destroy.", "Warning: Argument is deprecated", "known after apply: arn"], min_saved: 50 }
 - { file: infra/terraform-apply-error.txt, attrs: { cmd: terraform apply -auto-approve }, expect_type: infra/terraform,
     keep: ["Error: creating SQS Queue (jobs-3)", "QueueDeletedRecently", "on queues.tf line 1", "5 resources completed"], min_saved: 60 }
+- { file: infra/terraform-init.txt, attrs: { cmd: terraform init }, expect_type: infra/terraform-init,
+    keep: ["providers: hashicorp/aws v5.31.0", "hashicorp/random v3.6.0", "Downloading registry.terraform.io/terraform-aws-modules/eks/aws 19.21.0 for eks", "- app in modules/app", "Successfully configured the backend \"s3\"\n", "Warning: Version constraints inside provider", "on providers.tf line 12", "successfully initialized!"], min_saved: 40 }
+- { file: infra/terraform-state-list.txt, attrs: { cmd: terraform state list }, expect_type: infra/terraform-state,
+    keep: ["(root): data.aws_caller_identity.current", "aws_s3_bucket.assets[×4]", "module.vpc: aws_eip.nat[×3]", "module.eks.module.kms: aws_kms_key.this[0]", "\"AmazonEKSClusterPolicy\"", "module.app: aws_ecs_service.web"], min_saved: 20 }
+- { file: infra/terraform-validate-error.txt, attrs: { cmd: terraform validate }, expect_type: infra/terraform-validate,
+    keep: ["Warning: Argument is deprecated (×3, also storage.tf:18, storage.tf:31)", "Error: Missing required argument", "on compute.tf line 22", "The argument \"ami\" is required", "Error: Reference to undeclared input variable", "Did you mean"], min_saved: 20 }
+- { file: infra/terraform-output.txt, attrs: { cmd: terraform output }, expect_type: infra/terraform-output,
+    keep: ["alb_dns_name = \"shop-prod-1234567890", "availability_zones = tolist([\"eu-west-1a\", \"eu-west-1b\", \"eu-west-1c\"])", "db_password = <sensitive>", "\"Team\" = \"platform\"", "echo \"hello\"", "vpc_id = "], min_saved: 5 }
 - { file: infra/pulumi-up.txt, attrs: { cmd: pulumi up --yes }, expect_type: infra/pulumi,
     keep: ["ConflictException: Route with key POST /orders", "updated (4s) [diff: ~code,runtime]", "2 changes. 30 unchanged", "unchanged resource rows omitted"], min_saved: 30 }
 - { file: infra/ansible-playbook.txt, attrs: { cmd: ansible-playbook -i inv.ini play.yml }, expect_type: infra/ansible,

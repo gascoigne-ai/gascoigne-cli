@@ -1,0 +1,31 @@
+alb_dns_name = "shop-prod-1234567890.eu-west-1.elb.amazonaws.com"
+availability_zones = tolist([
+  "eu-west-1a",
+  "eu-west-1b",
+  "eu-west-1c",
+])
+cluster_endpoint = "https://A1B2C3D4E5F6.gr7.eu-west-1.eks.amazonaws.com"
+db_password = <sensitive>
+instance_ids = [
+  "i-0a1b2c3d4e5f60001",
+  "i-0a1b2c3d4e5f60002",
+  "i-0a1b2c3d4e5f60003",
+  "i-0a1b2c3d4e5f60004",
+  "i-0a1b2c3d4e5f60005",
+  "i-0a1b2c3d4e5f60006",
+]
+private_subnets = [
+  "subnet-0aa11bb22cc33dd01",
+  "subnet-0aa11bb22cc33dd02",
+  "subnet-0aa11bb22cc33dd03",
+]
+tags = tomap({
+  "Environment" = "prod"
+  "ManagedBy" = "terraform"
+  "Team" = "platform"
+})
+user_data = <<EOT
+#!/bin/bash
+echo "hello"
+EOT
+vpc_id = "vpc-0123456789abcdef0"

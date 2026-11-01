@@ -286,6 +286,10 @@ noise. Lists keep unhealthy items.
 | Dialect | Commands | What happens |
 |---|---|---|
 | `infra/terraform` | `terraform`/`tofu`/`terragrunt plan/apply/destroy/refresh` | refresh and progress folded; known-after-apply attributes listed once; `count`/`for_each` siblings become "(like above)"; destroys and replacements stay whole |
+| `infra/terraform-init` | `terraform`/`tofu`/`terragrunt init` | providers on one line with versions; module sources, warnings, errors and the final status stay; lock-file and next-steps text dropped |
+| `infra/terraform-validate` | `… validate` | diagnostic boxes unframed; a repeated warning is written once with `(×N, also file:line, …)` |
+| `infra/terraform-state` | `… state list` | addresses grouped by module; `count`/`for_each` instances folded (`aws_subnet.private[×3]`, few string keys stay) |
+| `infra/terraform-output` | `… output` | lists and maps of plain elements on one line (past 20 elements `… +N`); nested values, heredocs and `-json` stay as printed |
 | `infra/pulumi`, `infra/cdk` | `pulumi up/preview/…`; `cdk diff/deploy/destroy` | as plans |
 | `infra/ansible` | `ansible-playbook`, `ansible` | quiet tasks counted, failures and recap kept |
 | `infra/helm-diff` | `helm diff` | changes with `diff_context` lines |

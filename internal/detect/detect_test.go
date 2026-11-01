@@ -26,6 +26,12 @@ func TestFromCmd(t *testing.T) {
 		{"git show HEAD", Diff},
 		{"git push origin main", GitRemote},
 		{"git reflog -n 30", GitRefs},
+		{"terraform init -upgrade", TerraformInit},
+		{"tofu validate", TerraformValidate},
+		{"terragrunt state list", TerraformState},
+		{"terraform output -json", TerraformOutput},
+		{"terraform state show aws_s3_bucket.a", ""},
+		{"terraform plan -out=tf.plan", Terraform},
 		{"git stash list", GitRefs},
 		{"git stash show -p", Diff}, // longer pattern wins over "git stash list"
 		{"git tag -n", GitRefs},

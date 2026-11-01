@@ -22,7 +22,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 | `web` | html: `internal/compress/htmlx` → markdown (see below). http: transport headers and TLS chatter dropped, body by type | html, http |
 | `db` | results via `internal/compress/table`, EXPLAIN pruned to costly nodes, redis keys folded, mongo docs as JSON rows | psql, mysql, sqlite, explain, redis, mongosh, migrate |
 | `k8s` | `internal/compress/yamlx` prune rules (managedFields, last-applied, defaults); lists keep unhealthy items; describe/events/helm; apply (`apply.go`): `unchanged` lines fold to one count by kind, other results/errors stay; rollout: progress lines collapse to the final state | get, manifest, describe, events, helm, apply, rollout |
-| `infra` | plans: refresh/progress folded, known-after-apply listed, count/for_each siblings "(like above)". ansible: quiet tasks counted, failures and recap kept | terraform, pulumi, ansible, cdk, helm-diff |
+| `infra` | plans: refresh/progress folded, known-after-apply listed, count/for_each siblings "(like above)". terraform/tofu/terragrunt `init` (providers on one line, modules and status kept), `validate` (boxes dropped, repeated warnings folded with their places), `state list` (addresses by module, instances `[×N]`; own grouping, since addresses are dotted not paths), `output` (plain lists on one line; `tfcmds.go`). ansible: quiet tasks counted, failures and recap kept | terraform, terraform-init, terraform-validate, terraform-state, terraform-output, pulumi, ansible, cdk, helm-diff |
 | `cloud` | JSON: pagination/metadata/etags pruned, envelopes unwrapped, items flattened so jsonx hoists leaves. YAML via yamlx; tables; s3 listings summarized | aws, aws-s3, gcp, azure |
 
 ## Engine details

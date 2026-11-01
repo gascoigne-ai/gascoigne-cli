@@ -28,6 +28,14 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		switch detect.Dialect(b.Type) {
 		case "terraform":
 			out = o.terraform(lines)
+		case "terraform-init":
+			out = terraformInit(lines)
+		case "terraform-validate":
+			out = tfBoxes(lines)
+		case "terraform-state":
+			out = terraformState(lines)
+		case "terraform-output":
+			out = terraformOutput(lines)
 		case "pulumi":
 			out = pulumi(lines)
 		case "ansible":

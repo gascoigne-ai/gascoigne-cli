@@ -1,0 +1,7 @@
+(root): data.aws_caller_identity.current, data.aws_availability_zones.available, aws_ecr_repository.app, aws_iam_role.deploy, aws_iam_role_policy_attachment.deploy["AmazonEC2ContainerRegistryPowerUser","AmazonEKSClusterPolicy","CloudWatchLogsFullAccess"], aws_s3_bucket.assets[×4], aws_s3_bucket_public_access_block.assets[×4]
+module.vpc: aws_eip.nat[×3], aws_internet_gateway.this[0], aws_nat_gateway.this[×3], aws_route.private_nat_gateway[×3], aws_route.public_internet_gateway[0], aws_route_table.private[×3], aws_route_table.public[0], aws_route_table_association.private[×3], aws_route_table_association.public[×3], aws_subnet.private[×3], aws_subnet.public[×3], aws_vpc.this[0]
+module.eks: data.aws_caller_identity.current, data.aws_iam_policy_document.assume_role_policy[0], aws_cloudwatch_log_group.this[0], aws_ec2_tag.cluster_primary_security_group["Environment","Team"], aws_eks_cluster.this[0], aws_iam_openid_connect_provider.oidc_provider[0], aws_iam_role.this[0], aws_security_group.cluster[0], aws_security_group.node[0]
+module.eks.module.eks_managed_node_group["default"]: aws_eks_node_group.this[0], aws_iam_role.this[0], aws_launch_template.this[0]
+module.eks.module.eks_managed_node_group["spot"]: aws_eks_node_group.this[0], aws_iam_role.this[0], aws_launch_template.this[0]
+module.eks.module.kms: aws_kms_key.this[0], aws_kms_alias.this["cluster"]
+module.app: aws_ecs_service.web, aws_ecs_task_definition.web, aws_lb.web, aws_lb_listener.https, aws_lb_target_group.web

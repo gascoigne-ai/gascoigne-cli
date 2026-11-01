@@ -1,0 +1,28 @@
+
+Successfully configured the backend "s3"
+Downloading registry.terraform.io/terraform-aws-modules/vpc/aws 5.5.1 for vpc...
+- vpc in .terraform/modules/vpc
+Downloading registry.terraform.io/terraform-aws-modules/eks/aws 19.21.0 for eks...
+- eks in .terraform/modules/eks
+- eks.eks_managed_node_group in .terraform/modules/eks/modules/eks-managed-node-group
+- eks.fargate_profile in .terraform/modules/eks/modules/fargate-profile
+- eks.kms in .terraform/modules/eks.kms
+- eks.self_managed_node_group in .terraform/modules/eks/modules/self-managed-node-group
+- app in modules/app
+
+providers: hashicorp/aws v5.31.0, hashicorp/kubernetes v2.24.0, hashicorp/tls v4.0.5, hashicorp/time v0.10.0, hashicorp/random v3.6.0, hashicorp/cloudinit v2.3.2
+
+Warning: Version constraints inside provider configuration blocks are deprecated
+
+  on providers.tf line 12, in provider "aws":
+  12:   version = "~> 5.0"
+
+Terraform 0.13 and earlier allowed provider version constraints inside the
+provider configuration block, but that is now deprecated and will be removed
+in a future version of Terraform. To silence this warning, move the provider
+version constraint into the required_providers block.
+
+(and one more similar warning elsewhere)
+
+Terraform has been successfully initialized!
+

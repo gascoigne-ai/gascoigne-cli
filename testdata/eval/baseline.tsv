@@ -137,6 +137,10 @@ detect/gcp-yaml	640	0	8
 detect/azure-json	2136	0	42
 infra/terraform-plan	1697	1	41
 infra/terraform-apply-error	312	0	30
+infra/terraform-init	357	0	0
+infra/terraform-state-list	516	0	0
+infra/terraform-validate-error	220	0	0
+infra/terraform-output	353	0	0
 infra/pulumi-up	372	0	0
 infra/ansible-playbook	646	1	1
 infra/cdk-deploy	604	0	2
