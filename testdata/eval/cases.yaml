@@ -237,6 +237,12 @@
     keep: ["Reason:       CrashLoopBackOff", "Exit Code:    1", "Readiness probe failed", "Back-off restarting failed container", "Restart Count:  7"], min_saved: 25 }
 - { file: k8s/events.txt, attrs: { cmd: kubectl get events -n shop }, expect_type: k8s/events, keep: ["warnings:", "Insufficient memory", "BackOff"], min_saved: 39 }
 - { file: k8s/helm-status.txt, attrs: { cmd: helm status shop }, expect_type: k8s/helm, keep: ["STATUS: failed", "REVISION: 12", "notes lines omitted"], min_saved: 30 }
+- { file: k8s/apply.txt, attrs: { cmd: kubectl apply -f k8s/ }, expect_type: k8s/apply,
+    keep: ["deployment.apps/api", "ingress.networking.k8s.io/shop", "service/search", "Warning: policy", "Error from server (NotFound)", "unchanged ×"], min_saved: 30 }
+- { file: k8s/rollout-status.txt, attrs: { cmd: kubectl rollout status deployment/api }, expect_type: k8s/rollout,
+    keep: ["successfully rolled out"], min_saved: 60 }
+- { name: detect/k8s-apply, file: k8s/apply.txt, expect_type: k8s/apply }
+- { name: detect/k8s-rollout, file: k8s/rollout-status.txt, expect_type: k8s/rollout }
 - { name: detect/k8s-yaml, file: k8s/pods.yaml, expect_type: k8s/manifest }
 - { name: detect/k8s-json, file: k8s/deploy.json, expect_type: k8s/manifest }
 - { name: detect/k8s-get, file: k8s/get-pods.txt, expect_type: k8s/get }

@@ -274,6 +274,8 @@ noise. Lists keep unhealthy items.
 | `k8s/manifest` | `kubectl get -o yaml/json`, `helm template`, `kustomize build`, manifests in files |
 | `k8s/describe`, `k8s/events` | `kubectl describe`; `kubectl get events`, `kubectl events` |
 | `k8s/helm` | `helm list/status/history/install/upgrade/rollback` |
+| `k8s/apply` | `kubectl apply/create/delete/replace`: `unchanged` lines fold to `unchanged ×N (kind ×n, …)`; configured/created/deleted, warnings and errors stay |
+| `k8s/rollout` | `kubectl rollout status`: progress lines dropped, the success line gets `(after N progress lines)`; a rollout that fails keeps its last progress line `(×N)` |
 
 `kubectl get pods -o yaml`: 37,330 → 9,609 (74.3%).
 

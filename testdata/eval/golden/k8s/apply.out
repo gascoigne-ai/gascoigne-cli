@@ -1,0 +1,8 @@
+unchanged ×36 (deployment.apps ×7, configmap ×4, service ×4, horizontalpodautoscaler.autoscaling ×3, networkpolicy.networking.k8s.io ×3, serviceaccount ×3, …)
+deployment.apps/api configured
+ingress.networking.k8s.io/shop configured
+configmap/search-config created
+service/search created
+Warning: policy/v1beta1 PodDisruptionBudget is deprecated in v1.21+, unavailable in v1.25+; use policy/v1 PodDisruptionBudget
+poddisruptionbudget.policy/api configured
+Error from server (NotFound): error when creating "k8s/job.yaml": namespaces "batch" not found

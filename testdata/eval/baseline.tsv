@@ -114,6 +114,10 @@ k8s/get-pods	611	0	0
 k8s/describe-pod	715	0	3
 k8s/events	849	0	20
 k8s/helm-status	210	0	2
+k8s/apply	152	0	0
+k8s/rollout-status	16	0	0
+detect/k8s-apply	152	0	0
+detect/k8s-rollout	16	0	0
 detect/k8s-yaml	9609	0	267
 detect/k8s-json	403	0	3
 detect/k8s-get	611	0	0

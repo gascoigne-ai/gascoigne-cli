@@ -40,6 +40,10 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 			out = describe(lines)
 		case "events":
 			out = events(lines, topts)
+		case "apply":
+			out = apply(lines)
+		case "rollout":
+			out = rollout(lines)
 		case "helm":
 			out = o.helm(lines, topts)
 		default: // get and other tables

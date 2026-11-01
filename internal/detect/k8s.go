@@ -8,7 +8,9 @@ const (
 	K8sManifest = "k8s/manifest" // -o yaml/json, helm template, kustomize
 	K8sDescribe = "k8s/describe"
 	K8sEvents   = "k8s/events"
-	Helm        = "k8s/helm" // list, status, history, install/upgrade
+	Helm        = "k8s/helm"    // list, status, history, install/upgrade
+	K8sApply    = "k8s/apply"   // kubectl apply/create/delete: one result line per resource
+	K8sRollout  = "k8s/rollout" // kubectl rollout status: repeating progress lines
 )
 
 func init() {
@@ -28,6 +30,10 @@ func init() {
 			Sniff: firstLine(`^(NAMESPACE\s+)?LAST SEEN\s+TYPE\s+REASON\s+OBJECT`)},
 		Spec{Type: Helm, Cmds: []string{"helm list", "helm ls", "helm status", "helm history", "helm install", "helm upgrade", "helm rollback"}, Priority: 46,
 			Sniff: all(anyLine(`^LAST DEPLOYED: `), anyLine(`^STATUS: `))},
+		Spec{Type: K8sApply, Cmds: []string{"kubectl apply", "kubectl create", "kubectl delete", "kubectl replace", "oc apply", "oc create", "oc delete", "k apply", "k delete"}, Priority: 45,
+			Sniff: atLeast(`^[a-z][\w.-]*(/\S+| "\S+") (unchanged|configured|created|deleted|pruned)\b`, 3)},
+		Spec{Type: K8sRollout, Cmds: []string{"kubectl rollout status", "oc rollout status", "k rollout status"}, Priority: 46,
+			Sniff: atLeast(`^Waiting for (deployment|daemon set|statefulset) .*(rollout to finish|to be ready)`, 2)},
 	)
 }
 
