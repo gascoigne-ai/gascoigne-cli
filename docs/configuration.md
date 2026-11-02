@@ -143,7 +143,7 @@ router:
       optimizers: [log]
     - name: terraform-raw
       match: { attrs: { cmd: "terraform plan*" } }     # globs over payload attributes
-      optimizers: [passthrough]                         # leave the output as it is
+      optimizers: []                                    # leave the output as it is
   default: [task, test, build, git, …]
 ```
 

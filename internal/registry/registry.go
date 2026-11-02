@@ -27,7 +27,6 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/k8soptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/logoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/lsoptimizer"
-	"github.com/gascoigne-ai/gascoigne-cli/optimizer/passthroughoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/pathsoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/pkgoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/proseoptimizer"
@@ -61,7 +60,6 @@ func Factories() []component.Factory {
 		detectfilter.NewFactory(),
 		historyfilter.NewFactory(),
 		// optimizers
-		passthroughoptimizer.NewFactory(),
 		denseoptimizer.NewFactory(),
 		rerunoptimizer.NewFactory(),
 		traceoptimizer.NewFactory(),

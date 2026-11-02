@@ -62,7 +62,7 @@ optimizer  search  grep          optimizer  infra   infra
 optimizer  fs      ls, cat       optimizer  task    task
 optimizer  data    json, data    optimizer  web     http, html
 optimizer  log     log           optimizer  doc     doc
-optimizer  pkg     pkg           optimizer  core    passthrough
+optimizer  pkg     pkg
 optimizer  table   table
 exporter   -       stdout
 extension  -       ledger

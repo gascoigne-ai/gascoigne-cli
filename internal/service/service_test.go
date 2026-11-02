@@ -30,6 +30,10 @@ func (upper) Optimize(_ context.Context, p *payload.Payload) error {
 	return nil
 }
 
+type noop struct{ component.Nop }
+
+func (noop) Optimize(context.Context, *payload.Payload) error { return nil }
+
 type boom struct{ component.Nop }
 
 func (boom) Optimize(_ context.Context, p *payload.Payload) error {
@@ -84,6 +88,7 @@ func newService(t *testing.T, yaml string) (*Service, *capture) {
 	}
 	exp := &capture{}
 	factories := append(registry.Factories(),
+		factory(component.KindOptimizer, "passthrough", noop{}),
 		factory(component.KindOptimizer, "upper", upper{}),
 		factory(component.KindOptimizer, "boom", boom{}),
 		factory(component.KindOptimizer, "grow", grow{}),
@@ -181,6 +186,7 @@ func TestOptimizersRequireLedger(t *testing.T) {
 		t.Fatal(err)
 	}
 	factories := append(registry.Factories(),
+		factory(component.KindOptimizer, "passthrough", noop{}),
 		factory(component.KindOptimizer, "upper", upper{}),
 		factory(component.KindOptimizer, "boom", boom{}),
 		factory(component.KindExporter, "capture", &capture{}))
@@ -202,6 +208,7 @@ func TestUnknownTypeAndBadConfig(t *testing.T) {
 			t.Fatal(err)
 		}
 		factories := append(registry.Factories(),
+			factory(component.KindOptimizer, "passthrough", noop{}),
 			factory(component.KindOptimizer, "upper", upper{}),
 			factory(component.KindOptimizer, "boom", boom{}))
 		if _, err := New(t.Context(), cfg, factories, Options{}); err == nil || !strings.Contains(err.Error(), tt.want) {
