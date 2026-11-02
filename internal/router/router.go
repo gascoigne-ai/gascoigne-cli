@@ -39,6 +39,18 @@ func (c *Config) Optimizers() []string {
 	return ids
 }
 
+// Only returns a copy whose chains keep just the listed optimizers, in order.
+func (c *Config) Only(ids []string) *Config {
+	keep := func(chain []string) []string {
+		return slices.DeleteFunc(slices.Clone(chain), func(id string) bool { return !slices.Contains(ids, id) })
+	}
+	out := &Config{Default: keep(c.Default), Routes: slices.Clone(c.Routes)}
+	for i := range out.Routes {
+		out.Routes[i].Optimizers = keep(out.Routes[i].Optimizers)
+	}
+	return out
+}
+
 // Route returns the first matching route's name and optimizer chain, else the default.
 func (c *Config) Route(p *payload.Payload) (string, []string) {
 	for i, r := range c.Routes {

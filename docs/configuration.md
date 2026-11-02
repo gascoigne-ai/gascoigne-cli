@@ -104,6 +104,7 @@ pipelines:
     receivers: [ … ]
     filters:   [ … ]
     exporters: [ … ]
+    optimizers: [ … ]                  # the optimizers active in this pipeline (empty: every one the router names)
     router:    { … }                   # optional, overrides the top-level router
 ```
 
@@ -119,7 +120,7 @@ Component ids are `type` or `type/name` (two differently configured instances of
 | `mcp` | `gascoigne mcp` | mcp → (tool results) |
 | `mcp-proxy` | `gascoigne mcp-proxy` | mcp_proxy → (tool results) |
 
-All use the filters `bypass, detect, minsize, history`.
+All use the filters `bypass, detect, minsize, history`. Each lists its active optimizers under `optimizers:` in `configs/default.yaml`, today the same chain everywhere; trim a list to turn an optimizer off for one pipeline (e.g. `-set pipelines.mcp.optimizers=[json,log]`). A router entry a pipeline does not list never runs there.
 
 ### Routing
 

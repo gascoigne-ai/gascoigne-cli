@@ -19,7 +19,7 @@
 - Strict decoding: unknown fields fail. Tests keep the template honest: uncommented, it equals the
   defaults, and every `Config` field of every used component appears in it (a new field fails
   until documented).
-- Pipelines may override `router` (proxy and CLI route differently). Optimizers configured in a
+- A pipeline may list `optimizers`: only those run there (the router chains keep their order, `router.Config.Only`; unlisted ids stay defined for other pipelines). Pipelines may override `router` (proxy and CLI route differently). Optimizers configured in a
   pipeline's router require a ledger extension.
 
 ## Per-run overrides (`internal/config/override.go`)

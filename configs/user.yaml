@@ -271,11 +271,11 @@
 #   anthropic_model: claude-opus-5-5  ## model whose tokenizer counts
 #   o200k: true                       ## GPT-4o family encoding; vocabulary (3.6 MB) downloaded once to the cache dir
 
-## Pipelines: which receivers, filters and exporters each command uses.
+## Pipelines: which receivers, filters, optimizers and exporters each command uses. An optimizer a router names but a pipeline does not list never runs there.
 # pipelines:
-#   cli: { receivers: [stdin], filters: [bypass, detect, minsize, history], exporters: [stdout] }
-#   exec: { receivers: [exec], filters: [bypass, detect, minsize, history], exporters: [stdout] }
-#   hook: { receivers: [hook], filters: [bypass, detect, minsize, history] }
-#   mcp: { receivers: [mcp], filters: [bypass, detect, minsize, history] }
-#   mcp-proxy: { receivers: [mcp_proxy], filters: [bypass, detect, minsize, history] }
-#   proxy: { receivers: [httpproxy], filters: [bypass, detect, minsize, history] }
+#   cli: { receivers: [stdin], filters: [bypass, detect, minsize, history], optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun], exporters: [stdout] }
+#   exec: { receivers: [exec], filters: [bypass, detect, minsize, history], optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun], exporters: [stdout] }
+#   hook: { receivers: [hook], filters: [bypass, detect, minsize, history], optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun] }
+#   mcp: { receivers: [mcp], filters: [bypass, detect, minsize, history], optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun] }
+#   mcp-proxy: { receivers: [mcp_proxy], filters: [bypass, detect, minsize, history], optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun] }
+#   proxy: { receivers: [httpproxy], filters: [bypass, detect, minsize, history], optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun] }

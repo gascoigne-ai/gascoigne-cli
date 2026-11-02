@@ -71,3 +71,14 @@ func TestRoute(t *testing.T) {
 		})
 	}
 }
+
+func TestOnlyKeepsOrderAndLeavesOriginal(t *testing.T) {
+	c := &Config{Default: []string{"a", "b", "c"}, Routes: []Route{{Name: "r", Optimizers: []string{"c", "a", "d"}}}}
+	got := c.Only([]string{"a", "c"})
+	if strings.Join(got.Default, "") != "ac" || strings.Join(got.Routes[0].Optimizers, "") != "ca" {
+		t.Fatalf("Only = %+v", got)
+	}
+	if strings.Join(c.Default, "") != "abc" || strings.Join(c.Routes[0].Optimizers, "") != "cad" {
+		t.Fatalf("original changed: %+v", c)
+	}
+}

@@ -51,16 +51,23 @@ type Pipeline struct {
 	Receivers []string `yaml:"receivers"`
 	Filters   []string `yaml:"filters,omitempty"`
 	Exporters []string `yaml:"exporters,omitempty"`
+	// Optimizers limits the optimizers this pipeline runs to these; empty
+	// runs every one the router names.
+	Optimizers []string `yaml:"optimizers,omitempty"`
 	// Router overrides the top-level router for this pipeline.
 	Router *router.Config `yaml:"router,omitempty"`
 }
 
 // RouterFor returns the router config a pipeline uses.
 func (c *Config) RouterFor(p Pipeline) *router.Config {
+	r := &c.Router
 	if p.Router != nil {
-		return p.Router
+		r = p.Router
 	}
-	return &c.Router
+	if len(p.Optimizers) > 0 {
+		return r.Only(p.Optimizers)
+	}
+	return r
 }
 
 func Load(path string) (*Config, error) {
@@ -121,6 +128,7 @@ func (c *Config) Validate() error {
 		errs = append(errs, refs(name, component.KindReceiver, p.Receivers, c.Receivers)...)
 		errs = append(errs, refs(name, component.KindFilter, p.Filters, c.Filters)...)
 		errs = append(errs, refs(name, component.KindExporter, p.Exporters, c.Exporters)...)
+		errs = append(errs, refs(name, component.KindOptimizer, p.Optimizers, c.Optimizers)...)
 		errs = append(errs, refs(name, component.KindOptimizer, c.RouterFor(p).Optimizers(), c.Optimizers)...)
 	}
 	return errors.Join(errs...)

@@ -142,22 +142,29 @@ pipelines:
   cli:
     receivers: [stdin]
     filters: [bypass, detect, minsize, history]
+  # optimizers: the ones active in that pipeline, in router order. A router entry not
+  # listed here does not run there; add new optimizers to the pipelines that should use them.
     exporters: [stdout]
   exec:
     receivers: [exec]
+    optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun]
     filters: [bypass, detect, minsize, history]
     exporters: [stdout]
   # Hook and MCP pipelines have no exporters: results go back to the agent, and
   # stdout is the protocol channel.
+    optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun]
   hook:
     receivers: [hook]
     filters: [bypass, detect, minsize, history]
   mcp:
     receivers: [mcp]
     filters: [bypass, detect, minsize, history]
+    optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun]
   mcp-proxy:
     receivers: [mcp_proxy]
     filters: [bypass, detect, minsize, history]
+    optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun]
   proxy:
     receivers: [httpproxy]
     filters: [bypass, detect, minsize, history]
+    optimizers: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun]

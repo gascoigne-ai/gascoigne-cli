@@ -62,3 +62,45 @@ func TestPipelineRouterOverride(t *testing.T) {
 		t.Fatalf("err = %v, want pipeline proxy ref error", err)
 	}
 }
+
+// A pipeline lists the optimizers it runs; the shared router stays as it is
+// for the others, and routes keep their order inside the allowed set.
+func TestPipelineOptimizers(t *testing.T) {
+	y := valid + `  hook:
+    receivers: [stdin]
+    optimizers: [passthrough]
+`
+	c, err := Parse([]byte(y))
+	if err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		pipeline string
+		def      []string
+		route    []string
+	}{
+		{"cli", []string{"passthrough/big"}, []string{"passthrough"}},
+		{"hook", nil, []string{"passthrough"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.pipeline, func(t *testing.T) {
+			r := c.RouterFor(c.Pipelines[tt.pipeline])
+			if strings.Join(r.Default, ",") != strings.Join(tt.def, ",") {
+				t.Errorf("default = %v, want %v", r.Default, tt.def)
+			}
+			if got := r.Routes[0].Optimizers; strings.Join(got, ",") != strings.Join(tt.route, ",") {
+				t.Errorf("route = %v, want %v", got, tt.route)
+			}
+		})
+	}
+}
+
+func TestPipelineOptimizersErrors(t *testing.T) {
+	y := valid + `  hook:
+    receivers: [stdin]
+    optimizers: [nope]
+`
+	if _, err := Parse([]byte(y)); err == nil || !strings.Contains(err.Error(), `pipeline hook: optimizer "nope" not defined`) {
+		t.Fatalf("err = %v, want undefined optimizer error", err)
+	}
+}
