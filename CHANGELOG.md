@@ -6,6 +6,48 @@ All notable changes to gascoigne. The format follows
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-02
+
+Smarter log folding, a gentler route for sources the agent keeps fetching raw, MCP review that suggests and applies
+savings, and a public `inproc` package that runs the pipeline inside your own process (the base of the SDK native
+mode).
+
+### Added
+
+- `inproc`: public facade that runs the optimizer pipeline inside a process. `configs` exposes the YAML overlay and
+  the unknown-settings check.
+- Log engine: `miner: drain` folds lines that differ in a few words (host, user) by Drain template clusters;
+  `outliers: mad` keeps spikes the 10x median rule misses; `bursts` says where a template's repeats cluster
+  (`mostly lines 661-687`); `rarity` keeps the entries standing for the fewest lines over `max_lines`; `passes`
+  picks the stages that run before templating. All off or at the old behavior by default except where noted below.
+- `truncate`: `query_diverse` picks query lines by maximal marginal relevance, so near-identical matches do not
+  fill the budget.
+- History: a source fetched raw after an optimized result takes a `gentle` route before it is bypassed
+  (`history.gentle_after`), and a whole family goes gentle when too many of its results are fetched raw
+  (`history.family_*`). Optimized runs forgive failures (`ledger.recover_after`).
+- `gain -refetch`: per family, how often the original was fetched afterwards.
+- `mcp-review`: servers and tools sorted by usage, suggestions (tools unused for 7 days to load on request, advice
+  for the agent's config) and auto-optimize (`mcp-review -optimize`, the dashboard button; adds lazy tools, never
+  removes a choice).
+- `replay -set` compares settings on the same transcripts.
+- Context: advice on 1-hour cache pauses; skills and subagents no transcript shows are flagged in `prompts`.
+- Pipelines list their active optimizers under `optimizers:` in `configs/default.yaml`.
+
+### Changed
+
+- `history.max_failures` is 2 (was 1): with `gentle_after: 1`, the first failure now gets the gentle route and the
+  second bypasses. Set `max_failures: 1` for the old behavior.
+- Log folding keeps codes apart: `status=503` among `status=200` lines is no longer folded.
+- A new release opens the dashboard setup once more at the next session start; Change opens it with a token.
+- `optimizers: []` leaves an output as it is; the `passthrough` optimizer is gone (a config naming it needs the
+  empty list).
+- `ledger` is no longer an option of `mcp`, `mcp_proxy` and `history`.
+- `compress.Split` scans once and skips the ANSI regexp on plain text.
+
+### Fixed
+
+- An outlier survives a wide context in log folding; status and exit codes no longer fold into one repeat.
+
 ## [0.8.0] - 2026-11-01
 
 Fewer tokens from the session itself, not only from tool output: screenshots are downscaled in the Claude hook,
