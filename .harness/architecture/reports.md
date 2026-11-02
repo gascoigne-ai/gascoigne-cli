@@ -71,6 +71,19 @@ sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MC
   `prefs.mcp_rules` (validated by `Rule.Validate`, at most `maxRules`, empty clears); the review reports them as
   `rules`, `mcp-proxy` reads them with `WithRules(savedRules())` (`GASCOIGNE_MCP_LAZY=off` ignores them), and the
   page's "Keep raw" tick is the exact-name `skip` rule.
+- Order: servers and a server's tools come most called first (calls in 7 days, then 14 days or tokens, then
+  name); the page opens sorted by calls and every heading, also of the tool table, sorts by accessor.
+- Suggestions (`mcpsuggest.go`, `suggestMCP`, per server in `suggestions`): tools not called in 7 days with a
+  definition of 100 tokens or more are suggested to load on request when together they beat the price of lazy
+  mode (500 tokens; waived once the server has lazy tools); tools a rule names are the user's call. Servers
+  learning, not seen lately or direct get none. Advice that lives in the agent's config, which gascoigne does not
+  write, is shown only (`serverAdvice` table): switch an unused server off, `max_tools` from 20 listed tools,
+  `trim_descriptions` from an average of 300 tokens.
+- Auto-optimize: `POST /api/mcp/optimize {id?}` (`optimizeMCP`, same loopback and origin rules) decides from the
+  ledger alone (it ignores anything else in the body), adds the suggested tools to `prefs.lazy_tools[id]`
+  (never removes a choice, never touches rules) and returns the review plus `applied`; a second call applies
+  nothing. No id = every server; an unknown or direct id is a 400. `mcp-review -optimize` does the same for all;
+  `-text` lists the suggestions.
 
 ## Costs page (`costs.html`, `GET /costs`, `GET /api/costs`)
 

@@ -61,24 +61,25 @@ type mcpTool struct {
 
 // mcpServer is one server in the review.
 type mcpServer struct {
-	ID        string                  `json:"id"`    // name#hash of the command line for proxied servers: the key of its stats
-	Name      string                  `json:"name"`  // what the server reports (a proxied one) or the agent's key for it (a direct one)
-	Label     string                  `json:"label"` // Name, with the id's hash when two servers share it
-	Verdict   string                  `json:"verdict"`
-	Sized     bool                    `json:"sized"`       // false: only calls are known (the server stays direct)
-	Tokens    int                     `json:"tokens"`      // what its definitions add to the tool list
-	IdleToks  int                     `json:"idle_tokens"` // of those, tools not called in unusedDays
-	LazyToks  int                     `json:"lazy_tokens"` // what the tools offered on request only would cost if listed
-	Calls7    int                     `json:"calls_7d"`
-	CallsPrev int                     `json:"calls_prev_7d"` // the 7 days before
-	LastUsed  string                  `json:"last_used,omitempty"`
-	Seen      int                     `json:"seen_days"`
-	Listed    int                     `json:"listed_days_ago"` // days since a proxy last listed its tools; -1 when none did
-	Agents    []string                `json:"agents"`
-	Config    []mcpConfigEntry        `json:"config"`      // where the agent's config starts it, found by the command hash
-	Rules     []mcpproxyreceiver.Rule `json:"rules"`       // manual rules set on the page; they take effect from the next session
-	Chosen    []string                `json:"lazy_chosen"` // tools the user chose to load on request: they take effect from the next session
-	Tools     []mcpTool               `json:"tools"`
+	ID          string                  `json:"id"`    // name#hash of the command line for proxied servers: the key of its stats
+	Name        string                  `json:"name"`  // what the server reports (a proxied one) or the agent's key for it (a direct one)
+	Label       string                  `json:"label"` // Name, with the id's hash when two servers share it
+	Verdict     string                  `json:"verdict"`
+	Sized       bool                    `json:"sized"`       // false: only calls are known (the server stays direct)
+	Tokens      int                     `json:"tokens"`      // what its definitions add to the tool list
+	IdleToks    int                     `json:"idle_tokens"` // of those, tools not called in unusedDays
+	LazyToks    int                     `json:"lazy_tokens"` // what the tools offered on request only would cost if listed
+	Calls7      int                     `json:"calls_7d"`
+	CallsPrev   int                     `json:"calls_prev_7d"` // the 7 days before
+	LastUsed    string                  `json:"last_used,omitempty"`
+	Seen        int                     `json:"seen_days"`
+	Listed      int                     `json:"listed_days_ago"` // days since a proxy last listed its tools; -1 when none did
+	Agents      []string                `json:"agents"`
+	Config      []mcpConfigEntry        `json:"config"`      // where the agent's config starts it, found by the command hash
+	Rules       []mcpproxyreceiver.Rule `json:"rules"`       // manual rules set on the page; they take effect from the next session
+	Chosen      []string                `json:"lazy_chosen"` // tools the user chose to load on request: they take effect from the next session
+	Suggestions []suggestion            `json:"suggestions"` // what the usage supports changing (see mcpsuggest.go)
+	Tools       []mcpTool               `json:"tools"`
 }
 
 // mcpReview is the whole review.
@@ -183,7 +184,9 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 	}
 	review := mcpReview{Days: dataOldest + 1, Servers: []mcpServer{}}
 	for _, s := range servers {
-		slices.SortFunc(s.Tools, func(a, b mcpTool) int { return cmp.Or(cmp.Compare(b.Tokens, a.Tokens), cmp.Compare(a.Name, b.Name)) })
+		slices.SortFunc(s.Tools, func(a, b mcpTool) int { // the most used first
+			return cmp.Or(cmp.Compare(b.Calls7, a.Calls7), cmp.Compare(b.Calls, a.Calls), cmp.Compare(b.Tokens, a.Tokens), cmp.Compare(a.Name, b.Name))
+		})
 		slices.Sort(s.Agents)
 		s.Seen = oldest[s.ID] + 1
 		s.Listed = -1
@@ -201,11 +204,12 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 			}
 		}
 		s.Verdict = verdict(s, learned[s.ID])
+		s.Suggestions = suggestMCP(*s)
 		review.Servers = append(review.Servers, *s)
 	}
 	labelDuplicates(review.Servers)
 	slices.SortFunc(review.Servers, func(a, b mcpServer) int {
-		return cmp.Or(cmp.Compare(b.Tokens, a.Tokens), cmp.Compare(b.Calls7, a.Calls7), cmp.Compare(a.Name, b.Name))
+		return cmp.Or(cmp.Compare(b.Calls7, a.Calls7), cmp.Compare(b.Tokens, a.Tokens), cmp.Compare(a.Name, b.Name))
 	})
 	review.Notes = reviewNotes(review)
 	return review
@@ -316,6 +320,7 @@ func printReview(w io.Writer, r mcpReview) {
 		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%d\t%d\t%s\n", s.Name, s.Verdict, size, idle, s.Calls7, s.CallsPrev, cmp.Or(s.LastUsed, "-"))
 	}
 	tw.Flush()
+	printSuggestions(w, r)
 	for _, n := range r.Notes {
 		fmt.Fprintln(w, "\n"+n)
 	}
@@ -346,6 +351,7 @@ func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map
 		if c := chosen[s.ID]; len(c) > 0 {
 			review.Servers[i].Chosen = c
 		}
+		review.Servers[i].Suggestions = suggestMCP(review.Servers[i])
 	}
 	return review, nil
 }
@@ -353,18 +359,26 @@ func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map
 // cmdMCPReview opens the review page; the table is the fallback for a
 // terminal without a browser.
 func cmdMCPReview(ctx context.Context, args []string) error {
-	var asJSON, text, learn bool
+	var asJSON, text, learn, optimize bool
 	open := true
 	return withLedger(ctx, "mcp-review", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&asJSON, "json", false, "print the review as JSON")
 		fs.BoolVar(&text, "text", false, "print the table instead of opening the page")
 		fs.BoolVar(&learn, "learn", false, "judge the servers still learning now, without waiting for the observation days")
+		fs.BoolVar(&optimize, "optimize", false, "apply the suggestions: load the tools nothing called on request")
 		fs.BoolVar(&open, "open", true, "open the page in a browser; false only prints its address")
 	}, func(l *ledger.Ledger, _ *common, _ []string) error {
 		if learn {
 			if _, err := learnServers(ctx, l, ""); err != nil {
 				return err
 			}
+		}
+		if optimize {
+			_, applied, err := optimizeServers(ctx, l, "")
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%d tool(s) load on request from the next session, %d tokens out of the tool list\n", len(applied), savedBy(applied))
 		}
 		if !asJSON && !text && canBrowse() {
 			link := "http://" + serverAddr() + "/mcp"
@@ -564,3 +578,41 @@ func setRules(l *ledger.Ledger) http.HandlerFunc {
 
 // maxRules bounds a server's saved rules: the page offers a handful.
 const maxRules = 50
+
+// savedBy sums what suggestions take out of the tool list.
+func savedBy(sugs []suggestion) (n int) {
+	for _, s := range sugs {
+		n += s.Saves
+	}
+	return n
+}
+
+// printSuggestions lists what the usage supports changing, per server: the
+// tools to load on request in one line, each piece of advice in its own.
+func printSuggestions(w io.Writer, r mcpReview) {
+	first := true
+	for _, s := range r.Servers {
+		var lazy []string
+		var advice []suggestion
+		for _, sg := range s.Suggestions {
+			if sg.applies() {
+				lazy = append(lazy, sg.Tool)
+			} else {
+				advice = append(advice, sg)
+			}
+		}
+		if len(lazy)+len(advice) == 0 {
+			continue
+		}
+		if first {
+			fmt.Fprintln(w, "\nSUGGESTIONS (mcp-review -optimize loads the listed tools on request)")
+			first = false
+		}
+		if len(lazy) > 0 {
+			fmt.Fprintf(w, "  %s: load on request %s (%d tokens)\n", s.Name, strings.Join(lazy, ", "), savedBy(s.Suggestions))
+		}
+		for _, sg := range advice {
+			fmt.Fprintf(w, "  %s: %s\n", s.Name, sg.Reason)
+		}
+	}
+}

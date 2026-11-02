@@ -133,6 +133,7 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 	mux.HandleFunc("POST /api/mcp/lazy", setLazy(l))
 	mux.HandleFunc("POST /api/mcp/learn", learnNow(l))
 	mux.HandleFunc("POST /api/mcp/rules", setRules(l))
+	mux.HandleFunc("POST /api/mcp/optimize", optimizeMCP(l))
 	newLoginFlows(authStore(), tryOpenBrowser).handlers(mux)
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")

@@ -22,7 +22,7 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `tokens [-model list] [-exact=false] [file]` | Count text with each tokenizer family and price one read and its cost in an agent's context (see [cost](cost.md)); also exact counts: o200k locally, Claude via `count_tokens` when a key is configured. |
 | `flush [-older 7d]` | Delete stored originals (the cache behind `raw <id>`) and vacuum the ledger. |
 | `context [-since 14d] [-text] [-json]` | Open the context page: how big conversations get, where the money goes, and what compacting earlier would have saved (see [below](#context)). |
-| `mcp-review [-text] [-json]` | Open the MCP review page: what each server's tool definitions add to the tool list, calls this week and last, and a verdict (see [below](#mcp-review)). |
+| `mcp-review [-text] [-json] [-optimize]` | Open the MCP review page: what each server's tool definitions add to the tool list, calls this week and last, and a verdict (see [below](#mcp-review)). |
 | `reset [flags]` | Clear savings stats; `-all` also clears stored originals and failure history. |
 | `wrap <agent> [agent args]` | Start `claude`, `codex`, `gemini`, `opencode` or `pi` with gascoigne registered for that run. |
 | `install [-g] [agent...]` | Register gascoigne for good in this project's agent configs, or with `-g` in the user's (default: agents found on `PATH`). |
@@ -160,7 +160,12 @@ numbers above for your own sessions first.
 gascoigne mcp-review          # opens the page in the dashboard
 gascoigne mcp-review -text    # the same table in the terminal
 gascoigne mcp-review -json
+gascoigne mcp-review -optimize  # load on request the tools nothing called in 7 days
 ```
+
+The page and `-text` also suggest what usage supports changing: tools to load on request (the "Auto-optimize"
+button, or `-optimize`, applies them from the next session; nothing is removed) and advice for the agent's own
+configuration (switch an unused server off, `max_tools`, `trim_descriptions`).
 
 Most agents send the definitions of all their tools with every request, so an MCP server that is never
 called is paid for all week. An agent with its own tool search (Claude Code defers many tools behind

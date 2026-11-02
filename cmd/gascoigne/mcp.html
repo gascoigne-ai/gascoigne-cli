@@ -56,10 +56,18 @@ const columns = [
   { title: "Last used", get: (s) => s.last_used || "", first: "desc" },
 ];
 let data = { servers: [], notes: [], days: 0 };
-let sort = { col: 2, dir: "desc" };
+// A server's tools sort the same way, by accessor; the most called first.
+const toolColumns = [
+  { title: "Tool", get: (t) => t.name.toLowerCase(), first: "asc" },
+  { title: "Tokens", get: (t) => t.tokens, num: true },
+  { title: "Calls, 7 days", get: (t) => t.calls_7d, num: true },
+  { title: "Calls, 14 days", get: (t) => t.calls_14d, num: true },
+];
+let sort = { col: 4, dir: "desc" }; // by usage
+let toolSort = { col: 2, dir: "desc" };
 const open = new Set();
 { const id = decodeURIComponent(location.hash.slice(1)); if (id) open.add(id); } // #<server id> opens that server
-let busy = false, problem = "";
+let busy = false, problem = "", result = "";
 
 // Saving a choice: the proxy reads it when a session starts, so it reaches the next session.
 async function post(path, body) {
@@ -68,8 +76,34 @@ async function post(path, body) {
     const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     if (!r.ok) throw new Error((await r.text()).trim() || r.statusText);
     data = await r.json();
+    result = Array.isArray(data.applied) ? summary(data.applied) : "";
   } catch (e) { problem = "Could not save: " + e.message; }
   busy = false; render();
+}
+
+// What auto-optimize did, in a sentence.
+function summary(applied) {
+  if (!applied.length) return "Nothing to optimize: every suggestion is already applied.";
+  const saves = applied.reduce((n, a) => n + a.saves, 0);
+  return `${applied.length} tool${applied.length === 1 ? "" : "s"} now load on request, taking ${num(saves)} tokens out of the tool list. Applies from the next session of your agent.`;
+}
+
+// The suggestions of a server: tools that load on request are applied by the button; the rest is advice, because it
+// lives in the agent's own configuration.
+function suggestionsBlock(s) {
+  const tool = s.suggestions.filter((g) => g.kind === "tool"), advice = s.suggestions.filter((g) => g.kind !== "tool");
+  if (!s.suggestions.length) return null;
+  const box = el("div", { class: "rules" }, el("h3", { text: "Suggestions" }));
+  if (tool.length) {
+    const saves = tool.reduce((n, g) => n + g.saves, 0);
+    box.append(el("p", { text: `${tool.length} tool${tool.length === 1 ? "" : "s"} to load on request (${num(saves)} tokens): ${tool.map((g) => g.tool).join(", ")}.` }));
+    const b = G.button("load", "Apply suggestions", { class: "primary" });
+    b.disabled = busy;
+    b.addEventListener("click", () => post("/api/mcp/optimize", { id: s.id }));
+    box.append(b);
+  }
+  advice.forEach((g) => box.append(el("p", { class: "muted", text: `${g.action.replace("_", " ")}: ${g.reason}` })));
+  return box;
 }
 
 // Learn now: judge a server on what is recorded so far instead of waiting for its first days.
@@ -111,6 +145,8 @@ function actions(s) {
     box.append(b);
   }
   if (s.verdict === "unused") { const d = Math.min(s.seen_days, 7); box.append(el("p", { text: `Nothing called this server in ${d} day${d === 1 ? "" : "s"}, so its definitions are listed for nothing. Switching it off saves them.` })); }
+  const sg = suggestionsBlock(s);
+  if (sg) box.append(sg);
   box.append(...configLines(s));
   if (s.sized && s.config.length === 0 && s.verdict === "unused") box.append(el("p", { class: "muted", text: "Its configuration was not found in the places gascoigne looks (Claude's user and project files, Cursor's mcp.json); remove it where you set it up." }));
   if (!s.sized) {
@@ -207,9 +243,21 @@ function serverRows(s, max) {
   );
   const rows = [main];
   if (open.has(s.id)) {
-    const inner = el("table", {}, el("thead", {}, el("tr", {},
-      el("th", { text: "Tool" }), el("th", { class: "num", text: "Tokens" }), el("th", { class: "num", text: "Calls, 7 days" }), el("th", { class: "num", text: "Calls, 14 days" }), s.sized ? el("th", { text: "Keep raw" }) : null)),
-      el("tbody", {}, ...s.tools.map((t) => el("tr", {},
+    const tc = toolColumns[toolSort.col];
+    const sorted = [...s.tools].sort((a, b) => {
+      const x = tc.get(a), y = tc.get(b);
+      const r = x < y ? -1 : x > y ? 1 : a.name.localeCompare(b.name);
+      return toolSort.dir === "asc" ? r : -r;
+    });
+    const toolHead = toolColumns.map((col, i) => {
+      const h = el("th", { class: col.num ? "num" : "", scope: "col" });
+      if (i === toolSort.col) h.setAttribute("aria-sort", toolSort.dir === "asc" ? "ascending" : "descending");
+      const b = el("button", { type: "button", text: col.title });
+      b.addEventListener("click", () => { toolSort = { col: i, dir: toolSort.col === i ? (toolSort.dir === "asc" ? "desc" : "asc") : (col.first || "desc") }; render(); });
+      h.append(b); return h;
+    });
+    const inner = el("table", {}, el("thead", {}, el("tr", {}, ...toolHead, s.sized ? el("th", { text: "Keep raw" }) : null)),
+      el("tbody", {}, ...sorted.map((t) => el("tr", {},
         el("td", {}, t.name, t.lazy ? el("span", { class: "muted", text: "  loads on request" }) : t.calls_7d === 0 && s.sized && !meta(t) ? el("span", { class: "muted", text: "  not called" }) : null),
         el("td", { class: "num", title: t.lazy ? "what it would cost if listed" : "", text: t.tokens ? num(t.tokens) : "–" }),
         el("td", { class: "num", text: num(t.calls_7d) }), el("td", { class: "num", text: num(t.calls_14d) }), s.sized && !meta(t) ? rawCell(s, t) : null))));
@@ -229,6 +277,17 @@ function render() {
     kpi("Servers", String(data.servers.length), sized.length + " through mcp-proxy"), kpi("Definition tokens", human(listed), "listed to the agent"),
     kpi("Idle tokens", human(idle), "tools not called in 7 days", idle > 0), kpi("Loaded on request", human(lazy), "kept out of the tool list"));
 
+  const total = data.servers.reduce((n, s) => n + s.suggestions.filter((g) => g.kind === "tool").length, 0);
+  const optimize = el("div", { class: "actions" });
+  if (total) {
+    const b = G.button("load", `Auto-optimize (${total} tool${total === 1 ? "" : "s"})`, { class: "primary" });
+    b.disabled = busy;
+    b.addEventListener("click", () => post("/api/mcp/optimize", {}));
+    optimize.append(el("p", { text: "Tools no one called in 7 days, on servers with a verdict, can load on request instead of being listed. Nothing is removed." }), b);
+  } else optimize.append(el("p", { class: "muted", text: "No suggestions: the usage recorded so far gives nothing to change." }));
+  if (result) optimize.append(el("p", { class: "note", role: "status", text: result }));
+  if (problem) optimize.append(el("p", { class: "err", role: "alert", text: problem }));
+
   const c = columns[sort.col];
   const servers = [...data.servers].sort((a, b) => {
     const x = c.get(a), y = c.get(b);
@@ -246,7 +305,7 @@ function render() {
   });
   const body = el("tbody");
   for (const s of servers) body.append(...serverRows(s, max));
-  root.replaceChildren(kpis, ...(notes ? [notes] : []), panel("Servers", "Click a heading to sort and a server for its tools.", el("div", { class: "scroll" }, el("table", {}, el("thead", {}, head), body))));
+  root.replaceChildren(kpis, optimize, ...(notes ? [notes] : []), panel("Servers", "Click a heading to sort and a server for its tools.", el("div", { class: "scroll" }, el("table", {}, el("thead", {}, head), body))));
 }
 
 fetch("/api/mcp").then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
