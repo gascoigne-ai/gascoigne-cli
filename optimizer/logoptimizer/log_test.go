@@ -13,7 +13,7 @@ import (
 
 func run(typ, in string) string {
 	p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: typ}}}
-	(&Optimizer{cfg: &Config{Context: 1, DropDebug: true, MaxLines: 300}}).Optimize(nil, p)
+	(&Optimizer{cfg: &Config{Context: 1, DropDebug: true, MaxLines: 300, Passes: defaultPasses}}).Optimize(nil, p)
 	return p.Blocks[0].Text
 }
 
@@ -572,6 +572,57 @@ func TestBurst(t *testing.T) {
 			first, last, ok := burst(at, len(at), tt.total)
 			if ok != tt.ok || ok && (first != tt.first || last != tt.last) {
 				t.Errorf("burst = %d %d %v, want %d %d %v", first, last, ok, tt.first, tt.last, tt.ok)
+			}
+		})
+	}
+}
+
+func TestPassesSelectStages(t *testing.T) {
+	in := "Oct 10 00:05:45 host systemd[1]: Starting WPA supplicant...\n" +
+		"Oct 10 00:05:45 host systemd[1]: Started WPA supplicant.\n"
+	tests := []struct {
+		name   string
+		passes []string
+		want   bool // the Starting line survives
+	}{
+		{"default pairs units", nil, false},
+		{"all passes", []string{"entries", "units", "prefixes"}, false},
+		{"without units", []string{"entries", "prefixes"}, true},
+		{"none", []string{}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := &Config{Context: 2, DropDebug: true, MaxLines: 300, Passes: tt.passes}
+			if tt.passes == nil {
+				cfg.Passes = defaultPasses
+			}
+			p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.Journal}}}
+			(&Optimizer{cfg: cfg}).Optimize(nil, p)
+			if got := strings.Contains(p.Blocks[0].Text, "Starting WPA"); got != tt.want {
+				t.Errorf("Starting line kept = %v, want %v:\n%s", got, tt.want, p.Blocks[0].Text)
+			}
+		})
+	}
+}
+
+func TestPassesValidate(t *testing.T) {
+	tests := []struct {
+		name   string
+		passes []string
+		bad    bool
+	}{
+		{"default", defaultPasses, false},
+		{"subset in order", []string{"entries", "prefixes"}, false},
+		{"empty", []string{}, false},
+		{"unknown", []string{"entries", "magic"}, true},
+		{"out of order", []string{"prefixes", "entries"}, true},
+		{"duplicate", []string{"units", "units"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := Config{Context: 2, MaxLines: 300, Passes: tt.passes}
+			if err := c.Validate(); (err != nil) != tt.bad {
+				t.Fatalf("Validate() = %v, want error: %v", err, tt.bad)
 			}
 		})
 	}

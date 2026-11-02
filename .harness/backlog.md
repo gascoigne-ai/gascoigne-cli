@@ -136,6 +136,10 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   change on any of 427 fixture or 88 ext cases (none cut a middle with repeated query matches); only a
   synthetic unit shows it (3 near-identical matches no longer hide the distinct one). Unproven on real output.
 
+- Log `passes` (2026-11-02): default output unchanged on 427 fixture and 88 ext cases. Without `units`
+  the journalctl fixture is smaller (out tokens 3800→3569, lost artifacts 13→12): the start/stop pairing
+  may not pay once repeats are templated. Check on more journal/syslog output before dropping it.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Rerun nudge in the hint (2026-10-12): `learn` finds no `rerun` habit on a month of one real ledger (two

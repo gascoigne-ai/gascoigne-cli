@@ -3,6 +3,7 @@ package logoptimizer
 import (
 	"errors"
 	"fmt"
+	"slices"
 )
 
 type Config struct {
@@ -12,6 +13,11 @@ type Config struct {
 	DropDebug bool `yaml:"drop_debug"`
 	// MaxLines caps the result; warnings and errors are kept first.
 	MaxLines int `yaml:"max_lines"`
+	// Passes lists the stages that run on a log before its lines are
+	// templated, in this order: entries (structured events become lines),
+	// units (systemd Starting/Started pairs), prefixes (container prefixes
+	// are cut and relabeled). Drop one to turn it off; order is fixed.
+	Passes []string `yaml:"passes"`
 	// Bursts names the lines where most repeats of a template sit when they
 	// are packed into a short stretch of the log.
 	Bursts bool `yaml:"bursts"`
@@ -39,6 +45,10 @@ type Config struct {
 	DrainVariants int `yaml:"drain_variants"`
 }
 
+// defaultPasses is every stage, in the only order they can run: a later one
+// reads what an earlier one wrote.
+var defaultPasses = []string{"entries", "units", "prefixes"}
+
 const (
 	outliersRatio = "ratio"
 	outliersMAD   = "mad"
@@ -49,6 +59,17 @@ const (
 func (c *Config) Validate() error {
 	if c.Context < 0 || c.MaxLines < 20 {
 		return errors.New("context must be >= 0 and max_lines >= 20")
+	}
+	last := -1
+	for _, name := range c.Passes {
+		i := slices.Index(defaultPasses, name)
+		if i < 0 {
+			return fmt.Errorf("passes: unknown %q, want some of %v in that order", name, defaultPasses)
+		}
+		if i <= last {
+			return fmt.Errorf("passes: %q is repeated or out of order, want %v", name, defaultPasses)
+		}
+		last = i
 	}
 	switch c.Outliers {
 	case "", outliersRatio, outliersMAD:

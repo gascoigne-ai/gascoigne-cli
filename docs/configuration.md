@@ -212,6 +212,7 @@ rows, query matches) and mark every gap.
 | `log` | `context` | 2 | Lines kept around warnings and errors. |
 | | `drop_debug` | true | Remove DEBUG and TRACE lines. |
 | | `max_lines` | 300 | Cap; warnings and errors are kept first. |
+| | `passes` | `[entries, units, prefixes]` | Stages that run before templating, always in this order: `entries` (cloud and JSON events become lines), `units` (systemd Starting/Started pairs), `prefixes` (container prefixes cut and relabeled). Drop one to turn it off; unknown or out-of-order names fail at load. |
 | | `bursts` | false | A template of 20+ repeats with 80% of them inside a quarter of the log says where: `(×33; mostly lines 661–687)`. |
 | | `outliers` | `ratio` | A number in a repeated line stays when it is at least 10x its template's median (`ratio`); `mad` also keeps one with modified z-score above 3.5 and at least 1.5x the median (a 4x latency spike), for templates of 8+ lines. |
 | | `rarity` | false | Over `max_lines`, also keep `max_lines/8` entries of the rarest templates (those standing for the fewest lines), beyond head, tail and errors. Off: on system logs, where nearly every line is rare, it adds about a quarter more tokens. |

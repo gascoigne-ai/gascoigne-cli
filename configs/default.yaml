@@ -61,12 +61,13 @@ optimizers:
     tail_share: 0.15
     anomaly_std: 2
     relevance_k: 3
+  # passes: stages before templating, fixed order: entries (cloud/JSON events to lines), units (systemd Starting/Started pairs), prefixes (container prefixes cut and relabeled)
   # bursts: name the lines where >= 80% of a template's 20+ repeats sit when they span <= 25% of the log
   # outliers ratio: a number >= 10x its template median stays; mad: also a modified z-score > 3.5 and >= 1.5x the median
   # rarity: over max_lines, also keep max_lines/8 entries of the templates standing for the fewest lines
   # miner regex: lines repeat when equal after masking numbers, ids, timestamps;
   # drain: also when they differ in a few words (Drain template miner), set per-run with -set optimizers.log.miner=drain
-  log: { context: 2, drop_debug: true, max_lines: 300, bursts: false, outliers: ratio, rarity: false, miner: regex, drain_depth: 4, drain_similarity: 0.6, drain_max_children: 100, drain_max_vars: 2, drain_variants: 3 }
+  log: { context: 2, drop_debug: true, max_lines: 300, passes: [entries, units, prefixes], bursts: false, outliers: ratio, rarity: false, miner: regex, drain_depth: 4, drain_similarity: 0.6, drain_max_children: 100, drain_max_vars: 2, drain_variants: 3 }
   # mode auto|full|clean|outline; per run: -attr cat_mode=full or GASCOIGNE_CAT_MODE
   cat: { mode: auto, clean_min_tokens: 800, outline_min_tokens: 4000, min_body: 4 }
   pkg: { tree_depth: 5 } # dependency trees: packages deeper than this are counted, query matches stay

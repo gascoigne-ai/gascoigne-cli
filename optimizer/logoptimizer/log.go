@@ -64,18 +64,12 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		case b.Type == detect.Access:
 			lines = o.access(lines)
 		default:
-			// Cloud log services and JSON loggers print structured events;
-			// gcloud prints YAML.
-			text := strings.TrimSpace(b.Text)
-			if strings.HasPrefix(text, "{") || strings.HasPrefix(text, "[") || b.Type == detect.GCPLogs {
-				if ev, ok := entries(text); ok {
-					lines = ev
+			for _, name := range o.cfg.Passes {
+				if name != "prefixes" {
+					lines = prePasses[name](b, lines)
 				}
 			}
-			if b.Type == detect.Journal || b.Type == detect.Syslog {
-				lines = unitPairs(lines)
-			}
-			if s, ok := split(lines); ok {
+			if s, ok := split(lines); ok && slices.Contains(o.cfg.Passes, "prefixes") {
 				lines = render(o.template(s.lines, s.src), s.names)
 				break
 			}
@@ -84,6 +78,28 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		p.Blocks[i].Text = compress.Join(lines)
 	}
 	return nil
+}
+
+// prePasses are the stages that rewrite a log's lines before templating,
+// by the names in Config.Passes ("prefixes" is handled where it renders).
+var prePasses = map[string]func(b payload.Block, lines []string) []string{
+	// Cloud log services and JSON loggers print structured events; gcloud
+	// prints YAML.
+	"entries": func(b payload.Block, lines []string) []string {
+		text := strings.TrimSpace(b.Text)
+		if strings.HasPrefix(text, "{") || strings.HasPrefix(text, "[") || b.Type == detect.GCPLogs {
+			if ev, ok := entries(text); ok {
+				return ev
+			}
+		}
+		return lines
+	},
+	"units": func(b payload.Block, lines []string) []string {
+		if b.Type == detect.Journal || b.Type == detect.Syslog {
+			return unitPairs(lines)
+		}
+		return lines
+	},
 }
 
 var (
