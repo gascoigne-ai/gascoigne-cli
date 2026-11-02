@@ -14,8 +14,6 @@ const (
 	DefaultStatsTTL = 365 * 24 * time.Hour
 	// DefaultEventsTTL keeps runs, usage and failure history a year.
 	DefaultEventsTTL = 365 * 24 * time.Hour
-	// DefaultRollupTTL keeps the daily totals of pruned runs forever.
-	DefaultRollupTTL time.Duration = 0
 )
 
 // EnvPath overrides the configured path; eval uses it to isolate runs.

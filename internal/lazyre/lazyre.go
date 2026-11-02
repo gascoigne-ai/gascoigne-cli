@@ -52,7 +52,6 @@ func (r *Regexp) Regexp() *regexp.Regexp { return r.get() }
 
 func (r *Regexp) String() string                       { return r.expr }
 func (r *Regexp) MatchString(s string) bool            { return r.get().MatchString(s) }
-func (r *Regexp) FindString(s string) string           { return r.get().FindString(s) }
 func (r *Regexp) FindStringIndex(s string) []int       { return r.get().FindStringIndex(s) }
 func (r *Regexp) FindStringSubmatch(s string) []string { return r.get().FindStringSubmatch(s) }
 func (r *Regexp) FindStringSubmatchIndex(s string) []int {
@@ -78,7 +77,4 @@ func (r *Regexp) ReplaceAllStringFunc(src string, repl func(string) string) stri
 	return r.get().ReplaceAllStringFunc(src, repl)
 }
 func (r *Regexp) Split(s string, n int) []string { return r.get().Split(s, n) }
-func (r *Regexp) SubexpNames() []string          { return r.get().SubexpNames() }
-func (r *Regexp) SubexpIndex(name string) int    { return r.get().SubexpIndex(name) }
-func (r *Regexp) NumSubexp() int                 { return r.get().NumSubexp() }
 func (r *Regexp) Match(b []byte) bool            { return r.get().Match(b) }
