@@ -21,12 +21,16 @@ internal/pcomb                       line matchers from combinators (Prefix, Wor
 internal/version                     release number + git commit from build info (CLI, MCP, health)
 internal/cost  prose  mcpauth        tokenizer families and prices, prose model runtime, MCP OAuth
 internal/exact                       exact counts: o200k BPE in Go, Claude via count_tokens
-cmd/gascoigne  configs/              CLI + embedded default config
+cmd/gascoigne  configs/              CLI + embedded default config; configs.Overlay merges YAML layers
+inproc/                              public facade over the engine: Engine, Options, ConfigYAML (gascoigne-sdk/native)
 ```
 
 - Receivers: stdin, exec, hook, mcp, mcp_proxy, httpproxy.
 - Only `component/ payload/ tokens/` are public. Components import them plus the `internal/` libs, never the
   engine (`internal/{config,router,service,registry}`). `make imports` fails on either breach.
+- `inproc/` is the one public door to the engine for other modules (the SDK's C ABI library). It merges
+  defaults < user file (read only, never written) < host YAML < set/only/disable, runs the `cli` pipeline in
+  process and reads originals back from the ledger. Config merging lives in `configs.Overlay`, shared with the CLI.
 - `internal/exact/` downloads the o200k vocabulary once and pins its hash. BPE merging is O(n log n) per piece (heap), so long space-free pieces do not stall; HTTP requests time out after 30s.
 - `internal/cost/` relates tokenizer families to `tokens.Estimate` by a factor.
 
