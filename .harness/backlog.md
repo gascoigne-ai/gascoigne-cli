@@ -118,6 +118,15 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   and `.harness/*.md`) removes only 1.3–2.4% (the files hold few articles/fillers) and moved
   nothing (12/12, $0.093): no runtime use. Tasks are easy (all arms 100%); rerun on harder ones.
 
+- Log repeat detection beyond the regex key (2026-11-02), both off by default. `optimizers.log.miner=drain`
+  (Drain template miner, `internal/compress/drain`, `drain_max_vars: 2`, `drain_variants: 3`): out tokens
+  log/app 1099→806, structured 809→526, mailer-base64 846→327, journalctl 3800→3427, no `keep:` fact lost, but
+  lost artifacts rise slightly (app 593→599, dmesg 3→5, journalctl 13→14); without `drain_max_vars` free-text
+  unit names merged and journalctl/dmesg lost facts. Next: decide on default after `gascoigne probe` on a real
+  ledger. `rarity=true` (`max_lines/8` rarest entries over the cap): journalctl 3800→4696, dmesg 4172→5118
+  (+24%) for no measured retention gain, since almost every line there is rare; filling the whole cap
+  doubled the output. Only worth it on logs with mixed counts above `max_lines`; no fixture covers that yet.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Rerun nudge in the hint (2026-10-12): `learn` finds no `rerun` habit on a month of one real ledger (two

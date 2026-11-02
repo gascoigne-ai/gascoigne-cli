@@ -6,6 +6,7 @@
 package logoptimizer
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"math"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/drain"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
@@ -31,6 +33,23 @@ func (o *Optimizer) normalize(l string) string {
 		return compress.Normalize(l)
 	}
 	return o.norm(l)
+}
+
+// normalizeAll returns every line's template and, when the default
+// normalizer ran, its volatile tokens, found in the same scan.
+func (o *Optimizer) normalizeAll(lines []string) (norms []string, vols [][]string) {
+	norms = make([]string, len(lines))
+	if o.norm != nil {
+		for i, l := range lines {
+			norms[i] = o.norm(l)
+		}
+		return norms, nil
+	}
+	vols = make([][]string, len(lines))
+	for i, l := range lines {
+		norms[i], vols[i] = compress.Split(l)
+	}
+	return norms, vols
 }
 
 func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
@@ -105,6 +124,9 @@ func (o *Optimizer) log(lines []string) []string {
 type entry struct {
 	text string
 	srcs []int
+	// n is how many input lines the entry stands for; 0 for markers. The
+	// fewer, the rarer its template.
+	n int
 }
 
 func texts(es []entry) []string {
@@ -136,21 +158,19 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 		}
 	}
 
-	norms := make([]string, len(lines))
-	for i, l := range lines {
-		norms[i] = o.normalize(l)
-	}
-	for _, i := range outliers(lines, norms, important) {
+	norms, vols := o.normalizeAll(lines)
+	for _, i := range outliers(lines, norms, vols, important) {
 		important[i] = true
 	}
 
+	keys, notes := o.repeatKeys(lines, norms, important)
 	counts := map[string]int{}
 	srcsOf := map[string][]int{}
 	for i := range lines {
 		if !important[i] {
-			counts[norms[i]]++
+			counts[keys[i]]++
 			if src != nil {
-				srcsOf[norms[i]] = union(srcsOf[norms[i]], sources(i))
+				srcsOf[keys[i]] = union(srcsOf[keys[i]], sources(i))
 			}
 		}
 	}
@@ -158,7 +178,7 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 	seen := map[string]bool{}
 	dropped, repeats := 0, 0
 	for i, l := range lines {
-		norm := norms[i]
+		norm := keys[i]
 		keep := important[i] || (!seen[norm] && !(o.cfg.DropDebug && isDebug(l)))
 		if !keep {
 			dropped++
@@ -171,12 +191,16 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 			out = append(out, entry{text: gap(dropped, repeats)})
 			dropped, repeats = 0, 0
 		}
-		e := entry{l, sources(i)}
+		e := entry{text: l, srcs: sources(i), n: 1}
 		if !important[i] {
 			seen[norm] = true
 			e.srcs = srcsOf[norm]
+			e.n = counts[norm]
 			if n := counts[norm]; n > 1 {
 				e.text = fmt.Sprintf("%s (×%d)", l, n)
+				if note := notes[norm]; note != "" {
+					e.text = fmt.Sprintf("%s (×%d; %s)", l, n, note)
+				}
 			}
 		}
 		out = append(out, e)
@@ -185,6 +209,69 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 		out = append(out, entry{text: gap(dropped, repeats)})
 	}
 	return o.limit(o.dedupeRuns(out))
+}
+
+// maxNamed is how many overflow variants a folded line names.
+const maxNamed = 6
+
+// repeatKeys returns the key under which each line counts as a repeat: its
+// normalized form, or with the drain miner its template cluster plus its
+// words at the places the cluster varies. Only the first DrainVariants
+// variants of a cluster keep a key of their own; later ones share one, and
+// notes names them, so folding never hides which user or device a line was.
+// Warnings, errors and outliers stay on the exact key so they never merge.
+func (o *Optimizer) repeatKeys(lines, norms []string, important []bool) (keys []string, notes map[string]string) {
+	if o.cfg.Miner != minerDrain || o.norm != nil {
+		return norms, nil
+	}
+	m := drain.New(drain.Config{Depth: o.cfg.DrainDepth, Similarity: o.cfg.DrainSimilarity, MaxChildren: o.cfg.DrainMaxChildren, MaxVars: o.cfg.DrainMaxVars})
+	ids := make([]int, len(lines))
+	for i, l := range lines {
+		if important[i] {
+			continue
+		}
+		tag := ""
+		if isDebug(l) {
+			tag = "debug"
+		}
+		ids[i] = m.Add(tag, norms[i])
+	}
+	keys = slices.Clone(norms)
+	owners := map[int][]string{} // cluster -> variants with a key of their own
+	named := map[string][]string{}
+	for i := range lines {
+		if important[i] {
+			continue
+		}
+		variant := strings.Join(m.Words(ids[i], norms[i]), " ")
+		own := owners[ids[i]]
+		if !slices.Contains(own, variant) && len(own) < o.cfg.DrainVariants {
+			own = append(own, variant)
+			owners[ids[i]] = own
+		}
+		key := fmt.Sprintf("\x00drain%d %s", ids[i], variant)
+		if !slices.Contains(own, variant) {
+			key = fmt.Sprintf("\x00drain%d more", ids[i])
+			if !slices.Contains(named[key], variant) {
+				named[key] = append(named[key], variant)
+			}
+		}
+		keys[i] = key
+	}
+	notes = map[string]string{}
+	for k, vs := range named {
+		if len(vs) < 2 {
+			continue // the line shown is the only variant
+		}
+		others := vs[1:]
+		shown := others[:min(len(others), maxNamed)]
+		note := "also " + strings.Join(shown, ", ")
+		if extra := len(others) - len(shown); extra > 0 {
+			note += fmt.Sprintf(", +%d", extra)
+		}
+		notes[k] = note
+	}
+	return keys, notes
 }
 
 // gap marks dropped lines. When each repeats a line shown above (and counted
@@ -213,6 +300,7 @@ func (o *Optimizer) dedupeRuns(es []entry) []entry {
 		e := es[i]
 		for j < len(es) && norms[j] == norms[i] {
 			e.srcs = union(e.srcs, es[j].srcs)
+			e.n += es[j].n
 			j++
 		}
 		if n := j - i; n > 1 && strings.TrimSpace(e.text) != "" {
@@ -234,26 +322,60 @@ func union(a, b []int) []int {
 	return a
 }
 
-// limit keeps warnings/errors plus head and tail when still too long.
+// rarityShare bounds what Rarity adds: MaxLines/rarityShare entries. Filling
+// the whole cap nearly doubled system-log output (journalctl, dmesg) for 1-3
+// more artifacts read back, since there almost every line is rare.
+const rarityShare = 8
+
+// limit keeps warnings/errors plus head and tail when still too long. With
+// Rarity it adds up to MaxLines/rarityShare entries more, the ones that stand
+// for the fewest lines (the highest surprisal of their template).
 func (o *Optimizer) limit(es []entry) []entry {
 	if len(es) <= o.cfg.MaxLines {
 		return es
 	}
 	head, tail := o.cfg.MaxLines/4, o.cfg.MaxLines/4
+	keep := make([]bool, len(es))
+	kept := 0
+	for i, e := range es {
+		if i < head || i >= len(es)-tail || severity(e.text) != compress.None || continuation.MatchString(e.text) {
+			keep[i] = true
+			kept++
+		}
+	}
+	if o.cfg.Rarity {
+		for _, i := range o.rarest(es, keep, min(o.cfg.MaxLines-kept, o.cfg.MaxLines/rarityShare)) {
+			keep[i] = true
+		}
+	}
 	var out []entry
 	dropped := 0
 	for i, e := range es {
-		if i < head || i >= len(es)-tail || severity(e.text) != compress.None || continuation.MatchString(e.text) {
-			if dropped > 0 {
-				out = append(out, entry{text: compress.Omitted(dropped, "")})
-				dropped = 0
-			}
-			out = append(out, e)
+		if !keep[i] {
+			dropped++
 			continue
 		}
-		dropped++
+		if dropped > 0 {
+			out = append(out, entry{text: compress.Omitted(dropped, "")})
+			dropped = 0
+		}
+		out = append(out, e)
 	}
 	return out
+}
+
+// rarest returns the indexes of up to room entries not kept yet, the ones
+// standing for the fewest lines first, earlier first among equals. Markers
+// stand for nothing and are never picked.
+func (o *Optimizer) rarest(es []entry, keep []bool, room int) []int {
+	var idx []int
+	for i, e := range es {
+		if !keep[i] && e.n > 0 {
+			idx = append(idx, i)
+		}
+	}
+	slices.SortStableFunc(idx, func(a, b int) int { return cmp.Compare(es[a].n, es[b].n) })
+	return idx[:max(0, min(room, len(idx)))]
 }
 
 const (

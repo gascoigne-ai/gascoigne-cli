@@ -13,7 +13,10 @@ const (
 
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
-		func() *Config { return &Config{Context: 2, DropDebug: true, MaxLines: 300} },
+		func() *Config {
+			return &Config{Context: 2, DropDebug: true, MaxLines: 300,
+				Rarity: false, Miner: minerRegex, DrainDepth: 4, DrainSimilarity: 0.6, DrainMaxChildren: 100, DrainMaxVars: 2, DrainVariants: 3}
+		},
 		func(_ context.Context, _ component.Settings, cfg *Config) (component.Component, error) {
 			return &Optimizer{cfg: cfg}, nil
 		},

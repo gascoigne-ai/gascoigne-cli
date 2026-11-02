@@ -212,6 +212,11 @@ rows, query matches) and mark every gap.
 | `log` | `context` | 2 | Lines kept around warnings and errors. |
 | | `drop_debug` | true | Remove DEBUG and TRACE lines. |
 | | `max_lines` | 300 | Cap; warnings and errors are kept first. |
+| | `rarity` | false | Over `max_lines`, also keep `max_lines/8` entries of the rarest templates (those standing for the fewest lines), beyond head, tail and errors. Off: on system logs, where nearly every line is rare, it adds about a quarter more tokens. |
+| | `miner` | `regex` | `regex`: lines repeat when equal after masking numbers, ids and timestamps. `drain`: also when they differ in a few words (host, user); warnings and errors never merge. |
+| | `drain_depth`, `drain_similarity`, `drain_max_children` | 4, 0.6, 100 | Drain tuning: tree depth (leading words compared = depth-2), share of equal words needed to join a template, branches per tree node. |
+| | `drain_max_vars` | 2 | Drain: most words one template may vary in (0: no limit); lines of free text differing in more words stay apart. |
+| | `drain_variants` | 3 | Word variants of one template (users, devices, hosts) that keep a line of their own; later ones fold into one line `(×N; also a, b, +k)` that names them. |
 | `cat` | `mode` | `auto` | `auto`, `full`, `clean`, `outline` (see [Source files](source-files.md)). |
 | | `clean_min_tokens` | 800 | Auto mode leaves smaller files untouched. |
 | | `outline_min_tokens` | 4000 | Auto mode outlines files at least this big. |

@@ -220,3 +220,150 @@ func TestFieldsKeepsDottedTopLevelKeys(t *testing.T) {
 		t.Fatalf("got %q", got)
 	}
 }
+
+// Lines that differ by a host name, not only by numbers, stayed one line each
+// under the exact key; the drain miner folds them into one example with a count.
+func TestDrainMinerFoldsVariableWords(t *testing.T) {
+	var lines []string
+	for _, h := range []string{"alpha", "beta", "gamma", "delta", "omega", "sigma"} {
+		lines = append(lines, "10:00:01 INFO connection to host "+h+" established ok")
+	}
+	lines = append(lines, "10:00:02 ERROR connection to host zeta lost", "10:00:03 ERROR connection to host eta lost")
+	tests := []struct {
+		name  string
+		miner string
+		want  string
+	}{
+		{"regex keeps each host", "", "host sigma established"},
+		{"drain keeps three hosts, names the rest", "drain", "(×3; also omega, sigma)"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			o := &Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 300, Miner: tt.miner,
+				DrainDepth: 4, DrainSimilarity: 0.6, DrainMaxChildren: 100, DrainVariants: 3, DrainMaxVars: 2}}
+			p := &payload.Payload{Blocks: []payload.Block{{Text: compress.Join(lines), Type: detect.Log}}}
+			o.Optimize(nil, p)
+			got := p.Blocks[0].Text
+			if !strings.Contains(got, tt.want) {
+				t.Errorf("missing %q in:\n%s", tt.want, got)
+			}
+			for _, e := range []string{"host zeta lost", "host eta lost"} {
+				if !strings.Contains(got, e) {
+					t.Errorf("error line %q lost:\n%s", e, got)
+				}
+			}
+		})
+	}
+}
+
+func TestConfigValidateMiner(t *testing.T) {
+	ok := Config{Context: 2, MaxLines: 300, DrainDepth: 4, DrainSimilarity: 0.6, DrainMaxChildren: 100, DrainVariants: 3}
+	tests := []struct {
+		name   string
+		mutate func(*Config)
+		bad    bool
+	}{
+		{"default regex", func(c *Config) { c.Miner = "regex" }, false},
+		{"empty is regex", func(c *Config) {}, false},
+		{"drain", func(c *Config) { c.Miner = "drain" }, false},
+		{"unknown miner", func(c *Config) { c.Miner = "lcs" }, true},
+		{"drain depth too small", func(c *Config) { c.Miner = "drain"; c.DrainDepth = 2 }, true},
+		{"drain similarity zero", func(c *Config) { c.Miner = "drain"; c.DrainSimilarity = 0 }, true},
+		{"drain similarity above one", func(c *Config) { c.Miner = "drain"; c.DrainSimilarity = 1.5 }, true},
+		{"drain no variants", func(c *Config) { c.Miner = "drain"; c.DrainVariants = 0 }, true},
+		{"drain no children", func(c *Config) { c.Miner = "drain"; c.DrainMaxChildren = 0 }, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := ok
+			tt.mutate(&c)
+			if err := c.Validate(); (err != nil) != tt.bad {
+				t.Fatalf("Validate() = %v, want error: %v", err, tt.bad)
+			}
+		})
+	}
+}
+
+// appLog50000 is the scale suite's app-log case: one template, 50k lines, one error.
+func appLog50000() string {
+	var b strings.Builder
+	for i := 1; i <= 50000; i++ {
+		fmt.Fprintf(&b, "2026-10-10T12:%02d:%02d.%03dZ INFO worker-%d request id=%d path=/api/v1/items status=200 took=%dms\n",
+			i/60%60, i%60, i%1000, i%8, i, i%90)
+	}
+	b.WriteString("2026-10-10T13:00:00.000Z ERROR worker-3 request id=99999 failed: connection refused\n")
+	return b.String()
+}
+
+func BenchmarkOptimizeAppLog(b *testing.B) {
+	in := appLog50000()
+	for _, miner := range []string{minerRegex, minerDrain} {
+		b.Run(miner, func(b *testing.B) {
+			o := &Optimizer{cfg: &Config{Context: 2, DropDebug: true, MaxLines: 300, Miner: miner,
+				DrainDepth: 4, DrainSimilarity: 0.6, DrainMaxChildren: 100, DrainMaxVars: 2, DrainVariants: 3}}
+			for b.Loop() {
+				p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.Log}}}
+				o.Optimize(nil, p)
+			}
+		})
+	}
+}
+
+// Over the line cap, head, tail and errors were all that survived: a template
+// seen once in the middle went with the noise. Rarity spends the spare budget
+// on the templates that stand for the fewest lines.
+func TestLimitRarityKeepsRareTemplates(t *testing.T) {
+	var es []entry
+	for i := range 200 {
+		es = append(es, entry{text: fmt.Sprintf("common template %d (×500)", i), n: 500})
+	}
+	es[90] = entry{text: "seen only once", n: 1}
+	es[120] = entry{text: "seen twice", n: 2}
+	tests := []struct {
+		name   string
+		rarity bool
+		want   []string
+		not    []string
+	}{
+		{"off drops the middle", false, nil, []string{"seen only once", "seen twice"}},
+		{"on keeps the rare ones", true, []string{"seen only once", "seen twice"}, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			o := &Optimizer{cfg: &Config{MaxLines: 40, Rarity: tt.rarity}}
+			got := strings.Join(texts(o.limit(es)), "\n")
+			for _, w := range tt.want {
+				if !strings.Contains(got, w) {
+					t.Errorf("missing %q in:\n%s", w, got)
+				}
+			}
+			for _, w := range tt.not {
+				if strings.Contains(got, w) {
+					t.Errorf("unexpected %q in:\n%s", w, got)
+				}
+			}
+			if n := len(o.limit(es)); n > 2*o.cfg.MaxLines {
+				t.Errorf("%d entries, cap is %d", n, o.cfg.MaxLines)
+			}
+		})
+	}
+}
+
+func TestLimitRarityAddsABoundedShare(t *testing.T) {
+	var es []entry
+	for i := range 200 {
+		es = append(es, entry{text: fmt.Sprintf("line %d", i), n: 1 + i%3})
+	}
+	o := &Optimizer{cfg: &Config{MaxLines: 40, Rarity: true}}
+	got := o.limit(es)
+	lines := 0
+	for _, e := range got {
+		if !strings.HasPrefix(e.text, "… ") {
+			lines++
+		}
+	}
+	// head 10 + tail 10 + MaxLines/rarityShare (5) rarest
+	if want := 10 + 10 + 40/rarityShare; lines != want {
+		t.Fatalf("kept %d lines, want %d", lines, want)
+	}
+}

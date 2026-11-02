@@ -117,6 +117,13 @@
 #     context: 2                                  ## lines around warnings and errors
 #     drop_debug: true                            ## remove DEBUG and TRACE
 #     max_lines: 300
+#     rarity: false                                 ## over max_lines, also keep max_lines/8 entries of the rarest templates (fewest lines)
+#     miner: regex                                  ## regex (exact after masking numbers, ids) or drain (also lines differing in a few words)
+#     drain_depth: 4                                ## drain: tree depth, leading words compared = depth-2
+#     drain_similarity: 0.6                         ## drain: share of equal words to join a template
+#     drain_max_children: 100                       ## drain: branches per tree node
+#     drain_max_vars: 2                             ## drain: most words one template may vary in (0: no limit); free text with more stays apart
+#     drain_variants: 3                             ## drain: word variants of a template (users, devices) that keep a line each; the rest fold into one line naming them
 #   cat:                                          ## source files from cat/head/tail
 #     mode: auto                                  ## auto, full, clean, outline (per run: GASCOIGNE_CAT_MODE)
 #     clean_min_tokens: 800                       ## smaller files untouched

@@ -17,7 +17,7 @@ const (
 // outliers returns the lines, among those not already important, whose
 // number at some place is far above the median of their template's lines
 // there: one slow request among fast ones would otherwise fold into a ×N.
-func outliers(lines, norms []string, important []bool) []int {
+func outliers(lines, norms []string, vols [][]string, important []bool) []int {
 	groups := map[string][]int{}
 	for i := range lines {
 		if !important[i] {
@@ -27,17 +27,23 @@ func outliers(lines, norms []string, important []bool) []int {
 	var out []int
 	for _, idx := range groups {
 		if len(idx) >= outlierMinLines {
-			out = append(out, groupOutliers(lines, idx)...)
+			out = append(out, groupOutliers(lines, vols, idx)...)
 		}
 	}
 	slices.Sort(out)
 	return slices.Compact(out)
 }
 
-func groupOutliers(lines []string, idx []int) []int {
+// groupOutliers reads the volatile tokens of the lines at idx from vols, or
+// from the lines when vols is nil (a custom normalizer is in use).
+func groupOutliers(lines []string, vols [][]string, idx []int) []int {
 	tokens := make([][]string, len(idx))
 	for j, i := range idx {
-		tokens[j] = compress.Volatile(lines[i])
+		if vols != nil {
+			tokens[j] = vols[i]
+		} else {
+			tokens[j] = compress.Volatile(lines[i])
+		}
 	}
 	var out []int
 	for k := range tokens[0] {
