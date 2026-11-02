@@ -2,6 +2,7 @@ package logoptimizer
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"testing"
 
@@ -445,6 +446,44 @@ func TestProtectCodes(t *testing.T) {
 		t.Run(tt.in, func(t *testing.T) {
 			if got := protectCodes(tt.in); got != tt.want {
 				t.Errorf("protectCodes(%q) = %q, want %q", tt.in, got, tt.want)
+			}
+		})
+	}
+}
+
+// A latency that is 4x its usual value is far outside a steady spread yet
+// below the 10x-median rule, so it folded into the ×N of its template.
+func TestMADOutlierKept(t *testing.T) {
+	steady := []int{101, 98, 103, 99, 100, 102, 97, 100, 101, 99, 100, 98, 102, 100}
+	spike := append(slices.Clone(steady), 400)
+	same := slices.Repeat([]int{10}, 14)
+	tests := []struct {
+		name     string
+		outliers string
+		durs     []int
+		kept     string // "" when nothing may stand out
+	}{
+		{"ratio misses a 4x spike", "ratio", spike, ""},
+		{"mad keeps a 4x spike", "mad", spike, "synced in 400ms"},
+		{"mad ignores a steady spread", "mad", steady, ""},
+		{"mad ignores a tiny step over identical values", "mad", append(slices.Clone(same), 11), ""},
+		{"mad keeps a clear step over identical values", "mad", append(slices.Clone(same), 40), "synced in 40ms"},
+		{"mad still keeps a 100x spike", "mad", append(slices.Clone(steady), 9814), "synced in 9814ms"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var b strings.Builder
+			for i, d := range tt.durs {
+				fmt.Fprintf(&b, "10:00:%02d INFO batch %d synced in %dms\n", i, i, d)
+			}
+			p := &payload.Payload{Blocks: []payload.Block{{Text: b.String(), Type: detect.Log}}}
+			(&Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 300, Outliers: tt.outliers}}).Optimize(nil, p)
+			got := p.Blocks[0].Text
+			if tt.kept != "" && !strings.Contains(got, tt.kept) {
+				t.Errorf("outlier %q folded:\n%s", tt.kept, got)
+			}
+			if tt.kept == "" && len(compress.Lines(got)) > 2 {
+				t.Errorf("want one template line and a gap, got:\n%s", got)
 			}
 		})
 	}

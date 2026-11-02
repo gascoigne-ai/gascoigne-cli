@@ -159,7 +159,7 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 	}
 
 	norms, vols := o.normalizeAll(lines)
-	for _, i := range outliers(lines, norms, vols, important) {
+	for _, i := range o.outliers(lines, norms, vols, important) {
 		important[i] = true
 	}
 

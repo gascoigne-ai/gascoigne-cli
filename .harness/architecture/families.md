@@ -40,7 +40,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
 - Over `max_lines` the cap keeps head, tail, errors and stack traces; `rarity: true` (default false) adds `max_lines/8` more: the entries standing for the fewest input lines (`entry.n`), earlier first among equals.
 - `miner: drain` (default `regex`) counts repeats by Drain template clusters (`internal/compress/drain`: length + leading-word tree, similarity threshold, deterministic) so lines differing in a few words fold too; warnings, errors and outliers keep the exact key, debug lines cluster apart. A template varies in at most `drain_max_vars` (2) words, so free-text lines (unit names, messages) stay apart. Lines of one cluster differing in words (not numbers) are variants: the first `drain_variants` (3) keep a line each, later ones fold into one line naming them (`(×N; also a, b, +k)`), so a user or device is never silently hidden.
 - Codes stay in the repeat key: a number after `status`, `code`, `exit`, `exit code`, `rc`, `errno`, `signal` (up to 3 digits, `categorical.go`) is not masked, so one `status=503` among `status=200` lines is not folded into `(×N)`.
-- Numeric outliers are kept: ≥ 10× the template's median at a place, for templates of 8+ lines.
+- Numeric outliers are kept: ≥ 10× the template's median at a place, for templates of 8+ lines; `outliers: mad` (default `ratio`) also keeps a modified z-score (MAD, 0.6745·(v−median)/MAD, mean absolute deviation when MAD is 0) above 3.5 that is ≥ 1.5× the median.
 - Container prefixes (kubectl `--prefix`, compose) are cut before and put back as labels
   (`A+B| `, with a legend).
 - `dmesg` (`[ 12.345] ` kernel lines, by command or sniff) uses the same template engine.

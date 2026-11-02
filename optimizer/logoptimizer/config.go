@@ -12,6 +12,10 @@ type Config struct {
 	DropDebug bool `yaml:"drop_debug"`
 	// MaxLines caps the result; warnings and errors are kept first.
 	MaxLines int `yaml:"max_lines"`
+	// Outliers picks how a number far from its template's usual value is
+	// found: ratio (at least 10x the median) or mad (also a modified z-score
+	// above 3.5 and 1.5x the median, so a 4x latency spike stays).
+	Outliers string `yaml:"outliers"`
 	// Rarity spends the room left under MaxLines on the templates that stand
 	// for the fewest lines, not only on head, tail and errors.
 	Rarity bool `yaml:"rarity"`
@@ -33,13 +37,20 @@ type Config struct {
 }
 
 const (
-	minerRegex = "regex"
-	minerDrain = "drain"
+	outliersRatio = "ratio"
+	outliersMAD   = "mad"
+	minerRegex    = "regex"
+	minerDrain    = "drain"
 )
 
 func (c *Config) Validate() error {
 	if c.Context < 0 || c.MaxLines < 20 {
 		return errors.New("context must be >= 0 and max_lines >= 20")
+	}
+	switch c.Outliers {
+	case "", outliersRatio, outliersMAD:
+	default:
+		return fmt.Errorf("outliers %q: want %s or %s", c.Outliers, outliersRatio, outliersMAD)
 	}
 	switch c.Miner {
 	case "", minerRegex:
