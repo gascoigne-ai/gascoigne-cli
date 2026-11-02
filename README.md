@@ -2,25 +2,40 @@
 
 **Agents read less. Nothing gets lost.**
 
-A token optimizer for coding agents. It shrinks command output, tool results and web pages
-before they reach the model, and keeps every original one command away.
+Your coding agent pays for every line a command prints, on every turn that follows. gascoigne
+shrinks command output, tool results and web pages before they reach the model, keeps what the
+agent acts on, and stores every original one command away.
 
-`70–99% off verbose output` · `16 families` · `150+ tools & formats` · `claude · codex · gemini · opencode · pi · cursor` · `pure Go, no cgo`
+**81% fewer tokens across 427 real tool outputs** (2.4M → 0.46M) · every original recoverable
+byte for byte · one static binary, no cgo, no services
+
+`claude · codex · gemini · opencode · pi · cursor` · `16 families` · `150+ tools & formats`
 
 ---
 
-## Start in one line
+## Try it in 30 seconds
 
 ```sh
 go install github.com/gascoigne-ai/gascoigne-cli/cmd/gascoigne@latest && gascoigne wrap claude
 ```
 
-Claude Code starts with gascoigne in place for this run. No config files touched; swap `claude`
-for `codex`, `gemini`, `opencode` or `pi`. When you like it, `gascoigne install claude` keeps it
-on for the project.
+Claude Code starts with gascoigne in place for this run. No config files touched, nothing to
+undo: quit the agent and it is gone. Swap `claude` for `codex`, `gemini`, `opencode` or `pi`.
+Like it? `gascoigne install claude` keeps it on for the project.
 
 Other install options (prebuilt binaries for Linux, macOS and Windows, from a checkout) are in
 [getting started](docs/getting-started.md#install).
+
+## Why you will want it
+
+- **Longer sessions, less compaction.** A test run, a log tail or a `terraform plan` stops
+  eating the context window: 74% median saving on outputs of 1,000+ tokens.
+- **Lower bills, faster turns.** Fewer input tokens on every request that follows, and the same
+  output gives the same result, so prompt caches stay warm.
+- **No trade-off in what the agent knows.** Failures, errors, diffs and anomalies are kept; the
+  eval checks that key facts survive and that `raw` returns the original byte-exact.
+- **Zero commitment.** Nothing is deleted, nothing leaves your machine, and one command
+  (`gascoigne unwrap`) removes every trace.
 
 ## See it work
 
@@ -50,38 +65,56 @@ FAIL	example.com/shop/sync	600.021s
 
 95% fewer tokens, and the cause is still visible: the test is stuck in `Syncer.Run`, 40 workers
 wait on a channel. Long paths became `§1`, identical stacks collapsed, standard-library frames
-counted, not printed (output shortened here).
-
-Nothing is thrown away. The original sits in a local ledger, and the agent reads back only what
-it needs:
+counted, not printed (output shortened here). Need the rest? The agent asks for it:
 
 ```sh
 gascoigne raw 17415a92 -grep 'goroutine 7[0-9] ' -C 1
 ```
 
-### What it saves
+## The numbers
 
-It depends on what your agent runs. gascoigne keeps what an agent acts on (failures, diffs,
-errors, anomalies, summaries) and folds the rest, so the noisier the output, the more it removes.
+Measured by `make eval` on captured output of real tools, with the key facts and byte-exact
+retrieval checked on every case. Numbers below are from the current suite.
+
+| Suite | What it runs | Result |
+|---|---|---|
+| Fixtures | 427 captured outputs of go, pytest, git, rg, npm, kubectl, terraform, aws and more | **81.0%** of tokens removed (2,419,990 → 460,875); median case 62.2%; 62 cases above 90% |
+| Needles | 88 outputs with planted errors and anomalies | **62.5%** removed, every needle still found |
+| MCP | tool results from a fake MCP server, through `mcp-proxy` | **72.3%** removed |
+| Live | `go test`, `git`, `rg`, `find`, `ps`, `cat`… run now in this repo | **70.7%** removed |
+| Scale | logs, `find`, ndjson and csv up to 2M tokens, with time ceilings | **99.6%** removed (6.6M → 24k tokens) |
 
 | Output | Before | After | Saved |
 |---|--:|--:|--:|
 | `npm install --verbose` | 24,655 | 76 | **99.7%** |
 | nginx access log | 73,148 | 436 | **99.4%** |
+| Python `RecursionError` trace | 25,543 | 218 | **99.1%** |
 | `go test -json ./...` | 16,208 | 175 | **98.9%** |
-| `kubectl logs` (JSON) | 23,171 | 2,156 | **90.7%** |
+| `go test` timeout (goroutine dump) | 7,478 | 388 | **94.8%** |
+| `kubectl logs` (JSON) | 23,171 | 2,159 | **90.7%** |
+| `aws ec2 describe-instances` | 33,835 | 4,275 | **87.4%** |
 | `terraform plan` | 10,663 | 1,697 | **84.1%** |
 | `git log` | 4,173 | 1,151 | **72.4%** |
+| `cat lib/benchmark.rb` (comments folded) | 6,390 | 1,746 | **72.7%** |
 | `git diff` of source edits | 3,430 | 2,386 | **30.4%** |
 | `rg` search | 3,161 | 2,655 | **16.0%** |
 | `cat` of a small Go file | 854 | 854 | **0%** |
 
-Across 268 eval cases the median output shrinks by 69%. These are real-shaped samples, so read
-them as an upper bound, not a forecast. In real coding sessions tool output was 4–27% smaller
-(median 10%), because most of the work is reading and editing code, and tool output is only part
-of what the model reads each turn. `gascoigne gain` shows your own numbers.
+The more noise an output carries, the more gascoigne removes: progress bars, passing tests,
+`managedFields` and pagination tokens go almost entirely. A source diff or a short search result
+has little to cut, and small outputs (under 200 tokens) pass through untouched: 23 of the 427
+cases are left exactly as they were. The fixtures are real-shaped samples, so treat them as an
+upper bound for those tools. In a real coding session tool output was 4–27% smaller (median 10%),
+because much of the work is reading and editing code and tool output is only part of what the
+model reads each turn. `gascoigne gain` shows your own numbers after the first day.
 
-<sub>Tokens are a BPE-style estimate, within ~10% of a real tokenizer · fixtures in <code>testdata/eval</code>, <code>make eval</code> · more in <a href="docs/cost.md">cost</a></sub>
+<sub>Tokens are a BPE-style estimate, within ~10% of a real tokenizer · fixtures in <code>testdata/eval</code>, run <code>make eval</code> to reproduce · what saved tokens are worth per model: <a href="docs/cost.md">cost</a></sub>
+
+### See your own savings
+
+`gascoigne dashboard` opens a live view in your browser: savings per day, per command and per
+optimizer, every run as it happens, and any run's original side by side with what the agent read.
+<sub>The moon's phase is your savings rate: the darker it gets, the more your agents skipped.</sub>
 
 ## Hook up your agent
 
