@@ -15,15 +15,14 @@ const (
 	outlierFactor = 10
 )
 
-// outliers returns the lines, among those not already important, whose
-// number at some place is far above the median of their template's lines
-// there: one slow request among fast ones would otherwise fold into a ×N.
-func (o *Optimizer) outliers(lines, norms []string, vols [][]string, important []bool) []int {
+// outliers returns the lines whose number at some place is far above the
+// median of their template's lines there: one slow request among fast ones
+// would otherwise fold into a ×N. Context lines around errors count in the
+// template too; leaving them out starved the group on busy logs.
+func (o *Optimizer) outliers(lines, norms []string, vols [][]string) []int {
 	groups := map[string][]int{}
 	for i := range lines {
-		if !important[i] {
-			groups[norms[i]] = append(groups[norms[i]], i)
-		}
+		groups[norms[i]] = append(groups[norms[i]], i)
 	}
 	var out []int
 	for _, idx := range groups {

@@ -627,3 +627,29 @@ func TestPassesValidate(t *testing.T) {
 		})
 	}
 }
+
+// Context lines around errors are kept whole, so they leave their template's
+// group; with a wide context most of a batch template's lines left it, the
+// 8-line minimum failed and a 9814ms batch among 40ms ones folded into ×N.
+func TestOutlierSurvivesWideContext(t *testing.T) {
+	var b strings.Builder
+	for i := range 120 {
+		ms := 30 + i%15
+		if i == 77 {
+			ms = 9814
+		}
+		fmt.Fprintf(&b, "10:00:%02d INFO batch %d synced 44 orders in %dms\n", i%60, 1000+i, ms)
+		if i%9 == 8 {
+			fmt.Fprintf(&b, "10:00:%02d ERROR order ord-%d rejected: card expired\n", i%60, 5000+i)
+		}
+	}
+	for _, ctx := range []int{2, 5} {
+		t.Run(fmt.Sprintf("context %d", ctx), func(t *testing.T) {
+			p := &payload.Payload{Blocks: []payload.Block{{Text: b.String(), Type: detect.Log}}}
+			(&Optimizer{cfg: &Config{Context: ctx, DropDebug: true, MaxLines: 300, Outliers: outliersRatio}}).Optimize(nil, p)
+			if !strings.Contains(p.Blocks[0].Text, "in 9814ms") {
+				t.Errorf("outlier folded away:\n%s", p.Blocks[0].Text)
+			}
+		})
+	}
+}

@@ -140,6 +140,8 @@ func (o *Optimizer) log(lines []string) []string {
 type entry struct {
 	text string
 	srcs []int
+	// solo marks an outlier: it never merges into a run of its neighbors.
+	solo bool
 	// n is how many input lines the entry stands for; 0 for markers. The
 	// fewer, the rarer its template.
 	n int
@@ -175,8 +177,9 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 	}
 
 	norms, vols := o.normalizeAll(lines)
-	for _, i := range o.outliers(lines, norms, vols, important) {
-		important[i] = true
+	outlier := make([]bool, len(lines))
+	for _, i := range o.outliers(lines, norms, vols) {
+		important[i], outlier[i] = true, true
 	}
 
 	keys, notes := o.repeatKeys(lines, norms, important)
@@ -211,7 +214,7 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 			out = append(out, entry{text: gap(dropped, repeats)})
 			dropped, repeats = 0, 0
 		}
-		e := entry{text: l, srcs: sources(i), n: 1}
+		e := entry{text: l, srcs: sources(i), n: 1, solo: outlier[i]}
 		if !important[i] {
 			seen[norm] = true
 			e.srcs = srcsOf[norm]
@@ -328,7 +331,7 @@ func (o *Optimizer) dedupeRuns(es []entry) []entry {
 	for i := 0; i < len(es); {
 		j := i + 1
 		e := es[i]
-		for j < len(es) && norms[j] == norms[i] {
+		for j < len(es) && norms[j] == norms[i] && !e.solo && !es[j].solo {
 			e.srcs = union(e.srcs, es[j].srcs)
 			e.n += es[j].n
 			j++
