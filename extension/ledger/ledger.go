@@ -277,7 +277,7 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 			return err
 		}
 	}
-	return db.Create(&event{
+	if err := db.Create(&event{
 		TS:         ev.TS.UnixMilli(),
 		Session:    ev.Session,
 		Agent:      ev.Agent,
@@ -295,7 +295,26 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 		RawID:      ev.RawID,
 		Outcome:    string(ev.Outcome),
 		Steps:      steps,
-	}).Error
+	}).Error; err != nil {
+		return err
+	}
+	if ev.Outcome == component.Optimized && ev.Key != "" && l.cfg.RecoverAfter > 0 {
+		return l.recover(db, storedKey(ev.Key))
+	}
+	return nil
+}
+
+// recover counts an optimized run of key toward forgiving a failure: every
+// RecoverAfter of them, with no new failure between, drop the count by one.
+func (l *Ledger) recover(db *gorm.DB, key string) error {
+	if err := db.Model(&failure{}).Where("key = ?", key).Update("ok", gorm.Expr("ok + 1")).Error; err != nil {
+		return err
+	}
+	if err := db.Model(&failure{}).Where("key = ? AND ok >= ?", key, l.cfg.RecoverAfter).
+		Updates(map[string]any{"count": gorm.Expr("count - 1"), "ok": 0}).Error; err != nil {
+		return err
+	}
+	return db.Delete(&failure{}, "key = ? AND count <= 0", key).Error
 }
 
 func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
@@ -309,6 +328,7 @@ func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
 		Columns: []clause.Column{{Name: "key"}},
 		DoUpdates: clause.Assignments(map[string]any{
 			"count":   gorm.Expr("count + 1"),
+			"ok":      0,
 			"last_ts": f.LastTS,
 			"reason":  reason,
 		}),

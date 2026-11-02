@@ -697,3 +697,82 @@ func TestPruneUsesLedgerClock(t *testing.T) {
 		t.Fatalf("raw older than raw_ttl by the ledger clock not pruned: %v", err)
 	}
 }
+
+// A source that was fetched raw once kept its failure until the TTL, so it
+// stayed on the gentle route long after the agent was happy with its results.
+// Recover_after optimized runs in a row without a new failure forgive one.
+func TestOptimizedRunsForgiveFailures(t *testing.T) {
+	ctx := t.Context()
+	run := func(l *Ledger, key string, outcome component.Outcome) {
+		t.Helper()
+		if err := l.Record(ctx, component.Event{TS: time.Now(), Key: key, Command: "go test", Outcome: outcome, RawTokens: 100, OutTokens: 10}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	count := func(l *Ledger, key string) int {
+		t.Helper()
+		info, err := l.Failures(ctx, key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return info.Count
+	}
+	fail := func(l *Ledger, key string) {
+		t.Helper()
+		if err := l.MarkFailure(ctx, key, component.ReasonRawRequested); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Run("forgives one failure per run of successes", func(t *testing.T) {
+		l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RecoverAfter: 3})
+		fail(l, "cmd:a")
+		fail(l, "cmd:a")
+		for range 2 {
+			run(l, "cmd:a", component.Optimized)
+		}
+		if got := count(l, "cmd:a"); got != 2 {
+			t.Fatalf("after 2 successes count = %d, want 2", got)
+		}
+		run(l, "cmd:a", component.Optimized)
+		if got := count(l, "cmd:a"); got != 1 {
+			t.Fatalf("after 3 successes count = %d, want 1", got)
+		}
+		for range 3 {
+			run(l, "cmd:a", component.Optimized)
+		}
+		if got := count(l, "cmd:a"); got != 0 {
+			t.Fatalf("after 6 successes count = %d, want 0", got)
+		}
+	})
+	t.Run("a new failure restarts the run", func(t *testing.T) {
+		l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RecoverAfter: 3})
+		fail(l, "cmd:b")
+		run(l, "cmd:b", component.Optimized)
+		run(l, "cmd:b", component.Optimized)
+		fail(l, "cmd:b") // the agent asked for the original: those two did not count
+		run(l, "cmd:b", component.Optimized)
+		run(l, "cmd:b", component.Optimized)
+		if got := count(l, "cmd:b"); got != 2 {
+			t.Fatalf("count = %d, want 2", got)
+		}
+	})
+	t.Run("runs that were not optimized do not count", func(t *testing.T) {
+		l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), RecoverAfter: 2})
+		fail(l, "cmd:c")
+		run(l, "cmd:c", component.Unchanged)
+		run(l, "cmd:c", component.Bypassed)
+		if got := count(l, "cmd:c"); got != 1 {
+			t.Fatalf("count = %d, want 1", got)
+		}
+	})
+	t.Run("off", func(t *testing.T) {
+		l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+		fail(l, "cmd:d")
+		for range 10 {
+			run(l, "cmd:d", component.Optimized)
+		}
+		if got := count(l, "cmd:d"); got != 1 {
+			t.Fatalf("count = %d, want 1", got)
+		}
+	})
+}

@@ -33,6 +33,11 @@ type Config struct {
 	// (by day, agent, model, command, route, outcome and optimizer). 0 keeps
 	// them forever.
 	RollupTTL time.Duration `yaml:"rollup_ttl"`
+	// RecoverAfter is how many optimized runs of a source in a row, without
+	// the agent fetching the original, forgive one of its failures, taking it
+	// back toward the normal route. 0 keeps failures until events_ttl or
+	// `gascoigne forget`.
+	RecoverAfter int `yaml:"recover_after"`
 }
 
 func (c *Config) Validate() error {
@@ -47,6 +52,9 @@ func (c *Config) Validate() error {
 	}
 	if c.RollupTTL < 0 {
 		return errors.New("rollup_ttl must not be negative")
+	}
+	if c.RecoverAfter < 0 {
+		return errors.New("recover_after must not be negative")
 	}
 	return nil
 }

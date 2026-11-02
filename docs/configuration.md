@@ -162,6 +162,7 @@ Routes you add replace the `routes` list as a whole, like any list.
 | `ledger.path` | `$XDG_DATA_HOME/gascoigne/ledger.db` | sqlite database; env vars are expanded. `GASCOIGNE_LEDGER` overrides it. |
 | `ledger.raw_ttl` | `720h` | How long originals stay retrievable (30 days). `0` keeps them forever. |
 | `ledger.events_ttl` | `8760h` | How long runs and their steps, API usage and failure history stay (a year). `0` keeps them forever. |
+| `ledger.recover_after` | `3` | Optimized runs of a source in a row, with no new raw fetch of its original, that forgive one of its failures, taking it back from the gentle route toward normal. `0` keeps failures until `events_ttl` or `gascoigne forget`. |
 | `ledger.rollup_ttl` | `0s` | How long the daily totals of runs pruned at `events_ttl` stay (per day, agent, model, command, route, outcome and optimizer), so `gain` keeps its history. `0` keeps them forever. |
 | `ledger.stats_ttl` | `8760h` | How long the daily per-tool MCP stats (definition size and calls per server and tool) stay (a year). `0` keeps them forever. |
 

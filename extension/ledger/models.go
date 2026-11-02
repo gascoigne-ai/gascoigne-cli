@@ -54,6 +54,8 @@ type failure struct {
 	Count  int    `gorm:"not null"`
 	LastTS int64  `gorm:"not null"`
 	Reason string `gorm:"not null"`
+	// OK counts the optimized runs of the key since its last failure.
+	OK int `gorm:"column:ok;not null;default:0"`
 }
 
 // dailyStat holds the totals of runs pruned at events_ttl, one row per local

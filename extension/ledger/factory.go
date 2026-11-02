@@ -11,7 +11,7 @@ const typ = "ledger"
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindExtension, typ,
 		func() *Config {
-			return &Config{RawTTL: DefaultRawTTL, StatsTTL: DefaultStatsTTL, EventsTTL: DefaultEventsTTL}
+			return &Config{RawTTL: DefaultRawTTL, StatsTTL: DefaultStatsTTL, EventsTTL: DefaultEventsTTL, RecoverAfter: 3}
 		},
 		func(_ context.Context, _ component.Settings, cfg *Config) (component.Component, error) {
 			return New(cfg), nil
