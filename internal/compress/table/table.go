@@ -6,6 +6,7 @@ package table
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
@@ -213,12 +214,41 @@ func ForQuery(maxRows, maxCell int, query []string) Options {
 // Render prints the table compactly.
 func Render(t Table, o Options) []string {
 	out := append([]string{}, t.Before...)
-	hdr, body, same := hoist(t.Header, t.Rows)
+	header, rows := squarePad(t.Header, t.Rows)
+	hdr, body, same := hoist(header, rows)
 	if len(same) > 0 {
 		out = append(out, "same in all rows: "+strings.Join(same, ", "))
 	}
-	rows := append([]string{strings.Join(hdr, cell)}, sampleRows(hdr, body, o)...)
-	return append(append(out, align(rows)...), t.After...)
+	lines := append([]string{strings.Join(hdr, cell)}, sampleRows(hdr, body, o)...)
+	return append(append(out, align(lines)...), t.After...)
+}
+
+// squarePad gives the header and every row as many cells as the widest of
+// them, so rows that came out short or long (a note line after a table,
+// one more field than the header names) cannot be indexed out of range.
+// Extra columns are named C<n>, like the columns of an unnamed table.
+func squarePad(header []string, rows [][]string) ([]string, [][]string) {
+	width := len(header)
+	for _, r := range rows {
+		width = max(width, len(r))
+	}
+	fill := func(r []string, name func(int) string) []string {
+		if len(r) == width {
+			return r
+		}
+		out := make([]string, width)
+		copy(out, r)
+		for i := len(r); i < width; i++ {
+			out[i] = name(i)
+		}
+		return out
+	}
+	header = fill(header, func(i int) string { return fmt.Sprintf("C%d", i+1) })
+	padded := make([][]string, len(rows))
+	for i, r := range rows {
+		padded[i] = fill(r, func(int) string { return "" })
+	}
+	return header, padded
 }
 
 // cell separates cells of a rendered row until align lays them out.

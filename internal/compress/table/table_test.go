@@ -86,3 +86,22 @@ func TestAlignFallsBackOnEmptyCells(t *testing.T) {
 		t.Fatalf("got %q", got)
 	}
 }
+
+// A row shorter than the header used to panic in hoist.
+func TestRenderRaggedRows(t *testing.T) {
+	tb := Table{
+		Header: []string{"NAME", "STATE", "ELAPSED"},
+		Rows: [][]string{
+			{"build", "pass", "5s"},
+			{"lint", "pass", "7s"},
+			{"note"},
+			{"test", "pass", "9s", "extra"},
+		},
+	}
+	got := strings.Join(Render(tb, Options{MaxRows: 30, MaxCell: 30}), "\n")
+	for _, w := range []string{"build", "note", "extra"} {
+		if !strings.Contains(got, w) {
+			t.Errorf("missing %q in:\n%s", w, got)
+		}
+	}
+}

@@ -6,6 +6,11 @@ All notable changes to gascoigne. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `gh pr checks` and other tab separated tables with rows of different lengths no longer panic the hook; short rows are
+  padded and extra fields get `C<n>` columns.
+
 ## [0.9.0] - 2026-11-02
 
 Smarter log folding, a gentler route for sources the agent keeps fetching raw, MCP review that suggests and applies

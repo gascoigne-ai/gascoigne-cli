@@ -234,3 +234,21 @@ func TestParseCommitLineBare(t *testing.T) {
 		_ = parseCommitLine(l) // must not panic
 	}
 }
+
+// gh prints tab separated rows with a different number of fields when a
+// check has no elapsed time yet, and a line without any tab can follow the
+// table. Rendering used to index past the end of the short row and panic.
+func TestGHListRaggedRows(t *testing.T) {
+	in := "check (go:check)\tpending\t0\thttps://github.com/acme/app/actions/runs/1/job/10\t\n" +
+		"check (java:check)\tpending\t0\thttps://github.com/acme/app/actions/runs/1/job/11\t\n" +
+		"check (style)\tpass\t18s\thttps://github.com/acme/app/actions/runs/1/job/12\t\n" +
+		"e2e\tpass\t55s\thttps://github.com/acme/app/actions/runs/1/job/13\t\n" +
+		"commits\tpass\t5s\thttps://github.com/acme/app/actions/runs/1/job/14\n" +
+		"release: .github#1\n"
+	got := run(t, detect.GHList, in)
+	for _, w := range []string{"check (go:check)", "e2e", "release: .github#1"} {
+		if !strings.Contains(got, w) {
+			t.Errorf("missing %q in:\n%s", w, got)
+		}
+	}
+}
