@@ -18,7 +18,14 @@ Versions follow SemVer; a patch release carries fixes and small features, a mino
    changed defaults (retention, config) so upgrading users see them. The release workflow uses this
    section as the GitHub release notes and fails without it.
 4. `internal/version/version.go`: `const Number = "X.Y.Z"`. The workflow fails when the tag differs.
-5. Commit both as `release: X.Y.Z <short summary>` (fixes go in their own earlier commits).
+5. SDK repo (`../../gascoigne-sdk/master`): SDK and native packages share the CLI's version. Bump every package
+   file to X.Y.Z (list in its `docs/releasing.md` step 1: `pyproject.toml`, `package.json`, `pom.xml`, `.csproj`,
+   `Cargo.toml`, `native/VERSION`, the lockfile entries, demo pins), add the `## [X.Y.Z]` section to its
+   `CHANGELOG.md`, and run `scripts/check_version.py <py|ts|go|java|dotnet|rust|native> X.Y.Z` for each. Commit
+   there as `release: X.Y.Z <summary>`; its tags (`py-v`, `ts-v`, `go/v`, `java-v`, `dotnet-v`, `rust-v`, `native-v`)
+   are pushed after the CLI release exists, and `docs/install.md` examples move to the new tags. Show the user
+   both changelogs before any push.
+6. Commit CLI changelog and version as `release: X.Y.Z <short summary>` (fixes go in their own earlier commits).
 
 ## 2. Tag and push
 ```sh
