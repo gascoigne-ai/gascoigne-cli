@@ -32,7 +32,7 @@ Example: a new test runner, `mytest`.
      expect_type: test/mytest
      keep: ["FAIL: checkout total", "expected 0, got -4"]   # what an agent must still see
      min_saved: 50                                          # a bit under the measured value
-   - { name: detect/mytest, file: test/mytest-fail.txt, expect_type: test/mytest }  # sniffing alone
+   - { name: detect/mytest, file: test/mytest-fail.txt, expect_type: test/mytest }  # sniffing alone: checks the type, no golden
    ```
 5. Run `make check` and `make eval`, review the output with `bin/gascoigne eval -show mytest`,
    then `bin/gascoigne eval -update` to write its golden file.

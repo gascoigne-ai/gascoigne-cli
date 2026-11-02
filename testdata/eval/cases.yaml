@@ -573,6 +573,7 @@
   expect_type: build/kotlin
 
 - name: detect/unknown-tool-errors
+  golden: true
   file: build/unknown-tool-errors.txt
   expect_type: build/generic
   keep: ["unit0.zz", "unknown symbol 'foo0'", "12 errors, 1 warning"]
@@ -775,11 +776,13 @@
   file: lock/yarn.lock
   expect_type: data/lock
 - name: detect/go-sum
+  golden: true
   file: lock/go.sum
   expect_type: data/lock
   keep: ["github.com/gin-gonic/gin v", "golang.org/x/net v"]
   min_saved: 70
 - name: detect/gemfile-lock
+  golden: true
   file: lock/Gemfile.lock
   expect_type: data/lock
   keep: ["  rails ", "PLATFORMS", "BUNDLED WITH", "   2.5.3"]
@@ -897,6 +900,7 @@
   keep: ["class Cache {", "void put(string key, string value) {", "union Slot {", "int cache_version() {", "// … L"]
   min_saved: 25
 - name: detect/rust-code
+  golden: true
   file: cat/lru.rs.txt
   expect_type: fs/code
 - name: cat/cart-elixir-outline

@@ -54,6 +54,9 @@ type evalCase struct {
 	// tools whose output changed shape. Its output varies, so it has no
 	// golden or baseline; a missing program skips the case.
 	Run string `yaml:"run"`
+	// Golden keeps a golden file for a detect/ case, which otherwise checks
+	// only its detected type: the typed case of the same fixture holds the output.
+	Golden bool `yaml:"golden"`
 	// Reference names a file with the text the output must still hold (an
 	// article's body for a web page); eval reports word recall and
 	// precision against it, and fails under MinRecall (%).
@@ -316,6 +319,12 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		return r, nil
 	}
 	golden := filepath.Join(dir, "golden", tc.name()+".out")
+	if strings.HasPrefix(tc.name(), "detect/") && !tc.Golden {
+		if update {
+			os.Remove(golden)
+		}
+		return r, nil
+	}
 	if update {
 		// Unchanged output needs no golden: the fixture is the expectation.
 		if out.Attrs[payload.AttrRawID] == "" {
