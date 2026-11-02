@@ -159,7 +159,7 @@ once; Windows SmartScreen may ask to confirm the first run. All archives are on 
 **From a checkout**, into `~/.local/bin` (`PREFIX=…` for elsewhere):
 
 ```sh
-git clone https://github.com/gascoigne-ai/gascoigne-cli && cd gascoigne && make install
+git clone https://github.com/gascoigne-ai/gascoigne-cli && cd gascoigne-cli && make install
 ```
 
 Check it: `gascoigne version`. One static binary, no cgo, no services to run: the background
@@ -317,7 +317,7 @@ Off until you turn them on with `gascoigne setup -experimental` (or `experimenta
   lines are byte-exact and every gap names its original lines (`// … comments L12-30`).
 - **Self-correcting** — sources whose originals agents keep fetching get bypassed next time.
 - **Local** — the ledger and dashboard stay on your machine; nothing is sent anywhere. The one
-  exception is a once-a-day read of a small release file from the project website, which you can
+  exception is a read, at most every 15 minutes, of a small release file from the project website, which you can
   turn off ([release notice](docs/agents.md#release-notice)).
 
 ## How it works

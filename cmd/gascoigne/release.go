@@ -196,7 +196,7 @@ func releaseDecision(p prefs) decision {
 		Title: "Tell me about new releases",
 		Text:  "gascoigne can notice when a new version is out and open its page once.",
 		Options: []option{
-			{"on", "Check every 15 minutes", "gascoigne reads " + releaseBase() + "latest.json hourly. It is a plain request: nothing about you or this machine is sent, but the site's host sees your IP address as for any web page. A newer release opens its page once the next time a session starts or you send a prompt."},
+			{"on", "Check every 15 minutes", "gascoigne reads " + releaseBase() + "latest.json at most every 15 minutes. It is a plain request: nothing about you or this machine is sent, but the site's host sees your IP address as for any web page. A newer release opens its page once the next time a session starts or you send a prompt."},
 			{"off", "Never check", "No request is made. Look for releases on the website or on GitHub yourself."},
 		}}
 }
