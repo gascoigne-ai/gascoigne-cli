@@ -146,6 +146,10 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   an agent then stops fetching raw is unmeasured (needs real sessions or `ab.sh`). Found by it: with `context` 5 a
   slow batch folded into ×N (context lines left the outlier group and `dedupeRuns` merged them); fixed.
 
+- Family-level gentle (2026-11-02): `history.family_rerequest_rate` 0.3 over 20 runs in 7 days, from
+  `Stats` by `family_outcome`. Default on, but it only acts on a ledger with real re-fetch history; the eval
+  uses a throwaway ledger, so no fixture shows it. Check the thresholds against your own ledger.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Rerun nudge in the hint (2026-10-12): `learn` finds no `rerun` habit on a month of one real ledger (two

@@ -91,11 +91,15 @@ const (
 	ByDialect   = "dialect"   // content type the optimizers changed, from steps
 	ByCommand   = "command"
 	ByOutcome   = "outcome" // optimized, unchanged, bypassed, rerequested, error
-	ByAgent     = "agent"
-	ByModel     = "model"
-	ByDay       = "day"   // local time, YYYY-MM-DD
-	ByWeek      = "week"  // ISO-like YYYY-Www (weeks start Monday)
-	ByMonth     = "month" // YYYY-MM
+	// ByFamilyOutcome counts runs per optimizer family and outcome, from steps
+	// (Stat.Family and Stat.Outcome): how often a family's results were
+	// fetched raw afterwards. Live events only.
+	ByFamilyOutcome = "family_outcome"
+	ByAgent         = "agent"
+	ByModel         = "model"
+	ByDay           = "day"   // local time, YYYY-MM-DD
+	ByWeek          = "week"  // ISO-like YYYY-Www (weeks start Monday)
+	ByMonth         = "month" // YYYY-MM
 	// ByReason groups runs that were not optimized by outcome, filter (or
 	// optimizer for errors) and command, with the latest reason.
 	ByReason = "reason"

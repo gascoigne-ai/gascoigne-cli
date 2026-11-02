@@ -3,6 +3,7 @@ package historyfilter
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"testing"
 	"time"
 
@@ -14,6 +15,8 @@ type fakeLedger struct {
 	component.Ledger
 	component.Nop
 	failures map[string]component.FailureInfo
+	stats    []component.Stat
+	queries  *[]component.StatsQuery
 }
 
 func (l fakeLedger) Failures(_ context.Context, key string) (component.FailureInfo, error) {
@@ -135,5 +138,93 @@ func TestValidateGentleAfter(t *testing.T) {
 		if err := c.Validate(); (err != nil) != tt.bad {
 			t.Errorf("gentle_after %d: Validate() = %v, want error %v", tt.gentle, err, tt.bad)
 		}
+	}
+}
+
+func (l fakeLedger) Stats(_ context.Context, q component.StatsQuery) ([]component.Stat, error) {
+	*l.queries = append(*l.queries, q)
+	return l.stats, nil
+}
+
+func famStat(family, outcome string, runs int) component.Stat {
+	return component.Stat{Group: family, Family: family, Outcome: outcome, Runs: runs}
+}
+
+// A family whose results the agent keeps fetching raw goes gentle for every
+// source, not only for the ones that failed one by one.
+func TestFilterGentleFamily(t *testing.T) {
+	stats := []component.Stat{
+		famStat("log", "optimized", 30), famStat("log", "rerequested", 20), // 40%
+		famStat("test", "optimized", 90), famStat("test", "rerequested", 10), // 10%
+		famStat("vcs", "optimized", 2), famStat("vcs", "rerequested", 8), // 80% of 10 runs: too few
+	}
+	tests := []struct {
+		name  string
+		rate  float64
+		block string
+		level string
+	}{
+		{"family over the rate", 0.3, "log/app", LevelGentle},
+		{"family under the rate", 0.3, "test/go", ""},
+		{"too few runs", 0.3, "vcs/git-log", ""},
+		{"unknown family", 0.3, "doc/markdown", ""},
+		{"off", 0, "log/app", ""},
+		{"any block of the payload counts", 0.3, "test/go+log/app", LevelGentle},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var queries []component.StatsQuery
+			l := fakeLedger{stats: stats, queries: &queries}
+			cfg := &Config{MaxFailures: 2, FetchMaxFailures: 3, FamilyWindow: 7 * 24 * time.Hour, FamilyMinRuns: 20, FamilyRerequestRate: tt.rate}
+			f := &Filter{cfg: cfg, log: slog.New(slog.DiscardHandler), now: time.Now}
+			if err := f.Start(t.Context(), host{{Type: "ledger"}: l}); err != nil {
+				t.Fatal(err)
+			}
+			p := payload.New(payload.CmdOutput, "x")
+			p.Blocks = nil
+			for typ := range strings.SplitSeq(tt.block, "+") {
+				p.Blocks = append(p.Blocks, payload.Block{Text: "x", Type: typ})
+			}
+			if got, err := f.Filter(t.Context(), p); err != nil || got != component.Continue {
+				t.Fatalf("Filter = %v, %v", got, err)
+			}
+			if got := p.Attrs[AttrLevel]; got != tt.level {
+				t.Errorf("level = %q, want %q", got, tt.level)
+			}
+			if tt.rate > 0 && (len(queries) != 1 || queries[0].By != component.ByFamilyOutcome || queries[0].Since.IsZero()) {
+				t.Errorf("queries = %+v, want one family_outcome query with a window", queries)
+			}
+		})
+	}
+}
+
+// The family rates are read once a minute, not for every payload.
+func TestFamilyRatesAreCached(t *testing.T) {
+	var queries []component.StatsQuery
+	l := fakeLedger{stats: []component.Stat{famStat("log", "optimized", 10), famStat("log", "rerequested", 30)}, queries: &queries}
+	clock := time.Now()
+	cfg := &Config{MaxFailures: 2, FetchMaxFailures: 3, FamilyWindow: time.Hour, FamilyMinRuns: 20, FamilyRerequestRate: 0.3}
+	f := &Filter{cfg: cfg, log: slog.New(slog.DiscardHandler), now: func() time.Time { return clock }}
+	if err := f.Start(t.Context(), host{{Type: "ledger"}: l}); err != nil {
+		t.Fatal(err)
+	}
+	run := func() {
+		p := payload.New(payload.CmdOutput, "x")
+		p.Blocks[0].Type = "log/app"
+		if _, err := f.Filter(t.Context(), p); err != nil {
+			t.Fatal(err)
+		}
+	}
+	run()
+	run()
+	clock = clock.Add(30 * time.Second)
+	run()
+	if len(queries) != 1 {
+		t.Fatalf("%d queries within a minute, want 1", len(queries))
+	}
+	clock = clock.Add(time.Minute)
+	run()
+	if len(queries) != 2 {
+		t.Fatalf("%d queries after a minute, want 2", len(queries))
 	}
 }

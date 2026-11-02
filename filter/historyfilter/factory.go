@@ -12,9 +12,9 @@ const typ = "history"
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindFilter, typ,
 		func() *Config {
-			return &Config{MaxFailures: 2, FetchMaxFailures: 3, GentleAfter: 1, FailureTTL: 24 * time.Hour}
+			return &Config{MaxFailures: 2, FetchMaxFailures: 3, GentleAfter: 1, FamilyWindow: 7 * 24 * time.Hour, FamilyMinRuns: 20, FamilyRerequestRate: 0.3, FailureTTL: 24 * time.Hour}
 		},
 		func(_ context.Context, set component.Settings, cfg *Config) (component.Component, error) {
-			return &Filter{cfg: cfg, log: set.Logger}, nil
+			return &Filter{cfg: cfg, log: set.Logger, now: time.Now}, nil
 		})
 }

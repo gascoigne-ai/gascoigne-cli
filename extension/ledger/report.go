@@ -38,6 +38,8 @@ func (l *Ledger) liveStats(ctx context.Context, q component.StatsQuery) ([]compo
 		tx, group, table = l.events(ctx), period(q.By), "events"
 	case component.ByReason:
 		return l.reasons(ctx, q)
+	case component.ByFamilyOutcome:
+		return l.familyOutcomes(ctx, q)
 	case component.ByFamily:
 		tx, group, table = l.steps(ctx), "steps.family", "steps"
 	case component.ByOptimizer:
@@ -359,4 +361,27 @@ func (l *Ledger) Impact(ctx context.Context, q component.StatsQuery) ([]ImpactDa
 			sum(CASE WHEN outcome = 'rerequested' THEN out_tokens ELSE 0 END) AS wasted`).
 		Group("day").Order("day").Scan(&days).Error
 	return days, err
+}
+
+// familyOutcomes counts the runs per optimizer family and outcome: a run is
+// in every family one of its steps belongs to.
+func (l *Ledger) familyOutcomes(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
+	var rows []struct {
+		Family, Outcome            string
+		Runs, RawTokens, OutTokens int
+		FirstTS, LastTS            int64
+	}
+	tx := filter(l.steps(ctx), "events", q)
+	err := tx.Select(`steps.family AS family, events.outcome AS outcome, count(DISTINCT events.id) AS runs,
+			sum(events.raw_tokens) AS raw_tokens, sum(events.out_tokens) AS out_tokens,
+			min(events.ts) AS first_ts, max(events.ts) AS last_ts`).
+		Group("steps.family, events.outcome").
+		Order("steps.family, events.outcome").
+		Scan(&rows).Error
+	stats := make([]component.Stat, len(rows))
+	for i, r := range rows {
+		stats[i] = component.Stat{Group: r.Family, Family: r.Family, Outcome: r.Outcome, Runs: r.Runs,
+			RawTokens: r.RawTokens, OutTokens: r.OutTokens, First: time.UnixMilli(r.FirstTS), Last: time.UnixMilli(r.LastTS)}
+	}
+	return stats, err
 }

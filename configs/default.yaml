@@ -30,8 +30,10 @@ filters:
   bypass: { env: GASCOIGNE_RAW }               # attr raw=true or this env set to 1
   minsize: { min_tokens: 200 } # small payloads are not worth it
   # A source the agent fetched raw (or whose optimizing failed) gentle_after times goes through the "gentle"
-  # route below; at max_failures it is skipped altogether. Both end after failure_ttl.
-  history: { max_failures: 2, fetch_max_failures: 3, gentle_after: 1, failure_ttl: 24h }
+  # route below; at max_failures it is skipped altogether. Both end after failure_ttl. A whole optimizer
+  # family whose runs were fetched raw afterwards in family_rerequest_rate of at least family_min_runs runs
+  # within family_window goes gentle for every source (0 turns it off).
+  history: { max_failures: 2, fetch_max_failures: 3, gentle_after: 1, family_window: 168h, family_min_runs: 20, family_rerequest_rate: 0.3, failure_ttl: 24h }
   # edit_safe: files of these families read from disk (cat, sed -n, Read) and under
   # edit_safe_max_tokens are typed fs/code: kept in their own syntax, only comment lines drop
   detect: { edit_safe: [data, k8s, cloud, infra], edit_safe_max_tokens: 4000 } # tag each block with its content type

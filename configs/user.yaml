@@ -63,6 +63,9 @@
 #     max_failures: 2                 ## failures that bypass a source; reset one with: gascoigne forget <key>
 #     fetch_max_failures: 3           ## same for fetched pages read whole on purpose
 #     gentle_after: 1                 ## failures from which a source takes the gentle route (wider caps) until max_failures bypasses it; 0: off
+#     family_window: 168h             ## a whole optimizer family goes gentle when, in this window...
+#     family_min_runs: 20             ## ...at least this many of its runs...
+#     family_rerequest_rate: 0.3      ## ...had this share fetched raw afterwards (0: off)
 #     failure_ttl: 24h                ## failures older than this are ignored
 
 ## One engine per family. Limits keep what an agent acts on first and mark every gap.

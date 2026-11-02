@@ -3,6 +3,7 @@ package ledger
 import (
 	"cmp"
 	"fmt"
+	"maps"
 	"math/rand/v2"
 	"path/filepath"
 	"slices"
@@ -659,5 +660,51 @@ func TestRollupTTL(t *testing.T) {
 	}
 	if got := runs(); got != 0 {
 		t.Fatalf("runs left = %d", got)
+	}
+}
+
+// ByFamilyOutcome counts, per optimizer family, the runs that stayed
+// optimized and those the agent then fetched raw, which tells a family whose
+// results are not enough from one that works. A run touching two families
+// counts in both; runs without steps and runs outside Since do not count.
+func TestStatsByFamilyOutcome(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	now := time.Now()
+	step := func(opt, fam string) component.Step {
+		return component.Step{Optimizer: opt, Family: fam, RawTokens: 100, OutTokens: 10}
+	}
+	for _, ev := range []component.Event{
+		{TS: now, Key: "a", Outcome: component.Optimized, RawTokens: 100, OutTokens: 10, Steps: []component.Step{step("gotest", "test")}},
+		{TS: now, Key: "b", Outcome: component.Optimized, RawTokens: 100, OutTokens: 10, Steps: []component.Step{step("gotest", "test")}},
+		{TS: now, Key: "c", Outcome: component.Optimized, RawTokens: 100, OutTokens: 10, Steps: []component.Step{step("embed", "json"), step("applog", "log")}},
+		{TS: now, Key: "d", Outcome: component.Optimized, RawTokens: 100, OutTokens: 10, Steps: []component.Step{step("applog", "log")}},
+		{TS: now.Add(-48 * time.Hour), Key: "old", Outcome: component.Optimized, RawTokens: 100, OutTokens: 10, Steps: []component.Step{step("applog", "log")}},
+		{TS: now, Key: "e", Outcome: component.Unchanged, RawTokens: 50, OutTokens: 50},
+	} {
+		if err := l.Record(ctx, ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, key := range []string{"b", "d"} {
+		if err := l.MarkFailure(ctx, key, component.ReasonRawRequested); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := l.Stats(ctx, component.StatsQuery{By: component.ByFamilyOutcome, Since: now.Add(-24 * time.Hour)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	runs := map[string]int{}
+	for _, s := range got {
+		runs[s.Family+" "+s.Outcome] = s.Runs
+	}
+	want := map[string]int{
+		"test optimized": 1, "test rerequested": 1,
+		"log optimized": 1, "log rerequested": 1,
+		"json optimized": 1,
+	}
+	if !maps.Equal(runs, want) {
+		t.Errorf("runs %v, want %v", runs, want)
 	}
 }

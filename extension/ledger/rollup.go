@@ -56,7 +56,7 @@ func (l *Ledger) pruneRollup(ctx context.Context) error {
 // counts whole when the query's Since falls inside it.
 func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
 	live, err := l.liveStats(ctx, q)
-	if err != nil || q.Session != "" || q.By == component.BySession || q.By == component.ByReason {
+	if err != nil || q.Session != "" || q.By == component.BySession || q.By == component.ByReason || q.By == component.ByFamilyOutcome {
 		return live, err
 	}
 	old, err := l.rolledStats(ctx, q)

@@ -191,6 +191,7 @@ Routes you add replace the `routes` list as a whole, like any list.
 | `minsize.min_tokens` | `200` | Smaller payloads are not worth it and pass through. |
 | `history.max_failures` | `2` | Bypass a source once it failed this many times. `gascoigne forget <key>` resets it. |
 | `history.gentle_after` | `1` | From this many failures (an agent that fetched the whole original counts as one; partial reads do not) until `max_failures`, a source takes the `gentle` route: the same chain with `*/gentle` instances, three times the caps (log keeps debug and 1000 lines, grep 50 per file, truncate 30000 tokens). `0` turns it off. Failures expire after `failure_ttl`, which puts the source back on the normal route. By hand: `-attr level=gentle`. |
+| `history.family_window`, `family_min_runs`, `family_rerequest_rate` | `168h`, `20`, `0.3` | A whole optimizer family (log, test, ...) goes gentle for every source when, within the window, at least that share of at least that many of its runs was fetched raw afterwards (read from the ledger once a minute). `0` rate turns it off. |
 | `detect` | — | Tags each block with its `family/dialect` type. No options. |
 
 ### Optimizers
