@@ -4,7 +4,6 @@
 package truncateoptimizer
 
 import (
-	"cmp"
 	"context"
 	"slices"
 
@@ -74,6 +73,9 @@ func (o *Optimizer) cut(text, query string) string {
 	return compress.Join(append(out, lines[tail:]...))
 }
 
+// mmrLambda weighs relevance against novelty in sample.MMR: equal.
+const mmrLambda = 0.5
+
 // middle marks the cut middle lines worth keeping: error lines with the
 // ErrorContext lines after them (the got/want of a failure) and the lines
 // that best match the query.
@@ -97,22 +99,15 @@ func (o *Optimizer) middle(mid, query []string) []bool {
 	for i, l := range mid {
 		docs[i] = sample.Terms(l)
 	}
-	for _, i := range topScored(sample.BM25(docs, query), o.cfg.QueryLines) {
+	scores := sample.BM25(docs, query)
+	picks := sample.TopN(scores, o.cfg.QueryLines)
+	if o.cfg.QueryDiverse {
+		picks = sample.MMR(scores, docs, o.cfg.QueryLines, mmrLambda)
+	}
+	for _, i := range picks {
 		keep[i] = true
 	}
 	return keep
-}
-
-// topScored is the indexes of the n best positive scores; ties go to the earlier line.
-func topScored(scores []float64, n int) []int {
-	idx := make([]int, 0, len(scores))
-	for i, s := range scores {
-		if s > 0 {
-			idx = append(idx, i)
-		}
-	}
-	slices.SortStableFunc(idx, func(a, b int) int { return cmp.Compare(scores[b], scores[a]) })
-	return idx[:min(n, len(idx))]
 }
 
 // fits is how many leading lines stay within budget tokens.

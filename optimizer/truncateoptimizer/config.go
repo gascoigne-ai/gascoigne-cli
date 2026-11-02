@@ -14,6 +14,9 @@ type Config struct {
 	ErrorContext int `yaml:"error_context"`
 	// QueryLines caps middle lines kept because they match the query attr.
 	QueryLines int `yaml:"query_lines"`
+	// QueryDiverse picks the query lines by maximal marginal relevance, so a
+	// failure repeated under other ids does not use up all QueryLines.
+	QueryDiverse bool `yaml:"query_diverse"`
 	// Skip lists types or families never cut: source files are edited by
 	// exact text and have their own outline; structured data would no longer
 	// parse, and its engines already sample to their own budgets.

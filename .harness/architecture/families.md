@@ -116,7 +116,7 @@ lives in public libs so engines and composite families can reuse it. Families ar
    by `internal/compress/legend` (also used by `rerun` and the probe).
 6. **`truncate`** (`optimizer/truncateoptimizer`): blocks still over `max_tokens` keep
    head/tail token budgets + `max_errors` error lines from the middle, each with `error_context`
-   lines after it (got/want); with a `query` attr, the `query_lines` best BM25 matches
+   lines after it (got/want); with a `query` attr, the `query_lines` best BM25 matches (`query_diverse: true`: maximal marginal relevance, `sample.MMR`, λ 0.5, so near-identical matches do not fill the budget)
    (`sample.Terms`/`sample.BM25`) of the middle stay too; long lines are cut.
    `skip`: fs/code, data, k8s, cloud.
 

@@ -115,3 +115,35 @@ func TestValidate(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// With the budget of query lines spent on one failure repeated under other
+// ids, the distinct line that answers the query was cut with the middle.
+func TestQueryDiverse(t *testing.T) {
+	marks := map[int]string{700: "tls handshake negotiated protocol version one point three on the gateway"}
+	for i := 300; i < 310; i++ {
+		marks[i] = fmt.Sprintf("tls handshake started for session %d", i)
+	}
+	big := numbered(1000, marks)
+	tests := []struct {
+		name    string
+		diverse bool
+		want    bool
+	}{
+		{"best first fills up on the repeats", false, false},
+		{"diverse reaches the distinct line", true, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := &Config{MaxTokens: 1000, HeadTokens: 200, TailTokens: 200, QueryLines: 3, QueryDiverse: tt.diverse}
+			p := payload.New(payload.CmdOutput, big)
+			p.Blocks[0].Type = "log/app"
+			p.Attrs = map[string]string{payload.AttrQuery: "tls handshake"}
+			if err := (&Optimizer{cfg: cfg}).Optimize(t.Context(), p); err != nil {
+				t.Fatal(err)
+			}
+			if got := strings.Contains(p.Text(), "protocol version one point three"); got != tt.want {
+				t.Errorf("distinct line kept = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

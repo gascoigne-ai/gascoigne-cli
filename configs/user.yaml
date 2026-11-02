@@ -253,6 +253,7 @@
 #     max_errors: 20                              ## error lines kept from the cut middle
 #     error_context: 2                            ## lines kept after each kept error (got/want)
 #     query_lines: 20                             ## cut-middle lines kept for the query attr (BM25)
+#     query_diverse: false                        ## pick them by maximal marginal relevance: a failure repeated under other ids does not use them all
 #     skip: [fs/code, data, k8s, cloud]             ## types or families never cut: source, structured data
 #   rerun:                                        ## a re-run: lines the last runs of the command in the session showed → one pointer
 #     ledger: ledger                              ## extension keeping earlier outputs; "" off

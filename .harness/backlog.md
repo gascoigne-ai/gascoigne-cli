@@ -132,6 +132,10 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   novelty needs no code: the first line of every template always stays. Whether the extra pointers help an
   agent is unmeasured (needs `ab.sh` on a burst task).
 
+- Truncate `query_diverse: true` (maximal marginal relevance over the BM25 query matches, 2026-11-02): no
+  change on any of 427 fixture or 88 ext cases (none cut a middle with repeated query matches); only a
+  synthetic unit shows it (3 near-identical matches no longer hide the distinct one). Unproven on real output.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Rerun nudge in the hint (2026-10-12): `learn` finds no `rerun` habit on a month of one real ledger (two
