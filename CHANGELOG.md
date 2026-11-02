@@ -2,13 +2,19 @@
 
 All notable changes to gascoigne. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
-[Semantic Versioning](https://semver.org/).
+[Semantic Versioning](https://semver.org/). Each release starts with "In short": what changed for you, in plain
+words. The technical details follow.
 
 ## [Unreleased]
 
 ## [0.9.1] - 2026-11-02
 
-Fixes a crash in the hook on `gh pr checks` and other tab separated tables whose rows differ in length.
+The hook no longer crashes on `gh pr checks` and other tables whose rows differ in length.
+
+### In short
+
+- **No more crash on `gh pr checks`.** The hook failed on tables whose rows have different lengths. Your agent now gets the shortened table instead of an error.
+- **SDKs 0.9.1.** Python, TypeScript, Go, Java, .NET and Rust, with native demos for every Python and TypeScript framework and Spring AI.
 
 ### Fixed
 
@@ -17,9 +23,16 @@ Fixes a crash in the hook on `gh pr checks` and other tab separated tables whose
 
 ## [0.9.0] - 2026-11-02
 
-Smarter log folding, a gentler route for sources the agent keeps fetching raw, MCP review that suggests and applies
-savings, and a public `inproc` package that runs the pipeline inside your own process (the base of the SDK native
-mode).
+Shorter logs, fewer wasted round trips, MCP savings applied for you, and SDKs that run inside your app with no server.
+
+### In short
+
+- **The SDKs can run inside your app (native mode).** No server and no CLI to install; simpler to deploy and quicker per call. The `inproc` package exposes the same engine in Go.
+- **Logs shrink further.** Lines that differ only in a host or user fold together, spikes and bursts are called out, and an error code such as `status=503` is no longer lost among `status=200` lines.
+- **Sources your agent keeps re-reading get gentler treatment** instead of being skipped. `gain -refetch` shows how often it happens.
+- **MCP review fixes things for you.** It lists tools nobody called this week and can set them to load on request (`mcp-review -optimize` or one button): fewer tool definitions in every request, nothing removed.
+- **Try settings on real sessions** with `replay -set`, and get advice on 1-hour cache pauses in `context`.
+- **Check two defaults:** a source is bypassed after 2 failures now (was 1), and `optimizers: []` replaces the removed `passthrough` optimizer.
 
 ### Added
 
@@ -63,6 +76,16 @@ Fewer tokens from the session itself, not only from tool output: screenshots are
 piped commands are optimized, output budgets tighten when the context grows large, and a failed source no longer
 bypasses optimization forever. 30 new dialects and fixes, a costs and context view in the dashboard, and a project
 config file.
+
+### In short
+
+- **Screenshots cost less.** Large images the agent reads are scaled down before the model sees them; the original is kept.
+- **Piped commands are shortened too**, with the exit status of the pipeline kept.
+- **Big contexts get tighter output**, and you get a note about the context size.
+- **One bad run no longer blocks a source for good:** it is skipped only after 2 failures within 24 hours.
+- **Per-project settings** with a `.gascoigne.yaml` in the repo.
+- **30 more kinds of output understood:** Node and Deno stack traces, eslint, cargo and ruff diagnostics, `kubectl apply`, `dmesg`, lockfiles, dependency trees, coverage tables, `docker pull`, git history commands, terraform, web search results.
+- **See where the money goes** with new costs and context pages in the dashboard and rerequest columns in `gain`.
 
 ### Added
 
@@ -111,6 +134,11 @@ config file.
 
 Commands with quoted env assignments, like `NODE_OPTIONS="--max-old-space-size=4096" npm run build`, run through the hook again.
 
+### In short
+
+- **Commands with quoted env values work again.** Lines like `DATABASE_URL="postgres://app@localhost/app?sslmode=disable" go test ./...` failed with "executable not found"; they now run and are shortened.
+- **No double wrapping** of lines the hook already rewrote, and shell builtins such as `command`, `exec` and `time` are left alone.
+
 ### Fixed
 
 - Hook rewrites keep quoted env assignments outside `gascoigne exec`, as in `DATABASE_URL="postgres://app@localhost/app?sslmode=disable" go test ./...` or `NODE_OPTIONS="--max-old-space-size=4096" npm run build`. They failed with "executable not found".
@@ -121,6 +149,12 @@ Commands with quoted env assignments, like `NODE_OPTIONS="--max-old-space-size=4
 
 The release notice checks for a newer version every 15 minutes, the dashboard gains a costs page, and `make eval`
 prints a readable summary.
+
+### In short
+
+- **Costs page** in the dashboard: what your agents spend and what gascoigne saved, over long periods and per session.
+- **Hear about updates sooner:** new releases are noticed within 15 minutes.
+- **Readable `make eval`:** a banner per suite, savings bars and a summary.
 
 ### Added
 
@@ -142,6 +176,12 @@ prints a readable summary.
 
 Many more tools are recognised and shortened (build, test and package managers, stack traces, source outlines for
 dozens of languages), and `gain` prints a short report by default and keeps its history past a year.
+
+### In short
+
+- **Simpler `gain`.** It prints the essentials by default; `-full` shows everything, and flags filter and export CSV.
+- **History that lasts.** Old runs are rolled into daily totals kept forever, so your savings history survives a year.
+- **Many more tools recognised.** Build, test and package-manager output of dozens of tools is shortened, stack traces fold runtime frames, and source outlines cover more languages.
 
 ### Added
 
@@ -200,6 +240,12 @@ nothing is migrated.
 The dashboard tells optimizing apart from rerequesting: when the agent asks for the original after an
 optimized result, the run is no longer counted as a saving.
 
+### In short
+
+- **Honest savings.** When the agent asks again for the original, that run counts as a cost, not a saving, so the numbers are net. Old history is converted on first start.
+- **Better dashboard:** a per-day chart of optimized versus rerequested runs and a feed you can filter by outcome.
+- **Retention you can set:** originals stay 30 days, run statistics a year. Also fixed: `gascoigne tokens` hanging and a git branch crash.
+
 ### Added
 
 - Outcome `rerequested`: an optimized run the agent then fetched in full (`gascoigne raw`, MCP retrieve)
@@ -229,6 +275,12 @@ optimized result, the run is no longer counted as a saving.
 
 A second prose model you can pick in setup, a progress bar for its download, and an API for agent
 framework SDKs. The prose model stays an experiment.
+
+### In short
+
+- **Choose the prose model:** a general one (274 MB) or one tuned for tool output, logs and code (563 MB). Setup asks, downloads and checks it.
+- **Progress while downloading;** models install into their own folders, so run `gascoigne prose install` again if you used 0.5.0.
+- **For framework developers:** a `/sdk/v1` API for the agent SDKs, a tiny Alpine Docker image, and plainer dashboard labels.
 
 ### Added
 
@@ -263,6 +315,12 @@ framework SDKs. The prose model stays an experiment.
 Prose compression with a local model, and a dashboard that groups its tables. The model is an experiment:
 off until you turn it on.
 
+### In short
+
+- **Shorter prose, on your machine.** An experimental local model drops low-value words from long text and markdown; numbers, paths, flags, code and links stay, and the original is kept. No Python, no cgo.
+- **Easy to try:** `gascoigne prose install` and `status`; setup downloads the model with its checksums shown.
+- **See it in the dashboard:** a -N tag on shortened runs and an Experiments panel.
+
 ### Added
 
 - Experimental prose compression (`experimental: [prose]`): a ModernBERT extractive model drops low-value
@@ -295,6 +353,10 @@ off until you turn it on.
 
 ## [0.4.1] - 2026-10-13
 
+### In short
+
+- **Update notices work.** The daily check read the website at its old address and never told you about a new version.
+
 ### Fixed
 
 - The release notice read `latest.json` from the website's old address (404 since the site moved to
@@ -303,6 +365,12 @@ off until you turn it on.
 ## [0.4.0] - 2026-10-13
 
 Prebuilt binaries on every release.
+
+### In short
+
+- **Download and run:** prebuilt archives for Linux, macOS and Windows (amd64, arm64) with checksums on every release.
+- **`gascoigne context`** shows where conversation size and cache rewrites cost you money.
+- **Weekly MCP review:** which servers you use and how to switch one off.
 
 ### Added
 
@@ -320,6 +388,12 @@ Prebuilt binaries on every release.
 
 Where context costs money, and a weekly look at MCP servers. `gascoigne context` and its page show what
 conversation size and cache rewrites cost, and a browser page reviews MCP servers.
+
+### In short
+
+- **See where context costs money** with `gascoigne context` and its dashboard page.
+- **A weekly look at your MCP servers,** with unused tools offered on request only.
+- **Fixes:** HTML source read through a pipe stays source, the release-notice opt-out reaches the background server, and the local API and state files are hardened.
 
 ### Added
 
@@ -353,6 +427,13 @@ Setting up and keeping up to date. gascoigne asks, in a browser page or the term
 changes how your agents are set up, `gascoigne upgrade` brings everything current after a new
 version, and `gascoigne doctor` says what is wrong in plain words. The dashboard shows savings by
 model and sorts and filters every table.
+
+### In short
+
+- **Setup you control.** A page in your browser (or `gascoigne setup`) asks first; nothing about your agents changes before you answer.
+- **Upgrades fix themselves:** `gascoigne upgrade` rewrites stale or lost hooks, rules and commands and moves your config to the new template.
+- **Clearer help:** `gascoigne doctor` in plain words; agents found on your machine are offered, not installed.
+- **Experiments, opt in,** each with an example and its impact, and a dashboard with savings by model family.
 
 ### Added
 
@@ -401,6 +482,14 @@ shrinks 69%; in the author's own coding sessions tool output was 4–27% smaller
 ```sh
 go install github.com/gascoigne-ai/gascoigne-cli/cmd/gascoigne@latest && gascoigne wrap claude
 ```
+
+### In short
+
+- **Shorter tool output:** 16 engines across 110+ tools and formats; verbose output shrinks 70-99%, a typical coding session's tool output 4-27%.
+- **Works with your agent:** `wrap` and `install` for Claude Code, Codex, Gemini CLI, opencode, pi and Cursor; `uninstall` removes everything.
+- **MCP and API proxies** shorten results from MCP servers and tool results inside LLM requests.
+- **Nothing is lost:** every original is kept locally and read back with `gascoigne raw`.
+- **See the effect** with a live dashboard, `gain` with cost, and exact token counts with `tokens`.
 
 ### Optimizing output
 
