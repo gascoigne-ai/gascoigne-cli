@@ -12,6 +12,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 )
 
@@ -109,5 +110,36 @@ func TestToolChanges(t *testing.T) {
 	want := []toolChange{{"Bash", 100, 90}, {"Glob", 0, 3}, {"Grep", 7, 0}}
 	if got := toolChanges(old, cur); !slices.Equal(got, want) {
 		t.Errorf("changes %v, want %v", got, want)
+	}
+}
+
+// replay -set applies config overrides to the proxy it runs, so two settings
+// can be compared on the same transcripts; a bad override must fail the run.
+func TestLLMProxyWithOverrides(t *testing.T) {
+	sandbox(t)
+	ledgerFile := filepath.Join(t.TempDir(), "l.db")
+	cfg := filepath.Join(t.TempDir(), "c.yaml")
+	write(t, cfg, "extensions: { ledger: { path: "+ledgerFile+" } }\n")
+	t.Setenv("GASCOIGNE_CONFIG", cfg)
+	tests := []struct {
+		name string
+		set  []string
+		bad  bool
+	}{
+		{"valid override", []string{"optimizers.log.miner=drain"}, false},
+		{"invalid value", []string{"optimizers.log.miner=lcs"}, true},
+		{"unknown setting", []string{"optimizers.log.nonsense=1"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var mu sync.Mutex
+			_, closeProxy, err := llmProxyWith(t.Context(), &mu, ledgerFile, "http://127.0.0.1:1", slog.New(slog.DiscardHandler), config.Overrides{Set: tt.set})
+			if err == nil {
+				closeProxy()
+			}
+			if (err != nil) != tt.bad {
+				t.Fatalf("err = %v, want error: %v", err, tt.bad)
+			}
+		})
 	}
 }

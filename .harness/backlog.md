@@ -150,6 +150,12 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   `Stats` by `family_outcome`. Default on, but it only acts on a ledger with real re-fetch history; the eval
   uses a throwaway ledger, so no fixture shows it. Check the thresholds against your own ledger.
 
+- Real-traffic replay (2026-11-02, `gascoigne replay -sessions 25 -set ...`: 25 newest Claude Code transcripts,
+  964 requests, tool results 477595 raw → 455751 out, Bash 421431 out): `miner=drain` −767 tokens (−0.17%, Bash
+  only); `outliers=mad`, `bursts`, `rarity`, `passes` minus units: no change; the whole `gentle` chain +383
+  (+0.08%). Real tool results rarely hit the caps or repeat in words, so none of these moves much; the
+  fixture gains (log/app 1099→806) come from long synthetic-shape logs. Keep drain off by default.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Rerun nudge in the hint (2026-10-12): `learn` finds no `rerun` habit on a month of one real ledger (two

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
@@ -38,12 +39,14 @@ func cmdReplay(ctx context.Context, args []string) error {
 		sessions int
 		asJSON   bool
 		against  string
+		sets     listFlag
 	)
 	home, _ := os.UserHomeDir()
 	fs := newFlags("replay")
 	fs.StringVar(&dir, "dir", filepath.Join(home, ".claude", "projects"), "`directory` with session transcripts (*.jsonl), searched recursively")
 	fs.IntVar(&sessions, "sessions", 10, "newest `n` transcripts to replay")
 	fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
+	fs.Var(&sets, "set", "config override `path=yaml` (repeatable, after $GASCOIGNE_SET), to compare settings on the same transcripts")
 	fs.StringVar(&against, "compare", "", "also print what changed since an earlier `report` (replay -json)")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -79,7 +82,8 @@ func cmdReplay(ctx context.Context, args []string) error {
 	srv := httptest.NewServer(up)
 	defer srv.Close()
 	var mu sync.Mutex
-	proxy, closeProxy, err := llmProxy(ctx, &mu, ledgerPath, srv.URL, slog.New(slog.DiscardHandler))
+	proxy, closeProxy, err := llmProxyWith(ctx, &mu, ledgerPath, srv.URL, slog.New(slog.DiscardHandler),
+		config.Overrides{Set: append(splitList(os.Getenv("GASCOIGNE_SET"), ";\n"), sets...)})
 	if err != nil {
 		return err
 	}

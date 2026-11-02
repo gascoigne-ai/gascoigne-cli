@@ -52,11 +52,16 @@ func proxyURL() string { return "http://" + serverAddr() }
 // under mu). A non-empty upstream replaces every API's upstream (replay).
 // close shuts the pipeline down.
 func llmProxy(ctx context.Context, mu *sync.Mutex, ledgerPath, upstream string, log *slog.Logger) (*httpproxyreceiver.Receiver, func(), error) {
+	return llmProxyWith(ctx, mu, ledgerPath, upstream, log, config.Overrides{})
+}
+
+// llmProxyWith is llmProxy with per-run config overrides (replay's -set).
+func llmProxyWith(ctx context.Context, mu *sync.Mutex, ledgerPath, upstream string, log *slog.Logger, o config.Overrides) (*httpproxyreceiver.Receiver, func(), error) {
 	data, err := configData("")
 	if err != nil {
 		return nil, nil, err
 	}
-	cfg, err := config.ParseWith(data, config.Overrides{})
+	cfg, err := config.ParseWith(data, o)
 	if err != nil {
 		return nil, nil, err
 	}
