@@ -197,7 +197,7 @@ make check    # gofmt, vet, import boundaries, tests
 make eval     # token savings and fact retention on fixtures
 ```
 
-Contributor and agent rules live in [`.harness/`](.harness/README.md).
+Contributing: [CONTRIBUTING.md](CONTRIBUTING.md). Agent rules live in [`.harness/`](.harness/README.md).
 
 ## License
 
