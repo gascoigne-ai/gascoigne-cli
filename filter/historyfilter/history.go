@@ -14,6 +14,13 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// AttrLevel is the payload attr the filter sets; a route matches it
+// (`match: { attrs: { level: gentle } }`) to pick a less cutting chain.
+const (
+	AttrLevel   = "level"
+	LevelGentle = "gentle"
+)
+
 type Filter struct {
 	cfg    *Config
 	log    *slog.Logger
@@ -42,6 +49,10 @@ func (f *Filter) Filter(ctx context.Context, p *payload.Payload) (component.Deci
 		p.Set(payload.AttrSkip, fmt.Sprintf("%s failed %d× (max_failures %d), last: %s at %s; reset: gascoigne forget %q",
 			key, info.Count, limit, info.Reason, info.Last.Format(time.DateTime), key))
 		return component.Bypass, nil
+	}
+	if g := f.cfg.GentleAfter; g > 0 && info.Count >= g && !f.expired(info) {
+		f.log.Debug("gentle key", "key", key, "failures", info.Count)
+		p.Set(AttrLevel, LevelGentle)
 	}
 	return component.Continue, nil
 }

@@ -40,9 +40,14 @@ func (c *Config) Optimizers() []string {
 }
 
 // Only returns a copy whose chains keep just the listed optimizers, in order.
+// Listing a type also lists its named instances ("log" covers "log/gentle").
 func (c *Config) Only(ids []string) *Config {
+	listed := func(id string) bool {
+		base, _, _ := strings.Cut(id, "/")
+		return slices.Contains(ids, id) || slices.Contains(ids, base)
+	}
 	keep := func(chain []string) []string {
-		return slices.DeleteFunc(slices.Clone(chain), func(id string) bool { return !slices.Contains(ids, id) })
+		return slices.DeleteFunc(slices.Clone(chain), func(id string) bool { return !listed(id) })
 	}
 	out := &Config{Default: keep(c.Default), Routes: slices.Clone(c.Routes)}
 	for i := range out.Routes {

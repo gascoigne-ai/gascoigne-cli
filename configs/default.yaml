@@ -29,7 +29,9 @@ receivers:
 filters:
   bypass: { env: GASCOIGNE_RAW }               # attr raw=true or this env set to 1
   minsize: { min_tokens: 200 } # small payloads are not worth it
-  history: { max_failures: 2, fetch_max_failures: 3, failure_ttl: 24h } # skip sources that optimized badly within failure_ttl
+  # A source the agent fetched raw (or whose optimizing failed) gentle_after times goes through the "gentle"
+  # route below; at max_failures it is skipped altogether. Both end after failure_ttl.
+  history: { max_failures: 2, fetch_max_failures: 3, gentle_after: 1, failure_ttl: 24h }
   # edit_safe: files of these families read from disk (cat, sed -n, Read) and under
   # edit_safe_max_tokens are typed fs/code: kept in their own syntax, only comment lines drop
   detect: { edit_safe: [data, k8s, cloud, infra], edit_safe_max_tokens: 4000 } # tag each block with its content type
@@ -37,6 +39,12 @@ filters:
 # Optimizers select the blocks whose detected type they understand, so one
 # default chain serves every input. Add routes only to override per command.
 router:
+  # gentle: the same chain with wider caps for the engines that cut (the "gentle" instances below),
+  # for sources the history filter marked level=gentle; also usable by hand: -attr level=gentle.
+  routes:
+    - name: gentle
+      match: { attrs: { level: gentle } }
+      optimizers: [embedjson, trace, task, test, build, git, grep/gentle, ls/gentle, json/gentle, data/gentle, log/gentle, cat, pkg, table/gentle, db/gentle, k8s/gentle, cloud, infra, http, html, aria, websearch, doc/gentle, prose, dense, paths, truncate/gentle, rerun]
   default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun]
 
 optimizers:
@@ -133,6 +141,19 @@ optimizers:
   # prose: plain paragraphs of doc/text and markdown pass a local model, loaded in the process that optimizes
   # (experimental, lossy). enabled follows the experimental prose setting, which sets it.
   prose: { enabled: false, model: kompress-v2-base, device: auto, threshold: 0.5, warm: true, idle: 5m, min_words: 40 }
+  # gentle instances: three times the caps, nothing dropped for being debug, a bigger truncate budget
+  grep/gentle: { max_per_file: 50, max_files: 300, max_line_len: 400 }
+  ls/gentle: { sizes_up_to: 200, width: 160, max_per_dir: 40 }
+  json/gentle: { drop_empty: true, max_string: 1000, shorten_hashes: true, tabulate_min: 3, lossless_min_saving: 0.3,
+    lossless_max_tokens: 6000, min_items: 15, min_tokens: 600, max_items: 60, head_share: 0.3,
+    tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
+  data/gentle: { max_rows: 100, max_cell: 200, max_items: 60, max_output_lines: 100 }
+  log/gentle: { context: 5, drop_debug: false, max_lines: 1000, passes: [entries, units, prefixes], bursts: false, outliers: ratio, rarity: false, miner: regex, drain_depth: 4, drain_similarity: 0.6, drain_max_children: 100, drain_max_vars: 2, drain_variants: 3 }
+  table/gentle: { max_rows: 100, max_cell: 200 }
+  db/gentle: { max_rows: 100, max_cell: 240, plan_min_share: 0.02 }
+  k8s/gentle: { max_items: 50, max_rows: 100, max_cell: 200, notes_lines: 24 }
+  doc/gentle: { max_code_lines: 120, max_tokens: 15000, man_drop: [] }
+  truncate/gentle: { max_tokens: 30000, head_tokens: 9600, tail_tokens: 9600, max_errors: 60, error_context: 5, query_lines: 60, query_diverse: false, skip: [fs/code, data, k8s, cloud] }
 
 exporters:
   stdout: { hint: true }

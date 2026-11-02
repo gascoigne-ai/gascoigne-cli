@@ -140,6 +140,12 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   the journalctl fixture is smaller (out tokens 3800→3569, lost artifacts 13→12): the start/stop pairing
   may not pay once repeats are templated. Check on more journal/syslog output before dropping it.
 
+- Gentle route (2026-11-02), forced on all 427 fixture cases with `-attr level=gentle`: out tokens 460875→603292
+  (+31%, 81.0%→75.1% saved), 82 cases differ, fewer lost errors and artifacts where it cuts less (lsof errors
+  98→30, journalctl artifacts 13→3, dmesg 3→0). Only the "… omitted" marker facts are gone, as intended. Whether
+  an agent then stops fetching raw is unmeasured (needs real sessions or `ab.sh`). Found by it: with `context` 5 a
+  slow batch folded into ×N (context lines left the outlier group and `dedupeRuns` merged them); fixed.
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Rerun nudge in the hint (2026-10-12): `learn` finds no `rerun` habit on a month of one real ledger (two

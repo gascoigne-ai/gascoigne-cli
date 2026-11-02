@@ -62,6 +62,7 @@
 #   history:                          ## skip sources that optimized badly before
 #     max_failures: 2                 ## failures that bypass a source; reset one with: gascoigne forget <key>
 #     fetch_max_failures: 3           ## same for fetched pages read whole on purpose
+#     gentle_after: 1                 ## failures from which a source takes the gentle route (wider caps) until max_failures bypasses it; 0: off
 #     failure_ttl: 24h                ## failures older than this are ignored
 
 ## One engine per family. Limits keep what an agent acts on first and mark every gap.
@@ -264,13 +265,26 @@
 #     min_lines: 4                                ## shortest run folded
 #     min_chars: 200                              ## smallest run folded, bytes
 
+#   # gentle instances: wider caps, run by the "gentle" route for sources the agent fetched raw
+#   grep/gentle: { max_per_file: 50, max_files: 300, max_line_len: 400 }
+#   ls/gentle: { sizes_up_to: 200, width: 160, max_per_dir: 40 }
+#   json/gentle: { drop_empty: true, max_string: 1000, shorten_hashes: true, tabulate_min: 3, lossless_min_saving: 0.3, lossless_max_tokens: 6000, min_items: 15, min_tokens: 600, max_items: 60, head_share: 0.3, tail_share: 0.15, anomaly_std: 2, relevance_k: 3 }
+#   data/gentle: { max_rows: 100, max_cell: 200, max_items: 60, max_output_lines: 100 }
+#   log/gentle: { context: 5, drop_debug: false, max_lines: 1000, passes: [entries, units, prefixes], bursts: false, outliers: ratio, rarity: false, miner: regex, drain_depth: 4, drain_similarity: 0.6, drain_max_children: 100, drain_max_vars: 2, drain_variants: 3 }
+#   table/gentle: { max_rows: 100, max_cell: 200 }
+#   db/gentle: { max_rows: 100, max_cell: 240, plan_min_share: 0.02 }
+#   k8s/gentle: { max_items: 50, max_rows: 100, max_cell: 200, notes_lines: 24 }
+#   doc/gentle: { max_code_lines: 120, max_tokens: 15000, man_drop: [] }
+#   truncate/gentle: { max_tokens: 30000, head_tokens: 9600, tail_tokens: 9600, max_errors: 60, error_context: 5, query_lines: 60, query_diverse: false, skip: [fs/code, data, k8s, cloud] }
+
 ## Where results go.
 # exporters:
 #   stdout: { hint: true }            ## add "[gascoigne: optimized A→B tokens · full: gascoigne raw <id>]"
 
 ## Which optimizers run. Each picks the blocks whose type it knows, so one chain serves all.
 # router:
-#   routes: []                        ## e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
+#   routes:                           ## first match wins; e.g. - { name: big-logs, match: { content: "log/*", min_tokens: 2000 }, optimizers: [log] }
+#     - { name: gentle, match: { attrs: { level: gentle } }, optimizers: [embedjson, trace, task, test, build, git, grep/gentle, ls/gentle, json/gentle, data/gentle, log/gentle, cat, pkg, table/gentle, db/gentle, k8s/gentle, cloud, infra, http, html, aria, websearch, doc/gentle, prose, dense, paths, truncate/gentle, rerun] }  ## sources the history filter marked gentle
 #   default: [embedjson, trace, task, test, build, git, grep, ls, json, data, log, cat, pkg, table, db, k8s, cloud, infra, http, html, aria, websearch, doc, prose, dense, paths, truncate, rerun]
 
 ## Experimental commands to enable: prompts, or all. GASCOIGNE_EXPERIMENTAL adds to the list.

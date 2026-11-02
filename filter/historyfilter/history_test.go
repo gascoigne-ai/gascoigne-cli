@@ -82,3 +82,58 @@ func TestStartMissingLedger(t *testing.T) {
 		t.Fatal("want error")
 	}
 }
+
+// Between "never failed" and "bypassed" a source that was fetched raw once
+// gets the gentle route: less cut, so the next read may be enough.
+func TestFilterGentle(t *testing.T) {
+	l := fakeLedger{failures: map[string]component.FailureInfo{
+		"cmd:ls":      fail(1, component.ReasonRawRequested, time.Minute),
+		"cmd:git log": fail(2, component.ReasonRawRequested, time.Minute),
+		"cmd:old":     fail(1, component.ReasonRawRequested, 48*time.Hour),
+		"url:doc":     fail(2, component.ReasonRawRequested, time.Minute),
+	}}
+	tests := []struct {
+		name        string
+		gentleAfter int
+		attr, value string
+		want        component.Decision
+		level       string
+	}{
+		{"never failed", 1, payload.AttrCmd, "none", component.Continue, ""},
+		{"one raw request goes gentle", 1, payload.AttrCmd, "ls", component.Continue, LevelGentle},
+		{"disabled", 0, payload.AttrCmd, "ls", component.Continue, ""},
+		{"later threshold", 2, payload.AttrCmd, "ls", component.Continue, ""},
+		{"at max still bypasses", 1, payload.AttrCmd, "git log", component.Bypass, ""},
+		{"expired goes back to normal", 1, payload.AttrCmd, "old", component.Continue, ""},
+		{"fetched page below its higher max", 1, payload.AttrURL, "doc", component.Continue, LevelGentle},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := &Config{MaxFailures: 2, FetchMaxFailures: 3, FailureTTL: 24 * time.Hour, GentleAfter: tt.gentleAfter}
+			f := &Filter{cfg: cfg, log: slog.New(slog.DiscardHandler)}
+			if err := f.Start(t.Context(), host{{Type: "ledger"}: l}); err != nil {
+				t.Fatal(err)
+			}
+			p := payload.New(payload.CmdOutput, "x")
+			p.Set(tt.attr, tt.value)
+			if got, err := f.Filter(t.Context(), p); err != nil || got != tt.want {
+				t.Fatalf("Filter = %v, %v; want %v", got, err, tt.want)
+			}
+			if got := p.Attrs[AttrLevel]; got != tt.level {
+				t.Errorf("level = %q, want %q", got, tt.level)
+			}
+		})
+	}
+}
+
+func TestValidateGentleAfter(t *testing.T) {
+	for _, tt := range []struct {
+		gentle int
+		bad    bool
+	}{{0, false}, {1, false}, {2, false}, {-1, true}} {
+		c := Config{MaxFailures: 2, FetchMaxFailures: 3, GentleAfter: tt.gentle}
+		if err := c.Validate(); (err != nil) != tt.bad {
+			t.Errorf("gentle_after %d: Validate() = %v, want error %v", tt.gentle, err, tt.bad)
+		}
+	}
+}

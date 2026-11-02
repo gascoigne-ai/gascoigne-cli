@@ -82,3 +82,12 @@ func TestOnlyKeepsOrderAndLeavesOriginal(t *testing.T) {
 		t.Fatalf("original changed: %+v", c)
 	}
 }
+
+// A pipeline that lists "log" runs the instances "log/gentle" of that type.
+func TestOnlyKeepsInstancesOfListedTypes(t *testing.T) {
+	c := &Config{Default: []string{"log", "grep", "log/gentle"}, Routes: []Route{{Name: "g", Optimizers: []string{"grep/gentle", "log/gentle"}}}}
+	got := c.Only([]string{"log"})
+	if strings.Join(got.Default, ",") != "log,log/gentle" || strings.Join(got.Routes[0].Optimizers, ",") != "log/gentle" {
+		t.Fatalf("Only = %+v", got)
+	}
+}

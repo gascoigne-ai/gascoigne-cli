@@ -80,7 +80,7 @@ func TestPipelineOptimizers(t *testing.T) {
 		route    []string
 	}{
 		{"cli", []string{"passthrough/big"}, []string{"passthrough"}},
-		{"hook", nil, []string{"passthrough"}},
+		{"hook", []string{"passthrough/big"}, []string{"passthrough"}}, // "passthrough" also lists its instance passthrough/big
 	}
 	for _, tt := range tests {
 		t.Run(tt.pipeline, func(t *testing.T) {
