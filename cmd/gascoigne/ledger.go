@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"encoding/csv"
 	"encoding/json"
@@ -8,7 +9,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"maps"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"text/tabwriter"
@@ -130,6 +133,7 @@ func isKey(s string) bool {
 func cmdGain(ctx context.Context, args []string) error {
 	var (
 		failures bool
+		refetch  bool
 		by       string
 		all      bool
 		asJSON   bool
@@ -142,6 +146,7 @@ func cmdGain(ctx context.Context, args []string) error {
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
+		fs.BoolVar(&refetch, "refetch", false, "per optimizer family, how often the original was fetched after an optimized result (what makes the history filter go gentle)")
 		fs.StringVar(&by, "by", "", "one `grouping` instead of the overview: day, week, month, agent, model, session, command, optimizer, family, dialect, outcome, reason, route")
 		fs.BoolVar(&all, "all", false, "ignore session/agent/model from $GASCOIGNE_* (flags still filter)")
 		fs.StringVar(&since, "since", "", "only the last `period`: 24h, 7d, 4w, 6mo")
@@ -177,6 +182,10 @@ func cmdGain(ctx context.Context, args []string) error {
 				return err
 			}
 			q.Since = time.Now().Add(-d)
+		}
+		if refetch {
+			q.By, q.Session = component.ByFamilyOutcome, "" // all runs of the family, as the history filter reads them
+			return printRefetch(ctx, os.Stdout, l, q)
 		}
 		if oneline {
 			return printOneline(ctx, os.Stdout, l, q, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss})
@@ -427,4 +436,47 @@ func statsCSV(w io.Writer, r mcptool.StatsReport) error {
 			fmt.Sprint(g.RawTokens), fmt.Sprint(g.OutTokens), fmt.Sprint(g.Saved), fmt.Sprint(g.SavedPct)})
 	}
 	return csv.NewWriter(w).WriteAll(rows)
+}
+
+// printRefetch lists, per optimizer family, its optimized runs and how many
+// of them the agent then fetched raw, highest share first: the rate the
+// history filter compares with family_rerequest_rate.
+func printRefetch(ctx context.Context, out io.Writer, l *ledger.Ledger, q component.StatsQuery) error {
+	q.By = component.ByFamilyOutcome
+	stats, err := l.Stats(ctx, q)
+	if err != nil {
+		return err
+	}
+	type row struct {
+		family    string
+		runs, raw int
+	}
+	byFamily := map[string]*row{}
+	for _, s := range stats {
+		r := byFamily[s.Family]
+		if r == nil {
+			r = &row{family: s.Family}
+			byFamily[s.Family] = r
+		}
+		switch component.Outcome(s.Outcome) {
+		case component.Optimized:
+			r.runs += s.Runs
+		case component.Rerequested:
+			r.runs += s.Runs
+			r.raw += s.Runs
+		}
+	}
+	if len(byFamily) == 0 {
+		_, err := fmt.Fprintln(out, "no optimized runs in the period")
+		return err
+	}
+	rows := slices.SortedFunc(maps.Values(byFamily), func(a, b *row) int {
+		return cmp.Or(cmp.Compare(b.raw*a.runs, a.raw*b.runs), cmp.Compare(b.runs, a.runs), cmp.Compare(a.family, b.family))
+	})
+	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(w, "family\truns\tfetched raw\trate\t")
+	for _, r := range rows {
+		fmt.Fprintf(w, "%s\t%d\t%d\t%.0f%%\t\n", r.family, r.runs, r.raw, 100*float64(r.raw)/float64(r.runs))
+	}
+	return w.Flush()
 }

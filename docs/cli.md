@@ -77,6 +77,7 @@ gascoigne gain -by command              # one grouping
 gascoigne gain -since 7d -by day        # trend
 gascoigne gain -session claude-2026…    # one agent session
 gascoigne gain -failures                # sources that bypass optimization
+gascoigne gain -refetch -since 7d       # per family: how often the original was fetched after an optimized result
 gascoigne gain -json                    # machine-readable
 gascoigne gain -show agent,model -top 3 # chosen sections, three rows each
 gascoigne gain -full -hide estimates,dialect  # everything but these
@@ -95,6 +96,7 @@ gascoigne gain -by command -sort runs -min-tokens 1000
 | `-sort s` | Order of grouped tables: `saved` (default), `runs`, `in`, `pct`, `name` (trends stay by time) |
 | `-min-tokens n` | Hide groups with fewer input tokens |
 | `-failures` | List failing sources |
+| `-refetch` | Per optimizer family, runs and how many were then fetched raw, highest share first; the rate `history.family_rerequest_rate` compares with |
 | `-json` | JSON output |
 | `-csv` | CSV with `-by` (the total last) or `-failures`; plain numbers, no colors or bars |
 | `-color auto\|always\|never` | `auto` honors `NO_COLOR` and whether stdout is a terminal |
