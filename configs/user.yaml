@@ -25,7 +25,6 @@
 #   exec: { kind: cmd_output }        ## gascoigne exec -- <cmd>
 #   hook: { kind: cmd_output }        ## gascoigne hook codex: output an agent already captured
 #   mcp:                              ## gascoigne mcp
-#     ledger: ledger                  ## extension serving retrieve and stats
 #     retrieve: retrieve              ## name of the tool returning originals
 #     fetch_timeout: 20s              ## time limit for one fetch
 #     fetch_max_bytes: 5242880        ## response bytes read by fetch
@@ -34,7 +33,6 @@
 #     url: ""                         ## remote server (http/https) instead of command; the CLI passes -url
 #     sse: false                      ## url speaks legacy SSE instead of streamable HTTP
 #     headers: {}                     ## sent with every request to url, e.g. Authorization
-#     ledger: ledger
 #     retrieve: gascoigne_retrieve    ## added tool; must not clash with downstream tools
 #     compact_tools: true             ## tool schemas: drop titles restating names, $schema markers
 #     trim_descriptions: 0            ## >0 (0..1): drop this share of filler words (the, just, …) from tool descriptions; 0: off
@@ -62,7 +60,6 @@
 #     edit_safe_max_tokens: 4000      ## ...when smaller than this; bigger ones (lockfiles, dumps) are crushed
 #   minsize: { min_tokens: 200 }      ## smaller payloads are not worth it
 #   history:                          ## skip sources that optimized badly before
-#     ledger: ledger
 #     max_failures: 2                 ## failures that bypass a source; reset one with: gascoigne forget <key>
 #     fetch_max_failures: 3           ## same for fetched pages read whole on purpose
 #     failure_ttl: 24h                ## failures older than this are ignored

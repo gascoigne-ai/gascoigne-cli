@@ -3,13 +3,9 @@ package historyfilter
 import (
 	"errors"
 	"time"
-
-	"github.com/gascoigne-ai/gascoigne-cli/component"
 )
 
 type Config struct {
-	// Ledger is the extension id holding failure history.
-	Ledger string `yaml:"ledger"`
 	// MaxFailures bypasses a key once it failed this many times.
 	MaxFailures int `yaml:"max_failures"`
 	// FetchMaxFailures is MaxFailures for fetch URLs read whole on purpose
@@ -29,6 +25,5 @@ func (c *Config) Validate() error {
 	if c.FailureTTL < 0 {
 		return errors.New("failure_ttl must not be negative")
 	}
-	_, err := component.ParseID(c.Ledger)
-	return err
+	return nil
 }

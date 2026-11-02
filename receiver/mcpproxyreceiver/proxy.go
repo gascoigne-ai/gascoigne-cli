@@ -94,7 +94,7 @@ func WithTransport(ctx context.Context, t mcp.Transport) context.Context {
 }
 
 func (r *Receiver) Start(_ context.Context, host component.Host) error {
-	l, err := mcptool.Ledger(host, r.cfg.Ledger)
+	l, err := mcptool.Ledger(host, mcptool.LedgerID)
 	if err != nil {
 		return err
 	}

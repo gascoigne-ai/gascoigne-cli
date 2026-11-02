@@ -7,8 +7,8 @@ receivers:
   stdin: { kind: cmd_output }
   exec: { kind: cmd_output } # gascoigne exec -- <cmd>
   hook: { kind: cmd_output } # gascoigne hook codex: output an agent already captured
-  mcp: { ledger: ledger, retrieve: retrieve, fetch_timeout: 20s, fetch_max_bytes: 5242880 } # gascoigne mcp
-  mcp_proxy: { command: [], url: "", sse: false, headers: {}, ledger: ledger, retrieve: gascoigne_retrieve, compact_tools: true, trim_descriptions: 0, max_tools: 0, rules: [] } # gascoigne mcp-proxy -- <server cmd>
+  mcp: { retrieve: retrieve, fetch_timeout: 20s, fetch_max_bytes: 5242880 } # gascoigne mcp
+  mcp_proxy: { command: [], url: "", sse: false, headers: {}, retrieve: gascoigne_retrieve, compact_tools: true, trim_descriptions: 0, max_tools: 0, rules: [] } # gascoigne mcp-proxy -- <server cmd>
   # LLM API proxy, served by the background server under /v1/ (base URL http://127.0.0.1:7878)
   httpproxy:
     anthropic: https://api.anthropic.com
@@ -29,7 +29,7 @@ receivers:
 filters:
   bypass: { env: GASCOIGNE_RAW }               # attr raw=true or this env set to 1
   minsize: { min_tokens: 200 } # small payloads are not worth it
-  history: { ledger: ledger, max_failures: 2, fetch_max_failures: 3, failure_ttl: 24h } # skip sources that optimized badly within failure_ttl
+  history: { max_failures: 2, fetch_max_failures: 3, failure_ttl: 24h } # skip sources that optimized badly within failure_ttl
   # edit_safe: files of these families read from disk (cat, sed -n, Read) and under
   # edit_safe_max_tokens are typed fs/code: kept in their own syntax, only comment lines drop
   detect: { edit_safe: [data, k8s, cloud, infra], edit_safe_max_tokens: 4000 } # tag each block with its content type

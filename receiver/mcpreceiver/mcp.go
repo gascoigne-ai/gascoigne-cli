@@ -32,7 +32,7 @@ type Receiver struct {
 }
 
 func (r *Receiver) Start(_ context.Context, host component.Host) error {
-	l, err := mcptool.Ledger(host, r.cfg.Ledger)
+	l, err := mcptool.Ledger(host, mcptool.LedgerID)
 	if err != nil {
 		return err
 	}

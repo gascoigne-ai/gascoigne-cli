@@ -8,8 +8,6 @@ import (
 const defaultTimeout = 20 * time.Second
 
 type Config struct {
-	// Ledger is the extension id serving retrieve and stats.
-	Ledger string `yaml:"ledger"`
 	// Retrieve names the tool returning originals.
 	Retrieve string `yaml:"retrieve"`
 	// FetchTimeout bounds one fetch.

@@ -21,6 +21,9 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// LedgerID is the id of the one ledger extension.
+const LedgerID = "ledger"
+
 // Ledger looks up the ledger extension by id.
 func Ledger(host component.Host, id string) (component.Ledger, error) {
 	pid, err := component.ParseID(id)

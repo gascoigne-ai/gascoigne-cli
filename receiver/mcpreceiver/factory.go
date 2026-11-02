@@ -14,7 +14,7 @@ const typ = "mcp"
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindReceiver, typ,
 		func() *Config {
-			return &Config{Ledger: "ledger", Retrieve: "retrieve", FetchTimeout: defaultTimeout, FetchMaxBytes: 5 << 20}
+			return &Config{Retrieve: "retrieve", FetchTimeout: defaultTimeout, FetchMaxBytes: 5 << 20}
 		},
 		func(_ context.Context, set component.Settings, cfg *Config) (component.Component, error) {
 			return &Receiver{

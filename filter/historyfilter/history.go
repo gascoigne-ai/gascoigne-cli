@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -19,16 +20,9 @@ type Filter struct {
 	ledger component.Ledger
 }
 
-func (f *Filter) Start(_ context.Context, host component.Host) error {
-	id, _ := component.ParseID(f.cfg.Ledger)
-	ext, ok := host.Extension(id)
-	if !ok {
-		return fmt.Errorf("extension %s not configured", id)
-	}
-	if f.ledger, ok = ext.(component.Ledger); !ok {
-		return fmt.Errorf("extension %s is not a ledger", id)
-	}
-	return nil
+func (f *Filter) Start(_ context.Context, host component.Host) (err error) {
+	f.ledger, err = mcptool.Ledger(host, mcptool.LedgerID)
+	return err
 }
 
 func (f *Filter) Shutdown(context.Context) error { return nil }

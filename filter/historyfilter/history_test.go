@@ -43,7 +43,7 @@ func TestFilter(t *testing.T) {
 		"url:err":        fail(2, component.ReasonError, time.Minute),
 		"url:doc3-stale": fail(3, component.ReasonRawRequested, 48*time.Hour),
 	}}
-	cfg := &Config{Ledger: "ledger", MaxFailures: 2, FetchMaxFailures: 3, FailureTTL: 24 * time.Hour}
+	cfg := &Config{MaxFailures: 2, FetchMaxFailures: 3, FailureTTL: 24 * time.Hour}
 	f := &Filter{cfg: cfg, log: slog.New(slog.DiscardHandler)}
 	if err := f.Start(t.Context(), host{{Type: "ledger"}: l}); err != nil {
 		t.Fatal(err)
@@ -77,7 +77,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestStartMissingLedger(t *testing.T) {
-	f := &Filter{cfg: &Config{Ledger: "ledger", MaxFailures: 1}}
+	f := &Filter{cfg: &Config{MaxFailures: 1}}
 	if err := f.Start(t.Context(), host{}); err == nil {
 		t.Fatal("want error")
 	}

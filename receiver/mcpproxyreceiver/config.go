@@ -14,8 +14,6 @@ type Config struct {
 	URL     string            `yaml:"url"`
 	SSE     bool              `yaml:"sse"`
 	Headers map[string]string `yaml:"headers"`
-	// Ledger is the extension id serving the retrieve tool.
-	Ledger string `yaml:"ledger"`
 	// Retrieve names the added tool returning originals; must not clash with downstream tools.
 	Retrieve string `yaml:"retrieve"`
 	// CompactTools drops what downstream tool schemas say twice (titles
