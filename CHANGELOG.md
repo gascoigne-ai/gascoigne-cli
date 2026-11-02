@@ -6,6 +6,10 @@ All notable changes to gascoigne. The format follows
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-11-02
+
+Fixes a crash in the hook on `gh pr checks` and other tab separated tables whose rows differ in length.
+
 ### Fixed
 
 - `gh pr checks` and other tab separated tables with rows of different lengths no longer panic the hook; short rows are
