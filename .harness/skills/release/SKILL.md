@@ -6,7 +6,7 @@ description: Cut a gascoigne release - version bump, changelog, tag, push, websi
 # Release
 
 Two repos: this one (`gascoigne-cli`, remote `gh` = GitHub, `origin` = local gitea) and the website
-`../gascoigne-webpage` (remote `origin` = `gascoigne-ai/gascoigne-ai.github.io`, branch `main`).
+`../../gascoigne-webpage/main` (remote `origin` = `gascoigne-ai/gascoigne-ai.github.io`, branch `main`).
 Pushing a tag and the website are public: do them only when the user asked for a release.
 Versions follow SemVer; a patch release carries fixes and small features, a minor one new capability.
 
@@ -33,7 +33,7 @@ and creates the release from the changelog section. Wait for `completed success`
 (`git push gh :vX.Y.Z`, `git tag -d vX.Y.Z`), release again; or rerun with the workflow's `tag` input
 for an existing tag.
 
-## 3. Website (`../gascoigne-webpage`, see its README)
+## 3. Website (`../../gascoigne-webpage/main`, see its README)
 Order matters: `latest.json` is what sends users to the release page, so it comes last.
 1. Add `releases/X.Y.Z/index.html` (copy the previous page: hero, what's new, upgrade steps, links to
    `releases/tag/vX.Y.Z`) and a changelog entry in `index.html` (open the new `<details>`, close the

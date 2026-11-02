@@ -7,7 +7,7 @@ description: Measure gascoigne token savings on fixtures. Use when changing opti
 
 1. `make eval` — builds, runs every suite (fixtures, ext, scale, mcp, live, ledger; `SUITES="scale live"` picks some, other args go to each `gascoigne eval`); the fixtures suite runs `testdata/eval/cases.yaml` through the `cli` pipeline with a
    throwaway ledger (`GASCOIGNE_LEDGER` temp path; real ledger untouched).
-   The `mcp` suite (`make eval-mcp` runs only it; `testdata/eval-mcp/cases.yaml`) calls the fake MCP server `cmd/mcpmock` over the protocol and runs the results through the `mcp-proxy` pipeline; add a tool as a row of `mcpmock.Tools`, then a case.
+   The `mcp` suite (`SUITES=mcp make eval` runs only it; `testdata/eval-mcp/cases.yaml`) calls the fake MCP server `cmd/mcpmock` over the protocol and runs the results through the `mcp-proxy` pipeline; add a tool as a row of `mcpmock.Tools`, then a case.
 2. Table: `type` = block types after optimization, `route` = chain that ran (`-` = a filter
    bypassed it, e.g. `minsize`), `lost` = error lines/artifacts (paths, URLs, hashes) of the
    original no longer readable in the output (`internal/compress/probe`; regrouping and path legends
