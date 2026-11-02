@@ -7,3 +7,5 @@ coverage.out
 # Eval fixtures are logs; a global *.log ignore must not drop them.
 !testdata/**/*.log
 /cmd/gascoigne/gascoigne
+# gascoigne install writes skills through the .claude/skills symlink
+.harness/skills/gascoigne-*/
