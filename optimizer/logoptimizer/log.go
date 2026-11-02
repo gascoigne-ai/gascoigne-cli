@@ -30,7 +30,7 @@ type Optimizer struct {
 
 func (o *Optimizer) normalize(l string) string {
 	if o.norm == nil {
-		return compress.Normalize(l)
+		return compress.Normalize(protectCodes(l))
 	}
 	return o.norm(l)
 }
@@ -47,7 +47,7 @@ func (o *Optimizer) normalizeAll(lines []string) (norms []string, vols [][]strin
 	}
 	vols = make([][]string, len(lines))
 	for i, l := range lines {
-		norms[i], vols[i] = compress.Split(l)
+		norms[i], vols[i] = compress.Split(protectCodes(l))
 	}
 	return norms, vols
 }

@@ -367,3 +367,85 @@ func TestLimitRarityAddsABoundedShare(t *testing.T) {
 		t.Fatalf("kept %d lines, want %d", lines, want)
 	}
 }
+
+// Numbers are masked so lines differing in them fold, but a status or exit
+// code is a category: one `status=503` among 29 `status=200` was folded into
+// "(×30)" and vanished from the output.
+func TestCategoricalCodesDoNotFold(t *testing.T) {
+	line := func(i int, status string) string {
+		return fmt.Sprintf("2026-10-10T12:00:%02dZ INFO GET /api/items %s took=%dms\n", i, status, 10+i%3)
+	}
+	tests := []struct {
+		name   string
+		status func(i int) string
+		want   []string
+	}{
+		{"status key", func(i int) string {
+			if i == 17 {
+				return "status=503"
+			}
+			return "status=200"
+		}, []string{"status=503", "status=200"}},
+		{"colon form", func(i int) string {
+			if i == 17 {
+				return "status: 503"
+			}
+			return "status: 200"
+		}, []string{"status: 503", "status: 200"}},
+		{"exit code words", func(i int) string {
+			if i == 17 {
+				return "exit code 137"
+			}
+			return "exit code 0"
+		}, []string{"exit code 137", "exit code 0"}},
+		{"plain counters still fold", func(i int) string { return fmt.Sprintf("retries=%d", i) }, []string{"(×30)"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var in strings.Builder
+			for i := range 30 {
+				in.WriteString(line(i, tt.status(i)))
+			}
+			got := run(detect.Log, in.String())
+			for _, w := range tt.want {
+				if !strings.Contains(got, w) {
+					t.Errorf("missing %q in:\n%s", w, got)
+				}
+			}
+		})
+	}
+}
+
+// Kept lines that differ only in a code sit next to each other when the lines
+// between them are dropped; merging runs must not fold them back together.
+func TestCategoricalCodesNotMergedAsRun(t *testing.T) {
+	in := "INFO GET /a status=200 took=5ms\nINFO GET /a status=503 took=5ms\n"
+	got := run(detect.Log, strings.Repeat(in, 10))
+	if !strings.Contains(got, "status=503") || !strings.Contains(got, "status=200") {
+		t.Fatalf("a code vanished:\n%s", got)
+	}
+}
+
+func TestProtectCodes(t *testing.T) {
+	tests := []struct{ in, want string }{
+		{"status=200 took=10ms", "status=CAA took=10ms"},
+		{"Status: 404 not found", "Status: EAE not found"},
+		{"exit status 1", "exit status B"},
+		{"exit code 137 after 5s", "exit code BDH after 5s"},
+		{"request id=42 retries=3", "request id=42 retries=3"},
+		{"status=2000", "status=2000"},
+		{"xstatus=200", "xstatus=200"},
+		{"status=200abc", "status=200abc"},
+		{"status=", "status="},
+		{"code", "code"},
+		{"", ""},
+		{"rc=0 errno=2", "rc=A errno=C"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.in, func(t *testing.T) {
+			if got := protectCodes(tt.in); got != tt.want {
+				t.Errorf("protectCodes(%q) = %q, want %q", tt.in, got, tt.want)
+			}
+		})
+	}
+}
