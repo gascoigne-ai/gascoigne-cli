@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"slices"
-	"strings"
 
 	"go.yaml.in/yaml/v3"
 
@@ -15,10 +13,6 @@ import (
 
 // keptHeader starts the settings an upgrade carried over from the old file.
 const keptHeader = "## Your settings, kept by gascoigne config -upgrade (the previous file is next to this one, .bak)."
-
-// openKinds hold components by id: an id the defaults lack is a user's own
-// instance (grep/strict), so only ids the defaults have get their fields checked.
-var openKinds = []string{"extensions", "receivers", "filters", "optimizers", "exporters", "pipelines"}
 
 // upgradeConfig rebuilds a user config on the current template: the user's
 // active settings are kept below it, settings this version no longer knows
@@ -58,57 +52,12 @@ func upgradeConfig(old []byte) (out []byte, dropped []string, err error) {
 	return b.Bytes(), dropped, nil
 }
 
-// hasSettings reports whether a parsed config sets anything: a file of
-// comments only, or one uncommented parent with nothing below, sets nothing.
-func hasSettings(doc *yaml.Node) bool {
-	if len(doc.Content) == 0 {
-		return false
-	}
-	root := doc.Content[0]
-	if root.Kind != yaml.MappingNode {
-		return root.Tag != "!!null"
-	}
-	for i := 1; i < len(root.Content); i += 2 {
-		if root.Content[i].Tag != "!!null" {
-			return true
-		}
-	}
-	return false
-}
-
-// unknownSettings lists the settings of a user config this version does
-// not have, as dotted paths.
-func unknownSettings(data []byte) []string {
-	var user, defaults yaml.Node
-	if yaml.Unmarshal(data, &user) != nil || yaml.Unmarshal(configs.Default, &defaults) != nil || !hasSettings(&user) {
-		return nil
-	}
-	return prune(user.Content[0], defaults.Content[0], "")
-}
-
-// prune removes from user the keys def does not have (recursing where both
-// are maps) and returns the removed paths. Values and lists are leaves.
-func prune(user, def *yaml.Node, path string) (dropped []string) {
-	if user.Kind != yaml.MappingNode || def.Kind != yaml.MappingNode {
-		return nil
-	}
-	var kept []*yaml.Node
-	for i := 0; i+1 < len(user.Content); i += 2 {
-		key, val := user.Content[i], user.Content[i+1]
-		p := strings.TrimPrefix(path+"."+key.Value, ".")
-		j := keyIndex(def, key.Value)
-		switch {
-		case j >= 0:
-			dropped = append(dropped, prune(val, def.Content[j+1], p)...)
-		case !slices.Contains(openKinds, path):
-			dropped = append(dropped, p)
-			continue
-		}
-		kept = append(kept, key, val)
-	}
-	user.Content = kept
-	return dropped
-}
+// The settings checks live in configs so the embedded library applies the same ones.
+var (
+	hasSettings     = configs.HasSettings
+	prune           = configs.Prune
+	unknownSettings = configs.Unknown
+)
 
 // writeUpgrade replaces path with the upgraded config, the old one kept as
 // path.bak.
