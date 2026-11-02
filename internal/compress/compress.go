@@ -11,7 +11,14 @@ import (
 
 var ansi = lazyre.New(`\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)|\r`)
 
-func StripANSI(s string) string { return ansi.ReplaceAllString(s, "") }
+// StripANSI removes terminal escapes and carriage returns. Most output has
+// none, and scanning big text with the regexp costs more than the check.
+func StripANSI(s string) string {
+	if !strings.ContainsAny(s, "\x1b\r") {
+		return s
+	}
+	return ansi.ReplaceAllString(s, "")
+}
 
 // Lines splits s into lines, dropping the empty element after a final newline.
 func Lines(s string) []string {
@@ -66,6 +73,25 @@ func Normalize(line string) string {
 // same Normalize form have them at the same places.
 func Volatile(line string) []string {
 	return volatile.FindAllString(line, -1)
+}
+
+// Split is Normalize and Volatile in one scan: the normalized line and the
+// tokens it replaced.
+func Split(line string) (norm string, vols []string) {
+	idx := volatile.FindAllStringIndex(line, -1)
+	if idx == nil {
+		return line, nil
+	}
+	var b strings.Builder
+	last := 0
+	for _, m := range idx {
+		b.WriteString(line[last:m[0]])
+		b.WriteByte('#')
+		vols = append(vols, line[m[0]:m[1]])
+		last = m[1]
+	}
+	b.WriteString(line[last:])
+	return b.String(), vols
 }
 
 // DedupeRuns collapses consecutive lines equal after Normalize into the first

@@ -143,3 +143,44 @@ func TestOmittedSingular(t *testing.T) {
 		}
 	}
 }
+
+// Split must agree with Normalize and Volatile, which it replaces on hot paths.
+func TestSplitMatchesNormalizeAndVolatile(t *testing.T) {
+	tests := []string{
+		"",
+		"plain words only",
+		"2026-10-10T12:01:02.003Z INFO worker-3 request id=42 path=/api status=200 took=17ms",
+		"uuid 123e4567-e89b-12d3-a456-426614174000 hash deadbeefcafe0123 ptr 0x7ffd1c",
+		"7",
+		"ends with number 3.14",
+	}
+	for _, in := range tests {
+		t.Run(in, func(t *testing.T) {
+			norm, vols := Split(in)
+			if want := Normalize(in); norm != want {
+				t.Errorf("norm = %q, want %q", norm, want)
+			}
+			want := Volatile(in)
+			if len(vols) != len(want) {
+				t.Fatalf("vols = %q, want %q", vols, want)
+			}
+			for i := range want {
+				if vols[i] != want[i] {
+					t.Errorf("vols[%d] = %q, want %q", i, vols[i], want[i])
+				}
+			}
+		})
+	}
+}
+
+func TestStripANSIKeepsPlainText(t *testing.T) {
+	for in, want := range map[string]string{
+		"plain\ntext":          "plain\ntext",
+		"\x1b[31mred\x1b[0m x": "red x",
+		"a\r\nb":               "a\nb",
+	} {
+		if got := StripANSI(in); got != want {
+			t.Errorf("StripANSI(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
