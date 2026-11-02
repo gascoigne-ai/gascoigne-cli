@@ -12,6 +12,9 @@ type Config struct {
 	DropDebug bool `yaml:"drop_debug"`
 	// MaxLines caps the result; warnings and errors are kept first.
 	MaxLines int `yaml:"max_lines"`
+	// Bursts names the lines where most repeats of a template sit when they
+	// are packed into a short stretch of the log.
+	Bursts bool `yaml:"bursts"`
 	// Outliers picks how a number far from its template's usual value is
 	// found: ratio (at least 10x the median) or mad (also a modified z-score
 	// above 3.5 and 1.5x the median, so a 4x latency spike stays).

@@ -166,9 +166,13 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 	keys, notes := o.repeatKeys(lines, norms, important)
 	counts := map[string]int{}
 	srcsOf := map[string][]int{}
+	at := map[string][]int{}
 	for i := range lines {
 		if !important[i] {
 			counts[keys[i]]++
+			if o.cfg.Bursts {
+				at[keys[i]] = append(at[keys[i]], i)
+			}
 			if src != nil {
 				srcsOf[keys[i]] = union(srcsOf[keys[i]], sources(i))
 			}
@@ -197,10 +201,7 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 			e.srcs = srcsOf[norm]
 			e.n = counts[norm]
 			if n := counts[norm]; n > 1 {
-				e.text = fmt.Sprintf("%s (×%d)", l, n)
-				if note := notes[norm]; note != "" {
-					e.text = fmt.Sprintf("%s (×%d; %s)", l, n, note)
-				}
+				e.text = l + " (" + strings.Join(append([]string{fmt.Sprintf("×%d", n)}, o.repeatNotes(notes[norm], at[norm], len(lines))...), "; ") + ")"
 			}
 		}
 		out = append(out, e)
@@ -272,6 +273,19 @@ func (o *Optimizer) repeatKeys(lines, norms []string, important []bool) (keys []
 		notes[k] = note
 	}
 	return keys, notes
+}
+
+// repeatNotes are the remarks after ×N: the variants a folded drain line
+// names and, with Bursts, where the repeats cluster.
+func (o *Optimizer) repeatNotes(variants string, at []int, total int) []string {
+	var notes []string
+	if variants != "" {
+		notes = append(notes, variants)
+	}
+	if first, last, ok := burst(at, len(at), total); ok {
+		notes = append(notes, fmt.Sprintf("mostly lines %d–%d", first+1, last+1))
+	}
+	return notes
 }
 
 // gap marks dropped lines. When each repeats a line shown above (and counted

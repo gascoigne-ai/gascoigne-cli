@@ -127,6 +127,11 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
   (+24%) for no measured retention gain, since almost every line there is rare; filling the whole cap
   doubled the output. Only worth it on logs with mixed counts above `max_lines`; no fixture covers that yet.
 
+- Log `bursts: true` (2026-11-02): across 427 fixtures one annotation (dmesg `(×33; mostly lines 661–687)`,
+  +6 tokens), no measurable time (283→286 ms on 50k lines). `outliers: mad` changes no fixture. Template
+  novelty needs no code: the first line of every template always stays. Whether the extra pointers help an
+  agent is unmeasured (needs `ab.sh` on a burst task).
+
 ## Tried and dropped
 Measured; don't retry without new data.
 - Rerun nudge in the hint (2026-10-12): `learn` finds no `rerun` habit on a month of one real ledger (two

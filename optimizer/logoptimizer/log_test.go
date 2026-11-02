@@ -488,3 +488,91 @@ func TestMADOutlierKept(t *testing.T) {
 		})
 	}
 }
+
+// A template that shows up only late in a long log is the first line of its
+// kind, and the first line of every template always stays: no separate
+// novelty detector is needed. This pins that.
+func TestLateTemplateStays(t *testing.T) {
+	var b strings.Builder
+	for i := range 400 {
+		fmt.Fprintf(&b, "10:%02d:%02d INFO heartbeat ok seq=%d\n", i/60, i%60, i)
+	}
+	b.WriteString("10:59:59 INFO certificate for api.internal rotated\n")
+	for i := range 20 {
+		fmt.Fprintf(&b, "11:00:%02d INFO heartbeat ok seq=%d\n", i, 400+i)
+	}
+	got := run(detect.Log, b.String())
+	if !strings.Contains(got, "certificate for api.internal rotated") {
+		t.Fatalf("late template folded away:\n%s", got)
+	}
+	if !strings.Contains(got, "(×420)") {
+		t.Fatalf("heartbeats not counted:\n%s", got)
+	}
+}
+
+// ×N says how often a line repeated, not when. Repeats packed into a short
+// stretch of a long log (a retry storm) are worth a pointer to those lines.
+func TestBurstNamesTheStretch(t *testing.T) {
+	var b strings.Builder
+	for i := range 300 {
+		fmt.Fprintf(&b, "10:00:%02d INFO heartbeat ok seq=%d\n", i%60, i)
+		if i >= 100 && i < 140 { // retries sit on lines 102..180, between heartbeats
+			fmt.Fprintf(&b, "10:00:%02d INFO retry connecting to db attempt=%d\n", i%60, i)
+		}
+	}
+	in := b.String()
+	tests := []struct {
+		name   string
+		bursts bool
+		want   string
+		not    string
+	}{
+		{"off", false, "retry connecting to db attempt=100 (×40)", "mostly"},
+		{"on names the stretch", true, "(×40; mostly lines 102–164)", "heartbeat ok seq=0 (×300; mostly"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.Log}}}
+			(&Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 300, Bursts: tt.bursts}}).Optimize(nil, p)
+			got := p.Blocks[0].Text
+			if !strings.Contains(got, tt.want) {
+				t.Errorf("missing %q in:\n%s", tt.want, got)
+			}
+			if strings.Contains(got, tt.not) {
+				t.Errorf("unexpected %q in:\n%s", tt.not, got)
+			}
+		})
+	}
+}
+
+func TestBurst(t *testing.T) {
+	seq := func(from, to, step int) []int {
+		var s []int
+		for i := from; i < to; i += step {
+			s = append(s, i)
+		}
+		return s
+	}
+	tests := []struct {
+		name        string
+		at          []int
+		total       int
+		first, last int
+		ok          bool
+	}{
+		{"packed", seq(100, 140, 1), 400, 100, 131, true},
+		{"steady", seq(0, 400, 4), 400, 0, 0, false},
+		{"too few", seq(100, 110, 1), 400, 0, 0, false},
+		{"most packed, few strays", append(seq(100, 140, 1), 5, 390), 400, 100, 133, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			at := slices.Clone(tt.at)
+			slices.Sort(at)
+			first, last, ok := burst(at, len(at), tt.total)
+			if ok != tt.ok || ok && (first != tt.first || last != tt.last) {
+				t.Errorf("burst = %d %d %v, want %d %d %v", first, last, ok, tt.first, tt.last, tt.ok)
+			}
+		})
+	}
+}
