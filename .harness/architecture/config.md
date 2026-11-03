@@ -22,6 +22,8 @@
 - A pipeline may list `optimizers`: only those run there (the router chains keep their order, `router.Config.Only`; unlisted ids stay defined for other pipelines). Pipelines may override `router` (proxy and CLI route differently). Optimizers configured in a
   pipeline's router require a ledger extension.
 
+- `.gascoigne.yaml` may not define `external` optimizers (they run commands): `withProject` fails naming the file (`external-optimizer.md`).
+
 ## Per-run overrides (`internal/config/override.go`)
 
 So each agent can tune optimization without its own config file: flags on any command, or env set

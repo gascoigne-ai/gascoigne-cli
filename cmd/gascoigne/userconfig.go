@@ -12,6 +12,7 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
+	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/configs"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
@@ -160,13 +161,29 @@ func withProject(data []byte) ([]byte, error) {
 		return nil, fmt.Errorf("project config %s: %w", path, err)
 	}
 	alone, err := overlay(configs.Default, over)
+	var cfg *config.Config
 	if err == nil {
-		_, err = config.Parse(alone)
+		cfg, err = config.Parse(alone)
+	}
+	if err == nil {
+		err = denyExternal(cfg)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("project config %s: %w", path, err)
 	}
 	return overlay(data, over)
+}
+
+// denyExternal refuses external optimizers in a project file: they run
+// commands, and a repository must not choose which commands run on a
+// machine. They belong in the user's config, -config or -set.
+func denyExternal(cfg *config.Config) error {
+	for id := range cfg.Optimizers {
+		if cid, _ := component.ParseID(id); cid.Type == "external" {
+			return fmt.Errorf("optimizer %s runs a command, so it is only allowed in your own config (-config, $GASCOIGNE_CONFIG, the user config) or -set", id)
+		}
+	}
+	return nil
 }
 
 // configPath is the config file to read (-config, $GASCOIGNE_CONFIG, else

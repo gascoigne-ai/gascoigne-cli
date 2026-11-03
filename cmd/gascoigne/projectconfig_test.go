@@ -103,3 +103,21 @@ func TestWithProjectNone(t *testing.T) {
 		t.Errorf("got %q, %v; want data unchanged", got, err)
 	}
 }
+
+// A repo's .gascoigne.yaml is not trusted code: an external optimizer there
+// would run the repo's command on whoever opens it with an agent.
+func TestWithProjectRejectsExternalOptimizer(t *testing.T) {
+	sandbox(t)
+	repo := t.TempDir()
+	t.Chdir(repo)
+	write(t, filepath.Join(repo, projectConfigName), "optimizers:\n  external/squash:\n    command: [./squash.sh]\n")
+
+	base, err := configFile("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = withProject(base)
+	if err == nil || !strings.Contains(err.Error(), "external/squash") || !strings.Contains(err.Error(), projectConfigName) {
+		t.Errorf("err = %v, want it to refuse external/squash and name %s", err, projectConfigName)
+	}
+}
