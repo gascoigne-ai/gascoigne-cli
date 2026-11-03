@@ -18,6 +18,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/denseoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/docoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/embedjsonoptimizer"
+	"github.com/gascoigne-ai/gascoigne-cli/optimizer/externaloptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/gitoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/grepoptimizer"
 	"github.com/gascoigne-ai/gascoigne-cli/optimizer/htmloptimizer"
@@ -66,6 +67,7 @@ func Factories() []component.Factory {
 		embedjsonoptimizer.NewFactory(),
 		pathsoptimizer.NewFactory(),
 		truncateoptimizer.NewFactory(),
+		externaloptimizer.NewFactory(),
 		testoptimizer.NewFactory(),
 		buildoptimizer.NewFactory(),
 		gitoptimizer.NewFactory(),
