@@ -16,7 +16,7 @@ words. The technical details follow.
 
 - Shortened output ends with `[raw:<id>]` instead of a hint with token counts: fewer tokens on every result. The older
   hint still counts as already optimized.
-- The usage guide is short only: the hint and path ids, plus how to read the original. The longer `full` level with
+- The usage guide is short only: the hint and path ids, how to read the original, and the ask to keep text brief. The longer `full` level with
   usage tips is removed; `install -guide` takes `off` or `short` (default), and a saved `full` reads as `short`.
 
 ## [0.9.1] - 2026-11-02

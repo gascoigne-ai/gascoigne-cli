@@ -125,6 +125,9 @@ func TestGuideLevels(t *testing.T) {
 			if got := strings.Contains(g, "[raw:<id>]"); got == tt.wantEmpty {
 				t.Errorf("hint explanation = %v", got)
 			}
+			if got := strings.Contains(g, "Keep your own text brief"); got == tt.wantEmpty {
+				t.Errorf("brevity advice = %v", got)
+			}
 			if strings.Contains(g, "Read and search with shell commands") {
 				t.Error("the removed full level's tips are back")
 			}

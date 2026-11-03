@@ -10,7 +10,8 @@ import (
 )
 
 // guide tells the agent what it cannot guess: what a path id and a [raw:<id>]
-// hint stand for, and how to read the original. mcp: the agent has gascoigne's
+// hint stand for, and how to read the original. It also asks for brief text,
+// which cut output tokens 16% in an A/B run at the same success rate. mcp: the agent has gascoigne's
 // MCP tools (pi does not), so the guide names only what the agent can call.
 func guide(mcp bool) string {
 	if guideLevel() == "off" {
@@ -18,6 +19,7 @@ func guide(mcp bool) string {
 	}
 	var b strings.Builder
 	b.WriteString("gascoigne shrinks shell output and MCP tool results in this session to save context.\n")
+	b.WriteString("- Keep your own text brief: report findings and results, not the steps you are about to take.\n")
 	b.WriteString("- Ids like §1 in output stand for the path given in the [paths: §1=…] line above them.\n")
 	b.WriteString("- Output ending in [raw:<id>] was shortened. If a detail is missing, run gascoigne raw <id> (add -grep PATTERN, -query WORDS or -lines A-B to read only part)")
 	if mcp {

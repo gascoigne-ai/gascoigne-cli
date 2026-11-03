@@ -26,7 +26,7 @@
 claude: a SessionStart hook (`additionalContext`). codex: `-c developer_instructions` per run, or
 an `AGENTS.md` marked block. cursor: a project rule. pi: an `AGENTS.md` block. Unwrap removes them.
 
-`guide(mcp)` says only what the agent cannot guess: the `[raw:<id>]` hint and the `§N` path ids, and
+`guide(mcp)` says only what the agent cannot guess, plus the brevity ask: the `[raw:<id>]` hint and the `§N` path ids, and
 the `retrieve` tool where gascoigne's MCP server is registered (not pi; it gets the `gascoigne raw` CLI
 form). Codex and pi share the project `AGENTS.md` block: the one installed last stays.
 
