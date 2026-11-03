@@ -150,7 +150,7 @@ func opencodeEnv(exe string) ([]string, error) {
 	if providers := proxyForOpencode(); providers != nil {
 		cfg.set("provider", toObject(providers))
 	}
-	if g := guide(true, true); !hasInstructions && g != "" { // a list given here would replace the user's for the run
+	if g := guide(true); !hasInstructions && g != "" { // a list given here would replace the user's for the run
 		guideFile := filepath.Join(dir, "gascoigne.md")
 		if err := os.WriteFile(guideFile, []byte(g), 0o644); err != nil {
 			return nil, err
@@ -256,7 +256,7 @@ func addOpencode(exe string, global bool) ([]string, error) {
 		return done, err
 	}
 	done = append(done, added(plugin, "plugin", "", err))
-	d, err = addGuide(agentsMD, true, true)
+	d, err = addGuide(agentsMD, true)
 	return append(done, d), err
 }
 

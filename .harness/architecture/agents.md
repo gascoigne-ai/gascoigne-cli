@@ -26,14 +26,14 @@
 claude: a SessionStart hook (`additionalContext`). codex: `-c developer_instructions` per run, or
 an `AGENTS.md` marked block. cursor: a project rule. pi: an `AGENTS.md` block. Unwrap removes them.
 
-`guide(rewrites, mcp)` says only what the agent has: rewrite advice where commands are rewritten
-(not codex), the fetch/compress/show/retrieve tools where gascoigne's MCP server is registered
-(not pi; it gets the `gascoigne show` / `gascoigne raw` CLI forms). Codex and pi share the project
-`AGENTS.md` block: the one installed last stays.
+`guide(mcp)` says only what the agent cannot guess: the `[raw:<id>]` hint and the `§N` path ids, and
+the `retrieve` tool where gascoigne's MCP server is registered (not pi; it gets the `gascoigne raw` CLI
+form). Codex and pi share the project `AGENTS.md` block: the one installed last stays.
 
 Level: `$GASCOIGNE_GUIDE`, else `guide` in `prefs.json` (state dir, `prefs.go`; set with
-`install -guide`), else `full`. `short` keeps the path-id and hint lines; `off` injects nothing
-and the next `install` removes the AGENTS.md block and cursor rule. Unknown values mean full.
+`install -guide`), else `short`. `off` injects nothing
+and the next `install` removes the AGENTS.md block and cursor rule. Unknown values, a saved `full` included
+(the removed level), mean short.
 The file is not `config.yaml`: a key there needs a change in `internal/config`.
 
 ## Other MCP servers (`proxy.go`)

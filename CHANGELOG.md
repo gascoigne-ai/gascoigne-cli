@@ -7,6 +7,18 @@ words. The technical details follow.
 
 ## [Unreleased]
 
+### Added
+
+- MCP review: servers and tools come most used first, usage suggests which tools to load on request (and advice such
+  as `max_tools`), and the Auto-optimize button or `gascoigne mcp-review -optimize` applies the tool suggestions.
+
+### Changed
+
+- Shortened output ends with `[raw:<id>]` instead of a hint with token counts: fewer tokens on every result. The older
+  hint still counts as already optimized.
+- The usage guide is short only: the hint and path ids, plus how to read the original. The longer `full` level with
+  usage tips is removed; `install -guide` takes `off` or `short` (default), and a saved `full` reads as `short`.
+
 ## [0.9.1] - 2026-11-02
 
 The hook no longer crashes on `gh pr checks` and other tables whose rows differ in length.

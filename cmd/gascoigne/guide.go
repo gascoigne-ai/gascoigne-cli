@@ -9,40 +9,16 @@ import (
 	"strings"
 )
 
-// guide tells the agent how to get the most out of gascoigne. rewrites:
-// the agent's shell commands are rewritten before they run (claude, cursor,
-// pi, opencode), so how a command is written decides whether it is optimized.
-// mcp: the agent has gascoigne's MCP tools (pi does not), so the guide names
-// only what the agent can call.
-func guide(rewrites, mcp bool) string {
-	level := guideLevel()
-	if level == "off" {
+// guide tells the agent what it cannot guess: what a path id and a [raw:<id>]
+// hint stand for, and how to read the original. mcp: the agent has gascoigne's
+// MCP tools (pi does not), so the guide names only what the agent can call.
+func guide(mcp bool) string {
+	if guideLevel() == "off" {
 		return ""
 	}
-	full := level == "full"
 	var b strings.Builder
-	b.WriteString("gascoigne shrinks shell output and MCP tool results in this session to save context.")
-	if full {
-		b.WriteString(" To get the most from it:")
-	}
-	b.WriteString("\n")
-	if full {
-		b.WriteString("- Read and search with shell commands (rg, grep, find, ls, cat, head, tail, git, build and test tools): their output is optimized.\n")
-		if rewrites {
-			b.WriteString("- Keep each shell call a plain command or a && / ; list, piping only into head or tail. Loops, $( ), redirects, subshells and other pipes run unoptimized.\n")
-		}
-		if mcp {
-			b.WriteString("- Read web pages and HTTP APIs with the gascoigne fetch tool (pass query to focus long pages); for large text you already have, use compress.\n")
-			b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name> (or the show tool); gascoigne show <file> lists its definitions with line ranges.\n")
-		} else {
-			b.WriteString("- To read one function of a big source file, use gascoigne show <file>:<Name>; gascoigne show <file> lists its definitions with line ranges.\n")
-		}
-	}
+	b.WriteString("gascoigne shrinks shell output and MCP tool results in this session to save context.\n")
 	b.WriteString("- Ids like §1 in output stand for the path given in the [paths: §1=…] line above them.\n")
-	if full {
-		b.WriteString("- Keep your own text brief: report findings and results, not the steps you are about to take.\n")
-		b.WriteString("- Issue tool calls that do not depend on each other together in one turn: every extra turn re-reads the whole context.\n")
-	}
 	b.WriteString("- Output ending in [raw:<id>] was shortened. If a detail is missing, run gascoigne raw <id> (add -grep PATTERN, -query WORDS or -lines A-B to read only part)")
 	if mcp {
 		b.WriteString(" or call retrieve with the id")
@@ -51,19 +27,20 @@ func guide(rewrites, mcp bool) string {
 	return b.String()
 }
 
-// guideLevels are how much usage text agents get: none, only what an agent
-// cannot guess (the hint and path ids), or everything.
-var guideLevels = []string{"off", "short", "full"}
+// guideLevels are how much usage text agents get: none, or what an agent
+// cannot guess (the hint and path ids). There was a longer "full" level with
+// usage tips; it is gone, and a saved "full" now reads as short.
+var guideLevels = []string{"off", "short"}
 
-// guideLevel is $GASCOIGNE_GUIDE, else the saved pref, else full. Unknown
-// values mean full: a typo must not silently remove the hint explanation.
+// guideLevel is $GASCOIGNE_GUIDE, else the saved pref, else short. Unknown
+// values mean short: a typo must not silently remove the hint explanation.
 func guideLevel() string {
 	for _, v := range []string{os.Getenv("GASCOIGNE_GUIDE"), readPrefs().Guide} {
 		if slices.Contains(guideLevels, v) {
 			return v
 		}
 	}
-	return "full"
+	return "short"
 }
 
 // withGuide answers Claude's SessionStart event with the guide; other events
@@ -75,7 +52,7 @@ func withGuide(h hookFunc) hookFunc {
 		}
 		ensureProxyFor()
 		// Level off keeps only the news of an update.
-		text := strings.TrimSpace(in.syncNote + "\n" + guide(true, true) + resumeContext(in))
+		text := strings.TrimSpace(in.syncNote + "\n" + guide(true) + resumeContext(in))
 		if text == "" {
 			return nil, nil
 		}
@@ -91,8 +68,8 @@ const (
 // guideBlock is the guide as a marked block for instruction files (AGENTS.md).
 // Codex and pi share the project AGENTS.md: the block of the agent installed
 // last stays.
-func guideBlock(rewrites, mcp bool) string {
-	return guideStart + "\n" + guide(rewrites, mcp) + guideEnd + "\n"
+func guideBlock(mcp bool) string {
+	return guideStart + "\n" + guide(mcp) + guideEnd + "\n"
 }
 
 // cutGuide removes the marked block from text.
@@ -122,8 +99,8 @@ func cutBlock(text, startMark, endMark string) (string, bool) {
 
 // addGuide puts the guide block into an instruction file, replacing an
 // earlier one; the rest of the file stays.
-func addGuide(file string, rewrites, mcp bool) (string, error) {
-	if guide(rewrites, mcp) == "" { // level off: no block, and none left from an earlier install
+func addGuide(file string, mcp bool) (string, error) {
+	if guide(mcp) == "" { // level off: no block, and none left from an earlier install
 		d, err := removeGuide(file)
 		return strings.Join(d, "; "), err
 	}
@@ -132,7 +109,7 @@ func addGuide(file string, rewrites, mcp bool) (string, error) {
 		if text = strings.TrimRight(text, "\n"); text != "" {
 			text += "\n\n"
 		}
-		return text + guideBlock(rewrites, mcp), nil
+		return text + guideBlock(mcp), nil
 	})
 	if err != nil && !errors.Is(err, errUnchanged) {
 		return "", err
@@ -170,7 +147,7 @@ const (
 
 // cursorRule is the guide as a Cursor project rule applied to every chat.
 func cursorRule() string {
-	return cursorRuleHeader + "alwaysApply: true\n---\n" + guideBlock(true, true)
+	return cursorRuleHeader + "alwaysApply: true\n---\n" + guideBlock(true)
 }
 
 // codexHome is where codex keeps its user config and AGENTS.md.

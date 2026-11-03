@@ -72,9 +72,9 @@ agent's approvals unasked. Rules added are recorded per settings file and kind (
 MCP tool names only where the MCP server is registered (not pi). Codex and pi share the project
 `AGENTS.md` block; the last install wins (noted, accepted).
 
-**Levels `off | short | full`**, unknown value = full: a typo must not silently remove the
-explanation of the hint format. Brevity ("keep your own text brief") lives in the guide, delivered
-at session start.
+**Levels `off | short`**, unknown value = short: a typo must not silently remove the
+explanation of the hint format. There was a `full` level with usage tips (plain shell calls, brevity,
+batching); it was dropped to keep the session text small, and a saved `full` reads as short.
 
 **The hint is `[raw:<id>]`, nothing more.** It ends every shortened result, so each word is paid per
 result. Token counts were dropped (the agent cannot use them; the ledger keeps them) and the meaning moved

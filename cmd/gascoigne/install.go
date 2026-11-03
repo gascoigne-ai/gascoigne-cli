@@ -22,7 +22,7 @@ func cmdInstall(_ context.Context, args []string) error {
 	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through the background server's LLM proxy (claude); a stopped server stops the agent until its SessionStart hook starts it")
 	allow := fset.String("permissions", "", "which gascoigne tools claude runs without asking: none, local (retrieve, show, stats, compress) or all (adds fetch, which reaches the network) (saved; default none)")
 	auto := fset.String("autosync", "", "let agent hooks update user-scope installs after a gascoigne upgrade: "+strings.Join(autosyncChoices, ", ")+" (saved; default: not decided, nothing is updated)")
-	level := fset.String("guide", "", "how much usage text agents get: "+strings.Join(guideLevels, ", ")+" (saved; default full)")
+	level := fset.String("guide", "", "how much usage text agents get: "+strings.Join(guideLevels, ", ")+" (saved; default short)")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
@@ -233,7 +233,7 @@ func addCursor(exe string, global bool) ([]string, error) {
 		// Cursor keeps user rules in its settings, not in a file.
 		return append(done, "usage guide: add it under Cursor Settings → Rules, or run gascoigne install cursor in a project"), nil
 	}
-	if guide(true, true) == "" { // level off: no rule, and none left from an earlier install
+	if guide(true) == "" { // level off: no rule, and none left from an earlier install
 		d, err := removeCursorRule()
 		return append(done, d...), err
 	}
@@ -274,7 +274,7 @@ func addCodex(exe string, global bool) ([]string, error) {
 	if global {
 		agentsMD = filepath.Join(codexHome(), "AGENTS.md")
 	}
-	d, err := addGuide(agentsMD, false, true)
+	d, err := addGuide(agentsMD, true)
 	return append(done, d), err
 }
 
@@ -299,7 +299,7 @@ func addPi(exe string, global bool) ([]string, error) {
 	if err != nil {
 		return done, err
 	}
-	d, err := addGuide(agentsMD, true, false)
+	d, err := addGuide(agentsMD, false)
 	return append(done, d), err
 }
 

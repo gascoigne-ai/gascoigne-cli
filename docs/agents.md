@@ -47,7 +47,7 @@ Options saved for later installs:
 
 ```sh
 gascoigne install -permissions local   # claude runs retrieve, show, stats, compress without asking
-gascoigne install -guide short         # less usage text for agents (off removes it)
+gascoigne install -guide off           # no usage text for agents (default: short, only the hint and path ids)
 gascoigne install -autosync on         # hooks update installs after a gascoigne upgrade
 gascoigne upgrade                      # after installing a new version: hooks, config, open choices
 gascoigne setup                        # the same questions, asked in the terminal
@@ -262,13 +262,11 @@ rules it added (`$XDG_STATE_HOME/gascoigne/denies.json`, and `allows.json` for `
 
 ## Usage guide for the agent
 
-Agents are told how to get the most out of gascoigne: read and search with shell commands,
-keep shell calls plain (`&&`/`;` lists, only `| head`/`| tail`), read the web with `fetch`, and
-use `gascoigne raw <id>` / `retrieve` (or only part: `-grep`, `-query`, `-lines`) instead of
-re-running a shortened command, read one function with `gascoigne show file:Name`, and keep
-their own text brief (in an A/B run that cut output tokens 16% at the same success rate), and
-issue independent tool calls together in one turn, since every extra turn re-reads the whole context
-(not measured yet: compare requests per session before and after on your own ledger).
+Agents are told only what they cannot guess: `[raw:<id>]` marks a shortened result and
+`gascoigne raw <id>` / `retrieve` (or only part: `-grep`, `-query`, `-lines`) reads the original
+instead of re-running the command, and `§1` in output stands for the path in the `[paths: …]` line
+above it. Earlier versions had a longer `full` level with usage tips (plain shell calls, `fetch`,
+`show`, brevity, batching tool calls); it is gone, and a saved `full` now means `short`.
 
 | Agent | `wrap` | `install` | `install -g` |
 |---|---|---|---|
