@@ -281,6 +281,21 @@
 #   doc/gentle: { max_code_lines: 120, max_tokens: 15000, man_drop: [] }
 #   truncate/gentle: { max_tokens: 30000, head_tokens: 9600, tail_tokens: 9600, max_errors: 60, error_context: 5, query_lines: 60, query_diverse: false, skip: [fs/code, data, k8s, cloud] }
 
+## Your own program as an optimizer (text, json or rpc protocol; docs/external-optimizer.md). Only
+## allowed here, never in a repo's .gascoigne.yaml. Add the id to router.default and to each pipeline's optimizers.
+##   optimizers:
+##     external/levels:
+##       command: [python3, /abs/path/log-levels.py]   ## argv, no shell
+##       protocol: json                                ## text | json | rpc
+##       types: [log/*]                                ## block types, empty = all
+##       cmds: []                                      ## globs on the command line, empty = any
+##       timeout: 5s
+##       max_input_tokens: 0                           ## >0: bigger blocks are not sent
+##       max_output_bytes: 8388608
+##       dir: ""
+##       env: {}                                       ## added to a scrubbed environment
+##       pass_env: []                                  ## forwarded from gascoigne's environment
+
 ## Where results go.
 # exporters:
 #   stdout: { hint: true }            ## add "[raw:<id>]"

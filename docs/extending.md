@@ -87,6 +87,11 @@ Rules for optimizers:
   engine needing another family's logic uses its public library, never its package.
 - **Keep marker text short**; it costs tokens too.
 
+## Add an optimizer without Go
+
+Any script or binary can be an optimizer: configure the built-in `external` type with a command.
+See [external-optimizer.md](external-optimizer.md) and `examples/external-optimizers/`.
+
 ## Other components
 
 | Kind | Implement | Typical use |

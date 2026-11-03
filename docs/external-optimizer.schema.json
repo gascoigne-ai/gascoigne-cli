@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "gascoigne external optimizer, protocol version 1 (json and rpc)",
+  "$defs": {
+    "request": {
+      "type": "object",
+      "required": ["version", "block"],
+      "properties": {
+        "version": { "const": 1 },
+        "id": { "type": "integer", "description": "rpc only; the reply repeats it" },
+        "block": {
+          "type": "object",
+          "required": ["kind", "type", "text"],
+          "properties": {
+            "kind": { "enum": ["cmd_output", "tool_result", "message", "json"] },
+            "type": { "type": "string", "description": "detected content type, e.g. log/app; empty when unknown" },
+            "text": { "type": "string" }
+          }
+        },
+        "attrs": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "response": {
+      "type": "object",
+      "required": ["version"],
+      "properties": {
+        "version": { "const": 1 },
+        "id": { "type": "integer" },
+        "text": { "type": "string", "description": "required unless error is set; empty only for empty input" },
+        "skip_reason": { "type": "string" },
+        "error": { "type": "string" }
+      }
+    },
+    "hello": {
+      "type": "object",
+      "required": ["hello"],
+      "properties": { "hello": { "const": 1 } },
+      "description": "rpc handshake; reply is {\"version\":1}"
+    }
+  }
+}
