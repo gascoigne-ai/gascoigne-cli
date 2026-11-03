@@ -19,6 +19,7 @@ Flow: receiver → filter → router → optimizer → exporter; sqlite ledger k
 Shared with the other gascoigne repos: submodule `.harness/common`.
 @.harness/common/rules.md
 @.harness/common/commit-style.md
+@.harness/common/code-style.md
 @.harness/rules.md
 @.harness/code-style.md
 @.harness/recommendations.md
