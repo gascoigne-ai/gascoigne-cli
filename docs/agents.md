@@ -265,8 +265,9 @@ rules it added (`$XDG_STATE_HOME/gascoigne/denies.json`, and `allows.json` for `
 Agents are told only what they cannot guess: `[raw:<id>]` marks a shortened result and
 `gascoigne raw <id>` / `retrieve` (or only part: `-grep`, `-query`, `-lines`) reads the original
 instead of re-running the command, and `§1` in output stands for the path in the `[paths: …]` line
-above it, and they are asked to keep their own text brief (in an A/B run that cut output tokens 16% at the
-same success rate). Earlier versions had a longer `full` level with more tips (plain shell calls, `fetch`,
+above it, and they are asked to keep their own text brief, readable and condensed, with as few tokens as stay clear
+(in an A/B run the first part of that ask cut output tokens 16% at the same success rate; the rest is not
+measured). Earlier versions had a longer `full` level with more tips (plain shell calls, `fetch`,
 `show`, batching tool calls); it is gone, and a saved `full` now means `short`.
 
 | Agent | `wrap` | `install` | `install -g` |
