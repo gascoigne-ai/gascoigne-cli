@@ -49,7 +49,7 @@ gascoigne exec -- go test ./...
 hint line. The exit code is the command's own.
 
 ```
-[gascoigne: optimized 1488→132 tokens · full: gascoigne raw 9f1c2e7a]
+[raw:9f1c2e7a]
 ```
 
 The hint appears only when the output changed. Small outputs (under 200 tokens) and output

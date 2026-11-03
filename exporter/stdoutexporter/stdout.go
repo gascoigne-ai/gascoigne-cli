@@ -3,7 +3,7 @@ package stdoutexporter
 
 import (
 	"context"
-	"fmt"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/hint"
 	"io"
 	"strings"
 
@@ -31,15 +31,14 @@ func (e *Exporter) Export(_ context.Context, p *payload.Payload) error {
 		_, err := io.WriteString(e.w, text)
 		return err
 	}
-	hint := fmt.Sprintf("[gascoigne: optimized %s→%s tokens · full: gascoigne raw %s]\n",
-		p.Attrs[payload.AttrRawTokens], p.Attrs[payload.AttrOutTokens], id)
+	line := hint.Of(id) + "\n"
 	if p.Attrs[AttrHint] == HintTop {
-		_, err := io.WriteString(e.w, hint+text)
+		_, err := io.WriteString(e.w, line+text)
 		return err
 	}
 	if !strings.HasSuffix(text, "\n") {
 		text += "\n"
 	}
-	_, err := io.WriteString(e.w, text+hint)
+	_, err := io.WriteString(e.w, text+line)
 	return err
 }

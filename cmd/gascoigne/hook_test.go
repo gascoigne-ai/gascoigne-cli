@@ -194,7 +194,7 @@ func TestCodexOptimizesOutput(t *testing.T) {
 	}
 	m, _ := reply.(map[string]any)
 	reason, _ := m["reason"].(string)
-	if m["decision"] != "block" || !strings.HasPrefix(reason, "exit code 1\n") || !strings.Contains(reason, "full: gascoigne raw ") {
+	if m["decision"] != "block" || !strings.HasPrefix(reason, "exit code 1\n") || !strings.Contains(reason, "[raw:") {
 		t.Fatalf("got %v", reply)
 	}
 	if len(reason) >= len(fixture) {

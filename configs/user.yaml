@@ -283,7 +283,7 @@
 
 ## Where results go.
 # exporters:
-#   stdout: { hint: true }            ## add "[gascoigne: optimized A→B tokens · full: gascoigne raw <id>]"
+#   stdout: { hint: true }            ## add "[raw:<id>]"
 
 ## Which optimizers run. Each picks the blocks whose type it knows, so one chain serves all.
 # router:

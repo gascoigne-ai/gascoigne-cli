@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/hint"
 	"slices"
 	"strings"
 	"sync"
@@ -21,15 +22,12 @@ type call struct {
 	input map[string]any
 }
 
-// hintRe finds output gascoigne already optimized (exec, hooks, MCP).
-var hintRe = lazyre.New(`\[(gascoigne: )?optimized \d+→\d+ tokens · full: `)
-
 // result returns the text the model should get for one tool result; the
 // same input always yields the same output, from the cache once seen.
 func (r *Receiver) result(ctx context.Context, c call, text string, m meta) string {
 	skip := slices.Contains(r.cfg.Skip, c.name)
 	out := text
-	if strings.TrimSpace(text) != "" && !skip && !hintRe.MatchString(text) {
+	if strings.TrimSpace(text) != "" && !skip && !hint.Re.MatchString(text) {
 		out = r.shorten(ctx, c, text, m)
 	}
 	if m.folder == nil {
@@ -87,8 +85,7 @@ func (r *Receiver) optimize(ctx context.Context, c call, original string, m meta
 	if numbered {
 		opt = renumber(text, nums, opt)
 	}
-	return fmt.Sprintf("%s\n[gascoigne: optimized %s→%s tokens · full: gascoigne raw %s]",
-		strings.TrimRight(opt, "\n"), out.Attrs[payload.AttrRawTokens], out.Attrs[payload.AttrOutTokens], out.Attrs[payload.AttrRawID])
+	return strings.TrimRight(opt, "\n") + "\n" + hint.Of(out.Attrs[payload.AttrRawID])
 }
 
 // Claude Code renders Read results as "N\ttext" lines.

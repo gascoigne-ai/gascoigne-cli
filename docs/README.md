@@ -30,7 +30,7 @@ $ gascoigne exec -- go test ./...
 FAIL	example.com/shop/price	0.001s
 ok 3 packages in example.com/shop: api, cart, util
 52 tests passed
-[gascoigne: optimized 1488→132 tokens · full: gascoigne raw 9f1c2e7a]
+[raw:9f1c2e7a]
 ```
 
 - The agent sees what it acts on: the failure, where it is, what passed.

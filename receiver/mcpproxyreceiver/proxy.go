@@ -433,7 +433,7 @@ func (r *Receiver) call(ctx context.Context, cs *mcp.ClientSession, name string,
 			r.log.Warn("optimize tool result, passing original", "tool", name, "err", err)
 			continue
 		}
-		res.Content[i] = &mcp.TextContent{Text: mcptool.Text(out, r.cfg.Retrieve), Annotations: tc.Annotations}
+		res.Content[i] = &mcp.TextContent{Text: mcptool.Text(out), Annotations: tc.Annotations}
 	}
 	return res, nil
 }

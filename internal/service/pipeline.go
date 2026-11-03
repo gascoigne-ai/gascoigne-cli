@@ -17,7 +17,7 @@ import (
 )
 
 // minSaving is the fewest tokens an optimization must save to be used: the
-// "[gascoigne: optimized A→B tokens · full: gascoigne raw <id>]" hint costs
+// "[raw:<id>]" hint costs
 // about this much, so saving less would cost the agent tokens.
 const minSaving = 20
 

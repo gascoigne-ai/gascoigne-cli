@@ -192,7 +192,7 @@ func TestGeminiResults(t *testing.T) {
 		t.Fatal(err)
 	}
 	parts := doc.Contents[2].Parts
-	if out := parts[0].FunctionResponse.Response["output"]; !strings.HasPrefix(out, "// … comments\npackage a\nfunc A() {}\n[gascoigne: optimized") {
+	if out := parts[0].FunctionResponse.Response["output"]; !strings.HasPrefix(out, "// … comments\npackage a\nfunc A() {}\n[raw:") {
 		t.Fatalf("read_file result not shortened:\n%s", out)
 	}
 	if out := parts[1].FunctionResponse.Response["output"]; out != "no comments here" {

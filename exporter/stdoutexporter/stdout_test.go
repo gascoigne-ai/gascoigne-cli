@@ -22,9 +22,9 @@ func TestExport(t *testing.T) {
 		want string
 	}{
 		{"verbatim", true, payload.New(payload.CmdOutput, "raw"), "raw"},
-		{"hint", true, optimized, "short\n[gascoigne: optimized 100→2 tokens · full: gascoigne raw abc]\n"},
+		{"hint", true, optimized, "short\n[raw:abc]\n"},
 		{"hint off", false, optimized, "short"},
-		{"hint on top", true, top, "[gascoigne: optimized 100→2 tokens · full: gascoigne raw abc]\nshort"},
+		{"hint on top", true, top, "[raw:abc]\nshort"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

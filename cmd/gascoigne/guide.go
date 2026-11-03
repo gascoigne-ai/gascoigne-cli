@@ -43,7 +43,7 @@ func guide(rewrites, mcp bool) string {
 		b.WriteString("- Keep your own text brief: report findings and results, not the steps you are about to take.\n")
 		b.WriteString("- Issue tool calls that do not depend on each other together in one turn: every extra turn re-reads the whole context.\n")
 	}
-	b.WriteString("- Output ending in [gascoigne: … full: gascoigne raw <id>] was shortened. If a detail is missing, run gascoigne raw <id> (add -grep PATTERN, -query WORDS or -lines A-B to read only part)")
+	b.WriteString("- Output ending in [raw:<id>] was shortened. If a detail is missing, run gascoigne raw <id> (add -grep PATTERN, -query WORDS or -lines A-B to read only part)")
 	if mcp {
 		b.WriteString(" or call retrieve with the id")
 	}

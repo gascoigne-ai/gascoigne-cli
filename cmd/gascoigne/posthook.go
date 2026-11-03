@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/hint"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -16,7 +17,6 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/imgscale"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
-	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/httpproxyreceiver"
@@ -30,10 +30,6 @@ import (
 // ones included, and image Reads (downscaled). A text Read stays untouched:
 // Claude numbers its lines itself, and dropped lines would shift the numbers
 // it shows.
-
-// hintRe finds output gascoigne already optimized: exec's hint and the MCP
-// server's and proxy's.
-var hintRe = lazyre.New(`\[(gascoigne: )?optimized \d+→\d+ tokens · full: `)
 
 // withResults answers Claude's PostToolUse events; other events go to h.
 func withResults(h hookFunc) hookFunc {
@@ -148,7 +144,7 @@ func mcpResult(ctx context.Context, c *common, resp any, attrs map[string]string
 // optimizeText runs text through the hook pipeline: the optimized text with
 // its retrieve hint, or "" when nothing changed or it was optimized before.
 func optimizeText(ctx context.Context, c *common, text string, attrs map[string]string) (string, error) {
-	if strings.TrimSpace(text) == "" || hintRe.MatchString(text) {
+	if strings.TrimSpace(text) == "" || hint.Re.MatchString(text) {
 		return "", nil
 	}
 	run := *c

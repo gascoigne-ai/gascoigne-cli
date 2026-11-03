@@ -165,10 +165,10 @@ func TestProxyFoldsRepeatedReads(t *testing.T) {
 
 	post(t, proxy.URL, conversation(src, src), nil)
 	res := toolResult(t, *got)
-	if !strings.HasPrefix(res, "[↑ L1-18 as in earlier Read /src/charge.go]\n[gascoigne: optimized ") {
+	if !strings.HasPrefix(res, "[↑ L1-18 as in earlier Read /src/charge.go]\n[raw:") {
 		t.Fatalf("second read not folded:\n%s", res)
 	}
-	id := res[strings.LastIndex(res, " ")+1 : len(res)-1]
+	id := res[strings.LastIndex(res, "[raw:")+5 : len(res)-1]
 	if led.raw[id] != src || len(led.events) != 1 {
 		t.Fatalf("original not kept: %q, %d events", led.raw[id], len(led.events))
 	}

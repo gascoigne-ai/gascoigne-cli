@@ -88,7 +88,7 @@ func TestFetch(t *testing.T) {
 	cs, pl, _ := connect(t)
 
 	text, isErr := call(t, cs, "fetch", map[string]any{"url": srv.URL})
-	if isErr || text != "HTTP 200 "+srv.URL+"\n<P>HI</P>\n[optimized 10→5 tokens · full: retrieve id=id1]" {
+	if isErr || text != "HTTP 200 "+srv.URL+"\n<P>HI</P>\n[raw:id1]" {
 		t.Fatalf("fetch = %q (error %v)", text, isErr)
 	}
 	if pl.got.Attrs["mime"] != "text/html" || pl.got.Attrs[payload.AttrURL] != srv.URL {
@@ -104,7 +104,7 @@ func TestFetch(t *testing.T) {
 
 func TestCompressRetrieveStats(t *testing.T) {
 	cs, pl, l := connect(t)
-	if text, _ := call(t, cs, "compress", map[string]any{"text": "abc", "cmd": "go test"}); !strings.HasPrefix(text, "ABC\n[optimized") {
+	if text, _ := call(t, cs, "compress", map[string]any{"text": "abc", "cmd": "go test"}); !strings.HasPrefix(text, "ABC\n[raw:") {
 		t.Fatalf("compress = %q", text)
 	}
 	if pl.got.Attrs[payload.AttrCmd] != "go test" || pl.got.Attrs[payload.AttrAgent] != "test" {

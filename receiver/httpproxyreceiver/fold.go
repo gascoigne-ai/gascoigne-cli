@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/hint"
 	"strconv"
 	"strings"
 	"time"
@@ -215,8 +216,8 @@ func (r *Receiver) save(ctx context.Context, p *payload.Payload, folded string, 
 		return "", err
 	}
 	out := folded
-	if !hintRe.MatchString(folded) {
-		out = fmt.Sprintf("%s\n[gascoigne: optimized %d→%d tokens · full: gascoigne raw %s]", strings.TrimRight(folded, "\n"), in, tokens.Estimate(folded), id)
+	if !hint.Re.MatchString(folded) {
+		out = strings.TrimRight(folded, "\n") + "\n" + hint.Of(id)
 	}
 	n := tokens.Estimate(out)
 	err = r.ledger.Record(ctx, component.Event{

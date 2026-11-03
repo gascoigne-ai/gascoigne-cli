@@ -22,7 +22,7 @@ This lives in the pipeline core, not in optimizers:
 
 1. Before optimizers run, the payload is snapshotted.
 2. If the output differs, the original goes to the ledger **first**, then the output gets its
-   hint: `[gascoigne: optimized 4120→610 tokens · full: gascoigne raw <id>]`.
+   hint: `[raw:<id>]`.
 3. If saving the original fails, the original is returned instead.
 4. If an optimizer errors, the original is returned and the failure recorded.
 5. Output that was not changed is byte-exact and carries no hint.

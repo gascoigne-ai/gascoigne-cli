@@ -77,7 +77,7 @@ func TestProxy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := res.Content[0].(*mcp.TextContent).Text; got != "short:search\n[optimized 100→2 tokens · full: gascoigne_retrieve id=id1]" {
+	if got := res.Content[0].(*mcp.TextContent).Text; got != "short:search\n[raw:id1]" {
 		t.Fatalf("result %q", got)
 	}
 	res, err = cs.CallTool(ctx, &mcp.CallToolParams{Name: "gascoigne_retrieve", Arguments: map[string]any{"id": "id1"}})

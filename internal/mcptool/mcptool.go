@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/hint"
 	"math"
 	"math/rand/v2"
 	"strconv"
@@ -42,7 +43,7 @@ func Ledger(host component.Host, id string) (component.Ledger, error) {
 }
 
 // Text returns the payload text plus, when optimized, how to get the original.
-func Text(p *payload.Payload, retrieveTool string) string {
+func Text(p *payload.Payload) string {
 	text := p.Text()
 	id := p.Attrs[payload.AttrRawID]
 	if id == "" {
@@ -51,8 +52,7 @@ func Text(p *payload.Payload, retrieveTool string) string {
 	if !strings.HasSuffix(text, "\n") {
 		text += "\n"
 	}
-	return fmt.Sprintf("%s[optimized %s→%s tokens · full: %s id=%s]", text,
-		p.Attrs[payload.AttrRawTokens], p.Attrs[payload.AttrOutTokens], retrieveTool, id)
+	return text + hint.Of(id)
 }
 
 func Result(text string) *mcp.CallToolResult {

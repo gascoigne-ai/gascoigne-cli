@@ -20,10 +20,10 @@ A stdio MCP server. Register it with any MCP client:
 | `retrieve` | `id`, `lines?`, `grep?`, `query?`, `context?` | The original of an optimized result, byte-exact, which marks the source as badly optimized; or only the lines asked for, which does not. |
 | `stats` | `by?`, `session?`, `format?` | Savings so far, as plain text (no colors or bars: they cost tokens) or `format: json`. |
 
-Every optimized result ends with:
+Every optimized result ends with its id (the session guide says what it is):
 
 ```
-[optimized 37169→4062 tokens · full: retrieve id=7222827457e4a13f]
+[raw:7222827457e4a13f]
 ```
 
 ### `query`

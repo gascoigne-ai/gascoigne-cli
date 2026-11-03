@@ -291,7 +291,7 @@ sampled; gaps read `… N items omitted`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `stdout.hint` | true | Add `[gascoigne: optimized A→B tokens · full: gascoigne raw <id>]` when output changed. |
+| `stdout.hint` | true | Add `[raw:<id>]` when output changed. |
 
 ### Tokenizers
 

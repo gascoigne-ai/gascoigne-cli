@@ -314,7 +314,7 @@ sequenceDiagram
     H-->>A: run "gascoigne exec -- git log" instead
     A->>X: runs the rewritten command
     X->>L: saves the original
-    X-->>A: short output + "[gascoigne: … full: gascoigne raw id]"
+    X-->>A: short output + "[raw:id]"
     A->>L: gascoigne raw id, only if a detail is missing
 ```
 
@@ -355,8 +355,12 @@ The hook rewrites every command it can rewrite safely:
 Optimized output ends with (or, before `head`, starts with) a hint:
 
 ```
-[gascoigne: optimized 4120→610 tokens · full: gascoigne raw <id>]
+[raw:<id>]
 ```
+
+The hint is only the id: the session guide (`install -guide`) tells the agent what `[raw:<id>]` means,
+so the explanation is paid once per session, not on every result. With `-guide off` the agent gets
+the bare hint and no explanation.
 
 - Need the full text? `gascoigne raw <id>`, or MCP `retrieve` with the id.
 - Need one command verbatim? `gascoigne exec -raw -- <cmd>` or `GASCOIGNE_RAW=1`.

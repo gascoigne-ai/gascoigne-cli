@@ -76,6 +76,11 @@ MCP tool names only where the MCP server is registered (not pi). Codex and pi sh
 explanation of the hint format. Brevity ("keep your own text brief") lives in the guide, delivered
 at session start.
 
+**The hint is `[raw:<id>]`, nothing more.** It ends every shortened result, so each word is paid per
+result. Token counts were dropped (the agent cannot use them; the ledger keeps them) and the meaning moved
+to the session guide, paid once per session. Cost: with `-guide off` the agent sees a bare id. The old
+long forms still count as "already optimized" (`internal/hint`), because transcripts hold them.
+
 **Skills are user-invoked** (`disable-model-invocation`): their descriptions must not be sent with
 every request; the project counts instruction tokens.
 

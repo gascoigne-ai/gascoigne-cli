@@ -128,7 +128,7 @@ func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in Fetc
 	// turns later fetches into permanent full results.
 	id := out.Attrs[payload.AttrRawID]
 	if id == "" {
-		return mcptool.Result(head + mcptool.Text(out, r.cfg.Retrieve)), nil, nil
+		return mcptool.Result(head + mcptool.Text(out)), nil, nil
 	}
 	r.fetched.put(key, fetchEntry{hash: hash, rawID: id, text: out.Text()})
 	if seen {
@@ -136,7 +136,7 @@ func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in Fetc
 			return mcptool.Result(fmt.Sprintf("%schanged since earlier fetch in this session (full: %s id=%s):\n%s", head, r.cfg.Retrieve, id, d)), nil, nil
 		}
 	}
-	return mcptool.Result(head + mcptool.Text(out, r.cfg.Retrieve)), nil, nil
+	return mcptool.Result(head + mcptool.Text(out)), nil, nil
 }
 
 type CompressInput struct {
@@ -171,5 +171,5 @@ func (r *Receiver) process(ctx context.Context, p *payload.Payload, raw bool) (s
 	if err != nil {
 		return "", err
 	}
-	return mcptool.Text(out, r.cfg.Retrieve), nil
+	return mcptool.Text(out), nil
 }

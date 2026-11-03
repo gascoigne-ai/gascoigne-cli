@@ -30,7 +30,7 @@ func TestFetchSessionCache(t *testing.T) {
 		return text
 	}
 
-	if text := fetch(map[string]any{}); !strings.Contains(text, "[optimized") {
+	if text := fetch(map[string]any{}); !strings.Contains(text, "[raw:") {
 		t.Fatalf("first fetch = %q", text)
 	}
 	if text := fetch(map[string]any{}); !strings.Contains(text, "unchanged since") || !strings.Contains(text, "id=id1") || len(text) > 200 {
@@ -39,7 +39,7 @@ func TestFetchSessionCache(t *testing.T) {
 	if text := fetch(map[string]any{"raw": true}); strings.Contains(text, "unchanged") || !strings.HasSuffix(text, "of the page") {
 		t.Fatalf("raw fetch = %q", text)
 	}
-	if text := fetch(map[string]any{"query": "other"}); !strings.Contains(text, "[optimized") {
+	if text := fetch(map[string]any{"query": "other"}); !strings.Contains(text, "[raw:") {
 		t.Fatalf("other query = %q", text)
 	}
 
@@ -51,7 +51,7 @@ func TestFetchSessionCache(t *testing.T) {
 	}
 
 	body = "something else entirely"
-	if text := fetch(map[string]any{}); !strings.Contains(text, "[optimized") || strings.Contains(text, "changed since") {
+	if text := fetch(map[string]any{}); !strings.Contains(text, "[raw:") || strings.Contains(text, "changed since") {
 		t.Fatalf("rewritten fetch = %q", text)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/hint"
 	"io"
 	"maps"
 	"os"
@@ -199,8 +200,7 @@ func hinted(p *payload.Payload) string {
 	if !strings.HasSuffix(text, "\n") {
 		text += "\n"
 	}
-	return fmt.Sprintf("%s[gascoigne: optimized %s→%s tokens · full: gascoigne raw %s]\n",
-		text, p.Attrs[payload.AttrRawTokens], p.Attrs[payload.AttrOutTokens], p.Attrs[payload.AttrRawID])
+	return text + hint.Of(p.Attrs[payload.AttrRawID]) + "\n"
 }
 
 // wrapCommand routes each command of a shell line through gascoigne exec

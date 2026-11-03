@@ -114,7 +114,7 @@ func TestReadKeepsLineNumbers(t *testing.T) {
 		t.Fatalf("response not streamed through: %q", resp)
 	}
 	res := toolResult(t, *got)
-	want := "// … comments\n1\tpackage a\n2\t\n5\tfunc Add() {}\n[gascoigne: optimized 100→20 tokens · full: gascoigne raw abc]"
+	want := "// … comments\n1\tpackage a\n2\t\n5\tfunc Add() {}\n[raw:abc]"
 	if res != want {
 		t.Fatalf("got\n%q\nwant\n%q", res, want)
 	}
@@ -141,7 +141,8 @@ func TestLeftAlone(t *testing.T) {
 		hdr                map[string]string
 	}{
 		{"edit tools", "Edit", src, nil},
-		{"already optimized", "Bash", "x\n// y\n[gascoigne: optimized 10→2 tokens · full: gascoigne raw ab]", nil},
+		{"already optimized", "Bash", "x\n// y\n[raw:ab]", nil},
+		{"already optimized, long hint of an older session", "Bash", "x\n// y\n[gascoigne: optimized 10→2 tokens · full: gascoigne raw ab]", nil},
 		{"raw requested", "Read", src, map[string]string{RawHeader: "1"}},
 	}
 	for _, tt := range tests {
@@ -171,7 +172,7 @@ func TestResponsesShellOutput(t *testing.T) {
 		t.Fatal(err)
 	}
 	resp.Body.Close()
-	if !strings.Contains(string(*got), "gascoigne raw abc") || fake.calls.Load() != 1 {
+	if !strings.Contains(string(*got), "[raw:abc]") || fake.calls.Load() != 1 {
 		t.Fatalf("not optimized: %s", *got)
 	}
 }

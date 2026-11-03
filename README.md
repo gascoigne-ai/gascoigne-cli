@@ -60,7 +60,7 @@ example.com/shop/sync.(*worker).loop(0xc000200000)
 
 … 13 standard library frames omitted
 FAIL	example.com/shop/sync	600.021s
-[gascoigne: optimized 7478→388 tokens · full: gascoigne raw 17415a92]
+[raw:17415a92]
 ```
 
 95% fewer tokens, and the cause is still visible: the test is stuck in `Syncer.Run`, 40 workers

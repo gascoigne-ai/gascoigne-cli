@@ -35,6 +35,8 @@ func TestPostToolUse(t *testing.T) {
 			ToolResponse: resp(map[string]any{"stdout": trace, "stderr": "", "interrupted": false, "isImage": false})},
 			func(o map[string]any) string { return o["stdout"].(string) }},
 		{"bash already optimized", hookInput{ToolName: "Bash", ToolInput: map[string]any{"command": "gascoigne exec -- go test"},
+			ToolResponse: resp(map[string]any{"stdout": "x\n[raw:ab]\n"})}, nil},
+		{"bash already optimized, long hint of an older session", hookInput{ToolName: "Bash", ToolInput: map[string]any{"command": "gascoigne exec -- go test"},
 			ToolResponse: resp(map[string]any{"stdout": "x\n[gascoigne: optimized 10→2 tokens · full: gascoigne raw ab]\n"})}, nil},
 		{"grep content", hookInput{ToolName: "Grep", ToolInput: map[string]any{"pattern": "TODO"},
 			ToolResponse: resp(map[string]any{"mode": "content", "numFiles": 2, "filenames": []string{}, "content": strings.Repeat("a/very/long/path/to/file.go:12:// TODO fix this thing later\n", 60)})},
@@ -54,7 +56,7 @@ func TestPostToolUse(t *testing.T) {
 			}
 			if tt.name == "mcp blocks" {
 				out := reply.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].([]any)
-				if text := out[0].(map[string]any)["text"].(string); !strings.Contains(text, "gascoigne raw") || out[1].(map[string]any)["type"] != "image" {
+				if text := out[0].(map[string]any)["text"].(string); !strings.Contains(text, "[raw:") || out[1].(map[string]any)["type"] != "image" {
 					t.Fatalf("got %v", out)
 				}
 				return
@@ -66,7 +68,7 @@ func TestPostToolUse(t *testing.T) {
 				return
 			}
 			out := reply.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)
-			if text := tt.field(out); !strings.Contains(text, "· full: gascoigne raw ") || len(text) >= len(tt.in.ToolResponse) {
+			if text := tt.field(out); !strings.Contains(text, "[raw:") || len(text) >= len(tt.in.ToolResponse) {
 				t.Fatalf("not optimized: %.200s", text)
 			}
 		})
@@ -186,7 +188,7 @@ func TestResultHooksOtherAgents(t *testing.T) {
 				return
 			}
 			got, _ := reply.(map[string]any)[tt.key].(string)
-			if !strings.Contains(got, "gascoigne raw") || len(got) >= len(data) {
+			if !strings.Contains(got, "[raw:") || len(got) >= len(data) {
 				t.Fatalf("not optimized: %.200s", got)
 			}
 		})
