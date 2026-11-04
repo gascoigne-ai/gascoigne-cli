@@ -22,11 +22,12 @@ func cmdInstall(_ context.Context, args []string) error {
 	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through the background server's LLM proxy (claude); a stopped server stops the agent until its SessionStart hook starts it")
 	allow := fset.String("permissions", "", "which gascoigne tools claude runs without asking: none, local (retrieve, show, stats, compress) or all (adds fetch, which reaches the network) (saved; default none)")
 	auto := fset.String("autosync", "", "let agent hooks update user-scope installs after a gascoigne upgrade: "+strings.Join(autosyncChoices, ", ")+" (saved; default: not decided, nothing is updated)")
+	mode := fset.String("mcp", "", "how gascoigne reaches the agent: auto (hooks shorten results, searches and pages go through gascoigne) or manual (nothing is routed; the agent calls gascoigne's tools itself) (saved; default auto)")
 	level := fset.String("guide", "", "how much usage text agents get: "+strings.Join(guideLevels, ", ")+" (saved; default short)")
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
-	if err := errors.Join(saveGuideLevel(*level), saveAllowLevel(*allow), saveAutosync(*auto)); err != nil {
+	if err := errors.Join(saveGuideLevel(*level), saveAllowLevel(*allow), saveAutosync(*auto), saveMCPMode(*mode)); err != nil {
 		return err
 	}
 	names := fset.Args()
@@ -177,7 +178,11 @@ func syncClaude(exe string, global bool) ([]string, error) {
 	var done []string
 	var denied, allowed []string
 	rules := func(root *object) proxyResult {
-		denied = denyRules.add(root, claudeDenies)
+		// Manual mode denies nothing, and takes back what an earlier install denied.
+		if mcpMode() == mcpManual {
+			denyRules.remove(settings, root)
+		}
+		denied = denyRules.add(root, deniedTools())
 		// The allow level may have changed since the last install: drop what
 		// was recorded, then add what the level has now.
 		allowRules.remove(settings, root)

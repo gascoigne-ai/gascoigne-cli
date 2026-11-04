@@ -49,6 +49,7 @@ Options saved for later installs:
 gascoigne install -permissions local   # claude runs retrieve, show, stats, compress without asking
 gascoigne install -guide off           # no usage text for agents (default: short, the hint, path ids and a brevity ask)
 gascoigne install -autosync on         # hooks update installs after a gascoigne upgrade
+gascoigne install -mcp manual          # no automatic routing: the agent calls gascoigne's tools itself
 gascoigne upgrade                      # after installing a new version: hooks, config, open choices
 gascoigne setup                        # the same questions, asked in the terminal
 ```

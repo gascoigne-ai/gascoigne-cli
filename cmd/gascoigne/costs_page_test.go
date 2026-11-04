@@ -69,3 +69,55 @@ func TestContextCellsDoNotReusePageClasses(t *testing.T) {
 		t.Error("a context table cell uses the page container's .wrap class")
 	}
 }
+
+// The Costs page shows pricing and sends settings nowhere: the dashboard has no login, so the
+// settings are changed on the token-protected setup page. The 30-second reload must not redraw it.
+func TestCostsPagePricing(t *testing.T) {
+	page := string(costsHTML)
+	for _, want := range []string{`"/api/pricing"`, `"/api/pricing/refresh"`, `"/api/setup/link"`, "Price from", "Dollars are hidden", "Change pricing in setup", "flat plan", `c.billing === "subscription"`, `"mixed"`} {
+		if !strings.Contains(page, want) {
+			t.Errorf("costs page lacks %q", want)
+		}
+	}
+	for _, gone := range []string{`"/api/pricing", {`, "readPrices", "Save pricing", `translate:`, `header_env`} {
+		if strings.Contains(page, gone) {
+			t.Errorf("the page must not edit settings (%q): the dashboard has no login", gone)
+		}
+	}
+	loadFn := page[strings.Index(page, "async function load()"):strings.Index(page, "document.getElementById(\"since\").onchange")]
+	if strings.Contains(loadFn, "drawPricing") || strings.Contains(loadFn, "loadPricing") {
+		t.Error("the periodic reload redraws the pricing box")
+	}
+	if strings.Contains(page, "onclick:") {
+		t.Error("el sets attributes only: handlers need addEventListener")
+	}
+}
+
+// Setup carries the pricing form behind its token and offers a test that saves nothing.
+func TestSetupPagePricingForm(t *testing.T) {
+	page := string(setupHTML)
+	for _, want := range []string{"pricingPanel", "readPricing", `"/api/setup/pricing-test"`, "Translate command", "Price URL", "Price sheet file", "URL header variable", "Test these sources", "Refresh every", `costs: "Costs"`} {
+		if !strings.Contains(page, want) {
+			t.Errorf("setup page lacks %q", want)
+		}
+	}
+	if strings.Contains(page, "onclick:") {
+		t.Error("el sets attributes only: handlers are properties")
+	}
+}
+
+// On a flat plan the Context page draws requests, not dollars: no cost columns, no money KPIs, no
+// what-if (its only figure is dollars), and the default sort is not by cost.
+func TestContextPageHasAFlatPlanMode(t *testing.T) {
+	page := string(contextHTML)
+	for _, want := range []string{`report.billing === "subscription"`, "isFlat()", "Requests per day", "How big conversations get", "Share of requests", "money: true", "Above 200k context"} {
+		if !strings.Contains(page, want) {
+			t.Errorf("context page lacks %q", want)
+		}
+	}
+	for _, want := range []string{"flat ? [] :", "flat ? [injected] : [whatIf, injected]"} {
+		if !strings.Contains(page, want) {
+			t.Errorf("context page does not drop its dollar parts on a flat plan: missing %q", want)
+		}
+	}
+}

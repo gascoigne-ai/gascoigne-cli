@@ -112,6 +112,17 @@
   `GASCOIGNE_AGENT`/`GASCOIGNE_SESSION` are unset (installed hooks). `wrap` sets the env, so its
   commands stay short (`execPrefix` in `hook.go`).
 
+## MCP mode (`mcpmode.go`)
+
+`prefs.mcp_mode` (`install -mcp`, setup question `mcp_mode`, `$GASCOIGNE_MCP_MODE` wins; unknown values read as `auto`):
+
+| Mode | Hooks | Deny rules | Guide |
+|---|---|---|---|
+| `auto` (default) | PreToolUse rewrite, PostToolUse replacement, MCP results | `claudeDenies` (Grep, Glob, WebFetch) | "gascoigne shrinks ..." |
+| `manual` | `cmdHook` returns at once for every event but SessionStart / UserPromptSubmit (`skipHook`) | none; install and sync take back the ones recorded in `denies.json` (`deniedTools`); `wrap` adds none | `manualGuide`: the agent calls fetch, compress, retrieve, show, stats itself |
+
+The hooks stay registered in manual mode (the server start, the guide and nudges still run), so switching modes only rewrites the deny rules and needs no reinstall of hooks. `mcp-proxy` is explicit wrapping the user asked for and keeps its rules in both modes. Setup's answer rewrites the user-scope installs like `allow`.
+
 ## Coverage (which tool results reach the optimizer)
 
 | Tool | claude | codex | gemini | opencode / pi / cursor |

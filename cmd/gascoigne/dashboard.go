@@ -113,6 +113,7 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		c, err := mcptool.BuildCosts(r.Context(), l, q, cost.AgentContext)
 		respond(w, c, err)
 	})
+	pricingHandlers(mux)
 	mux.HandleFunc("GET /context", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write(contextHTML)

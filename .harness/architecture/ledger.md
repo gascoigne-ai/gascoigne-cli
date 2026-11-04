@@ -3,6 +3,12 @@
 ## Storage
 
 - Pure-Go driver (`gormlite`), WAL mode, busy timeout 5 s.
+- **Memory mode** (`memory: true`, `path: ":memory:"` or `GASCOIGNE_LEDGER=:memory:`): the same schema and
+  queries on a private sqlite `:memory:` database, held to one pooled connection that never expires.
+  Nothing touches disk, all is gone at exit, `Path()` reports `:memory:`. Originals are capped at
+  `memory_max_bytes` (gzip size, default 64 MiB): `SaveRaw` evicts the oldest, never the one just saved.
+  For embedders (SDK) that want the numbers of one run; the CLI does not start the background server for
+  it, since another process could not share the ledger.
 - Gorm models in `models.go`; `AutoMigrate` on Start adds new tables, columns and indexes.
   Renames, drops or type changes need an explicit migration step: ask first.
 
@@ -84,6 +90,37 @@ saved tokens × tokenizer factor × (first read + rereads), per agent and model:
 - runs without a model use `cost.AgentModels` (marked assumed)
 - prices are the providers' official list prices (`cost.PriceSources`, `cost.PricesChecked`);
   `Costs.Pricing` carries that basis into the overview JSON, `estimates` and the dashboard
+- **User pricing** (`internal/pricing`, `cmd/gascoigne/pricing*.go`, `gascoigne pricing`, `prefs.pricing`): billing mode
+  and prices from four layers over the built-in table, per model id static > json > api > script > built-in
+  (`cost.SetOverrides`, `cost.LookupSource` gives the source; `Costs.Savings[].Source`).
+  - `billing` is `auto` (default), `api` or `subscription`. Forced `subscription`: `BuildCosts` returns no dollars (`Billing`,
+    empty `Savings`), so the Costs page, `gain`, the one-line status, MCP `stats` and the SDK show tokens only; `usageTable` drops
+    its cost column. `auto` asks `cost.BillingOf(agent)` per agent (`cmd/gascoigne/billing.go`, `detectBilling`): an agent on a plan
+    is left out of the dollars (`Costs.SubscriptionAgents`, `Billing` is `mixed` when others remain, `subscription` when none do).
+    Detection reads only whether a key variable is set and which sign-in file exists, never a secret: claude = `CLAUDE_CODE_USE_BEDROCK`
+    / `_VERTEX` / `_FOUNDRY`, `ANTHROPIC_API_KEY` / `_AUTH_TOKEN` or an `apiKeyHelper` in settings.json mean API, else
+    `claudeAiOauth` in `.credentials.json` or `oauthAccount` in `~/.claude.json` mean a plan; codex = `OPENAI_API_KEY` (env or
+    auth.json) API, `tokens` in auth.json a ChatGPT plan; gemini = key variables API, `oauth_creds.json` a Google sign-in; cursor is
+    a plan; any other agent (and the SDK) is API, since nothing says otherwise. The checks run per call, so a new sign-in counts at once.
+  - Price sheet JSON `{"version":1,"models":{"<id>":{"in","out","cache_read"?,"cache_write"?,"tokenizer"?}}}`, dollars per million
+    tokens (`cost.ParsePrices`; `in` and `out` required, cache prices default to `in`, tokenizer to `o200k`; unknown fields,
+    negative prices and a newer `version` are refused, the error names the source).
+  - `file`: read each load, or with a translator cached by file size and mtime. `url`: GET, cached in the state dir
+    (`prices-cache.json`) for `ttl`, ETag / If-Modified-Since, body capped at 1 MiB, header from the env var named by `header_env`.
+    `translate`: user command (argv split by `pricing.SplitArgs`, no shell) with the file or response on stdin, or alone as a
+    source; stdout is a sheet, capped 1 MiB, `timeout` (default 10 s); stderr shown in the error.
+  - Refresh is never in a request path: `cost.SetLoader` loads the cache when something first prices (`applyPricing`), a stale
+    layer starts a detached `gascoigne pricing refresh -auto`, the server's `watchPricing` runs what is due every 10 min.
+    `prices.lock` makes concurrent processes run it once. `ttl` default 24 h, minimum 1 h (lower is raised with a warning),
+    `0`/`manual` = only "run now". A failure keeps the layer's last good sheet and retries after 1 h; the error shows in
+    `gascoigne pricing` and on the Costs page.
+  - Where it is set: the setup page's Costs section (billing question plus a Prices form: static table, file, URL, header variable,
+    command, interval, time limit; `pricingForm`, validated all-or-nothing, saved with the answers) or `gascoigne pricing set`. Both
+    are the user's own: the page is behind setup's one-time token, which `POST /api/setup/pricing-test` (try the sources against a scratch
+    cache, save nothing) checks without using it up. The dashboard has no login, so the Costs page changes no setting: it shows the
+    state, `POST /api/pricing/refresh` runs the sources already configured, and a button opens setup. A project `.gascoigne.yaml`
+    has no way to set any of it.
+  - The SDK passes `inproc.Pricing{Billing, Prices, File}` (no URL or command); prices are per process.
 
 ## Skip reasons
 

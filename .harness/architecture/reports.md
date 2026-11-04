@@ -93,9 +93,16 @@ Own page, shared `pages.css`/`pages.js` and nav, Period filter only (same period
   request, Claude transcript); none recorded → the agent's default, marked assumed; the page states what
   share of the in-context dollars is assumed. Dollars: first read and in context, API-equivalent (not
   spend); the reread count is stated in the KPI note. Gemini's tokenizer factor is marked as not measured.
+  Each model row says where its price comes from (built-in, static, json, api, script). Billing `subscription` replaces the tables
+  with a note (no dollars); `mixed` keeps them and names the agents left out. A read-only Pricing panel (`GET /api/pricing`,
+  `POST /api/pricing/refresh`) shows the billing mode, what auto found per agent, each source's last good run, next run and error, a
+  "Run now" and a "Change pricing in setup" button (opens `/api/setup/link`). Settings are not edited here: see ledger.md, User pricing.
   Recorded eval runs (agent `eval`) are left out. The proxy's measured requests (`/api/usage`) moved to
   the Context page ("Requests through the proxy", shown when any exist).
 - Charts (`G.hbars`, `G.bars`, `G.area` in `pages.js`): Costs draws the in-context dollars per model as bars (orange = assumed model); Context draws cost per local day (`days` in the report, quiet days included), a share-of-cost bar per session, and a detail row per session (click) with its facts and a context-over-time area chart marked at 200k. Optional notes are filtered before `replaceChildren` (a null prints as "null").
+- On a flat plan (`contextReport.Billing` is `subscription`: `cost.BillingOf("claude")`, forced or detected) the Context page and
+  `gascoigne context` draw requests and tokens, no dollars: cost columns, cost KPIs, the money chart, the what-if and the
+  default sort by cost are replaced or dropped (`isFlat()`, `printContextFlat`).
 - The Context page says it covers Claude Code only, its Cost is the main conversation (the total with
   subagents is a tile beside it), and cache-rewrite causes are "likely".
 

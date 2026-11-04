@@ -27,6 +27,12 @@ type prefs struct {
 	// Allow is which gascoigne MCP tools run without an approval prompt:
 	// none (default), local (read-only ones) or all (adds fetch).
 	Allow string `json:"allow,omitempty"`
+	// MCPMode is how gascoigne reaches the agent: auto (default) routes tool
+	// results through hooks, manual leaves it to the agent calling the MCP tools.
+	MCPMode string `json:"mcp_mode,omitempty"`
+	// Pricing is where dollar figures come from: the billing mode, the user's own prices and the
+	// file, URL or command that supply more (see pricing.go).
+	Pricing pricingPrefs `json:"pricing,omitzero"`
 	// Autosync (on or off) lets agent hooks bring user-scope installs made
 	// by an older gascoigne up to date; unset = not decided, nothing is synced.
 	Autosync string `json:"autosync,omitempty"`

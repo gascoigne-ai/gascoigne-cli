@@ -43,14 +43,20 @@ const table = (head, rows, empty) => rows.length
 const kpi = (name, value, plain, accent) => el("div", { class: "kpi" + (accent ? " accent" : "") }, el("div", { class: "name", text: name }), el("div", { class: "value", text: value }), el("div", { class: "plain", text: plain || "" }));
 
 function render(c) {
+  if (c.billing === "subscription") {
+    document.getElementById("body").replaceChildren(panel("Dollars are hidden", "Your agents are on a flat plan, which bills nothing per token, so tokens saved are not turned into dollars. The Dashboard page has the tokens saved. If you pay per token, say so under Pricing.", pricingPanel()));
+    document.getElementById("pricing").replaceChildren();
+    return;
+  }
   const rows = c.savings || [];
+  const planNote = c.billing === "mixed" ? el("p", { class: "hint", text: "Left out of these dollars, because they are on a flat plan: " + (c.subscription_agents || []).join(", ") + "." }) : null;
   const none = "No priced savings in this period.";
   const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
     kpi("Worth in context", usd(c.in_context_usd || 0), "saved tokens re-read by later requests, assuming " + (c.rereads || 0) + " rereads each (a median; the mean is higher)", true),
     kpi("Worth as first read", usd(c.first_read_usd || 0), "each saved token counted once"),
     kpi("Priced from an assumed model", (c.in_context_usd ? Math.round(100 * rows.filter((s) => s.assumed).reduce((n, s) => n + s.in_context_usd, 0) / c.in_context_usd) : 0) + "%", "runs that recorded no model"));
-  const mod = panel("By model", "Saved is counted the way that model's tokenizer counts it. Runs that recorded no model use the agent's default, marked assumed.", table([["Model"], ["Tokenizer"], ["Saved", true], ["First read", true], ["In context", true]],
-    rows.map((s) => [s.model + (s.assumed ? " (assumed)" : ""), s.tokenizer + (s.family === "gemini" ? " (factor not measured)" : ""), human(s.model_tokens), usd(s.first_read_usd), usd(s.in_context_usd)]), none));
+  const mod = panel("By model", "Saved is counted the way that model's tokenizer counts it. Runs that recorded no model use the agent's default, marked assumed.", table([["Model"], ["Price from"], ["Tokenizer"], ["Saved", true], ["First read", true], ["In context", true]],
+    rows.map((s) => [s.model + (s.assumed ? " (assumed)" : ""), s.source || "built-in", s.tokenizer + (s.family === "gemini" ? " (factor not measured)" : ""), human(s.model_tokens), usd(s.first_read_usd), usd(s.in_context_usd)]), none));
   const assumedUSD = rows.filter((s) => s.assumed).reduce((n, s) => n + s.in_context_usd, 0);
   const assumedNote = assumedUSD > 0 && c.in_context_usd > 0
     ? el("p", { class: "hint", text: Math.round(100 * assumedUSD / c.in_context_usd) + "% of the in-context figure is for runs that recorded no model, priced as the agent's usual model." }) : null;
@@ -70,10 +76,59 @@ function render(c) {
     }))),
     el("p", { class: "legend" }, el("span", {}, el("i", { class: "legend-dot" }), "model recorded"), el("span", {}, el("i", { class: "legend-dot warn" }), "model assumed"))) : null;
   // replaceChildren turns a null into the text "null": leave the empty ones out.
-  document.getElementById("body").replaceChildren(...[kpis, el("div", { class: "grid" }, ...[worth, mod].filter(Boolean)), assumedNote, unpriced, how].filter(Boolean));
+  document.getElementById("body").replaceChildren(...[kpis, el("div", { class: "grid" }, ...[worth, mod].filter(Boolean)), planNote, assumedNote, unpriced, how, pricingPanel()].filter(Boolean));
   const p = c.pricing;
   document.getElementById("pricing").replaceChildren(...(p ? [`Dollar figures are ${p.basis}; prices checked ${p.checked}. Sources: `,
     ...p.sources.flatMap((s, i) => [i ? ", " : "", el("a", { href: s, target: "_blank", rel: "noopener", text: new URL(s).hostname })])] : []));
+}
+
+// Pricing is read-only here. The dashboard has no login, so the settings are changed on the setup
+// page, which is behind a one-time link (the button below opens it), or with gascoigne pricing set.
+let pricingView = null;
+const pricingBox = el("div", { id: "pricing-box" });
+
+async function postJSON(path) {
+  const r = await fetch(path, { method: "POST" });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+const billingWords = { auto: "found out per agent", api: "pay per token, for every agent", subscription: "a flat plan, for every agent" };
+
+function drawPricing(message) {
+  const v = pricingView;
+  if (!v) return;
+  const status = el("p", { class: "hint pricing-status", role: "status", text: message || "" });
+  const change = el("button", { type: "button", class: "primary", text: "Change pricing in setup" });
+  change.addEventListener("click", async () => {
+    try { window.open((await postJSON("/api/setup/link")).url, "_blank", "noopener"); } catch (e) { status.textContent = e.message; }
+  });
+  const run = v.remote ? el("button", { type: "button", text: "Run now" }) : null;
+  if (run) run.addEventListener("click", async () => {
+    status.textContent = "Running…";
+    try { pricingView = await postJSON("/api/pricing/refresh"); drawPricing(pricingView.error || "Done."); load(); } catch (e) { status.textContent = e.message; }
+  });
+  const detected = v.detected.map((d) => el("li", { text: d.agent + ": " + (d.mode === "subscription" ? "flat plan, no dollars" : "pay per token") + " (" + d.why + ")" }));
+  const layers = v.layers.length
+    ? el("ul", { class: "plain" }, ...v.layers.map((l) => el("li", { text: l.name + ": " + l.models + " model" + (l.models === 1 ? "" : "s") + (l.fetched ? ", last good " + new Date(l.fetched).toLocaleString() : "") + (l.next ? ", next " + new Date(l.next).toLocaleString() : "") + (l.error ? " — error: " + l.error : "") })))
+    : el("p", { class: "hint", text: "Built-in list prices (checked " + v.builtin_checked + ") apply; no prices of yours are set." });
+  pricingBox.replaceChildren(...[
+    el("p", { class: "hint", text: "Billing: " + (billingWords[v.billing] || v.billing) + "." }),
+    v.billing === "auto" ? el("ul", { class: "plain" }, ...detected) : null,
+    layers,
+    el("div", { class: "pricing-form" }, change, run),
+    status,
+    ...(v.warnings || []).map((w) => el("p", { class: "hint pricing-status err", text: w })),
+  ].filter(Boolean));
+}
+
+function pricingPanel() {
+  if (!pricingView) loadPricing();
+  return panel("Pricing", "Dollar figures only mean something when you pay per token. Agents on a flat plan are left out of them.", pricingBox);
+}
+
+async function loadPricing() {
+  try { pricingView = await getJSON("/api/pricing"); drawPricing(); } catch (e) { pricingBox.replaceChildren(el("p", { class: "empty", text: "Could not load pricing: " + e.message })); }
 }
 
 async function load() {

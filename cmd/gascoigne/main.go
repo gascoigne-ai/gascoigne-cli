@@ -45,6 +45,7 @@ func main() {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	installPricing()
 	err := cmd.run(ctx, os.Args[2:])
 	if err == nil || errors.Is(err, flag.ErrHelp) {
 		return
@@ -169,7 +170,8 @@ func (c *common) start(ctx context.Context) (*service.Service, error) {
 	if err := svc.Start(ctx); err != nil {
 		return svc, err
 	}
-	if l, ok := svc.Ledger().(*ledger.Ledger); ok && c.server {
+	if l, ok := svc.Ledger().(*ledger.Ledger); ok && c.server && !ledger.InMemory(l.Path()) {
+		// A memory ledger is private to this process: a server could not share it.
 		// Never fails the command: the dashboard is a convenience.
 		if err := ensureServer(ctx, serverAddr(), l.Path(), false); err != nil {
 			log.Debug("server not started", "err", err)

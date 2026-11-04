@@ -14,6 +14,8 @@
 # extensions:
 #   ledger:
 #     path: ""        ## sqlite file; "" = $XDG_DATA_HOME/gascoigne/ledger.db ($GASCOIGNE_LEDGER wins)
+#     memory: false     ## true keeps the ledger in this process only (no file, gone at exit; for embedders); same as path ":memory:"
+#     memory_max_bytes: 67108864 ## memory mode: cap on stored originals (gzip size, 64 MiB); the oldest go first
 #     raw_ttl: 720h   ## how long originals stay retrievable (30 days); 0 keeps them forever
 #     stats_ttl: 8760h  ## how long the daily per-tool MCP stats stay (a year); 0 keeps them forever
 #     events_ttl: 8760h ## how long runs, API usage and failure history stay (a year); 0 keeps them forever

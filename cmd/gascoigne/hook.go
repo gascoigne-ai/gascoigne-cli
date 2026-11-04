@@ -99,6 +99,9 @@ func cmdHook(ctx context.Context, args []string) error {
 		model = transcriptModel(in.TranscriptPath)
 		c.model = model
 	}
+	if skipHook(in.HookEventName) {
+		return nil
+	}
 	reply, err := a.hook(ctx, &c, in, execPrefix(self(), name, in.SessionID, model, lastContext(transcriptEnd(in.TranscriptPath))))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne hook:", err)

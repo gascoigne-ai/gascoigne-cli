@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -44,9 +45,21 @@ type Options struct {
 	Only []string
 	// Disable drops these optimizers from every chain.
 	Disable []string
+	// Ledger picks where runs are recorded: LedgerFile (the configured sqlite file, the default) or
+	// LedgerMemory (private to this process, gone at exit). Empty means LedgerFile.
+	Ledger string
+	// Pricing sets the prices and billing mode behind Engine.Costs; nil keeps the built-in list
+	// prices. It is held per process (see Pricing).
+	Pricing *Pricing
 	// IgnoreUserFile skips the user's config file ($GASCOIGNE_CONFIG or the per-user config dir).
 	IgnoreUserFile bool
 }
+
+// Ledger modes for Options.Ledger.
+const (
+	LedgerFile   = "file"
+	LedgerMemory = "memory"
+)
 
 // Request is one tool result to optimize; empty attributes are left out.
 type Request struct {
@@ -87,6 +100,9 @@ func ConfigYAML(o Options) ([]byte, error) {
 func New(ctx context.Context, o Options) (*Engine, error) {
 	cfg, _, err := resolve(o)
 	if err != nil {
+		return nil, err
+	}
+	if err := o.Pricing.apply(); err != nil {
 		return nil, err
 	}
 	// Only the optimize chain runs here: nothing listens and nothing exports.
@@ -173,7 +189,16 @@ func resolve(o Options) (*config.Config, []byte, error) {
 			return nil, nil, fmt.Errorf("config: %w", err)
 		}
 	}
-	cfg, err := config.ParseWith(data, config.Overrides{Set: o.Set, Only: o.Only, Disable: o.Disable})
+	set := o.Set
+	switch o.Ledger {
+	case "", LedgerFile:
+	case LedgerMemory:
+		// Last, so it beats the host's own Set entries.
+		set = append(slices.Clone(o.Set), "extensions.ledger.memory=true")
+	default:
+		return nil, nil, fmt.Errorf("ledger %q: want %q or %q", o.Ledger, LedgerFile, LedgerMemory)
+	}
+	cfg, err := config.ParseWith(data, config.Overrides{Set: set, Only: o.Only, Disable: o.Disable})
 	if err != nil {
 		return nil, nil, err
 	}

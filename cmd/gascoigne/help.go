@@ -61,13 +61,14 @@ func init() {
 				"(also for cursor) instead.",
 			examples: []string{"gascoigne wrap claude", "gascoigne wrap codex --model o3", "gascoigne wrap -print cursor"},
 			run:      cmdWrap},
-		{name: "install", args: "[-g] [-proxy] [-guide off|short] [-permissions none|local|all] [-autosync on|off] [agent...]", group: groupAgents,
+		{name: "install", args: "[-g] [-proxy] [-guide off|short] [-permissions none|local|all] [-autosync on|off] [-mcp auto|manual] [agent...]", group: groupAgents,
 			summary: "register with agents for good: this project, -g every project",
 			about: "Writes gascoigne's hook and MCP server into the agents' config files: the project's\n" +
 				"(.claude/, .mcp.json, .codex/, .cursor/, .pi/), or with -g the user's. Earlier gascoigne\n" +
 				"entries are replaced and changed files backed up as <file>.gascoigne-bak.\n" +
 				"-guide sets how much usage text agents get (saved; $GASCOIGNE_GUIDE overrides it).\n" +
 				"-permissions lets claude run gascoigne's own tools without asking (saved; unwrap removes the rules).\n" +
+				"-mcp manual stops the hooks routing results and the deny rules; the agent then calls gascoigne's tools itself (saved; $GASCOIGNE_MCP_MODE overrides it; default auto).\n" +
 				"-autosync on lets agent hooks update user-scope installs after a gascoigne upgrade; gascoigne upgrade does it now.\n" +
 				"Agents: claude, codex, cursor, gemini, opencode, pi (default: those found on PATH).",
 			examples: []string{"gascoigne install", "gascoigne install -g", "gascoigne install claude codex"},
@@ -149,6 +150,23 @@ func init() {
 			summary:  "token savings report",
 			examples: []string{"gascoigne gain", "gascoigne gain -by command -since 7d", "gascoigne gain -full", "gascoigne gain -show agent,model -top 3", "gascoigne gain -by command -sort runs -min-tokens 1000"},
 			run:      cmdGain},
+		{name: "pricing", args: "[show|set|refresh|test] [flags]", group: groupSavings,
+			summary: "where dollar figures come from: billing mode, your prices, a price file, URL or command",
+			about: "Dollar figures (gain, the Costs page) are estimates from list prices. Here you say they are\n" +
+				"not wanted (a flat plan bills nothing per token; by default gascoigne finds out per agent from how it\n" +
+				"is signed in, or set -billing api|subscription) or give your own prices:\n" +
+				"  -price model=in,out[,cache_read,cache_write[,tokenizer]]   dollars per million tokens, static\n" +
+				"  -file sheet.json      a price sheet: {\"version\":1,\"models\":{\"<id>\":{\"in\":3,\"out\":15}}}\n" +
+				"  -url https://...      the same sheet from a URL, cached for -ttl (default 24h, minimum 1h, or manual)\n" +
+				"  -translate 'cmd'      a command of yours that prints a price sheet. With -file or -url the file or\n" +
+				"                        response goes to its stdin (translate a foreign format); alone it fetches by itself.\n" +
+				"                        It runs without a shell, once per -ttl in the background, and a failure keeps the\n" +
+				"                        last good prices. Nothing is run unless you set it here.\n" +
+				"Per model the order is static, file, URL, command, then the built-in list price.\n" +
+				"test runs the sources once and prints what they give without saving; refresh runs them now.\n" +
+				"The dashboard changes only billing, interval and static prices: files, URLs and commands are set here.",
+			examples: []string{"gascoigne pricing", "gascoigne pricing set -billing subscription", "gascoigne pricing set -price acme-large=3,15,0.3,3.75", "gascoigne pricing set -url https://prices.example.com/sheet.json -translate 'python3 ~/bin/to-gascoigne.py'", "gascoigne pricing test"},
+			run:      cmdPricing},
 		{name: "raw", args: "<id> [-lines a-b|-grep re|-query words]", group: groupSavings,
 			summary:  "print an original byte-exact (marks the source as failing), or part of it",
 			examples: []string{"gascoigne raw 9f1c2e7a", "gascoigne raw 9f1c2e7a -grep 'FAIL|panic' -C 2"},

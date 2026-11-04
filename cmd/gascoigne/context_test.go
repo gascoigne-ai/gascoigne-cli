@@ -631,3 +631,49 @@ func TestCacheTTL(t *testing.T) {
 		t.Fatalf("%q", buf.String())
 	}
 }
+
+// Claude Code on a flat plan bills nothing per token: the report says so, and neither the page
+// data nor the terminal output carry dollars.
+func TestContextOnAFlatPlanShowsNoDollars(t *testing.T) {
+	t.Cleanup(func() { cost.SetBilling(""); cost.SetDetector(nil) })
+	s := sessionCost{ID: "x", Project: "shop", Model: "claude-opus-5-5", Priced: true, turns: growing(), End: time.Now(), Start: time.Now()}
+	s.finish()
+
+	cost.SetDetector(func(agent string) cost.Detection {
+		if agent == "claude" {
+			return cost.Detection{Mode: cost.BillingSubscription, Why: "signed in"}
+		}
+		return cost.Detection{Mode: cost.BillingAPI}
+	})
+	report := buildContext([]sessionCost{s}, 14*24*time.Hour)
+	if report.Billing != cost.BillingSubscription {
+		t.Fatalf("billing = %q", report.Billing)
+	}
+	var b strings.Builder
+	printContext(&b, report)
+	out := b.String()
+	for _, want := range []string{"CONTEXT OF A REQUEST", "over 400k", "REQUESTS", "shop", "flat plan"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q in\n%s", want, out)
+		}
+	}
+	for _, gone := range []string{"$", "COST", "SAVED", "API list prices", "compacted when they reached"} {
+		if strings.Contains(out, gone) {
+			t.Errorf("a flat plan shows %q in\n%s", gone, out)
+		}
+	}
+
+	cost.SetDetector(func(string) cost.Detection { return cost.Detection{Mode: cost.BillingAPI} })
+	if got := buildContext([]sessionCost{s}, 14*24*time.Hour).Billing; got != cost.BillingAPI {
+		t.Fatalf("api billing = %q", got)
+	}
+	b.Reset()
+	printContext(&b, buildContext([]sessionCost{s}, 14*24*time.Hour))
+	if !strings.Contains(b.String(), "$") {
+		t.Fatalf("API billing lost its dollars:\n%s", b.String())
+	}
+	cost.SetBilling(cost.BillingSubscription) // forced, whatever the detector says
+	if got := buildContext(nil, time.Hour).Billing; got != cost.BillingSubscription {
+		t.Fatalf("forced = %q", got)
+	}
+}

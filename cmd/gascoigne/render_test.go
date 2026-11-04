@@ -104,6 +104,27 @@ func TestUsageTable(t *testing.T) {
 	}
 }
 
+func TestUsageTableHidesDollarsUnderASubscription(t *testing.T) {
+	t.Cleanup(func() { cost.SetBilling("") })
+	cost.SetBilling(cost.BillingSubscription)
+	var b strings.Builder
+	painter{false}.usageTable(&b, []ledger.UsageStat{
+		{Agent: "claude", Model: "claude-opus-5-5", Requests: 2, Input: 1_000_000, CacheRead: 10_000_000, CacheWrite: 400_000, Output: 100_000, MeanContext: 5_700_000, PeakContext: 6_000_000},
+		{Agent: "pi", Model: "local-llm", Requests: 1, Input: 10},
+	})
+	out := b.String()
+	for _, want := range []string{"claude-opus-5-5", "5.7M", "cache read"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("lost the token columns, missing %q in\n%s", want, out)
+		}
+	}
+	for _, gone := range []string{"$", "COST", "cost", "no known price"} {
+		if strings.Contains(out, gone) {
+			t.Fatalf("a flat plan shows %q in\n%s", gone, out)
+		}
+	}
+}
+
 func TestUsageDaysTable(t *testing.T) {
 	var b strings.Builder
 	days := []ledger.UsageDay{

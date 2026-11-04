@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
@@ -73,6 +74,7 @@ func decisions(p prefs) []decision {
 				{"off", "Only when I ask", "Nothing changes until you run gascoigne upgrade."},
 			}},
 	}
+	ds = append(ds, mcpModeDecision(p), billingDecision(p))
 	if q, ok := updateDecision(p); ok {
 		ds = slices.Insert(ds, 1, q) // the immediate update before the standing one
 	}
@@ -136,9 +138,10 @@ func updateDecision(p prefs) (decision, bool) {
 // setupView is what the page shows: the machine as gascoigne found it, then
 // the questions.
 type setupView struct {
-	Version   string       `json:"version"`
-	Agents    []agentState `json:"agents"`
-	Questions []decision   `json:"questions"`
+	Version   string        `json:"version"`
+	Agents    []agentState  `json:"agents"`
+	Questions []decision    `json:"questions"`
+	Pricing   *pricingSetup `json:"pricing"`
 }
 
 // agentState is one agent's line in the overview.
@@ -151,7 +154,7 @@ type agentState struct {
 // buildSetupView lists the recorded installs (connected, or older than this
 // version) and the agents on PATH that have none.
 func buildSetupView(p prefs) setupView {
-	v := setupView{Version: version.Number, Agents: []agentState{}, Questions: decisions(p)}
+	v := setupView{Version: version.Number, Agents: []agentState{}, Questions: decisions(p), Pricing: buildPricingSetup(p)}
 	installs := readInstalls()
 	for _, e := range installs {
 		state := "connected"
@@ -292,6 +295,43 @@ func declinedAs(p prefs, name string) string {
 	return ""
 }
 
+// mcpModeDecision is the standing choice between gascoigne shortening results
+// by itself and the agent calling its tools. It always has an answer (auto), so
+// it never nags.
+func mcpModeDecision(p prefs) decision {
+	return decision{ID: "mcp_mode", Group: "permissions", Optional: true, Default: mcpAuto,
+		Current: cmp.Or(p.MCPMode, mcpAuto),
+		Title:   "How gascoigne reaches your agent",
+		Text:    "Automatic routes tool results through gascoigne's hooks. Manual leaves your agent's tools alone.",
+		Options: []option{
+			{mcpAuto, "Automatic", "Hooks shorten command and MCP output after it runs, and claude's Grep, Glob and WebFetch are denied so searches and pages come through gascoigne."},
+			{mcpManual, "Manual", "Nothing is rewritten or denied. The agent calls gascoigne's tools (fetch, compress, retrieve, show, stats) itself when it wants a result shortened."},
+		}}
+}
+
+// detectedSentence says what auto finds, for the billing question.
+func detectedSentence() string {
+	var parts []string
+	for _, d := range detectedAgents() {
+		parts = append(parts, d.Agent+": "+d.Mode+" ("+d.Why+")")
+	}
+	return "Found here: " + strings.Join(parts, "; ") + "."
+}
+
+// billingDecision is the standing choice between showing dollar figures and not. It always has
+// an answer (api), so it never nags; prices, files and commands are set with gascoigne pricing.
+func billingDecision(p prefs) decision {
+	return decision{ID: "billing", Group: "costs", Optional: true, Default: cost.BillingAuto,
+		Current: cmp.Or(p.Pricing.Billing, cost.BillingAuto),
+		Title:   "How you pay for the model",
+		Text:    "Dollar figures only mean something when you pay per token. " + detectedSentence(),
+		Options: []option{
+			{cost.BillingAuto, "Find out for me", "Each agent is looked up by how it is signed in here: an API key or a cloud provider means per token, an account sign-in means a plan, and a plan shows no dollars."},
+			{cost.BillingAPI, "Per token (API) for everything", "Costs and gain show what the saved tokens are worth at list prices, or at the prices you set below."},
+			{cost.BillingSubscription, "A flat plan for everything", "No dollar figures anywhere: a subscription bills nothing per token, so only tokens saved are shown."},
+		}}
+}
+
 func pendingDecisions(p prefs) []decision {
 	return slices.DeleteFunc(decisions(p), func(d decision) bool { return d.Current != "" })
 }
@@ -355,7 +395,7 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 			rewrite = true
 		}
 	}
-	for _, id := range []string{"allow", "autosync", experimentPrefix + "compaction"} {
+	for _, id := range []string{"allow", "autosync", "mcp_mode", experimentPrefix + "compaction"} {
 		if _, ok := answers[id]; ok {
 			rewrite = true // a changed choice reaches the installed configs
 		}
@@ -365,6 +405,12 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 	}
 	if v, ok := answers["autosync"]; ok {
 		p.Autosync = v
+	}
+	if v, ok := answers["mcp_mode"]; ok {
+		p.MCPMode = v
+	}
+	if v, ok := answers["billing"]; ok {
+		p.Pricing.Billing = v
 	}
 	if err := p.save(); err != nil {
 		return nil, err
@@ -594,6 +640,31 @@ func setupHandlers(mux *http.ServeMux) {
 		link, err := setupLink()
 		respond(w, map[string]string{"url": link}, err)
 	})
+	// Tries the pricing form's sources once against a scratch cache and saves nothing: the way to
+	// check a file, URL or command before pressing Save. Behind the token like the save, and it
+	// leaves the token valid.
+	mux.HandleFunc("POST /api/setup/pricing-test", func(w http.ResponseWriter, r *http.Request) {
+		var req struct {
+			Token   string       `json:"token"`
+			Pricing *pricingForm `json:"pricing"`
+		}
+		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&req); err != nil || req.Pricing == nil {
+			http.Error(w, "want a token and a pricing form", http.StatusBadRequest)
+			return
+		}
+		if !validSetupToken(req.Token) {
+			http.Error(w, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
+			return
+		}
+		form, err := req.Pricing.prefs()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		respond(w, testPricing(r.Context(), form), nil)
+	})
 	mux.HandleFunc("GET /api/setup", func(w http.ResponseWriter, r *http.Request) {
 		if !validSetupToken(r.URL.Query().Get("token")) {
 			http.Error(w, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
@@ -605,8 +676,11 @@ func setupHandlers(mux *http.ServeMux) {
 		var req struct {
 			Token   string            `json:"token"`
 			Answers map[string]string `json:"answers"`
+			Pricing *pricingForm      `json:"pricing"`
 		}
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096)).Decode(&req); err != nil {
+		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&req); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -614,10 +688,30 @@ func setupHandlers(mux *http.ServeMux) {
 			http.Error(w, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
 			return
 		}
+		// The pricing form is checked before anything is saved: all or nothing.
+		var form pricingPrefs
+		if req.Pricing != nil {
+			var err error
+			if form, err = req.Pricing.prefs(); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
 		lines, err := applyAnswers(req.Answers)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
+		}
+		if req.Pricing != nil {
+			saved := readPrefs()
+			form.Billing = cmp.Or(req.Answers["billing"], saved.Pricing.Billing)
+			saved.Pricing = form
+			if err := saved.save(); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			applyPricing(false)
+			lines = append(lines, "costs: pricing settings saved")
 		}
 		os.Remove(setupTokenFile()) // one answer per link
 		if needsProseModel(req.Answers) {

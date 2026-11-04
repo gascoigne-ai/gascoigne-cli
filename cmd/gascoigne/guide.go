@@ -18,6 +18,9 @@ func guide(mcp bool) string {
 	if guideLevel() == "off" {
 		return ""
 	}
+	if mcpMode() == mcpManual {
+		return manualGuide(mcp)
+	}
 	var b strings.Builder
 	b.WriteString("gascoigne shrinks shell output and MCP tool results in this session to save context.\n")
 	b.WriteString("- Keep your own text brief and readable: report findings and results, not the steps you are about to take. Condense information; use as few tokens as stay clear.\n")
@@ -27,6 +30,19 @@ func guide(mcp bool) string {
 		b.WriteString(" or call retrieve with the id")
 	}
 	b.WriteString(" instead of re-running the command.\n")
+	return b.String()
+}
+
+// manualGuide is the guide when nothing is routed automatically: the agent asks.
+func manualGuide(mcp bool) string {
+	var b strings.Builder
+	b.WriteString("gascoigne does not shorten results by itself in this session; use it when output is large.\n")
+	b.WriteString("- Keep your own text brief and readable: report findings and results, not the steps you are about to take.\n")
+	if mcp {
+		b.WriteString("- Use the gascoigne tools: fetch for web pages and APIs, compress for large text you already have, retrieve (or show) to read the original behind a [raw:<id>] hint, stats for what was saved.\n")
+	} else {
+		b.WriteString("- Run large commands as gascoigne exec -- <command>; a result ending in [raw:<id>] was shortened: gascoigne raw <id> (add -grep PATTERN, -query WORDS or -lines A-B to read only part) prints the original.\n")
+	}
 	return b.String()
 }
 

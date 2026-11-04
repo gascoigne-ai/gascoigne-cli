@@ -13,6 +13,43 @@ COST · WHAT THE SAVED TOKENS ARE WORTH
  in context: each tool result is read again by ~110 later requests (cache reads) until compaction
 ```
 
+## Your own prices, or none
+
+The dollars are estimates from the providers' list prices. If you pay a flat subscription they mean
+nothing, and if you pay other prices (discounts, Bedrock or Vertex, a self-hosted model) they are wrong.
+gascoigne asks how each agent is signed in, so by default it already knows: an API key or a cloud
+provider (Bedrock, Vertex) means per token; an account sign-in (Claude, ChatGPT, Google) or Cursor means a
+plan, and an agent on a plan is left out of the dollars. It looks only at whether a key variable is set and
+which sign-in file exists, never at a key. Anything it cannot tell is taken as per token. You decide
+otherwise in the Costs section of `gascoigne setup`, which also takes your prices, a price file, a URL and a
+translating command, with a button to test them. The same from the terminal with `gascoigne pricing`:
+
+```sh
+gascoigne pricing set -billing auto               # the default: find out per agent
+gascoigne pricing set -billing subscription       # no dollar figures anywhere, tokens only
+gascoigne pricing set -billing api                # dollars for every agent
+gascoigne pricing set -price acme-large=3,15,0.3,3.75,claude   # in, out, cache read, cache write, tokenizer ($ per million tokens)
+gascoigne pricing set -file prices.json           # a price sheet
+gascoigne pricing set -url https://prices.example.com/sheet.json -ttl 24h
+gascoigne pricing set -url https://prices.example.com/litellm.json -translate 'python3 ~/bin/to-gascoigne.py'
+gascoigne pricing test                            # run the sources once, print the prices, save nothing
+gascoigne pricing                                 # billing, sources, last good run, next run, errors
+```
+
+A price sheet is `{"version": 1, "models": {"<model id>": {"in": 3, "out": 15, "cache_read": 0.3,
+"cache_write": 3.75, "tokenizer": "claude"}}}`, dollars per million tokens. `in` and `out` are
+required; cache prices default to `in` and the tokenizer to `o200k` (see the table below). For a model
+that several sources price, the first of these wins: `-price`, `-file`, `-url`, `-translate`, the built-in
+list price. A custom model id prices models gascoigne does not know.
+
+`-translate` is a command of yours, run without a shell, that prints a price sheet. With `-file` or `-url`
+the file or response arrives on its stdin, so it can turn another format into gascoigne's; alone it fetches
+by itself. It never runs unless you set it, and only from `gascoigne pricing set`: neither a project
+`.gascoigne.yaml` nor the dashboard can set it. A URL or command runs at most once per `-ttl` (default
+`24h`, minimum `1h`, or `manual` for only `gascoigne pricing refresh`), in the background, never while an
+agent waits. A failed run keeps the last good prices, retries after an hour and shows the error in
+`gascoigne pricing` and on the Costs page, which also edits billing, the interval and your static prices.
+
 Two things decide the price of a token an agent no longer reads: how its model counts tokens,
 and how often the agent pays for the same tool result.
 

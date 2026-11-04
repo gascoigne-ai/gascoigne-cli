@@ -206,6 +206,9 @@ type compactionEconomics struct {
 
 // contextReport is the whole analysis.
 type contextReport struct {
+	// Billing is how Claude Code is billed here (api or subscription): a flat plan bills nothing
+	// per token, so the page and the terminal output carry no dollar figures.
+	Billing       string              `json:"billing"`
 	Hours         int                 `json:"hours"` // the period the report covers
 	Sessions      []sessionCost       `json:"sessions"`
 	Turns         int                 `json:"turns"`
@@ -638,7 +641,7 @@ func simulate(turns []turn, limit, base int, m cost.Model) (usd float64, compact
 
 // buildContext assembles the report from sessions already read.
 func buildContext(sessions []sessionCost, period time.Duration) contextReport {
-	r := contextReport{Hours: int(period.Hours()), Sessions: sessions, Buckets: []contextBucket{
+	r := contextReport{Billing: cost.BillingOf("claude").Mode, Hours: int(period.Hours()), Sessions: sessions, Buckets: []contextBucket{
 		{Label: "under 100k"}, {Label: "100k to 200k"}, {Label: "200k to 400k"}, {Label: "over 400k"},
 	}}
 	if r.Sessions == nil {
@@ -930,6 +933,10 @@ func printContext(w io.Writer, r contextReport) {
 		fmt.Fprintf(w, "No Claude Code transcripts with usage in the last %s (looked in %s).\n", periodLabel(r.Hours), claudeProjects())
 		return
 	}
+	if r.Billing == cost.BillingSubscription {
+		printContextFlat(w, r)
+		return
+	}
 	fmt.Fprintf(w, "%d sessions, %d requests, about %s at API list prices, last %s\n", len(r.Sessions), r.Turns, dollars(r.CostUSD), periodLabel(r.Hours))
 	if r.SubagentTurns > 0 {
 		fmt.Fprintf(w, "plus subagents: %d requests, about %s\n", r.SubagentTurns, dollars(r.SubagentUSD))
@@ -984,6 +991,50 @@ func printContext(w io.Writer, r contextReport) {
 	for _, a := range r.Assumptions {
 		fmt.Fprintln(w, "\n"+a)
 	}
+}
+
+// printContextFlat is printContext for a flat plan: how big conversations get, in requests and
+// tokens, with no dollars.
+func printContextFlat(w io.Writer, r contextReport) {
+	fmt.Fprintf(w, "%d sessions, %d requests, last %s (flat plan: no dollar figures)\n\n", len(r.Sessions), r.Turns, periodLabel(r.Hours))
+	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(tw, "CONTEXT OF A REQUEST\tREQUESTS\tSHARE OF REQUESTS")
+	for _, b := range r.Buckets {
+		share := 0.0
+		if r.Turns > 0 {
+			share = 100 * float64(b.Turns) / float64(r.Turns)
+		}
+		fmt.Fprintf(tw, "%s\t%d\t%.0f%%\n", b.Label, b.Turns, share)
+	}
+	tw.Flush()
+	fmt.Fprintln(w, "\nContext written to the cache again instead of read:")
+	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(tw, "CAUSE\tREQUESTS\tTOKENS")
+	for _, x := range r.Rewrites {
+		fmt.Fprintf(tw, "%s\t%d\t%s\n", x.Cause, x.Turns, human(x.Tokens))
+	}
+	tw.Flush()
+	if len(r.Injected) > 0 {
+		fmt.Fprintln(w, "\nText added to conversations besides your prompts (every later request re-reads it):")
+		tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+		fmt.Fprintln(tw, "SOURCE\tTIMES\tPER TIME")
+		for _, x := range r.Injected[:min(len(r.Injected), 8)] {
+			fmt.Fprintf(tw, "%s\t%d\t%s\n", x.Source, x.Times, human(x.PerTime))
+		}
+		tw.Flush()
+	}
+	if c := r.Compactions; c.Count > 0 {
+		fmt.Fprintf(w, "\n%d compactions, from %s to %s of context\n", c.Count, human(c.MeanBefore), human(c.MeanAfter))
+	}
+	fmt.Fprintln(w, "\nLargest sessions:")
+	top := slices.Clone(r.Sessions)
+	slices.SortFunc(top, func(a, b sessionCost) int { return cmp.Compare(b.Peak, a.Peak) })
+	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(tw, "PROJECT\tSTART\tREQUESTS\tPEAK\tCOMPACTIONS")
+	for _, s := range top[:min(len(top), 8)] {
+		fmt.Fprintf(tw, "%s\t%s\t%d\t%s\t%d\n", cmp.Or(s.Project, "-"), s.Start.Local().Format("2006-01-02"), s.Turns, human(s.Peak), s.Compactions)
+	}
+	tw.Flush()
 }
 
 // printCacheTTL says whether the 1-hour cache would have paid, with the figures.

@@ -74,6 +74,13 @@ h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: .01em; }
 .toolbar .hint { margin: 0; flex: 1 1 100%; } /* the description always has a full line, below the controls */
 select, button { font: 13px var(--sans); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 10px; }
 select { min-width: 170px; }
+input[type="text"], input[type="number"] { font: 13px var(--sans); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 10px; min-width: 0; }
+input[type="text"]:focus-visible, input[type="number"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.pricing-form { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: end; margin: 8px 0; }
+.pricing-form label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.pricing-prices input[type="number"] { width: 90px; }
+.pricing-prices input[type="text"] { width: 200px; }
+.pricing-status.err { color: var(--danger, #b3261e); }
 button { cursor: pointer; }
 button:hover, select:hover { border-color: var(--accent); }
 button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

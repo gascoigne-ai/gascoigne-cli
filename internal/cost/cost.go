@@ -144,16 +144,11 @@ var Models = []Model{
 	automatic("gemini-2.5-flash", "gemini", 0.30, 2.50, 0.03),
 }
 
-// Lookup finds a model by exact ID, else by the longest ID prefixing it.
+// Lookup finds a model by exact ID, else by the longest ID prefixing it. The
+// user's prices (SetOverrides) beat the built-in ones.
 func Lookup(id string) (Model, bool) {
-	id = strings.ToLower(strings.TrimSpace(id))
-	var best Model
-	for _, m := range Models {
-		if strings.HasPrefix(id, m.ID) && len(m.ID) > len(best.ID) {
-			best = m
-		}
-	}
-	return best, best.ID != ""
+	m, _ := LookupSource(id)
+	return m, m.ID != ""
 }
 
 // Agent defaults: the model assumed for runs recorded without one. Claude
@@ -200,6 +195,7 @@ type Saving struct {
 	Model       string  `json:"model"`
 	Family      string  `json:"family"`
 	Assumed     bool    `json:"assumed,omitempty"` // no model recorded: the agent's default
+	Source      string  `json:"source,omitempty"`  // where the price comes from: built-in, static, json, api, script
 	Tokenizer   string  `json:"tokenizer"`
 	Tokens      int     `json:"tokens"`       // saved, tokens.Estimate units
 	ModelTokens int     `json:"model_tokens"` // saved, in the model's own tokens

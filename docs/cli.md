@@ -101,6 +101,10 @@ gascoigne gain -by command -sort runs -min-tokens 1000
 | `-csv` | CSV with `-by` (the total last) or `-failures`; plain numbers, no colors or bars |
 | `-color auto\|always\|never` | `auto` honors `NO_COLOR` and whether stdout is a terminal |
 
+## `pricing`
+
+Where dollar figures come from: `show` (default; also what auto-detection finds per agent), `set`, `refresh`, `test`. The same settings are in the Costs section of `gascoigne setup`. See [What savings are worth](cost.md#your-own-prices-or-none).
+
 ## `server` and `dashboard`
 
 ```sh
@@ -238,6 +242,7 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 | `GASCOIGNE_RELEASE_CHECK=off` | Never read the website for a newer release (see [agents](agents.md#release-notice)). |
 | `GASCOIGNE_RELEASE_URL` | Another site address to read `latest.json` from (a mirror, a test). |
 | `GASCOIGNE_GUIDE` | Usage text for agents: `off` or `short` (default; overrides `install -guide`). |
+| `GASCOIGNE_MCP_MODE` | How gascoigne reaches the agent: `auto` (default; hooks shorten results) or `manual` (nothing routed or denied; the agent calls the tools; overrides `install -mcp`). |
 | `GASCOIGNE_AUTOSYNC=off` | Never let agent hooks update installs after an upgrade. |
 | `GASCOIGNE_EXPERIMENTAL` | Enable experimental features (`prompts`, `learn`, `continuity`, `prose`, or `all`). |
 | `NO_COLOR` | No colors in `gain`. |

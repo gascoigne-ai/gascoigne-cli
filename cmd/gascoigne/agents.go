@@ -176,7 +176,9 @@ func claudeArgs(exe string) ([]string, error) {
 	// WebSearch stays, gascoigne has no search. Per run only: unwrap could not
 	// tell this deny rule from the user's own.
 	settings := claudeSettings(exe)
-	settings["permissions"] = map[string]any{"deny": claudeDenies}
+	if denies := deniedTools(); len(denies) > 0 {
+		settings["permissions"] = map[string]any{"deny": denies}
+	}
 	// Same-named servers given with --mcp-config replace the configured ones
 	// for the run, so other servers' results get optimized too.
 	servers, r := claudeProxies(exe)

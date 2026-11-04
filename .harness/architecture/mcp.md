@@ -83,5 +83,11 @@ Stable loopback contract for gascoigne-sdk (agent frameworks), mounted in the ba
 | `GET /sdk/v1/health` | `{version, proto, proxy}`; `proto` (`sdkProto`) is bumped only by a breaking change, with the path |
 | `POST /sdk/v1/optimize` | `{text, tool?, cmd?, url?, query?, session?, agent?, model?}` → `{text, raw_id?, raw_tokens, out_tokens, skipped?}`; runs the `cli` pipeline on the user's config and ledger through `warm` |
 | `GET /sdk/v1/raw/{id}` | the original behind `raw_id`; instruction text (`hiddenKey`) is never served |
+| `GET /sdk/v1/stats` | `?by=&session=&agent=&model=&since=` (`since` RFC 3339) → `[{group, runs, optimized, failed, raw_tokens, out_tokens, saved, first, last}]`; `by` is any `component.By*` grouping except `reason` / `dialect` / `family_outcome`; unknown `by` or bad `since` → 400 |
+| `GET /sdk/v1/recent` | `?session=&agent=&model=&since=&before=&limit=` → runs newest first `[{id, time, session, agent, model, command, route, optimizers, raw_tokens, out_tokens, duration_ns, raw_id, outcome, reason}]`; `before` is a run id (paging), `limit` default 50, max 1000; `raw_id` empty for instruction text |
+
+| `GET /sdk/v1/costs` | `?session=&agent=&model=&since=` → `{billing, first_read_usd, in_context_usd, rereads, savings: [{model, source, assumed?, tokenizer, tokens, model_tokens, first_read_usd, in_context_usd}], unpriced?}` at the user's `gascoigne pricing` prices; `billing: subscription` → no dollars |
+
+Wire types live in `inproc` (`Stat`, `Run`, `Costs`, `StatsQuery`, `RecentQuery`, `Pricing`), not in `component/`, so the public contracts carry no JSON tags. `inproc.Engine.Stats` / `Recent` / `Costs` and these routes share `inproc.StatsOf` / `RecentOf` / `CostsOf`. `inproc.Options.Ledger` (`file` default, `memory`) picks the ledger an embedded engine records to; see `ledger.md` (Memory mode).
 
 All routes are `localOnly`. SDKs treat any failure as "return the input unchanged".

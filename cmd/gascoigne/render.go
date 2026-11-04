@@ -6,6 +6,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -468,13 +469,19 @@ func (p painter) usageTable(w io.Writer, usage []ledger.UsageStat) {
 	if len(usage) == 0 {
 		return
 	}
+	// A plan bills nothing per token: its rows show no price, and the column goes when no row has one.
+	dollarsShown := slices.ContainsFunc(usage, func(u ledger.UsageStat) bool {
+		return cost.BillingOf(u.Agent).Mode != cost.BillingSubscription
+	})
 	p.section(w, "api usage · measured by the LLM proxy")
 	var rows [][]cell
 	var total float64
 	unpriced := false
 	for _, u := range usage {
 		price := cell{text: "?", right: true, style: dim}
-		if m, ok := cost.Lookup(u.Model); ok {
+		if cost.BillingOf(u.Agent).Mode == cost.BillingSubscription {
+			price = cell{text: "plan", right: true, style: dim}
+		} else if m, ok := cost.Lookup(u.Model); ok {
 			usd := (float64(u.Input)*m.Input + float64(u.CacheRead)*m.CacheRead +
 				float64(u.CacheWrite-u.CacheWrite1h)*m.CacheWrite + float64(u.CacheWrite1h)*oneHourWrite*m.Input + float64(u.Output)*m.Output) / 1e6
 			price, total = cell{text: dollars(usd), right: true}, total+usd
@@ -492,7 +499,15 @@ func (p painter) usageTable(w io.Writer, usage []ledger.UsageStat) {
 	if len(usage) > 1 {
 		rows = append(rows, []cell{{text: "total", style: bold}, {}, {}, {}, {}, {}, {}, {}, {}, {text: dollars(total), right: true, style: bold}})
 	}
-	p.table(w, []string{"agent", "model", "requests", "context", "peak", "input", "cache read", "cache write", "output", "cost"}, rows)
+	head := []string{"agent", "model", "requests", "context", "peak", "input", "cache read", "cache write", "output", "cost"}
+	if !dollarsShown { // a flat plan bills nothing per token
+		head = head[:len(head)-1]
+		for i := range rows {
+			rows[i] = rows[i][:len(head)]
+		}
+		unpriced = false
+	}
+	p.table(w, head, rows)
 	fmt.Fprintln(w, p.paint(dim, " context: tokens one request carries (input, cache read and write), mean and peak · cache writes at the 5-minute or 1-hour price as reported, where the provider reports the split"))
 	if unpriced {
 		fmt.Fprintln(w, p.paint(dim, " ? no known price for the model"))

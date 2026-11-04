@@ -25,7 +25,7 @@ svg.spark polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; }
       </select>
     </label>
     <div class="spacer"></div>
-    <p class="hint">Claude Code only: read from its own transcripts on this machine, at API list prices. Nothing leaves it and nothing is changed.</p>
+    <p class="hint" id="scope">Claude Code only: read from its own transcripts on this machine, at API list prices. Nothing leaves it and nothing is changed.</p>
   </div>
   <div id="body"><p class="empty">Reading transcripts…</p></div>
   <footer>Every request re-reads the whole conversation, so a session costs mostly requests times context, not the size of any one tool result.</footer>
@@ -68,33 +68,39 @@ function idCell(id) {
   return el("span", { class: "share" }, el("code", { title: id, text: id.slice(0, 8) }), copy);
 }
 
-let report = null, usage = { days: [], models: [] }, opened = new Set(), sort = { col: 6, dir: "desc" };
-// Columns sort by an accessor, never by the displayed text.
-const cols = [
+let report = null, usage = { days: [], models: [] }, opened = new Set(), sort = { col: "cost", dir: "desc" };
+// A flat plan bills nothing per token: Claude Code is on one when the report says so, and then no dollar figure is drawn.
+const isFlat = () => report && report.billing === "subscription";
+// Columns sort by an accessor, never by the displayed text. money columns are left out on a flat plan.
+const allCols = [
   { title: "Project", get: (s) => (s.project || "").toLowerCase(), show: (s) => s.project || "–", first: "asc" },
   { title: "Session", get: (s) => s.id, show: (s) => idCell(s.id), first: "asc" },
   { title: "Started", get: (s) => s.start, show: (s) => when(s.start), first: "desc" },
   { title: "Requests", get: (s) => s.turns, show: (s) => num(s.turns), num: true },
-  { title: "Peak context", get: (s) => s.peak_context, show: (s) => human(s.peak_context), num: true },
+  { key: "peak", title: "Peak context", get: (s) => s.peak_context, show: (s) => human(s.peak_context), num: true },
   { title: "Compactions", get: (s) => s.compactions, show: (s) => String(s.compactions), num: true },
-  { title: "Cost", get: (s) => s.priced ? s.cost_usd : -1, show: (s) => s.priced ? usd(s.cost_usd) : "?", num: true },
-  { title: "Share of cost", get: (s) => s.priced ? s.cost_usd : -1, show: (s, r) => share(s.priced && r.cost_usd ? s.cost_usd / r.cost_usd : 0) },
+  { key: "cost", money: true, title: "Cost", get: (s) => s.priced ? s.cost_usd : -1, show: (s) => s.priced ? usd(s.cost_usd) : "?", num: true },
+  { money: true, title: "Share of cost", get: (s) => s.priced ? s.cost_usd : -1, show: (s, r) => share(s.priced && r.cost_usd ? s.cost_usd / r.cost_usd : 0) },
   { title: "Context over time", get: (s) => s.peak_context, show: (s) => spark(s.series, s.peak_context) },
 ];
+const cols = () => allCols.filter((c) => !(isFlat() && c.money));
+// The default sort is by money, which a flat plan does not have: its stand-in is the peak context.
+const sortCol = () => { const list = cols(); const i = list.findIndex((c) => (c.key || c.title) === sort.col); return i >= 0 ? i : list.findIndex((c) => c.key === "peak"); };
 
 const fact = (k, v) => el("div", { class: "fact" }, el("div", { class: "k", text: k }), el("div", { class: "v", text: v }));
 const span = (a, b) => { const m = Math.round((new Date(b) - new Date(a)) / 60000); return m < 90 ? m + " min" : m < 2880 ? (m / 60).toFixed(1) + " h" : Math.round(m / 1440) + " days"; };
 
 // The detail of one session: its figures, and how its context grew (dashed: the 200k mark, where long conversations cost most).
 function detail(s) {
-  return el("tr", { class: "detail" }, el("td", { colspan: cols.length },
+  const flat = isFlat();
+  return el("tr", { class: "detail" }, el("td", { colspan: cols().length },
     el("div", { class: "facts" },
       fact("Model", s.model || "–"), fact("Project", s.project || "–"), fact("Length", span(s.start, s.end)),
       fact("Requests", num(s.turns)), fact("Peak context", human(s.peak_context)), fact("Compactions", String(s.compactions)),
-      fact("Cost", s.priced ? usd(s.cost_usd) : "?"),
-      ...(s.subagent_turns ? [fact("Subagents", usd(s.subagent_usd) + " · " + num(s.subagent_turns) + " requests")] : []),
+      ...(flat ? [] : [fact("Cost", s.priced ? usd(s.cost_usd) : "?")]),
+      ...(s.subagent_turns ? [fact("Subagents", (flat ? "" : usd(s.subagent_usd) + " · ") + num(s.subagent_turns) + " requests")] : []),
       ...(s.injected_tokens ? [fact("Text added besides prompts", human(s.injected_tokens) + " tokens")] : []),
-      ...(s.rewrite_usd > 0.005 ? [fact("Extra for cache rewrites", usd(s.rewrite_usd))] : [])),
+      ...(!flat && s.rewrite_usd > 0.005 ? [fact("Extra for cache rewrites", usd(s.rewrite_usd))] : [])),
     G.area(s.series, { limit: 200000, label: "context over the session", left: when(s.start), right: when(s.end) })));
 }
 
@@ -102,26 +108,44 @@ function render() {
   const r = report, root = document.getElementById("body");
   const label = r.hours < 48 ? r.hours + " hours" : Math.round(r.hours / 24) + " days";
   if (!r.sessions.length) { root.replaceChildren(el("p", { class: "empty", text: "No Claude Code transcripts with usage in the last " + label + "." })); return; }
-  const over200 = r.buckets.slice(2).reduce((n, b) => n + b.share, 0);
+  const flat = isFlat();
+  document.getElementById("scope").textContent = "Claude Code only: read from its own transcripts on this machine" + (flat ? " (a flat plan: no dollar figures). " : ", at API list prices. ") + "Nothing leaves it and nothing is changed.";
+  // On a flat plan the measure is requests, not money.
+  const weight = (b) => flat ? (r.turns ? b.turns / r.turns : 0) : b.share;
+  const over200 = r.buckets.slice(2).reduce((n, b) => n + weight(b), 0);
   const kpis = el("section", { class: "kpis", "aria-label": "Summary" },
     kpi("Sessions", num(r.sessions.length), "last " + label), kpi("Requests", num(r.turns), "model calls"),
-    kpi("Cost, main conversation", usd(r.cost_usd), "API-equivalent at list prices; subagents apart", true), kpi("Above 200k context", Math.round(100 * over200) + "%", "of the cost"),
-    ...(r.subagent_turns ? [kpi("Subagents", usd(r.subagent_usd), num(r.subagent_turns) + " requests, not counted above"),
-      kpi("Total with subagents", usd(r.cost_usd + r.subagent_usd), "main conversation plus subagents")] : []));
+    ...(flat ? [kpi("Above 200k context", Math.round(100 * over200) + "%", "of the requests", true),
+      kpi("Compactions", num(r.sessions.reduce((n, s) => n + s.compactions, 0)), "in these sessions")]
+      : [kpi("Cost, main conversation", usd(r.cost_usd), "API-equivalent at list prices; subagents apart", true), kpi("Above 200k context", Math.round(100 * over200) + "%", "of the cost")]),
+    ...(r.subagent_turns ? (flat ? [kpi("Subagents", num(r.subagent_turns), "requests, not counted above")]
+      : [kpi("Subagents", usd(r.subagent_usd), num(r.subagent_turns) + " requests, not counted above"),
+        kpi("Total with subagents", usd(r.cost_usd + r.subagent_usd), "main conversation plus subagents")]) : []));
 
   const dayBars = el("div", {});
-  G.bars(dayBars, r.days.map((d) => ({ label: d.day.slice(5), text: usd(d.cost_usd), value: d.cost_usd, title: `${d.day}: ${usd(d.cost_usd)} over ${num(d.turns)} requests` })));
-  const daily = panel("Cost per day", "What the main conversations cost each day at API list prices; quiet days stay on the axis. Subagents are not in it.", dayBars);
-  const stack = el("div", { class: "stack", role: "img", "aria-label": "cost share by context size" }, ...r.buckets.map((b, i) => {
-    const seg = el("span", { title: `${b.label}: ${usd(b.cost_usd)} (${Math.round(100 * b.share)}%)` });
-    seg.style.width = (100 * b.share) + "%"; seg.style.opacity = String(0.3 + 0.7 * i / Math.max(r.buckets.length - 1, 1));
+  G.bars(dayBars, r.days.map((d) => flat
+    ? { label: d.day.slice(5), text: num(d.turns), value: d.turns, title: `${d.day}: ${num(d.turns)} requests` }
+    : { label: d.day.slice(5), text: usd(d.cost_usd), value: d.cost_usd, title: `${d.day}: ${usd(d.cost_usd)} over ${num(d.turns)} requests` }));
+  const daily = flat ? panel("Requests per day", "How many requests the main conversations made each day; quiet days stay on the axis. Subagents are not in it.", dayBars)
+    : panel("Cost per day", "What the main conversations cost each day at API list prices; quiet days stay on the axis. Subagents are not in it.", dayBars);
+  const stack = el("div", { class: "stack", role: "img", "aria-label": (flat ? "request" : "cost") + " share by context size" }, ...r.buckets.map((b, i) => {
+    const seg = el("span", { title: flat ? `${b.label}: ${num(b.turns)} requests (${Math.round(100 * weight(b))}%)` : `${b.label}: ${usd(b.cost_usd)} (${Math.round(100 * b.share)}%)` });
+    seg.style.width = (100 * weight(b)) + "%"; seg.style.opacity = String(0.3 + 0.7 * i / Math.max(r.buckets.length - 1, 1));
     return seg;
   }));
   const stackKey = el("p", { class: "legend" }, ...r.buckets.map((b, i) => el("span", {}, el("i", { class: "legend-dot", style: "opacity:" + (0.3 + 0.7 * i / Math.max(r.buckets.length - 1, 1)) }), b.label)));
-  const buckets = panel("Where the money goes", "Cost by the size of the conversation each request re-read", stack, stackKey,
-    table(el("tr", {}, th("Context of a request"), th("Requests", true), th("Cost", true), th("Share of cost")),
-      r.buckets.map((b) => el("tr", {}, el("td", { text: b.label }), el("td", { class: "num", text: num(b.turns) }), el("td", { class: "num", text: usd(b.cost_usd) }), el("td", {}, share(b.share))))));
-  const rewrites = panel("Cache written again", "Context the previous request carried that this one did not read from the cache: the extra is what a rewrite cost over a read",
+  const buckets = flat
+    ? panel("How big conversations get", "Requests by the size of the conversation each one re-read", stack, stackKey,
+      table(el("tr", {}, th("Context of a request"), th("Requests", true), th("Share of requests")),
+        r.buckets.map((b) => el("tr", {}, el("td", { text: b.label }), el("td", { class: "num", text: num(b.turns) }), el("td", {}, share(weight(b)))))))
+    : panel("Where the money goes", "Cost by the size of the conversation each request re-read", stack, stackKey,
+      table(el("tr", {}, th("Context of a request"), th("Requests", true), th("Cost", true), th("Share of cost")),
+        r.buckets.map((b) => el("tr", {}, el("td", { text: b.label }), el("td", { class: "num", text: num(b.turns) }), el("td", { class: "num", text: usd(b.cost_usd) }), el("td", {}, share(b.share))))));
+  const rewrites = flat
+    ? panel("Cache written again", "Context the previous request carried that this one did not read from the cache",
+      table(el("tr", {}, th("Likely cause"), th("Requests", true), th("Tokens", true)),
+        r.cache_rewrites.map((w) => el("tr", {}, el("td", { class: "cause", text: w.cause }), el("td", { class: "num", text: num(w.turns) }), el("td", { class: "num", text: human(w.tokens) })))))
+    : panel("Cache written again", "Context the previous request carried that this one did not read from the cache: the extra is what a rewrite cost over a read",
     table(el("tr", {}, th("Likely cause"), th("Requests", true), th("Tokens", true), th("Extra cost", true), th("Share", true)),
       r.cache_rewrites.map((w) => el("tr", {}, el("td", { class: "cause", text: w.cause }), el("td", { class: "num", text: num(w.turns) }), el("td", { class: "num", text: human(w.tokens) }),
         el("td", { class: "num", text: usd(w.cost_usd) }), el("td", { class: "num", text: (100 * w.share).toFixed(1) + "%" })))));
@@ -133,37 +157,38 @@ function render() {
     el("div", { class: "alert-box" }, el("p", { text: "Compacting saves tokens, not detail: the summary forgets what it leaves out. This is an upper bound on what is worth giving up, not advice to compact everywhere." })));
 
   const injected = panel("Text added besides your prompts", "Instruction files, the skill listing and what hooks and plugins print. It is written to the cache once and read again by every later request of the session",
-    r.injected.length ? table(el("tr", {}, th("Source"), th("Times", true), th("Per time", true), th("Cost", true), th("Share of cost", true)),
+    r.injected.length ? table(el("tr", {}, th("Source"), th("Times", true), th("Per time", true), ...(flat ? [] : [th("Cost", true), th("Share of cost", true)])),
       r.injected.slice(0, 12).map((x) => el("tr", {}, el("td", { class: "cause", text: x.source }), el("td", { class: "num", text: num(x.times) }), el("td", { class: "num", text: human(x.per_time) + " tokens" }),
-        el("td", { class: "num", text: usd(x.cost_usd) }), el("td", { class: "num", text: (100 * x.share).toFixed(1) + "%" })))) : el("p", { class: "empty", text: "Nothing recorded in this period." }));
+        ...(flat ? [] : [el("td", { class: "num", text: usd(x.cost_usd) }), el("td", { class: "num", text: (100 * x.share).toFixed(1) + "%" })])))) : el("p", { class: "empty", text: "Nothing recorded in this period." }));
 
-  const c = cols[sort.col];
+  const list = cols();
+  const c = list[sortCol()];
   const sessions = [...r.sessions].sort((a, b) => { const x = c.get(a), y = c.get(b); const v = x < y ? -1 : x > y ? 1 : 0; return sort.dir === "asc" ? v : -v; }).slice(0, 60);
   const head = el("tr");
-  cols.forEach((col, i) => {
+  list.forEach((col, i) => {
     const h = el("th", { class: col.num ? "num" : "", scope: "col" });
-    if (i === sort.col) h.setAttribute("aria-sort", sort.dir === "asc" ? "ascending" : "descending");
+    if (i === sortCol()) h.setAttribute("aria-sort", sort.dir === "asc" ? "ascending" : "descending");
     const b = el("button", { type: "button", text: col.title });
-    b.addEventListener("click", () => { sort = { col: i, dir: sort.col === i ? (sort.dir === "asc" ? "desc" : "asc") : (col.first || "desc") }; render(); });
+    b.addEventListener("click", () => { sort = { col: col.key || col.title, dir: i === sortCol() ? (sort.dir === "asc" ? "desc" : "asc") : (col.first || "desc") }; render(); });
     h.append(b); head.append(h);
   });
   const sessionsPanel = panel("Sessions", r.sessions.length > 60 ? "The 60 matching the sort are shown. Click a heading to sort and a row to see that session in detail. The session id is the transcript's name: claude --resume <id> opens it." : "Click a heading to sort and a row to see that session in detail. The session id is the transcript's name: claude --resume <id> opens it.",
     table(head, sessions.flatMap((s) => {
-      const row = el("tr", { class: "click", tabindex: "0", "aria-expanded": String(opened.has(s.id)), title: "Show this session in detail" }, ...cols.map((col) => el("td", { class: col.num ? "num" : "" }, col.show(s, r))));
+      const row = el("tr", { class: "click", tabindex: "0", "aria-expanded": String(opened.has(s.id)), title: "Show this session in detail" }, ...list.map((col) => el("td", { class: col.num ? "num" : "" }, col.show(s, r))));
       const toggle = (ev) => { if (ev.target.closest("button")) return; opened.has(s.id) ? opened.delete(s.id) : opened.add(s.id); render(); };
       row.addEventListener("click", toggle);
       row.addEventListener("keydown", (ev) => { if (ev.key === "Enter") toggle(ev); });
       return opened.has(s.id) ? [row, detail(s)] : [row];
     })));
 
-  const how = panel("How this is computed", "", el("ul", { class: "plain cols" }, ...r.assumptions.map((a) => el("li", { text: a }))),
-    r.unpriced_sessions ? el("p", { class: "hint", text: r.unpriced_sessions + " sessions use a model without a known price and are left out of the dollars." }) : null);
+  const how = panel("How this is computed", "", el("ul", { class: "plain cols" }, ...(flat ? r.assumptions.filter((a) => !/\$|price|cost|cheap|dollar/i.test(a)) : r.assumptions).map((a) => el("li", { text: a }))),
+    r.unpriced_sessions && !flat ? el("p", { class: "hint", text: r.unpriced_sessions + " sessions use a model without a known price and are left out of the dollars." }) : null);
 
   const um = usage.models.length ? panel("Requests through the proxy", "Any agent whose requests went through gascoigne's LLM proxy, not only Claude Code. Context: tokens one request carries, mean and peak.",
     table(el("tr", {}, th("Agent"), th("Model"), th("Requests", true), th("Context", true), th("Peak", true), th("Cache read", true), th("Output", true)),
       usage.models.map((m) => el("tr", {}, el("td", { text: m.agent || "–" }), el("td", { text: m.model || "–" }), el("td", { class: "num", text: human(m.requests) }), el("td", { class: "num", text: human(m.mean_context) }),
         el("td", { class: "num", text: human(m.peak_context) }), el("td", { class: "num", text: human(m.cache_read) }), el("td", { class: "num", text: human(m.output) }))))) : null;
-  root.replaceChildren(kpis, daily, el("div", { class: "grid" }, buckets, rewrites), el("div", { class: "grid" }, whatIf, injected), sessionsPanel, ...(um ? [um] : []), how);
+  root.replaceChildren(kpis, daily, el("div", { class: "grid" }, buckets, rewrites), el("div", { class: "grid" }, ...(flat ? [injected] : [whatIf, injected])), sessionsPanel, ...(um ? [um] : []), how);
 }
 
 async function load() {

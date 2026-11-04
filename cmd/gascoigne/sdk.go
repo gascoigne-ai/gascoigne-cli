@@ -2,11 +2,15 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/inproc"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
@@ -112,5 +116,94 @@ func sdkRaw(l *ledger.Ledger) http.Handler {
 		}
 		rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		io.WriteString(rw, p.Text())
+	})
+}
+
+// sdkStats serves GET /sdk/v1/stats?by=&session=&agent=&model=&since=: totals of the
+// recorded runs per group. since is RFC 3339.
+func sdkStats(l *ledger.Ledger) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query()
+		since, err := sdkTime(query.Get("since"))
+		if err != nil {
+			http.Error(rw, "bad since: want RFC 3339", http.StatusBadRequest)
+			return
+		}
+		stats, err := inproc.StatsOf(r.Context(), l, inproc.StatsQuery{
+			By: query.Get("by"), Session: query.Get("session"), Agent: query.Get("agent"),
+			Model: query.Get("model"), Since: since,
+		})
+		sdkReply(rw, stats, err)
+	})
+}
+
+// sdkRecent serves GET /sdk/v1/recent?session=&agent=&model=&since=&before=&limit=: the
+// recorded runs, newest first.
+func sdkRecent(l *ledger.Ledger) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query()
+		since, err := sdkTime(query.Get("since"))
+		if err != nil {
+			http.Error(rw, "bad since: want RFC 3339", http.StatusBadRequest)
+			return
+		}
+		q := inproc.RecentQuery{Session: query.Get("session"), Agent: query.Get("agent"), Model: query.Get("model"), Since: since}
+		if q.Before, err = sdkUint(query.Get("before")); err != nil {
+			http.Error(rw, "bad before: want a run id", http.StatusBadRequest)
+			return
+		}
+		limit, err := sdkUint(query.Get("limit"))
+		if err != nil {
+			http.Error(rw, "bad limit: want a number", http.StatusBadRequest)
+			return
+		}
+		q.Limit = int(limit)
+		runs, err := inproc.RecentOf(r.Context(), l, q)
+		sdkReply(rw, runs, err)
+	})
+}
+
+// sdkReply answers a ledger read: an empty result is [] not null.
+func sdkReply[T any](rw http.ResponseWriter, rows []T, err error) {
+	if errors.Is(err, inproc.ErrBadQuery) {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if rows == nil {
+		rows = []T{}
+	}
+	respond(rw, rows, err)
+}
+
+func sdkTime(value string) (time.Time, error) {
+	if value == "" {
+		return time.Time{}, nil
+	}
+	return time.Parse(time.RFC3339, value)
+}
+
+func sdkUint(value string) (uint, error) {
+	if value == "" {
+		return 0, nil
+	}
+	n, err := strconv.ParseUint(value, 10, 32)
+	return uint(n), err
+}
+
+// sdkCosts serves GET /sdk/v1/costs?session=&agent=&model=&since=: what the tokens saved are
+// worth, at the prices from `gascoigne pricing` (list prices unless the user set others), or no
+// dollars under a subscription.
+func sdkCosts(l *ledger.Ledger) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query()
+		since, err := sdkTime(query.Get("since"))
+		if err != nil {
+			http.Error(rw, "bad since: want RFC 3339", http.StatusBadRequest)
+			return
+		}
+		costs, err := inproc.CostsOf(r.Context(), l, inproc.StatsQuery{
+			Session: query.Get("session"), Agent: query.Get("agent"), Model: query.Get("model"), Since: since,
+		})
+		respond(rw, costs, err)
 	})
 }

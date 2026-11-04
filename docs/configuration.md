@@ -160,6 +160,8 @@ Routes you add replace the `routes` list as a whole, like any list.
 | Option | Default | Meaning |
 |---|---|---|
 | `ledger.path` | `$XDG_DATA_HOME/gascoigne/ledger.db` | sqlite database; env vars are expanded. `GASCOIGNE_LEDGER` overrides it. |
+| `ledger.memory` | `false` | `true` keeps the ledger in this process: no file, everything gone at exit. For embedders such as the SDK; the same as `path: ":memory:"`, and it wins over `GASCOIGNE_LEDGER`. |
+| `ledger.memory_max_bytes` | `67108864` | Memory mode only: cap on stored originals (gzip size, 64 MiB). The oldest are dropped first. |
 | `ledger.raw_ttl` | `720h` | How long originals stay retrievable (30 days). `0` keeps them forever. |
 | `ledger.events_ttl` | `8760h` | How long runs and their steps, API usage and failure history stay (a year). `0` keeps them forever. |
 | `ledger.recover_after` | `3` | Optimized runs of a source in a row, with no new raw fetch of its original, that forgive one of its failures, taking it back from the gentle route toward normal. `0` keeps failures until `events_ttl` or `gascoigne forget`. |

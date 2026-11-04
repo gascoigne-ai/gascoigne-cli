@@ -100,6 +100,19 @@ button:disabled { opacity: .5; cursor: default; }
 .notice h3 { margin: 0 0 6px; font-size: 16px; }
 .notice ul { margin: 6px 0 0; padding-left: 20px; color: var(--text); }
 .notice p { margin: 0; color: var(--text); }
+.pfield { display: grid; gap: 2px; margin: 12px 0; }
+.plabel { font-weight: 600; font-size: 14px; }
+.pfield input[type=text], .ptable input, .ptable select { font: 14px var(--sans); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 9px; width: 100%; min-width: 0; }
+.pfield .detail { color: var(--muted); font-size: 13px; }
+.ptable { width: 100%; border-collapse: collapse; margin: 6px 0 8px; font-size: 13px; }
+.ptable th { text-align: left; font-weight: 600; color: var(--muted); padding: 4px 4px 4px 0; white-space: nowrap; }
+.ptable td { padding: 3px 4px 3px 0; }
+.ptable input[type=number] { width: 84px; }
+.scrollx { overflow-x: auto; }
+button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--border-strong); padding: 6px 12px; font-weight: 600; }
+.pactions { margin: 12px 0 6px; }
+.ptest ul, .plast { color: var(--muted); font-size: 13px; padding-left: 20px; }
+.perr { color: var(--err); font-size: 13px; }
 [hidden] { display: none !important; }
 
 @media (max-width: 520px) {
@@ -151,7 +164,7 @@ function el(tag, attrs, ...kids) {
 }
 
 const stateLabel = { connected: "Connected", older: "Older setup", "not connected": "Not connected", declined: "Not for this one" };
-const groupTitle = { permissions: "Permissions", updates: "Updates", agents: "Agents to connect", experimental: "Experimental features" };
+const groupTitle = { permissions: "Permissions", costs: "Costs", updates: "Updates", agents: "Agents to connect", experimental: "Experimental features" };
 
 function agentRow(a) {
   const klass = a.state.replace(" ", "");
@@ -212,7 +225,7 @@ async function load() {
   $("found").hidden = false;
 
   const form = $("form");
-  for (const g of ["permissions", "updates", "agents", "experimental"]) {
+  for (const g of ["permissions", "costs", "updates", "agents", "experimental"]) {
     const qs = v.questions.filter((q) => q.group === g);
     if (!qs.length) continue;
     const boxes = qs.map((q) => {
@@ -230,12 +243,89 @@ async function load() {
         boxes));
     } else {
       form.append(el("h2", {}, groupTitle[g]), ...boxes);
+      if (g === "costs" && v.pricing) form.append(pricingPanel(v.pricing));
     }
   }
   if (!v.questions.length) form.append(el("div", { class: "panel question" }, el("p", { class: "text" }, "Nothing to decide right now.")));
   form.hidden = false;
   $("bar").hidden = !v.questions.length;
   refreshSummary();
+}
+
+// Pricing: where dollar figures come from. Fields are text; empty means unset. Nothing is sent
+// until Save, and Test runs the sources once without saving.
+const priceFields = ["in", "out", "cache_read", "cache_write"];
+const tokenizers = ["o200k", "claude", "claude-legacy", "gemini"];
+
+function field(label, id, value, hint) {
+  const input = el("input", { type: "text", id });
+  input.value = value || "";
+  return el("label", { class: "pfield" }, el("span", { class: "plabel" }, label), input, hint ? el("span", { class: "detail" }, hint) : null);
+}
+
+function priceRow(id, item) {
+  const row = el("tr", { class: "price-row" });
+  const model = el("input", { type: "text", "aria-label": "Model id", placeholder: "model id" });
+  model.value = id || "";
+  const tok = el("select", { "aria-label": "Tokenizer" }, ...tokenizers.map((t) => el("option", { value: t }, t)));
+  tok.value = (item && item.tokenizer) || "o200k";
+  const cells = priceFields.map((f) => {
+    const n = el("input", { type: "number", min: "0", step: "any", "aria-label": f });
+    n.value = item && item[f] != null ? String(item[f]) : "";
+    return el("td", {}, n);
+  });
+  const drop = el("button", { type: "button", class: "ghost" }, "Remove");
+  drop.onclick = () => row.remove();
+  row.append(el("td", {}, model), ...cells, el("td", {}, tok), el("td", {}, drop));
+  return row;
+}
+
+function readPricing() {
+  const prices = {};
+  for (const row of document.querySelectorAll(".price-row")) {
+    const [model, ...nums] = row.querySelectorAll("input");
+    const id = model.value.trim();
+    if (!id) continue;
+    const item = {};
+    priceFields.forEach((f, i) => { if (nums[i].value !== "") item[f] = Number(nums[i].value); });
+    item.tokenizer = row.querySelector("select").value;
+    prices[id] = item;
+  }
+  const text = (id) => $(id).value.trim();
+  return { ttl: text("p-ttl"), file: text("p-file"), url: text("p-url"), header_env: text("p-header"), translate: text("p-translate"), timeout: text("p-timeout"), prices };
+}
+
+function pricingPanel(p) {
+  const tbody = el("tbody", {}, ...Object.entries(p.prices).sort().map(([id, item]) => priceRow(id, item)));
+  const add = el("button", { type: "button", class: "ghost" }, "Add a model");
+  add.onclick = () => tbody.append(priceRow("", null));
+  const result = el("div", { class: "ptest", role: "status" });
+  const test = el("button", { type: "button", class: "ghost" }, "Test these sources");
+  test.onclick = async () => {
+    result.textContent = "Running…";
+    const r = await fetch("/api/setup/pricing-test", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, pricing: readPricing() }) });
+    if (!r.ok) { result.textContent = await r.text(); return; }
+    const t = await r.json();
+    result.replaceChildren(
+      t.error ? el("p", { class: "perr" }, t.error) : null,
+      t.models.length ? el("ul", {}, ...t.models.map((m) => el("li", {}, `${m.id}: $${m.in} in, $${m.out} out per million tokens (${m.source})`))) : null,
+      t.models.length || t.error ? null : el("p", {}, "No prices from these sources."));
+  };
+  const last = p.layers.filter((l) => l.fetched || l.error).map((l) => `${l.name}: ${l.models} model(s)` + (l.fetched ? ", last good " + new Date(l.fetched).toLocaleString() : "") + (l.error ? " — error: " + l.error : ""));
+  return el("div", { class: "panel question", id: "pricing" },
+    el("h3", {}, "Prices"),
+    el("p", { class: "text" }, "Dollar figures use the providers' list prices. Give your own prices, or say where to get them. Nothing runs unless you fill it in and save."),
+    el("div", { class: "scrollx" }, el("table", { class: "ptable" }, el("thead", {}, el("tr", {}, ...["Model id", "In $/M", "Out $/M", "Cache read $/M", "Cache write $/M", "Tokenizer", ""].map((t) => el("th", { scope: "col" }, t)))), tbody)),
+    add,
+    field("Price sheet file", "p-file", p.file, "A JSON file: {\"version\":1,\"models\":{\"<id>\":{\"in\":3,\"out\":15}}}. With a command below it is translated first."),
+    field("Price URL", "p-url", p.url, "The same sheet from a web address, fetched in the background."),
+    field("URL header variable", "p-header", p.header_env, "Name of an environment variable holding one 'Name: value' header, e.g. for a token. The value is never stored here."),
+    field("Translate command", "p-translate", p.translate, "Your own program that prints a price sheet. It gets the file or the response on stdin (to translate another format), or runs alone. Started without a shell."),
+    field("Refresh every", "p-ttl", p.ttl, "A URL or command runs at most this often: 24h, 168h (at least 1h), or manual."),
+    field("Time limit for one run", "p-timeout", p.timeout, "For example 10s (the default)."),
+    el("div", { class: "pactions" }, test), result,
+    last.length ? el("ul", { class: "plast" }, ...last.map((l) => el("li", {}, l))) : null,
+    (p.warnings || []).map((w) => el("p", { class: "perr" }, w)));
 }
 
 $("save").onclick = async () => {
@@ -246,7 +336,7 @@ $("save").onclick = async () => {
   const r = await fetch("/api/setup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token, answers }),
+    body: JSON.stringify({ token, answers, pricing: $("pricing") ? readPricing() : undefined }),
   });
   if (!r.ok) {
     problem(await r.text());

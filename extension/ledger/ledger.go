@@ -51,15 +51,11 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 		return err
 	}
 	l.path = path
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		return err
+	if InMemory(path) {
+		l.db, err = openMemory()
+	} else {
+		l.db, err = openFile(path)
 	}
-	// Originals of tool output live here; sqlite would create the file 0644.
-	if f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0o600); err == nil {
-		f.Close()
-	}
-	dsn := "file:" + url.PathEscape(path) + "?_pragma=journal_mode(wal)&_pragma=busy_timeout(5000)"
-	l.db, err = gorm.Open(gormlite.Open(dsn), &gorm.Config{Logger: logger.Discard})
 	if err != nil {
 		return err
 	}
@@ -82,6 +78,38 @@ func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 		return err
 	}
 	return l.prune(ctx)
+}
+
+// openFile opens the sqlite file at path, creating it private to the user.
+func openFile(path string) (*gorm.DB, error) {
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+		return nil, err
+	}
+	// Originals of tool output live here; sqlite would create the file 0644.
+	if f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0o600); err == nil {
+		f.Close()
+	}
+	dsn := "file:" + url.PathEscape(path) + "?_pragma=journal_mode(wal)&_pragma=busy_timeout(5000)"
+	return gorm.Open(gormlite.Open(dsn), &gorm.Config{Logger: logger.Discard})
+}
+
+// openMemory opens a private in-memory database. Every connection to
+// ":memory:" is a database of its own, so the pool is held to one connection
+// that never expires.
+func openMemory() (*gorm.DB, error) {
+	db, err := gorm.Open(gormlite.Open("file::memory:"), &gorm.Config{Logger: logger.Discard})
+	if err != nil {
+		return nil, err
+	}
+	pool, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	pool.SetMaxOpenConns(1)
+	pool.SetMaxIdleConns(1)
+	pool.SetConnMaxLifetime(0)
+	pool.SetConnMaxIdleTime(0)
+	return db, nil
 }
 
 func (l *Ledger) Shutdown(context.Context) error {
@@ -160,7 +188,7 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (s
 			// row decides, as if it had been there.
 			err := db.Create(&raw{ID: id, Created: time.Now().UnixMilli(), Key: storedKey(key), Payload: packed}).Error
 			if err == nil {
-				return id, nil
+				return id, l.evictRaw(ctx, id)
 			}
 			if _, same, _ = l.holds(ctx, id, p.Text()); !same {
 				continue
@@ -396,4 +424,25 @@ func (l *Ledger) GetOutput(ctx context.Context, id string) (string, bool, error)
 		return "", false, err
 	}
 	return string(out), true, nil
+}
+
+// evictRaw keeps an in-memory ledger's originals under the cap, dropping the
+// oldest first but never keep, the one just saved. A file ledger is bounded by
+// RawTTL instead.
+func (l *Ledger) evictRaw(ctx context.Context, keep string) error {
+	if !InMemory(l.path) {
+		return nil
+	}
+	limit := l.cfg.memoryCap()
+	db := l.db.WithContext(ctx)
+	for {
+		usage, err := l.RawUsage(ctx)
+		if err != nil || usage.Bytes <= limit || usage.Count <= 1 {
+			return err
+		}
+		oldest := db.Model(&raw{}).Select("id").Where("id != ?", keep).Order("created, id").Limit(1)
+		if err := db.Where("id = (?)", oldest).Delete(&raw{}).Error; err != nil {
+			return err
+		}
+	}
 }

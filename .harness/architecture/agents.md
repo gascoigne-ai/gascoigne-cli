@@ -23,6 +23,9 @@
 
 ## Usage guide (`guide.go`)
 
+In `manual` MCP mode (see `hooks.md`, MCP mode) the guide is `manualGuide`: it says nothing is shortened automatically and names the tools to call.
+
+
 claude: a SessionStart hook (`additionalContext`). codex: `-c developer_instructions` per run, or
 an `AGENTS.md` marked block. cursor: a project rule. pi: an `AGENTS.md` block. Unwrap removes them.
 

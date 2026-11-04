@@ -16,12 +16,26 @@ const (
 	DefaultEventsTTL = 365 * 24 * time.Hour
 )
 
+// MemoryPath names the in-memory database: as Config.Path or $GASCOIGNE_LEDGER
+// it selects memory mode, and Ledger.Path reports it.
+const MemoryPath = ":memory:"
+
+// DefaultMemoryMaxBytes caps the originals an in-memory ledger holds (gzip size).
+const DefaultMemoryMaxBytes = 64 << 20
+
 // EnvPath overrides the configured path; eval uses it to isolate runs.
 const EnvPath = "GASCOIGNE_LEDGER"
 
 type Config struct {
 	// Path to the sqlite db; env vars are expanded. Default: $XDG_DATA_HOME/gascoigne/ledger.db.
 	Path string `yaml:"path"`
+	// Memory keeps the whole ledger in this process (same as Path ":memory:"):
+	// nothing is written to disk and everything is gone at exit. For embedders
+	// such as the SDK that only want the numbers of the current run.
+	Memory bool `yaml:"memory"`
+	// MemoryMaxBytes caps the stored originals in memory mode; the oldest go
+	// first. 0 means DefaultMemoryMaxBytes. Ignored for a file ledger.
+	MemoryMaxBytes int64 `yaml:"memory_max_bytes"`
 	// RawTTL is how long originals stay retrievable. 0 keeps them forever.
 	RawTTL time.Duration `yaml:"raw_ttl"`
 	// StatsTTL is how long the daily per-tool MCP stats stay. 0 keeps them forever.
@@ -53,6 +67,9 @@ func (c *Config) Validate() error {
 	if c.RollupTTL < 0 {
 		return errors.New("rollup_ttl must not be negative")
 	}
+	if c.MemoryMaxBytes < 0 {
+		return errors.New("memory_max_bytes must not be negative")
+	}
 	if c.RecoverAfter < 0 {
 		return errors.New("recover_after must not be negative")
 	}
@@ -62,6 +79,10 @@ func (c *Config) Validate() error {
 // File is the sqlite db the ledger opens: $GASCOIGNE_LEDGER, else Path, else
 // the default.
 func (c *Config) File() (string, error) {
+	// Memory wins over the env path: an embedder asked for no file at all.
+	if c.Memory {
+		return MemoryPath, nil
+	}
 	if p := os.Getenv(EnvPath); p != "" {
 		return p, nil
 	}
@@ -77,4 +98,14 @@ func (c *Config) File() (string, error) {
 		dir = filepath.Join(home, ".local", "share")
 	}
 	return filepath.Join(dir, "gascoigne", "ledger.db"), nil
+}
+
+// InMemory reports whether file is the in-memory database.
+func InMemory(file string) bool { return file == MemoryPath }
+
+func (c *Config) memoryCap() int64 {
+	if c.MemoryMaxBytes > 0 {
+		return c.MemoryMaxBytes
+	}
+	return DefaultMemoryMaxBytes
 }

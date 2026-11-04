@@ -138,11 +138,15 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Dur
 	}
 	w := newWarm(ctx, info.Build, info.Ledger)
 	defer w.Close()
+	go watchPricing(ctx, 10*time.Minute)
 	mux := http.NewServeMux()
 	mux.Handle("/", dashboard(l, time.Second, info, stop))
 	mux.Handle("POST /api/optimize", localOnly(w))
 	mux.Handle("POST /sdk/v1/optimize", localOnly(sdkOptimize(w)))
 	mux.Handle("GET /sdk/v1/raw/{id}", localOnly(sdkRaw(l)))
+	mux.Handle("GET /sdk/v1/stats", localOnly(sdkStats(l)))
+	mux.Handle("GET /sdk/v1/recent", localOnly(sdkRecent(l)))
+	mux.Handle("GET /sdk/v1/costs", localOnly(sdkCosts(l)))
 	proxyOn := false
 	proxy, closeProxy, err := llmProxy(ctx, &w.mu, info.Ledger, "", slog.New(slog.NewTextHandler(os.Stderr, nil)))
 	if err != nil {
