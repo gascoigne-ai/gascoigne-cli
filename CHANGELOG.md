@@ -5,9 +5,25 @@ All notable changes to gascoigne. The format follows
 [Semantic Versioning](https://semver.org/). Each release starts with "In short": what changed for you, in plain
 words. The technical details follow.
 
-## [Unreleased]
+## [0.10.0] - 2026-11-05
+
+Your own optimizer, your own prices, and a choice between automatic and manual MCP.
+
+### In short
+
+- **Bring your own optimizer.** An external process can shorten output for the commands you route to it (text, JSON
+  or RPC); see `docs/external-optimizer.md`. It is accepted from your user config only, never from a project's.
+- **Plan or API, found out for you.** Agents on a flat plan stay out of the dollar figures, and you can set prices of
+  your own with `gascoigne pricing`.
+- **Automatic or manual MCP.** `install -mcp manual` leaves the calls to your agent; `auto` stays the default.
+- **Shorter results and guide.** Shortened output ends with `[raw:<id>]` only, and the usage guide is short only.
+- **SDKs 0.10.0.** They read totals, runs and costs, and can keep the ledger in memory.
 
 ### Added
+
+- **External optimizer.** A process of yours, started per call, receives the output and returns the shortened text
+  (`text`, `json` or `rpc` protocol). Configured under `optimizers` in the user config; a project config that names one
+  is rejected. Contract and template: `docs/external-optimizer.md`.
 
 - **Automatic or manual.** `install -mcp manual` (or the setup question, or `GASCOIGNE_MCP_MODE`) stops the hooks
   rewriting results and the Grep, Glob and WebFetch deny rules; the agent then calls gascoigne's tools itself.
