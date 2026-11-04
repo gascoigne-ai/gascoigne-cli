@@ -285,10 +285,10 @@ func TestValidate(t *testing.T) {
 		want string
 	}{
 		{"valid", func(*Config) {}, ""},
-		{"no command", func(c *Config) { c.Command = nil }, "command"},
-		{"unknown protocol", func(c *Config) { c.Protocol = "grpc" }, "json, rpc, text"},
-		{"zero timeout", func(c *Config) { c.Timeout = 0 }, "timeout"},
-		{"bad pattern", func(c *Config) { c.Types = []string{"[x"} }, "bad pattern"},
+		{"no command", func(config *Config) { config.Command = nil }, "command"},
+		{"unknown protocol", func(config *Config) { config.Protocol = "grpc" }, "json, rpc, text"},
+		{"zero timeout", func(config *Config) { config.Timeout = 0 }, "timeout"},
+		{"bad pattern", func(config *Config) { config.Types = []string{"[x"} }, "bad pattern"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

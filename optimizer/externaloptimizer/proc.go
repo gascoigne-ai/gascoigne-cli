@@ -51,22 +51,22 @@ type limitBuffer struct {
 
 var errTooBig = errors.New("output over max_output_bytes")
 
-func (b *limitBuffer) Write(p []byte) (int, error) {
-	if b.Len()+len(p) > b.max {
+func (b *limitBuffer) Write(data []byte) (int, error) {
+	if b.Len()+len(data) > b.max {
 		return 0, errTooBig
 	}
-	return b.Buffer.Write(p)
+	return b.Buffer.Write(data)
 }
 
 // tailBuffer keeps the last stderrKeep bytes: the end of a trace is the useful part.
 type tailBuffer struct{ b []byte }
 
-func (t *tailBuffer) Write(p []byte) (int, error) {
-	t.b = append(t.b, p...)
+func (t *tailBuffer) Write(data []byte) (int, error) {
+	t.b = append(t.b, data...)
 	if len(t.b) > stderrKeep {
 		t.b = t.b[len(t.b)-stderrKeep:]
 	}
-	return len(p), nil
+	return len(data), nil
 }
 
 func (t *tailBuffer) String() string { return strings.TrimSpace(string(t.b)) }

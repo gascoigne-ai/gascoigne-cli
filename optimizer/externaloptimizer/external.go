@@ -31,27 +31,27 @@ func (o *Optimizer) Shutdown(context.Context) error {
 	return nil
 }
 
-func (o *Optimizer) Optimize(ctx context.Context, p *payload.Payload) error {
-	cmd := p.Attrs[payload.AttrCmd]
+func (o *Optimizer) Optimize(ctx context.Context, data *payload.Payload) error {
+	cmd := data.Attrs[payload.AttrCmd]
 	var skip string
 	changed := false
-	for i, b := range p.Blocks {
-		if b.Text == "" || !o.cfg.wants(b.Type, cmd) || o.tooBig(b.Text) {
+	for i, block := range data.Blocks {
+		if block.Text == "" || !o.cfg.wants(block.Type, cmd) || o.tooBig(block.Text) {
 			continue
 		}
-		text, why, err := o.rewrite(ctx, b, p.Attrs)
+		text, why, err := o.rewrite(ctx, block, data.Attrs)
 		if err != nil {
 			return fmt.Errorf("%s: %w", o.id, err)
 		}
 		if skip == "" {
 			skip = why
 		}
-		if text != b.Text {
-			p.Blocks[i].Text, changed = text, true
+		if text != block.Text {
+			data.Blocks[i].Text, changed = text, true
 		}
 	}
 	if !changed {
-		p.Set(payload.AttrSkip, o.skipReason(skip))
+		data.Set(payload.AttrSkip, o.skipReason(skip))
 	}
 	return nil
 }
@@ -62,8 +62,8 @@ func (o *Optimizer) tooBig(text string) bool {
 
 // rewrite asks the child about one block. A reply that is empty for non-empty
 // input is an error; one that is not smaller is ignored.
-func (o *Optimizer) rewrite(ctx context.Context, b payload.Block, attrs map[string]string) (text, why string, err error) {
-	req := Request{Version: Version, Attrs: attrs, Block: Block{Kind: string(b.Kind), Type: b.Type, Text: b.Text}}
+func (o *Optimizer) rewrite(ctx context.Context, block payload.Block, attrs map[string]string) (text, why string, err error) {
+	req := Request{Version: Version, Attrs: attrs, Block: Block{Kind: string(block.Kind), Type: block.Type, Text: block.Text}}
 	resp, err := o.codec.call(ctx, req)
 	if err != nil {
 		return "", "", err
@@ -73,11 +73,11 @@ func (o *Optimizer) rewrite(ctx context.Context, b payload.Block, attrs map[stri
 	case err != nil:
 		return "", "", err
 	case text == "":
-		return "", "", fmt.Errorf("child returned empty text for %d bytes of input", len(b.Text))
+		return "", "", fmt.Errorf("child returned empty text for %d bytes of input", len(block.Text))
 	case len(text) > o.cfg.MaxOutputBytes:
 		return "", "", errTooBig
-	case tokens.Estimate(text) >= tokens.Estimate(b.Text):
-		return b.Text, resp.SkipReason, nil
+	case tokens.Estimate(text) >= tokens.Estimate(block.Text):
+		return block.Text, resp.SkipReason, nil
 	}
 	return text, resp.SkipReason, nil
 }

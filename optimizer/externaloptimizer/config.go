@@ -65,33 +65,33 @@ func (c *Config) wants(typ, cmd string) bool {
 	return matchAny(c.Types, typ, typeMatch) && matchAny(c.Cmds, cmd, globMatch)
 }
 
-func matchAny(patterns []string, s string, match func(pat, s string) bool) bool {
-	return len(patterns) == 0 || slices.ContainsFunc(patterns, func(pat string) bool { return match(pat, s) })
+func matchAny(patterns []string, text string, match func(pattern, text string) bool) bool {
+	return len(patterns) == 0 || slices.ContainsFunc(patterns, func(pattern string) bool { return match(pattern, text) })
 }
 
-func typeMatch(pat, typ string) bool {
-	if fam, ok := strings.CutSuffix(pat, "/*"); ok {
-		return typ == fam || strings.HasPrefix(typ, fam+"/")
+func typeMatch(pattern, typ string) bool {
+	if family, ok := strings.CutSuffix(pattern, "/*"); ok {
+		return typ == family || strings.HasPrefix(typ, family+"/")
 	}
-	return pat == typ
+	return pattern == typ
 }
 
 // globMatch matches the whole command line; * also crosses spaces and slashes.
-func globMatch(pat, s string) bool {
-	parts := strings.Split(pat, "*")
+func globMatch(pattern, text string) bool {
+	parts := strings.Split(pattern, "*")
 	if len(parts) == 1 {
-		return pat == s
+		return pattern == text
 	}
-	if !strings.HasPrefix(s, parts[0]) || !strings.HasSuffix(s, parts[len(parts)-1]) {
+	if !strings.HasPrefix(text, parts[0]) || !strings.HasSuffix(text, parts[len(parts)-1]) {
 		return false
 	}
-	s = s[len(parts[0]):]
+	text = text[len(parts[0]):]
 	for _, mid := range parts[1 : len(parts)-1] {
-		i := strings.Index(s, mid)
+		i := strings.Index(text, mid)
 		if i < 0 {
 			return false
 		}
-		s = s[i+len(mid):]
+		text = text[i+len(mid):]
 	}
-	return len(s) >= len(parts[len(parts)-1])
+	return len(text) >= len(parts[len(parts)-1])
 }

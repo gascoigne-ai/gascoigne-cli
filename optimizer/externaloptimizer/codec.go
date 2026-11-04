@@ -72,12 +72,12 @@ func (r Response) check() (string, error) {
 func attrEnv(attrs map[string]string) []string {
 	env := make([]string, 0, len(attrs))
 	for k, v := range attrs {
-		key := strings.Map(func(r rune) rune {
-			if r >= 'a' && r <= 'z' {
-				return r - 32
+		key := strings.Map(func(char rune) rune {
+			if char >= 'a' && char <= 'z' {
+				return char - 32
 			}
-			if r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' {
-				return r
+			if char >= 'A' && char <= 'Z' || char >= '0' && char <= '9' {
+				return char
 			}
 			return '_'
 		}, k)
