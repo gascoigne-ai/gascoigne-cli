@@ -17,7 +17,7 @@ Your own optimizer, your own prices, and a choice between automatic and manual M
   your own with `gascoigne pricing`.
 - **Automatic or manual MCP.** `install -mcp manual` leaves the calls to your agent; `auto` stays the default.
 - **Shorter results and guide.** Shortened output ends with `[raw:<id>]` only, and the usage guide is short only.
-- **SDKs 0.10.0.** They read totals, runs and costs, and can keep the ledger in memory.
+- **SDKs 0.10.0.** They read token counts (totals and recent runs) and can keep the ledger in memory.
 
 ### Added
 
@@ -30,21 +30,28 @@ Your own optimizer, your own prices, and a choice between automatic and manual M
   `auto`, today's behavior, stays the default.
 - **Plan or API, found out for you.** gascoigne looks at how each agent is signed in (an API key or cloud provider, or
   an account sign-in) and leaves agents on a flat plan out of the dollar figures; `billing: auto` is the default. The
-  Costs section of `gascoigne setup` holds the choice and the pricing form, with a button to test a price source.
+  Costs section of `gascoigne setup` holds the choice, your prices and the refresh interval.
 - **No dollars on a flat plan, on the Context page either.** When Claude Code is on a plan, the Context page and
   `gascoigne context` show requests and context sizes instead of dollar figures.
 - **Prices of your own, or no dollars.** `gascoigne pricing` sets `-billing auto|api|subscription` (a flat plan: no dollar
-  figure in `gain`, the Costs page, `stats` or the SDK), static `-price model=in,out[,cache_read,cache_write]`
+  figure in `gain`, the Costs page, or `stats`), static `-price model=in,out[,cache_read,cache_write]`
   prices, a price sheet `-file`, a `-url` refreshed once per `-ttl` (default 24 h, minimum 1 h), and a `-translate`
   command of yours that turns another format into gascoigne's. A failed refresh keeps the last good prices. The Costs
   page shows where each price comes from; settings are changed on the setup page (behind its one-time link) or in
   the terminal, never on the dashboard, which has no login.
 - **A ledger in memory.** `extensions.ledger.memory: true` (or `path: ":memory:"`) keeps the ledger in the process:
   no file, originals capped at `memory_max_bytes`. For embedders such as the SDK.
-- SDK: `GET /sdk/v1/stats`, `/recent` and `/costs`, and `inproc.Engine.Stats`, `Recent`, `Costs`, plus the options
-  `Ledger` and `Pricing`, so an SDK can read the savings it produced.
+- SDK: `GET /sdk/v1/stats` and `/recent`, and `inproc.Engine.Stats`, `Recent` with the option `Ledger`, so an SDK
+  can read the tokens it saved. Token counts only: the SDK has no prices or dollars.
 - MCP review: servers and tools come most used first, usage suggests which tools to load on request (and advice such
   as `max_tools`), and the Auto-optimize button or `gascoigne mcp-review -optimize` applies the tool suggestions.
+
+### Security
+- The setup page can no longer set or test a price file, URL, command or header variable (CodeQL command injection,
+  request forgery and path injection): its one-time link can be minted by any local user. They are set only with
+  `gascoigne pricing set`, and are hardened anyway: a regular file of at most 1 MiB, an http(s) address without
+  credentials, at most 3 redirects and never https to http, and the command must resolve on `PATH`. The SDK `limit`
+  query is bounded before it becomes an `int`.
 
 ### Changed
 

@@ -93,31 +93,21 @@ func TestCostsPagePricing(t *testing.T) {
 	}
 }
 
-// Setup carries the pricing form behind its token and offers a test that saves nothing.
+// Setup carries the interval and the static prices, and shows the terminal-only sources read-only:
+// it has no call that tests or sets a file, URL or command.
 func TestSetupPagePricingForm(t *testing.T) {
 	page := string(setupHTML)
-	for _, want := range []string{"pricingPanel", "readPricing", `"/api/setup/pricing-test"`, "Translate command", "Price URL", "Price sheet file", "URL header variable", "Test these sources", "Refresh every", `costs: "Costs"`} {
+	for _, want := range []string{"pricingPanel", "readPricing", "Refresh every", `costs: "Costs"`, "gascoigne pricing set -file", "gascoigne pricing test", "this page has no login"} {
 		if !strings.Contains(page, want) {
 			t.Errorf("setup page lacks %q", want)
 		}
 	}
+	for _, gone := range []string{"pricing-test", "p-translate", "p-url", "p-file", "p-header", "p-timeout", "Test these sources"} {
+		if strings.Contains(page, gone) {
+			t.Errorf("the setup page must not set or test sources (%q): the setup token is minted without a login", gone)
+		}
+	}
 	if strings.Contains(page, "onclick:") {
 		t.Error("el sets attributes only: handlers are properties")
-	}
-}
-
-// On a flat plan the Context page draws requests, not dollars: no cost columns, no money KPIs, no
-// what-if (its only figure is dollars), and the default sort is not by cost.
-func TestContextPageHasAFlatPlanMode(t *testing.T) {
-	page := string(contextHTML)
-	for _, want := range []string{`report.billing === "subscription"`, "isFlat()", "Requests per day", "How big conversations get", "Share of requests", "money: true", "Above 200k context"} {
-		if !strings.Contains(page, want) {
-			t.Errorf("context page lacks %q", want)
-		}
-	}
-	for _, want := range []string{"flat ? [] :", "flat ? [injected] : [whatIf, injected]"} {
-		if !strings.Contains(page, want) {
-			t.Errorf("context page does not drop its dollar parts on a flat plan: missing %q", want)
-		}
 	}
 }

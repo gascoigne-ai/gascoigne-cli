@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -98,24 +96,25 @@ func watchPricing(ctx context.Context, every time.Duration) {
 	}
 }
 
-// pricingForm is the pricing part of the setup page, as it posts it. All fields are text; empty
-// means unset. Unknown fields are refused.
+// pricingForm is the pricing part of the setup page, as it posts it: the refresh interval and the
+// static prices, nothing else. The setup token is minted by an endpoint with no login, so a form
+// may not name what reads a file, reaches the network or runs a program (a price file, URL, header
+// variable, command or time limit): those are set only with gascoigne pricing set, and a form that
+// names one is refused (unknown fields are a 400).
 type pricingForm struct {
-	TTL       string                    `json:"ttl"`
-	File      string                    `json:"file"`
-	URL       string                    `json:"url"`
-	HeaderEnv string                    `json:"header_env"`
-	Translate string                    `json:"translate"`
-	Timeout   string                    `json:"timeout"`
-	Prices    map[string]cost.PriceItem `json:"prices"`
+	TTL    string                    `json:"ttl"`
+	Prices map[string]cost.PriceItem `json:"prices"`
 }
 
-// prefs validates the form and turns it into settings (billing is a separate question).
-func (f pricingForm) prefs() (pricingPrefs, error) {
-	var p pricingPrefs
+// apply validates the form and writes it over p's interval and static prices; the sources set in the
+// terminal stay as they are.
+func (f pricingForm) apply(p *pricingPrefs) error {
 	duration, manual, warning, err := pricing.ParseTTL(f.TTL)
 	if err != nil {
-		return p, err
+		return err
+	}
+	if err := validateStatic(f.Prices); err != nil {
+		return err
 	}
 	switch {
 	case manual:
@@ -125,85 +124,43 @@ func (f pricingForm) prefs() (pricingPrefs, error) {
 	default:
 		p.TTL = strings.TrimSpace(f.TTL)
 	}
-	if f.URL != "" && !strings.HasPrefix(f.URL, "https://") && !strings.HasPrefix(f.URL, "http://") {
-		return p, fmt.Errorf("url wants an http or https address")
-	}
-	if f.Translate != "" {
-		if _, err := pricing.SplitArgs(f.Translate); err != nil {
-			return p, fmt.Errorf("command: %w", err)
-		}
-	}
-	if f.Timeout != "" {
-		if d, err := time.ParseDuration(f.Timeout); err != nil || d <= 0 {
-			return p, fmt.Errorf("timeout %q: want a duration such as 10s", f.Timeout)
-		}
-	}
-	if strings.ContainsAny(f.HeaderEnv, " \t:=") {
-		return p, fmt.Errorf("header variable: give the name of an environment variable, not a value")
-	}
-	if err := validateStatic(f.Prices); err != nil {
-		return p, err
-	}
-	p.File, p.URL, p.HeaderEnv, p.Translate, p.Timeout = f.File, f.URL, f.HeaderEnv, f.Translate, f.Timeout
+	p.Prices = nil
 	if len(f.Prices) > 0 {
 		p.Prices = f.Prices
 	}
-	return p, nil
+	return nil
+}
+
+// pricingSources says which sources set in the terminal are in use. The values stay out of the
+// setup view: a URL or a command line can carry a secret, and gascoigne pricing shows them.
+type pricingSources struct {
+	File      bool `json:"file"`
+	URL       bool `json:"url"`
+	HeaderEnv bool `json:"header_env"`
+	Translate bool `json:"translate"`
 }
 
 // pricingSetup is the pricing form's current state, for the setup page.
 type pricingSetup struct {
 	pricingForm
-	Detected []detected  `json:"detected"`
-	Layers   []layerView `json:"layers"`
-	Warnings []string    `json:"warnings,omitempty"`
+	Sources  pricingSources `json:"sources"`
+	Detected []detected     `json:"detected"`
+	Layers   []layerView    `json:"layers"`
+	Warnings []string       `json:"warnings,omitempty"`
 }
 
 func buildPricingSetup(p prefs) *pricingSetup {
 	view := buildPricingView()
 	out := &pricingSetup{
-		pricingForm: pricingForm{
-			TTL: cmpOr(p.Pricing.TTL, "24h"), File: p.Pricing.File, URL: p.Pricing.URL, HeaderEnv: p.Pricing.HeaderEnv,
-			Translate: p.Pricing.Translate, Timeout: p.Pricing.Timeout, Prices: p.Pricing.Prices,
+		pricingForm: pricingForm{TTL: cmpOr(p.Pricing.TTL, "24h"), Prices: p.Pricing.Prices},
+		Sources: pricingSources{
+			File: p.Pricing.File != "", URL: p.Pricing.URL != "", HeaderEnv: p.Pricing.HeaderEnv != "",
+			Translate: p.Pricing.Translate != "",
 		},
 		Detected: detectedAgents(), Layers: view.Layers, Warnings: view.Warnings,
 	}
 	if out.Prices == nil {
 		out.Prices = map[string]cost.PriceItem{}
-	}
-	return out
-}
-
-// pricingTest is what trying the form's sources found.
-type pricingTest struct {
-	Models []pricingTestModel `json:"models"`
-	Error  string             `json:"error,omitempty"`
-}
-
-type pricingTestModel struct {
-	ID     string  `json:"id"`
-	Source string  `json:"source"`
-	In     float64 `json:"in"`
-	Out    float64 `json:"out"`
-}
-
-// testPricing runs the sources of form once, against a scratch cache, and saves nothing.
-func testPricing(ctx context.Context, form pricingPrefs) pricingTest {
-	cfg, _ := form.config()
-	scratch, err := os.MkdirTemp("", "gascoigne-pricing-")
-	if err != nil {
-		return pricingTest{Error: err.Error()}
-	}
-	defer os.RemoveAll(scratch)
-	cfg.StateDir = scratch
-	ctx, cancel := context.WithTimeout(ctx, 3*cfg.Timeout+30*time.Second)
-	defer cancel()
-	out := pricingTest{Models: []pricingTestModel{}}
-	if err := pricing.Refresh(ctx, cfg, true); err != nil {
-		out.Error = err.Error()
-	}
-	for _, o := range pricing.Load(cfg).Overrides {
-		out.Models = append(out.Models, pricingTestModel{ID: o.Model.ID, Source: o.Source, In: o.Model.Input, Out: o.Model.Output})
 	}
 	return out
 }

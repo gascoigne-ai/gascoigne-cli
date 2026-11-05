@@ -21,8 +21,9 @@ gascoigne asks how each agent is signed in, so by default it already knows: an A
 provider (Bedrock, Vertex) means per token; an account sign-in (Claude, ChatGPT, Google) or Cursor means a
 plan, and an agent on a plan is left out of the dollars. It looks only at whether a key variable is set and
 which sign-in file exists, never at a key. Anything it cannot tell is taken as per token. You decide
-otherwise in the Costs section of `gascoigne setup`, which also takes your prices, a price file, a URL and a
-translating command, with a button to test them. The same from the terminal with `gascoigne pricing`:
+otherwise in the Costs section of `gascoigne setup`, which also takes your own prices and how often a
+price source refreshes. A price file, a URL and a translating command are set only in the terminal, with
+`gascoigne pricing` (the setup page has no login, and these read files, reach the network or run a program):
 
 ```sh
 gascoigne pricing set -billing auto               # the default: find out per agent

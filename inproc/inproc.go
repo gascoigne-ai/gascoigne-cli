@@ -48,9 +48,6 @@ type Options struct {
 	// Ledger picks where runs are recorded: LedgerFile (the configured sqlite file, the default) or
 	// LedgerMemory (private to this process, gone at exit). Empty means LedgerFile.
 	Ledger string
-	// Pricing sets the prices and billing mode behind Engine.Costs; nil keeps the built-in list
-	// prices. It is held per process (see Pricing).
-	Pricing *Pricing
 	// IgnoreUserFile skips the user's config file ($GASCOIGNE_CONFIG or the per-user config dir).
 	IgnoreUserFile bool
 }
@@ -100,9 +97,6 @@ func ConfigYAML(o Options) ([]byte, error) {
 func New(ctx context.Context, o Options) (*Engine, error) {
 	cfg, _, err := resolve(o)
 	if err != nil {
-		return nil, err
-	}
-	if err := o.Pricing.apply(); err != nil {
 		return nil, err
 	}
 	// Only the optimize chain runs here: nothing listens and nothing exports.

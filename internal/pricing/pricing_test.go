@@ -360,3 +360,65 @@ func TestStaticAndFileErrorsAreReportedNotFatal(t *testing.T) {
 	}
 	_ = context.Background
 }
+
+func TestFileThatIsNotARegularSmallFileIsRefused(t *testing.T) {
+	dir := t.TempDir()
+	big := filepath.Join(dir, "big.json")
+	os.WriteFile(big, []byte(`{"models":{}}`+strings.Repeat(" ", MaxBytes+1)), 0o600)
+	for name, file := range map[string]string{"directory": dir, "over the limit": big, "missing": filepath.Join(dir, "none.json")} {
+		load := Load(Config{File: file, StateDir: dir})
+		if len(load.Layers) != 1 || load.Layers[0].Error == "" || len(load.Overrides) != 0 {
+			t.Errorf("%s: %+v", name, load)
+		}
+	}
+}
+
+func TestURLWithCredentialsOrAnOddSchemeIsRefused(t *testing.T) {
+	dir := t.TempDir()
+	for _, url := range []string{"https://user:pw@prices.example.com/p.json", "file:///etc/passwd", "ftp://x/y", "https:///nohost"} {
+		cfg := Config{URL: url, StateDir: dir}
+		if err := Refresh(t.Context(), cfg, true); err == nil {
+			t.Errorf("%s accepted", url)
+		}
+	}
+}
+
+func TestRedirectPolicy(t *testing.T) {
+	request := func(url string) *http.Request {
+		r, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return r
+	}
+	via := func(urls ...string) []*http.Request {
+		out := make([]*http.Request, len(urls))
+		for i, u := range urls {
+			out[i] = request(u)
+		}
+		return out
+	}
+	if err := redirectPolicy(request("https://b.example/p"), via("https://a.example/p")); err != nil {
+		t.Fatalf("a plain redirect is fine: %v", err)
+	}
+	if err := redirectPolicy(request("http://b.example/p"), via("https://a.example/p")); err == nil {
+		t.Fatal("https to http downgrade followed")
+	}
+	if err := redirectPolicy(request("https://u:p@b.example/p"), via("https://a.example/p")); err == nil {
+		t.Fatal("redirect to a URL with credentials followed")
+	}
+	if err := redirectPolicy(request("ftp://b.example/p"), via("https://a.example/p")); err == nil {
+		t.Fatal("redirect to another scheme followed")
+	}
+	if err := redirectPolicy(request("https://e.example/p"), via("https://a/p", "https://b/p", "https://c/p", "https://d/p")); err == nil {
+		t.Fatal("a long redirect chain followed")
+	}
+}
+
+func TestACommandNotOnPathIsRefusedBeforeItRuns(t *testing.T) {
+	cfg := Config{Translate: "no-such-translator-xyz --flag", StateDir: t.TempDir()}
+	err := Refresh(t.Context(), cfg, true)
+	if err == nil || !strings.Contains(err.Error(), "no-such-translator-xyz") {
+		t.Fatalf("err = %v", err)
+	}
+}

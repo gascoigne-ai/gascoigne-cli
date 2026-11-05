@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -193,6 +194,34 @@ func (c Config) remote() []string {
 	return names
 }
 
+// readSheet reads a price sheet file: a regular file of at most MaxBytes. A directory, a device or
+// a FIFO (which never ends) and an oversized file are refused before they are read.
+func readSheet(path string) ([]byte, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+	if !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("%s is not a regular file", path)
+	}
+	if info.Size() > MaxBytes {
+		return nil, fmt.Errorf("%s is over %d bytes", path, MaxBytes)
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	data, err := io.ReadAll(io.LimitReader(file, MaxBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(data) > MaxBytes {
+		return nil, fmt.Errorf("%s is over %d bytes", path, MaxBytes)
+	}
+	return data, nil
+}
+
 // fileStamp identifies a version of the file.
 func fileStamp(path string) (string, error) {
 	info, err := os.Stat(path)
@@ -253,7 +282,7 @@ func Load(cfg Config) Result {
 		var err error
 		if cfg.Translate == "" {
 			var data []byte
-			if data, err = os.ReadFile(cfg.File); err == nil {
+			if data, err = readSheet(cfg.File); err == nil {
 				list, err = cost.ParsePrices(data, LayerJSON)
 			}
 		} else {
@@ -401,7 +430,7 @@ func (c Config) run(ctx context.Context, name string, e *entry, force bool) erro
 		if err != nil {
 			return fmt.Errorf("%s prices: %w", name, err)
 		}
-		if input, err = os.ReadFile(c.File); err != nil {
+		if input, err = readSheet(c.File); err != nil {
 			return fmt.Errorf("%s prices: %w", name, err)
 		}
 		e.Stamp = stamp
@@ -431,8 +460,8 @@ func (c Config) run(ctx context.Context, name string, e *entry, force bool) erro
 
 // fetch GETs the URL, conditionally unless forced.
 func (c Config) fetch(ctx context.Context, e *entry, force bool) (body []byte, notModified bool, err error) {
-	if !strings.HasPrefix(c.URL, "https://") && !strings.HasPrefix(c.URL, "http://") {
-		return nil, false, fmt.Errorf("url %q: want http or https", c.URL)
+	if err := checkURL(c.URL); err != nil {
+		return nil, false, err
 	}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, c.URL, nil)
 	if err != nil {
@@ -454,7 +483,7 @@ func (c Config) fetch(ctx context.Context, e *entry, force bool) (body []byte, n
 	}
 	client := c.Client
 	if client == nil {
-		client = http.DefaultClient
+		client = &http.Client{CheckRedirect: redirectPolicy}
 	}
 	response, err := client.Do(request)
 	if err != nil {
@@ -476,6 +505,42 @@ func (c Config) fetch(ctx context.Context, e *entry, force bool) (body []byte, n
 	}
 	e.ETag, e.Modified = response.Header.Get("ETag"), response.Header.Get("Last-Modified")
 	return body, false, nil
+}
+
+// MaxRedirects bounds the redirects a price URL may follow.
+const MaxRedirects = 3
+
+// checkURL accepts an http or https address with a host and no credentials in it.
+func checkURL(raw string) error {
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return fmt.Errorf("url: %w", err)
+	}
+	if parsed.Scheme != "https" && parsed.Scheme != "http" {
+		return fmt.Errorf("url %q: want http or https", raw)
+	}
+	if parsed.Host == "" {
+		return fmt.Errorf("url %q: no host", raw)
+	}
+	if parsed.User != nil {
+		return fmt.Errorf("url: credentials in the address are not accepted; use header_env for a token")
+	}
+	return nil
+}
+
+// redirectPolicy follows at most MaxRedirects redirects, each to an acceptable address, and never
+// from https down to http.
+func redirectPolicy(next *http.Request, via []*http.Request) error {
+	if len(via) > MaxRedirects {
+		return fmt.Errorf("more than %d redirects", MaxRedirects)
+	}
+	if err := checkURL(next.URL.String()); err != nil {
+		return fmt.Errorf("redirect: %w", err)
+	}
+	if len(via) > 0 && via[len(via)-1].URL.Scheme == "https" && next.URL.Scheme != "https" {
+		return fmt.Errorf("redirect from https to http refused")
+	}
+	return nil
 }
 
 // limited is a writer that fails once more than MaxBytes arrive.
@@ -501,7 +566,11 @@ func (c Config) translate(ctx context.Context, input []byte) ([]byte, error) {
 	}
 	var out, errOut limited
 	out.max, errOut.max = MaxBytes, 4<<10
-	command := exec.CommandContext(ctx, argv[0], argv[1:]...)
+	program, err := exec.LookPath(argv[0])
+	if err != nil {
+		return nil, fmt.Errorf("command %s: %w", argv[0], err)
+	}
+	command := exec.CommandContext(ctx, program, argv[1:]...)
 	command.Stdin = bytes.NewReader(input)
 	command.Stdout, command.Stderr = &out, &errOut
 	command.WaitDelay = time.Second

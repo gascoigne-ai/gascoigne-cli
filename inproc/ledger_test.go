@@ -5,8 +5,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 )
 
 func TestMemoryLedgerStatsAndRecent(t *testing.T) {
@@ -67,82 +65,5 @@ func TestFileLedgerIsTheDefault(t *testing.T) {
 	defer e.Close(ctx)
 	if got := e.led.Path(); got == ":memory:" {
 		t.Fatalf("default ledger is in memory: %s", got)
-	}
-}
-
-func costEngine(t *testing.T, o Options) *Engine {
-	t.Helper()
-	t.Setenv("GASCOIGNE_LEDGER", "")
-	t.Setenv("XDG_DATA_HOME", t.TempDir())
-	o.IgnoreUserFile, o.Ledger = true, LedgerMemory
-	ctx := context.Background()
-	e, err := New(ctx, o)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { e.Close(ctx) })
-	raw := strings.Repeat("INFO request served path=/api/items status=200 ms=12\n", 400)
-	if _, err := e.Optimize(ctx, Request{Text: raw, Tool: "bash", Cmd: "tail app.log", Agent: "sdk", Model: "acme-large"}); err != nil {
-		t.Fatal(err)
-	}
-	return e
-}
-
-func TestCostsUseThePricesTheHostGives(t *testing.T) {
-	t.Cleanup(func() { cost.SetOverrides(nil); cost.SetBilling("") })
-	in, out := 3.0, 15.0
-	e := costEngine(t, Options{Pricing: &Pricing{Prices: map[string]Price{"acme-large": {In: &in, Out: &out, Tokenizer: "claude"}}}})
-	costs, err := e.Costs(context.Background(), StatsQuery{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if costs.Billing != "api" || len(costs.Savings) != 1 || len(costs.Unpriced) != 0 {
-		t.Fatalf("costs = %+v", costs)
-	}
-	saving := costs.Savings[0]
-	if saving.Model != "acme-large" || saving.Source != "static" || saving.Tokens <= 0 || costs.InContextUSD <= 0 || costs.FirstReadUSD <= 0 {
-		t.Fatalf("saving = %+v", saving)
-	}
-}
-
-func TestCostsWithoutPricesListsTheModelUnpriced(t *testing.T) {
-	t.Cleanup(func() { cost.SetOverrides(nil); cost.SetBilling("") })
-	e := costEngine(t, Options{})
-	costs, err := e.Costs(context.Background(), StatsQuery{})
-	if err != nil || len(costs.Savings) != 0 || len(costs.Unpriced) != 1 || costs.Unpriced[0] != "acme-large" {
-		t.Fatalf("costs = %+v, %v", costs, err)
-	}
-}
-
-func TestSubscriptionHostGetsNoDollars(t *testing.T) {
-	t.Cleanup(func() { cost.SetOverrides(nil); cost.SetBilling("") })
-	e := costEngine(t, Options{Pricing: &Pricing{Billing: "subscription"}})
-	costs, err := e.Costs(context.Background(), StatsQuery{})
-	if err != nil || costs.Billing != "subscription" || len(costs.Savings) != 0 || costs.InContextUSD != 0 {
-		t.Fatalf("costs = %+v, %v", costs, err)
-	}
-}
-
-func TestPricingFileAndBadPrices(t *testing.T) {
-	t.Cleanup(func() { cost.SetOverrides(nil); cost.SetBilling("") })
-	dir := t.TempDir()
-	file := dir + "/sheet.json"
-	os.WriteFile(file, []byte(`{"models":{"acme-large":{"in":1,"out":2}}}`), 0o600)
-	e := costEngine(t, Options{Pricing: &Pricing{File: file}})
-	costs, err := e.Costs(context.Background(), StatsQuery{})
-	if err != nil || len(costs.Savings) != 1 || costs.Savings[0].Source != "json" {
-		t.Fatalf("costs = %+v, %v", costs, err)
-	}
-	neg := -1.0
-	one := 1.0
-	for name, p := range map[string]*Pricing{
-		"negative":     {Prices: map[string]Price{"x": {In: &neg, Out: &one}}},
-		"missing out":  {Prices: map[string]Price{"x": {In: &one}}},
-		"missing file": {File: dir + "/none.json"},
-		"bad billing":  {Billing: "free"},
-	} {
-		if _, err := New(context.Background(), Options{IgnoreUserFile: true, Pricing: p}); err == nil {
-			t.Errorf("%s accepted", name)
-		}
 	}
 }

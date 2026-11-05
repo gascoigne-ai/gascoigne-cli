@@ -640,31 +640,6 @@ func setupHandlers(mux *http.ServeMux) {
 		link, err := setupLink()
 		respond(w, map[string]string{"url": link}, err)
 	})
-	// Tries the pricing form's sources once against a scratch cache and saves nothing: the way to
-	// check a file, URL or command before pressing Save. Behind the token like the save, and it
-	// leaves the token valid.
-	mux.HandleFunc("POST /api/setup/pricing-test", func(w http.ResponseWriter, r *http.Request) {
-		var req struct {
-			Token   string       `json:"token"`
-			Pricing *pricingForm `json:"pricing"`
-		}
-		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20))
-		decoder.DisallowUnknownFields()
-		if err := decoder.Decode(&req); err != nil || req.Pricing == nil {
-			http.Error(w, "want a token and a pricing form", http.StatusBadRequest)
-			return
-		}
-		if !validSetupToken(req.Token) {
-			http.Error(w, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
-			return
-		}
-		form, err := req.Pricing.prefs()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		respond(w, testPricing(r.Context(), form), nil)
-	})
 	mux.HandleFunc("GET /api/setup", func(w http.ResponseWriter, r *http.Request) {
 		if !validSetupToken(r.URL.Query().Get("token")) {
 			http.Error(w, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
@@ -689,10 +664,9 @@ func setupHandlers(mux *http.ServeMux) {
 			return
 		}
 		// The pricing form is checked before anything is saved: all or nothing.
-		var form pricingPrefs
+		saved := readPrefs()
 		if req.Pricing != nil {
-			var err error
-			if form, err = req.Pricing.prefs(); err != nil {
+			if err := req.Pricing.apply(&saved.Pricing); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
@@ -703,10 +677,10 @@ func setupHandlers(mux *http.ServeMux) {
 			return
 		}
 		if req.Pricing != nil {
-			saved := readPrefs()
-			form.Billing = cmp.Or(req.Answers["billing"], saved.Pricing.Billing)
-			saved.Pricing = form
-			if err := saved.save(); err != nil {
+			// applyAnswers saved the answers (billing among them); the form's interval and prices go on top.
+			current := readPrefs()
+			current.Pricing.TTL, current.Pricing.Prices = saved.Pricing.TTL, saved.Pricing.Prices
+			if err := current.save(); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}

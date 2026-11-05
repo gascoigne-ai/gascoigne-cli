@@ -146,7 +146,6 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Dur
 	mux.Handle("GET /sdk/v1/raw/{id}", localOnly(sdkRaw(l)))
 	mux.Handle("GET /sdk/v1/stats", localOnly(sdkStats(l)))
 	mux.Handle("GET /sdk/v1/recent", localOnly(sdkRecent(l)))
-	mux.Handle("GET /sdk/v1/costs", localOnly(sdkCosts(l)))
 	proxyOn := false
 	proxy, closeProxy, err := llmProxy(ctx, &w.mu, info.Ledger, "", slog.New(slog.NewTextHandler(os.Stderr, nil)))
 	if err != nil {
