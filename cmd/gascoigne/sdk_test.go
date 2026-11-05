@@ -38,7 +38,6 @@ func sdkServer(t *testing.T) *httptest.Server {
 	mux.Handle("GET /sdk/v1/raw/{id}", sdkRaw(l))
 	mux.Handle("GET /sdk/v1/stats", sdkStats(l))
 	mux.Handle("GET /sdk/v1/recent", sdkRecent(l))
-	mux.Handle("GET /sdk/v1/costs", sdkCosts(l))
 	mux.Handle("GET /sdk/v1/health", sdkHealthHandler("test", true))
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
@@ -169,34 +168,20 @@ func getJSON(t *testing.T, url string, into any) {
 	}
 }
 
-func TestSDKCosts(t *testing.T) {
-	resetCost(t)
-	fixture, err := filepath.Abs("../../testdata/eval/go/test-panic-trace.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
+// A limit or a before beyond what the ledger pages by must not wrap into a negative int on a
+// 32-bit build (CodeQL go/incorrect-integer-conversion): it is clamped or refused.
+func TestSDKRecentBoundsItsNumbers(t *testing.T) {
 	srv := sdkServer(t)
-	if err := cmdPricing(t.Context(), []string{"set", "-price", "acme-large=3,15"}); err != nil {
-		t.Fatal(err)
+	for _, query := range []string{"limit=99999999999", "limit=4294967295", "limit=2147483648", "before=4294967295", "before=99999999999"} {
+		resp, err := http.Get(srv.URL + "/sdk/v1/recent?" + query)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusBadRequest {
+			t.Errorf("%s: status %s", query, resp.Status)
+		}
 	}
-	applyPricing(false)
-	text, err := os.ReadFile(fixture)
-	if err != nil {
-		t.Fatal(err)
-	}
-	body, _ := json.Marshal(sdkRequest{Text: string(text), Cmd: "go test ./...", Agent: "langgraph", Model: "acme-large"})
-	resp, err := http.Post(srv.URL+"/sdk/v1/optimize", "application/json", strings.NewReader(string(body)))
-	if err != nil {
-		t.Fatal(err)
-	}
-	resp.Body.Close()
-
-	var costs inproc.Costs
-	getJSON(t, srv.URL+"/sdk/v1/costs", &costs)
-	if costs.Billing != "api" || len(costs.Savings) != 1 || costs.Savings[0].Source != "static" || costs.InContextUSD <= 0 {
-		t.Fatalf("costs = %+v", costs)
-	}
-	if bad, err := http.Get(srv.URL + "/sdk/v1/costs?since=yesterday"); err != nil || bad.StatusCode != http.StatusBadRequest {
-		t.Fatalf("bad since: %v %v", bad, err)
-	}
+	var runs []inproc.Run
+	getJSON(t, srv.URL+"/sdk/v1/recent?limit=4294967295", &runs)
 }

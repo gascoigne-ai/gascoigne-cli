@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -22,24 +21,66 @@ func setupMux(t *testing.T) (http.Handler, string) {
 	return localOnly(mux), token
 }
 
-func TestSetupSavesThePricingForm(t *testing.T) {
+func postSetupPath(h http.Handler, path, body string) *httptest.ResponseRecorder {
+	r := httptest.NewRequest("POST", path, strings.NewReader(body))
+	r.Host = "127.0.0.1:7878"
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, r)
+	return w
+}
+
+// The setup token is minted by a login-less endpoint, so anything a token holder can post must be
+// harmless: billing, the refresh interval and static prices. A price file, URL, header variable or
+// command would read files, reach the network or run a program for any local user.
+func TestSetupSavesBillingIntervalAndPricesAndKeepsTheTerminalSources(t *testing.T) {
 	sandbox(t)
 	resetCost(t)
+	prefsWithSources := readPrefs()
+	prefsWithSources.Pricing = pricingPrefs{
+		File: "/srv/prices.json", URL: "https://prices.example.com/p.json", HeaderEnv: "PRICES_AUTH",
+		Translate: "/usr/local/bin/to-gascoigne", Timeout: "20s",
+	}
+	if err := prefsWithSources.save(); err != nil {
+		t.Fatal(err)
+	}
 	h, token := setupMux(t)
-	script := filepath.Join(t.TempDir(), "t.sh")
-	os.WriteFile(script, []byte("#!/bin/sh\nprintf '{\"models\":{\"s\":{\"in\":1,\"out\":2}}}'\n"), 0o700)
-	body := `{"token":"` + token + `","answers":{"billing":"auto"},"pricing":{
-	  "ttl":"48h","file":"","url":"https://prices.example.com/p.json","header_env":"PRICES_AUTH",
-	  "translate":"` + script + `","timeout":"20s",
-	  "prices":{"acme-large":{"in":3,"out":15,"tokenizer":"claude"}}}}`
-	w := postSetup(h, body)
+	w := postSetup(h, `{"token":"`+token+`","answers":{"billing":"auto"},"pricing":{
+	  "ttl":"48h","prices":{"acme-large":{"in":3,"out":15,"tokenizer":"claude"}}}}`)
 	if w.Code != http.StatusOK {
 		t.Fatalf("%d %s", w.Code, w.Body)
 	}
 	p := readPrefs().Pricing
-	if p.TTL != "48h" || p.URL != "https://prices.example.com/p.json" || p.HeaderEnv != "PRICES_AUTH" ||
-		p.Translate != script || p.Timeout != "20s" || len(p.Prices) != 1 || p.Billing != "auto" {
-		t.Fatalf("prefs = %+v", p)
+	if p.TTL != "48h" || len(p.Prices) != 1 || p.Billing != "auto" {
+		t.Fatalf("form not saved: %+v", p)
+	}
+	if p.File != "/srv/prices.json" || p.URL != "https://prices.example.com/p.json" || p.HeaderEnv != "PRICES_AUTH" ||
+		p.Translate != "/usr/local/bin/to-gascoigne" || p.Timeout != "20s" {
+		t.Fatalf("saving the form changed the sources set in the terminal: %+v", p)
+	}
+}
+
+func TestSetupRefusesToSetWhatReadsFilesReachesTheNetworkOrRunsPrograms(t *testing.T) {
+	sandbox(t)
+	h, token := setupMux(t)
+	for name, pricing := range map[string]string{
+		"command":    `{"translate":"/bin/sh -c id"}`,
+		"url":        `{"url":"https://attacker.example/p.json"}`,
+		"file":       `{"file":"/etc/passwd"}`,
+		"header env": `{"header_env":"AWS_SECRET_ACCESS_KEY"}`,
+		"timeout":    `{"timeout":"1s"}`,
+	} {
+		w := postSetup(h, `{"token":"`+token+`","answers":{"billing":"api"},"pricing":`+pricing+`}`)
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("%s: status %d, want 400", name, w.Code)
+		}
+	}
+	if p := readPrefs().Pricing; p.Billing != "" || p.Translate != "" || p.URL != "" || p.File != "" || p.HeaderEnv != "" {
+		t.Fatalf("a refused form saved something: %+v", p)
+	}
+	// The route that ran the sources for the page is gone.
+	w := postSetupPath(h, "/api/setup/pricing-test", `{"token":"`+token+`","pricing":{"ttl":"24h"}}`)
+	if w.Code != http.StatusNotFound && w.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("pricing-test still answers: %d", w.Code)
 	}
 }
 
@@ -47,75 +88,42 @@ func TestSetupPricingFormIsAllOrNothingAndNeedsAToken(t *testing.T) {
 	sandbox(t)
 	h, token := setupMux(t)
 	for name, pricing := range map[string]string{
-		"bad ttl":      `{"ttl":"soon"}`,
-		"bad url":      `{"url":"ftp://x/y"}`,
-		"bad command":  `{"translate":"\"open"}`,
-		"bad timeout":  `{"timeout":"forever"}`,
-		"negative":     `{"prices":{"x":{"in":-1,"out":1}}}`,
-		"unknown key":  `{"command":"id"}`,
-		"header value": `{"header_env":"Bearer abc def"}`,
+		"bad ttl":     `{"ttl":"soon"}`,
+		"negative":    `{"prices":{"x":{"in":-1,"out":1}}}`,
+		"missing out": `{"prices":{"x":{"in":1}}}`,
+		"unknown key": `{"command":"id"}`,
 	} {
 		w := postSetup(h, `{"token":"`+token+`","answers":{"billing":"api"},"pricing":`+pricing+`}`)
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("%s: status %d, want 400", name, w.Code)
 		}
 	}
-	if p := readPrefs().Pricing; p.Billing != "" || p.TTL != "" || p.URL != "" {
+	if p := readPrefs().Pricing; p.Billing != "" || p.TTL != "" {
 		t.Fatalf("a refused form saved something: %+v", p)
 	}
-	w := postSetup(h, `{"token":"wrong","pricing":{"translate":"/bin/sh -c id"}}`)
-	if w.Code != http.StatusForbidden {
+	if w := postSetup(h, `{"token":"wrong","pricing":{"ttl":"12h"}}`); w.Code != http.StatusForbidden {
 		t.Fatalf("wrong token: %d", w.Code)
 	}
-	if p := readPrefs().Pricing; p.Translate != "" {
-		t.Fatalf("a command was saved without a token: %+v", p)
+	if p := readPrefs().Pricing; p.TTL != "" {
+		t.Fatalf("saved without a token: %+v", p)
 	}
 }
 
-func TestSetupViewCarriesThePricingAndTheDetection(t *testing.T) {
+func TestSetupViewShowsWhichSourcesAreSetButNotWhatTheyAre(t *testing.T) {
 	sandbox(t)
-	v := buildSetupView(prefs{Pricing: pricingPrefs{TTL: "12h", URL: "https://x/y.json", Translate: "tr a"}})
-	if v.Pricing == nil || v.Pricing.TTL != "12h" || v.Pricing.URL != "https://x/y.json" || v.Pricing.Translate != "tr a" {
-		t.Fatalf("pricing = %+v", v.Pricing)
+	view := buildSetupView(prefs{Pricing: pricingPrefs{
+		TTL: "12h", URL: "https://x.example/y.json?token=zq9marker", Translate: "tr --key zq9marker",
+	}})
+	if view.Pricing == nil || view.Pricing.TTL != "12h" || len(view.Pricing.Detected) < 3 {
+		t.Fatalf("pricing = %+v", view.Pricing)
 	}
-	if len(v.Pricing.Detected) < 3 {
-		t.Fatalf("detected = %+v", v.Pricing.Detected)
+	if !view.Pricing.Sources.URL || !view.Pricing.Sources.Translate || view.Pricing.Sources.File {
+		t.Fatalf("sources = %+v", view.Pricing.Sources)
 	}
-	fresh := buildSetupView(prefs{})
-	if fresh.Pricing == nil || fresh.Pricing.TTL != "24h" {
+	if body := mustJSON(t, view); strings.Contains(body, "zq9marker") {
+		t.Fatalf("the setup view leaks a URL or command line: %s", body)
+	}
+	if fresh := buildSetupView(prefs{}); fresh.Pricing == nil || fresh.Pricing.TTL != "24h" {
 		t.Fatalf("defaults = %+v", fresh.Pricing)
 	}
-}
-
-func TestSetupPricingTestRunsTheFormWithoutSavingAndKeepsTheToken(t *testing.T) {
-	sandbox(t)
-	resetCost(t)
-	h, token := setupMux(t)
-	script := filepath.Join(t.TempDir(), "t.sh")
-	os.WriteFile(script, []byte("#!/bin/sh\nprintf '{\"models\":{\"probe\":{\"in\":1,\"out\":2}}}'\n"), 0o700)
-	w := postSetupPath(h, "/api/setup/pricing-test", `{"token":"`+token+`","pricing":{"translate":"`+script+`"}}`)
-	if w.Code != http.StatusOK || !strings.Contains(w.Body.String(), "probe") {
-		t.Fatalf("%d %s", w.Code, w.Body)
-	}
-	if p := readPrefs().Pricing; p.Translate != "" {
-		t.Fatalf("test saved the command: %+v", p)
-	}
-	if !validSetupToken(token) {
-		t.Fatal("test used up the token")
-	}
-	if w := postSetupPath(h, "/api/setup/pricing-test", `{"token":"nope","pricing":{"translate":"`+script+`"}}`); w.Code != http.StatusForbidden {
-		t.Fatalf("no token: %d", w.Code)
-	}
-	bad := postSetupPath(h, "/api/setup/pricing-test", `{"token":"`+token+`","pricing":{"translate":"/nonexistent/x"}}`)
-	if bad.Code != http.StatusOK || !strings.Contains(bad.Body.String(), `"error"`) {
-		t.Fatalf("a failing script is reported, not a 500: %d %s", bad.Code, bad.Body)
-	}
-}
-
-func postSetupPath(h http.Handler, path, body string) *httptest.ResponseRecorder {
-	r := httptest.NewRequest("POST", path, strings.NewReader(body))
-	r.Host = "127.0.0.1:7878"
-	w := httptest.NewRecorder()
-	h.ServeHTTP(w, r)
-	return w
 }
