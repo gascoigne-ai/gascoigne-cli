@@ -168,8 +168,8 @@ func getJSON(t *testing.T, url string, into any) {
 	}
 }
 
-// A limit or a before beyond what the ledger pages by must not wrap into a negative int on a
-// 32-bit build (CodeQL go/incorrect-integer-conversion): it is clamped or refused.
+// A limit beyond what fits 16 bits is refused and one beyond what the ledger pages by is capped, so
+// neither can wrap into a negative int on a 32-bit build (CodeQL go/incorrect-integer-conversion).
 func TestSDKRecentBoundsItsNumbers(t *testing.T) {
 	srv := sdkServer(t)
 	for _, query := range []string{"limit=99999999999", "limit=4294967295", "limit=2147483648", "before=4294967295", "before=99999999999"} {
@@ -183,5 +183,13 @@ func TestSDKRecentBoundsItsNumbers(t *testing.T) {
 		}
 	}
 	var runs []inproc.Run
-	getJSON(t, srv.URL+"/sdk/v1/recent?limit=4294967295", &runs)
+	getJSON(t, srv.URL+"/sdk/v1/recent?limit=65535", &runs) // capped by the engine, not refused
+	resp, err := http.Get(srv.URL + "/sdk/v1/recent?limit=65536")
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("limit=65536: status %s, want 400", resp.Status)
+	}
 }

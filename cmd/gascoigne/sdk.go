@@ -152,13 +152,12 @@ func sdkRecent(l *ledger.Ledger) http.Handler {
 			http.Error(rw, "bad before: want a run id", http.StatusBadRequest)
 			return
 		}
-		limit, err := sdkUint(query.Get("limit"))
+		limit, err := sdkLimit(query.Get("limit"))
 		if err != nil {
-			http.Error(rw, "bad limit: want a number", http.StatusBadRequest)
+			http.Error(rw, "bad limit: want a number up to 65535", http.StatusBadRequest)
 			return
 		}
-		// Bounded before the conversion, so it cannot wrap on a 32-bit build.
-		q.Limit = int(min(limit, inproc.MaxRecentLimit))
+		q.Limit = limit // the engine caps it at inproc.MaxRecentLimit
 		runs, err := inproc.RecentOf(r.Context(), l, q)
 		sdkReply(rw, runs, err)
 	})
@@ -181,6 +180,16 @@ func sdkTime(value string) (time.Time, error) {
 		return time.Time{}, nil
 	}
 	return time.Parse(time.RFC3339, value)
+}
+
+// sdkLimit parses a page size. Sixteen bits are far more than the engine pages by and always fit
+// an int, so the conversion cannot wrap on a 32-bit build.
+func sdkLimit(value string) (int, error) {
+	if value == "" {
+		return 0, nil
+	}
+	n, err := strconv.ParseUint(value, 10, 16)
+	return int(n), err
 }
 
 func sdkUint(value string) (uint, error) {
