@@ -7,6 +7,14 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 `recommendations.md`.
 
 ## Open
+- State-machine audit (2026-11-16), rated frequency x impact below 5, so left alone until a failing run shows
+  otherwise:
+  - MCP login after a good login: a later 401 (dead refresh token) reaches the agent as a tool error and the
+    login tool does not come back. `mcpauth.NewHandler` refreshes tokens, so it needs a dead refresh token;
+    not reproduced yet. `finishLogin` also builds its own `unauthorized` flag, never read; share `Run`'s flag
+    if this is ever fixed.
+  - Server stop reason (`cmd/gascoigne/server.go`): `rebuilt` can be set while an idle exit wins the race, so
+    the exit is reported as a new build. Harmless: a changed binary should be restarted anyway.
 - Dialects the dialect-coverage cases (`testdata/eval`) show saving nothing (0% on 60-130 line fixtures): `search/git-grep`,
   `table/ss`, `table/sys` (lsmod), `build/fmt` (cargo fmt --check), `build/php` (phpstan), `test/catch`, `test/minitest`
   (the last two under the 200-token floor).
