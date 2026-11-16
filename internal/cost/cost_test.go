@@ -23,6 +23,14 @@ func TestLookup(t *testing.T) {
 		{"gpt-6.1-terra", "gpt-6.1-terra"},
 		{"gpt-5.6-cyber", "gpt-5.6-cyber"},
 		{"gemini-4-argon", "gemini-4-argon"},
+		{"claude-fable-5-2", "claude-fable-5-2"},
+		{"claude-mythos-5-2", "claude-mythos-5-2"},
+		{"gpt-6-cyber", "gpt-6-cyber"},
+		{"gpt-6-rosalind", "gpt-6-rosalind"},
+		{"gpt-6-astra-law", "gpt-6-astra-law"},
+		{"gemini-4-carbon", "gemini-4-carbon"},
+		{"gemini-4-hydrogen", "gemini-4-hydrogen"},
+		{"gemini-3-flash-preview", "gemini-3-flash"},
 		// Old models answer to their dated IDs, and the shorter claude-opus-4 must not
 		// take the versioned ones.
 		{"claude-opus-4-20250514", "claude-opus-4"},

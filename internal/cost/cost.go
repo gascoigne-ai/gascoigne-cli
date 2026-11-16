@@ -69,7 +69,7 @@ func written(id, tok string, in, out, read float64) Model {
 }
 
 // PricesChecked is the day Models was last compared with PriceSources.
-const PricesChecked = "2026-10-31"
+const PricesChecked = "2026-11-16"
 
 // PriceSources are the providers' official pricing pages Models is read from.
 var PriceSources = []string{
@@ -83,11 +83,14 @@ var PriceSources = []string{
 //
 // Tiers by prompt length (Haiku 5.5 over 100k, gpt-5.x over 272k, Gemini Pro
 // over 200k) take the short-context price. Promotions in force: gpt-5.6-sol
-// (through 2026-11-21), gemini-3.8-flash and gemini-3.6-flash (doubling on
+// (through 2026-11-30), gemini-4-argon and gemini-4-carbon (doubling on
+// 2026-12-01), gemini-3.8-flash and gemini-3.6-flash (doubling on
 // 2027-01-01). IDs match by prefix, so dated or suffixed variants
 // (claude-opus-5-5[1m]) find their model; variants priced apart (-pro, -lite,
 // -terra) need their own row.
 var Models = []Model{
+	claude("claude-fable-5-2", "claude", 8, 40, 0.20),
+	claude("claude-mythos-5-2", "claude", 8, 40, 0.20),
 	claude("claude-fable-5-1", "claude", 10, 50, 0.25),
 	claude("claude-fable-5", "claude", 10, 50, 1.00),
 	claude("claude-mythos-5-1", "claude", 10, 50, 0.25),
@@ -108,6 +111,9 @@ var Models = []Model{
 	claude("claude-opus-4", "claude-legacy", 15, 75, 1.50), // dated IDs (claude-opus-4-2025...); the versioned IDs above are longer, so they win
 	claude("claude-sonnet-4", "claude-legacy", 3, 15, 0.30),
 	claude("claude-3-5-haiku", "claude-legacy", 0.80, 4, 0.08), // Anthropic names this one with the version first
+	written("gpt-6-cyber", "o200k", 20, 100, 2.00),
+	written("gpt-6-rosalind", "o200k", 15, 75, 1.50),
+	automatic("gpt-6-astra-law", "o200k", 10, 50, 1.00), // promotional through 2026-12-31
 	written("gpt-6-astra", "o200k", 10, 50, 1.00),
 	written("gpt-6.1-sol", "o200k", 2, 10, 0.10),
 	written("gpt-6-sol", "o200k", 2, 10, 0.20),
@@ -131,13 +137,16 @@ var Models = []Model{
 	automatic("gpt-5-mini", "o200k", 0.25, 2, 0.025),
 	automatic("gpt-5-nano", "o200k", 0.05, 0.40, 0.005),
 	automatic("gpt-5", "o200k", 1.25, 10, 0.125),
-	// Promotional until 2026-11-30; from 2026-12-01 it is 4, 20, 0.20.
+	// Promotional until 2026-11-30; from 2026-12-01 both Argon and Carbon are 4, 20, 0.20.
+	automatic("gemini-4-carbon", "gemini", 2, 10, 0.10),
 	automatic("gemini-4-argon", "gemini", 2, 10, 0.10),
 	// Promotional until 2026-12-31; from 2027-01-01 the two Flash models are 1.50, 7.50, 0.15.
+	automatic("gemini-4-hydrogen", "gemini", 1.50, 7.50, 0.075),
 	automatic("gemini-3.8-flash", "gemini", 0.75, 3.75, 0.075),
 	automatic("gemini-3.6-flash", "gemini", 0.75, 3.75, 0.075),
 	automatic("gemini-3.5-flash-lite", "gemini", 0.30, 2.50, 0.03),
 	automatic("gemini-3.1-flash-lite", "gemini", 0.25, 1.50, 0.025),
+	automatic("gemini-3-flash", "gemini", 0.50, 3, 0.05),
 	automatic("gemini-3.1-pro", "gemini", 2, 12, 0.20),
 	automatic("gemini-2.5-pro", "gemini", 1.25, 10, 0.125),
 	automatic("gemini-2.5-flash-lite", "gemini", 0.10, 0.40, 0.01),
