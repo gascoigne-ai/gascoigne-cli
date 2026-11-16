@@ -27,11 +27,42 @@ func canLogin(rm Remote) bool {
 // open, and the server's real tools replace the login tool once it is done.
 type loginFlow struct {
 	mu      sync.Mutex
-	running bool
-	done    bool
-	authURL string
-	err     error
+	phase   loginPhase
+	authURL string        // valid while waiting
+	err     error         // valid when failed
 	ready   chan struct{} // closed once authURL is known or the flow ended
+}
+
+// loginPhase is where a loginFlow stands; loginTransitions lists the only legal moves.
+type loginPhase string
+
+type loginEvent string
+
+const (
+	loginIdle    loginPhase = "idle"
+	loginWaiting loginPhase = "waiting"
+	loginDone    loginPhase = "done"
+	loginFailed  loginPhase = "failed"
+
+	loginStart   loginEvent = "start"
+	loginSucceed loginEvent = "succeed"
+	loginFail    loginEvent = "fail"
+)
+
+var loginTransitions = map[loginPhase]map[loginEvent]loginPhase{
+	loginIdle:    {loginStart: loginWaiting},
+	loginFailed:  {loginStart: loginWaiting},
+	loginWaiting: {loginSucceed: loginDone, loginFail: loginFailed},
+}
+
+// advance moves the flow along loginTransitions and says whether the move was legal.
+// The caller holds f.mu.
+func (f *loginFlow) advance(event loginEvent) bool {
+	next, ok := loginTransitions[f.phase][event]
+	if ok {
+		f.phase = next
+	}
+	return ok
 }
 
 // runLogin serves a stand-in for a remote server that answered 401: instructions
@@ -46,7 +77,7 @@ func (r *Receiver) runLogin(ctx context.Context, client *mcp.Client, rm Remote) 
 		Instructions: fmt.Sprintf("The remote MCP server %s needs an OAuth login before it offers any tools. The browser is opening for it; if the user has not authorized yet, call %s for the address.", mcpauth.Display(rm.URL), loginTool),
 		Logger:       r.log,
 	})
-	f := &loginFlow{}
+	f := &loginFlow{phase: loginIdle}
 	s.AddTool(&mcp.Tool{
 		Name:        loginTool,
 		Description: "Log in to " + host + " (OAuth). Starts the browser authorization and returns its address; the server's tools appear when the user is done.",
@@ -72,24 +103,26 @@ func (r *Receiver) loginStatus(ctx, callCtx context.Context, f *loginFlow, clien
 	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	switch {
-	case f.done:
+	switch f.phase {
+	case loginDone:
 		return "Logged in. List the tools again."
-	case f.err != nil:
+	case loginFailed:
 		return "Login failed: " + f.err.Error() + "\nCall " + loginTool + " to try again."
-	case f.authURL != "":
-		return "Ask the user to authorize in the browser (opened if possible): " + f.authURL + "\nThe server's tools appear when they are done."
+	case loginWaiting:
+		if f.authURL != "" {
+			return "Ask the user to authorize in the browser (opened if possible): " + f.authURL + "\nThe server's tools appear when they are done."
+		}
 	}
 	return "Login is starting; call " + loginTool + " again for the address."
 }
 
-// beginLogin starts the flow unless one runs or is done; the channel closes once
+// beginLogin starts the flow unless one waits or is done; the channel closes once
 // the authorization address is known or the flow ended.
 func (r *Receiver) beginLogin(ctx context.Context, f *loginFlow, client *mcp.Client, s *mcp.Server, rm Remote) <-chan struct{} {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	if !f.running && !f.done {
-		f.running, f.err, f.authURL, f.ready = true, nil, "", make(chan struct{})
+	if f.advance(loginStart) {
+		f.err, f.authURL, f.ready = nil, "", make(chan struct{})
 		go r.login(ctx, f, f.ready, client, s, rm)
 	}
 	return f.ready
@@ -114,7 +147,12 @@ func (r *Receiver) login(ctx context.Context, f *loginFlow, ready chan struct{},
 		err = r.finishLogin(ctx, client, s, rm)
 	}
 	f.mu.Lock()
-	f.running, f.done, f.err = false, err == nil, err
+	f.err = err
+	if err == nil {
+		f.advance(loginSucceed)
+	} else {
+		f.advance(loginFail)
+	}
 	f.mu.Unlock()
 	signal()
 }
