@@ -327,8 +327,12 @@ func fromCache(e *entry, name string, layer *Layer, cfg Config) ([]cost.Override
 		return nil, nil
 	}
 	layer.Fetched = e.Fetched
-	if !cfg.Manual && !e.Fetched.IsZero() {
+	switch {
+	case cfg.Manual:
+	case !e.Fetched.IsZero():
 		layer.Next = e.Fetched.Add(cfg.ttl())
+	case e.Error != "": // nothing fetched yet: the failure's backoff dates the next try
+		layer.Next = e.Attempt.Add(FailureBackoff)
 	}
 	var err error
 	if e.Error != "" {

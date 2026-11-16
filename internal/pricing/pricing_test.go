@@ -422,3 +422,23 @@ func TestACommandNotOnPathIsRefusedBeforeItRuns(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+// A first fetch that failed has no good prices to date the next refresh from, so the
+// layer showed no next try even though one is due after the backoff.
+func TestFirstFetchFailureShowsTheNextTry(t *testing.T) {
+	api := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
+		http.Error(rw, "down", http.StatusServiceUnavailable)
+	}))
+	defer api.Close()
+	now := time.Now()
+	cfg := Config{URL: api.URL, StateDir: t.TempDir(), TTL: 24 * time.Hour, Now: clock(&now)}
+
+	Refresh(t.Context(), cfg, false)
+	layers := Load(cfg).Layers
+	if len(layers) != 1 || layers[0].Error == "" {
+		t.Fatalf("status = %+v", layers)
+	}
+	if want := now.Add(FailureBackoff); !layers[0].Next.Equal(want) {
+		t.Fatalf("Next = %v, want %v", layers[0].Next, want)
+	}
+}
