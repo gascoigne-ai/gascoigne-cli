@@ -20,6 +20,7 @@ Shared with the other gascoigne repos: submodule `.harness/common`.
 @.harness/common/rules.md
 @.harness/common/commit-style.md
 @.harness/common/code-style.md
+@.harness/common/architecture-style.md
 @.harness/rules.md
 @.harness/code-style.md
 @.harness/recommendations.md

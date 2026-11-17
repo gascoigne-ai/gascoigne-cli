@@ -27,7 +27,7 @@ Adds to the shared `common/rules.md` and `common/commit-style.md`. Breaking one 
 - Boundary: public contracts `component/`, `payload/`, `tokens/` never import `internal/`. Component
   dirs (`receiver/`, `filter/`, `optimizer/`, `exporter/`, `extension/`) may import them and the
   libs in `internal/` (`compress`, `detect`, ...), never the engine `internal/{config,router,service,registry}`
-  (enforced by `make imports`). No imports between component packages.
+  (enforced by `make imports`, which runs the shared layer check on `.harness/layers.txt`). No imports between component packages.
 - New optimizer = new package + registry line + route in `configs/default.yaml` + eval case.
 - Never lose information. Optimized output must stay reversible through the ledger;
   bypass output stays byte-exact. Optimizers never write to the ledger themselves — core does.

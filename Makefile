@@ -27,7 +27,7 @@ fmt-check:
 	@out=$$(gofmt -l .); if [ -n "$$out" ]; then echo "gofmt needed:"; echo "$$out"; exit 1; fi
 
 imports:
-	.harness/scripts/check-imports.sh
+	.harness/common/scripts/check-layers.sh
 
 cover:
 	go test -coverprofile=coverage.out ./...
