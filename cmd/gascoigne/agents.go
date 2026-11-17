@@ -39,19 +39,19 @@ var agents = map[string]agent{
 			if updated == nil {
 				return nil
 			}
-			return map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "PreToolUse", "updatedInput": updated}}
+			return claudePreReply{HookSpecificOutput: claudePreOutput{HookEventName: "PreToolUse", UpdatedInput: updated}}
 		})))},
 	// Codex rewrites a command only together with approving it, so its
 	// output is optimized after the run instead and replaces the result.
 	"codex": {bin: "codex", launch: codexArgs, install: codexInstall, add: addCodex, remove: removeCodex,
-		hook: optimizeHook(func(text string) any { return map[string]any{"decision": "block", "reason": text} })},
+		hook: optimizeHook(func(text string) any { return codexReply{Decision: "block", Reason: text} })},
 	// Cursor reads hooks and MCP servers from its config files only.
 	"cursor": {install: cursorInstall, add: addCursor, remove: removeCursor,
 		hook: rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
-				return map[string]any{"permission": "allow"}
+				return cursorReply{Permission: "allow"}
 			}
-			return map[string]any{"permission": "allow", "updated_input": updated}
+			return cursorReply{Permission: "allow", UpdatedInput: updated}
 		})},
 	"gemini":   {bin: "gemini", env: geminiEnv, install: geminiInstall, add: addGemini, remove: removeGemini, hook: geminiHook},
 	"opencode": {bin: "opencode", env: opencodeEnv, install: opencodeInstall, add: addOpencode, remove: removeOpencode, hook: opencodeHook},
@@ -60,8 +60,40 @@ var agents = map[string]agent{
 			if updated == nil {
 				return nil
 			}
-			return map[string]any{"command": updated["command"]}
+			command, _ := updated["command"].(string)
+			return piReply{Command: command}
 		})},
+}
+
+// Hook replies, one struct per agent shape: keys are fixed, built once and
+// serialized once. Tool input handed back to the agent stays a map, since the
+// keys the hook does not know must reach the agent as they came.
+
+// claudePreReply answers claude's PreToolUse with the rewritten tool input.
+type claudePreReply struct {
+	HookSpecificOutput claudePreOutput `json:"hookSpecificOutput"`
+}
+
+type claudePreOutput struct {
+	HookEventName string         `json:"hookEventName"`
+	UpdatedInput  map[string]any `json:"updatedInput"`
+}
+
+// cursorReply approves the call, with the rewritten input when there is one.
+type cursorReply struct {
+	Permission   string         `json:"permission"`
+	UpdatedInput map[string]any `json:"updated_input,omitempty"`
+}
+
+// codexReply replaces a result: "block" with the optimized text as the reason.
+type codexReply struct {
+	Decision string `json:"decision"`
+	Reason   string `json:"reason"`
+}
+
+// piReply carries the rewritten command.
+type piReply struct {
+	Command string `json:"command"`
 }
 
 func agentNames() string {

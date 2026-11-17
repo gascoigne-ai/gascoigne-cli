@@ -4,6 +4,12 @@
 
 - Hooks call `gascoigne hook <agent>`, which never fails the tool call: bad input → no answer →
   call unchanged.
+- **Reply types** (`agents.go`, `posthook.go`): one struct per agent reply shape (`claudePreReply`,
+  `claudePostReply`, `cursorReply`, `piReply`, `codexReply`, `geminiPreReply`, `geminiDenyReply`,
+  `opencodeBeforeReply`, `opencodeAfterReply`), field names and JSON tags equal to the keys the agent
+  reads; built once, serialized once, never looked up. The tool input handed back (`updatedInput`,
+  `updated_input`) and the replaced tool result (`updatedToolOutput`) stay untyped: unknown keys must
+  reach the agent as they came. Session and prompt notes (`hook.go`) are still maps.
 - **After-the-fact replacement** (`posthook.go`), for results the command rewrite cannot reach:
   - claude PostToolUse `updatedToolOutput` in the tool's shape (Bash stdout, Grep content mode, `mcp__*`)
   - codex PostToolUse `decision: block` + `reason` (`^Bash$|^mcp__.*`)

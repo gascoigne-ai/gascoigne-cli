@@ -35,8 +35,29 @@ var geminiHook = geminiAfter(withGuide(rewriteHook(func(updated map[string]any) 
 	if updated == nil {
 		return nil
 	}
-	return map[string]any{"hookSpecificOutput": map[string]any{"tool_input": map[string]any{"command": updated["command"]}}}
+	command, _ := updated["command"].(string)
+	return geminiPreReply{HookSpecificOutput: geminiPreOutput{ToolInput: geminiToolInput{Command: command}}}
 })))
+
+// geminiPreReply carries the rewritten command; tool_input is merged over the
+// model's arguments, so it holds only the key that changes.
+type geminiPreReply struct {
+	HookSpecificOutput geminiPreOutput `json:"hookSpecificOutput"`
+}
+
+type geminiPreOutput struct {
+	ToolInput geminiToolInput `json:"tool_input"`
+}
+
+type geminiToolInput struct {
+	Command string `json:"command"`
+}
+
+// geminiDenyReply replaces a result: "deny" with the optimized text as the reason.
+type geminiDenyReply struct {
+	Decision string `json:"decision"`
+	Reason   string `json:"reason"`
+}
 
 // geminiAfter answers AfterTool: output the BeforeTool rewrite did not
 // reach (commands left as they were, MCP servers' results) is optimized,
@@ -64,7 +85,7 @@ func geminiAfter(h hookFunc) hookFunc {
 		if err != nil || out == "" {
 			return nil, err
 		}
-		return map[string]any{"decision": "deny", "reason": out}, nil
+		return geminiDenyReply{Decision: "deny", Reason: out}, nil
 	}
 }
 

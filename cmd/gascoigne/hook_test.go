@@ -192,7 +192,7 @@ func TestCodexOptimizesOutput(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	m, _ := reply.(map[string]any)
+	m := decodedReply(t, reply)
 	reason, _ := m["reason"].(string)
 	if m["decision"] != "block" || !strings.HasPrefix(reason, "exit code 1\n") || !strings.Contains(reason, "[raw:") {
 		t.Fatalf("got %v", reply)

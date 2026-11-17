@@ -55,7 +55,7 @@ func TestPostToolUse(t *testing.T) {
 				t.Fatal(err)
 			}
 			if tt.name == "mcp blocks" {
-				out := reply.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].([]any)
+				out := decodedReply(t, reply)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].([]any)
 				if text := out[0].(map[string]any)["text"].(string); !strings.Contains(text, "[raw:") || out[1].(map[string]any)["type"] != "image" {
 					t.Fatalf("got %v", out)
 				}
@@ -67,7 +67,7 @@ func TestPostToolUse(t *testing.T) {
 				}
 				return
 			}
-			out := reply.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)
+			out := decodedReply(t, reply)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)
 			if text := tt.field(out); !strings.Contains(text, "[raw:") || len(text) >= len(tt.in.ToolResponse) {
 				t.Fatalf("not optimized: %.200s", text)
 			}
@@ -117,7 +117,7 @@ func TestPostToolUseReadImage(t *testing.T) {
 				}
 				return
 			}
-			out := reply.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)
+			out := decodedReply(t, reply)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)
 			file := out["file"].(map[string]any)
 			data := file["base64"].(string)
 			raw, _ := base64.StdEncoding.DecodeString(data)
@@ -127,11 +127,11 @@ func TestPostToolUseReadImage(t *testing.T) {
 			}
 			dims := file["dimensions"].(map[string]any)
 			if out["type"] != "image" || file["type"] != "image/png" || file["originalSize"] != float64(len(shot)) ||
-				dims["originalWidth"] != float64(1600) || dims["displayWidth"] != got.Width || dims["displayHeight"] != got.Height {
+				dims["originalWidth"] != float64(1600) || dims["displayWidth"] != float64(got.Width) || dims["displayHeight"] != float64(got.Height) {
 				t.Fatalf("shape changed: %v", file)
 			}
 			again, _ := agents["claude"].hook(t.Context(), &common{attrs: attrFlag{}}, tt.in, "gascoigne exec")
-			if again.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)["file"].(map[string]any)["base64"] != data {
+			if decodedReply(t, again)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)["file"].(map[string]any)["base64"] != data {
 				t.Fatal("not deterministic")
 			}
 		})
@@ -187,7 +187,7 @@ func TestResultHooksOtherAgents(t *testing.T) {
 				}
 				return
 			}
-			got, _ := reply.(map[string]any)[tt.key].(string)
+			got, _ := decodedReply(t, reply)[tt.key].(string)
 			if !strings.Contains(got, "[raw:") || len(got) >= len(data) {
 				t.Fatalf("not optimized: %.200s", got)
 			}
@@ -268,7 +268,7 @@ func TestResultHooksKeepHTMLSource(t *testing.T) {
 			if reply == nil {
 				return // left whole
 			}
-			m, _ := reply.(map[string]any)
+			m := decodedReply(t, reply)
 			if got, _ := m["reason"].(string); !strings.Contains(got, "<div") {
 				t.Fatalf("source lost: %.200s", got)
 			}
@@ -295,7 +295,7 @@ func TestHookedMCPCallPassesArgs(t *testing.T) {
 		if err != nil || reply == nil {
 			t.Fatalf("reply %v, err %v", reply, err)
 		}
-		out := reply.(map[string]any)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)
+		out := decodedReply(t, reply)["hookSpecificOutput"].(map[string]any)["updatedToolOutput"].(map[string]any)
 		return out["content"].([]any)[0].(map[string]any)["text"].(string)
 	}
 	bare := run(nil)

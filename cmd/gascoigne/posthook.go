@@ -41,8 +41,19 @@ func withResults(h hookFunc) hookFunc {
 		if err != nil || out == nil {
 			return nil, err
 		}
-		return map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "PostToolUse", "updatedToolOutput": out}}, nil
+		return claudePostReply{HookSpecificOutput: claudePostOutput{HookEventName: "PostToolUse", UpdatedToolOutput: out}}, nil
 	}
+}
+
+// claudePostReply answers claude's PostToolUse with the replaced result. The
+// result stays untyped: it keeps the shape of whichever tool ran.
+type claudePostReply struct {
+	HookSpecificOutput claudePostOutput `json:"hookSpecificOutput"`
+}
+
+type claudePostOutput struct {
+	HookEventName     string `json:"hookEventName"`
+	UpdatedToolOutput any    `json:"updatedToolOutput"`
 }
 
 // optimizeResult returns the tool's output with its text optimized, in the

@@ -61,8 +61,19 @@ var opencodeHook = opencodeAfter(rewriteHook(func(updated map[string]any) any {
 	if updated == nil {
 		return nil
 	}
-	return map[string]any{"command": updated["command"]}
+	command, _ := updated["command"].(string)
+	return opencodeBeforeReply{Command: command}
 }))
+
+// opencodeBeforeReply carries the rewritten command.
+type opencodeBeforeReply struct {
+	Command string `json:"command"`
+}
+
+// opencodeAfterReply carries the optimized result text.
+type opencodeAfterReply struct {
+	Output string `json:"output"`
+}
 
 // opencodeBuiltin are opencode's own tools; any other tool is an MCP server's
 // (named <server>_<tool>, no marker), except gascoigne's own.
@@ -99,7 +110,7 @@ func opencodeAfter(h hookFunc) hookFunc {
 		if err != nil || out == "" {
 			return nil, err
 		}
-		return map[string]any{"output": out}, nil
+		return opencodeAfterReply{Output: out}, nil
 	}
 }
 
