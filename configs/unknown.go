@@ -11,6 +11,9 @@ import (
 // instance (grep/strict), so only ids the defaults have get their fields checked.
 var OpenKinds = []string{"extensions", "receivers", "filters", "optimizers", "exporters", "pipelines"}
 
+// VersionKey is the config format key; it is stamped by the template and is not a setting.
+const VersionKey = "version"
+
 // HasSettings reports whether a parsed config sets anything: a file of
 // comments only, or one uncommented parent with nothing below, sets nothing.
 func HasSettings(doc *yaml.Node) bool {
@@ -21,8 +24,8 @@ func HasSettings(doc *yaml.Node) bool {
 	if root.Kind != yaml.MappingNode {
 		return root.Tag != "!!null"
 	}
-	for i := 1; i < len(root.Content); i += 2 {
-		if root.Content[i].Tag != "!!null" {
+	for i := 0; i+1 < len(root.Content); i += 2 {
+		if root.Content[i].Value != VersionKey && root.Content[i+1].Tag != "!!null" {
 			return true
 		}
 	}

@@ -10,6 +10,10 @@
 ## Per run, without editing this file: -set path=yaml, -only a,b, -disable a,b (or
 ## GASCOIGNE_SET, GASCOIGNE_ONLY, GASCOIGNE_DISABLE in an agent's environment).
 
+## Config format this file was written for. Leave it: a gascoigne that does not know it refuses the
+## file instead of guessing, and `gascoigne config -upgrade` stamps it. A file without it is version 1.
+version: 1
+
 ## Shared services.
 # extensions:
 #   ledger:

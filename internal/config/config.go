@@ -9,6 +9,7 @@ import (
 	"maps"
 	"os"
 	"slices"
+	"strconv"
 
 	"go.yaml.in/yaml/v3"
 
@@ -16,11 +17,52 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/router"
 )
 
+// SupportedVersion is the config format this build reads.
+const SupportedVersion = 1
+
+// CheckVersion reads the format version of a config file without decoding the
+// rest: a missing key (or an empty file) is version 1, which is what files
+// written before the key existed are. A version this build does not support is
+// an error, so callers can name the file.
+func CheckVersion(data []byte) (int, error) {
+	var doc yaml.Node
+	if err := yaml.Unmarshal(data, &doc); err != nil {
+		return 0, err
+	}
+	if len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {
+		return 1, nil
+	}
+	root := doc.Content[0]
+	for i := 0; i+1 < len(root.Content); i += 2 {
+		if root.Content[i].Value != "version" {
+			continue
+		}
+		val := root.Content[i+1]
+		if val.Tag == "!!null" {
+			return 1, nil
+		}
+		version, err := strconv.Atoi(val.Value)
+		if err != nil || val.Tag != "!!int" || version < 1 {
+			return 0, errors.New("version must be a whole number of 1 or more")
+		}
+		if version > SupportedVersion {
+			return 0, errTooNew(version)
+		}
+		return version, nil
+	}
+	return 1, nil
+}
+
+func errTooNew(version int) error {
+	return fmt.Errorf("version %d is newer than this gascoigne supports (%d); update gascoigne", version, SupportedVersion)
+}
+
 type Node = yaml.Node
 
 type Components map[string]Node
 
 type Config struct {
+	Version    int                 `yaml:"version"`
 	Extensions Components          `yaml:"extensions"`
 	Receivers  Components          `yaml:"receivers"`
 	Filters    Components          `yaml:"filters"`
@@ -79,7 +121,7 @@ func Load(path string) (*Config, error) {
 }
 
 func Parse(data []byte) (*Config, error) {
-	var c Config
+	c := Config{Version: SupportedVersion}
 	if err := Decode(data, &c); err != nil {
 		return nil, fmt.Errorf("config: %w", err)
 	}
@@ -109,6 +151,12 @@ func DecodeNode(n Node, out any) error {
 }
 
 func (c *Config) Validate() error {
+	if c.Version > SupportedVersion {
+		return errTooNew(c.Version)
+	}
+	if c.Version < 1 {
+		return errors.New("version must be a whole number of 1 or more")
+	}
 	if len(c.Pipelines) == 0 {
 		return errors.New("no pipelines")
 	}

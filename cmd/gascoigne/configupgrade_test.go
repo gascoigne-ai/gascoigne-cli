@@ -28,6 +28,11 @@ func TestUpgradeConfig(t *testing.T) {
 		{name: "unknown top-level key dropped", old: "telemetry: true\nfilters:\n  minsize: { min_tokens: 10 }\n",
 			keep: []string{"min_tokens: 10"}, dropped: []string{"telemetry"}},
 		{name: "only unknown settings", old: "telemetry: true\n", dropped: []string{"telemetry"}, template: true},
+		{name: "stamps the version once", old: "filters:\n  minsize: { min_tokens: 10 }\n",
+			keep: []string{"min_tokens: 10"}},
+		{name: "explicit version 1 is not repeated", old: "version: 1\nfilters:\n  minsize: { min_tokens: 10 }\n",
+			keep: []string{"min_tokens: 10"}},
+		{name: "version only", old: "version: 1\n", template: true},
 		{name: "own component instance kept", old: "optimizers:\n  grep/strict: { max_per_file: 5 }\n",
 			keep: []string{"grep/strict:", "max_per_file: 5"}},
 	}
@@ -45,6 +50,9 @@ func TestUpgradeConfig(t *testing.T) {
 			}
 			if !strings.HasPrefix(string(out), string(configs.User)) {
 				t.Error("upgrade does not start with this version's template")
+			}
+			if n := strings.Count("\n"+string(out), "\nversion:"); n != 1 {
+				t.Errorf("%d version keys, want 1:\n%s", n, out[len(configs.User):])
 			}
 			for _, k := range tt.keep {
 				if !strings.Contains(string(out), k) {
@@ -137,5 +145,20 @@ func TestUpgradeCmd(t *testing.T) {
 	}
 	if _, err := configData(""); err != nil {
 		t.Fatalf("upgraded config does not load: %v", err)
+	}
+}
+
+func TestUpgradeRefusesNewerVersion(t *testing.T) {
+	const newer = "version: 2\nfilters:\n  minsize: { min_tokens: 10 }\n"
+	path := userConfig(t, newer)
+	err := upgradeCmd("")
+	if err == nil || !strings.Contains(err.Error(), path) || !strings.Contains(err.Error(), "version 2") {
+		t.Fatalf("err = %v, want it to name %s and version 2", err, path)
+	}
+	if got, _ := os.ReadFile(path); string(got) != newer {
+		t.Error("a newer config was rewritten")
+	}
+	if fileExists(path + ".bak") {
+		t.Error("a .bak was written for a refused upgrade")
 	}
 }

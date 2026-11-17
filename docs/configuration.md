@@ -30,6 +30,11 @@ defaults apply on their own; the template part is what goes stale.
   each. The old file stays as `config.yaml.bak`.
 - **A setting this version does not know** stops every command with an error naming it and
   pointing at `config -upgrade`, instead of being ignored.
+- **The `version` key** (`version: 1`, at the top of the template) names the config format. A file
+  without it is version 1, so older files keep loading, and `config -upgrade` writes it. It is not a
+  setting: a file with only `version` still counts as one that sets nothing. A version newer than
+  this gascoigne supports (also in `.gascoigne.yaml`) stops the command with an error naming the
+  file; `config -upgrade` refuses it too and leaves the file alone. Update gascoigne instead.
 
 
 To change a setting, uncomment it together with its parent keys:

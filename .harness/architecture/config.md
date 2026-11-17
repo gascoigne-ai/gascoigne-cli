@@ -16,6 +16,13 @@
 - Upgrades: a later version refreshes a file that sets nothing. `config -upgrade`
   (`configupgrade.go`) rebuilds one with settings on the new template (unknown ones dropped and
   named, old file `.bak`). An unknown setting fails up front, naming the upgrade.
+- Version: `Config.Version` (`version:`, `config.SupportedVersion` = 1) is the format of the file.
+  Missing means 1, so files from before the key load under strict decoding. `config.CheckVersion`
+  reads it from one file's bytes: `configFile` and `withProject` check each file before overlay so the
+  error names it; a newer one fails, `upgradeConfig` refuses it too and drops the user's own key
+  (the template's `version: 1` is the single one). `Validate` backstops `-set version=2`.
+  `configs.HasSettings` skips `configs.VersionKey`, so the bare template is still "no settings".
+  Overlay keeps the user's value. Bump `SupportedVersion` only with a migration in `config -upgrade`.
 - Strict decoding: unknown fields fail. Tests keep the template honest: uncommented, it equals the
   defaults, and every `Config` field of every used component appears in it (a new field fails
   until documented).

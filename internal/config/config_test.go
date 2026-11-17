@@ -104,3 +104,68 @@ func TestPipelineOptimizersErrors(t *testing.T) {
 		t.Fatalf("err = %v, want undefined optimizer error", err)
 	}
 }
+
+func TestParseVersion(t *testing.T) {
+	tests := []struct {
+		name, prefix string
+		want         int
+		err          string
+	}{
+		{"missing means 1", "", 1, ""},
+		{"1", "version: 1\n", 1, ""},
+		{"2 is too new", "version: 2\n", 0, "version 2 is newer than this gascoigne supports (1)"},
+		{"0", "version: 0\n", 0, "version"},
+		{"text", "version: x\n", 0, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, err := Parse([]byte(tt.prefix + valid))
+			if tt.err != "" || tt.name == "text" {
+				if err == nil || !strings.Contains(err.Error(), tt.err) {
+					t.Fatalf("err = %v, want containing %q", err, tt.err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if c.Version != tt.want {
+				t.Errorf("Version = %d, want %d", c.Version, tt.want)
+			}
+		})
+	}
+}
+
+func TestCheckVersion(t *testing.T) {
+	tests := []struct {
+		name, data string
+		want       int
+		err        string
+	}{
+		{"empty", "", 1, ""},
+		{"comments only", "# nothing\n", 1, ""},
+		{"not a mapping", "- a\n- b\n", 1, ""},
+		{"missing", "router: {}\n", 1, ""},
+		{"null", "version:\n", 1, ""},
+		{"1", "version: 1\n", 1, ""},
+		{"2", "version: 2\n", 0, "version 2 is newer than this gascoigne supports (1); update gascoigne"},
+		{"0", "version: 0\n", 0, "version must be a whole number of 1 or more"},
+		{"negative", "version: -3\n", 0, "version must be a whole number of 1 or more"},
+		{"text", "version: x\n", 0, "version must be a whole number of 1 or more"},
+		{"fraction", "version: 1.5\n", 0, "version must be a whole number of 1 or more"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := CheckVersion([]byte(tt.data))
+			if tt.err != "" {
+				if err == nil || !strings.Contains(err.Error(), tt.err) {
+					t.Fatalf("err = %v, want containing %q", err, tt.err)
+				}
+				return
+			}
+			if err != nil || got != tt.want {
+				t.Fatalf("CheckVersion = %d, %v, want %d", got, err, tt.want)
+			}
+		})
+	}
+}

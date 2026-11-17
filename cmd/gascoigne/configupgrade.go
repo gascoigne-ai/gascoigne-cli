@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"slices"
 
 	"go.yaml.in/yaml/v3"
 
@@ -18,6 +19,9 @@ const keptHeader = "## Your settings, kept by gascoigne config -upgrade (the pre
 // active settings are kept below it, settings this version no longer knows
 // are left out and returned as dotted paths.
 func upgradeConfig(old []byte) (out []byte, dropped []string, err error) {
+	if _, err := config.CheckVersion(old); err != nil {
+		return nil, nil, err
+	}
 	var user, defaults yaml.Node
 	if err := yaml.Unmarshal(old, &user); err != nil {
 		return nil, nil, fmt.Errorf("parse: %w", err)
@@ -29,6 +33,10 @@ func upgradeConfig(old []byte) (out []byte, dropped []string, err error) {
 		return configs.User, nil, nil
 	}
 	root := user.Content[0]
+	// the template states the version once; the user's own would repeat the key
+	if i := configs.KeyIndex(root, configs.VersionKey); i >= 0 {
+		root.Content = slices.Delete(root.Content, i, i+2)
+	}
 	plain(root) // the old template's comments would come back above the settings
 	dropped = prune(root, defaults.Content[0], "")
 	if len(root.Content) == 0 {

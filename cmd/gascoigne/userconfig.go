@@ -60,6 +60,9 @@ func configFile(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if _, err := config.CheckVersion(over); err != nil {
+		return nil, fmt.Errorf("config %s: %w", path, err)
+	}
 	if own && !bytes.Equal(over, configs.User) {
 		over = refreshTemplate(path, over)
 		if bad := unknownSettings(over); len(bad) > 0 {
@@ -158,6 +161,9 @@ func withProject(data []byte) ([]byte, error) {
 	}
 	over, err := os.ReadFile(path)
 	if err != nil {
+		return nil, fmt.Errorf("project config %s: %w", path, err)
+	}
+	if _, err := config.CheckVersion(over); err != nil {
 		return nil, fmt.Errorf("project config %s: %w", path, err)
 	}
 	alone, err := overlay(configs.Default, over)

@@ -57,3 +57,10 @@ func TestOnlyDisable(t *testing.T) {
 		t.Fatalf("unknown optimizer: %v", err)
 	}
 }
+
+func TestSetVersionTooNewFails(t *testing.T) {
+	_, err := ParseWith([]byte(valid), Overrides{Set: []string{"version=2"}})
+	if err == nil || !strings.Contains(err.Error(), "version 2 is newer") {
+		t.Fatalf("err = %v, want too-new version", err)
+	}
+}

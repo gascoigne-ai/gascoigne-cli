@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -250,5 +251,82 @@ func TestDefaultsListEverySetting(t *testing.T) {
 		}
 		section, _ := raw[sections[f.Kind()]].(map[string]any)
 		missingFields(t, sections[f.Kind()]+"."+f.Type(), reflect.TypeOf(f.DefaultConfig()).Elem(), section[f.Type()])
+	}
+}
+
+// TestTemplatesCarryVersion: the embedded files state the format they are in,
+// and the key configs skips as a non-setting is the one Config decodes.
+func TestTemplatesCarryVersion(t *testing.T) {
+	for name, data := range map[string][]byte{"default": configs.Default, "user": configs.User} {
+		t.Run(name, func(t *testing.T) {
+			if !slices.ContainsFunc(strings.Split(string(data), "\n"), func(line string) bool { return strings.HasPrefix(line, "version: 1") }) {
+				t.Fatal("no uncommented `version: 1` line")
+			}
+			got, err := config.CheckVersion(data)
+			if err != nil || got != config.SupportedVersion {
+				t.Fatalf("CheckVersion = %d, %v, want %d", got, err, config.SupportedVersion)
+			}
+		})
+	}
+	field, _ := reflect.TypeOf(config.Config{}).FieldByName("Version")
+	if tag, _, _ := strings.Cut(field.Tag.Get("yaml"), ","); tag != configs.VersionKey {
+		t.Errorf("Config.Version yaml tag %q != configs.VersionKey %q", tag, configs.VersionKey)
+	}
+	cfg, err := config.Parse(configs.Default)
+	if err != nil || cfg.Version != config.SupportedVersion {
+		t.Errorf("default Version = %v, %v", cfg, err)
+	}
+}
+
+func TestConfigFileVersion(t *testing.T) {
+	tests := []struct {
+		name, data string
+		err        string
+	}{
+		{"missing loads", "filters:\n  minsize: { min_tokens: 10 }\n", ""},
+		{"1 loads", "version: 1\nfilters:\n  minsize: { min_tokens: 10 }\n", ""},
+		{"2 refused", "version: 2\n", "version 2"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sandbox(t)
+			own := filepath.Join(t.TempDir(), "own.yaml")
+			write(t, own, tt.data)
+			t.Setenv("GASCOIGNE_CONFIG", own)
+			data, err := configData("")
+			if tt.err == "" {
+				if err != nil {
+					t.Fatal(err)
+				}
+				if _, err := config.Parse(data); err != nil {
+					t.Fatal(err)
+				}
+				return
+			}
+			if err == nil {
+				t.Fatal("a newer config version loaded")
+			}
+			for _, want := range []string{own, tt.err, "supports (1)"} {
+				if !strings.Contains(err.Error(), want) {
+					t.Errorf("err = %v, want it to contain %q", err, want)
+				}
+			}
+		})
+	}
+}
+
+func TestProjectConfigVersion(t *testing.T) {
+	sandbox(t)
+	repo := t.TempDir()
+	t.Chdir(repo)
+	path := filepath.Join(repo, projectConfigName)
+	write(t, path, "version: 2\n")
+	base, err := configFile("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = withProject(base)
+	if err == nil || !strings.Contains(err.Error(), path) || !strings.Contains(err.Error(), "version 2") {
+		t.Errorf("err = %v, want it to name %s and version 2", err, path)
 	}
 }
