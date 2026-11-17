@@ -11,7 +11,7 @@ Pushing a tag and the website are public: do them only when the user asked for a
 Versions follow SemVer; a patch release carries fixes and small features, a minor one new capability.
 
 ## 1. Prepare (this repo)
-1. Work tree clean, on `master`; `git fetch gh` and check `gh/master` has nothing you lack.
+1. Work tree clean, on `main`; `git fetch gh` and check `gh/main` has nothing you lack.
 2. `make check` passes. Run `make eval` too if an optimizer changed.
 3. `CHANGELOG.md`: add `## [X.Y.Z] - YYYY-MM-DD` above the previous release (Keep a Changelog:
    Added / Changed / Fixed). One summary sentence under the heading. Name data migrations and
@@ -30,7 +30,7 @@ Versions follow SemVer; a patch release carries fixes and small features, a mino
 ## 2. Tag and push
 ```sh
 git tag vX.Y.Z                      # lightweight, like the earlier tags
-git push gh master vX.Y.Z           # not origin: that is the local gitea mirror
+git push gh main vX.Y.Z           # not origin: that is the local gitea mirror
 gh run list --repo gascoigne-ai/gascoigne-cli --workflow Release --limit 1
 ```
 The `Release` workflow (`.github/workflows/release.yml`) checks tag = `version.Number`, runs

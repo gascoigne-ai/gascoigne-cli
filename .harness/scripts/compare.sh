@@ -3,10 +3,10 @@
 # builds REF in a temporary worktree, replays the newest N Claude Code
 # transcripts with both builds, prints the changes. Fixture savings and
 # retention per case are compared by `git diff REF -- testdata/eval/baseline.tsv`.
-# Usage: .harness/scripts/compare.sh [REF=master] [N=10]
+# Usage: .harness/scripts/compare.sh [REF=main] [N=10]
 set -euo pipefail
 cd "$(dirname "$0")/../.."
-ref=${1:-master}
+ref=${1:-main}
 n=${2:-10}
 
 tmp=$(mktemp -d)

@@ -50,7 +50,7 @@ means a filter bypassed it, e.g. `minsize`).
 ## CI and releases
 
 GitHub Actions (`.github/workflows/`): `ci.yml` runs `make check`, `make eval` and a pure-Go
-(`CGO_ENABLED=0`) build for linux, macOS and Windows on every push to `master` and every pull
+(`CGO_ENABLED=0`) build for linux, macOS and Windows on every push to `main` and every pull
 request. `release.yml` runs on a `v*` tag: the tag must equal `v` + `version.Number`, then it
 builds `-trimpath` binaries for linux/darwin/windows × amd64/arm64 and publishes them with
 `checksums.txt` as a GitHub release whose notes are that version's `CHANGELOG.md` section. To
