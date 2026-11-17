@@ -149,17 +149,17 @@ const (
 	ttlMinGain  = 1.15
 )
 
-// add counts one session; m is the exact price of its model.
-func (c *cacheTTL) add(turns []turn, m cost.Model) {
+// add counts one session; model is the exact price of its model.
+func (c *cacheTTL) add(turns []turn, model cost.Model) {
 	c.Turns += len(turns)
 	for _, w := range rewrites(turns) {
 		if w.cause == causeFive {
 			c.PauseTokens += w.tokens
-			c.SavedUSD += float64(w.tokens) * (m.CacheWrite - m.CacheRead) / 1e6
+			c.SavedUSD += float64(w.tokens) * (model.CacheWrite - model.CacheRead) / 1e6
 		}
 	}
 	for _, t := range turns {
-		c.ExtraUSD += float64(t.write-t.write1h) * (oneHourWrite*m.Input - m.CacheWrite) / 1e6
+		c.ExtraUSD += float64(t.write-t.write1h) * (oneHourWrite*model.Input - model.CacheWrite) / 1e6
 	}
 }
 
@@ -253,9 +253,9 @@ type usageLine struct {
 
 // readSession reads one transcript: its main-conversation turns (subagents run
 // in conversations of their own and are left out), once per message.
-func readSession(r io.Reader, name string, since time.Time) (sessionCost, error) {
+func readSession(reader io.Reader, name string, since time.Time) (sessionCost, error) {
 	s := sessionCost{ID: strings.TrimSuffix(name, ".jsonl"), Priced: true}
-	br := bufio.NewReaderSize(r, 1<<20)
+	br := bufio.NewReaderSize(reader, 1<<20)
 	var pending []string      // changes seen since the last request
 	index := map[string]int{} // message id -> its place in turns: streamed lines repeat it
 	models := map[string]int{}
@@ -330,23 +330,23 @@ func readSession(r io.Reader, name string, since time.Time) (sessionCost, error)
 
 // addSubagent prices one request of a subagent (inside the period), kept apart
 // from the sessions: its context is not the conversation's.
-func (s *sessionCost) addSubagent(t usageLine, since time.Time) {
-	u := t.Message.Usage
-	if ts, err := time.Parse(time.RFC3339, t.Timestamp); err == nil && !since.IsZero() && ts.Before(since) {
+func (s *sessionCost) addSubagent(line usageLine, since time.Time) {
+	u := line.Message.Usage
+	if ts, err := time.Parse(time.RFC3339, line.Timestamp); err == nil && !since.IsZero() && ts.Before(since) {
 		return
 	}
-	if m, ok := priceOf(t.Message.Model); ok && u.Input+u.CacheRead+u.CacheCreate > 0 {
+	if model, ok := priceOf(line.Message.Model); ok && u.Input+u.CacheRead+u.CacheCreate > 0 {
 		tn := turn{read: u.CacheRead, write: u.CacheCreate, write1h: min(u.Creation.Hour, u.CacheCreate), input: u.Input, output: u.Output}
-		s.subUSD += tn.cost(m)
+		s.subUSD += tn.cost(model)
 		s.subTurns++
 	}
 }
 
-func maxTime(a, b time.Time) time.Time {
-	if b.After(a) {
-		return b
+func maxTime(first, second time.Time) time.Time {
+	if second.After(first) {
+		return second
 	}
-	return a
+	return first
 }
 
 // finish computes what follows from the turns.
@@ -371,7 +371,7 @@ func (s *sessionCost) finish() {
 }
 
 // add counts the compactions of one priced session.
-func (c *compactionEconomics) add(turns []turn, m cost.Model) {
+func (c *compactionEconomics) add(turns []turn, model cost.Model) {
 	for i := 1; i < len(turns); i++ {
 		prev, t := turns[i-1], turns[i]
 		if !compacted(prev.ctx, t.ctx) {
@@ -384,8 +384,8 @@ func (c *compactionEconomics) add(turns []turn, m cost.Model) {
 		c.Count++
 		c.sumBefore += prev.ctx
 		c.sumAfter += t.ctx
-		c.CostUSD += (float64(t.ctx)*m.CacheWrite + summaryTokens*m.Output) / 1e6
-		c.SavedUSD += float64(prev.ctx-t.ctx) * float64(later) * m.CacheRead / 1e6
+		c.CostUSD += (float64(t.ctx)*model.CacheWrite + summaryTokens*model.Output) / 1e6
+		c.SavedUSD += float64(prev.ctx-t.ctx) * float64(later) * model.CacheRead / 1e6
 	}
 }
 
@@ -546,49 +546,49 @@ func compacted(prev, ctx int) bool {
 
 // cost prices the request as the transcript recorded it: cache writes at the
 // 5-minute or the 1-hour rate it was made with.
-func (t turn) cost(m cost.Model) float64 {
-	return (float64(t.input)*m.Input + float64(t.read)*m.CacheRead + float64(t.write-t.write1h)*m.CacheWrite +
-		float64(t.write1h)*oneHourWrite*m.Input + float64(t.output)*m.Output) / 1e6
+func (t turn) cost(model cost.Model) float64 {
+	return (float64(t.input)*model.Input + float64(t.read)*model.CacheRead + float64(t.write-t.write1h)*model.CacheWrite +
+		float64(t.write1h)*oneHourWrite*model.Input + float64(t.output)*model.Output) / 1e6
 }
 
 // oneHourWrite is what a 1-hour cache write costs, in times the input price
 // (a 5-minute write is 1.25 times).
 const oneHourWrite = 2
 
-// effectiveModel is m with the cache write price of what the session actually
+// effectiveModel is the model with the cache write price of what the session actually
 // wrote: the what-ifs write context that never was, and price it as the session did.
-func effectiveModel(m cost.Model, turns []turn) cost.Model {
+func effectiveModel(model cost.Model, turns []turn) cost.Model {
 	var all, hour int
 	for _, t := range turns {
 		all, hour = all+t.write, hour+t.write1h
 	}
 	if all > 0 && hour > 0 {
-		m.CacheWrite = (float64(all-hour)*m.CacheWrite + float64(hour)*oneHourWrite*m.Input) / float64(all)
+		model.CacheWrite = (float64(all-hour)*model.CacheWrite + float64(hour)*oneHourWrite*model.Input) / float64(all)
 	}
-	return m
+	return model
 }
 
 // turnCost prices one request at list prices; cache writes at the 5-minute
 // price. Tokens are priced per million.
-func turnCost(m cost.Model, input, read, write, output int) float64 {
-	return (float64(input)*m.Input + float64(read)*m.CacheRead + float64(write)*m.CacheWrite + float64(output)*m.Output) / 1e6
+func turnCost(model cost.Model, input, read, write, output int) float64 {
+	return (float64(input)*model.Input + float64(read)*model.CacheRead + float64(write)*model.CacheWrite + float64(output)*model.Output) / 1e6
 }
 
-// downsample keeps n contexts spread over the turns (the peak of each stretch).
-func downsample(turns []turn, n int) []int {
+// downsample keeps count contexts spread over the turns (the peak of each stretch).
+func downsample(turns []turn, count int) []int {
 	if len(turns) == 0 {
 		return []int{}
 	}
-	if len(turns) <= n {
+	if len(turns) <= count {
 		out := make([]int, len(turns))
 		for i, t := range turns {
 			out[i] = t.ctx
 		}
 		return out
 	}
-	out := make([]int, n)
-	for i := range n {
-		lo, hi := i*len(turns)/n, (i+1)*len(turns)/n
+	out := make([]int, count)
+	for i := range count {
+		lo, hi := i*len(turns)/count, (i+1)*len(turns)/count
 		for _, t := range turns[lo:hi] {
 			out[i] = max(out[i], t.ctx)
 		}
@@ -603,7 +603,7 @@ func downsample(turns []turn, n int) []int {
 // is one request over the full context that writes the summary; the next
 // request writes the new, short conversation. It returns the cost and how many
 // compactions that took.
-func simulate(turns []turn, limit, base int, m cost.Model) (usd float64, compactions int) {
+func simulate(turns []turn, limit, base int, model cost.Model) (usd float64, compactions int) {
 	if len(turns) == 0 {
 		return 0, 0
 	}
@@ -629,11 +629,11 @@ func simulate(turns []turn, limit, base int, m cost.Model) (usd float64, compact
 		}
 		prevOrig = t.ctx
 		if limit > 0 && cur > limit {
-			usd += (float64(cached)*m.CacheRead + float64(summaryTokens)*m.Output) / 1e6
+			usd += (float64(cached)*model.CacheRead + float64(summaryTokens)*model.Output) / 1e6
 			compactions++
 			cur, cached = base+summaryTokens, 0
 		}
-		usd += turnCost(m, 0, cached, cur-cached, t.output)
+		usd += turnCost(model, 0, cached, cur-cached, t.output)
 		cached = cur
 	}
 	return usd, compactions
@@ -647,7 +647,7 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 	if r.Sessions == nil {
 		r.Sessions = []sessionCost{}
 	}
-	slices.SortFunc(r.Sessions, func(a, b sessionCost) int { return b.End.Compare(a.End) })
+	slices.SortFunc(r.Sessions, func(left, right sessionCost) int { return right.End.Compare(left.End) })
 	byCause := map[string]*cacheRewrite{}
 	bySource := map[string]*injectedSource{}
 	sessionsOf := map[string]map[string]bool{}
@@ -734,8 +734,8 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		}
 		r.Injected = append(r.Injected, *src)
 	}
-	slices.SortFunc(r.Injected, func(a, b injectedSource) int {
-		return cmp.Or(cmp.Compare(b.CostUSD, a.CostUSD), cmp.Compare(a.Source, b.Source))
+	slices.SortFunc(r.Injected, func(left, right injectedSource) int {
+		return cmp.Or(cmp.Compare(right.CostUSD, left.CostUSD), cmp.Compare(left.Source, right.Source))
 	})
 	if r.Injected == nil {
 		r.Injected = []injectedSource{}
@@ -749,8 +749,8 @@ func buildContext(sessions []sessionCost, period time.Duration) contextReport {
 		}
 		r.Rewrites = append(r.Rewrites, *rw)
 	}
-	slices.SortFunc(r.Rewrites, func(a, b cacheRewrite) int {
-		return cmp.Or(cmp.Compare(b.CostUSD, a.CostUSD), cmp.Compare(a.Cause, b.Cause))
+	slices.SortFunc(r.Rewrites, func(left, right cacheRewrite) int {
+		return cmp.Or(cmp.Compare(right.CostUSD, left.CostUSD), cmp.Compare(left.Cause, right.Cause))
 	})
 	for i := range wi {
 		if r.ModelUSD > 0 {
@@ -790,11 +790,11 @@ func fillContextDays(by map[string]*contextDay) []contextDay {
 	return out
 }
 
-func rewriteOf(m map[string]*cacheRewrite, cause string) *cacheRewrite {
-	if m[cause] == nil {
-		m[cause] = &cacheRewrite{Cause: cause}
+func rewriteOf(causes map[string]*cacheRewrite, cause string) *cacheRewrite {
+	if causes[cause] == nil {
+		causes[cause] = &cacheRewrite{Cause: cause}
 	}
-	return m[cause]
+	return causes[cause]
 }
 
 func bucketOf(ctx int) int {
@@ -818,19 +818,19 @@ func loadContext(dir string, period time.Duration, now time.Time) (contextReport
 	}
 	var files []file
 	cutoff := now.Add(-period)
-	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
-			if p == dir {
+			if path == dir {
 				return err
 			}
 			return nil // an unreadable corner is not the whole report
 		}
-		if d.IsDir() || filepath.Ext(p) != ".jsonl" {
+		if entry.IsDir() || filepath.Ext(path) != ".jsonl" {
 			return nil
 		}
-		info, err := d.Info()
+		info, err := entry.Info()
 		if err == nil && info.ModTime().After(cutoff) {
-			files = append(files, file{p, info.ModTime()})
+			files = append(files, file{path, info.ModTime()})
 		}
 		return nil
 	})
@@ -840,7 +840,7 @@ func loadContext(dir string, period time.Duration, now time.Time) (contextReport
 	if err != nil {
 		return contextReport{}, err
 	}
-	slices.SortFunc(files, func(a, b file) int { return b.mod.Compare(a.mod) })
+	slices.SortFunc(files, func(left, right file) int { return right.mod.Compare(left.mod) })
 	var sessions []sessionCost
 	var subUSD float64
 	var subTurns int
@@ -928,108 +928,108 @@ func periodLabel(hours int) string {
 }
 
 // printContext writes the report as text, the terminal form of the page.
-func printContext(w io.Writer, r contextReport) {
-	if len(r.Sessions) == 0 {
-		fmt.Fprintf(w, "No Claude Code transcripts with usage in the last %s (looked in %s).\n", periodLabel(r.Hours), claudeProjects())
+func printContext(writer io.Writer, report contextReport) {
+	if len(report.Sessions) == 0 {
+		fmt.Fprintf(writer, "No Claude Code transcripts with usage in the last %s (looked in %s).\n", periodLabel(report.Hours), claudeProjects())
 		return
 	}
-	if r.Billing == cost.BillingSubscription {
-		printContextFlat(w, r)
+	if report.Billing == cost.BillingSubscription {
+		printContextFlat(writer, report)
 		return
 	}
-	fmt.Fprintf(w, "%d sessions, %d requests, about %s at API list prices, last %s\n", len(r.Sessions), r.Turns, dollars(r.CostUSD), periodLabel(r.Hours))
-	if r.SubagentTurns > 0 {
-		fmt.Fprintf(w, "plus subagents: %d requests, about %s\n", r.SubagentTurns, dollars(r.SubagentUSD))
+	fmt.Fprintf(writer, "%d sessions, %d requests, about %s at API list prices, last %s\n", len(report.Sessions), report.Turns, dollars(report.CostUSD), periodLabel(report.Hours))
+	if report.SubagentTurns > 0 {
+		fmt.Fprintf(writer, "plus subagents: %d requests, about %s\n", report.SubagentTurns, dollars(report.SubagentUSD))
 	}
-	fmt.Fprintln(w)
-	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(writer)
+	tw := tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "CONTEXT OF A REQUEST\tREQUESTS\tCOST\tSHARE")
-	for _, b := range r.Buckets {
+	for _, b := range report.Buckets {
 		fmt.Fprintf(tw, "%s\t%d\t%s\t%.0f%%\n", b.Label, b.Turns, dollars(b.CostUSD), 100*b.Share)
 	}
 	tw.Flush()
-	fmt.Fprintln(w, "\nContext written to the cache again instead of read:")
-	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(writer, "\nContext written to the cache again instead of read:")
+	tw = tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "CAUSE\tREQUESTS\tTOKENS\tEXTRA COST\tSHARE")
-	for _, x := range r.Rewrites {
+	for _, x := range report.Rewrites {
 		fmt.Fprintf(tw, "%s\t%d\t%s\t%s\t%.1f%%\n", x.Cause, x.Turns, human(x.Tokens), dollars(x.CostUSD), 100*x.Share)
 	}
 	tw.Flush()
-	printCacheTTL(w, r.CacheTTL)
-	if len(r.Injected) > 0 {
-		fmt.Fprintln(w, "\nText added to conversations besides your prompts (every later request re-reads it):")
-		tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	printCacheTTL(writer, report.CacheTTL)
+	if len(report.Injected) > 0 {
+		fmt.Fprintln(writer, "\nText added to conversations besides your prompts (every later request re-reads it):")
+		tw = tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 		fmt.Fprintln(tw, "SOURCE\tTIMES\tPER TIME\tCOST\tSHARE")
-		for _, x := range r.Injected[:min(len(r.Injected), 8)] {
+		for _, x := range report.Injected[:min(len(report.Injected), 8)] {
 			fmt.Fprintf(tw, "%s\t%d\t%s\t%s\t%.1f%%\n", x.Source, x.Times, human(x.PerTime), dollars(x.CostUSD), 100*x.Share)
 		}
 		tw.Flush()
 	}
-	if c := r.Compactions; c.Count > 0 {
-		fmt.Fprintf(w, "\n%d compactions, from %s to %s of context: cost %s, saved %s of cache reads, net %s\n",
+	if c := report.Compactions; c.Count > 0 {
+		fmt.Fprintf(writer, "\n%d compactions, from %s to %s of context: cost %s, saved %s of cache reads, net %s\n",
 			c.Count, human(c.MeanBefore), human(c.MeanAfter), dollars(c.CostUSD), dollars(c.SavedUSD), dollars(c.NetUSD))
 	}
-	fmt.Fprintln(w, "\nIf conversations had been compacted when they reached:")
-	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(writer, "\nIf conversations had been compacted when they reached:")
+	tw = tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "CONTEXT\tSESSIONS AFFECTED\tCOMPACTIONS\tSAVED")
-	for _, x := range r.WhatIf {
+	for _, x := range report.WhatIf {
 		fmt.Fprintf(tw, "%dk\t%d\t%d\t%s (%.0f%%)\n", x.Threshold/1000, x.Sessions, x.Compactions, dollars(x.SavedUSD), x.SavedPct)
 	}
 	tw.Flush()
-	if r.BestWindow > 0 {
-		fmt.Fprintf(w, "\nThe best of these what-ifs is %dk. The experimental switch in gascoigne setup -experimental compacts claude at %dk.\n", r.BestWindow/1000, compactWindow/1000)
+	if report.BestWindow > 0 {
+		fmt.Fprintf(writer, "\nThe best of these what-ifs is %dk. The experimental switch in gascoigne setup -experimental compacts claude at %dk.\n", report.BestWindow/1000, compactWindow/1000)
 	}
-	fmt.Fprintln(w, "\nLargest sessions:")
-	top := slices.Clone(r.Sessions)
-	slices.SortFunc(top, func(a, b sessionCost) int { return cmp.Compare(b.CostUSD, a.CostUSD) })
-	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(writer, "\nLargest sessions:")
+	top := slices.Clone(report.Sessions)
+	slices.SortFunc(top, func(left, right sessionCost) int { return cmp.Compare(right.CostUSD, left.CostUSD) })
+	tw = tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "PROJECT\tSTART\tREQUESTS\tPEAK\tCOMPACTIONS\tCOST")
 	for _, s := range top[:min(len(top), 8)] {
 		fmt.Fprintf(tw, "%s\t%s\t%d\t%s\t%d\t%s\n", cmp.Or(s.Project, "-"), s.Start.Local().Format("2006-01-02"), s.Turns, human(s.Peak), s.Compactions, dollars(s.CostUSD))
 	}
 	tw.Flush()
-	for _, a := range r.Assumptions {
-		fmt.Fprintln(w, "\n"+a)
+	for _, a := range report.Assumptions {
+		fmt.Fprintln(writer, "\n"+a)
 	}
 }
 
 // printContextFlat is printContext for a flat plan: how big conversations get, in requests and
 // tokens, with no dollars.
-func printContextFlat(w io.Writer, r contextReport) {
-	fmt.Fprintf(w, "%d sessions, %d requests, last %s (flat plan: no dollar figures)\n\n", len(r.Sessions), r.Turns, periodLabel(r.Hours))
-	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+func printContextFlat(writer io.Writer, report contextReport) {
+	fmt.Fprintf(writer, "%d sessions, %d requests, last %s (flat plan: no dollar figures)\n\n", len(report.Sessions), report.Turns, periodLabel(report.Hours))
+	tw := tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "CONTEXT OF A REQUEST\tREQUESTS\tSHARE OF REQUESTS")
-	for _, b := range r.Buckets {
+	for _, b := range report.Buckets {
 		share := 0.0
-		if r.Turns > 0 {
-			share = 100 * float64(b.Turns) / float64(r.Turns)
+		if report.Turns > 0 {
+			share = 100 * float64(b.Turns) / float64(report.Turns)
 		}
 		fmt.Fprintf(tw, "%s\t%d\t%.0f%%\n", b.Label, b.Turns, share)
 	}
 	tw.Flush()
-	fmt.Fprintln(w, "\nContext written to the cache again instead of read:")
-	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(writer, "\nContext written to the cache again instead of read:")
+	tw = tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "CAUSE\tREQUESTS\tTOKENS")
-	for _, x := range r.Rewrites {
+	for _, x := range report.Rewrites {
 		fmt.Fprintf(tw, "%s\t%d\t%s\n", x.Cause, x.Turns, human(x.Tokens))
 	}
 	tw.Flush()
-	if len(r.Injected) > 0 {
-		fmt.Fprintln(w, "\nText added to conversations besides your prompts (every later request re-reads it):")
-		tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	if len(report.Injected) > 0 {
+		fmt.Fprintln(writer, "\nText added to conversations besides your prompts (every later request re-reads it):")
+		tw = tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 		fmt.Fprintln(tw, "SOURCE\tTIMES\tPER TIME")
-		for _, x := range r.Injected[:min(len(r.Injected), 8)] {
+		for _, x := range report.Injected[:min(len(report.Injected), 8)] {
 			fmt.Fprintf(tw, "%s\t%d\t%s\n", x.Source, x.Times, human(x.PerTime))
 		}
 		tw.Flush()
 	}
-	if c := r.Compactions; c.Count > 0 {
-		fmt.Fprintf(w, "\n%d compactions, from %s to %s of context\n", c.Count, human(c.MeanBefore), human(c.MeanAfter))
+	if c := report.Compactions; c.Count > 0 {
+		fmt.Fprintf(writer, "\n%d compactions, from %s to %s of context\n", c.Count, human(c.MeanBefore), human(c.MeanAfter))
 	}
-	fmt.Fprintln(w, "\nLargest sessions:")
-	top := slices.Clone(r.Sessions)
-	slices.SortFunc(top, func(a, b sessionCost) int { return cmp.Compare(b.Peak, a.Peak) })
-	tw = tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintln(writer, "\nLargest sessions:")
+	top := slices.Clone(report.Sessions)
+	slices.SortFunc(top, func(left, right sessionCost) int { return cmp.Compare(right.Peak, left.Peak) })
+	tw = tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "PROJECT\tSTART\tREQUESTS\tPEAK\tCOMPACTIONS")
 	for _, s := range top[:min(len(top), 8)] {
 		fmt.Fprintf(tw, "%s\t%s\t%d\t%s\t%d\n", cmp.Or(s.Project, "-"), s.Start.Local().Format("2006-01-02"), s.Turns, human(s.Peak), s.Compactions)
@@ -1038,15 +1038,15 @@ func printContextFlat(w io.Writer, r contextReport) {
 }
 
 // printCacheTTL says whether the 1-hour cache would have paid, with the figures.
-func printCacheTTL(w io.Writer, c cacheTTL) {
+func printCacheTTL(writer io.Writer, ttl cacheTTL) {
 	switch {
-	case c.Turns < ttlMinTurns:
-		fmt.Fprintf(w, "\n1-hour cache: too few requests (%d, from %d) to tell.\n", c.Turns, ttlMinTurns)
-	case c.Worth:
-		fmt.Fprintf(w, "\n1-hour cache would have paid: reading the %s tokens rewritten after pauses of 5 to 60 minutes saves %s, its dearer writes cost %s more (net %s).\n",
-			human(c.PauseTokens), dollars(c.SavedUSD), dollars(c.ExtraUSD), dollars(c.SavedUSD-c.ExtraUSD))
+	case ttl.Turns < ttlMinTurns:
+		fmt.Fprintf(writer, "\n1-hour cache: too few requests (%d, from %d) to tell.\n", ttl.Turns, ttlMinTurns)
+	case ttl.Worth:
+		fmt.Fprintf(writer, "\n1-hour cache would have paid: reading the %s tokens rewritten after pauses of 5 to 60 minutes saves %s, its dearer writes cost %s more (net %s).\n",
+			human(ttl.PauseTokens), dollars(ttl.SavedUSD), dollars(ttl.ExtraUSD), dollars(ttl.SavedUSD-ttl.ExtraUSD))
 	default:
-		fmt.Fprintf(w, "\n1-hour cache would not have paid: it saves %s on pauses of 5 to 60 minutes, its dearer writes cost %s more.\n",
-			dollars(c.SavedUSD), dollars(c.ExtraUSD))
+		fmt.Fprintf(writer, "\n1-hour cache would not have paid: it saves %s on pauses of 5 to 60 minutes, its dearer writes cost %s more.\n",
+			dollars(ttl.SavedUSD), dollars(ttl.ExtraUSD))
 	}
 }

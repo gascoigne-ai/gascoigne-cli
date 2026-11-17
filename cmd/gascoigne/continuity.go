@@ -85,13 +85,13 @@ func resumeSnapshot(path string) string {
 				prompt = b.Text
 			case l.Type == "user" && b.Type == "tool_result" && b.IsError:
 				if c, ok := commands[b.ToolUseID]; ok {
-					failed = append(slices.DeleteFunc(failed, func(x string) bool { return x == c }), c)
+					failed = append(slices.DeleteFunc(failed, func(existing string) bool { return existing == c }), c)
 				}
 			case l.Type == "assistant" && b.Type == "tool_use":
 				switch b.Name {
 				case "Edit", "Write", "MultiEdit", "NotebookEdit":
 					if p := editedPath(b.Input); p != "" {
-						files = append(slices.DeleteFunc(files, func(x string) bool { return x == p }), p)
+						files = append(slices.DeleteFunc(files, func(existing string) bool { return existing == p }), p)
 					}
 				case "Bash":
 					commands[b.ID] = commandOf(b.Input)
@@ -157,12 +157,12 @@ func openTodos(input json.RawMessage) []string {
 	return out
 }
 
-func oneLine(s string, max int) string {
-	s = strings.Join(strings.Fields(s), " ")
-	if r := []rune(s); len(r) > max {
+func oneLine(text string, max int) string {
+	text = strings.Join(strings.Fields(text), " ")
+	if r := []rune(text); len(r) > max {
 		return string(r[:max]) + "…"
 	}
-	return s
+	return text
 }
 
 // shortenedRuns names the outputs gascoigne shortened in this session and that

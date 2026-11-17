@@ -261,7 +261,7 @@ func codexConfigured() []codexServer {
 			continue
 		}
 		for _, s := range codexServers(string(data)) {
-			out = slices.DeleteFunc(out, func(o codexServer) bool { return o.name == s.name })
+			out = slices.DeleteFunc(out, func(existing codexServer) bool { return existing.name == s.name })
 			out = append(out, s)
 		}
 	}
@@ -279,8 +279,8 @@ func codexHasInstructions() bool {
 	return ok
 }
 
-func reportProxies(r proxyResult) {
-	if s := r.String(); s != "" {
+func reportProxies(result proxyResult) {
+	if s := result.String(); s != "" {
 		fmt.Fprintln(os.Stderr, "gascoigne:", s)
 	}
 }
@@ -359,12 +359,12 @@ func piInstall(exe string) string {
 	return "// save as ~/.pi/agent/extensions/gascoigne.ts\n" + piExtension(exe)
 }
 
-func compactJSON(v any) string {
-	b, _ := json.Marshal(v) // maps and strings always encode
+func compactJSON(value any) string {
+	b, _ := json.Marshal(value) // maps and strings always encode
 	return string(b)
 }
 
-func indentJSON(v any) string {
-	b, _ := json.MarshalIndent(v, "", "  ")
+func indentJSON(value any) string {
+	b, _ := json.MarshalIndent(value, "", "  ")
 	return string(b)
 }

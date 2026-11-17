@@ -515,7 +515,9 @@ func TestSubagentsAreCountedApart(t *testing.T) {
 // The report charts the cost per local day, quiet days included, and each
 // session carries what the page shows about it: subagent cost and added text.
 func TestBuildContextDays(t *testing.T) {
-	day := func(d, h int) time.Time { return time.Date(2026, 10, d, h, 30, 0, 0, time.Local) }
+	day := func(dayOfMonth, hour int) time.Time {
+		return time.Date(2026, 10, dayOfMonth, hour, 30, 0, 0, time.Local)
+	}
 	ts := []turn{
 		{ctx: 20_000, write: 20_000, output: 100, ts: day(10, 23)},
 		{ctx: 21_000, read: 20_000, write: 1_000, output: 100, ts: day(10, 23)},
@@ -594,9 +596,9 @@ func TestCacheTTL(t *testing.T) {
 		t.Fatal("no price")
 	}
 	// n pairs of requests: a warm one, then one after a pause that rewrites 100k.
-	session := func(n int, pause time.Duration) []turn {
+	session := func(count int, pause time.Duration) []turn {
 		var ts []turn
-		for i := range n {
+		for i := range count {
 			start := at.Add(time.Duration(i) * 3 * time.Hour)
 			ts = append(ts,
 				turn{ctx: 100_000, read: 100_000, ts: start},

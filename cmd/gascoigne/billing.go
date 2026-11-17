@@ -50,9 +50,9 @@ func detectedAgents() []detected {
 	return out
 }
 
-func mapKeys[V any](m map[string]V) func(yield func(string) bool) {
+func mapKeys[V any](entries map[string]V) func(yield func(string) bool) {
 	return func(yield func(string) bool) {
-		for key := range m {
+		for key := range entries {
 			if !yield(key) {
 				return
 			}
