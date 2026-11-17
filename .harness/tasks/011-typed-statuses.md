@@ -12,4 +12,4 @@ The login server state is a string compared to `running`, `done`, `failed`, and 
 
 ## Acceptance
 - A transition-table test and a JSON round-trip test first.
-- `make check` passes.
+- `make check` passes (the task touches code, so the check runs).

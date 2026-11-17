@@ -12,4 +12,4 @@ One struct per agent reply shape; field names and JSON tags equal today's keys. 
 
 ## Acceptance
 - Pin each agent's current reply first by comparing decoded JSON (not bytes: field order changes).
-- `make check` passes.
+- `make check` passes (the task touches code, so the check runs).

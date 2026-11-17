@@ -14,4 +14,4 @@ A violation is (file, line, name, package). Output sorted by package; no persist
 ## Acceptance
 - Test first: the tests that state the behavior, run and seen failing for the expected reason. Table over source snippets: one bad and one allowed case per exemption.
 - Record the real per-package counts in the commit body.
-- `make check` passes.
+- `make check` passes (the task touches code, so the check runs).

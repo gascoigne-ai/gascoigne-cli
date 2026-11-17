@@ -13,4 +13,4 @@ Model: unchanged.
 ## Acceptance
 - `go run ./cmd/paramnames` over this scope reports nothing.
 - Tests are unchanged.
-- `make check` passes.
+- `make check` passes (the task touches code, so the check runs).

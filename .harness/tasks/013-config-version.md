@@ -12,4 +12,4 @@ scope: internal/config/**, configs/**, cmd/gascoigne/configupgrade*.go, cmd/gasc
 
 ## Acceptance
 - Test first: the tests that state the behavior, run and seen failing for the expected reason. Table test with version missing, 1 and 2.
-- `make check` passes.
+- `make check` passes (the task touches code, so the check runs).

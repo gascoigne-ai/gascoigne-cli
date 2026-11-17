@@ -12,4 +12,4 @@ Re-read the three `PriceSources`, update the rows and the comment, bump `PricesC
 
 Test first: the existing lookup table plus a price assertion for the changed rows.
 
-Acceptance: `make check` passes.
+Acceptance: `make check` passes (the task touches code, so the check runs).

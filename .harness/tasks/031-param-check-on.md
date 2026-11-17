@@ -12,4 +12,4 @@ Model: unchanged.
 
 ## Acceptance
 - A one-letter parameter added on purpose fails the check, then is reverted.
-- `make check` passes.
+- `make check` passes (the task touches code, so the check runs).
