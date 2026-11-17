@@ -40,4 +40,4 @@ Changing behavior a file describes: update that file in the same commit.
 
 Layout: public contracts `component/` `payload/` `tokens/`; components in `receiver/` `filter/` `optimizer/` (flat: `optimizer/<name>optimizer`) `exporter/` `extension/` (may import `internal/` libs, never the engine); engine in `internal/{config,router,service,registry}`; libs in `internal/` (`detect` `compress` `mcptool` `cost` `prose` `mcpauth` `exact` `version` `lazyre`: package-level regexps `lazyre.New`, never `regexp.MustCompile`; `pcomb`: line matchers and named rule tables with examples, preferred over a new long regexp alternation).
 
-Skills: `verify`, `add-component`, `eval`, `release` (version, changelog, tag, push, website page). Task queue: `.harness/tasks/`, run with `/task-loop` (verify: `make check`, plus the extra checks in `.harness/rules.md` for the code the task touched).
+Skills: `verify`, `add-component`, `eval`, `release` (version, changelog, tag, push, website page). Task queue: `.harness/tasks/`, run with `/task-loop` (verify: `make check` when the task touched code, `make eval` as `.harness/rules.md` says).
