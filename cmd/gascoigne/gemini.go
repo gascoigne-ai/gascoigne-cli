@@ -62,10 +62,10 @@ type geminiDenyReply struct {
 // geminiAfter answers AfterTool: output the BeforeTool rewrite did not
 // reach (commands left as they were, MCP servers' results) is optimized,
 // and "deny" with a reason replaces the result the model sees.
-func geminiAfter(h hookFunc) hookFunc {
-	return func(ctx context.Context, c *common, in hookInput, prefix string) (any, error) {
+func geminiAfter(next hookFunc) hookFunc {
+	return func(ctx context.Context, shared *common, in hookInput, prefix string) (any, error) {
 		if in.HookEventName != "AfterTool" {
-			return h(ctx, c, in, prefix)
+			return next(ctx, shared, in, prefix)
 		}
 		attrs := mcptool.Attrs(in.ToolName, in.ToolInput)
 		if in.ToolName == "run_shell_command" {
@@ -81,7 +81,7 @@ func geminiAfter(h hookFunc) hookFunc {
 		if !ok {
 			return nil, nil
 		}
-		out, err := optimizeText(ctx, c, text, attrs)
+		out, err := optimizeText(ctx, shared, text, attrs)
 		if err != nil || out == "" {
 			return nil, err
 		}

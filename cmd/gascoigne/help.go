@@ -28,7 +28,7 @@ type command struct {
 }
 
 // available reports whether c can run: stable, or experimental and enabled.
-func available(c command) bool { return !c.experimental || experimentalOn(c.name) }
+func available(cmd command) bool { return !cmd.experimental || experimentalOn(cmd.name) }
 
 // experimentalOn reports whether an experimental feature is enabled: named
 // (or "all") in $GASCOIGNE_EXPERIMENTAL, the config's experimental list or
@@ -296,7 +296,7 @@ func init() {
 }
 
 func lookup(name string) (command, bool) {
-	i := slices.IndexFunc(commandList, func(c command) bool { return c.name == name && available(c) })
+	i := slices.IndexFunc(commandList, func(cmd command) bool { return cmd.name == name && available(cmd) })
 	if i < 0 {
 		return command{}, false
 	}
@@ -321,7 +321,7 @@ func cmdHelp(_ context.Context, args []string) error {
 }
 
 func unknownCommand(name string) error {
-	if i := slices.IndexFunc(commandList, func(c command) bool { return c.name == name }); i >= 0 {
+	if i := slices.IndexFunc(commandList, func(cmd command) bool { return cmd.name == name }); i >= 0 {
 		return fmt.Errorf("%q is experimental: turn it on with gascoigne setup -experimental, add it to experimental in the config, or set GASCOIGNE_EXPERIMENTAL=%s", name, name)
 	}
 	msg := fmt.Sprintf("unknown command %q", name)
@@ -350,29 +350,29 @@ func suggest(name string) string {
 }
 
 // distance is the Levenshtein edit distance.
-func distance(a, b string) int {
-	prev := make([]int, len(b)+1)
+func distance(from, to string) int {
+	prev := make([]int, len(to)+1)
 	for j := range prev {
 		prev[j] = j
 	}
-	for i := 1; i <= len(a); i++ {
-		cur := make([]int, len(b)+1)
+	for i := 1; i <= len(from); i++ {
+		cur := make([]int, len(to)+1)
 		cur[0] = i
-		for j := 1; j <= len(b); j++ {
+		for j := 1; j <= len(to); j++ {
 			cost := 1
-			if a[i-1] == b[j-1] {
+			if from[i-1] == to[j-1] {
 				cost = 0
 			}
 			cur[j] = min(prev[j]+1, cur[j-1]+1, prev[j-1]+cost)
 		}
 		prev = cur
 	}
-	return prev[len(b)]
+	return prev[len(to)]
 }
 
 // painterFor colors help on a terminal without NO_COLOR.
-func painterFor(w io.Writer) painter {
-	f, ok := w.(*os.File)
+func painterFor(out io.Writer) painter {
+	f, ok := out.(*os.File)
 	if !ok {
 		return painter{}
 	}
@@ -380,13 +380,13 @@ func painterFor(w io.Writer) painter {
 	return painter{err == nil && fi.Mode()&os.ModeCharDevice != 0 && os.Getenv("NO_COLOR") == ""}
 }
 
-func printOverview(w io.Writer) {
-	p := painterFor(w)
-	fmt.Fprintf(w, "%s %s shrinks what LLM agents read, keeping every original retrievable.\n\n", p.paint(bold, "gascoigne"), p.paint(dim, version.String()))
-	fmt.Fprintf(w, "%s\n  gascoigne %s %s\n", p.paint(bold, "USAGE"), p.paint(cyan, "<command>"), p.paint(dim, "[flags]"))
+func printOverview(out io.Writer) {
+	p := painterFor(out)
+	fmt.Fprintf(out, "%s %s shrinks what LLM agents read, keeping every original retrievable.\n\n", p.paint(bold, "gascoigne"), p.paint(dim, version.String()))
+	fmt.Fprintf(out, "%s\n  gascoigne %s %s\n", p.paint(bold, "USAGE"), p.paint(cyan, "<command>"), p.paint(dim, "[flags]"))
 	const width = 26
 	for _, g := range groups {
-		fmt.Fprintf(w, "\n%s\n", p.paint(bold, strings.ToUpper(g)))
+		fmt.Fprintf(out, "\n%s\n", p.paint(bold, strings.ToUpper(g)))
 		for _, c := range commandList {
 			if c.group != g || !available(c) {
 				continue
@@ -399,28 +399,28 @@ func printOverview(w io.Writer) {
 			if args != "" {
 				plain, styled = plain+" "+args, styled+" "+p.paint(dim, args)
 			}
-			fmt.Fprintf(w, "  %s%s  %s\n", styled, strings.Repeat(" ", max(width-len(plain), 0)), c.summary)
+			fmt.Fprintf(out, "  %s%s  %s\n", styled, strings.Repeat(" ", max(width-len(plain), 0)), c.summary)
 		}
 	}
-	fmt.Fprintf(w, "\n%s\n", p.paint(bold, "GET STARTED"))
+	fmt.Fprintf(out, "\n%s\n", p.paint(bold, "GET STARTED"))
 	for _, e := range []string{
 		"gascoigne install -g              # every agent, every project",
 		"gascoigne exec -- go test ./...   # one command by hand",
 		"gascoigne gain                    # where the savings come from",
 		"gascoigne dashboard               # live view in the browser",
 	} {
-		fmt.Fprintf(w, "  %s\n", example(p, e))
+		fmt.Fprintf(out, "  %s\n", example(p, e))
 	}
-	fmt.Fprintf(w, "\nRun %s for a command's flags and examples. Docs: docs/README.md\n", p.paint(cyan, "gascoigne help <command>"))
+	fmt.Fprintf(out, "\nRun %s for a command's flags and examples. Docs: docs/README.md\n", p.paint(cyan, "gascoigne help <command>"))
 }
 
 // example dims a trailing "# comment".
-func example(p painter, e string) string {
-	cmd, comment, ok := strings.Cut(e, "#")
+func example(paint painter, text string) string {
+	cmd, comment, ok := strings.Cut(text, "#")
 	if !ok {
-		return e
+		return text
 	}
-	return cmd + p.paint(dim, "#"+comment)
+	return cmd + paint.paint(dim, "#"+comment)
 }
 
 // commonFlags are the flags every service-building command shares (common.register).
@@ -434,33 +434,33 @@ func newFlags(name string) *flag.FlagSet {
 	return fs
 }
 
-func printCommand(w io.Writer, name string, fs *flag.FlagSet) {
-	p := painterFor(w)
+func printCommand(out io.Writer, name string, fs *flag.FlagSet) {
+	p := painterFor(out)
 	c, _ := lookup(strings.Fields(name)[0])
-	fmt.Fprintf(w, "%s %s %s %s\n", p.paint(bold, "gascoigne"), p.paint(bold+";"+cyan, c.name), p.paint(dim, "—"), c.summary)
-	fmt.Fprintf(w, "\n%s\n  %s\n", p.paint(bold, "USAGE"), strings.TrimSpace("gascoigne "+p.paint(cyan, c.name)+" "+p.paint(dim, c.args)))
+	fmt.Fprintf(out, "%s %s %s %s\n", p.paint(bold, "gascoigne"), p.paint(bold+";"+cyan, c.name), p.paint(dim, "—"), c.summary)
+	fmt.Fprintf(out, "\n%s\n  %s\n", p.paint(bold, "USAGE"), strings.TrimSpace("gascoigne "+p.paint(cyan, c.name)+" "+p.paint(dim, c.args)))
 	if c.about != "" {
-		fmt.Fprintf(w, "\n%s\n", indent(c.about))
+		fmt.Fprintf(out, "\n%s\n", indent(c.about))
 	}
 	var own, shared []*flag.Flag
-	fs.VisitAll(func(f *flag.Flag) {
-		if slices.Contains(commonFlags, f.Name) {
-			shared = append(shared, f)
+	fs.VisitAll(func(item *flag.Flag) {
+		if slices.Contains(commonFlags, item.Name) {
+			shared = append(shared, item)
 			return
 		}
-		own = append(own, f)
+		own = append(own, item)
 	})
-	printFlags(w, p, "FLAGS", own)
+	printFlags(out, p, "FLAGS", own)
 	if len(c.examples) > 0 {
-		fmt.Fprintf(w, "\n%s\n", p.paint(bold, "EXAMPLES"))
+		fmt.Fprintf(out, "\n%s\n", p.paint(bold, "EXAMPLES"))
 		for _, e := range c.examples {
-			fmt.Fprintf(w, "  %s\n", e)
+			fmt.Fprintf(out, "  %s\n", e)
 		}
 	}
-	printFlags(w, p, "SHARED FLAGS", shared)
+	printFlags(out, p, "SHARED FLAGS", shared)
 }
 
-func printFlags(w io.Writer, p painter, title string, flags []*flag.Flag) {
+func printFlags(out io.Writer, paint painter, title string, flags []*flag.Flag) {
 	if len(flags) == 0 {
 		return
 	}
@@ -480,32 +480,32 @@ func printFlags(w io.Writer, p painter, title string, flags []*flag.Flag) {
 		width = max(width, len(name))
 	}
 	width = min(width, 18)
-	fmt.Fprintf(w, "\n%s\n", p.paint(bold, title))
+	fmt.Fprintf(out, "\n%s\n", paint.paint(bold, title))
 	for _, r := range rows {
 		pad := width - len(r.name)
-		lead := "  " + p.paint(cyan, r.name)
+		lead := "  " + paint.paint(cyan, r.name)
 		if pad < 0 { // too long: description on the next line
-			fmt.Fprintf(w, "%s\n", lead)
+			fmt.Fprintf(out, "%s\n", lead)
 			lead, pad = "  ", width
 		}
 		lines := wrap(r.usage, 100-width-4)
-		fmt.Fprintf(w, "%s%s  %s\n", lead, strings.Repeat(" ", pad), lines[0])
+		fmt.Fprintf(out, "%s%s  %s\n", lead, strings.Repeat(" ", pad), lines[0])
 		for _, l := range lines[1:] {
-			fmt.Fprintf(w, "  %s  %s\n", strings.Repeat(" ", width), l)
+			fmt.Fprintf(out, "  %s  %s\n", strings.Repeat(" ", width), l)
 		}
 	}
 }
 
-func indent(s string) string {
-	return "  " + strings.ReplaceAll(s, "\n", "\n  ")
+func indent(text string) string {
+	return "  " + strings.ReplaceAll(text, "\n", "\n  ")
 }
 
 // wrap breaks s into lines of at most n bytes at spaces.
-func wrap(s string, n int) []string {
+func wrap(text string, width int) []string {
 	var lines []string
 	line := ""
-	for _, word := range strings.Fields(s) {
-		if line != "" && len(line)+1+len(word) > n {
+	for _, word := range strings.Fields(text) {
+		if line != "" && len(line)+1+len(word) > width {
 			lines = append(lines, line)
 			line = ""
 		}

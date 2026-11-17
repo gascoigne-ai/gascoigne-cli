@@ -16,21 +16,21 @@ type object struct {
 	vals map[string]any
 }
 
-func (o *object) get(k string) any { return o.vals[k] }
+func (o *object) get(key string) any { return o.vals[key] }
 
-func (o *object) del(k string) {
-	if _, ok := o.vals[k]; !ok {
+func (o *object) del(key string) {
+	if _, ok := o.vals[key]; !ok {
 		return
 	}
-	delete(o.vals, k)
-	o.keys = slices.DeleteFunc(o.keys, func(x string) bool { return x == k })
+	delete(o.vals, key)
+	o.keys = slices.DeleteFunc(o.keys, func(candidate string) bool { return candidate == key })
 }
 
-func (o *object) set(k string, v any) {
-	if _, ok := o.vals[k]; !ok {
-		o.keys = append(o.keys, k)
+func (o *object) set(key string, value any) {
+	if _, ok := o.vals[key]; !ok {
+		o.keys = append(o.keys, key)
 	}
-	o.vals[k] = v
+	o.vals[key] = value
 }
 
 // parseJSON decodes data keeping object key order and number text.
@@ -85,9 +85,9 @@ func decodeValue(dec *json.Decoder) (any, error) {
 
 // formatJSON encodes v indented by two spaces, without HTML escaping
 // ("a && b" stays readable).
-func formatJSON(v any) ([]byte, error) {
+func formatJSON(value any) ([]byte, error) {
 	var compact bytes.Buffer
-	if err := writeValue(&compact, v); err != nil {
+	if err := writeValue(&compact, value); err != nil {
 		return nil, err
 	}
 	var out bytes.Buffer
@@ -98,68 +98,68 @@ func formatJSON(v any) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
-func writeValue(b *bytes.Buffer, v any) error {
-	switch v := v.(type) {
+func writeValue(buf *bytes.Buffer, value any) error {
+	switch v := value.(type) {
 	case *object:
-		b.WriteByte('{')
+		buf.WriteByte('{')
 		for i, k := range v.keys {
 			if i > 0 {
-				b.WriteByte(',')
+				buf.WriteByte(',')
 			}
-			if err := writeValue(b, k); err != nil {
+			if err := writeValue(buf, k); err != nil {
 				return err
 			}
-			b.WriteByte(':')
-			if err := writeValue(b, v.vals[k]); err != nil {
+			buf.WriteByte(':')
+			if err := writeValue(buf, v.vals[k]); err != nil {
 				return err
 			}
 		}
-		b.WriteByte('}')
+		buf.WriteByte('}')
 	case []any:
-		b.WriteByte('[')
+		buf.WriteByte('[')
 		for i, x := range v {
 			if i > 0 {
-				b.WriteByte(',')
+				buf.WriteByte(',')
 			}
-			if err := writeValue(b, x); err != nil {
+			if err := writeValue(buf, x); err != nil {
 				return err
 			}
 		}
-		b.WriteByte(']')
+		buf.WriteByte(']')
 	default:
-		enc := json.NewEncoder(b)
+		enc := json.NewEncoder(buf)
 		enc.SetEscapeHTML(false)
 		if err := enc.Encode(v); err != nil {
 			return fmt.Errorf("encode %T: %w", v, err)
 		}
-		b.Truncate(b.Len() - 1) // Encode ends with a newline
+		buf.Truncate(buf.Len() - 1) // Encode ends with a newline
 	}
 	return nil
 }
 
 // path walks nested objects by key; nil when a step is missing.
-func path(v any, keys ...string) any {
+func path(value any, keys ...string) any {
 	for _, k := range keys {
-		o, ok := v.(*object)
+		o, ok := value.(*object)
 		if !ok || o == nil {
 			return nil
 		}
-		v = o.get(k)
+		value = o.get(k)
 	}
-	return v
+	return value
 }
 
 // pruneEmpty deletes keys of o whose value became an empty object or list.
-func pruneEmpty(o *object, keys ...string) {
+func pruneEmpty(node *object, keys ...string) {
 	for _, k := range keys {
-		switch v := o.get(k).(type) {
+		switch v := node.get(k).(type) {
 		case *object:
 			if len(v.keys) == 0 {
-				o.del(k)
+				node.del(k)
 			}
 		case []any:
 			if len(v) == 0 {
-				o.del(k)
+				node.del(k)
 			}
 		}
 	}
@@ -191,8 +191,8 @@ func removeHooks(root *object, event string, ours func(cmd string) bool) int {
 		}
 		if inner, ok := eo.get("hooks").([]any); ok {
 			n := len(inner)
-			inner = slices.DeleteFunc(inner, func(h any) bool {
-				cmd, _ := path(h, "command").(string)
+			inner = slices.DeleteFunc(inner, func(hook any) bool {
+				cmd, _ := path(hook, "command").(string)
 				return ours(cmd)
 			})
 			removed += n - len(inner)

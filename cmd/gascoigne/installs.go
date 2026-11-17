@@ -94,8 +94,8 @@ func writeInstalls(list []install) error {
 	return os.Rename(tmp, installsFile())
 }
 
-func (i install) same(o install) bool {
-	return i.Agent == o.Agent && i.Global == o.Global && i.Dir == o.Dir
+func (i install) same(other install) bool {
+	return i.Agent == other.Agent && i.Global == other.Global && i.Dir == other.Dir
 }
 
 // recordInstall adds or replaces the entry for an agent in a scope.
@@ -115,7 +115,7 @@ func recordInstall(name string, global bool, exe string, proxy bool) error {
 // forgetInstalls drops the entries of agents that unwrap removed.
 func forgetInstalls(names []string) error {
 	list := readInstalls()
-	kept := slices.DeleteFunc(slices.Clone(list), func(e install) bool { return slices.Contains(names, e.Agent) })
+	kept := slices.DeleteFunc(slices.Clone(list), func(entry install) bool { return slices.Contains(names, entry.Agent) })
 	if len(kept) == len(list) {
 		return nil
 	}
@@ -131,7 +131,7 @@ func syncInstalls() []string {
 	if os.Getenv("GASCOIGNE_AUTOSYNC") == "off" || readPrefs().Autosync != "on" {
 		return nil
 	}
-	stale := func(e install) bool { return e.Registration < registrationVersion && e.Global }
+	stale := func(entry install) bool { return entry.Registration < registrationVersion && entry.Global }
 	if !slices.ContainsFunc(readInstalls(), stale) {
 		return nil
 	}
@@ -163,16 +163,16 @@ func syncInstalls() []string {
 // resync writes an install's config again: the agent's sync step when it has
 // one (claude: settings only, not ~/.claude.json, which a running Claude
 // Code rewrites), else its install; the LLM proxy again if it was chosen.
-func (a agent) resync(e install) error {
+func (a agent) resync(entry install) error {
 	write := a.add
 	if a.sync != nil {
 		write = a.sync
 	}
-	if _, err := write(e.Exe, e.Global); err != nil {
+	if _, err := write(entry.Exe, entry.Global); err != nil {
 		return err
 	}
-	if e.Proxy && a.addProxy != nil {
-		_, err := a.addProxy(e.Global)
+	if entry.Proxy && a.addProxy != nil {
+		_, err := a.addProxy(entry.Global)
 		return err
 	}
 	return nil

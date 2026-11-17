@@ -307,9 +307,9 @@ func TestProxyForGeminiNeedsAPIKey(t *testing.T) {
 func TestServerHostsLLMProxy(t *testing.T) {
 	sandbox(t)
 	var got string
-	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b, _ := io.ReadAll(r.Body)
-		got = r.URL.Path + " " + string(b)
+	upstream := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		b, _ := io.ReadAll(request.Body)
+		got = request.URL.Path + " " + string(b)
 	}))
 	defer upstream.Close()
 	ledgerFile := filepath.Join(t.TempDir(), "l.db")

@@ -36,7 +36,7 @@ func TestLoginRunsInTheServer(t *testing.T) {
 	defer srv.Close()
 
 	var shown string
-	err := loginViaServer(t.Context(), strings.TrimPrefix(srv.URL, "http://"), url, func(a string) { shown = a })
+	err := loginViaServer(t.Context(), strings.TrimPrefix(srv.URL, "http://"), url, func(text string) { shown = text })
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -38,21 +38,21 @@ type activity struct {
 func newActivity(now time.Time) *activity { return &activity{last: now} }
 
 func (a *activity) track(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/api/health" { // a liveness check is not use
-			next.ServeHTTP(w, r)
+	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		if request.URL.Path == "/api/health" { // a liveness check is not use
+			next.ServeHTTP(response, request)
 			return
 		}
 		a.change(1)
 		defer a.change(-1)
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(response, request)
 	})
 }
 
-func (a *activity) change(d int) {
+func (a *activity) change(delta int) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	a.inFlight += d
+	a.inFlight += delta
 	a.last = time.Now()
 }
 
@@ -68,7 +68,7 @@ func (a *activity) idleFor(now time.Time) time.Duration {
 
 // watchIdle calls stop once the server has been idle for idle, checking
 // every tick. Zero idle never stops.
-func watchIdle(ctx context.Context, a *activity, idle, tick time.Duration, stop func()) {
+func watchIdle(ctx context.Context, tracker *activity, idle, tick time.Duration, stop func()) {
 	if idle <= 0 {
 		return
 	}
@@ -79,7 +79,7 @@ func watchIdle(ctx context.Context, a *activity, idle, tick time.Duration, stop 
 		case <-ctx.Done():
 			return
 		case now := <-t.C:
-			if a.idleFor(now) >= idle {
+			if tracker.idleFor(now) >= idle {
 				stop()
 				return
 			}

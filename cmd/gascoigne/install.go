@@ -72,7 +72,7 @@ func cmdInstall(_ context.Context, args []string) error {
 
 // savePref stores the value of an install flag in the prefs before the
 // configs that depend on it are written; "" keeps the saved one.
-func savePref(flag, value string, valid []string, set func(p *prefs, v string)) error {
+func savePref(flag, value string, valid []string, set func(saved *prefs, choice string)) error {
 	if value == "" {
 		return nil
 	}
@@ -84,16 +84,16 @@ func savePref(flag, value string, valid []string, set func(p *prefs, v string)) 
 	return p.save()
 }
 
-func saveGuideLevel(v string) error {
-	return savePref("guide", v, guideLevels, func(p *prefs, v string) { p.Guide = v })
+func saveGuideLevel(level string) error {
+	return savePref("guide", level, guideLevels, func(saved *prefs, choice string) { saved.Guide = choice })
 }
 
-func saveAutosync(v string) error {
-	return savePref("autosync", v, autosyncChoices, func(p *prefs, v string) { p.Autosync = v })
+func saveAutosync(choice string) error {
+	return savePref("autosync", choice, autosyncChoices, func(saved *prefs, choice string) { saved.Autosync = choice })
 }
 
-func saveAllowLevel(v string) error {
-	return savePref("permissions", v, allowLevels, func(p *prefs, v string) { p.Allow = v })
+func saveAllowLevel(level string) error {
+	return savePref("permissions", level, allowLevels, func(saved *prefs, choice string) { saved.Allow = choice })
 }
 
 // autosyncChoices are the answers to "update installed hooks after an upgrade".
@@ -338,8 +338,8 @@ func addJSON(file string, remove func(*object) []string, add map[string]any, wha
 	return withProxies(added(file, what, backup, err), r), nil
 }
 
-func withProxies(line string, r proxyResult) string {
-	if s := r.String(); s != "" {
+func withProxies(line string, result proxyResult) string {
+	if s := result.String(); s != "" {
 		return line + "; " + s
 	}
 	return line
@@ -390,8 +390,8 @@ func proxyClaudeState(exe string, global bool) (string, error) {
 	return line, nil
 }
 
-func toObject(m map[string]any) *object {
-	v, _ := parseJSON([]byte(compactJSON(m))) // our own maps always parse
+func toObject(fields map[string]any) *object {
+	v, _ := parseJSON([]byte(compactJSON(fields))) // our own maps always parse
 	return v.(*object)
 }
 

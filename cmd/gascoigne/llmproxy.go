@@ -56,12 +56,12 @@ func llmProxy(ctx context.Context, mu *sync.Mutex, ledgerPath, upstream string, 
 }
 
 // llmProxyWith is llmProxy with per-run config overrides (replay's -set).
-func llmProxyWith(ctx context.Context, mu *sync.Mutex, ledgerPath, upstream string, log *slog.Logger, o config.Overrides) (*httpproxyreceiver.Receiver, func(), error) {
+func llmProxyWith(ctx context.Context, mu *sync.Mutex, ledgerPath, upstream string, log *slog.Logger, overrides config.Overrides) (*httpproxyreceiver.Receiver, func(), error) {
 	data, err := configData("")
 	if err != nil {
 		return nil, nil, err
 	}
-	cfg, err := config.ParseWith(data, o)
+	cfg, err := config.ParseWith(data, overrides)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -100,19 +100,19 @@ type locked struct {
 	pl component.Pipeline
 }
 
-func (l locked) Process(ctx context.Context, p *payload.Payload) (*payload.Payload, error) {
+func (l locked) Process(ctx context.Context, data *payload.Payload) (*payload.Payload, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	return l.pl.Process(ctx, p)
+	return l.pl.Process(ctx, data)
 }
 
 // waitIdle blocks until no proxied request is in flight (or ctx ends, or
 // ten minutes pass), so a restart never cuts an agent's stream.
-func waitIdle(ctx context.Context, p *httpproxyreceiver.Receiver) {
-	if p == nil {
+func waitIdle(ctx context.Context, receiver *httpproxyreceiver.Receiver) {
+	if receiver == nil {
 		return
 	}
-	for deadline := time.Now().Add(10 * time.Minute); p.Active() > 0 && time.Now().Before(deadline); {
+	for deadline := time.Now().Add(10 * time.Minute); receiver.Active() > 0 && time.Now().Before(deadline); {
 		select {
 		case <-ctx.Done():
 			return
@@ -213,8 +213,8 @@ func userGateway(key string) bool {
 const bedrockNote = "LLM proxy not used for Claude on Bedrock: AWS credentials sign each request body, which the " +
 	"proxy would change. Use a Bedrock API key (AWS_BEARER_TOKEN_BEDROCK) to route it through gascoigne."
 
-func truthy(v string) bool {
-	switch strings.ToLower(v) {
+func truthy(value string) bool {
+	switch strings.ToLower(value) {
 	case "1", "true", "yes", "on":
 		return true
 	}

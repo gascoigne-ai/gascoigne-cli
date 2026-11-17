@@ -117,28 +117,28 @@ func (f *loginFlows) status(serverURL string) (loginState, bool) {
 
 // handlers mounts POST /api/mcp/login {url} (start) and GET /api/mcp/login?url= (state).
 func (f *loginFlows) handlers(mux *http.ServeMux) {
-	mux.HandleFunc("POST /api/mcp/login", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /api/mcp/login", func(response http.ResponseWriter, request *http.Request) {
 		var in struct {
 			URL string `json:"url"`
 		}
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&in); err != nil || !httpURL(in.URL) {
-			http.Error(w, "want {url: an http(s) url}", http.StatusBadRequest)
+		if err := json.NewDecoder(http.MaxBytesReader(response, request.Body, 1<<16)).Decode(&in); err != nil || !httpURL(in.URL) {
+			http.Error(response, "want {url: an http(s) url}", http.StatusBadRequest)
 			return
 		}
-		respond(w, f.start(in.URL), nil)
+		respond(response, f.start(in.URL), nil)
 	})
-	mux.HandleFunc("GET /api/mcp/login", func(w http.ResponseWriter, r *http.Request) {
-		st, ok := f.status(r.URL.Query().Get("url"))
+	mux.HandleFunc("GET /api/mcp/login", func(response http.ResponseWriter, request *http.Request) {
+		st, ok := f.status(request.URL.Query().Get("url"))
 		if !ok {
-			http.Error(w, "no login for this url", http.StatusNotFound)
+			http.Error(response, "no login for this url", http.StatusNotFound)
 			return
 		}
-		respond(w, st, nil)
+		respond(response, st, nil)
 	})
 }
 
-func httpURL(u string) bool {
-	return strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://")
+func httpURL(rawURL string) bool {
+	return strings.HasPrefix(rawURL, "http://") || strings.HasPrefix(rawURL, "https://")
 }
 
 // remoteLogin is how mcp-proxy logs in: through the background server, which

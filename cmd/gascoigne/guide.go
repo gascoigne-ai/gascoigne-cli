@@ -64,10 +64,10 @@ func guideLevel() string {
 
 // withGuide answers Claude's SessionStart event with the guide; other events
 // go to h.
-func withGuide(h hookFunc) hookFunc {
-	return func(ctx context.Context, c *common, in hookInput, prefix string) (any, error) {
+func withGuide(next hookFunc) hookFunc {
+	return func(ctx context.Context, shared *common, in hookInput, prefix string) (any, error) {
 		if in.HookEventName != "SessionStart" {
-			return h(ctx, c, in, prefix)
+			return next(ctx, shared, in, prefix)
 		}
 		ensureProxyFor()
 		// Level off keeps only the news of an update.

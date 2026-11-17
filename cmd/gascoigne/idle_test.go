@@ -13,8 +13,8 @@ func TestActivity(t *testing.T) {
 	start := time.Now()
 	a := newActivity(start)
 	release := make(chan struct{})
-	h := a.track(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/stream" {
+	h := a.track(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		if request.URL.Path == "/stream" {
 			<-release
 		}
 	}))

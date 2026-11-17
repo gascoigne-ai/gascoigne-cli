@@ -314,7 +314,7 @@ func TestRewriteSharedWrapping(t *testing.T) {
 	}
 }
 
-func jsonString(s string) string {
-	b, _ := json.Marshal(s)
+func jsonString(text string) string {
+	b, _ := json.Marshal(text)
 	return strings.Trim(string(b), `"`)
 }

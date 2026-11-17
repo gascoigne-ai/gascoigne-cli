@@ -26,7 +26,7 @@ import (
 
 // withLedger parses flags, starts the service and hands the ledger to fn.
 func withLedger(ctx context.Context, name string, args []string, nargs int, flags func(*flag.FlagSet),
-	fn func(l *ledger.Ledger, c *common, args []string) error) error {
+	fn func(store *ledger.Ledger, shared *common, args []string) error) error {
 	var c common
 	fs := newFlags(name)
 	c.register(fs)
@@ -68,8 +68,8 @@ func cmdRaw(ctx context.Context, args []string) error {
 		fs.StringVar(&sl.Grep, "grep", "", "only lines matching `regexp`, numbered")
 		fs.StringVar(&sl.Query, "query", "", "only the lines best matching these `words`, numbered")
 		fs.IntVar(&sl.Context, "C", 0, "lines of context around grep/query matches")
-	}, func(l *ledger.Ledger, _ *common, args []string) error {
-		text, err := mcptool.Original(ctx, l, args[0], sl)
+	}, func(store *ledger.Ledger, _ *common, args []string) error {
+		text, err := mcptool.Original(ctx, store, args[0], sl)
 		if err != nil {
 			return err
 		}
@@ -99,10 +99,10 @@ func cmdFail(ctx context.Context, args []string) error {
 	var reason string
 	return withLedger(ctx, "fail", args, 1, func(fs *flag.FlagSet) {
 		fs.StringVar(&reason, "reason", component.ReasonManual, "failure `reason`")
-	}, func(l *ledger.Ledger, _ *common, args []string) error {
+	}, func(store *ledger.Ledger, _ *common, args []string) error {
 		key := args[0]
 		if !isKey(key) {
-			k, _, err := l.GetRaw(ctx, key)
+			k, _, err := store.GetRaw(ctx, key)
 			if err != nil {
 				return err
 			}
@@ -111,19 +111,19 @@ func cmdFail(ctx context.Context, args []string) error {
 			}
 			key = k
 		}
-		return l.MarkFailure(ctx, key, reason)
+		return store.MarkFailure(ctx, key, reason)
 	})
 }
 
 func cmdForget(ctx context.Context, args []string) error {
-	return withLedger(ctx, "forget", args, 1, nil, func(l *ledger.Ledger, _ *common, args []string) error {
-		return l.Forget(ctx, args[0])
+	return withLedger(ctx, "forget", args, 1, nil, func(store *ledger.Ledger, _ *common, args []string) error {
+		return store.Forget(ctx, args[0])
 	})
 }
 
-func isKey(s string) bool {
+func isKey(text string) bool {
 	for _, prefix := range []string{"file:", "cmd:", "tool:"} {
-		if strings.HasPrefix(s, prefix) {
+		if strings.HasPrefix(text, prefix) {
 			return true
 		}
 	}
@@ -156,7 +156,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		fs.StringVar(&color, "color", "auto", "`mode`: auto (terminal, no NO_COLOR), always or never")
 		view.register(fs)
 		fs.Float64Var(&rereads, "rereads", cost.AgentContext.Rereads, "later requests that read each tool result again, for the cost estimate (`n`; measured median 110)")
-	}, func(l *ledger.Ledger, c *common, _ []string) error {
+	}, func(store *ledger.Ledger, shared *common, _ []string) error {
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		defer w.Flush()
 		if asCSV && (asJSON || oneline || (by == "" && !failures)) {
@@ -164,16 +164,16 @@ func cmdGain(ctx context.Context, args []string) error {
 		}
 		if failures {
 			if asJSON {
-				return failuresJSON(ctx, l)
+				return failuresJSON(ctx, store)
 			}
 			if asCSV {
-				return failuresCSV(ctx, os.Stdout, l)
+				return failuresCSV(ctx, os.Stdout, store)
 			}
-			return printFailures(ctx, w, l, time.Now())
+			return printFailures(ctx, w, store, time.Now())
 		}
-		id := c.identity()
+		id := shared.identity()
 		if all {
-			id = mcptool.Identity{Session: c.session, Agent: c.agent, Model: c.model}
+			id = mcptool.Identity{Session: shared.session, Agent: shared.agent, Model: shared.model}
 		}
 		q := component.StatsQuery{By: by, Session: id.Session, Agent: id.Agent, Model: id.Model}
 		if since != "" {
@@ -185,10 +185,10 @@ func cmdGain(ctx context.Context, args []string) error {
 		}
 		if refetch {
 			q.By, q.Session = component.ByFamilyOutcome, "" // all runs of the family, as the history filter reads them
-			return printRefetch(ctx, os.Stdout, l, q)
+			return printRefetch(ctx, os.Stdout, store, q)
 		}
 		if oneline {
-			return printOneline(ctx, os.Stdout, l, q, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss})
+			return printOneline(ctx, os.Stdout, store, q, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss})
 		}
 		p, err := newPainter(color)
 		if err != nil {
@@ -199,9 +199,9 @@ func cmdGain(ctx context.Context, args []string) error {
 			return err
 		}
 		if by == "" {
-			return overview(ctx, l, q, asJSON, p, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss}, v)
+			return overview(ctx, store, q, asJSON, p, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss}, v)
 		}
-		stats, err := l.Stats(ctx, q)
+		stats, err := store.Stats(ctx, q)
 		if err != nil {
 			return err
 		}
@@ -218,12 +218,12 @@ func cmdGain(ctx context.Context, args []string) error {
 
 // printOneline prints the totals of q on one line, short enough for an
 // agent's status line.
-func printOneline(ctx context.Context, w io.Writer, l *ledger.Ledger, q component.StatsQuery, c cost.Context) error {
-	o, err := mcptool.BuildOverview(ctx, l, q)
+func printOneline(ctx context.Context, out io.Writer, store *ledger.Ledger, query component.StatsQuery, pricing cost.Context) error {
+	o, err := mcptool.BuildOverview(ctx, store, query)
 	if err != nil {
 		return err
 	}
-	costs, err := mcptool.BuildCosts(ctx, l, q, c)
+	costs, err := mcptool.BuildCosts(ctx, store, query, pricing)
 	if err != nil {
 		return err
 	}
@@ -231,24 +231,24 @@ func printOneline(ctx context.Context, w io.Writer, l *ledger.Ledger, q componen
 	if costs.InContext > 0 {
 		line += fmt.Sprintf(" ~$%.2f", costs.InContext)
 	}
-	_, err = fmt.Fprintln(w, line)
+	_, err = fmt.Fprintln(out, line)
 	return err
 }
 
-func printFailures(ctx context.Context, w io.Writer, l *ledger.Ledger, now time.Time) error {
-	fs, err := l.FailureList(ctx)
+func printFailures(ctx context.Context, out io.Writer, store *ledger.Ledger, now time.Time) error {
+	fs, err := store.FailureList(ctx)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(w, "key\tcount\tlast\treason\traw tokens\t")
+	fmt.Fprintln(out, "key\tcount\tlast\treason\traw tokens\t")
 	for _, f := range fs {
-		fmt.Fprintf(w, "%s\t%d\t%s\t%s\t%d\t\n", f.Key, f.Count, ago(f.Last, now), f.Reason, f.RawTokens)
+		fmt.Fprintf(out, "%s\t%d\t%s\t%s\t%d\t\n", f.Key, f.Count, ago(f.Last, now), f.Reason, f.RawTokens)
 	}
 	return nil
 }
 
-func failuresJSON(ctx context.Context, l *ledger.Ledger) error {
-	fs, err := l.FailureList(ctx)
+func failuresJSON(ctx context.Context, store *ledger.Ledger) error {
+	fs, err := store.FailureList(ctx)
 	if err != nil {
 		return err
 	}
@@ -266,31 +266,31 @@ func failuresJSON(ctx context.Context, l *ledger.Ledger) error {
 	return writeJSON(map[string]any{"failures": out})
 }
 
-func writeJSON(v any) error {
+func writeJSON(value any) error {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
-	return enc.Encode(v)
+	return enc.Encode(value)
 }
 
-func overview(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, asJSON bool, p painter, c cost.Context, v gainView) error {
-	o, err := mcptool.BuildOverview(ctx, l, q)
+func overview(ctx context.Context, store *ledger.Ledger, query component.StatsQuery, asJSON bool, paint painter, costs cost.Context, view gainView) error {
+	o, err := mcptool.BuildOverview(ctx, store, query)
 	if err != nil {
 		return err
 	}
-	if c != cost.AgentContext {
-		if o.Cost, err = mcptool.BuildCosts(ctx, l, q, c); err != nil {
+	if costs != cost.AgentContext {
+		if o.Cost, err = mcptool.BuildCosts(ctx, store, query, costs); err != nil {
 			return err
 		}
 	}
-	failing, err := l.FailureList(ctx)
+	failing, err := store.FailureList(ctx)
 	if err != nil {
 		return err
 	}
-	usage, err := l.UsageStats(ctx, q)
+	usage, err := store.UsageStats(ctx, query)
 	if err != nil {
 		return err
 	}
-	days, err := l.UsageDays(ctx, q)
+	days, err := store.UsageDays(ctx, query)
 	if err != nil {
 		return err
 	}
@@ -302,24 +302,24 @@ func overview(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, asJ
 			APIDays        []ledger.UsageDay  `json:"api_days"`
 		}{o, len(failing), usage, days})
 	}
-	p.renderOverview(os.Stdout, o, len(failing), usage, days, v)
+	paint.renderOverview(os.Stdout, o, len(failing), usage, days, view)
 	return nil
 }
 
 // parseSince reads "7d", "4w", "6mo" (30-day months) or a Go duration ("24h", "90m").
-func parseSince(s string) (time.Duration, error) {
+func parseSince(text string) (time.Duration, error) {
 	day := 24 * time.Hour
 	for _, u := range []struct {
 		suffix string
 		d      time.Duration
 	}{{"mo", 30 * day}, {"d", day}, {"w", 7 * day}} {
-		if n, err := strconv.Atoi(strings.TrimSuffix(s, u.suffix)); strings.HasSuffix(s, u.suffix) && err == nil && n > 0 {
+		if n, err := strconv.Atoi(strings.TrimSuffix(text, u.suffix)); strings.HasSuffix(text, u.suffix) && err == nil && n > 0 {
 			return time.Duration(n) * u.d, nil
 		}
 	}
-	d, err := time.ParseDuration(s)
+	d, err := time.ParseDuration(text)
 	if err != nil || d <= 0 {
-		return 0, fmt.Errorf("-since: want 7d, 4w, 6mo or a duration like 24h, got %q", s)
+		return 0, fmt.Errorf("-since: want 7d, 4w, 6mo or a duration like 24h, got %q", text)
 	}
 	return d, nil
 }
@@ -331,7 +331,7 @@ func cmdFlush(ctx context.Context, args []string) error {
 	var older string
 	return withLedger(ctx, "flush", args, 0, func(fs *flag.FlagSet) {
 		fs.StringVar(&older, "older", "", "only originals saved before this `period`: 24h, 7d, 4w, 6mo")
-	}, func(l *ledger.Ledger, _ *common, _ []string) error {
+	}, func(store *ledger.Ledger, _ *common, _ []string) error {
 		var cutoff time.Time
 		if older != "" {
 			d, err := parseSince(older)
@@ -340,15 +340,15 @@ func cmdFlush(ctx context.Context, args []string) error {
 			}
 			cutoff = time.Now().Add(-d)
 		}
-		before, err := l.RawUsage(ctx)
+		before, err := store.RawUsage(ctx)
 		if err != nil {
 			return err
 		}
-		n, err := l.FlushRaw(ctx, cutoff)
+		n, err := store.FlushRaw(ctx, cutoff)
 		if err != nil {
 			return err
 		}
-		after, err := l.RawUsage(ctx)
+		after, err := store.RawUsage(ctx)
 		if err != nil {
 			return err
 		}
@@ -358,14 +358,14 @@ func cmdFlush(ctx context.Context, args []string) error {
 	})
 }
 
-func humanBytes(n int64) string {
+func humanBytes(size int64) string {
 	switch {
-	case n >= 1<<20:
-		return fmt.Sprintf("%.1f MB", float64(n)/(1<<20))
-	case n >= 1<<10:
-		return fmt.Sprintf("%.1f kB", float64(n)/(1<<10))
+	case size >= 1<<20:
+		return fmt.Sprintf("%.1f MB", float64(size)/(1<<20))
+	case size >= 1<<10:
+		return fmt.Sprintf("%.1f kB", float64(size)/(1<<10))
 	}
-	return fmt.Sprintf("%d B", n)
+	return fmt.Sprintf("%d B", size)
 }
 
 func cmdReset(ctx context.Context, args []string) error {
@@ -376,8 +376,8 @@ func cmdReset(ctx context.Context, args []string) error {
 	return withLedger(ctx, "reset", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&all, "all", false, "also delete stored originals and failure history (no filters)")
 		fs.StringVar(&since, "since", "", "only runs of the last `period`: 24h, 7d, 4w, 6mo")
-	}, func(l *ledger.Ledger, c *common, _ []string) error {
-		q := component.StatsQuery{Session: c.session, Agent: c.agent, Model: c.model}
+	}, func(store *ledger.Ledger, shared *common, _ []string) error {
+		q := component.StatsQuery{Session: shared.session, Agent: shared.agent, Model: shared.model}
 		if since != "" {
 			d, err := parseSince(since)
 			if err != nil {
@@ -385,11 +385,11 @@ func cmdReset(ctx context.Context, args []string) error {
 			}
 			q.Since = time.Now().Add(-d)
 		}
-		n, err := l.Reset(ctx, q, all)
+		n, err := store.Reset(ctx, q, all)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("gascoigne: deleted %d runs from %s", n, l.Path())
+		fmt.Printf("gascoigne: deleted %d runs from %s", n, store.Path())
 		if all {
 			fmt.Print(", all stored originals and failure history")
 		}
@@ -400,8 +400,8 @@ func cmdReset(ctx context.Context, args []string) error {
 
 // ago says how long before now t was, in the largest whole unit; a week or
 // more back it is the date.
-func ago(t, now time.Time) string {
-	d := now.Sub(t)
+func ago(then, now time.Time) string {
+	d := now.Sub(then)
 	switch {
 	case d < time.Minute:
 		return "just now"
@@ -412,11 +412,11 @@ func ago(t, now time.Time) string {
 	case d < 7*24*time.Hour:
 		return fmt.Sprintf("%dd ago", int(d.Hours()/24))
 	}
-	return t.Format(time.DateOnly)
+	return then.Format(time.DateOnly)
 }
 
-func failuresCSV(ctx context.Context, w io.Writer, l *ledger.Ledger) error {
-	fs, err := l.FailureList(ctx)
+func failuresCSV(ctx context.Context, out io.Writer, store *ledger.Ledger) error {
+	fs, err := store.FailureList(ctx)
 	if err != nil {
 		return err
 	}
@@ -424,26 +424,26 @@ func failuresCSV(ctx context.Context, w io.Writer, l *ledger.Ledger) error {
 	for _, f := range fs {
 		rows = append(rows, []string{f.Key, fmt.Sprint(f.Count), f.Last.Format(time.RFC3339), f.Reason, fmt.Sprint(f.RawTokens)})
 	}
-	return csv.NewWriter(w).WriteAll(rows)
+	return csv.NewWriter(out).WriteAll(rows)
 }
 
 // statsCSV prints a grouping, the total last; the columns are the JSON
 // report's, tokens as plain numbers.
-func statsCSV(w io.Writer, r mcptool.StatsReport) error {
-	rows := [][]string{{r.By, "runs", "optimized", "failed", "in_tokens", "out_tokens", "saved_tokens", "saved_pct"}}
-	for _, g := range append(r.Groups, r.Total) {
+func statsCSV(out io.Writer, report mcptool.StatsReport) error {
+	rows := [][]string{{report.By, "runs", "optimized", "failed", "in_tokens", "out_tokens", "saved_tokens", "saved_pct"}}
+	for _, g := range append(report.Groups, report.Total) {
 		rows = append(rows, []string{g.Group, fmt.Sprint(g.Runs), fmt.Sprint(g.Optimized), fmt.Sprint(g.Failed),
 			fmt.Sprint(g.RawTokens), fmt.Sprint(g.OutTokens), fmt.Sprint(g.Saved), fmt.Sprint(g.SavedPct)})
 	}
-	return csv.NewWriter(w).WriteAll(rows)
+	return csv.NewWriter(out).WriteAll(rows)
 }
 
 // printRefetch lists, per optimizer family, its optimized runs and how many
 // of them the agent then fetched raw, highest share first: the rate the
 // history filter compares with family_rerequest_rate.
-func printRefetch(ctx context.Context, out io.Writer, l *ledger.Ledger, q component.StatsQuery) error {
-	q.By = component.ByFamilyOutcome
-	stats, err := l.Stats(ctx, q)
+func printRefetch(ctx context.Context, out io.Writer, store *ledger.Ledger, query component.StatsQuery) error {
+	query.By = component.ByFamilyOutcome
+	stats, err := store.Stats(ctx, query)
 	if err != nil {
 		return err
 	}
@@ -470,8 +470,8 @@ func printRefetch(ctx context.Context, out io.Writer, l *ledger.Ledger, q compon
 		_, err := fmt.Fprintln(out, "no optimized runs in the period")
 		return err
 	}
-	rows := slices.SortedFunc(maps.Values(byFamily), func(a, b *row) int {
-		return cmp.Or(cmp.Compare(b.raw*a.runs, a.raw*b.runs), cmp.Compare(b.runs, a.runs), cmp.Compare(a.family, b.family))
+	rows := slices.SortedFunc(maps.Values(byFamily), func(first, second *row) int {
+		return cmp.Or(cmp.Compare(second.raw*first.runs, first.raw*second.runs), cmp.Compare(second.runs, first.runs), cmp.Compare(first.family, second.family))
 	})
 	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "family\truns\tfetched raw\trate\t")

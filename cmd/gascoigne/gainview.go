@@ -91,9 +91,9 @@ func (f gainViewFlags) build(overview bool) (gainView, error) {
 }
 
 // sectionList splits a comma separated list of section names.
-func (v gainView) sectionList(s string) ([]string, error) {
+func (v gainView) sectionList(list string) ([]string, error) {
 	var out []string
-	for n := range strings.SplitSeq(s, ",") {
+	for n := range strings.SplitSeq(list, ",") {
 		if n = strings.TrimSpace(n); n == "" {
 			continue
 		}
@@ -111,20 +111,20 @@ func (v gainView) show(section string) bool { return v.sections[section] }
 func (v gainView) rows(rows []mcptool.StatsJSON) (shown []mcptool.StatsJSON, more int) {
 	shown = slices.Clone(rows)
 	if v.minTokens > 0 {
-		shown = slices.DeleteFunc(shown, func(r mcptool.StatsJSON) bool { return r.RawTokens < v.minTokens })
+		shown = slices.DeleteFunc(shown, func(stat mcptool.StatsJSON) bool { return stat.RawTokens < v.minTokens })
 	}
-	slices.SortStableFunc(shown, func(a, b mcptool.StatsJSON) int {
+	slices.SortStableFunc(shown, func(left, right mcptool.StatsJSON) int {
 		switch v.sort {
 		case "runs":
-			return cmp.Compare(b.Runs, a.Runs)
+			return cmp.Compare(right.Runs, left.Runs)
 		case "in":
-			return cmp.Compare(b.RawTokens, a.RawTokens)
+			return cmp.Compare(right.RawTokens, left.RawTokens)
 		case "pct":
-			return cmp.Compare(b.SavedPct, a.SavedPct)
+			return cmp.Compare(right.SavedPct, left.SavedPct)
 		case "name":
-			return cmp.Compare(a.Group, b.Group)
+			return cmp.Compare(left.Group, right.Group)
 		}
-		return cmp.Compare(b.Saved, a.Saved)
+		return cmp.Compare(right.Saved, left.Saved)
 	})
 	if v.top > 0 && len(shown) > v.top {
 		more = len(shown) - v.top

@@ -52,11 +52,11 @@ func lessons(entries []ledger.Entry) []lesson {
 		tokens   int
 	}
 	reruns, bigs := map[string]*tally{}, map[string]*tally{}
-	add := func(m map[string]*tally, cmd, session string, tokens int) {
-		t := m[cmd]
+	add := func(tallies map[string]*tally, cmd, session string, tokens int) {
+		t := tallies[cmd]
 		if t == nil {
 			t = &tally{sessions: map[string]bool{}}
-			m[cmd] = t
+			tallies[cmd] = t
 		}
 		t.runs++
 		t.tokens += tokens
@@ -88,8 +88,8 @@ func lessons(entries []ledger.Entry) []lesson {
 				"- `%s` prints about %d tokens that gascoigne cannot shorten: narrow it first (arguments, `| head`, `rg`).", cmd, t.tokens/t.runs/100*100)})
 		}
 	}
-	slices.SortFunc(out, func(a, b lesson) int {
-		return cmp.Or(cmp.Compare(b.Runs, a.Runs), cmp.Compare(a.Command, b.Command), cmp.Compare(a.Rule, b.Rule))
+	slices.SortFunc(out, func(first, second lesson) int {
+		return cmp.Or(cmp.Compare(second.Runs, first.Runs), cmp.Compare(first.Command, second.Command), cmp.Compare(first.Rule, second.Rule))
 	})
 	return out[:min(len(out), learnMaxLessons)]
 }
@@ -147,7 +147,7 @@ func cmdLearn(ctx context.Context, args []string) error {
 		fs.StringVar(&target, "target", "CLAUDE.local.md", "instruction `file` for -apply and -remove (CLAUDE.md, AGENTS.md, GEMINI.md)")
 		fs.BoolVar(&apply, "apply", false, "write the lines to the target as a marked block")
 		fs.BoolVar(&remove, "remove", false, "take the block out of the target")
-	}, func(l *ledger.Ledger, c *common, _ []string) error {
+	}, func(store *ledger.Ledger, shared *common, _ []string) error {
 		if remove {
 			d, err := writeLearned(target, nil)
 			if d == "" && err == nil {
@@ -164,7 +164,7 @@ func cmdLearn(ctx context.Context, args []string) error {
 			}
 			q.Since = time.Now().Add(-d)
 		}
-		entries, err := l.Page(ctx, q, ledger.Page{Limit: limit})
+		entries, err := store.Page(ctx, q, ledger.Page{Limit: limit})
 		if err != nil {
 			return err
 		}

@@ -42,7 +42,7 @@ type hookInput struct {
 // hookFunc answers one hook event; nil means "leave the tool call alone".
 // prefix is how the agent's shell runs a command through this binary
 // ("gascoigne exec", see execPrefix).
-type hookFunc func(ctx context.Context, c *common, in hookInput, prefix string) (any, error)
+type hookFunc func(ctx context.Context, shared *common, in hookInput, prefix string) (any, error)
 
 // cmdHook handles an agent hook event. It never fails the agent's tool call:
 // on any problem it prints nothing and the call goes on unchanged.
@@ -69,7 +69,7 @@ func cmdHook(ctx context.Context, args []string) error {
 		if in.HookEventName == "SessionStart" { // a prompt event leaves asking to the session start
 			setup, release := setupNudge(in.Source), releaseNudge(in.Source)
 			notes := []string{in.syncNote, setup, release, mcpNudge(in.Source, setup != "" || release != ""), learnNudge(ctx, in.Source)}
-			in.syncNote = strings.Join(slices.DeleteFunc(notes, func(n string) bool { return n == "" }), " ")
+			in.syncNote = strings.Join(slices.DeleteFunc(notes, func(note string) bool { return note == "" }), " ")
 		}
 	}
 	if in.HookEventName == "UserPromptSubmit" {
@@ -140,13 +140,13 @@ func rewriteHook(reply func(updated map[string]any) any) hookFunc {
 // optimizeHook optimizes shell output after the tool ran, for agents whose
 // hooks can replace a result but not rewrite a command without approving it.
 func optimizeHook(reply func(text string) any) hookFunc {
-	return func(ctx context.Context, c *common, in hookInput, _ string) (any, error) {
+	return func(ctx context.Context, shared *common, in hookInput, _ string) (any, error) {
 		if isOtherMCP(in.ToolName) {
 			text, ok := mcpText(in.ToolResponse)
 			if !ok {
 				return nil, nil
 			}
-			out, err := optimizeText(ctx, c, text, mcptool.Attrs(in.ToolName, in.ToolInput))
+			out, err := optimizeText(ctx, shared, text, mcptool.Attrs(in.ToolName, in.ToolInput))
 			if err != nil || out == "" {
 				return nil, err
 			}
@@ -157,7 +157,7 @@ func optimizeHook(reply func(text string) any) hookFunc {
 		if !ok || ownCommand(cmd) {
 			return nil, nil
 		}
-		p, err := c.optimize(ctx, text, cmd)
+		p, err := shared.optimize(ctx, text, cmd)
 		if err != nil || p == nil || p.Attrs[payload.AttrRawID] == "" {
 			return nil, err
 		}
@@ -198,12 +198,12 @@ func (c *common) optimize(ctx context.Context, text, cmd string) (*payload.Paylo
 }
 
 // hinted is the optimized text plus how to get the original, as exec prints it.
-func hinted(p *payload.Payload) string {
-	text := p.Text()
+func hinted(data *payload.Payload) string {
+	text := data.Text()
 	if !strings.HasSuffix(text, "\n") {
 		text += "\n"
 	}
-	return text + hint.Of(p.Attrs[payload.AttrRawID]) + "\n"
+	return text + hint.Of(data.Attrs[payload.AttrRawID]) + "\n"
 }
 
 // wrapCommand routes each command of a shell line through gascoigne exec
@@ -294,10 +294,10 @@ func wrapPipeline(part, prefix string) (string, bool) {
 // backtick or $( substitution, or a quote that never closes. Characters inside
 // quotes are literal (grep 'a\|b'), except a substitution inside double quotes,
 // which still runs; a backslash escapes the next character.
-func hasShellOperator(s string) bool {
+func hasShellOperator(command string) bool {
 	var quote byte
-	for i := 0; i < len(s); i++ {
-		c := s[i]
+	for i := 0; i < len(command); i++ {
+		c := command[i]
 		switch {
 		case quote == '\'':
 			if c == '\'' {
@@ -309,14 +309,14 @@ func hasShellOperator(s string) bool {
 				quote = 0
 			case c == '\\':
 				i++
-			case c == '`' || c == '$' && i+1 < len(s) && s[i+1] == '(':
+			case c == '`' || c == '$' && i+1 < len(command) && command[i+1] == '(':
 				return true
 			}
 		case c == '\'' || c == '"':
 			quote = c
 		case c == '\\':
 			i++
-		case strings.IndexByte("|&<>`\n", c) >= 0 || c == '$' && i+1 < len(s) && s[i+1] == '(':
+		case strings.IndexByte("|&<>`\n", c) >= 0 || c == '$' && i+1 < len(command) && command[i+1] == '(':
 			return true
 		}
 	}
@@ -331,15 +331,15 @@ var shellKeywords = map[string]bool{
 
 // segments splits a command list at && and ; outside quotes: the trimmed
 // commands, and the separator after each but the last.
-func segments(s string) (parts, seps []string) {
+func segments(command string) (parts, seps []string) {
 	var quote byte
 	start := 0
 	cut := func(end int, sep string) {
-		parts = append(parts, strings.TrimSpace(s[start:end]))
+		parts = append(parts, strings.TrimSpace(command[start:end]))
 		seps = append(seps, sep)
 	}
-	for i := 0; i < len(s); i++ {
-		switch c := s[i]; {
+	for i := 0; i < len(command); i++ {
+		switch c := command[i]; {
 		case quote != 0:
 			if c == quote {
 				quote = 0
@@ -349,13 +349,13 @@ func segments(s string) (parts, seps []string) {
 		case c == ';':
 			cut(i, ";")
 			start = i + 1
-		case c == '&' && i+1 < len(s) && s[i+1] == '&':
+		case c == '&' && i+1 < len(command) && command[i+1] == '&':
 			cut(i, "&&")
 			i++
 			start = i + 1
 		}
 	}
-	parts = append(parts, strings.TrimSpace(s[start:]))
+	parts = append(parts, strings.TrimSpace(command[start:]))
 	return parts, seps
 }
 
@@ -383,12 +383,12 @@ func splitPipe(line string) (body, pipe string) {
 }
 
 // splitStages splits s at pipes outside quotes (and not escaped).
-func splitStages(s string) []string {
+func splitStages(command string) []string {
 	var stages []string
 	var quote byte
 	start := 0
-	for i := 0; i < len(s); i++ {
-		switch c := s[i]; {
+	for i := 0; i < len(command); i++ {
+		switch c := command[i]; {
 		case quote != 0:
 			if c == quote {
 				quote = 0
@@ -400,11 +400,11 @@ func splitStages(s string) []string {
 		case c == '\\':
 			i++
 		case c == '|':
-			stages = append(stages, s[start:i])
+			stages = append(stages, command[start:i])
 			start = i + 1
 		}
 	}
-	return append(stages, s[start:])
+	return append(stages, command[start:])
 }
 
 // ownCommand reports lines that run gascoigne itself or ask for raw output.
@@ -412,7 +412,7 @@ func ownCommand(line string) bool {
 	if strings.Contains(line, "GASCOIGNE_RAW") {
 		return true
 	}
-	for s := range strings.FieldsFuncSeq(line, func(r rune) bool { return strings.ContainsRune("|;&", r) }) {
+	for s := range strings.FieldsFuncSeq(line, func(char rune) bool { return strings.ContainsRune("|;&", char) }) {
 		if args := detect.Argv(s); len(args) > 0 && args[0] == "gascoigne" {
 			return true
 		}
@@ -447,8 +447,8 @@ func watched(cmd string) bool {
 	if len(args) < 2 || detect.Family(detect.FromCmd(cmd)) != detect.FamilyBuild {
 		return false
 	}
-	return slices.ContainsFunc(args[1:], func(a string) bool {
-		return a == "-w" || a == "--watch" || a == "watch" || a == "serve"
+	return slices.ContainsFunc(args[1:], func(arg string) bool {
+		return arg == "-w" || arg == "--watch" || arg == "watch" || arg == "serve"
 	})
 }
 
@@ -568,16 +568,16 @@ func self() string {
 	return shellQuote(exe)
 }
 
-func sameFile(a, b string) bool {
-	x, err1 := os.Stat(a)
-	y, err2 := os.Stat(b)
+func sameFile(first, second string) bool {
+	x, err1 := os.Stat(first)
+	y, err2 := os.Stat(second)
 	return err1 == nil && err2 == nil && os.SameFile(x, y)
 }
 
 // shellQuote quotes s for sh when it holds anything beyond plain path characters.
-func shellQuote(s string) string {
-	if s != "" && strings.Trim(s, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-./:@+%,=") == "" {
-		return s
+func shellQuote(text string) string {
+	if text != "" && strings.Trim(text, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-./:@+%,=") == "" {
+		return text
 	}
-	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
+	return "'" + strings.ReplaceAll(text, "'", `'\''`) + "'"
 }

@@ -11,10 +11,10 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
-func gainFlags(f gainViewFlags) gainViewFlags {
-	f.sort = "saved"
-	f.top = 10
-	return f
+func gainFlags(flags gainViewFlags) gainViewFlags {
+	flags.sort = "saved"
+	flags.top = 10
+	return flags
 }
 
 func TestGainViewSections(t *testing.T) {
@@ -112,8 +112,8 @@ func TestRenderOverviewSections(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	render := func(f gainViewFlags) string {
-		v, err := gainFlags(f).build(true)
+	render := func(flags gainViewFlags) string {
+		v, err := gainFlags(flags).build(true)
 		if err != nil {
 			t.Fatal(err)
 		}
