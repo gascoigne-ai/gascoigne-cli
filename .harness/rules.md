@@ -15,6 +15,7 @@ Adds to the shared `common/rules.md` and `common/commit-style.md`. Breaking one 
 
 ## Verification
 - `make check` (gofmt, vet, imports, tests) must pass before you call work done.
+- Run an extra check (`make eval`, a single eval suite, `scripts/shot.sh`) only when the change touched the code it covers, as listed below. A change to docs, harness files or other code outside those areas runs `make check` alone. `make check` always runs in full: this rule never trims it.
 - UI changes (`cmd/gascoigne/*.html`, `pages.css`, `pages.js`): follow `visual-style.md`, look at the page with `scripts/shot.sh` (tests do not catch layout), and pin structure in a Go test over the embedded HTML.
 - Optimizer changes: run `make eval`; savings must not regress and `raw ok` must never be `NO`.
 - MCP changes (`receiver/mcpproxyreceiver`, `internal/mcptool`, MCP review, anything that shrinks an MCP tool result or tool list): also run the `mcp` eval suite (`SUITES=mcp make eval`). A new result shape or tool gets a generator in `internal/mcpmock` and a case in `testdata/eval-mcp/cases.yaml`; check against a real MCP server by hand (`gascoigne mcp-proxy -- <server>`) before release when one is at hand.
