@@ -6,11 +6,11 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 )
@@ -45,7 +45,7 @@ func libName() string {
 	return "libonnxruntime.so"
 }
 
-var cudaVersion = regexp.MustCompile(`CUDA Version: (\d+)`)
+var cudaVersion = lazyre.New(`CUDA Version: (\d+)`)
 
 // pickVariant resolves "auto" from the driver's CUDA version (nvidia-smi):
 // the release builds target CUDA 12 and 13.
@@ -54,7 +54,7 @@ func pickVariant(variant string) string {
 		return variant
 	}
 	out, err := exec.Command("nvidia-smi").Output()
-	if m := cudaVersion.FindSubmatch(out); err == nil && m != nil {
+	if m := cudaVersion.Regexp().FindSubmatch(out); err == nil && m != nil {
 		switch string(m[1]) {
 		case "13":
 			return "cuda13"

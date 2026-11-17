@@ -1,7 +1,7 @@
 BIN := bin/gascoigne
 PREFIX ?= $(HOME)/.local
 
-.PHONY: build install uninstall test vet fmt fmt-check imports cover eval eval-experimental check clean
+.PHONY: build install uninstall test vet fmt fmt-check imports lazyre cover eval eval-experimental check clean
 
 build:
 	go build -o $(BIN) ./cmd/gascoigne
@@ -29,6 +29,10 @@ fmt-check:
 imports:
 	.harness/common/scripts/check-layers.sh
 
+# Package-level regexps use lazyre.New (CLAUDE.md), never regexp.MustCompile at init.
+lazyre:
+	@out=$$(grep -rnE --include='*.go' '^var .*regexp\.(Must)?Compile\(' . | grep -v '^\./internal/lazyre/'); if [ -n "$$out" ]; then echo "package-level regexp must use lazyre.New:"; echo "$$out"; exit 1; fi
+
 cover:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -func=coverage.out | tail -1
@@ -42,7 +46,7 @@ eval-experimental: build
 	GASCOIGNE_EXPERIMENTAL=prose bin/gascoigne eval -cases testdata/eval-experimental/cases.yaml -record -set optimizers.prose.enabled=true -set optimizers.prose.model=kompress-v2-base
 	GASCOIGNE_EXPERIMENTAL=prose bin/gascoigne eval -cases testdata/eval-experimental/ctxprune-small/cases.yaml -record -set optimizers.prose.enabled=true -set optimizers.prose.model=ctxprune-small
 
-check: fmt-check vet imports test
+check: fmt-check vet imports lazyre test
 
 clean:
 	rm -rf bin coverage.out

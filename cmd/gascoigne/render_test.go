@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
-	"regexp"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"strings"
 	"testing"
 	"time"
@@ -36,7 +36,7 @@ func TestBar(t *testing.T) {
 	}
 }
 
-var ansi = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+var ansi = lazyre.New(`\x1b\[[0-9;]*m`)
 
 func TestTableAlignsWithColors(t *testing.T) {
 	var plain, colored strings.Builder
