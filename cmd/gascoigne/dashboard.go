@@ -391,24 +391,24 @@ type stepJSON struct {
 }
 
 type eventJSON struct {
-	ID         uint       `json:"id"`
-	TS         time.Time  `json:"ts"`
-	Session    string     `json:"session"`
-	Agent      string     `json:"agent"`
-	Model      string     `json:"model"`
-	Command    string     `json:"command"`
-	Pipeline   string     `json:"pipeline"`
-	Key        string     `json:"key"`
-	Route      string     `json:"route"`
-	Optimizers []string   `json:"optimizers"`
-	Outcome    string     `json:"outcome"`
-	Filter     string     `json:"filter"`
-	Reason     string     `json:"reason"`
-	RawTokens  int        `json:"raw_tokens"`
-	OutTokens  int        `json:"out_tokens"`
-	DurationMS int64      `json:"duration_ms"`
-	RawID      string     `json:"raw_id"`
-	Steps      []stepJSON `json:"steps"`
+	ID         uint              `json:"id"`
+	TS         time.Time         `json:"ts"`
+	Session    string            `json:"session"`
+	Agent      string            `json:"agent"`
+	Model      string            `json:"model"`
+	Command    string            `json:"command"`
+	Pipeline   string            `json:"pipeline"`
+	Key        string            `json:"key"`
+	Route      string            `json:"route"`
+	Optimizers []string          `json:"optimizers"`
+	Outcome    component.Outcome `json:"outcome"`
+	Filter     string            `json:"filter"`
+	Reason     string            `json:"reason"`
+	RawTokens  int               `json:"raw_tokens"`
+	OutTokens  int               `json:"out_tokens"`
+	DurationMS int64             `json:"duration_ms"`
+	RawID      string            `json:"raw_id"`
+	Steps      []stepJSON        `json:"steps"`
 }
 
 func eventsJSON(entries []ledger.Entry) []eventJSON {
@@ -420,7 +420,7 @@ func eventsJSON(entries []ledger.Entry) []eventJSON {
 		}
 		out[i] = eventJSON{
 			ID: e.ID, TS: e.TS, Session: e.Session, Agent: e.Agent, Model: e.Model, Command: e.Command,
-			Pipeline: e.Pipeline, Key: e.Key, Route: e.Route, Optimizers: e.Optimizers, Outcome: string(e.Outcome),
+			Pipeline: e.Pipeline, Key: e.Key, Route: e.Route, Optimizers: e.Optimizers, Outcome: e.Outcome,
 			Filter: e.Filter, Reason: e.Reason, RawTokens: e.RawTokens, OutTokens: e.OutTokens,
 			DurationMS: e.Duration.Milliseconds(), RawID: e.RawID, Steps: steps,
 		}

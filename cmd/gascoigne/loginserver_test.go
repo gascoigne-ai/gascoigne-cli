@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
 
+	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcpauth/authtest"
 )
 
@@ -67,5 +70,55 @@ func TestLoginRejectsOtherSchemes(t *testing.T) {
 	resp.Body.Close()
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Fatalf("status %d", resp.StatusCode)
+	}
+}
+
+func TestLoginPhaseTransitions(t *testing.T) {
+	phases := []loginPhase{loginRunning, loginDone, loginFailed}
+	allowed := map[[2]loginPhase]bool{
+		{loginRunning, loginDone}:   true,
+		{loginRunning, loginFailed}: true,
+	}
+	for _, from := range phases {
+		for _, to := range phases {
+			if got, want := from.canMoveTo(to), allowed[[2]loginPhase{from, to}]; got != want {
+				t.Errorf("%s -> %s: allowed %v, want %v", from, to, got, want)
+			}
+		}
+	}
+}
+
+func TestLoginStateJSONRoundTrip(t *testing.T) {
+	for _, tt := range []struct {
+		phase loginPhase
+		wire  string
+	}{
+		{loginRunning, `{"state":"running"}`},
+		{loginDone, `{"state":"done"}`},
+		{loginFailed, `{"state":"failed"}`},
+	} {
+		got, err := json.Marshal(loginState{State: tt.phase})
+		if err != nil || string(got) != tt.wire {
+			t.Errorf("marshal %s = %s, %v; want %s", tt.phase, got, err, tt.wire)
+		}
+		var back loginState
+		if err := json.Unmarshal([]byte(tt.wire), &back); err != nil || back.State != tt.phase {
+			t.Errorf("unmarshal %s = %q, %v", tt.wire, back.State, err)
+		}
+	}
+	var bad loginState
+	if err := json.Unmarshal([]byte(`{"state":"bogus"}`), &bad); err == nil {
+		t.Error("unknown phase accepted")
+	}
+}
+
+func TestEventJSONOutcomeWire(t *testing.T) {
+	got, err := json.Marshal(eventsJSON([]ledger.Entry{{Event: component.Event{Outcome: component.Failed}}}))
+	if err != nil || !strings.Contains(string(got), `"outcome":"error"`) {
+		t.Errorf("got %s, %v", got, err)
+	}
+	var back eventJSON
+	if err := json.Unmarshal([]byte(`{"outcome":"rerequested"}`), &back); err != nil || back.Outcome != component.Rerequested {
+		t.Errorf("round trip: %q, %v", back.Outcome, err)
 	}
 }

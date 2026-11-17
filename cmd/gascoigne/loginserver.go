@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -21,12 +22,46 @@ import (
 // a sandbox, and stops it when it likes. The server is gascoigne's own,
 // outlives the agent and opens the browser itself.
 
+// loginPhase is where one login stands. Only running moves on, to done or
+// failed; a finished login is replaced by a new one, never changed. The
+// values are the JSON the proxy reads.
+type loginPhase string
+
+const (
+	loginRunning loginPhase = "running"
+	loginDone    loginPhase = "done"
+	loginFailed  loginPhase = "failed"
+)
+
+// loginTransitions lists the legal moves; a phase with no row is final.
+var loginTransitions = map[loginPhase][]loginPhase{
+	loginRunning: {loginDone, loginFailed},
+}
+
+// UnmarshalJSON refuses a phase the server never sends.
+func (phase *loginPhase) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+	next := loginPhase(name)
+	if _, known := loginTransitions[next]; !known && next != loginDone && next != loginFailed {
+		return fmt.Errorf("unknown login state %q", name)
+	}
+	*phase = next
+	return nil
+}
+
+func (phase loginPhase) canMoveTo(next loginPhase) bool {
+	return slices.Contains(loginTransitions[phase], next)
+}
+
 // loginState is what the server knows of one login.
 type loginState struct {
-	State   string `json:"state"` // running, done or failed
-	AuthURL string `json:"auth_url,omitempty"`
-	Opened  bool   `json:"opened,omitempty"` // a browser was started for AuthURL
-	Error   string `json:"error,omitempty"`
+	State   loginPhase `json:"state"`
+	AuthURL string     `json:"auth_url,omitempty"`
+	Opened  bool       `json:"opened,omitempty"` // a browser was started for AuthURL
+	Error   string     `json:"error,omitempty"`
 }
 
 // loginFlows are the logins the server runs, by server url.
@@ -45,10 +80,10 @@ func newLoginFlows(store *mcpauth.Store, open func(string) bool) *loginFlows {
 func (f *loginFlows) start(serverURL string) loginState {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	if st := f.byURL[serverURL]; st != nil && st.State == "running" {
+	if st := f.byURL[serverURL]; st != nil && st.State == loginRunning {
 		return *st
 	}
-	st := &loginState{State: "running"}
+	st := &loginState{State: loginRunning}
 	f.byURL[serverURL] = st
 	go func() {
 		err := mcpauth.Login(context.Background(), f.store, serverURL, func(authURL string) error {
@@ -60,8 +95,12 @@ func (f *loginFlows) start(serverURL string) loginState {
 		})
 		f.mu.Lock()
 		defer f.mu.Unlock()
-		if st.State, st.Error = "done", ""; err != nil {
-			st.State, st.Error = "failed", err.Error()
+		next, msg := loginDone, ""
+		if err != nil {
+			next, msg = loginFailed, err.Error()
+		}
+		if st.State.canMoveTo(next) {
+			st.State, st.Error = next, msg
 		}
 	}()
 	return *st
@@ -148,9 +187,9 @@ func loginViaServer(ctx context.Context, addr, serverURL string, shown func(stri
 			sentURL = true
 		}
 		switch st.State {
-		case "done":
+		case loginDone:
 			return nil
-		case "failed":
+		case loginFailed:
 			return fmt.Errorf("login: %s", st.Error)
 		}
 		select {
