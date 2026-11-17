@@ -44,8 +44,8 @@ func cmdDoctor(_ context.Context, args []string) error {
 // every recorded install.
 func diagnose() []finding {
 	var out []finding
-	add := func(level, format string, a ...any) {
-		out = append(out, finding{level: level, text: fmt.Sprintf(format, a...)})
+	add := func(level, format string, args ...any) {
+		out = append(out, finding{level: level, text: fmt.Sprintf(format, args...)})
 	}
 
 	exe, _ := os.Executable()
@@ -88,7 +88,7 @@ func diagnose() []finding {
 		out = append(out, checkInstall(e))
 	}
 	for _, name := range foundAgents() {
-		if !slices.ContainsFunc(installs, func(e install) bool { return e.Agent == name }) {
+		if !slices.ContainsFunc(installs, func(entry install) bool { return entry.Agent == name }) {
 			add("warn", "%s: found on this machine, but gascoigne is not connected to it yet (connect it for all projects: gascoigne install -g %s)", name, name)
 		}
 	}
@@ -100,16 +100,16 @@ func diagnose() []finding {
 
 // checkInstall looks at one recorded install: its config file still holds
 // the hook, and the registration is current.
-func checkInstall(e install) finding {
+func checkInstall(entry install) finding {
 	scope := "all projects"
-	if !e.Global {
-		scope = e.Dir
+	if !entry.Global {
+		scope = entry.Dir
 	}
-	label := e.Agent + " (" + scope + ")"
-	file := configOf(e)
+	label := entry.Agent + " (" + scope + ")"
+	file := configOf(entry)
 	data, err := os.ReadFile(file)
-	lost := err != nil || !strings.Contains(string(data), "hook "+e.Agent)
-	stale := e.Registration < registrationVersion
+	lost := err != nil || !strings.Contains(string(data), "hook "+entry.Agent)
+	stale := entry.Registration < registrationVersion
 	f := finding{level: "problem"}
 	switch {
 	case lost:
@@ -120,48 +120,48 @@ func checkInstall(e install) finding {
 		return finding{level: "ok", text: label + ": connected"}
 	}
 	cwd, _ := os.Getwd()
-	if !e.Global && e.Dir != cwd {
-		f.text += ". Fix it by running gascoigne install " + e.Agent + " in " + e.Dir
+	if !entry.Global && entry.Dir != cwd {
+		f.text += ". Fix it by running gascoigne install " + entry.Agent + " in " + entry.Dir
 		return f
 	}
 	f.text += ". Fix it with: gascoigne upgrade"
 	f.fix = func() error {
-		a, ok := agents[e.Agent]
+		a, ok := agents[entry.Agent]
 		if !ok {
-			return fmt.Errorf("unknown agent %s", e.Agent)
+			return fmt.Errorf("unknown agent %s", entry.Agent)
 		}
-		if err := a.resync(e); err != nil {
+		if err := a.resync(entry); err != nil {
 			return err
 		}
-		return recordInstall(e.Agent, e.Global, e.Exe, e.Proxy)
+		return recordInstall(entry.Agent, entry.Global, entry.Exe, entry.Proxy)
 	}
 	return f
 }
 
 // configOf is the file whose gascoigne hook shows an install is in place.
-func configOf(e install) string {
+func configOf(entry install) string {
 	home, _ := os.UserHomeDir()
 	pick := func(user, project string) string {
-		if e.Global {
+		if entry.Global {
 			return filepath.Join(home, user)
 		}
-		return filepath.Join(e.Dir, project)
+		return filepath.Join(entry.Dir, project)
 	}
-	switch e.Agent {
+	switch entry.Agent {
 	case "codex":
-		if e.Global {
+		if entry.Global {
 			return filepath.Join(codexHome(), "config.toml")
 		}
-		return filepath.Join(e.Dir, ".codex", "config.toml")
+		return filepath.Join(entry.Dir, ".codex", "config.toml")
 	case "cursor":
 		return pick(".cursor/hooks.json", ".cursor/hooks.json")
 	case "gemini":
 		return pick(".gemini/settings.json", ".gemini/settings.json")
 	case "opencode":
-		if e.Global {
+		if entry.Global {
 			return filepath.Join(opencodeHome(), "plugins", "gascoigne.ts")
 		}
-		return filepath.Join(e.Dir, ".opencode", "plugins", "gascoigne.ts")
+		return filepath.Join(entry.Dir, ".opencode", "plugins", "gascoigne.ts")
 	case "pi":
 		return pick(".pi/agent/extensions/gascoigne.ts", ".pi/extensions/gascoigne.ts")
 	}

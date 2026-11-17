@@ -52,188 +52,188 @@ func cmdDashboard(ctx context.Context, args []string) error {
 // dashboard routes the page and its JSON API; poll is how often the live
 // stream checks the ledger, which other gascoigne processes write to. stop
 // ends the server.
-func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func()) http.Handler {
+func dashboard(store *ledger.Ledger, poll time.Duration, info serverInfo, stop func()) http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, _ *http.Request) {
-		respond(w, info, nil)
+	mux.HandleFunc("GET /api/health", func(writer http.ResponseWriter, _ *http.Request) {
+		respond(writer, info, nil)
 	})
-	mux.HandleFunc("GET /api/experiments", func(w http.ResponseWriter, _ *http.Request) {
-		respond(w, enabledExperiments(), nil)
+	mux.HandleFunc("GET /api/experiments", func(writer http.ResponseWriter, _ *http.Request) {
+		respond(writer, enabledExperiments(), nil)
 	})
-	mux.HandleFunc("POST /api/shutdown", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusAccepted)
+	mux.HandleFunc("POST /api/shutdown", func(writer http.ResponseWriter, _ *http.Request) {
+		writer.WriteHeader(http.StatusAccepted)
 		go stop() // after the response is written
 	})
-	mux.HandleFunc("POST /api/reset", func(w http.ResponseWriter, r *http.Request) {
-		q, err := statsQuery(r.URL.Query())
+	mux.HandleFunc("POST /api/reset", func(writer http.ResponseWriter, request *http.Request) {
+		q, err := statsQuery(request.URL.Query())
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		n, err := l.Reset(r.Context(), q, r.URL.Query().Get("all") == "1")
+		n, err := store.Reset(request.Context(), q, request.URL.Query().Get("all") == "1")
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		respond(w, map[string]int64{"deleted_events": n}, nil)
+		respond(writer, map[string]int64{"deleted_events": n}, nil)
 	})
-	mux.HandleFunc("GET /api/originals", func(w http.ResponseWriter, r *http.Request) {
-		u, err := l.RawUsage(r.Context())
-		respond(w, u, err)
+	mux.HandleFunc("GET /api/originals", func(writer http.ResponseWriter, request *http.Request) {
+		u, err := store.RawUsage(request.Context())
+		respond(writer, u, err)
 	})
-	mux.HandleFunc("POST /api/flush", func(w http.ResponseWriter, r *http.Request) {
-		n, err := l.FlushRaw(r.Context(), time.Time{})
-		respond(w, map[string]int64{"deleted_originals": n}, err)
+	mux.HandleFunc("POST /api/flush", func(writer http.ResponseWriter, request *http.Request) {
+		n, err := store.FlushRaw(request.Context(), time.Time{})
+		respond(writer, map[string]int64{"deleted_originals": n}, err)
 	})
 	setupHandlers(mux)
-	mux.HandleFunc("GET /mcp", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write(mcpHTML)
+	mux.HandleFunc("GET /mcp", func(writer http.ResponseWriter, _ *http.Request) {
+		writer.Header().Set("Content-Type", "text/html; charset=utf-8")
+		writer.Write(mcpHTML)
 	})
-	mux.HandleFunc("GET /assets/pages.css", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/css; charset=utf-8")
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Write(pagesCSS)
+	mux.HandleFunc("GET /assets/pages.css", func(writer http.ResponseWriter, _ *http.Request) {
+		writer.Header().Set("Content-Type", "text/css; charset=utf-8")
+		writer.Header().Set("Cache-Control", "no-cache")
+		writer.Write(pagesCSS)
 	})
-	mux.HandleFunc("GET /assets/pages.js", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Write(pagesJS)
+	mux.HandleFunc("GET /assets/pages.js", func(writer http.ResponseWriter, _ *http.Request) {
+		writer.Header().Set("Content-Type", "text/javascript; charset=utf-8")
+		writer.Header().Set("Cache-Control", "no-cache")
+		writer.Write(pagesJS)
 	})
-	mux.HandleFunc("GET /costs", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write(costsHTML)
+	mux.HandleFunc("GET /costs", func(writer http.ResponseWriter, _ *http.Request) {
+		writer.Header().Set("Content-Type", "text/html; charset=utf-8")
+		writer.Write(costsHTML)
 	})
-	mux.HandleFunc("GET /api/costs", func(w http.ResponseWriter, r *http.Request) {
-		q, err := statsQuery(r.URL.Query())
+	mux.HandleFunc("GET /api/costs", func(writer http.ResponseWriter, request *http.Request) {
+		q, err := statsQuery(request.URL.Query())
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		c, err := mcptool.BuildCosts(r.Context(), l, q, cost.AgentContext)
-		respond(w, c, err)
+		c, err := mcptool.BuildCosts(request.Context(), store, q, cost.AgentContext)
+		respond(writer, c, err)
 	})
 	pricingHandlers(mux)
-	mux.HandleFunc("GET /context", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write(contextHTML)
+	mux.HandleFunc("GET /context", func(writer http.ResponseWriter, _ *http.Request) {
+		writer.Header().Set("Content-Type", "text/html; charset=utf-8")
+		writer.Write(contextHTML)
 	})
-	mux.HandleFunc("GET /api/context", func(w http.ResponseWriter, r *http.Request) {
-		period, err := parseSince(cmp.Or(r.URL.Query().Get("since"), "14d"))
+	mux.HandleFunc("GET /api/context", func(writer http.ResponseWriter, request *http.Request) {
+		period, err := parseSince(cmp.Or(request.URL.Query().Get("since"), "14d"))
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
 		report, err := loadContext(claudeProjects(), min(max(period, time.Hour), 90*24*time.Hour), time.Now())
-		respond(w, report, err)
+		respond(writer, report, err)
 	})
-	mux.HandleFunc("GET /api/mcp", func(w http.ResponseWriter, r *http.Request) {
-		review, err := loadReview(r.Context(), l, time.Now(), lazyChoices(), readPrefs().LearnedMCP)
-		respond(w, review, err)
+	mux.HandleFunc("GET /api/mcp", func(writer http.ResponseWriter, request *http.Request) {
+		review, err := loadReview(request.Context(), store, time.Now(), lazyChoices(), readPrefs().LearnedMCP)
+		respond(writer, review, err)
 	})
-	mux.HandleFunc("POST /api/mcp/lazy", setLazy(l))
-	mux.HandleFunc("POST /api/mcp/learn", learnNow(l))
-	mux.HandleFunc("POST /api/mcp/rules", setRules(l))
-	mux.HandleFunc("POST /api/mcp/optimize", optimizeMCP(l))
+	mux.HandleFunc("POST /api/mcp/lazy", setLazy(store))
+	mux.HandleFunc("POST /api/mcp/learn", learnNow(store))
+	mux.HandleFunc("POST /api/mcp/rules", setRules(store))
+	mux.HandleFunc("POST /api/mcp/optimize", optimizeMCP(store))
 	newLoginFlows(authStore(), tryOpenBrowser).handlers(mux)
-	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write(dashboardHTML)
+	mux.HandleFunc("GET /{$}", func(writer http.ResponseWriter, _ *http.Request) {
+		writer.Header().Set("Content-Type", "text/html; charset=utf-8")
+		writer.Write(dashboardHTML)
 	})
-	mux.HandleFunc("GET /api/overview", func(w http.ResponseWriter, r *http.Request) {
-		q, err := statsQuery(r.URL.Query())
+	mux.HandleFunc("GET /api/overview", func(writer http.ResponseWriter, request *http.Request) {
+		q, err := statsQuery(request.URL.Query())
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		o, err := mcptool.BuildOverview(r.Context(), l, q)
-		respond(w, o, err)
+		o, err := mcptool.BuildOverview(request.Context(), store, q)
+		respond(writer, o, err)
 	})
-	mux.HandleFunc("GET /api/usage", func(w http.ResponseWriter, r *http.Request) {
-		q, err := statsQuery(r.URL.Query())
+	mux.HandleFunc("GET /api/usage", func(writer http.ResponseWriter, request *http.Request) {
+		q, err := statsQuery(request.URL.Query())
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		models, err := l.UsageStats(r.Context(), q)
+		models, err := store.UsageStats(request.Context(), q)
 		if err != nil {
-			respond(w, nil, err)
+			respond(writer, nil, err)
 			return
 		}
-		days, err := l.UsageDays(r.Context(), q)
-		respond(w, map[string]any{"models": nonNil(models), "days": nonNil(days)}, err)
+		days, err := store.UsageDays(request.Context(), q)
+		respond(writer, map[string]any{"models": nonNil(models), "days": nonNil(days)}, err)
 	})
-	mux.HandleFunc("GET /api/impact", func(w http.ResponseWriter, r *http.Request) {
-		q, err := statsQuery(r.URL.Query())
+	mux.HandleFunc("GET /api/impact", func(writer http.ResponseWriter, request *http.Request) {
+		q, err := statsQuery(request.URL.Query())
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		days, err := l.Impact(r.Context(), q)
-		respond(w, nonNil(fillImpact(days, q.Since, time.Now())), err)
+		days, err := store.Impact(request.Context(), q)
+		respond(writer, nonNil(fillImpact(days, q.Since, time.Now())), err)
 	})
-	mux.HandleFunc("GET /api/sessions", func(w http.ResponseWriter, r *http.Request) {
-		q, err := statsQuery(r.URL.Query())
+	mux.HandleFunc("GET /api/sessions", func(writer http.ResponseWriter, request *http.Request) {
+		q, err := statsQuery(request.URL.Query())
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
 		q.Session, q.By = "", component.BySession // the list offers every session of the period
-		stats, err := l.Stats(r.Context(), q)
-		respond(w, mcptool.Report(q, stats).Groups, err)
+		stats, err := store.Stats(request.Context(), q)
+		respond(writer, mcptool.Report(q, stats).Groups, err)
 	})
-	mux.HandleFunc("GET /api/events", func(w http.ResponseWriter, r *http.Request) {
-		q, err := statsQuery(r.URL.Query())
+	mux.HandleFunc("GET /api/events", func(writer http.ResponseWriter, request *http.Request) {
+		q, err := statsQuery(request.URL.Query())
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		v := r.URL.Query()
+		v := request.URL.Query()
 		after, _ := strconv.ParseUint(v.Get("after"), 10, strconv.IntSize)
 		before, _ := strconv.ParseUint(v.Get("before"), 10, strconv.IntSize)
 		limit, _ := strconv.Atoi(v.Get("limit"))
-		entries, err := l.Page(r.Context(), q, ledger.Page{After: uint(after), Before: uint(before),
+		entries, err := store.Page(request.Context(), q, ledger.Page{After: uint(after), Before: uint(before),
 			Outcomes: outcomes(v), RawAsked: v.Get("raw") == "1", Limit: min(cmp.Or(limit, 100), 500)})
-		respond(w, eventsJSON(entries), err)
+		respond(writer, eventsJSON(entries), err)
 	})
-	mux.HandleFunc("GET /api/stream", func(w http.ResponseWriter, r *http.Request) {
-		q, err := statsQuery(r.URL.Query())
+	mux.HandleFunc("GET /api/stream", func(writer http.ResponseWriter, request *http.Request) {
+		q, err := statsQuery(request.URL.Query())
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		stream(w, r, l, q, ledger.Page{Outcomes: outcomes(r.URL.Query()), RawAsked: r.URL.Query().Get("raw") == "1"}, poll)
+		stream(writer, request, store, q, ledger.Page{Outcomes: outcomes(request.URL.Query()), RawAsked: request.URL.Query().Get("raw") == "1"}, poll)
 	})
-	mux.HandleFunc("GET /api/raw/{id}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /api/raw/{id}", func(writer http.ResponseWriter, request *http.Request) {
 		// Unlike gascoigne raw, looking does not mark the source as failing:
 		// a person debugging is not an agent that lacked information.
-		key, p, err := l.GetRaw(r.Context(), r.PathValue("id"))
+		key, p, err := store.GetRaw(request.Context(), request.PathValue("id"))
 		if err != nil {
-			http.Error(w, "original not found (expired or unknown id)", http.StatusNotFound)
+			http.Error(writer, "original not found (expired or unknown id)", http.StatusNotFound)
 			return
 		}
 		if hiddenKey(key) {
-			http.Error(w, hiddenText, http.StatusForbidden)
+			http.Error(writer, hiddenText, http.StatusForbidden)
 			return
 		}
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		io.WriteString(w, p.Text())
+		writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		io.WriteString(writer, p.Text())
 	})
-	mux.HandleFunc("GET /api/out/{id}", func(w http.ResponseWriter, r *http.Request) {
-		if key, _, err := l.GetRaw(r.Context(), r.PathValue("id")); err == nil && hiddenKey(key) {
-			http.Error(w, hiddenText, http.StatusForbidden)
+	mux.HandleFunc("GET /api/out/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		if key, _, err := store.GetRaw(request.Context(), request.PathValue("id")); err == nil && hiddenKey(key) {
+			http.Error(writer, hiddenText, http.StatusForbidden)
 			return
 		}
-		out, ok, err := l.GetOutput(r.Context(), r.PathValue("id"))
+		out, ok, err := store.GetOutput(request.Context(), request.PathValue("id"))
 		if err != nil || !ok {
-			http.Error(w, "optimized output not kept for this run", http.StatusNotFound)
+			http.Error(writer, "optimized output not kept for this run", http.StatusNotFound)
 			return
 		}
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		io.WriteString(w, out)
+		writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		io.WriteString(writer, out)
 	})
-	mux.HandleFunc("GET /api/failures", func(w http.ResponseWriter, r *http.Request) {
-		fs, err := l.FailureList(r.Context())
+	mux.HandleFunc("GET /api/failures", func(writer http.ResponseWriter, request *http.Request) {
+		fs, err := store.FailureList(request.Context())
 		type failure struct {
 			Key    string    `json:"key"`
 			Count  int       `json:"count"`
@@ -244,14 +244,14 @@ func dashboard(l *ledger.Ledger, poll time.Duration, info serverInfo, stop func(
 		for i, f := range fs {
 			out[i] = failure{f.Key, f.Count, f.Last, f.Reason}
 		}
-		respond(w, out, err)
+		respond(writer, out, err)
 	})
-	mux.HandleFunc("POST /api/forget", func(w http.ResponseWriter, r *http.Request) {
-		if err := l.Forget(r.Context(), r.URL.Query().Get("key")); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+	mux.HandleFunc("POST /api/forget", func(writer http.ResponseWriter, request *http.Request) {
+		if err := store.Forget(request.Context(), request.URL.Query().Get("key")); err != nil {
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusNoContent)
+		writer.WriteHeader(http.StatusNoContent)
 	})
 	return localOnly(mux)
 }
@@ -270,34 +270,34 @@ func loopbackHost(hostport string) bool {
 // localOnly refuses requests addressed to another host name (DNS rebinding)
 // and cross-origin writes, so only pages served here can use the API.
 func localOnly(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !loopbackHost(r.Host) {
-			http.Error(w, "dashboard answers on localhost only", http.StatusForbidden)
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if !loopbackHost(request.Host) {
+			http.Error(writer, "dashboard answers on localhost only", http.StatusForbidden)
 			return
 		}
-		if o := r.Header.Get("Origin"); r.Method != http.MethodGet && o != "" && o != "http://"+r.Host {
-			http.Error(w, "cross-origin request refused", http.StatusForbidden)
+		if o := request.Header.Get("Origin"); request.Method != http.MethodGet && o != "" && o != "http://"+request.Host {
+			http.Error(writer, "cross-origin request refused", http.StatusForbidden)
 			return
 		}
-		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-Frame-Options", "DENY")
-		next.ServeHTTP(w, r)
+		writer.Header().Set("X-Content-Type-Options", "nosniff")
+		writer.Header().Set("X-Frame-Options", "DENY")
+		next.ServeHTTP(writer, request)
 	})
 }
 
 // stream sends the latest events, then each new batch as it lands, as
 // server-sent events.
-func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q component.StatsQuery, feed ledger.Page, poll time.Duration) {
-	flusher, ok := w.(http.Flusher)
+func stream(writer http.ResponseWriter, request *http.Request, store *ledger.Ledger, query component.StatsQuery, feed ledger.Page, poll time.Duration) {
+	flusher, ok := writer.(http.Flusher)
 	if !ok {
-		http.Error(w, "streaming unsupported", http.StatusInternalServerError)
+		http.Error(writer, "streaming unsupported", http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
+	writer.Header().Set("Content-Type", "text/event-stream")
+	writer.Header().Set("Cache-Control", "no-cache")
 	var last uint
 	send := func(limit int) error {
-		entries, err := l.Page(r.Context(), q, ledger.Page{After: last, Outcomes: feed.Outcomes, RawAsked: feed.RawAsked, Limit: limit})
+		entries, err := store.Page(request.Context(), query, ledger.Page{After: last, Outcomes: feed.Outcomes, RawAsked: feed.RawAsked, Limit: limit})
 		if err != nil || len(entries) == 0 {
 			return err
 		}
@@ -306,20 +306,20 @@ func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q componen
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(w, "data: %s\n\n", data)
+		fmt.Fprintf(writer, "data: %s\n\n", data)
 		flusher.Flush()
 		return nil
 	}
 	if err := send(50); err != nil { // older runs load on scroll (/api/events?before=)
 		return
 	}
-	io.WriteString(w, ": connected\n\n")
+	io.WriteString(writer, ": connected\n\n")
 	flusher.Flush()
 	tick := time.NewTicker(poll)
 	defer tick.Stop()
 	for {
 		select {
-		case <-r.Context().Done():
+		case <-request.Context().Done():
 			return
 		case <-tick.C:
 			if err := send(500); err != nil {
@@ -331,11 +331,11 @@ func stream(w http.ResponseWriter, r *http.Request, l *ledger.Ledger, q componen
 
 // outcomes reads ?outcome=optimized,bypassed for the run feed (?raw=1 keeps
 // runs where the agent asked for the original at once).
-func outcomes(v url.Values) []string { return splitList(v.Get("outcome"), ",") }
+func outcomes(values url.Values) []string { return splitList(values.Get("outcome"), ",") }
 
-func statsQuery(v url.Values) (component.StatsQuery, error) {
-	q := component.StatsQuery{Session: v.Get("session"), Agent: v.Get("agent"), Model: v.Get("model")}
-	if s := v.Get("since"); s != "" {
+func statsQuery(values url.Values) (component.StatsQuery, error) {
+	q := component.StatsQuery{Session: values.Get("session"), Agent: values.Get("agent"), Model: values.Get("model")}
+	if s := values.Get("since"); s != "" {
 		d, err := parseSince(s)
 		if err != nil {
 			return q, err
@@ -373,13 +373,13 @@ func fillImpact(days []ledger.ImpactDay, since, now time.Time) []ledger.ImpactDa
 	return out
 }
 
-func respond(w http.ResponseWriter, v any, err error) {
+func respond(writer http.ResponseWriter, value any, err error) {
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(v)
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(value)
 }
 
 type stepJSON struct {
@@ -437,9 +437,9 @@ func hiddenKey(key string) bool { return strings.HasPrefix(key, "prompt:") }
 
 // nonNil turns a nil slice into an empty one, so JSON holds [] and a page can
 // read its length.
-func nonNil[T any](s []T) []T {
-	if s == nil {
+func nonNil[T any](items []T) []T {
+	if items == nil {
 		return []T{}
 	}
-	return s
+	return items
 }

@@ -127,10 +127,10 @@ assert.strictEqual(proseFact(off), null);
 // experiments are a status line at the bottom, not a panel of their own.
 func TestDashboardLayout(t *testing.T) {
 	page := string(dashboardHTML)
-	at := func(s string) int {
-		i := strings.Index(page, s)
+	at := func(needle string) int {
+		i := strings.Index(page, needle)
 		if i < 0 {
-			t.Fatalf("the page lost %s", s)
+			t.Fatalf("the page lost %s", needle)
 		}
 		return i
 	}

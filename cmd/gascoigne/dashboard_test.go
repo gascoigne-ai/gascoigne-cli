@@ -28,24 +28,24 @@ func testDashboard(t *testing.T) (*ledger.Ledger, http.Handler) {
 	return l, dashboard(l, 10*time.Millisecond, serverInfo{PID: 42, Build: "b1", Ledger: l.Path()}, func() {})
 }
 
-func record(t *testing.T, l *ledger.Ledger, session, cmd string) {
+func record(t *testing.T, store *ledger.Ledger, session, cmd string) {
 	t.Helper()
 	ev := component.Event{TS: time.Now(), Session: session, Agent: "claude", Command: cmd, Key: "cmd:" + cmd,
 		Outcome: component.Optimized, RawTokens: 1000, OutTokens: 100, RawID: "r1",
 		Steps: []component.Step{{Optimizer: "git", Family: "vcs", Dialect: "vcs/git-log", RawTokens: 1000, OutTokens: 100}}}
-	if err := l.Record(t.Context(), ev); err != nil {
+	if err := store.Record(t.Context(), ev); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func get(h http.Handler, method, url string, header ...string) *httptest.ResponseRecorder {
+func get(handler http.Handler, method, url string, header ...string) *httptest.ResponseRecorder {
 	r := httptest.NewRequest(method, url, nil)
 	r.Host = "127.0.0.1:7878"
 	for i := 0; i+1 < len(header); i += 2 {
 		r.Header.Set(header[i], header[i+1])
 	}
 	w := httptest.NewRecorder()
-	h.ServeHTTP(w, r)
+	handler.ServeHTTP(w, r)
 	return w
 }
 

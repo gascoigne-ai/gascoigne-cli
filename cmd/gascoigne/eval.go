@@ -348,8 +348,10 @@ func slow(took time.Duration, maxMS int) bool {
 }
 
 // sameText compares block texts only: detection fills in Block.Type on the stored original.
-func sameText(a, b *payload.Payload) bool {
-	return slices.EqualFunc(a.Blocks, b.Blocks, func(x, y payload.Block) bool { return x.Kind == y.Kind && x.Text == y.Text })
+func sameText(left, right *payload.Payload) bool {
+	return slices.EqualFunc(left.Blocks, right.Blocks, func(leftBlock, rightBlock payload.Block) bool {
+		return leftBlock.Kind == rightBlock.Kind && leftBlock.Text == rightBlock.Text
+	})
 }
 
 // errNotInstalled: a live case's program is missing here.
@@ -377,9 +379,9 @@ func (c *evalCase) payload(ctx context.Context, dir string) (*payload.Payload, e
 	return p, nil
 }
 
-func blockTypes(p *payload.Payload) string {
+func blockTypes(content *payload.Payload) string {
 	var types []string
-	for _, b := range p.Blocks {
+	for _, b := range content.Blocks {
 		types = append(types, cmp.Or(b.Type, "-"))
 	}
 	return strings.Join(slices.Compact(types), "+")
@@ -430,9 +432,9 @@ type overlap struct{ ref, out, both int }
 var wordRe = lazyre.New(`[\pL\pN]+`)
 
 func wordOverlap(ref, out string) overlap {
-	count := func(s string) map[string]int {
+	count := func(text string) map[string]int {
 		m := map[string]int{}
-		for _, w := range wordRe.FindAllString(strings.ToLower(s), -1) {
+		for _, w := range wordRe.FindAllString(strings.ToLower(text), -1) {
 			m[w]++
 		}
 		return m
@@ -453,11 +455,11 @@ func (o overlap) recall() float64    { return float64(o.both) / float64(max(o.re
 func (o overlap) precision() float64 { return float64(o.both) / float64(max(o.out, 1)) }
 
 // lostCell shows lost error lines and artifacts as "errors/artifacts", "-" when none.
-func lostCell(r probe.Report) string {
-	if len(r.Errors.Lost)+len(r.Artifacts.Lost) == 0 {
+func lostCell(report probe.Report) string {
+	if len(report.Errors.Lost)+len(report.Artifacts.Lost) == 0 {
 		return "-"
 	}
-	return fmt.Sprintf("%d/%d", len(r.Errors.Lost), len(r.Artifacts.Lost))
+	return fmt.Sprintf("%d/%d", len(report.Errors.Lost), len(report.Artifacts.Lost))
 }
 
 // baseline is what a case measured when last accepted: optimized tokens and
@@ -507,11 +509,11 @@ func readBaseline(path string) (map[string]baseline, error) {
 	return m, nil
 }
 
-func writeBaseline(path string, names []string, m map[string]baseline) error {
+func writeBaseline(path string, names []string, baselines map[string]baseline) error {
 	var sb strings.Builder
 	sb.WriteString("# case\tout tokens\tlost errors\tlost artifacts (gascoigne eval -update)\n")
 	for _, n := range names {
-		b := m[n]
+		b := baselines[n]
 		fmt.Fprintf(&sb, "%s\t%d\t%d\t%d\n", n, b.out, b.errors, b.artifacts)
 	}
 	return os.WriteFile(path, []byte(sb.String()), 0o644)
@@ -519,7 +521,9 @@ func writeBaseline(path string, names []string, m map[string]baseline) error {
 
 // ms shows a duration in milliseconds: wall time, so it varies run to run
 // and stays out of the baseline.
-func ms(d time.Duration) string { return fmt.Sprintf("%.1f", float64(d)/float64(time.Millisecond)) }
+func ms(duration time.Duration) string {
+	return fmt.Sprintf("%.1f", float64(duration)/float64(time.Millisecond))
+}
 
 // checkProseInstalled stops a run that turns the prose optimizer on without
 // its model: that run would pass text through and fail as golden diffs.
