@@ -25,7 +25,7 @@ func TestPostToolUse(t *testing.T) {
 		t.Fatal(err)
 	}
 	trace := string(data)
-	resp := func(v any) json.RawMessage { b, _ := json.Marshal(v); return b }
+	resp := func(value any) json.RawMessage { b, _ := json.Marshal(value); return b }
 	tests := []struct {
 		name  string
 		in    hookInput
@@ -33,14 +33,14 @@ func TestPostToolUse(t *testing.T) {
 	}{
 		{"bash with a pipe", hookInput{ToolName: "Bash", ToolInput: map[string]any{"command": "go test ./... | cat"},
 			ToolResponse: resp(map[string]any{"stdout": trace, "stderr": "", "interrupted": false, "isImage": false})},
-			func(o map[string]any) string { return o["stdout"].(string) }},
+			func(fields map[string]any) string { return fields["stdout"].(string) }},
 		{"bash already optimized", hookInput{ToolName: "Bash", ToolInput: map[string]any{"command": "gascoigne exec -- go test"},
 			ToolResponse: resp(map[string]any{"stdout": "x\n[raw:ab]\n"})}, nil},
 		{"bash already optimized, long hint of an older session", hookInput{ToolName: "Bash", ToolInput: map[string]any{"command": "gascoigne exec -- go test"},
 			ToolResponse: resp(map[string]any{"stdout": "x\n[gascoigne: optimized 10→2 tokens · full: gascoigne raw ab]\n"})}, nil},
 		{"grep content", hookInput{ToolName: "Grep", ToolInput: map[string]any{"pattern": "TODO"},
 			ToolResponse: resp(map[string]any{"mode": "content", "numFiles": 2, "filenames": []string{}, "content": strings.Repeat("a/very/long/path/to/file.go:12:// TODO fix this thing later\n", 60)})},
-			func(o map[string]any) string { return o["content"].(string) }},
+			func(fields map[string]any) string { return fields["content"].(string) }},
 		{"grep file list", hookInput{ToolName: "Grep", ToolResponse: resp(map[string]any{"mode": "files_with_matches", "filenames": []string{"a"}})}, nil},
 		{"mcp blocks", hookInput{ToolName: "mcp__db__query",
 			ToolResponse: resp([]any{map[string]any{"type": "text", "text": trace}, map[string]any{"type": "image", "data": "x"}})}, nil},
@@ -206,8 +206,8 @@ func TestHookedMCPCallsLeaveEvents(t *testing.T) {
 	os.WriteFile(cfg, []byte("{}\n"), 0o644)
 	t.Setenv("GASCOIGNE_CONFIG", cfg)
 	data, _ := os.ReadFile("../../testdata/eval/go/test-panic-trace.txt")
-	text := func(s string) json.RawMessage {
-		b, _ := json.Marshal(map[string]any{"content": []any{map[string]any{"type": "text", "text": s}}})
+	text := func(content string) json.RawMessage {
+		b, _ := json.Marshal(map[string]any{"content": []any{map[string]any{"type": "text", "text": content}}})
 		return b
 	}
 	calls := []hookInput{

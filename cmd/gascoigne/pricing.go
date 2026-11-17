@@ -135,28 +135,28 @@ func cmdPricing(ctx context.Context, args []string) error {
 }
 
 // runPricingShow prints the billing mode, each source and what it gave.
-func runPricingShow(w io.Writer) error {
+func runPricingShow(writer io.Writer) error {
 	p := readPrefs().Pricing
 	cfg, warnings := p.config()
 	result := pricing.Load(cfg)
-	fmt.Fprintf(w, "billing: %s\n", cmpOr(p.Billing, cost.BillingAuto))
+	fmt.Fprintf(writer, "billing: %s\n", cmpOr(p.Billing, cost.BillingAuto))
 	switch p.Billing {
 	case cost.BillingSubscription:
-		fmt.Fprintln(w, "  flat plan: dollar figures are hidden (gascoigne pricing set -billing api shows them)")
+		fmt.Fprintln(writer, "  flat plan: dollar figures are hidden (gascoigne pricing set -billing api shows them)")
 	case cost.BillingAPI:
-		fmt.Fprintln(w, "  pay per token: dollar figures are shown for every agent")
+		fmt.Fprintln(writer, "  pay per token: dollar figures are shown for every agent")
 	default:
-		fmt.Fprintln(w, "  found out per agent from how it is signed in (set -billing api or subscription to decide yourself):")
+		fmt.Fprintln(writer, "  found out per agent from how it is signed in (set -billing api or subscription to decide yourself):")
 		for _, d := range detectedAgents() {
-			fmt.Fprintf(w, "    %-8s %-13s %s\n", d.Agent, d.Mode, d.Why)
+			fmt.Fprintf(writer, "    %-8s %-13s %s\n", d.Agent, d.Mode, d.Why)
 		}
 	}
 	ttl := "manual"
 	if !cfg.Manual {
 		ttl = cfg.TTL.String()
 	}
-	fmt.Fprintf(w, "refresh every: %s\n", ttl)
-	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	fmt.Fprintf(writer, "refresh every: %s\n", ttl)
+	tw := tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "source\tmodels\tlast good\tnext\terror\t")
 	fmt.Fprintln(tw, "built-in\t"+strconv.Itoa(len(cost.Models))+"\tlist prices checked "+cost.PricesChecked+"\t\t\t")
 	for _, layer := range result.Layers {
@@ -164,25 +164,25 @@ func runPricingShow(w io.Writer) error {
 	}
 	tw.Flush()
 	for _, o := range result.Overrides {
-		fmt.Fprintf(w, "  %-28s in %-7g out %-7g cache read %-7g cache write %-7g %s  (%s)\n", o.Model.ID,
+		fmt.Fprintf(writer, "  %-28s in %-7g out %-7g cache read %-7g cache write %-7g %s  (%s)\n", o.Model.ID,
 			o.Model.Input, o.Model.Output, o.Model.CacheRead, o.Model.CacheWrite, o.Model.Tokenizer, o.Source)
 	}
 	for _, warning := range warnings {
-		fmt.Fprintln(w, "warning:", warning)
+		fmt.Fprintln(writer, "warning:", warning)
 	}
 	for _, setting := range []struct{ name, value string }{{"file", p.File}, {"url", p.URL}, {"header env", p.HeaderEnv}, {"translate", p.Translate}} {
 		if setting.value != "" {
-			fmt.Fprintf(w, "%s: %s\n", setting.name, setting.value)
+			fmt.Fprintf(writer, "%s: %s\n", setting.name, setting.value)
 		}
 	}
 	return nil
 }
 
-func when(t time.Time) string {
-	if t.IsZero() {
+func when(moment time.Time) string {
+	if moment.IsZero() {
 		return "-"
 	}
-	return t.Local().Format("2006-01-02 15:04")
+	return moment.Local().Format("2006-01-02 15:04")
 }
 
 func cmpOr(value, fallback string) string {
@@ -194,7 +194,7 @@ func cmpOr(value, fallback string) string {
 
 // runPricingTest runs every remote source once against a scratch cache and prints what they
 // give, saving nothing: the way to try a new file, URL or script.
-func runPricingTest(ctx context.Context, w io.Writer) error {
+func runPricingTest(ctx context.Context, writer io.Writer) error {
 	cfg, _ := readPrefs().Pricing.config()
 	scratch, err := os.MkdirTemp("", "gascoigne-pricing-")
 	if err != nil {
@@ -205,11 +205,11 @@ func runPricingTest(ctx context.Context, w io.Writer) error {
 	refreshErr := pricing.Refresh(ctx, cfg, true)
 	result := pricing.Load(cfg)
 	for _, o := range result.Overrides {
-		fmt.Fprintf(w, "%-28s in %-7g out %-7g cache read %-7g cache write %-7g %s  (%s)\n", o.Model.ID,
+		fmt.Fprintf(writer, "%-28s in %-7g out %-7g cache read %-7g cache write %-7g %s  (%s)\n", o.Model.ID,
 			o.Model.Input, o.Model.Output, o.Model.CacheRead, o.Model.CacheWrite, o.Model.Tokenizer, o.Source)
 	}
 	if len(result.Overrides) == 0 && refreshErr == nil {
-		fmt.Fprintln(w, "no prices: set a file, URL, command or static prices first")
+		fmt.Fprintln(writer, "no prices: set a file, URL, command or static prices first")
 	}
 	return refreshErr
 }
@@ -262,7 +262,7 @@ func validateStatic(prices map[string]cost.PriceItem) error {
 }
 
 // runPricingSet changes the pricing prefs. Nothing is saved unless every flag is valid.
-func runPricingSet(w io.Writer, args []string) error {
+func runPricingSet(writer io.Writer, args []string) error {
 	fset := newFlags("pricing")
 	billing := fset.String("billing", "", "auto (find out per agent), api (dollars from list prices or yours) or subscription (flat plan: no dollars)")
 	ttl := fset.String("ttl", "", "how often a URL or command refreshes: a duration (24h, minimum 1h) or manual")
@@ -281,7 +281,7 @@ func runPricingSet(w io.Writer, args []string) error {
 	}
 	p := readPrefs()
 	set := map[string]bool{}
-	fset.Visit(func(f *flag.Flag) { set[f.Name] = true })
+	fset.Visit(func(setting *flag.Flag) { set[setting.Name] = true })
 	if *clearAll {
 		p.Pricing = pricingPrefs{}
 	}
@@ -297,7 +297,7 @@ func runPricingSet(w io.Writer, args []string) error {
 			return err
 		}
 		if warning != "" {
-			fmt.Fprintln(w, "warning:", warning)
+			fmt.Fprintln(writer, "warning:", warning)
 		}
 		switch {
 		case manual:
@@ -358,6 +358,6 @@ func runPricingSet(w io.Writer, args []string) error {
 	if err := p.save(); err != nil {
 		return err
 	}
-	fmt.Fprintln(w, "pricing settings saved; gascoigne pricing shows them, gascoigne pricing test tries the sources")
+	fmt.Fprintln(writer, "pricing settings saved; gascoigne pricing shows them, gascoigne pricing test tries the sources")
 	return nil
 }

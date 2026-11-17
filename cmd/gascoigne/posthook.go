@@ -32,12 +32,12 @@ import (
 // it shows.
 
 // withResults answers Claude's PostToolUse events; other events go to h.
-func withResults(h hookFunc) hookFunc {
-	return func(ctx context.Context, c *common, in hookInput, prefix string) (any, error) {
+func withResults(hook hookFunc) hookFunc {
+	return func(ctx context.Context, shared *common, in hookInput, prefix string) (any, error) {
 		if in.HookEventName != "PostToolUse" {
-			return h(ctx, c, in, prefix)
+			return hook(ctx, shared, in, prefix)
 		}
-		out, err := optimizeResult(ctx, c, in)
+		out, err := optimizeResult(ctx, shared, in)
 		if err != nil || out == nil {
 			return nil, err
 		}
@@ -58,7 +58,7 @@ type claudePostOutput struct {
 
 // optimizeResult returns the tool's output with its text optimized, in the
 // tool's own shape, or nil to leave it alone.
-func optimizeResult(ctx context.Context, c *common, in hookInput) (any, error) {
+func optimizeResult(ctx context.Context, shared *common, in hookInput) (any, error) {
 	var resp any
 	if err := json.Unmarshal(in.ToolResponse, &resp); err != nil {
 		return nil, nil
@@ -70,30 +70,30 @@ func optimizeResult(ctx context.Context, c *common, in hookInput) (any, error) {
 		if ownCommand(cmd) {
 			return nil, nil
 		}
-		return replaceField(ctx, c, resp, "stdout", map[string]string{payload.AttrCmd: cmd})
+		return replaceField(ctx, shared, resp, "stdout", map[string]string{payload.AttrCmd: cmd})
 	case name == "Grep":
 		obj, _ := resp.(map[string]any)
 		if obj["mode"] != "content" {
 			return nil, nil
 		}
 		pattern, _ := in.ToolInput["pattern"].(string)
-		return replaceField(ctx, c, resp, "content", map[string]string{payload.AttrCmd: "rg -n " + shellQuote(pattern)})
+		return replaceField(ctx, shared, resp, "content", map[string]string{payload.AttrCmd: "rg -n " + shellQuote(pattern)})
 	case name == "Read":
-		return readImage(ctx, c, resp)
+		return readImage(ctx, shared, resp)
 	case isOtherMCP(name):
-		return mcpResult(ctx, c, resp, mcptool.Attrs(name, in.ToolInput))
+		return mcpResult(ctx, shared, resp, mcptool.Attrs(name, in.ToolInput))
 	}
 	return nil, nil
 }
 
 // replaceField optimizes the string field of an object output.
-func replaceField(ctx context.Context, c *common, resp any, field string, attrs map[string]string) (any, error) {
+func replaceField(ctx context.Context, shared *common, resp any, field string, attrs map[string]string) (any, error) {
 	obj, ok := resp.(map[string]any)
 	if !ok {
 		return nil, nil
 	}
 	text, _ := obj[field].(string)
-	opt, err := optimizeText(ctx, c, text, attrs)
+	opt, err := optimizeText(ctx, shared, text, attrs)
 	if err != nil || opt == "" {
 		return nil, err
 	}
@@ -104,10 +104,10 @@ func replaceField(ctx context.Context, c *common, resp any, field string, attrs 
 
 // mcpResult optimizes an MCP result: a string, a list of content blocks,
 // or an object holding them under "content". Non-text blocks pass.
-func mcpResult(ctx context.Context, c *common, resp any, attrs map[string]string) (any, error) {
+func mcpResult(ctx context.Context, shared *common, resp any, attrs map[string]string) (any, error) {
 	switch v := resp.(type) {
 	case string:
-		opt, err := optimizeText(ctx, c, v, attrs)
+		opt, err := optimizeText(ctx, shared, v, attrs)
 		if err != nil || opt == "" {
 			return nil, err
 		}
@@ -122,7 +122,7 @@ func mcpResult(ctx context.Context, c *common, resp any, attrs map[string]string
 			if !ok || block["type"] != "text" || !isText {
 				continue
 			}
-			opt, err := optimizeText(ctx, c, text, attrs)
+			opt, err := optimizeText(ctx, shared, text, attrs)
 			if err != nil {
 				return nil, err
 			}
@@ -141,7 +141,7 @@ func mcpResult(ctx context.Context, c *common, resp any, attrs map[string]string
 		if !ok {
 			return nil, nil
 		}
-		opt, err := mcpResult(ctx, c, content, attrs)
+		opt, err := mcpResult(ctx, shared, content, attrs)
 		if err != nil || opt == nil {
 			return nil, err
 		}
@@ -154,12 +154,12 @@ func mcpResult(ctx context.Context, c *common, resp any, attrs map[string]string
 
 // optimizeText runs text through the hook pipeline: the optimized text with
 // its retrieve hint, or "" when nothing changed or it was optimized before.
-func optimizeText(ctx context.Context, c *common, text string, attrs map[string]string) (string, error) {
+func optimizeText(ctx context.Context, shared *common, text string, attrs map[string]string) (string, error) {
 	if strings.TrimSpace(text) == "" || hint.Re.MatchString(text) {
 		return "", nil
 	}
-	run := *c
-	run.attrs = maps.Clone(c.attrs)
+	run := *shared
+	run.attrs = maps.Clone(shared.attrs)
 	if run.attrs == nil {
 		run.attrs = attrFlag{}
 	}
@@ -176,14 +176,14 @@ func optimizeText(ctx context.Context, c *common, text string, attrs map[string]
 // as it comes, so a hook is the only place to shrink it without the proxy. The
 // shape stays: only file.base64 and the display size change. The original goes
 // to the ledger first; if it cannot be kept the image stays.
-func readImage(ctx context.Context, c *common, resp any) (any, error) {
+func readImage(ctx context.Context, shared *common, resp any) (any, error) {
 	obj, _ := resp.(map[string]any)
 	file, _ := obj["file"].(map[string]any)
 	data, _ := file["base64"].(string)
 	if obj["type"] != "image" || data == "" {
 		return nil, nil
 	}
-	maxPixels, err := c.maxImagePixels()
+	maxPixels, err := shared.maxImagePixels()
 	if err != nil || maxPixels <= 0 {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func readImage(ctx context.Context, c *common, resp any) (any, error) {
 	if !ok {
 		return nil, nil
 	}
-	if err := c.keepImage(ctx, data, mt, before, after); err != nil {
+	if err := shared.keepImage(ctx, data, mt, before, after); err != nil {
 		return nil, err
 	}
 	nf := maps.Clone(file)

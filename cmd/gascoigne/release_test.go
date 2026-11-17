@@ -15,17 +15,17 @@ import (
 func site(t *testing.T, body string, status int) (url string, hits *atomic.Int32) {
 	t.Helper()
 	hits = new(atomic.Int32)
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	srv := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		hits.Add(1)
-		if r.URL.Path != "/web/latest.json" {
-			http.NotFound(w, r)
+		if request.URL.Path != "/web/latest.json" {
+			http.NotFound(writer, request)
 			return
 		}
-		if r.Header.Get("User-Agent") != "gascoigne" || r.URL.RawQuery != "" || r.Header.Get("Cookie") != "" {
-			t.Errorf("the request must carry nothing about the machine: %v ?%s", r.Header, r.URL.RawQuery)
+		if request.Header.Get("User-Agent") != "gascoigne" || request.URL.RawQuery != "" || request.Header.Get("Cookie") != "" {
+			t.Errorf("the request must carry nothing about the machine: %v ?%s", request.Header, request.URL.RawQuery)
 		}
-		w.WriteHeader(status)
-		w.Write([]byte(body))
+		writer.WriteHeader(status)
+		writer.Write([]byte(body))
 	}))
 	t.Cleanup(srv.Close)
 	return srv.URL + "/web/", hits
@@ -211,7 +211,7 @@ func TestReleaseNudgeRetriesWhenThePageDoesNotOpen(t *testing.T) {
 	var opened []string
 	works := false
 	prev := openPage
-	openPage = func(u string) bool { opened = append(opened, u); return works }
+	openPage = func(address string) bool { opened = append(opened, address); return works }
 	t.Cleanup(func() { openPage = prev })
 	if err := (release{ID: "99.0.0", URL: "https://site/releases/99.0.0/", CheckedAt: time.Now()}).save(); err != nil {
 		t.Fatal(err)
@@ -244,7 +244,7 @@ func TestPromptChecksAndOpensNewRelease(t *testing.T) {
 	t.Setenv("GASCOIGNE_RELEASE_URL", base)
 	var opened []string
 	prev := openPage
-	openPage = func(u string) bool { opened = append(opened, u); return true }
+	openPage = func(address string) bool { opened = append(opened, address); return true }
 	t.Cleanup(func() { openPage = prev })
 
 	for range 2 {

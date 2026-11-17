@@ -310,23 +310,23 @@ func ancestors(dir string) []string {
 // projectKey names a project directory the way Claude Code does under
 // ~/.claude/projects: every character other than a letter or digit is a dash.
 func projectKey(dir string) string {
-	return strings.Map(func(r rune) rune {
-		if r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' {
-			return r
+	return strings.Map(func(char rune) rune {
+		if char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z' || char >= '0' && char <= '9' {
+			return char
 		}
 		return '-'
 	}, dir)
 }
 
 // shortPath shows a path relative to dir when inside it, else with ~.
-func shortPath(p, dir, home string) string {
-	if rel, err := filepath.Rel(dir, p); err == nil && !strings.HasPrefix(rel, "..") {
+func shortPath(path, dir, home string) string {
+	if rel, err := filepath.Rel(dir, path); err == nil && !strings.HasPrefix(rel, "..") {
 		return rel
 	}
-	if home != "" && strings.HasPrefix(p, home+string(filepath.Separator)) {
-		return "~" + p[len(home):]
+	if home != "" && strings.HasPrefix(path, home+string(filepath.Separator)) {
+		return "~" + path[len(home):]
 	}
-	return p
+	return path
 }
 
 // Lines shorter than this are too common to call duplicates; skill
@@ -411,7 +411,7 @@ func (u usage) add(line []byte) {
 // descriptions.
 func promptFindings(srcs []promptSource, large int, factor float64, used usage) []promptFinding {
 	var out []promptFinding
-	model := func(s string) int { return int(float64(tokens.Estimate(s))*factor + 0.5) }
+	model := func(text string) int { return int(float64(tokens.Estimate(text))*factor + 0.5) }
 	first := map[string]string{} // normalized line → path that sent it first
 	type pair struct{ path, earlier string }
 	dups := map[pair][]string{}
@@ -457,15 +457,15 @@ func promptFindings(srcs []promptSource, large int, factor float64, used usage) 
 		}
 		out = append(out, promptFinding{"duplicate", p.path, model(strings.Join(lines, "")), detail})
 	}
-	slices.SortStableFunc(out, func(a, b promptFinding) int { return cmp.Compare(b.Tokens, a.Tokens) })
+	slices.SortStableFunc(out, func(left, right promptFinding) int { return cmp.Compare(right.Tokens, left.Tokens) })
 	return out
 }
 
-func printPrompts(agent, model string, s cost.Saving, perRequest float64, srcs []promptSource, findings []promptFinding) {
+func printPrompts(agent, model string, saving cost.Saving, perRequest float64, srcs []promptSource, findings []promptFinding) {
 	w := os.Stdout
-	fmt.Fprintf(w, "%s sends %s tokens of instructions with every request (%s)\n", agent, human(s.ModelTokens), model)
+	fmt.Fprintf(w, "%s sends %s tokens of instructions with every request (%s)\n", agent, human(saving.ModelTokens), model)
 	fmt.Fprintf(w, "%s a request from the cache · %s per session (one write + %.0f reads)\n\n",
-		cents(perRequest), cents(s.InContext), cost.AgentContext.Rereads)
+		cents(perRequest), cents(saving.InContext), cost.AgentContext.Rereads)
 	if len(srcs) == 0 {
 		fmt.Fprintln(w, "no instruction files found")
 		return

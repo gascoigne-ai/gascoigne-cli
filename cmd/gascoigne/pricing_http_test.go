@@ -68,9 +68,9 @@ func TestPricingAPIShowsSourcesAndRunsNow(t *testing.T) {
 	}
 }
 
-func mustJSON(t *testing.T, v any) string {
+func mustJSON(t *testing.T, value any) string {
 	t.Helper()
-	data, err := json.Marshal(v)
+	data, err := json.Marshal(value)
 	if err != nil {
 		t.Fatal(err)
 	}

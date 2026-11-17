@@ -30,9 +30,9 @@ func (r proxyResult) String() string {
 	return strings.Join(parts, "; ")
 }
 
-func (r *proxyResult) add(o proxyResult) {
-	r.proxied = append(r.proxied, o.proxied...)
-	r.direct = append(r.direct, o.direct...)
+func (r *proxyResult) add(other proxyResult) {
+	r.proxied = append(r.proxied, other.proxied...)
+	r.direct = append(r.direct, other.direct...)
 }
 
 // proxyCommand is how gascoigne starts a server: exe mcp-proxy -- cmd args...
@@ -71,19 +71,19 @@ func proxyServers(exe string, servers *object, skip func(name string) bool) prox
 }
 
 // proxyEntry rewrites one server entry in place; a reason when it cannot.
-func proxyEntry(exe string, e *object) string {
-	typ, _ := e.get("type").(string)
-	if e.get("url") != nil && (typ == "http" || typ == "sse" || typ == "") {
-		return proxyRemoteEntry(exe, e, typ)
+func proxyEntry(exe string, entry *object) string {
+	typ, _ := entry.get("type").(string)
+	if entry.get("url") != nil && (typ == "http" || typ == "sse" || typ == "") {
+		return proxyRemoteEntry(exe, entry, typ)
 	}
-	if typ != "" && typ != "stdio" || e.get("url") != nil || e.get("httpUrl") != nil {
+	if typ != "" && typ != "stdio" || entry.get("url") != nil || entry.get("httpUrl") != nil {
 		return "remote: only stdio servers and typed http/sse servers can be proxied"
 	}
-	cmd, _ := e.get("command").(string)
+	cmd, _ := entry.get("command").(string)
 	if cmd == "" {
 		return "no command"
 	}
-	args, ok := stringsOf(e.get("args"))
+	args, ok := stringsOf(entry.get("args"))
 	if !ok {
 		return "args are not strings"
 	}
@@ -94,17 +94,17 @@ func proxyEntry(exe string, e *object) string {
 		return ""
 	}
 	newCmd, newArgs := proxyCommand(exe, cmd, args)
-	e.set("command", newCmd)
-	e.set("args", anys(newArgs))
+	entry.set("command", newCmd)
+	entry.set("args", anys(newArgs))
 	return ""
 }
 
 // proxyRemoteEntry turns a typed http/sse entry into a stdio one running the
 // proxy with -url; unproxyServers turns it back.
-func proxyRemoteEntry(exe string, e *object, typ string) string {
-	url, _ := e.get("url").(string)
+func proxyRemoteEntry(exe string, entry *object, typ string) string {
+	url, _ := entry.get("url").(string)
 	var headers []string
-	if h := e.get("headers"); h != nil {
+	if h := entry.get("headers"); h != nil {
 		ho, ok := h.(*object)
 		if !ok {
 			return "headers are not an object"
@@ -117,17 +117,17 @@ func proxyRemoteEntry(exe string, e *object, typ string) string {
 			headers = append(headers, k+": "+v)
 		}
 	}
-	if e.get("oauth") != nil || e.get("headersHelper") != nil {
+	if entry.get("oauth") != nil || entry.get("headersHelper") != nil {
 		return "remote: OAuth and header helpers are not supported"
 	}
-	if typ == "" && (e.get("command") != nil || e.get("httpUrl") != nil) {
+	if typ == "" && (entry.get("command") != nil || entry.get("httpUrl") != nil) {
 		return "remote: both url and command or httpUrl"
 	}
 	for _, k := range []string{"type", "url", "headers"} {
-		e.del(k)
+		entry.del(k)
 	}
-	e.set("command", exe)
-	e.set("args", anys(remoteProxyArgs(url, typ, headers)))
+	entry.set("command", exe)
+	entry.set("args", anys(remoteProxyArgs(url, typ, headers)))
 	return ""
 }
 
@@ -201,13 +201,13 @@ func unproxyServers(servers *object) []string {
 	return names
 }
 
-func unproxyRemoteEntry(e *object, url, typ string, headers []string) {
-	e.del("command")
-	e.del("args")
+func unproxyRemoteEntry(entry *object, url, typ string, headers []string) {
+	entry.del("command")
+	entry.del("args")
 	if typ != "" {
-		e.set("type", typ)
+		entry.set("type", typ)
 	}
-	e.set("url", url)
+	entry.set("url", url)
 	if len(headers) == 0 {
 		return
 	}
@@ -216,14 +216,14 @@ func unproxyRemoteEntry(e *object, url, typ string, headers []string) {
 		k, v, _ := strings.Cut(kv, ":")
 		h.set(strings.TrimSpace(k), strings.TrimSpace(v))
 	}
-	e.set("headers", h)
+	entry.set("headers", h)
 }
 
-func stringsOf(v any) ([]string, bool) {
-	if v == nil {
+func stringsOf(value any) ([]string, bool) {
+	if value == nil {
 		return nil, true
 	}
-	list, ok := v.([]any)
+	list, ok := value.([]any)
 	if !ok {
 		return nil, false
 	}
@@ -238,9 +238,9 @@ func stringsOf(v any) ([]string, bool) {
 	return out, true
 }
 
-func anys(s []string) []any {
-	out := make([]any, len(s))
-	for i, x := range s {
+func anys(items []string) []any {
+	out := make([]any, len(items))
+	for i, x := range items {
 		out[i] = x
 	}
 	return out
@@ -327,19 +327,19 @@ func projectApproved(local *object, name string) bool {
 	return false
 }
 
-func obj(v any) *object {
-	o, _ := v.(*object)
+func obj(value any) *object {
+	o, _ := value.(*object)
 	return o
 }
 
-func stringList(v any) []string {
-	s, _ := stringsOf(v)
+func stringList(value any) []string {
+	s, _ := stringsOf(value)
 	return s
 }
 
 // toMaps turns parsed JSON (ordered objects) back into maps for encoding.
-func toMaps(v any) any {
-	switch x := v.(type) {
+func toMaps(value any) any {
+	switch x := value.(type) {
 	case *object:
 		m := make(map[string]any, len(x.keys))
 		for _, k := range x.keys {
@@ -355,7 +355,7 @@ func toMaps(v any) any {
 	case json.Number:
 		return x
 	}
-	return v
+	return value
 }
 
 // codexServer is one [mcp_servers.NAME] table of a codex config.
@@ -536,11 +536,11 @@ func tomlKey(body, key string) (start, end int, value string, ok bool) {
 
 // valueLen is the length of the TOML value at the start of s: a string, an
 // array (brackets balanced outside strings) or a bare value up to the line end.
-func valueLen(s string) int {
+func valueLen(text string) int {
 	depth := 0
 	var quote byte
-	for i := 0; i < len(s); i++ {
-		c := s[i]
+	for i := 0; i < len(text); i++ {
+		c := text[i]
 		switch {
 		case quote != 0:
 			if c == '\\' && quote == '"' {
@@ -561,35 +561,35 @@ func valueLen(s string) int {
 				return i + 1
 			}
 		case c == '#' && depth > 0:
-			for i < len(s) && s[i] != '\n' {
+			for i < len(text) && text[i] != '\n' {
 				i++
 			}
 		case (c == '\n' || c == '#') && depth == 0:
 			return i
 		}
 	}
-	return len(s)
+	return len(text)
 }
 
 // tomlString decodes a basic ("…") or literal ('…') TOML string.
-func tomlString(s string) (string, error) {
-	s = strings.TrimSpace(s)
-	if len(s) >= 2 && s[0] == '\'' && s[len(s)-1] == '\'' {
-		return s[1 : len(s)-1], nil
+func tomlString(text string) (string, error) {
+	text = strings.TrimSpace(text)
+	if len(text) >= 2 && text[0] == '\'' && text[len(text)-1] == '\'' {
+		return text[1 : len(text)-1], nil
 	}
 	var out string
-	err := json.Unmarshal([]byte(s), &out)
+	err := json.Unmarshal([]byte(text), &out)
 	return out, err
 }
 
 // tomlStrings decodes an array of TOML strings.
-func tomlStrings(s string) ([]string, bool) {
-	s = strings.TrimSpace(s)
-	if !strings.HasPrefix(s, "[") || !strings.HasSuffix(s, "]") {
+func tomlStrings(text string) ([]string, bool) {
+	text = strings.TrimSpace(text)
+	if !strings.HasPrefix(text, "[") || !strings.HasSuffix(text, "]") {
 		return nil, false
 	}
 	var out []string
-	rest := strings.TrimSpace(s[1 : len(s)-1])
+	rest := strings.TrimSpace(text[1 : len(text)-1])
 	for rest != "" {
 		if rest[0] == '#' {
 			_, rest, _ = strings.Cut(rest, "\n")
@@ -608,11 +608,11 @@ func tomlStrings(s string) ([]string, bool) {
 	return out, true
 }
 
-func tomlQuote(s string) string {
+func tomlQuote(text string) string {
 	var b strings.Builder
 	enc := json.NewEncoder(&b)
 	enc.SetEscapeHTML(false)
-	enc.Encode(s) // strings always encode
+	enc.Encode(text) // strings always encode
 	return strings.TrimSpace(b.String())
 }
 

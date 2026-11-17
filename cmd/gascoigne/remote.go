@@ -75,22 +75,22 @@ func (c *common) remote(data []byte, cfg *config.Config, log *slog.Logger) servi
 	if !ok {
 		return nil
 	}
-	return func(ctx context.Context, pipeline string, p *payload.Payload) (*payload.Payload, error) {
+	return func(ctx context.Context, pipeline string, input *payload.Payload) (*payload.Payload, error) {
 		out, err := postOptimize(ctx, serverAddr(), optimizeRequest{
 			Build: build(), Ledger: path, Config: string(data), Overrides: c.overrides(),
-			Pipeline: pipeline, Payload: p,
+			Pipeline: pipeline, Payload: input,
 		})
 		if !errors.Is(err, errUnavailable) {
 			return out, err
 		}
 		log.Debug("optimizing here", "err", err)
-		return c.optimizeLocal(ctx, pipeline, p)
+		return c.optimizeLocal(ctx, pipeline, input)
 	}
 }
 
 // optimizeLocal builds the whole pipeline in this process for one payload;
 // starting it also starts or replaces the server for the next run.
-func (c *common) optimizeLocal(ctx context.Context, pipeline string, p *payload.Payload) (*payload.Payload, error) {
+func (c *common) optimizeLocal(ctx context.Context, pipeline string, input *payload.Payload) (*payload.Payload, error) {
 	local := *c
 	local.useServer = false
 	svc, err := local.start(ctx)
@@ -102,7 +102,7 @@ func (c *common) optimizeLocal(ctx context.Context, pipeline string, p *payload.
 	if !ok {
 		return nil, fmt.Errorf("no pipeline %q", pipeline)
 	}
-	return pl.Optimize(ctx, p)
+	return pl.Optimize(ctx, input)
 }
 
 // ledgerFile is the db the config's ledger extension opens in this process.
@@ -178,9 +178,9 @@ func newWarm(ctx context.Context, build, ledgerPath string) *warm {
 	return &warm{ctx: ctx, build: build, ledger: ledgerPath, svcs: map[string]*service.Service{}}
 }
 
-func (w *warm) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (w *warm) ServeHTTP(rw http.ResponseWriter, request *http.Request) {
 	var req optimizeRequest
-	if err := json.NewDecoder(http.MaxBytesReader(rw, r.Body, 256<<20)).Decode(&req); err != nil || req.Payload == nil {
+	if err := json.NewDecoder(http.MaxBytesReader(rw, request.Body, 256<<20)).Decode(&req); err != nil || req.Payload == nil {
 		http.Error(rw, fmt.Sprintf("bad request: %v", err), http.StatusBadRequest)
 		return
 	}
@@ -188,7 +188,7 @@ func (w *warm) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "other build or ledger", http.StatusConflict)
 		return
 	}
-	out, status, err := w.optimize(r.Context(), req)
+	out, status, err := w.optimize(request.Context(), req)
 	if err != nil {
 		http.Error(rw, err.Error(), status)
 		return

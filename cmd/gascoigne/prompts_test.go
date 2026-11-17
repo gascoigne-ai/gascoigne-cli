@@ -129,7 +129,7 @@ func TestUnusedAndPluginSources(t *testing.T) {
 	if want := []string{"idle"}; !slices.Equal(got, want) {
 		t.Errorf("unused = %q, want %q", got, want)
 	}
-	if fewer := promptFindings(srcs, 2000, 1, usage{names: map[string]bool{}, sessions: usedMinSessions - 1}); slices.ContainsFunc(fewer, func(f promptFinding) bool { return f.Kind == "unused" }) {
+	if fewer := promptFindings(srcs, 2000, 1, usage{names: map[string]bool{}, sessions: usedMinSessions - 1}); slices.ContainsFunc(fewer, func(finding promptFinding) bool { return finding.Kind == "unused" }) {
 		t.Error("claimed unused from too few sessions")
 	}
 }

@@ -54,11 +54,11 @@ func (k ruleKind) read() map[string][]string {
 	return m
 }
 
-func (k ruleKind) write(m map[string][]string) error {
+func (k ruleKind) write(rules map[string][]string) error {
 	if err := os.MkdirAll(stateDir(), 0o755); err != nil {
 		return err
 	}
-	data, _ := json.MarshalIndent(m, "", "  ")
+	data, _ := json.MarshalIndent(rules, "", "  ")
 	return os.WriteFile(k.stateFile(), data, 0o644)
 }
 
@@ -87,7 +87,7 @@ func (k ruleKind) add(root *object, rules []string) []string {
 		// install leaves the key order, and the file, as it is.
 		perms = toObject(map[string]any{})
 		root.set("permissions", perms)
-		root.keys = append([]string{"permissions"}, slices.DeleteFunc(root.keys, func(k string) bool { return k == "permissions" })...)
+		root.keys = append([]string{"permissions"}, slices.DeleteFunc(root.keys, func(key string) bool { return key == "permissions" })...)
 	}
 	perms.set(k.list, anys(append(have, added...)))
 	return added
@@ -118,7 +118,7 @@ func (k ruleKind) remove(file string, root *object) []string {
 		return nil
 	}
 	have := k.rules(root)
-	kept := slices.DeleteFunc(slices.Clone(have), func(r string) bool { return slices.Contains(ours, r) })
+	kept := slices.DeleteFunc(slices.Clone(have), func(rule string) bool { return slices.Contains(ours, rule) })
 	delete(m, abs)
 	if err := k.write(m); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne:", err)

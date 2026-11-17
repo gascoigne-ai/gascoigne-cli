@@ -66,9 +66,9 @@ func remoteSetup(t *testing.T, build string) (cfgFile, ledgerFile string, hits *
 	hits = &atomic.Int32{}
 	w := newWarm(context.Background(), build, ledgerFile)
 	t.Cleanup(w.Close)
-	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, request *http.Request) {
 		hits.Add(1)
-		localOnly(w).ServeHTTP(rw, r)
+		localOnly(w).ServeHTTP(rw, request)
 	}))
 	t.Cleanup(srv.Close)
 	t.Setenv("GASCOIGNE_SERVER_ADDR", strings.TrimPrefix(srv.URL, "http://"))

@@ -108,29 +108,29 @@ func cmdReplay(ctx context.Context, args []string) error {
 }
 
 // transcripts returns the newest n *.jsonl files under dir.
-func transcripts(dir string, n int) ([]string, error) {
+func transcripts(dir string, limit int) ([]string, error) {
 	type file struct {
 		path string
 		mod  time.Time
 	}
 	var files []file
-	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() || filepath.Ext(p) != ".jsonl" {
+	err := filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil || entry.IsDir() || filepath.Ext(path) != ".jsonl" {
 			return err
 		}
-		info, err := d.Info()
+		info, err := entry.Info()
 		if err != nil {
 			return err
 		}
-		files = append(files, file{p, info.ModTime()})
+		files = append(files, file{path, info.ModTime()})
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	slices.SortFunc(files, func(a, b file) int { return b.mod.Compare(a.mod) })
+	slices.SortFunc(files, func(left, right file) int { return right.mod.Compare(left.mod) })
 	var out []string
-	for _, f := range files[:min(n, len(files))] {
+	for _, f := range files[:min(limit, len(files))] {
 		out = append(out, f.path)
 	}
 	return out, nil
@@ -139,10 +139,10 @@ func transcripts(dir string, n int) ([]string, error) {
 // upstream stands in for the API: it keeps the body it was sent.
 type upstream struct{ body []byte }
 
-func (u *upstream) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	u.body, _ = io.ReadAll(r.Body)
-	w.Header().Set("Content-Type", "application/json")
-	io.WriteString(w, `{"type":"message","content":[]}`)
+func (u *upstream) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	u.body, _ = io.ReadAll(request.Body)
+	writer.Header().Set("Content-Type", "application/json")
+	io.WriteString(writer, `{"type":"message","content":[]}`)
 }
 
 type replayReport struct {
@@ -282,15 +282,15 @@ func (s *session) endsWithToolResult() bool {
 	if last == nil || last["role"] != "user" {
 		return false
 	}
-	return slices.ContainsFunc(last["content"].([]any), func(b any) bool {
-		m, ok := b.(map[string]any)
+	return slices.ContainsFunc(last["content"].([]any), func(block any) bool {
+		m, ok := block.(map[string]any)
 		return ok && m["type"] == "tool_result"
 	})
 }
 
 // blocks returns message content as a list of blocks.
-func blocks(c any) []any {
-	switch c := c.(type) {
+func blocks(content any) []any {
+	switch c := content.(type) {
 	case string:
 		return []any{map[string]any{"type": "text", "text": c}}
 	case []any:
@@ -462,8 +462,8 @@ func (r replayReport) print() {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "tool\tresults\traw tok\tout tok\tsaved\tfolded")
 	var total toolReplay
-	names := slices.SortedFunc(maps.Keys(r.Tools), func(a, b string) int {
-		return cmp.Or(cmp.Compare(r.Tools[b].Raw-r.Tools[b].Out, r.Tools[a].Raw-r.Tools[a].Out), cmp.Compare(a, b))
+	names := slices.SortedFunc(maps.Keys(r.Tools), func(left, right string) int {
+		return cmp.Or(cmp.Compare(r.Tools[right].Raw-r.Tools[right].Out, r.Tools[left].Raw-r.Tools[left].Out), cmp.Compare(left, right))
 	})
 	for _, n := range names {
 		t := r.Tools[n]

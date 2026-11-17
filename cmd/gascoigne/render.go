@@ -44,11 +44,11 @@ func newPainter(mode string) (painter, error) {
 	return painter{}, fmt.Errorf("-color must be auto, always or never, got %q", mode)
 }
 
-func (p painter) paint(style, s string) string {
-	if !p.color || style == "" || s == "" {
-		return s
+func (p painter) paint(style, text string) string {
+	if !p.color || style == "" || text == "" {
+		return text
 	}
-	return "\x1b[" + style + "m" + s + "\x1b[0m"
+	return "\x1b[" + style + "m" + text + "\x1b[0m"
 }
 
 // savedStyle colors a saving: good, fair, poor, nothing.
@@ -65,15 +65,15 @@ func savedStyle(pct float64) string {
 }
 
 // human shortens token counts: 950, 1.2k, 47.4k, 1.3M.
-func human(n int) string {
-	f := float64(n)
+func human(count int) string {
+	f := float64(count)
 	switch {
 	case math.Abs(f) >= 1e6:
 		return strings.TrimSuffix(fmt.Sprintf("%.1f", f/1e6), ".0") + "M"
 	case math.Abs(f) >= 1e3:
 		return strings.TrimSuffix(fmt.Sprintf("%.1f", f/1e3), ".0") + "k"
 	}
-	return fmt.Sprint(n)
+	return fmt.Sprint(count)
 }
 
 var eighths = []string{"", "▏", "▎", "▍", "▌", "▋", "▊", "▉"}
@@ -100,7 +100,7 @@ type cell struct {
 	right bool
 }
 
-func (p painter) table(w io.Writer, header []string, rows [][]cell) {
+func (p painter) table(writer io.Writer, header []string, rows [][]cell) {
 	widths := make([]int, len(header))
 	for i, h := range header {
 		header[i] = strings.TrimSpace(h)
@@ -123,7 +123,7 @@ func (p painter) table(w io.Writer, header []string, rows [][]cell) {
 			}
 			b.WriteString(" " + text + " ")
 		}
-		fmt.Fprintln(w, strings.TrimRight(b.String(), " "))
+		fmt.Fprintln(writer, strings.TrimRight(b.String(), " "))
 	}
 	head := make([]cell, len(header))
 	for i, h := range header {
@@ -135,8 +135,8 @@ func (p painter) table(w io.Writer, header []string, rows [][]cell) {
 	}
 }
 
-func (p painter) section(w io.Writer, title string) {
-	fmt.Fprintf(w, "\n%s\n", p.paint(bold+";"+cyan, strings.ToUpper(title)))
+func (p painter) section(writer io.Writer, title string) {
+	fmt.Fprintf(writer, "\n%s\n", p.paint(bold+";"+cyan, strings.ToUpper(title)))
 }
 
 const barWidth = 20
@@ -154,50 +154,52 @@ type overviewData struct {
 // pick them by name.
 var overviewSections = []struct {
 	name string
-	draw func(p painter, w io.Writer, d overviewData)
+	draw func(pen painter, writer io.Writer, data overviewData)
 }{
-	{"outcome", func(p painter, w io.Writer, d overviewData) { p.outcomeTable(w, d.o) }},
-	{"trend", func(p painter, w io.Writer, d overviewData) { p.trendTable(w, d.trendTitle(), "day", d.o.Days) }},
-	{"agent", func(p painter, w io.Writer, d overviewData) {
-		d.savings(p, w, "agents", "agent", mcptool.Named(d.o.Agents), false)
+	{"outcome", func(pen painter, writer io.Writer, data overviewData) { pen.outcomeTable(writer, data.o) }},
+	{"trend", func(pen painter, writer io.Writer, data overviewData) {
+		pen.trendTable(writer, data.trendTitle(), "day", data.o.Days)
 	}},
-	{"model", func(p painter, w io.Writer, d overviewData) {
-		d.savings(p, w, "models", "model", mcptool.Named(d.o.Models), false)
+	{"agent", func(pen painter, writer io.Writer, data overviewData) {
+		data.savings(pen, writer, "agents", "agent", mcptool.Named(data.o.Agents), false)
 	}},
-	{"cost", func(p painter, w io.Writer, d overviewData) { p.costTable(w, d.o.Cost) }},
-	{"usage", func(p painter, w io.Writer, d overviewData) { p.usageTable(w, d.usage) }},
-	{"apidays", func(p painter, w io.Writer, d overviewData) { p.usageDaysTable(w, d.days) }},
-	{"command", func(p painter, w io.Writer, d overviewData) {
-		d.savings(p, w, "commands", "command", d.o.Commands, false)
+	{"model", func(pen painter, writer io.Writer, data overviewData) {
+		data.savings(pen, writer, "models", "model", mcptool.Named(data.o.Models), false)
 	}},
-	{"optimizer", func(p painter, w io.Writer, d overviewData) {
-		d.savings(p, w, "optimizers", "optimizer", d.o.Optimizers, true)
+	{"cost", func(pen painter, writer io.Writer, data overviewData) { pen.costTable(writer, data.o.Cost) }},
+	{"usage", func(pen painter, writer io.Writer, data overviewData) { pen.usageTable(writer, data.usage) }},
+	{"apidays", func(pen painter, writer io.Writer, data overviewData) { pen.usageDaysTable(writer, data.days) }},
+	{"command", func(pen painter, writer io.Writer, data overviewData) {
+		data.savings(pen, writer, "commands", "command", data.o.Commands, false)
 	}},
-	{"dialect", func(p painter, w io.Writer, d overviewData) {
-		d.savings(p, w, "dialects", "dialect", d.o.Dialects, false)
+	{"optimizer", func(pen painter, writer io.Writer, data overviewData) {
+		data.savings(pen, writer, "optimizers", "optimizer", data.o.Optimizers, true)
 	}},
-	{"skipped", func(p painter, w io.Writer, d overviewData) {
-		d.reasons(p, w, "skipped · not optimized on purpose", "filter", d.o.Skipped, yellow)
+	{"dialect", func(pen painter, writer io.Writer, data overviewData) {
+		data.savings(pen, writer, "dialects", "dialect", data.o.Dialects, false)
 	}},
-	{"failed", func(p painter, w io.Writer, d overviewData) {
-		d.reasons(p, w, "failed · optimizer errors, original returned", "optimizer", d.o.Failed, red)
+	{"skipped", func(pen painter, writer io.Writer, data overviewData) {
+		data.reasons(pen, writer, "skipped · not optimized on purpose", "filter", data.o.Skipped, yellow)
 	}},
-	{"unchanged", func(p painter, w io.Writer, d overviewData) {
-		d.reasons(p, w, "unchanged · nothing to optimize", "", d.o.Unchanged, dim)
+	{"failed", func(pen painter, writer io.Writer, data overviewData) {
+		data.reasons(pen, writer, "failed · optimizer errors, original returned", "optimizer", data.o.Failed, red)
 	}},
-	{"failing", func(p painter, w io.Writer, d overviewData) {
-		if d.failing > 0 {
-			fmt.Fprintf(w, "\n%s %d sources bypass optimization after going bad · %s\n",
-				p.paint(yellow, "⚠"), d.failing, p.paint(dim, "gascoigne gain -failures"))
+	{"unchanged", func(pen painter, writer io.Writer, data overviewData) {
+		data.reasons(pen, writer, "unchanged · nothing to optimize", "", data.o.Unchanged, dim)
+	}},
+	{"failing", func(pen painter, writer io.Writer, data overviewData) {
+		if data.failing > 0 {
+			fmt.Fprintf(writer, "\n%s %d sources bypass optimization after going bad · %s\n",
+				pen.paint(yellow, "⚠"), data.failing, pen.paint(dim, "gascoigne gain -failures"))
 		}
 	}},
-	{"estimates", func(p painter, w io.Writer, d overviewData) {
-		if len(d.o.Estimates) == 0 {
+	{"estimates", func(pen painter, writer io.Writer, data overviewData) {
+		if len(data.o.Estimates) == 0 {
 			return
 		}
-		p.section(w, "estimates · how these numbers are made")
-		for _, n := range d.o.Estimates {
-			fmt.Fprintln(w, p.paint(dim, " "+n))
+		pen.section(writer, "estimates · how these numbers are made")
+		for _, n := range data.o.Estimates {
+			fmt.Fprintln(writer, pen.paint(dim, " "+n))
 		}
 	}},
 }
@@ -211,73 +213,73 @@ func (d overviewData) trendTitle() string {
 
 // savings draws a savings table limited by the view; the share bars stay
 // relative to all savings.
-func (d overviewData) savings(p painter, w io.Writer, title, name string, rows []mcptool.StatsJSON, family bool) {
+func (d overviewData) savings(pen painter, writer io.Writer, title, name string, rows []mcptool.StatsJSON, family bool) {
 	shown, more := d.view.rows(rows)
-	p.savingsTable(w, title+" · share of savings", name, shown, d.o.Total.Saved, family)
-	p.more(w, more, len(shown) > 0)
+	pen.savingsTable(writer, title+" · share of savings", name, shown, d.o.Total.Saved, family)
+	pen.more(writer, more, len(shown) > 0)
 }
 
-func (d overviewData) reasons(p painter, w io.Writer, title, by string, rows []mcptool.StatsJSON, style string) {
+func (d overviewData) reasons(pen painter, writer io.Writer, title, by string, rows []mcptool.StatsJSON, style string) {
 	shown, more := d.view.rows(rows)
-	p.reasonTable(w, title, by, shown, style)
-	p.more(w, more, len(shown) > 0)
+	pen.reasonTable(writer, title, by, shown, style)
+	pen.more(writer, more, len(shown) > 0)
 }
 
 // more notes the rows a view limit left out.
-func (p painter) more(w io.Writer, n int, drawn bool) {
-	if n > 0 && drawn {
-		fmt.Fprintln(w, p.paint(dim, fmt.Sprintf(" … %d more (-top 0 shows all)", n)))
+func (p painter) more(writer io.Writer, count int, drawn bool) {
+	if count > 0 && drawn {
+		fmt.Fprintln(writer, p.paint(dim, fmt.Sprintf(" … %d more (-top 0 shows all)", count)))
 	}
 }
 
 // renderOverview prints the gain overview for terminals.
-func (p painter) renderOverview(w io.Writer, o mcptool.Overview, failing int, usage []ledger.UsageStat, days []ledger.UsageDay, v gainView) {
-	p.overviewHeader(w, o)
-	d := overviewData{o, failing, usage, days, v}
+func (p painter) renderOverview(writer io.Writer, overview mcptool.Overview, failing int, usage []ledger.UsageStat, days []ledger.UsageDay, view gainView) {
+	p.overviewHeader(writer, overview)
+	d := overviewData{overview, failing, usage, days, view}
 	for _, s := range overviewSections {
-		if v.show(s.name) {
-			s.draw(p, w, d)
+		if view.show(s.name) {
+			s.draw(p, writer, d)
 		}
 	}
 }
 
-func (p painter) overviewHeader(w io.Writer, o mcptool.Overview) {
-	t := o.Total
-	title := "gascoigne savings" + filterLabel(o.Filter)
-	fmt.Fprintln(w, p.paint(bold, title))
-	fmt.Fprintln(w, p.paint(dim, strings.Repeat("─", 64)))
+func (p painter) overviewHeader(writer io.Writer, overview mcptool.Overview) {
+	t := overview.Total
+	title := "gascoigne savings" + filterLabel(overview.Filter)
+	fmt.Fprintln(writer, p.paint(bold, title))
+	fmt.Fprintln(writer, p.paint(dim, strings.Repeat("─", 64)))
 	saved := pct(t.Saved, t.RawTokens)
-	fmt.Fprintf(w, " %s %s  %s  %s\n",
+	fmt.Fprintf(writer, " %s %s  %s  %s\n",
 		p.paint(dim, "saved"),
 		p.paint(bold+";"+savedStyle(saved), human(t.Saved)+" tokens"),
 		p.paint(bold+";"+savedStyle(saved), fmt.Sprintf("%.1f%%", saved)),
 		p.paint(savedStyle(saved), bar(saved/100, 30)))
 	skipped := 0
-	for _, s := range o.Skipped {
+	for _, s := range overview.Skipped {
 		skipped += s.Runs
 	}
 	failed := p.paint(dim, fmt.Sprintf("%d failed", t.Failed))
 	if t.Failed > 0 {
 		failed = p.paint(red, fmt.Sprintf("%d failed", t.Failed))
 	}
-	fmt.Fprintf(w, " %s %s → %s   %s  %s, %s, %s\n",
+	fmt.Fprintf(writer, " %s %s → %s   %s  %s, %s, %s\n",
 		p.paint(dim, "tokens"), human(t.RawTokens), human(t.OutTokens),
 		p.paint(dim, fmt.Sprintf("%d runs:", t.Runs)),
 		p.paint(green, fmt.Sprintf("%d optimized", t.Optimized)),
 		p.paint(yellow, fmt.Sprintf("%d skipped", skipped)), failed)
-	if c := o.Cost.InContext; c > 0 {
-		fmt.Fprintf(w, " %s ~%s at list prices, rereads from the prompt cache included\n", p.paint(dim, "worth"), dollars(c))
+	if c := overview.Cost.InContext; c > 0 {
+		fmt.Fprintf(writer, " %s ~%s at list prices, rereads from the prompt cache included\n", p.paint(dim, "worth"), dollars(c))
 	}
 }
 
-func (p painter) outcomeTable(w io.Writer, o mcptool.Overview) {
-	if len(o.Outcomes) == 0 {
+func (p painter) outcomeTable(writer io.Writer, overview mcptool.Overview) {
+	if len(overview.Outcomes) == 0 {
 		return
 	}
-	p.section(w, "outcomes · share of input tokens")
+	p.section(writer, "outcomes · share of input tokens")
 	var rows [][]cell
-	for _, r := range o.Outcomes {
-		share := pct(r.RawTokens, o.Total.RawTokens)
+	for _, r := range overview.Outcomes {
+		share := pct(r.RawTokens, overview.Total.RawTokens)
 		style := map[string]string{"optimized": green, "bypassed": yellow, "error": red, "unchanged": dim}[r.Group]
 		rows = append(rows, []cell{
 			{text: r.Group, style: style},
@@ -288,15 +290,15 @@ func (p painter) outcomeTable(w io.Writer, o mcptool.Overview) {
 			{text: bar(share/100, barWidth) + fmt.Sprintf(" %5.1f%%", share), style: style},
 		})
 	}
-	p.table(w, []string{"outcome", "runs", "in", "out", "saved", " share"}, rows)
+	p.table(writer, []string{"outcome", "runs", "in", "out", "saved", " share"}, rows)
 }
 
 // reasonTable lists runs that were not optimized with the facts behind it.
-func (p painter) reasonTable(w io.Writer, title, by string, rows []mcptool.StatsJSON, style string) {
+func (p painter) reasonTable(writer io.Writer, title, by string, rows []mcptool.StatsJSON, style string) {
 	if len(rows) == 0 {
 		return
 	}
-	p.section(w, title)
+	p.section(writer, title)
 	header := []string{"command", "runs", "tokens", " reason (latest)"}
 	if by != "" {
 		header = append([]string{by}, header...)
@@ -318,16 +320,16 @@ func (p painter) reasonTable(w io.Writer, title, by string, rows []mcptool.Stats
 		}
 		out = append(out, row)
 	}
-	p.table(w, header, out)
+	p.table(writer, header, out)
 }
 
 // trendTable shows periods oldest first with saved tokens as bars scaled to
 // the best period.
-func (p painter) trendTable(w io.Writer, title, name string, rows []mcptool.StatsJSON) {
+func (p painter) trendTable(writer io.Writer, title, name string, rows []mcptool.StatsJSON) {
 	if len(rows) == 0 {
 		return
 	}
-	p.section(w, title)
+	p.section(writer, title)
 	best := 0
 	for _, r := range rows {
 		if r.Group != "total" {
@@ -347,19 +349,19 @@ func (p painter) trendTable(w io.Writer, title, name string, rows []mcptool.Stat
 			{text: bar(float64(r.Saved)/float64(max(best, 1)), barWidth), style: cyan},
 		})
 	}
-	p.table(w, []string{name, "runs", "in", "out", "saved", "saved %", " saved"}, out)
+	p.table(writer, []string{name, "runs", "in", "out", "saved", "saved %", " saved"}, out)
 }
 
 // filterLabel describes active filters for titles.
-func filterLabel(q component.StatsQuery) string {
+func filterLabel(query component.StatsQuery) string {
 	var parts []string
-	for _, f := range []struct{ name, v string }{{"session", q.Session}, {"agent", q.Agent}, {"model", q.Model}} {
+	for _, f := range []struct{ name, v string }{{"session", query.Session}, {"agent", query.Agent}, {"model", query.Model}} {
 		if f.v != "" {
 			parts = append(parts, f.name+" "+f.v)
 		}
 	}
-	if !q.Since.IsZero() {
-		parts = append(parts, "since "+q.Since.Format("2006-01-02 15:04"))
+	if !query.Since.IsZero() {
+		parts = append(parts, "since "+query.Since.Format("2006-01-02 15:04"))
 	}
 	if len(parts) == 0 {
 		return ""
@@ -367,19 +369,19 @@ func filterLabel(q component.StatsQuery) string {
 	return " · " + strings.Join(parts, " · ")
 }
 
-func zeroDim(n int) string {
-	if n == 0 {
+func zeroDim(count int) string {
+	if count == 0 {
 		return dim
 	}
 	return ""
 }
 
 // savingsTable lists groups with saved % and a bar of their share of all savings.
-func (p painter) savingsTable(w io.Writer, title, name string, rows []mcptool.StatsJSON, totalSaved int, family bool) {
+func (p painter) savingsTable(writer io.Writer, title, name string, rows []mcptool.StatsJSON, totalSaved int, family bool) {
 	if len(rows) == 0 {
 		return
 	}
-	p.section(w, title)
+	p.section(writer, title)
 	header := []string{name}
 	if family {
 		header = append(header, " family")
@@ -409,33 +411,33 @@ func (p painter) savingsTable(w io.Writer, title, name string, rows []mcptool.St
 		)
 		out = append(out, row)
 	}
-	p.table(w, header, out)
+	p.table(writer, header, out)
 }
 
 // renderStats prints one grouping for terminals.
-func (p painter) renderStats(w io.Writer, q component.StatsQuery, stats []component.Stat, v gainView) {
-	r := mcptool.Report(q, stats)
-	title := "gascoigne savings by " + r.By + filterLabel(q)
-	fmt.Fprintln(w, p.paint(bold, title))
-	if q.Chronological() {
-		p.trendTable(w, r.By, r.By, append(r.Groups, r.Total))
+func (p painter) renderStats(writer io.Writer, query component.StatsQuery, stats []component.Stat, view gainView) {
+	r := mcptool.Report(query, stats)
+	title := "gascoigne savings by " + r.By + filterLabel(query)
+	fmt.Fprintln(writer, p.paint(bold, title))
+	if query.Chronological() {
+		p.trendTable(writer, r.By, r.By, append(r.Groups, r.Total))
 		return
 	}
-	shown, more := v.rows(r.Groups)
-	p.savingsTable(w, r.By, r.By, append(shown, r.Total), r.Total.Saved, r.By == component.ByOptimizer)
-	p.more(w, more, true)
+	shown, more := view.rows(r.Groups)
+	p.savingsTable(writer, r.By, r.By, append(shown, r.Total), r.Total.Saved, r.By == component.ByOptimizer)
+	p.more(writer, more, true)
 }
 
 // costTable prices the savings per model: once at first read, and with the
 // rereads of every later request while tool results stay in context.
-func (p painter) costTable(w io.Writer, c mcptool.Costs) {
-	if len(c.Savings) == 0 && len(c.Unpriced) == 0 {
+func (p painter) costTable(writer io.Writer, costs mcptool.Costs) {
+	if len(costs.Savings) == 0 && len(costs.Unpriced) == 0 {
 		return
 	}
-	p.section(w, "cost · what the saved tokens are worth")
+	p.section(writer, "cost · what the saved tokens are worth")
 	var rows [][]cell
 	assumed := false
-	for _, s := range c.Savings {
+	for _, s := range costs.Savings {
 		name := s.Model
 		if s.Assumed {
 			name += "*"
@@ -449,31 +451,31 @@ func (p painter) costTable(w io.Writer, c mcptool.Costs) {
 			{text: dollars(s.InContext), right: true, style: green},
 		})
 	}
-	if len(c.Savings) > 1 {
-		rows = append(rows, []cell{{text: "total", style: bold}, {}, {}, {text: dollars(c.FirstRead), right: true, style: bold},
-			{text: dollars(c.InContext), right: true, style: bold + ";" + green}})
+	if len(costs.Savings) > 1 {
+		rows = append(rows, []cell{{text: "total", style: bold}, {}, {}, {text: dollars(costs.FirstRead), right: true, style: bold},
+			{text: dollars(costs.InContext), right: true, style: bold + ";" + green}})
 	}
-	p.table(w, []string{"model", "tokenizer", "saved tok", "first read", "in context"}, rows)
-	fmt.Fprintln(w, p.paint(dim, fmt.Sprintf(" in context: each tool result is read again by ~%.0f later requests (cache reads) until compaction · -rereads N", c.Rereads)))
+	p.table(writer, []string{"model", "tokenizer", "saved tok", "first read", "in context"}, rows)
+	fmt.Fprintln(writer, p.paint(dim, fmt.Sprintf(" in context: each tool result is read again by ~%.0f later requests (cache reads) until compaction · -rereads N", costs.Rereads)))
 	if assumed {
-		fmt.Fprintln(w, p.paint(dim, " * no model recorded: the agent's default, set GASCOIGNE_MODEL or -model to record it"))
+		fmt.Fprintln(writer, p.paint(dim, " * no model recorded: the agent's default, set GASCOIGNE_MODEL or -model to record it"))
 	}
-	if len(c.Unpriced) > 0 {
-		fmt.Fprintln(w, p.paint(yellow, " not priced: "+strings.Join(c.Unpriced, ", ")))
+	if len(costs.Unpriced) > 0 {
+		fmt.Fprintln(writer, p.paint(yellow, " not priced: "+strings.Join(costs.Unpriced, ", ")))
 	}
 }
 
 // usageTable shows what the proxied API requests were billed, as the
 // providers reported it, priced at list prices.
-func (p painter) usageTable(w io.Writer, usage []ledger.UsageStat) {
+func (p painter) usageTable(writer io.Writer, usage []ledger.UsageStat) {
 	if len(usage) == 0 {
 		return
 	}
 	// A plan bills nothing per token: its rows show no price, and the column goes when no row has one.
-	dollarsShown := slices.ContainsFunc(usage, func(u ledger.UsageStat) bool {
-		return cost.BillingOf(u.Agent).Mode != cost.BillingSubscription
+	dollarsShown := slices.ContainsFunc(usage, func(stat ledger.UsageStat) bool {
+		return cost.BillingOf(stat.Agent).Mode != cost.BillingSubscription
 	})
-	p.section(w, "api usage · measured by the LLM proxy")
+	p.section(writer, "api usage · measured by the LLM proxy")
 	var rows [][]cell
 	var total float64
 	unpriced := false
@@ -507,20 +509,20 @@ func (p painter) usageTable(w io.Writer, usage []ledger.UsageStat) {
 		}
 		unpriced = false
 	}
-	p.table(w, head, rows)
-	fmt.Fprintln(w, p.paint(dim, " context: tokens one request carries (input, cache read and write), mean and peak · cache writes at the 5-minute or 1-hour price as reported, where the provider reports the split"))
+	p.table(writer, head, rows)
+	fmt.Fprintln(writer, p.paint(dim, " context: tokens one request carries (input, cache read and write), mean and peak · cache writes at the 5-minute or 1-hour price as reported, where the provider reports the split"))
 	if unpriced {
-		fmt.Fprintln(w, p.paint(dim, " ? no known price for the model"))
+		fmt.Fprintln(writer, p.paint(dim, " ? no known price for the model"))
 	}
 }
 
 // usageDaysTable shows how many API requests a day the proxy saw and how big
 // the conversation each one re-read was: the numbers that drive the bill.
-func (p painter) usageDaysTable(w io.Writer, days []ledger.UsageDay) {
+func (p painter) usageDaysTable(writer io.Writer, days []ledger.UsageDay) {
 	if len(days) < 2 {
 		return
 	}
-	p.section(w, "api requests by day · measured by the LLM proxy")
+	p.section(writer, "api requests by day · measured by the LLM proxy")
 	var rows [][]cell
 	for _, d := range days {
 		rows = append(rows, []cell{
@@ -529,12 +531,12 @@ func (p painter) usageDaysTable(w io.Writer, days []ledger.UsageDay) {
 			{text: human(d.CacheRead), right: true}, {text: human(d.CacheWrite), right: true},
 		})
 	}
-	p.table(w, []string{"day", "requests", "context", "peak", "cache read", "cache write"}, rows)
+	p.table(writer, []string{"day", "requests", "context", "peak", "cache read", "cache write"}, rows)
 }
 
-func dollars(v float64) string {
-	if v < 10 {
-		return fmt.Sprintf("$%.2f", v)
+func dollars(amount float64) string {
+	if amount < 10 {
+		return fmt.Sprintf("$%.2f", amount)
 	}
-	return fmt.Sprintf("$%.0f", v)
+	return fmt.Sprintf("$%.0f", amount)
 }

@@ -38,8 +38,8 @@ func cmdProbe(ctx context.Context, args []string) error {
 		fs.IntVar(&limit, "limit", 2000, "newest optimized runs to check (`n`)")
 		fs.IntVar(&worst, "worst", 10, "list the `n` runs that lost the most error lines")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
-	}, func(l *ledger.Ledger, c *common, _ []string) error {
-		id := c.identity()
+	}, func(store *ledger.Ledger, shared *common, _ []string) error {
+		id := shared.identity()
 		q := component.StatsQuery{Session: id.Session, Agent: id.Agent, Model: id.Model}
 		if since != "" {
 			d, err := parseSince(since)
@@ -48,12 +48,12 @@ func cmdProbe(ctx context.Context, args []string) error {
 			}
 			q.Since = time.Now().Add(-d)
 		}
-		runs, err := probeRuns(ctx, l, q, limit)
+		runs, err := probeRuns(ctx, store, q, limit)
 		if err != nil {
 			return err
 		}
-		slices.SortStableFunc(runs, func(a, b probeRun) int {
-			return cmp.Compare(len(b.Report.Errors.Lost), len(a.Report.Errors.Lost))
+		slices.SortStableFunc(runs, func(left, right probeRun) int {
+			return cmp.Compare(len(right.Report.Errors.Lost), len(left.Report.Errors.Lost))
 		})
 		worstRuns := runs[:min(worst, len(runs))]
 		if asJSON {
@@ -67,8 +67,8 @@ func cmdProbe(ctx context.Context, args []string) error {
 // probeRuns checks each distinct original once, against the output its
 // latest run produced; flushed originals are skipped, and so are proxy folds:
 // their output points at an earlier result that still holds every fact.
-func probeRuns(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, limit int) ([]probeRun, error) {
-	entries, err := l.Page(ctx, q, ledger.Page{Outcomes: []string{string(component.Optimized)}, Limit: limit})
+func probeRuns(ctx context.Context, store *ledger.Ledger, query component.StatsQuery, limit int) ([]probeRun, error) {
+	entries, err := store.Page(ctx, query, ledger.Page{Outcomes: []string{string(component.Optimized)}, Limit: limit})
 	if err != nil {
 		return nil, err
 	}
@@ -79,11 +79,11 @@ func probeRuns(ctx context.Context, l *ledger.Ledger, q component.StatsQuery, li
 			continue
 		}
 		seen[e.RawID] = true
-		_, orig, err := l.GetRaw(ctx, e.RawID)
+		_, orig, err := store.GetRaw(ctx, e.RawID)
 		if err != nil {
 			continue
 		}
-		out, ok, err := l.GetOutput(ctx, e.RawID)
+		out, ok, err := store.GetOutput(ctx, e.RawID)
 		if err != nil || !ok {
 			continue
 		}
@@ -102,9 +102,9 @@ type kept struct {
 	Kept  int `json:"kept"`
 }
 
-func (k *kept) add(t probe.Tally) {
-	k.Total += t.Total
-	k.Kept += t.Kept()
+func (k *kept) add(tally probe.Tally) {
+	k.Total += tally.Total
+	k.Kept += tally.Kept()
 }
 
 func (k kept) String() string {
@@ -139,8 +139,8 @@ func byFamily(runs []probeRun) []familyProbe {
 	for _, f := range m {
 		out = append(out, *f)
 	}
-	slices.SortFunc(out, func(a, b familyProbe) int {
-		return cmp.Or(cmp.Compare(b.Runs, a.Runs), cmp.Compare(a.Family, b.Family))
+	slices.SortFunc(out, func(left, right familyProbe) int {
+		return cmp.Or(cmp.Compare(right.Runs, left.Runs), cmp.Compare(left.Family, right.Family))
 	})
 	return out
 }

@@ -97,8 +97,8 @@ func fetchRelease(ctx context.Context, base string) (release, error) {
 		return release{}, err
 	}
 	req.Header.Set("User-Agent", "gascoigne") // no version, no id: nothing about this machine
-	client := &http.Client{CheckRedirect: func(r *http.Request, _ []*http.Request) error {
-		if r.URL.Host != site.Host {
+	client := &http.Client{CheckRedirect: func(request *http.Request, _ []*http.Request) error {
+		if request.URL.Host != site.Host {
 			return errors.New("redirect to another host")
 		}
 		return nil
@@ -187,9 +187,9 @@ func releaseNudge(source string) string {
 
 // releaseDecision is the setup question about the check; it is optional and
 // answered "on" until the user says otherwise.
-func releaseDecision(p prefs) decision {
+func releaseDecision(settings prefs) decision {
 	current := "on"
-	if p.ReleaseCheck == "off" {
+	if settings.ReleaseCheck == "off" {
 		current = "off"
 	}
 	return decision{ID: "release", Group: "updates", Optional: true, Current: current, Default: "on",

@@ -61,12 +61,12 @@ func buildPricingView() pricingView {
 // read files, send the server's environment to a host or run a program. Settings are changed on
 // the setup page (behind its one-time token) or with gascoigne pricing set.
 func pricingHandlers(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api/pricing", func(w http.ResponseWriter, _ *http.Request) {
-		respond(w, buildPricingView(), nil)
+	mux.HandleFunc("GET /api/pricing", func(writer http.ResponseWriter, _ *http.Request) {
+		respond(writer, buildPricingView(), nil)
 	})
-	mux.HandleFunc("POST /api/pricing/refresh", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /api/pricing/refresh", func(writer http.ResponseWriter, request *http.Request) {
 		cfg, _ := readPrefs().Pricing.config()
-		ctx, cancel := context.WithTimeout(r.Context(), 3*cfg.Timeout+30*time.Second)
+		ctx, cancel := context.WithTimeout(request.Context(), 3*cfg.Timeout+30*time.Second)
 		defer cancel()
 		err := pricing.Refresh(ctx, cfg, true)
 		applyPricing(false)
@@ -74,7 +74,7 @@ func pricingHandlers(mux *http.ServeMux) {
 		if err != nil {
 			view.Error = err.Error()
 		}
-		respond(w, view, nil)
+		respond(writer, view, nil)
 	})
 }
 
@@ -108,7 +108,7 @@ type pricingForm struct {
 
 // apply validates the form and writes it over p's interval and static prices; the sources set in the
 // terminal stay as they are.
-func (f pricingForm) apply(p *pricingPrefs) error {
+func (f pricingForm) apply(chosen *pricingPrefs) error {
 	duration, manual, warning, err := pricing.ParseTTL(f.TTL)
 	if err != nil {
 		return err
@@ -118,15 +118,15 @@ func (f pricingForm) apply(p *pricingPrefs) error {
 	}
 	switch {
 	case manual:
-		p.TTL = "manual"
+		chosen.TTL = "manual"
 	case warning != "":
-		p.TTL = duration.String()
+		chosen.TTL = duration.String()
 	default:
-		p.TTL = strings.TrimSpace(f.TTL)
+		chosen.TTL = strings.TrimSpace(f.TTL)
 	}
-	p.Prices = nil
+	chosen.Prices = nil
 	if len(f.Prices) > 0 {
-		p.Prices = f.Prices
+		chosen.Prices = f.Prices
 	}
 	return nil
 }
@@ -149,13 +149,13 @@ type pricingSetup struct {
 	Warnings []string       `json:"warnings,omitempty"`
 }
 
-func buildPricingSetup(p prefs) *pricingSetup {
+func buildPricingSetup(chosen prefs) *pricingSetup {
 	view := buildPricingView()
 	out := &pricingSetup{
-		pricingForm: pricingForm{TTL: cmpOr(p.Pricing.TTL, "24h"), Prices: p.Pricing.Prices},
+		pricingForm: pricingForm{TTL: cmpOr(chosen.Pricing.TTL, "24h"), Prices: chosen.Pricing.Prices},
 		Sources: pricingSources{
-			File: p.Pricing.File != "", URL: p.Pricing.URL != "", HeaderEnv: p.Pricing.HeaderEnv != "",
-			Translate: p.Pricing.Translate != "",
+			File: chosen.Pricing.File != "", URL: chosen.Pricing.URL != "", HeaderEnv: chosen.Pricing.HeaderEnv != "",
+			Translate: chosen.Pricing.Translate != "",
 		},
 		Detected: detectedAgents(), Layers: view.Layers, Warnings: view.Warnings,
 	}
