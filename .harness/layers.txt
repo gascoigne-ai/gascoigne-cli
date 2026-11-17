@@ -1,7 +1,10 @@
 # Layer table for scripts/check-layers.sh (shared harness). Rows: zone, package patterns, zones it may import.
-# The longest pattern wins, so the engine rows beat internal/...
+# The longest pattern wins, so the engine rows beat internal/... Every package sits in a zone;
+# assets (configs) is a leaf, app (cmd, inproc) may import every zone.
 # zone       patterns                                                                    may-import
 public       ./component/...,./payload/...,./tokens/...                                  public
 engine       ./internal/config,./internal/router,./internal/service,./internal/registry  engine,lib,public,components
 lib          ./internal/...                                                              lib,public
 components   ./receiver/...,./filter/...,./optimizer/...,./exporter/...,./extension/...  components,lib,public
+assets       ./configs                                                                   assets
+app          ./cmd/...,./inproc                                                          app,assets,engine,lib,public,components
