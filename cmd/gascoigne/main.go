@@ -120,9 +120,9 @@ func (c *common) overrides() config.Overrides {
 	}
 }
 
-func splitList(s, seps string) []string {
+func splitList(text, seps string) []string {
 	var out []string
-	for _, f := range strings.FieldsFunc(s, func(r rune) bool { return strings.ContainsRune(seps, r) }) {
+	for _, f := range strings.FieldsFunc(text, func(char rune) bool { return strings.ContainsRune(seps, char) }) {
 		if f = strings.TrimSpace(f); f != "" {
 			out = append(out, f)
 		}
@@ -132,8 +132,8 @@ func splitList(s, seps string) []string {
 
 type listFlag []string
 
-func (l *listFlag) String() string     { return strings.Join(*l, " ") }
-func (l *listFlag) Set(s string) error { *l = append(*l, s); return nil }
+func (l *listFlag) String() string         { return strings.Join(*l, " ") }
+func (l *listFlag) Set(value string) error { *l = append(*l, value); return nil }
 
 // start builds and starts the service; callers must Shutdown it.
 func (c *common) start(ctx context.Context) (*service.Service, error) {
@@ -200,8 +200,8 @@ func (c *common) load() (*config.Config, error) {
 	return config.ParseWith(data, c.overrides())
 }
 
-func fileExists(p string) bool {
-	_, err := os.Stat(p)
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
 	return err == nil
 }
 
@@ -209,10 +209,10 @@ type attrFlag map[string]string
 
 func (a attrFlag) String() string { return fmt.Sprint(map[string]string(a)) }
 
-func (a attrFlag) Set(s string) error {
-	k, v, ok := strings.Cut(s, "=")
+func (a attrFlag) Set(value string) error {
+	k, v, ok := strings.Cut(value, "=")
 	if !ok || k == "" {
-		return fmt.Errorf("want k=v, got %q", s)
+		return fmt.Errorf("want k=v, got %q", value)
 	}
 	a[k] = v
 	return nil
@@ -285,10 +285,10 @@ func cmdMCPProxy(ctx context.Context, args []string) error {
 		fs.StringVar(&remote.URL, "url", "", "proxy the remote MCP server at this `url` (streamable HTTP) instead of a command")
 		fs.BoolVar(&remote.SSE, "sse", false, "with -url: the server speaks legacy SSE")
 		fs.BoolVar(&remote.Auto, "auto", false, "with -url: try streamable HTTP, then SSE (the agent config named no transport)")
-		fs.Func("header", "with -url: send `\"Name: value\"` with every request (repeatable)", func(h string) error {
-			name, value, ok := strings.Cut(h, ":")
+		fs.Func("header", "with -url: send `\"Name: value\"` with every request (repeatable)", func(header string) error {
+			name, value, ok := strings.Cut(header, ":")
 			if !ok {
-				return fmt.Errorf("header %q is not \"Name: value\"", h)
+				return fmt.Errorf("header %q is not \"Name: value\"", header)
 			}
 			if remote.Headers == nil {
 				remote.Headers = map[string]string{}

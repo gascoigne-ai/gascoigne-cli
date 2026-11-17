@@ -22,7 +22,7 @@ func TestMainKeepsTestsOffRealHome(t *testing.T) {
 
 // TestMain moves HOME and the XDG dirs into a temp dir for every test in the package,
 // so a test that skips sandbox(t) cannot read or rewrite the developer's own config.
-func TestMain(m *testing.M) {
+func TestMain(suite *testing.M) {
 	home, err := os.MkdirTemp("", "gascoigne-test-home-")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "test home:", err)
@@ -32,7 +32,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
 	os.Setenv("XDG_CACHE_HOME", filepath.Join(home, ".cache"))
 	os.Setenv("XDG_STATE_HOME", filepath.Join(home, ".local", "state"))
-	code := m.Run()
+	code := suite.Run()
 	os.RemoveAll(home)
 	os.Exit(code)
 }

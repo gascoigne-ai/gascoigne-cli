@@ -91,9 +91,9 @@ func removeCommand(agent, key, file, scope, dir string) string {
 }
 
 // readJSONFile reads path into v; false when it is missing or not JSON.
-func readJSONFile(path string, v any) bool {
+func readJSONFile(path string, target any) bool {
 	data, err := os.ReadFile(path)
-	return err == nil && json.Unmarshal(data, v) == nil
+	return err == nil && json.Unmarshal(data, target) == nil
 }
 
 // projectDirs are the places a project-level MCP config can be: the projects

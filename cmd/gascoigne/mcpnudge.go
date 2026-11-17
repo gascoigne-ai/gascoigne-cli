@@ -82,8 +82,8 @@ func fetchReview() (mcpReview, error) {
 // servers and of idle tools not yet chosen to load on request, in tokens per
 // request, and the servers they belong to. Servers without sizes (direct) and
 // servers seen for less than a week and servers not listed lately (probably removed) are left out.
-func reviewWorth(r mcpReview) (tokens int, labels []string) {
-	for _, s := range r.Servers {
+func reviewWorth(review mcpReview) (tokens int, labels []string) {
+	for _, s := range review.Servers {
 		if !s.Sized || s.Verdict == verdictLearning || s.Verdict == verdictStale {
 			continue
 		}
@@ -113,9 +113,9 @@ func (s mcpServer) idleUnchosenTokens() int {
 
 // mcpReviewDecision is the setup question about the daily page; optional,
 // on until the user says otherwise.
-func mcpReviewDecision(p prefs) decision {
+func mcpReviewDecision(preferences prefs) decision {
 	current := "on"
-	if p.MCPReview == "off" {
+	if preferences.MCPReview == "off" {
 		current = "off"
 	}
 	return decision{ID: "mcp_review", Group: "updates", Optional: true, Current: current, Default: "on",

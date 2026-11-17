@@ -31,8 +31,8 @@ func mcpMode() string {
 	return mcpAuto
 }
 
-func saveMCPMode(v string) error {
-	return savePref("mcp", v, mcpModes, func(p *prefs, v string) { p.MCPMode = v })
+func saveMCPMode(mode string) error {
+	return savePref("mcp", mode, mcpModes, func(current *prefs, value string) { current.MCPMode = value })
 }
 
 // routesTools reports whether a hook event is one that routes a tool call or its

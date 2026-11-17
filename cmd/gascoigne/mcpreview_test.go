@@ -22,7 +22,7 @@ import (
 //   - db: stays direct, called through the hook only
 func reviewFixture() ([]ledger.ToolStat, []ledger.CommandDay, time.Time) {
 	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
-	day := func(n int) string { return now.AddDate(0, 0, -n).Format("2006-01-02") }
+	day := func(days int) string { return now.AddDate(0, 0, -days).Format("2006-01-02") }
 	var stats []ledger.ToolStat
 	list := func(server string, tools, tokens int, from int) {
 		for d := from; d >= 0; d-- {
@@ -35,8 +35,8 @@ func reviewFixture() ([]ledger.ToolStat, []ledger.CommandDay, time.Time) {
 	list("linear", 12, 4000, 11)
 	list("sentry", 5, 2400, 13)
 	list("figma", 8, 1600, 0)
-	call := func(server, tool string, ago, n int) {
-		stats = append(stats, ledger.ToolStat{Day: day(ago), Agent: "claude", Server: server, Tool: tool, Calls: n})
+	call := func(server, tool string, ago, calls int) {
+		stats = append(stats, ledger.ToolStat{Day: day(ago), Agent: "claude", Server: server, Tool: tool, Calls: calls})
 	}
 	call("github", "tool_00", 0, 5)
 	call("github", "tool_00", 3, 4)
@@ -204,7 +204,7 @@ func TestBuildReviewDuplicateNames(t *testing.T) {
 // tools that reach them are the price, never idle.
 func TestBuildReviewLazy(t *testing.T) {
 	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
-	day := func(n int) string { return now.AddDate(0, 0, -n).Format("2006-01-02") }
+	day := func(days int) string { return now.AddDate(0, 0, -days).Format("2006-01-02") }
 	var stats []ledger.ToolStat
 	for d := 9; d >= 0; d-- {
 		stats = append(stats,
@@ -318,7 +318,7 @@ func TestSetLazy(t *testing.T) {
 // called unused, and must not push the nudge over its threshold.
 func TestBuildReviewRemovedServer(t *testing.T) {
 	now := time.Date(2026, 10, 14, 9, 0, 0, 0, time.UTC)
-	day := func(n int) string { return now.AddDate(0, 0, -n).Format("2006-01-02") }
+	day := func(days int) string { return now.AddDate(0, 0, -days).Format("2006-01-02") }
 	var stats []ledger.ToolStat
 	for d := 13; d >= 10; d-- { // listed on days 13 to 10 only, nothing since
 		stats = append(stats, ledger.ToolStat{Day: day(d), Agent: "claude", Server: "old#aaaa1111", Tool: "a", Tokens: 3000})
@@ -376,10 +376,10 @@ func TestLearnNow(t *testing.T) {
 		h.ServeHTTP(w, r)
 		return w
 	}
-	verdicts := func(w *httptest.ResponseRecorder) map[string]string {
+	verdicts := func(recorder *httptest.ResponseRecorder) map[string]string {
 		var r mcpReview
-		if err := json.Unmarshal(w.Body.Bytes(), &r); err != nil {
-			t.Fatalf("%v: %s", err, w.Body.String())
+		if err := json.Unmarshal(recorder.Body.Bytes(), &r); err != nil {
+			t.Fatalf("%v: %s", err, recorder.Body.String())
 		}
 		m := map[string]string{}
 		for _, s := range r.Servers {
@@ -460,7 +460,7 @@ func TestSetRules(t *testing.T) {
 		}
 		var r mcpReview
 		json.Unmarshal(w.Body.Bytes(), &r)
-		if i := slices.IndexFunc(r.Servers, func(s mcpServer) bool { return s.ID == kube }); i < 0 || !slices.Equal(r.Servers[i].Rules, want) {
+		if i := slices.IndexFunc(r.Servers, func(server mcpServer) bool { return server.ID == kube }); i < 0 || !slices.Equal(r.Servers[i].Rules, want) {
 			t.Fatalf("review does not report the rules: %+v", r.Servers)
 		}
 		if got := savedRules()[kube]; !slices.Equal(got, want) {

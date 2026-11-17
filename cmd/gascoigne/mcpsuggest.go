@@ -54,10 +54,10 @@ func (s suggestion) applies() bool { return s.Kind == kindTool }
 // are its tools still in the tool list.
 var serverAdvice = []struct {
 	action string
-	when   func(s mcpServer, listed []mcpTool) (reason string, ok bool)
+	when   func(server mcpServer, listed []mcpTool) (reason string, ok bool)
 }{
-	{actionRemove, func(s mcpServer, _ []mcpTool) (string, bool) {
-		return fmt.Sprintf("nothing called it in %d day(s): switch it off", min(s.Seen, unusedDays)), s.Verdict == verdictUnused
+	{actionRemove, func(server mcpServer, _ []mcpTool) (string, bool) {
+		return fmt.Sprintf("nothing called it in %d day(s): switch it off", min(server.Seen, unusedDays)), server.Verdict == verdictUnused
 	}},
 	{actionMaxTools, func(_ mcpServer, listed []mcpTool) (string, bool) {
 		return fmt.Sprintf("%d tools are listed: set mcp_proxy.max_tools to list the most used and search the rest", len(listed)), len(listed) >= maxToolsMin
@@ -75,18 +75,18 @@ var serverAdvice = []struct {
 // suggestMCP is what the usage of one server supports. A server that is still
 // learning, was not seen lately or stays direct gets none: the data does not
 // show anything yet, or nothing can be changed.
-func suggestMCP(s mcpServer) []suggestion {
+func suggestMCP(server mcpServer) []suggestion {
 	out := []suggestion{}
-	if !s.Sized || s.Verdict == verdictLearning || s.Verdict == verdictStale {
+	if !server.Sized || server.Verdict == verdictLearning || server.Verdict == verdictStale {
 		return out
 	}
 	chosen := map[string]bool{}
-	for _, n := range s.Chosen {
+	for _, n := range server.Chosen {
 		chosen[n] = true
 	}
 	var idle, listed []mcpTool
 	paid := len(chosen) > 0 // lazy mode's own two tools are then in the list already
-	for _, t := range s.Tools {
+	for _, t := range server.Tools {
 		switch {
 		case lazyModeTool(t.Name):
 			continue
@@ -97,7 +97,7 @@ func suggestMCP(s mcpServer) []suggestion {
 			continue
 		}
 		listed = append(listed, t)
-		if t.Calls7 == 0 && t.Tokens >= lazyMinTool && mcpproxyreceiver.Resolve(s.Rules, s.ID, t.Name) == "" { // a rule is the user's call
+		if t.Calls7 == 0 && t.Tokens >= lazyMinTool && mcpproxyreceiver.Resolve(server.Rules, server.ID, t.Name) == "" { // a rule is the user's call
 			idle = append(idle, t)
 		}
 	}
@@ -107,13 +107,13 @@ func suggestMCP(s mcpServer) []suggestion {
 	}
 	if paid || saving >= lazyMinSaving {
 		for _, t := range idle {
-			out = append(out, suggestion{Server: s.ID, Tool: t.Name, Kind: kindTool, Action: actionLazy, Saves: t.Tokens,
-				Reason: fmt.Sprintf("not called in %d day(s): load on request", min(s.Seen, unusedDays))})
+			out = append(out, suggestion{Server: server.ID, Tool: t.Name, Kind: kindTool, Action: actionLazy, Saves: t.Tokens,
+				Reason: fmt.Sprintf("not called in %d day(s): load on request", min(server.Seen, unusedDays))})
 		}
 	}
 	for _, a := range serverAdvice {
-		if reason, ok := a.when(s, listed); ok {
-			out = append(out, suggestion{Server: s.ID, Kind: kindServer, Action: a.action, Reason: reason})
+		if reason, ok := a.when(server, listed); ok {
+			out = append(out, suggestion{Server: server.ID, Kind: kindServer, Action: a.action, Reason: reason})
 		}
 	}
 	return out
@@ -125,13 +125,13 @@ var errUnknownServer = errors.New("unknown server")
 // when id is empty, and reports what it applied. It decides from the ledger
 // alone and adds to the tools already chosen, never removes one. Rules are
 // not touched.
-func optimizeServers(ctx context.Context, l *ledger.Ledger, id string) (mcpReview, []suggestion, error) {
+func optimizeServers(ctx context.Context, store *ledger.Ledger, id string) (mcpReview, []suggestion, error) {
 	p := readPrefs()
-	review, err := loadReview(ctx, l, time.Now(), p.LazyTools, p.LearnedMCP)
+	review, err := loadReview(ctx, store, time.Now(), p.LazyTools, p.LearnedMCP)
 	if err != nil {
 		return review, nil, err
 	}
-	if id != "" && !slices.ContainsFunc(review.Servers, func(s mcpServer) bool { return s.ID == id && s.Sized }) {
+	if id != "" && !slices.ContainsFunc(review.Servers, func(server mcpServer) bool { return server.ID == id && server.Sized }) {
 		return review, nil, fmt.Errorf("%w %q: only servers started through mcp-proxy can be optimized", errUnknownServer, id)
 	}
 	applied := []suggestion{}
@@ -161,27 +161,27 @@ func optimizeServers(ctx context.Context, l *ledger.Ledger, id string) (mcpRevie
 	if err := p.save(); err != nil {
 		return review, nil, err
 	}
-	review, err = loadReview(ctx, l, time.Now(), p.LazyTools, p.LearnedMCP)
+	review, err = loadReview(ctx, store, time.Now(), p.LazyTools, p.LearnedMCP)
 	return review, applied, err
 }
 
 // optimizeMCP is POST /api/mcp/optimize {id}: apply the suggestions of one
 // server, or of every one when id is left out.
-func optimizeMCP(l *ledger.Ledger) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func optimizeMCP(store *ledger.Ledger) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		var in struct {
 			ID string `json:"id"`
 		}
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&in); err != nil {
-			http.Error(w, "want {id}: "+err.Error(), http.StatusBadRequest)
+		if err := json.NewDecoder(http.MaxBytesReader(writer, request.Body, 1<<16)).Decode(&in); err != nil {
+			http.Error(writer, "want {id}: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		review, applied, err := optimizeServers(r.Context(), l, in.ID)
+		review, applied, err := optimizeServers(request.Context(), store, in.ID)
 		if errors.Is(err, errUnknownServer) {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		respond(w, struct {
+		respond(writer, struct {
 			mcpReview
 			Applied []suggestion `json:"applied"`
 		}{review, applied}, err)

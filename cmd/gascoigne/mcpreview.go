@@ -132,20 +132,20 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 		}
 		return t
 	}
-	count := func(s *mcpServer, t *mcpTool, day string, n int) {
+	count := func(server *mcpServer, tool *mcpTool, day string, calls int) {
 		a := age(day)
 		switch {
 		case a < 7:
-			s.Calls7 += n
-			t.Calls7 += n
+			server.Calls7 += calls
+			tool.Calls7 += calls
 		case a < 14:
-			s.CallsPrev += n
+			server.CallsPrev += calls
 		}
 		if a < 14 {
-			t.Calls += n
+			tool.Calls += calls
 		}
-		if n > 0 && (s.LastUsed == "" || day > s.LastUsed) {
-			s.LastUsed = day
+		if calls > 0 && (server.LastUsed == "" || day > server.LastUsed) {
+			server.LastUsed = day
 		}
 	}
 
@@ -184,8 +184,8 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 	}
 	review := mcpReview{Days: dataOldest + 1, Servers: []mcpServer{}}
 	for _, s := range servers {
-		slices.SortFunc(s.Tools, func(a, b mcpTool) int { // the most used first
-			return cmp.Or(cmp.Compare(b.Calls7, a.Calls7), cmp.Compare(b.Calls, a.Calls), cmp.Compare(b.Tokens, a.Tokens), cmp.Compare(a.Name, b.Name))
+		slices.SortFunc(s.Tools, func(left, right mcpTool) int { // the most used first
+			return cmp.Or(cmp.Compare(right.Calls7, left.Calls7), cmp.Compare(right.Calls, left.Calls), cmp.Compare(right.Tokens, left.Tokens), cmp.Compare(left.Name, right.Name))
 		})
 		slices.Sort(s.Agents)
 		s.Seen = oldest[s.ID] + 1
@@ -208,8 +208,8 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 		review.Servers = append(review.Servers, *s)
 	}
 	labelDuplicates(review.Servers)
-	slices.SortFunc(review.Servers, func(a, b mcpServer) int {
-		return cmp.Or(cmp.Compare(b.Calls7, a.Calls7), cmp.Compare(b.Tokens, a.Tokens), cmp.Compare(a.Name, b.Name))
+	slices.SortFunc(review.Servers, func(left, right mcpServer) int {
+		return cmp.Or(cmp.Compare(right.Calls7, left.Calls7), cmp.Compare(right.Tokens, left.Tokens), cmp.Compare(left.Name, right.Name))
 	})
 	review.Notes = reviewNotes(review)
 	return review
@@ -217,16 +217,16 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 
 // verdict judges a server; learned (the user's "learn now") skips the wait
 // for observeDays.
-func verdict(s *mcpServer, learned bool) string {
-	calls := s.Calls7 // the last unusedDays
+func verdict(server *mcpServer, learned bool) string {
+	calls := server.Calls7 // the last unusedDays
 	switch {
-	case s.Sized && s.Listed >= staleDays:
+	case server.Sized && server.Listed >= staleDays:
 		return verdictStale
-	case s.Seen < observeDays && !learned:
+	case server.Seen < observeDays && !learned:
 		return verdictLearning
 	case calls == 0:
 		return verdictUnused
-	case s.Sized && s.Calls7 <= rarelyCalls && s.Tokens >= rarelyTokens:
+	case server.Sized && server.Calls7 <= rarelyCalls && server.Tokens >= rarelyTokens:
 		return verdictRarely
 	}
 	return verdictUsed
@@ -287,15 +287,15 @@ func splitMCPName(name string) (server, tool string, ok bool) {
 }
 
 // reviewNotes says what the numbers cannot show.
-func reviewNotes(r mcpReview) []string {
+func reviewNotes(review mcpReview) []string {
 	notes := []string{}
-	if len(r.Servers) == 0 {
+	if len(review.Servers) == 0 {
 		return []string{"No MCP tool data yet. Servers started through gascoigne mcp-proxy report their tools and calls; other servers show up here once the agent calls them."}
 	}
-	if r.Days < observeDays {
-		notes = append(notes, fmt.Sprintf("Only %d day(s) of data: no server is called unused before %d days of observation.", r.Days, observeDays))
+	if review.Days < observeDays {
+		notes = append(notes, fmt.Sprintf("Only %d day(s) of data: no server is called unused before %d days of observation.", review.Days, observeDays))
 	}
-	for _, s := range r.Servers {
+	for _, s := range review.Servers {
 		if !s.Sized {
 			notes = append(notes, "Servers without a size stay direct (they do not go through mcp-proxy): only their calls are known, and a direct server that was never called does not appear. gascoigne install -g routes stdio servers through the proxy.")
 			break
@@ -305,14 +305,14 @@ func reviewNotes(r mcpReview) []string {
 }
 
 // printReview writes the review as a table, the terminal form of the page.
-func printReview(w io.Writer, r mcpReview) {
-	if len(r.Servers) == 0 {
-		fmt.Fprintln(w, r.Notes[0])
+func printReview(writer io.Writer, review mcpReview) {
+	if len(review.Servers) == 0 {
+		fmt.Fprintln(writer, review.Notes[0])
 		return
 	}
-	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
+	tw := tabwriter.NewWriter(writer, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "SERVER\tVERDICT\tTOKENS/REQ\tIDLE TOKENS\tCALLS 7D\tPREV 7D\tLAST USED")
-	for _, s := range r.Servers {
+	for _, s := range review.Servers {
 		size, idle := "?", "?"
 		if s.Sized {
 			size, idle = fmt.Sprint(s.Tokens), fmt.Sprint(s.IdleToks)
@@ -320,21 +320,21 @@ func printReview(w io.Writer, r mcpReview) {
 		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%d\t%d\t%s\n", s.Name, s.Verdict, size, idle, s.Calls7, s.CallsPrev, cmp.Or(s.LastUsed, "-"))
 	}
 	tw.Flush()
-	printSuggestions(w, r)
-	for _, n := range r.Notes {
-		fmt.Fprintln(w, "\n"+n)
+	printSuggestions(writer, review)
+	for _, n := range review.Notes {
+		fmt.Fprintln(writer, "\n"+n)
 	}
 }
 
 // loadReview reads the last two weeks from the ledger.
-func loadReview(ctx context.Context, l *ledger.Ledger, now time.Time, chosen map[string][]string, learned []string) (mcpReview, error) {
+func loadReview(ctx context.Context, store *ledger.Ledger, now time.Time, chosen map[string][]string, learned []string) (mcpReview, error) {
 	rules := readPrefs().MCPRules
 	since := now.AddDate(0, 0, -2*7)
-	stats, err := l.ToolStats(ctx, since)
+	stats, err := store.ToolStats(ctx, since)
 	if err != nil {
 		return mcpReview{}, err
 	}
-	cmds, err := l.MCPCommands(ctx, since)
+	cmds, err := store.MCPCommands(ctx, since)
 	if err != nil {
 		return mcpReview{}, err
 	}
@@ -367,14 +367,14 @@ func cmdMCPReview(ctx context.Context, args []string) error {
 		fs.BoolVar(&learn, "learn", false, "judge the servers still learning now, without waiting for the observation days")
 		fs.BoolVar(&optimize, "optimize", false, "apply the suggestions: load the tools nothing called on request")
 		fs.BoolVar(&open, "open", true, "open the page in a browser; false only prints its address")
-	}, func(l *ledger.Ledger, _ *common, _ []string) error {
+	}, func(store *ledger.Ledger, _ *common, _ []string) error {
 		if learn {
-			if _, err := learnServers(ctx, l, ""); err != nil {
+			if _, err := learnServers(ctx, store, ""); err != nil {
 				return err
 			}
 		}
 		if optimize {
-			_, applied, err := optimizeServers(ctx, l, "")
+			_, applied, err := optimizeServers(ctx, store, "")
 			if err != nil {
 				return err
 			}
@@ -388,7 +388,7 @@ func cmdMCPReview(ctx context.Context, args []string) error {
 			}
 			return nil
 		}
-		review, err := loadReview(ctx, l, time.Now(), lazyChoices(), readPrefs().LearnedMCP)
+		review, err := loadReview(ctx, store, time.Now(), lazyChoices(), readPrefs().LearnedMCP)
 		if err != nil {
 			return err
 		}
@@ -424,24 +424,24 @@ func labelDuplicates(servers []mcpServer) {
 // setLazy saves which tools of one server load on request. It accepts only a
 // proxied server and tool names the review already shows for it, so the
 // endpoint cannot be made to write anything else into the prefs.
-func setLazy(l *ledger.Ledger) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func setLazy(store *ledger.Ledger) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		var in struct {
 			ID    string   `json:"id"`
 			Tools []string `json:"tools"`
 		}
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&in); err != nil {
-			http.Error(w, "want {id, tools}: "+err.Error(), http.StatusBadRequest)
+		if err := json.NewDecoder(http.MaxBytesReader(writer, request.Body, 1<<16)).Decode(&in); err != nil {
+			http.Error(writer, "want {id, tools}: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		review, err := loadReview(r.Context(), l, time.Now(), nil, nil)
+		review, err := loadReview(request.Context(), store, time.Now(), nil, nil)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		i := slices.IndexFunc(review.Servers, func(s mcpServer) bool { return s.ID == in.ID && s.Sized })
+		i := slices.IndexFunc(review.Servers, func(server mcpServer) bool { return server.ID == in.ID && server.Sized })
 		if i < 0 {
-			http.Error(w, "unknown server: only servers started through mcp-proxy can load tools on request", http.StatusBadRequest)
+			http.Error(writer, "unknown server: only servers started through mcp-proxy can load tools on request", http.StatusBadRequest)
 			return
 		}
 		known := map[string]bool{}
@@ -450,7 +450,7 @@ func setLazy(l *ledger.Ledger) http.HandlerFunc {
 		}
 		for _, t := range in.Tools {
 			if !known[t] {
-				http.Error(w, "unknown tool "+t+" for this server", http.StatusBadRequest)
+				http.Error(writer, "unknown tool "+t+" for this server", http.StatusBadRequest)
 				return
 			}
 		}
@@ -465,11 +465,11 @@ func setLazy(l *ledger.Ledger) http.HandlerFunc {
 			p.LazyTools[in.ID] = tools
 		}
 		if err := p.save(); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		review, err = loadReview(r.Context(), l, time.Now(), p.LazyTools, p.LearnedMCP)
-		respond(w, review, err)
+		review, err = loadReview(request.Context(), store, time.Now(), p.LazyTools, p.LearnedMCP)
+		respond(writer, review, err)
 	}
 }
 
@@ -484,13 +484,13 @@ func idSet(ids []string) map[string]bool {
 // learnServers saves the servers that are still learning as judged now, all
 // of them when id is empty, else only that one. It reports the review as it
 // is afterwards. An unknown id is an error; one already judged is a no-op.
-func learnServers(ctx context.Context, l *ledger.Ledger, id string) (mcpReview, error) {
+func learnServers(ctx context.Context, store *ledger.Ledger, id string) (mcpReview, error) {
 	p := readPrefs()
-	review, err := loadReview(ctx, l, time.Now(), p.LazyTools, p.LearnedMCP)
+	review, err := loadReview(ctx, store, time.Now(), p.LazyTools, p.LearnedMCP)
 	if err != nil {
 		return review, err
 	}
-	if id != "" && !slices.ContainsFunc(review.Servers, func(s mcpServer) bool { return s.ID == id }) {
+	if id != "" && !slices.ContainsFunc(review.Servers, func(server mcpServer) bool { return server.ID == id }) {
 		return review, fmt.Errorf("unknown server %q", id)
 	}
 	for _, s := range review.Servers {
@@ -503,60 +503,60 @@ func learnServers(ctx context.Context, l *ledger.Ledger, id string) (mcpReview, 
 	if err := p.save(); err != nil {
 		return review, err
 	}
-	return loadReview(ctx, l, time.Now(), p.LazyTools, p.LearnedMCP)
+	return loadReview(ctx, store, time.Now(), p.LazyTools, p.LearnedMCP)
 }
 
 // learnNow is POST /api/mcp/learn {id}: judge one still-learning server now,
 // or every one when id is left out.
-func learnNow(l *ledger.Ledger) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func learnNow(store *ledger.Ledger) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		var in struct {
 			ID string `json:"id"`
 		}
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&in); err != nil {
-			http.Error(w, "want {id}: "+err.Error(), http.StatusBadRequest)
+		if err := json.NewDecoder(http.MaxBytesReader(writer, request.Body, 1<<16)).Decode(&in); err != nil {
+			http.Error(writer, "want {id}: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		review, err := learnServers(r.Context(), l, in.ID)
+		review, err := learnServers(request.Context(), store, in.ID)
 		if err != nil && strings.HasPrefix(err.Error(), "unknown server") {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		respond(w, review, err)
+		respond(writer, review, err)
 	}
 }
 
 // setRules is POST /api/mcp/rules {id, rules}: it replaces the manual rules of
 // one server, an empty list clears them. Like setLazy it takes only a server
 // started through mcp-proxy: the others never see a rule.
-func setRules(l *ledger.Ledger) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func setRules(store *ledger.Ledger) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		var in struct {
 			ID    string                  `json:"id"`
 			Rules []mcpproxyreceiver.Rule `json:"rules"`
 		}
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&in); err != nil {
-			http.Error(w, "want {id, rules}: "+err.Error(), http.StatusBadRequest)
+		if err := json.NewDecoder(http.MaxBytesReader(writer, request.Body, 1<<16)).Decode(&in); err != nil {
+			http.Error(writer, "want {id, rules}: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 		if len(in.Rules) > maxRules {
-			http.Error(w, fmt.Sprintf("at most %d rules per server", maxRules), http.StatusBadRequest)
+			http.Error(writer, fmt.Sprintf("at most %d rules per server", maxRules), http.StatusBadRequest)
 			return
 		}
 		for _, rule := range in.Rules {
 			if err := rule.Validate(); err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				http.Error(writer, err.Error(), http.StatusBadRequest)
 				return
 			}
 		}
 		p := readPrefs()
-		review, err := loadReview(r.Context(), l, time.Now(), p.LazyTools, p.LearnedMCP)
+		review, err := loadReview(request.Context(), store, time.Now(), p.LazyTools, p.LearnedMCP)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		if i := slices.IndexFunc(review.Servers, func(s mcpServer) bool { return s.ID == in.ID && s.Sized }); i < 0 {
-			http.Error(w, "unknown server: only servers started through mcp-proxy take rules", http.StatusBadRequest)
+		if i := slices.IndexFunc(review.Servers, func(server mcpServer) bool { return server.ID == in.ID && server.Sized }); i < 0 {
+			http.Error(writer, "unknown server: only servers started through mcp-proxy take rules", http.StatusBadRequest)
 			return
 		}
 		if len(in.Rules) == 0 {
@@ -568,11 +568,11 @@ func setRules(l *ledger.Ledger) http.HandlerFunc {
 			p.MCPRules[in.ID] = in.Rules
 		}
 		if err := p.save(); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		review, err = loadReview(r.Context(), l, time.Now(), p.LazyTools, p.LearnedMCP)
-		respond(w, review, err)
+		review, err = loadReview(request.Context(), store, time.Now(), p.LazyTools, p.LearnedMCP)
+		respond(writer, review, err)
 	}
 }
 
@@ -589,9 +589,9 @@ func savedBy(sugs []suggestion) (n int) {
 
 // printSuggestions lists what the usage supports changing, per server: the
 // tools to load on request in one line, each piece of advice in its own.
-func printSuggestions(w io.Writer, r mcpReview) {
+func printSuggestions(writer io.Writer, request mcpReview) {
 	first := true
-	for _, s := range r.Servers {
+	for _, s := range request.Servers {
 		var lazy []string
 		var advice []suggestion
 		for _, sg := range s.Suggestions {
@@ -605,14 +605,14 @@ func printSuggestions(w io.Writer, r mcpReview) {
 			continue
 		}
 		if first {
-			fmt.Fprintln(w, "\nSUGGESTIONS (mcp-review -optimize loads the listed tools on request)")
+			fmt.Fprintln(writer, "\nSUGGESTIONS (mcp-review -optimize loads the listed tools on request)")
 			first = false
 		}
 		if len(lazy) > 0 {
-			fmt.Fprintf(w, "  %s: load on request %s (%d tokens)\n", s.Name, strings.Join(lazy, ", "), savedBy(s.Suggestions))
+			fmt.Fprintf(writer, "  %s: load on request %s (%d tokens)\n", s.Name, strings.Join(lazy, ", "), savedBy(s.Suggestions))
 		}
 		for _, sg := range advice {
-			fmt.Fprintf(w, "  %s: %s\n", s.Name, sg.Reason)
+			fmt.Fprintf(writer, "  %s: %s\n", s.Name, sg.Reason)
 		}
 	}
 }

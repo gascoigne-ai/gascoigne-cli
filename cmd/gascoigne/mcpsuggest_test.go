@@ -23,9 +23,9 @@ func keys(sugs []suggestion) []string {
 }
 
 // tools makes n listed tools of the given size, each called calls times in 7 days.
-func tools(n, tokens, calls int) []mcpTool {
+func tools(count, tokens, calls int) []mcpTool {
 	var out []mcpTool
-	for i := range n {
+	for i := range count {
 		out = append(out, mcpTool{Name: fmt.Sprintf("t%02d", i), Tokens: tokens, Calls7: calls, Calls: calls})
 	}
 	return out
@@ -59,22 +59,22 @@ func TestSuggestMCP(t *testing.T) {
 		{"idle tokens under the price of lazy mode are not worth it", srv(verdictUsed, []mcpTool{{Name: "a", Tokens: 200, Calls7: 1}, {Name: "b", Tokens: 250}, {Name: "c", Tokens: 200}}), []string{}},
 		{"learning: no verdict, no suggestion", srv(verdictLearning, mix), []string{}},
 		{"not seen lately: probably removed", srv(verdictStale, mix), []string{}},
-		{"a server that stays direct cannot load on request", srv(verdictUsed, mix, func(s *mcpServer) { s.Sized = false }), []string{}},
-		{"already lazy and chosen tools are left alone", srv(verdictUsed, mix, func(s *mcpServer) {
-			s.Tools = slices.Clone(mix)
-			s.Tools[2].Lazy = true
-			s.Chosen = []string{"drain"}
+		{"a server that stays direct cannot load on request", srv(verdictUsed, mix, func(server *mcpServer) { server.Sized = false }), []string{}},
+		{"already lazy and chosen tools are left alone", srv(verdictUsed, mix, func(server *mcpServer) {
+			server.Tools = slices.Clone(mix)
+			server.Tools[2].Lazy = true
+			server.Chosen = []string{"drain"}
 		}), []string{}},
 		{"choosing part of them leaves the rest suggested", srv(verdictUsed, append(slices.Clone(mix), mcpTool{Name: "taint", Tokens: 300}),
-			func(s *mcpServer) { s.Chosen = []string{"drain"} }), []string{"tool:cordon:lazy", "tool:taint:lazy"}},
+			func(server *mcpServer) { server.Chosen = []string{"drain"} }), []string{"tool:cordon:lazy", "tool:taint:lazy"}},
 		{"a tool a rule names is the user's call", srv(verdictUsed, append(slices.Clone(mix), mcpTool{Name: "taint", Tokens: 300}),
-			func(s *mcpServer) { s.Rules = []mcpproxyreceiver.Rule{{Match: "drain", Action: "skip"}} }), []string{"tool:cordon:lazy", "tool:taint:lazy"}},
+			func(server *mcpServer) { server.Rules = []mcpproxyreceiver.Rule{{Match: "drain", Action: "skip"}} }), []string{"tool:cordon:lazy", "tool:taint:lazy"}},
 		{"so is one a glob or server/tool rule covers", srv(verdictUsed, append(slices.Clone(mix), mcpTool{Name: "taint", Tokens: 300}, mcpTool{Name: "evict", Tokens: 300}),
-			func(s *mcpServer) {
-				s.Rules = []mcpproxyreceiver.Rule{{Match: "d*", Action: "shrink"}, {Match: "kube/taint", Action: "skip"}}
+			func(server *mcpServer) {
+				server.Rules = []mcpproxyreceiver.Rule{{Match: "d*", Action: "shrink"}, {Match: "kube/taint", Action: "skip"}}
 			}), []string{"tool:cordon:lazy", "tool:evict:lazy"}},
 		{"lazy mode already paid for: a small gain is worth it", srv(verdictUsed, []mcpTool{{Name: "a", Tokens: 200, Calls7: 1}, {Name: "b", Tokens: 150}},
-			func(s *mcpServer) { s.Chosen = []string{"gone"} }), []string{"tool:b:lazy"}},
+			func(server *mcpServer) { server.Chosen = []string{"gone"} }), []string{"tool:b:lazy"}},
 		{"an unused server: its tools load on request and it can go", srv(verdictUnused, tools(4, 250, 0)),
 			[]string{"tool:t00:lazy", "tool:t01:lazy", "tool:t02:lazy", "tool:t03:lazy", "server::remove"}},
 		{"20 listed tools: max_tools", srv(verdictUsed, tools(20, 100, 1)), []string{"server::max_tools"}},
@@ -207,13 +207,13 @@ func TestOptimize(t *testing.T) {
 		h.ServeHTTP(w, r)
 		return w
 	}
-	applied := func(w *httptest.ResponseRecorder) (list []string, saves int) {
+	applied := func(recorder *httptest.ResponseRecorder) (list []string, saves int) {
 		var out struct {
 			mcpReview
 			Applied []suggestion `json:"applied"`
 		}
-		if err := json.Unmarshal(w.Body.Bytes(), &out); err != nil {
-			t.Fatalf("%v: %s", err, w.Body.String())
+		if err := json.Unmarshal(recorder.Body.Bytes(), &out); err != nil {
+			t.Fatalf("%v: %s", err, recorder.Body.String())
 		}
 		for _, s := range out.Applied {
 			list = append(list, s.Server+"/"+s.Tool)

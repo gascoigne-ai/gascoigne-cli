@@ -86,10 +86,10 @@ var opencodeBuiltin = map[string]bool{
 // opencodeAfter answers the plugin's tool.execute.after: the result of a
 // command the before hook left alone, or of an MCP tool, is optimized and
 // sent back as {"output": text}. Other events go to h.
-func opencodeAfter(h hookFunc) hookFunc {
-	return func(ctx context.Context, c *common, in hookInput, prefix string) (any, error) {
+func opencodeAfter(next hookFunc) hookFunc {
+	return func(ctx context.Context, shared *common, in hookInput, prefix string) (any, error) {
 		if in.HookEventName != "PostToolUse" {
-			return h(ctx, c, in, prefix)
+			return next(ctx, shared, in, prefix)
 		}
 		var text string
 		if json.Unmarshal(in.ToolResponse, &text) != nil {
@@ -106,7 +106,7 @@ func opencodeAfter(h hookFunc) hookFunc {
 		case opencodeBuiltin[in.ToolName] || strings.HasPrefix(in.ToolName, "gascoigne_"):
 			return nil, nil
 		}
-		out, err := optimizeText(ctx, c, text, attrs)
+		out, err := optimizeText(ctx, shared, text, attrs)
 		if err != nil || out == "" {
 			return nil, err
 		}

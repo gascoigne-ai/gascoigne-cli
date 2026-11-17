@@ -11,11 +11,11 @@ import (
 
 // reviewServer answers GET /api/mcp like the background server, with the
 // review in r, after delay.
-func reviewServer(t *testing.T, r mcpReview, delay time.Duration) {
+func reviewServer(t *testing.T, review mcpReview, delay time.Duration) {
 	t.Helper()
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+	srv := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 		time.Sleep(delay)
-		json.NewEncoder(w).Encode(r)
+		json.NewEncoder(writer).Encode(review)
 	}))
 	t.Cleanup(srv.Close)
 	t.Setenv("GASCOIGNE_SERVER_ADDR", strings.TrimPrefix(srv.URL, "http://"))
