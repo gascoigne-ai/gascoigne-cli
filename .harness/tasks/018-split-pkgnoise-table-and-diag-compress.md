@@ -1,5 +1,5 @@
 status: todo
-kind: refactor
+kind: chore
 commit: refactor(compress): split the pkgnoise rule table and diag.Compress
 scope: internal/compress/pkgnoise/**, internal/compress/diag/**, .harness/architecture/families.md
 

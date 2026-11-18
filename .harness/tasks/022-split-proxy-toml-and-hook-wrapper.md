@@ -1,5 +1,5 @@
 status: todo
-kind: refactor
+kind: chore
 commit: refactor(cmd): move the TOML editor and shell rewriter to their own files
 scope: cmd/gascoigne/proxy.go, cmd/gascoigne/hook.go, cmd/gascoigne/codextoml.go, cmd/gascoigne/hookwrap.go, .harness/architecture/agents.md, .harness/architecture/hooks.md, .harness/architecture/mcp.md
 

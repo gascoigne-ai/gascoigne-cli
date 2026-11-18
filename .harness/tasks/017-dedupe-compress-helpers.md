@@ -1,5 +1,5 @@
 status: todo
-kind: refactor
+kind: chore
 commit: refactor(compress): share isWord and plural helpers
 scope: internal/compress/**, internal/pcomb/**, optimizer/logoptimizer/**
 

@@ -1,5 +1,5 @@
 status: todo
-kind: refactor
+kind: chore
 commit: refactor(optimizer): fold single-consumer compress libs into their optimizer
 scope: internal/compress/drain/**, internal/compress/trace/**, internal/compress/pkglist/**, internal/compress/tree/**, optimizer/logoptimizer/**, optimizer/traceoptimizer/**, optimizer/pkgoptimizer/**, .harness/architecture/families.md
 

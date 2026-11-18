@@ -1,5 +1,5 @@
 status: todo
-kind: refactor
+kind: chore
 commit: refactor(cmd): break up functions over 60 lines
 scope: cmd/gascoigne/**, internal/mcptool/**, internal/pricing/**
 

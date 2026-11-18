@@ -1,5 +1,5 @@
 status: todo
-kind: refactor
+kind: chore
 commit: refactor(cmd): group dashboard routes and split setup.go
 scope: cmd/gascoigne/setup*.go, cmd/gascoigne/dashboard.go, .harness/architecture/reports.md, .harness/architecture/server.md, .harness/architecture/agents.md
 

@@ -1,5 +1,5 @@
 status: todo
-kind: refactor
+kind: chore
 commit: refactor(cmd): share JSON save, backup-write and home helpers
 scope: cmd/gascoigne/**
 

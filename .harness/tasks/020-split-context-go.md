@@ -1,5 +1,5 @@
 status: todo
-kind: refactor
+kind: chore
 commit: refactor(cmd): split context.go by job
 scope: cmd/gascoigne/context*.go, .harness/architecture/reports.md, .harness/architecture.md
 
