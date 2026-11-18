@@ -72,96 +72,137 @@ func Compress(lines []string, rules Rules) []string {
 	if rules.MaxFrame == 0 {
 		rules.MaxFrame = 4
 	}
-	lines = collapse(lines, 2)
-	var (
-		diags   []*Diagnostic
-		other   []string // kept non-diagnostic lines, in order, as markers into diags
-		order   []any
-		cur     *Diagnostic
-		pending *Diagnostic // rust header waiting for its --> location
-		esFile  string
-		dropped int
-	)
-	add := func(diagnostic *Diagnostic) {
-		diags = append(diags, diagnostic)
-		order = append(order, diagnostic)
-		cur = diagnostic
+	found := parse(collapse(lines, 2), rules)
+	if len(found.diags) == 0 {
+		return compress.SqueezeBlank(found.other)
 	}
-	keep := func(line string) {
-		other = append(other, line)
-		order = append(order, len(other)-1)
+	return render(found.diags, found.other, found.order, rules.MaxFrame)
+}
+
+// parsed is what the parse phase finds: diagnostics, the kept
+// non-diagnostic lines, and the order both appeared in.
+type parsed struct {
+	diags []*Diagnostic
+	other []string // kept non-diagnostic lines, in order, as markers into diags
+	order []any
+}
+
+// parser is the state machine of the parse phase.
+type parser struct {
+	parsed
+	rules   Rules
+	cur     *Diagnostic
+	pending *Diagnostic // rust header waiting for its --> location
+	esFile  string
+}
+
+func parse(lines []string, rules Rules) parsed {
+	p := &parser{rules: rules}
+	for _, line := range lines {
+		p.feed(line)
 	}
-	// flushPending keeps a header that never got a location as plain text.
-	flushPending := func() {
-		if pending != nil {
-			keep(strings.TrimPrefix(strings.Join([]string{pending.Severity, pending.Code}, " ")+": ", " ") + pending.Message)
-			pending = nil
+	p.flushPending()
+	return p.parsed
+}
+
+func (p *parser) add(diagnostic *Diagnostic) {
+	p.diags = append(p.diags, diagnostic)
+	p.order = append(p.order, diagnostic)
+	p.cur = diagnostic
+}
+
+func (p *parser) keep(line string) {
+	p.other = append(p.other, line)
+	p.order = append(p.order, len(p.other)-1)
+}
+
+// flushPending keeps a header that never got a location as plain text.
+func (p *parser) flushPending() {
+	if p.pending == nil {
+		return
+	}
+	p.keep(strings.TrimPrefix(strings.Join([]string{p.pending.Severity, p.pending.Code}, " ")+": ", " ") + p.pending.Message)
+	p.pending = nil
+}
+
+// prepare strips the dialect prefix and returns the line with the
+// severity its tag prefix gives.
+func (p *parser) prepare(line string) (text, tag string) {
+	text = strings.TrimRight(line, " \t")
+	if p.rules.Strip != nil {
+		text = p.rules.Strip.ReplaceAllString(text, "")
+	}
+	if p.rules.Tag == nil {
+		return text, ""
+	}
+	found := p.rules.Tag.FindStringSubmatch(text)
+	if found == nil {
+		return text, ""
+	}
+	// Only diagnostics and their frames lose the prefix; other lines stay as printed.
+	rest := text[len(found[0]):]
+	if match(rest) != nil || p.cur != nil && frameRe.MatchString(rest) {
+		return rest, tagSeverity(found[1])
+	}
+	return text, ""
+}
+
+// feed classifies one line; the first matching case wins.
+func (p *parser) feed(line string) {
+	text, tag := p.prepare(line)
+	switch matched := match(text); {
+	case p.rules.Noise.Match(text):
+		// dropped
+	case matched != nil:
+		if matched.Severity == "" {
+			matched.Severity = tag
 		}
+		p.add(matched)
+		p.pending, p.esFile = nil, ""
+	case rustHeadRe.MatchString(text):
+		p.startHeader(rustHeadRe.FindStringSubmatch(text), func(found []string) *Diagnostic {
+			return &Diagnostic{Severity: found[1], Code: found[2], Message: found[3]}
+		})
+	case ruffHeadRe.MatchString(text):
+		p.startHeader(ruffHeadRe.FindStringSubmatch(text), func(found []string) *Diagnostic {
+			return &Diagnostic{Code: found[1], Message: found[2]}
+		})
+	case p.pending != nil && (rustLocRe.MatchString(text) || elixirLocRe.MatchString(text)):
+		p.locatePending(text)
+	case eslintFile.MatchString(strings.TrimSpace(text)) && !strings.HasPrefix(text, " "):
+		p.esFile, p.cur = strings.TrimSpace(text), nil
+	case p.esFile != "" && eslintRowRe.MatchString(text):
+		found := eslintRowRe.FindStringSubmatch(text)
+		p.add(&Diagnostic{File: p.esFile, Line: atoi(found[1]), Col: atoi(found[2]), Severity: found[3], Message: found[4], Code: found[5]})
+	case p.cur != nil && mavenDetailRe.MatchString(text):
+		found := mavenDetailRe.FindStringSubmatch(text)
+		p.cur.Detail = append(p.cur.Detail, found[1]+": "+strings.TrimSpace(found[2]))
+	case p.cur != nil && text != "" && frameRe.MatchString(text):
+		p.cur.Context = append(p.cur.Context, text)
+	case text == "":
+		p.cur = nil
+	default:
+		p.cur = nil
+		p.flushPending()
+		p.keep(text)
 	}
-	for _, l := range lines {
-		t := strings.TrimRight(l, " \t")
-		if rules.Strip != nil {
-			t = rules.Strip.ReplaceAllString(t, "")
-		}
-		tag := ""
-		if rules.Tag != nil {
-			if m := rules.Tag.FindStringSubmatch(t); m != nil {
-				// Only diagnostics and their frames lose the prefix; other lines stay as printed.
-				if rest := t[len(m[0]):]; match(rest) != nil || cur != nil && frameRe.MatchString(rest) {
-					tag, t = tagSeverity(m[1]), rest
-				}
-			}
-		}
-		switch m := match(t); {
-		case rules.Noise.Match(t):
-			dropped++
-		case m != nil:
-			if m.Severity == "" {
-				m.Severity = tag
-			}
-			add(m)
-			pending, esFile = nil, ""
-		case rustHeadRe.MatchString(t):
-			flushPending()
-			s := rustHeadRe.FindStringSubmatch(t)
-			pending = &Diagnostic{Severity: s[1], Code: s[2], Message: s[3]}
-			cur = nil
-		case ruffHeadRe.MatchString(t):
-			flushPending()
-			s := ruffHeadRe.FindStringSubmatch(t)
-			pending = &Diagnostic{Code: s[1], Message: s[2]}
-			cur = nil
-		case pending != nil && (rustLocRe.MatchString(t) || elixirLocRe.MatchString(t)):
-			s := rustLocRe.FindStringSubmatch(t)
-			if s == nil {
-				s = elixirLocRe.FindStringSubmatch(t)
-			}
-			pending.File, pending.Line, pending.Col = s[1], atoi(s[2]), atoi(s[3])
-			add(pending)
-			pending = nil
-		case eslintFile.MatchString(strings.TrimSpace(t)) && !strings.HasPrefix(t, " "):
-			esFile, cur = strings.TrimSpace(t), nil
-		case esFile != "" && eslintRowRe.MatchString(t):
-			s := eslintRowRe.FindStringSubmatch(t)
-			add(&Diagnostic{File: esFile, Line: atoi(s[1]), Col: atoi(s[2]), Severity: s[3], Message: s[4], Code: s[5]})
-		case cur != nil && mavenDetailRe.MatchString(t):
-			s := mavenDetailRe.FindStringSubmatch(t)
-			cur.Detail = append(cur.Detail, s[1]+": "+strings.TrimSpace(s[2]))
-		case cur != nil && t != "" && frameRe.MatchString(t):
-			cur.Context = append(cur.Context, t)
-		case t == "":
-			cur = nil
-		default:
-			cur = nil
-			flushPending()
-			keep(t)
-		}
+}
+
+// startHeader holds a header (rust, ruff) until its location line comes.
+func (p *parser) startHeader(found []string, build func([]string) *Diagnostic) {
+	p.flushPending()
+	p.pending = build(found)
+	p.cur = nil
+}
+
+func (p *parser) locatePending(text string) {
+	found := rustLocRe.FindStringSubmatch(text)
+	if found == nil {
+		found = elixirLocRe.FindStringSubmatch(text)
 	}
-	flushPending()
-	if len(diags) == 0 {
-		return compress.SqueezeBlank(other)
-	}
-	return render(diags, other, order, rules.MaxFrame)
+	p.pending.File, p.pending.Line, p.pending.Col = found[1], atoi(found[2]), atoi(found[3])
+	p.add(p.pending)
+	p.pending = nil
 }
 
 func match(line string) *Diagnostic {
