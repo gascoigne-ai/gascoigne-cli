@@ -16,7 +16,8 @@ func TestResolve(t *testing.T) {
 		{"search_*", ActionLazy},
 	}
 	tests := []struct {
-		server, tool, want string
+		server, tool string
+		want         Action
 	}{
 		{"git#aaaa1111", "tool_00", ActionShrink},
 		{"git#aaaa1111", "tool_07", ActionSkip},
@@ -68,8 +69,8 @@ func TestSavedRulesFollowConfigRules(t *testing.T) {
 
 // A result rule never undoes a lazy choice: listing and results are separate.
 func TestResultRulesKeepLazyChoices(t *testing.T) {
-	for _, action := range []string{ActionShrink, ActionSkip} {
-		t.Run(action, func(t *testing.T) {
+	for _, action := range []Action{ActionShrink, ActionSkip} {
+		t.Run(string(action), func(t *testing.T) {
 			cfg := &Config{Retrieve: "gascoigne_retrieve", Rules: []Rule{{"tool_*", action}}}
 			got := names(startProxy(t, realServer(10), cfg, map[string][]string{"fixture-server": lazyNames(5, 10)}).tools(t))
 			if slices.Contains(got, "tool_05") || !slices.Contains(got, "tool_04") || !slices.Contains(got, "search_tools") {

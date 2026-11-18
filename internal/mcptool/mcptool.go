@@ -411,12 +411,12 @@ func estimates(overview Overview) []string {
 }
 
 // outcomeNotes say what each outcome means for tokens.
-var outcomeNotes = map[string]string{
-	string(component.Optimized):   "shrunk; original retrievable",
-	string(component.Unchanged):   "no optimizer applied",
-	string(component.Bypassed):    "passed through by a filter (see skipped)",
-	string(component.Rerequested): "shrunk, then the agent asked for the original",
-	string(component.Failed):      "optimizer error, original returned",
+var outcomeNotes = map[component.Outcome]string{
+	component.Optimized:   "shrunk; original retrievable",
+	component.Unchanged:   "no optimizer applied",
+	component.Bypassed:    "passed through by a filter (see skipped)",
+	component.Rerequested: "shrunk, then the agent asked for the original",
+	component.Failed:      "optimizer error, original returned",
 }
 
 // skipReasons describe filter types, for runs recorded before reasons were.
@@ -457,7 +457,7 @@ func (o Overview) Table() string {
 		w.Flush()
 	}
 	section("by outcome", "outcome\truns\traw tok\tout tok\tsaved\tshare of input\t", o.Outcomes, func(writer *tabwriter.Writer, stat StatsJSON) {
-		fmt.Fprintf(writer, "%s\t%d\t%d\t%d\t%d\t%s\t%s\n", stat.Group, stat.Runs, stat.RawTokens, stat.OutTokens, stat.Saved, Percent(stat.RawTokens, t.RawTokens), outcomeNotes[stat.Group])
+		fmt.Fprintf(writer, "%s\t%d\t%d\t%d\t%d\t%s\t%s\n", stat.Group, stat.Runs, stat.RawTokens, stat.OutTokens, stat.Saved, Percent(stat.RawTokens, t.RawTokens), outcomeNotes[component.Outcome(stat.Group)])
 	})
 	section("by command", "command\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", o.Commands, func(writer *tabwriter.Writer, stat StatsJSON) {
 		fmt.Fprintf(writer, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", stat.Group, stat.Runs, stat.Optimized, stat.RawTokens, stat.OutTokens, stat.Saved, Percent(stat.Saved, stat.RawTokens))
