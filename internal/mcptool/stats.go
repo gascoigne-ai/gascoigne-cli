@@ -69,8 +69,8 @@ func add(total, stat component.Stat) component.Stat {
 	return total
 }
 
-// StatsTable renders stats with a total row.
-func StatsTable(by string, stats []component.Stat) string {
+// statsTable renders stats with a total row.
+func statsTable(by string, stats []component.Stat) string {
 	by = cmp.Or(by, component.ByRoute)
 	steps := by == component.ByFamily || by == component.ByOptimizer || by == component.ByDialect
 	var b strings.Builder

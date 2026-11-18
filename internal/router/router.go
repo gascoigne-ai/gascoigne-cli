@@ -9,8 +9,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
-// DefaultRoute is the name reported when no route matches and the default chain runs.
-const DefaultRoute = "default"
+// defaultRoute is the name reported when no route matches and the default chain runs.
+const defaultRoute = "default"
 
 // Match conditions are ANDed; zero values match anything.
 type Match struct {
@@ -66,7 +66,7 @@ func (c *Config) Route(data *payload.Payload) (string, []string) {
 			return r.label(i), r.Optimizers
 		}
 	}
-	return DefaultRoute, c.Default
+	return defaultRoute, c.Default
 }
 
 func (r Route) label(index int) string {

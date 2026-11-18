@@ -93,7 +93,7 @@ func FromCmd(cmd string) string {
 // of no known type (a sed script) are ignored.
 func readerFileType(args []string) (fileType string, ok bool) {
 	for _, arg := range positional(args) {
-		t := FromFile(arg)
+		t := fromFile(arg)
 		if t == "" {
 			continue
 		}
@@ -142,8 +142,8 @@ func matchPattern(pattern string, args []string) int {
 	return len(toks)
 }
 
-// FromFile maps a file name to a type; "" when unknown.
-func FromFile(name string) string {
+// fromFile maps a file name to a type; "" when unknown.
+func fromFile(name string) string {
 	if name == "" {
 		return ""
 	}
@@ -161,8 +161,8 @@ func FromFile(name string) string {
 	return ""
 }
 
-// FromMIME maps a MIME type to a type; "" when unknown.
-func FromMIME(mime string) string {
+// fromMIME maps a MIME type to a type; "" when unknown.
+func fromMIME(mime string) string {
 	mime, _, _ = strings.Cut(strings.ToLower(mime), ";")
 	mime = strings.TrimSpace(mime)
 	for _, s := range specTable() {

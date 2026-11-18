@@ -135,6 +135,6 @@ func AddStats(server *mcp.Server, ledger component.Ledger, sessions *Sessions) {
 			data, err := json.Marshal(Report(q, stats))
 			return Result(string(data)), nil, err
 		}
-		return Result(StatsTable(q.By, stats)), nil, nil
+		return Result(statsTable(q.By, stats)), nil, nil
 	})
 }

@@ -143,7 +143,7 @@ func TestLeftAlone(t *testing.T) {
 		{"edit tools", "Edit", src, nil},
 		{"already optimized", "Bash", "x\n// y\n[raw:ab]", nil},
 		{"already optimized, long hint of an older session", "Bash", "x\n// y\n[gascoigne: optimized 10→2 tokens · full: gascoigne raw ab]", nil},
-		{"raw requested", "Read", src, map[string]string{RawHeader: "1"}},
+		{"raw requested", "Read", src, map[string]string{rawHeader: "1"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -152,7 +152,7 @@ func TestLeftAlone(t *testing.T) {
 			if res := toolResult(t, *got); res != tt.result {
 				t.Fatalf("changed: %q", res)
 			}
-			if hdr.Get(RawHeader) != "" {
+			if hdr.Get(rawHeader) != "" {
 				t.Fatal("raw header forwarded")
 			}
 		})

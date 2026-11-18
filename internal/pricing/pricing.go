@@ -24,7 +24,7 @@ import (
 const (
 	DefaultTTL     = 24 * time.Hour
 	MinTTL         = time.Hour
-	DefaultTimeout = 10 * time.Second
+	defaultTimeout = 10 * time.Second
 	// FailureBackoff is how long a failed remote layer waits before its next automatic try.
 	FailureBackoff = time.Hour
 	// MaxBytes caps a response and a script's output.
@@ -58,7 +58,7 @@ type Config struct {
 	TTL time.Duration
 	// Manual never refreshes by itself: only Refresh with force does.
 	Manual bool
-	// Timeout bounds one fetch or script run; 0 means DefaultTimeout.
+	// Timeout bounds one fetch or script run; 0 means defaultTimeout.
 	Timeout time.Duration
 	// StateDir holds the cache and the lock.
 	StateDir string
@@ -86,7 +86,7 @@ func (c Config) timeout() time.Duration {
 	if c.Timeout > 0 {
 		return c.Timeout
 	}
-	return DefaultTimeout
+	return defaultTimeout
 }
 
 // ParseTTL reads the interval setting: a Go duration, "" for the default, "0" or "manual" for

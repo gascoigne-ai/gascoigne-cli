@@ -1,6 +1,6 @@
 package bypassfilter
 
-const DefaultEnv = "GASCOIGNE_RAW"
+const defaultEnv = "GASCOIGNE_RAW"
 
 // Config names the environment variable that bypasses optimization.
 type Config struct {

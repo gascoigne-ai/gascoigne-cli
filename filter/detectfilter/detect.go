@@ -13,12 +13,12 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
-// AttrMixed is the payload attr set to MixedTrue when the command's output
+// attrMixed is the payload attr set to mixedTrue when the command's output
 // comes from commands of two or more families; a route matches it
 // (`match: { attrs: { mixed: "true" } }`) to run only the core optimizers.
 const (
-	AttrMixed = "mixed"
-	MixedTrue = "true"
+	attrMixed = "mixed"
+	mixedTrue = "true"
 )
 
 // Filter sets the content type of every untyped block with detect.Detect. It never
@@ -32,7 +32,7 @@ type Filter struct {
 func (f *Filter) Filter(_ context.Context, data *payload.Payload) (component.Decision, error) {
 	h := detect.HintsFrom(data.Attrs)
 	if len(detect.OutputFamilies(h.Cmd)) >= 2 {
-		data.Set(AttrMixed, MixedTrue)
+		data.Set(attrMixed, mixedTrue)
 	}
 	for i, b := range data.Blocks {
 		if b.Type == "" {

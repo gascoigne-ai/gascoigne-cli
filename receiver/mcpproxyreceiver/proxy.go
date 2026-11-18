@@ -90,11 +90,6 @@ func WithLazy(choices map[string][]string) Option {
 	return func(rec *Receiver) { rec.lazy = choices }
 }
 
-// WithTransport sets the downstream transport directly (tests, in-process servers).
-func WithTransport(transport mcp.Transport) Option {
-	return func(rec *Receiver) { rec.transport = transport }
-}
-
 // WithIdentity sets the explicit session, agent and model of the tool calls
 // this receiver records, for example from command-line flags.
 func WithIdentity(id mcptool.Identity) Option {

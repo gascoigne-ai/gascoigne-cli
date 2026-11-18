@@ -11,7 +11,7 @@ const typ = "bypass"
 // NewFactory returns the factory that builds the "bypass" filter.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindFilter, typ,
-		func() *Config { return &Config{Env: DefaultEnv} },
+		func() *Config { return &Config{Env: defaultEnv} },
 		func(_ context.Context, _ component.Settings, cfg *Config) (component.Component, error) {
 			return &Filter{cfg: cfg}, nil
 		})

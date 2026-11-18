@@ -194,7 +194,7 @@ func (s *Service) Start(ctx context.Context) error {
 	order = appendSorted(order, s.exporters)
 	order = appendSorted(order, s.optimizers)
 	order = appendSorted(order, s.filters)
-	for _, name := range s.PipelineNames() {
+	for _, name := range s.pipelineNames() {
 		for _, r := range s.receivers[name] {
 			order = append(order, r)
 		}
@@ -219,7 +219,7 @@ func appendSorted[T component.Component](order []component.Component, items map[
 // until they finish or ctx is done.
 func (s *Service) Run(ctx context.Context, pipelines ...string) error {
 	if len(pipelines) == 0 {
-		pipelines = s.PipelineNames()
+		pipelines = s.pipelineNames()
 	}
 	var (
 		wg   sync.WaitGroup
@@ -270,8 +270,8 @@ func (s *Service) Pipeline(name string) (*Pipeline, bool) {
 	return pl, ok
 }
 
-// PipelineNames returns the names of all pipelines, sorted.
-func (s *Service) PipelineNames() []string {
+// pipelineNames returns the names of all pipelines, sorted.
+func (s *Service) pipelineNames() []string {
 	return slices.Sorted(maps.Keys(s.pipelines))
 }
 

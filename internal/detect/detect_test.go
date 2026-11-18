@@ -153,14 +153,14 @@ func TestCommand(t *testing.T) {
 }
 
 func TestFromFileAndMIME(t *testing.T) {
-	if got := FromFile("/a/b.TSX"); got != Code {
-		t.Errorf("FromFile tsx = %q", got)
+	if got := fromFile("/a/b.TSX"); got != Code {
+		t.Errorf("fromFile tsx = %q", got)
 	}
-	if got := FromFile("x.unknown"); got != "" {
-		t.Errorf("FromFile unknown = %q", got)
+	if got := fromFile("x.unknown"); got != "" {
+		t.Errorf("fromFile unknown = %q", got)
 	}
-	if got := FromMIME("text/html; charset=utf-8"); got != HTML {
-		t.Errorf("FromMIME html = %q", got)
+	if got := fromMIME("text/html; charset=utf-8"); got != HTML {
+		t.Errorf("fromMIME html = %q", got)
 	}
 }
 

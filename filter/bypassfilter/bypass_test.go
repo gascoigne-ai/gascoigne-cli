@@ -19,12 +19,12 @@ func TestFilter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Setenv(DefaultEnv, tt.env)
+			t.Setenv(defaultEnv, tt.env)
 			p := payload.New(payload.CmdOutput, "x")
 			if tt.attr != "" {
 				p.Set(payload.AttrRaw, tt.attr)
 			}
-			f := &Filter{cfg: &Config{Env: DefaultEnv}}
+			f := &Filter{cfg: &Config{Env: defaultEnv}}
 			if got, _ := f.Filter(t.Context(), p); got != tt.want {
 				t.Fatalf("got %v, want %v", got, tt.want)
 			}

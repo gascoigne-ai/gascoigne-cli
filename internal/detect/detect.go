@@ -27,7 +27,7 @@ func HintsFrom(attrs map[string]string) Hints {
 // Detect returns the content type of text. The first of the command, file and MIME
 // hints that names a type wins; without one, the text is sniffed.
 func Detect(text string, hints Hints) string {
-	for _, t := range []string{FromCmd(hints.Cmd), FromFile(hints.File), FromMIME(hints.MIME)} {
+	for _, t := range []string{FromCmd(hints.Cmd), fromFile(hints.File), fromMIME(hints.MIME)} {
 		if t != "" {
 			return refine(t, text)
 		}

@@ -17,14 +17,14 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
 
-// LoginTimeout is how long Login waits for the user in the browser.
-const LoginTimeout = 5 * time.Minute
+// loginTimeout is how long Login waits for the user in the browser.
+const loginTimeout = 5 * time.Minute
 
 // Login runs the authorization code flow (PKCE, dynamic client registration)
 // against a server: open shows the authorization page to the user (a browser,
 // or a printed address), and the tokens are saved in the store.
 func Login(ctx context.Context, store *Store, serverURL string, open func(authURL string) error) error {
-	ctx, cancel := context.WithTimeout(ctx, LoginTimeout)
+	ctx, cancel := context.WithTimeout(ctx, loginTimeout)
 	defer cancel()
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {

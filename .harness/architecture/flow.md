@@ -33,7 +33,7 @@ flowchart LR
 - Optimizers self-select by `Block.Type` through `payload.Rewrite` (exact types) or `payload.RewriteFamily` (every dialect of a family). The default router therefore
   sends every payload through one chain of all optimizers; routes only override per command or
   content.
-- The `detect` filter also tags `mixed=true` (`detectfilter.AttrMixed`) when
+- The `detect` filter also tags `mixed=true` (`detectfilter.attrMixed`) when
   `detect.OutputFamilies(cmd)` finds two or more families in the command line (loops, subshells,
   `;` lists). The first default route, `mixed`, matches it and runs only `dense`, `paths`, `truncate`,
   so no family engine reorders or folds lines across the parts. Existing user configs need

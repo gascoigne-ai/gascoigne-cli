@@ -99,8 +99,8 @@ func LookupSource(id string) (Model, string) {
 	return best, source
 }
 
-// PriceSheetVersion is the version of the JSON price sheet this build reads.
-const PriceSheetVersion = 1
+// priceSheetVersion is the version of the JSON price sheet this build reads.
+const priceSheetVersion = 1
 
 // priceSheet is the JSON the user's file, API and script hand over, in dollars
 // per million tokens:
@@ -136,8 +136,8 @@ func ParsePrices(data []byte, source string) ([]Override, error) {
 	if _, err := dec.Token(); !errors.Is(err, io.EOF) {
 		return nil, fmt.Errorf("%s prices: trailing data after the price sheet", source)
 	}
-	if sheet.Version > PriceSheetVersion {
-		return nil, fmt.Errorf("%s prices: version %d is newer than this gascoigne reads (%d)", source, sheet.Version, PriceSheetVersion)
+	if sheet.Version > priceSheetVersion {
+		return nil, fmt.Errorf("%s prices: version %d is newer than this gascoigne reads (%d)", source, sheet.Version, priceSheetVersion)
 	}
 	if len(sheet.Models) == 0 {
 		return nil, fmt.Errorf(`%s prices: no "models"`, source)
@@ -185,7 +185,7 @@ func (item PriceItem) model(id string) (Model, error) {
 
 // Sheet renders items as a price sheet that ParsePrices reads back.
 func Sheet(items map[string]PriceItem) ([]byte, error) {
-	return json.Marshal(priceSheet{Version: PriceSheetVersion, Models: items})
+	return json.Marshal(priceSheet{Version: priceSheetVersion, Models: items})
 }
 
 // Billing modes: dollars are shown only for pay-per-token API use. Auto asks the detector, per

@@ -30,8 +30,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
-// RawHeader set to 1 forwards a request untouched.
-const RawHeader = "X-Gascoigne-Raw"
+// rawHeader set to 1 forwards a request untouched.
+const rawHeader = "X-Gascoigne-Raw"
 
 // Receiver is the LLM API proxy: an HTTP server that optimizes the tool results in
 // requests before it forwards them upstream.
@@ -85,8 +85,8 @@ func (r *Receiver) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 		api, upstream = bedrockAPI, up
 		req.URL.Path, req.URL.RawPath = rest, ""
 	}
-	raw := req.Header.Get(RawHeader) == "1"
-	req.Header.Del(RawHeader)
+	raw := req.Header.Get(rawHeader) == "1"
+	req.Header.Del(rawHeader)
 	if req.Method == http.MethodPost && !raw && api.rewrite != nil {
 		r.rewrite(req, api.rewrite)
 	}

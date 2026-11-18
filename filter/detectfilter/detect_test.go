@@ -65,12 +65,12 @@ func TestFilterTagsMixedOutput(t *testing.T) {
 		attrs     map[string]string
 		want      string
 	}{
-		{"two families", "go test ./... && git status", nil, MixedTrue},
-		{"loop", "for d in a b; do go test ./$d; git status; done", nil, MixedTrue},
+		{"two families", "go test ./... && git status", nil, mixedTrue},
+		{"loop", "for d in a b; do go test ./$d; git status; done", nil, mixedTrue},
 		{"one family", "go test ./...", nil, ""},
 		{"same family", "go test; pytest", nil, ""},
 		{"no cmd", "", nil, ""},
-		{"already tagged", "go test ./...", map[string]string{AttrMixed: MixedTrue}, MixedTrue},
+		{"already tagged", "go test ./...", map[string]string{attrMixed: mixedTrue}, mixedTrue},
 	}
 	f := &Filter{cfg: NewFactory().DefaultConfig().(*Config), log: slog.New(slog.DiscardHandler)}
 	for _, tt := range tests {
@@ -85,8 +85,8 @@ func TestFilterTagsMixedOutput(t *testing.T) {
 			for range 2 { // idempotent
 				f.Filter(t.Context(), p)
 			}
-			if got := p.Attrs[AttrMixed]; got != tt.want {
-				t.Errorf("attr %q = %q, want %q", AttrMixed, got, tt.want)
+			if got := p.Attrs[attrMixed]; got != tt.want {
+				t.Errorf("attr %q = %q, want %q", attrMixed, got, tt.want)
 			}
 		})
 	}
