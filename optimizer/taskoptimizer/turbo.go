@@ -59,6 +59,6 @@ func turbo(lines []string) []string {
 			sections[i].failed = true
 		}
 	}
-	tail = slices.DeleteFunc(tail, func(l string) bool { return strings.Contains(l, "#") && strings.Contains(l, "exited (") })
+	tail = slices.DeleteFunc(tail, func(line string) bool { return strings.Contains(line, "#") && strings.Contains(line, "exited (") })
 	return render(head, sections, tail)
 }

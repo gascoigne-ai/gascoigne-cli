@@ -264,15 +264,15 @@ func TestConfigValidateMiner(t *testing.T) {
 		mutate func(*Config)
 		bad    bool
 	}{
-		{"default regex", func(c *Config) { c.Miner = "regex" }, false},
-		{"empty is regex", func(c *Config) {}, false},
-		{"drain", func(c *Config) { c.Miner = "drain" }, false},
-		{"unknown miner", func(c *Config) { c.Miner = "lcs" }, true},
-		{"drain depth too small", func(c *Config) { c.Miner = "drain"; c.DrainDepth = 2 }, true},
-		{"drain similarity zero", func(c *Config) { c.Miner = "drain"; c.DrainSimilarity = 0 }, true},
-		{"drain similarity above one", func(c *Config) { c.Miner = "drain"; c.DrainSimilarity = 1.5 }, true},
-		{"drain no variants", func(c *Config) { c.Miner = "drain"; c.DrainVariants = 0 }, true},
-		{"drain no children", func(c *Config) { c.Miner = "drain"; c.DrainMaxChildren = 0 }, true},
+		{"default regex", func(cfg *Config) { cfg.Miner = "regex" }, false},
+		{"empty is regex", func(cfg *Config) {}, false},
+		{"drain", func(cfg *Config) { cfg.Miner = "drain" }, false},
+		{"unknown miner", func(cfg *Config) { cfg.Miner = "lcs" }, true},
+		{"drain depth too small", func(cfg *Config) { cfg.Miner = "drain"; cfg.DrainDepth = 2 }, true},
+		{"drain similarity zero", func(cfg *Config) { cfg.Miner = "drain"; cfg.DrainSimilarity = 0 }, true},
+		{"drain similarity above one", func(cfg *Config) { cfg.Miner = "drain"; cfg.DrainSimilarity = 1.5 }, true},
+		{"drain no variants", func(cfg *Config) { cfg.Miner = "drain"; cfg.DrainVariants = 0 }, true},
+		{"drain no children", func(cfg *Config) { cfg.Miner = "drain"; cfg.DrainMaxChildren = 0 }, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -373,33 +373,33 @@ func TestLimitRarityAddsABoundedShare(t *testing.T) {
 // code is a category: one `status=503` among 29 `status=200` was folded into
 // "(×30)" and vanished from the output.
 func TestCategoricalCodesDoNotFold(t *testing.T) {
-	line := func(i int, status string) string {
-		return fmt.Sprintf("2026-10-10T12:00:%02dZ INFO GET /api/items %s took=%dms\n", i, status, 10+i%3)
+	line := func(second int, status string) string {
+		return fmt.Sprintf("2026-10-10T12:00:%02dZ INFO GET /api/items %s took=%dms\n", second, status, 10+second%3)
 	}
 	tests := []struct {
 		name   string
-		status func(i int) string
+		status func(second int) string
 		want   []string
 	}{
-		{"status key", func(i int) string {
-			if i == 17 {
+		{"status key", func(second int) string {
+			if second == 17 {
 				return "status=503"
 			}
 			return "status=200"
 		}, []string{"status=503", "status=200"}},
-		{"colon form", func(i int) string {
-			if i == 17 {
+		{"colon form", func(second int) string {
+			if second == 17 {
 				return "status: 503"
 			}
 			return "status: 200"
 		}, []string{"status: 503", "status: 200"}},
-		{"exit code words", func(i int) string {
-			if i == 17 {
+		{"exit code words", func(second int) string {
+			if second == 17 {
 				return "exit code 137"
 			}
 			return "exit code 0"
 		}, []string{"exit code 137", "exit code 0"}},
-		{"plain counters still fold", func(i int) string { return fmt.Sprintf("retries=%d", i) }, []string{"(×30)"}},
+		{"plain counters still fold", func(second int) string { return fmt.Sprintf("retries=%d", second) }, []string{"(×30)"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

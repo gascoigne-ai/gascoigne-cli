@@ -58,8 +58,8 @@ func (o *Optimizer) access(lines []string) []string {
 	}
 	out := []string{fmt.Sprintf("%d requests %s – %s: %s", total, first, last, counts(classes, false))}
 	out = append(out, "routes:")
-	keys := slices.SortedFunc(maps.Keys(routes), func(a, b string) int {
-		return cmp.Or(cmp.Compare(routes[b].n, routes[a].n), cmp.Compare(a, b))
+	keys := slices.SortedFunc(maps.Keys(routes), func(left, right string) int {
+		return cmp.Or(cmp.Compare(routes[right].n, routes[left].n), cmp.Compare(left, right))
 	})
 	for _, k := range keys[:min(len(keys), o.cfg.MaxLines/10)] {
 		out = append(out, fmt.Sprintf("  %s ×%d (%s)", k, routes[k].n, counts(routes[k].status, true)))
@@ -80,9 +80,9 @@ func (o *Optimizer) access(lines []string) []string {
 }
 
 // route replaces id segments of a path and drops the query string.
-func route(p string) string {
-	p, _, _ = strings.Cut(p, "?")
-	segs := strings.Split(p, "/")
+func route(path string) string {
+	path, _, _ = strings.Cut(path, "?")
+	segs := strings.Split(path, "/")
 	for i, s := range segs {
 		if idSegment.MatchString(s) {
 			segs[i] = ":id"
@@ -92,27 +92,29 @@ func route(p string) string {
 }
 
 // counts renders "2xx 120, 5xx 3", by key or by count.
-func counts(m map[string]int, byCount bool) string {
-	keys := slices.Sorted(maps.Keys(m))
+func counts(tally map[string]int, byCount bool) string {
+	keys := slices.Sorted(maps.Keys(tally))
 	if byCount {
-		slices.SortStableFunc(keys, func(a, b string) int { return cmp.Compare(m[b], m[a]) })
+		slices.SortStableFunc(keys, func(left, right string) int { return cmp.Compare(tally[right], tally[left]) })
 	}
 	parts := make([]string, len(keys))
 	for i, k := range keys {
-		parts[i] = fmt.Sprintf("%s %d", k, m[k])
+		parts[i] = fmt.Sprintf("%s %d", k, tally[k])
 	}
 	return strings.Join(parts, ", ")
 }
 
 // top renders the n most frequent keys.
-func top(m map[string]int, n int) string {
-	keys := slices.SortedFunc(maps.Keys(m), func(a, b string) int { return cmp.Or(cmp.Compare(m[b], m[a]), cmp.Compare(a, b)) })
+func top(tally map[string]int, limit int) string {
+	keys := slices.SortedFunc(maps.Keys(tally), func(left, right string) int {
+		return cmp.Or(cmp.Compare(tally[right], tally[left]), cmp.Compare(left, right))
+	})
 	var parts []string
-	for _, k := range keys[:min(n, len(keys))] {
-		parts = append(parts, fmt.Sprintf("%s ×%d", k, m[k]))
+	for _, k := range keys[:min(limit, len(keys))] {
+		parts = append(parts, fmt.Sprintf("%s ×%d", k, tally[k]))
 	}
-	if len(keys) > n {
-		parts = append(parts, fmt.Sprintf("… %d more", len(keys)-n))
+	if len(keys) > limit {
+		parts = append(parts, fmt.Sprintf("… %d more", len(keys)-limit))
 	}
 	return strings.Join(parts, ", ")
 }

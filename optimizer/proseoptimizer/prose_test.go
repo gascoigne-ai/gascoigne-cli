@@ -41,9 +41,9 @@ func (o *opening) open() (model, error) {
 	return o.m, o.err
 }
 
-func proseOptimizer(t *testing.T, o *opening) *Optimizer {
+func proseOptimizer(t *testing.T, opened *opening) *Optimizer {
 	cfg := &Config{Enabled: true, Device: "auto", Threshold: 0.5, MinWords: 4}
-	return &Optimizer{cfg: cfg, model: &loaded{cfg: cfg, open: o.open, log: slog.New(slog.DiscardHandler)}}
+	return &Optimizer{cfg: cfg, model: &loaded{cfg: cfg, open: opened.open, log: slog.New(slog.DiscardHandler)}}
 }
 
 func working(t *testing.T) *Optimizer { return proseOptimizer(t, &opening{m: &fake{}}) }

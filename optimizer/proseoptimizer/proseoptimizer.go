@@ -35,14 +35,14 @@ func (o *Optimizer) Shutdown(context.Context) error {
 	return nil
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 	if o.model == nil {
 		return nil
 	}
-	return p.RewriteFamily(func(b payload.Block) (string, error) {
-		if d := detect.Dialect(b.Type); d != "text" && d != "markdown" {
-			return b.Text, nil
+	return data.RewriteFamily(func(block payload.Block) (string, error) {
+		if d := detect.Dialect(block.Type); d != "text" && d != "markdown" {
+			return block.Text, nil
 		}
-		return compress.Join(compress.SqueezeBlank(o.prose(compress.Lines(b.Text)))), nil
+		return compress.Join(compress.SqueezeBlank(o.prose(compress.Lines(block.Text)))), nil
 	}, detect.FamilyDoc)
 }

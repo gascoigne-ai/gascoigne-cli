@@ -25,10 +25,10 @@ type Optimizer struct {
 
 var entry = lazyre.New(`^\s*(?:\d+\s+\d+\s+)?([-dlcbps])([rwxsStT-]{9})[.+@]?\s+\d+\s+\S+\s+\S+\s+(\S+(?:,\s*\d+)?)\s+(?:\w{3}\s+\d{1,2}\s+(?:\d{1,2}:\d\d|\d{4})|\d{4}-\d\d-\d\d\s+\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:\s+[+-]\d{4})?)\s+(.+)$`)
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	return p.Rewrite(func(b payload.Block) (string, error) {
-		lines := compress.CleanLines(b.Text)
-		switch b.Type {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	return data.Rewrite(func(block payload.Block) (string, error) {
+		lines := compress.CleanLines(block.Text)
+		switch block.Type {
 		case detect.Tree:
 			lines = o.tree(lines)
 		case detect.Paths:
@@ -103,17 +103,17 @@ func (c *listing) add(kind, mode, size, name string) {
 	c.sizes = append(c.sizes, human(size))
 }
 
-func (o *Optimizer) render(c listing) []string {
+func (o *Optimizer) render(found listing) []string {
 	var out []string
-	if len(c.dirs) > 0 {
-		out = append(out, wrap("dirs: ", c.dirs, o.cfg.Width)...)
+	if len(found.dirs) > 0 {
+		out = append(out, wrap("dirs: ", found.dirs, o.cfg.Width)...)
 	}
-	if len(c.files) > 0 {
-		files := c.files
+	if len(found.files) > 0 {
+		files := found.files
 		if len(files) <= o.cfg.SizesUpTo {
-			files = make([]string, len(c.files))
-			for i, f := range c.files {
-				files[i] = strings.TrimSpace(f + " " + c.sizes[i])
+			files = make([]string, len(found.files))
+			for i, f := range found.files {
+				files[i] = strings.TrimSpace(f + " " + found.sizes[i])
 			}
 		}
 		out = append(out, wrap(fmt.Sprintf("files (%d): ", len(files)), files, o.cfg.Width)...)

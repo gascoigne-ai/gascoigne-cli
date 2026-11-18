@@ -49,19 +49,19 @@ func entries(text string) ([]string, bool) {
 			b, _ := json.Marshal(m)
 			parts = append(parts, string(b))
 		}
-		out = append(out, strings.Join(slices.DeleteFunc(parts, func(s string) bool { return s == "" }), " "))
+		out = append(out, strings.Join(slices.DeleteFunc(parts, func(part string) bool { return part == "" }), " "))
 	}
 	return out, 2*messages >= len(items)
 }
 
 // fields renders the other scalar fields of an app log line as k=v.
-func fields(m map[string]any) string {
+func fields(entry map[string]any) string {
 	var parts []string
-	for _, k := range slices.Sorted(maps.Keys(m)) {
+	for _, k := range slices.Sorted(maps.Keys(entry)) {
 		if slices.Contains(timeKeys, k) || slices.Contains(sevKeys, k) || slices.Contains(msgKeys, k) {
 			continue
 		}
-		if v := scalar(m[k]); v != "" {
+		if v := scalar(entry[k]); v != "" {
 			parts = append(parts, k+"="+v)
 		}
 	}
@@ -124,9 +124,9 @@ func jsonLines(text string) ([]any, bool) {
 }
 
 // pick returns the first present field of keys ("a.b" walks into objects).
-func pick(m map[string]any, keys []string) string {
+func pick(entry map[string]any, keys []string) string {
 	for _, k := range keys {
-		var v any = m
+		var v any = entry
 		for _, part := range strings.Split(k, ".") {
 			obj, ok := v.(map[string]any)
 			if !ok {
@@ -143,8 +143,8 @@ func pick(m map[string]any, keys []string) string {
 }
 
 // scalar renders a decoded value, or "" for nil, empty strings and containers.
-func scalar(v any) string {
-	switch v := v.(type) {
+func scalar(value any) string {
+	switch v := value.(type) {
 	case string:
 		return strings.TrimRight(v, "\n")
 	case float64:
@@ -156,17 +156,17 @@ func scalar(v any) string {
 }
 
 // when formats epoch milliseconds (aws) and keeps timestamps as they are.
-func when(s string) string {
+func when(stamp string) string {
 	var ms int64
-	if _, err := fmt.Sscanf(s, "%d", &ms); err == nil && fmt.Sprint(ms) == s && ms > 1e11 {
+	if _, err := fmt.Sscanf(stamp, "%d", &ms); err == nil && fmt.Sprint(ms) == stamp && ms > 1e11 {
 		return time.UnixMilli(ms).UTC().Format("2006-01-02T15:04:05.000Z")
 	}
-	return s
+	return stamp
 }
 
 // request is the HTTP request of a load balancer or Cloud Run entry.
-func request(m map[string]any) string {
-	r, ok := m["httpRequest"].(map[string]any)
+func request(entry map[string]any) string {
+	r, ok := entry["httpRequest"].(map[string]any)
 	if !ok {
 		return ""
 	}

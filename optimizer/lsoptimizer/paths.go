@@ -48,7 +48,9 @@ func spill(names []string) []string {
 	if total == 0 {
 		return kept
 	}
-	keys := slices.SortedFunc(maps.Keys(folded), func(a, b string) int { return cmp.Or(cmp.Compare(folded[b], folded[a]), cmp.Compare(a, b)) })
+	keys := slices.SortedFunc(maps.Keys(folded), func(left, right string) int {
+		return cmp.Or(cmp.Compare(folded[right], folded[left]), cmp.Compare(left, right))
+	})
 	var parts []string
 	for _, k := range keys {
 		parts = append(parts, fmt.Sprintf("%s ×%d", k, folded[k]))
@@ -140,9 +142,9 @@ func (o *Optimizer) tree(lines []string) []string {
 	return out
 }
 
-func lineAt(lines []string, i int) string {
-	if i < len(lines) {
-		return lines[i]
+func lineAt(lines []string, index int) string {
+	if index < len(lines) {
+		return lines[index]
 	}
 	return ""
 }
@@ -167,7 +169,7 @@ func (o *Optimizer) du(lines []string) []string {
 	}
 	total := entries[len(entries)-1]
 	rest := entries[:len(entries)-1]
-	slices.SortStableFunc(rest, func(a, b entry) int { return cmp.Compare(b.size, a.size) })
+	slices.SortStableFunc(rest, func(left, right entry) int { return cmp.Compare(right.size, left.size) })
 	out := []string{"largest:"}
 	for _, e := range rest[:o.cfg.MaxPerDir*2] {
 		out = append(out, e.line)

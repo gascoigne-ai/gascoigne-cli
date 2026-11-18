@@ -9,9 +9,9 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
-func numbered(n int, mark map[int]string) string {
+func numbered(lines int, mark map[int]string) string {
 	var b strings.Builder
-	for i := range n {
+	for i := range lines {
 		if m, ok := mark[i]; ok {
 			b.WriteString(m + "\n")
 			continue

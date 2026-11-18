@@ -45,33 +45,33 @@ func (o *Optimizer) Start(_ context.Context, host component.Host) error {
 	return nil
 }
 
-func (o *Optimizer) Optimize(ctx context.Context, p *payload.Payload) error {
-	session := p.Attrs[payload.AttrSession]
-	if o.history == nil || session == "" || !slices.ContainsFunc(p.Blocks, o.eligible) {
+func (o *Optimizer) Optimize(ctx context.Context, data *payload.Payload) error {
+	session := data.Attrs[payload.AttrSession]
+	if o.history == nil || session == "" || !slices.ContainsFunc(data.Blocks, o.eligible) {
 		return nil
 	}
-	outs, err := o.history.RecentOutputs(ctx, session, p.Key(), o.now().Add(-o.cfg.MaxAge), o.cfg.Runs)
+	outs, err := o.history.RecentOutputs(ctx, session, data.Key(), o.now().Add(-o.cfg.MaxAge), o.cfg.Runs)
 	if err != nil || len(outs) == 0 {
 		return err
 	}
 	ref := newReference(outs)
 	folded := 0
-	for i, b := range p.Blocks {
+	for i, b := range data.Blocks {
 		if !o.eligible(b) {
 			continue
 		}
 		text, n := ref.fold(b.Text, o.cfg.MinLines, o.cfg.MinChars)
-		p.Blocks[i].Text = text
+		data.Blocks[i].Text = text
 		folded += n
 	}
 	if folded == 0 {
-		p.Set(payload.AttrSkip, "rerun: nothing shown in the last runs")
+		data.Set(payload.AttrSkip, "rerun: nothing shown in the last runs")
 	}
 	return nil
 }
 
-func (o *Optimizer) eligible(b payload.Block) bool {
-	return slices.Contains(o.cfg.Families, detect.Family(b.Type))
+func (o *Optimizer) eligible(block payload.Block) bool {
+	return slices.Contains(o.cfg.Families, detect.Family(block.Type))
 }
 
 // reference holds the lines of earlier outputs and where each starts.
@@ -121,12 +121,12 @@ func (r *reference) fold(text string, minLines, minChars int) (string, int) {
 }
 
 // longest is the longest run from lines[i] an earlier output shows verbatim.
-func (r *reference) longest(lines []string, i int) int {
+func (r *reference) longest(lines []string, start int) int {
 	best := 0
-	for _, at := range r.anchors[lines[i]] {
+	for _, at := range r.anchors[lines[start]] {
 		ref := r.runs[at[0]]
 		k := 0
-		for i+k < len(lines) && at[1]+k < len(ref) && lines[i+k] == ref[at[1]+k] && !legend.Is(lines[i+k]) {
+		for start+k < len(lines) && at[1]+k < len(ref) && lines[start+k] == ref[at[1]+k] && !legend.Is(lines[start+k]) {
 			k++
 		}
 		best = max(best, k)
@@ -146,9 +146,9 @@ func pointer(run []string) string {
 
 // isAnchor reports a line distinct enough to start a run: not blank, not a
 // bare brace and not a pointer.
-func isAnchor(l string) bool {
-	t := strings.TrimSpace(l)
-	return len(t) >= 4 && !strings.HasPrefix(t, "[↑ ") && !legend.Is(l)
+func isAnchor(line string) bool {
+	t := strings.TrimSpace(line)
+	return len(t) >= 4 && !strings.HasPrefix(t, "[↑ ") && !legend.Is(line)
 }
 
 func size(lines []string) int {

@@ -22,8 +22,8 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	for i, b := range data.Blocks {
 		if !slices.Contains(o.cfg.Families, detect.Family(b.Type)) {
 			continue
 		}
@@ -34,7 +34,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		}
 		folded = trace.Frames(folded, o.cfg.MinFrames)
 		if len(folded) < len(lines) {
-			p.Blocks[i].Text = compress.Join(folded)
+			data.Blocks[i].Text = compress.Join(folded)
 		}
 	}
 	return nil

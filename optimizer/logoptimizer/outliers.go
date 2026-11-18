@@ -71,13 +71,13 @@ func (o *Optimizer) groupOutliers(lines []string, vols [][]string, idx []int) []
 
 // numbers reads place k of every line as a number; timestamps, ids and
 // hashes are not numbers and make the place unusable.
-func numbers(tokens [][]string, k int) ([]float64, bool) {
+func numbers(tokens [][]string, column int) ([]float64, bool) {
 	vals := make([]float64, len(tokens))
 	for j, t := range tokens {
-		if k >= len(t) {
+		if column >= len(t) {
 			return nil, false
 		}
-		v, err := strconv.ParseFloat(t[k], 64)
+		v, err := strconv.ParseFloat(t[column], 64)
 		if err != nil {
 			return nil, false
 		}

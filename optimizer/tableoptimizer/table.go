@@ -20,16 +20,16 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	return p.RewriteFamily(func(b payload.Block) (string, error) {
-		if b.Type == detect.Eval {
-			return compress.Join(table.FoldReport(compress.CleanLines(b.Text))), nil
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	query := sample.Terms(data.Attrs[payload.AttrQuery])
+	return data.RewriteFamily(func(block payload.Block) (string, error) {
+		if block.Type == detect.Eval {
+			return compress.Join(table.FoldReport(compress.CleanLines(block.Text))), nil
 		}
-		t, ok := table.Parse(compress.CleanLines(b.Text))
+		t, ok := table.Parse(compress.CleanLines(block.Text))
 		if !ok {
-			p.Set(payload.AttrSkip, "table: no table found")
-			return b.Text, nil
+			data.Set(payload.AttrSkip, "table: no table found")
+			return block.Text, nil
 		}
 		return compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query))), nil
 	}, detect.FamilyTable)

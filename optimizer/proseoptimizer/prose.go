@@ -245,7 +245,7 @@ var mustKeepRe = lazyre.New(`\b0x[0-9A-Fa-f]+\b` +
 	`|(?i:\b(?:and|or|nor|xor)\b)` +
 	"|`|\\]\\(|://|@")
 
-func mustKeep(w string) bool { return mustKeepRe.MatchString(w) }
+func mustKeep(word string) bool { return mustKeepRe.MatchString(word) }
 
 var columnGap = lazyre.New(`\s{2,}`)
 

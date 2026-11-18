@@ -61,9 +61,9 @@ REMINDER: cite.
 }
 
 // linksJSON is n links whose title t<i> only matches the query when i == hit.
-func linksJSON(n, hit int) string {
+func linksJSON(count, hit int) string {
 	var items []string
-	for i := range n {
+	for i := range count {
 		title := fmt.Sprintf("t%d", i)
 		if i == hit {
 			title += " gamma"

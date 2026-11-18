@@ -43,12 +43,12 @@ func protectCodes(line string) string {
 
 // categoricalBefore reports whether a categorical key, a separator and at
 // most one space end right before line[i].
-func categoricalBefore(line string, i int) bool {
-	for _, sep := range []int{i - 1, i - 2} {
+func categoricalBefore(line string, pos int) bool {
+	for _, sep := range []int{pos - 1, pos - 2} {
 		if sep < 0 || !strings.ContainsRune("=: ", rune(line[sep])) {
 			continue
 		}
-		if sep == i-2 && line[i-1] != ' ' && line[i-1] != '\t' {
+		if sep == pos-2 && line[pos-1] != ' ' && line[pos-1] != '\t' {
 			continue
 		}
 		if isCategoricalKey(line[:sep]) {
@@ -60,26 +60,26 @@ func categoricalBefore(line string, i int) bool {
 
 // isCategoricalKey reports whether the text ends with a categorical key as a
 // whole word (or two: "exit code").
-func isCategoricalKey(s string) bool {
-	start := len(s)
-	for start > 0 && isWord(s[start-1]) {
+func isCategoricalKey(key string) bool {
+	start := len(key)
+	for start > 0 && isWord(key[start-1]) {
 		start--
 	}
-	if categoricalKeys[strings.ToLower(s[start:])] {
+	if categoricalKeys[strings.ToLower(key[start:])] {
 		return true
 	}
-	if start == 0 || s[start-1] != ' ' {
+	if start == 0 || key[start-1] != ' ' {
 		return false
 	}
 	prev := start - 1
-	for prev > 0 && isWord(s[prev-1]) {
+	for prev > 0 && isWord(key[prev-1]) {
 		prev--
 	}
-	return categoricalKeys[strings.ToLower(s[prev:start-1]+" "+s[start:])]
+	return categoricalKeys[strings.ToLower(key[prev:start-1]+" "+key[start:])]
 }
 
-func isDigit(c byte) bool { return c >= '0' && c <= '9' }
+func isDigit(char byte) bool { return char >= '0' && char <= '9' }
 
-func isWord(c byte) bool {
-	return isDigit(c) || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_'
+func isWord(char byte) bool {
+	return isDigit(char) || char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z' || char == '_'
 }

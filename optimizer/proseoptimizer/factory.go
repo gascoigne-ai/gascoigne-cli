@@ -13,10 +13,10 @@ func NewFactory() component.Factory {
 		func() *Config {
 			return &Config{Device: "auto", Model: prose.Kompress, Threshold: 0.5, Warm: true, Idle: 5 * time.Minute, MinWords: 40}
 		},
-		func(_ context.Context, s component.Settings, cfg *Config) (component.Component, error) {
+		func(_ context.Context, settings component.Settings, cfg *Config) (component.Component, error) {
 			o := &Optimizer{cfg: cfg}
 			if cfg.Enabled {
-				o.model = &loaded{cfg: cfg, open: openModel(cfg), log: s.Logger}
+				o.model = &loaded{cfg: cfg, open: openModel(cfg), log: settings.Logger}
 			}
 			return o, nil
 		},

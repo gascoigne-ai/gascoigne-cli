@@ -26,12 +26,12 @@ var errorRe = lazyre.New(`(?i)\b(error|errors|failed|failure|fatal|panic|excepti
 // maxLine is the longest line kept whole, in bytes (minified code, one-line JSON).
 const maxLine = 2000
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	for i, b := range data.Blocks {
 		if o.skip(b.Type) || tokens.Estimate(b.Text) <= o.cfg.MaxTokens {
 			continue
 		}
-		p.Blocks[i].Text = o.cut(b.Text, p.Attrs[payload.AttrQuery])
+		data.Blocks[i].Text = o.cut(b.Text, data.Attrs[payload.AttrQuery])
 	}
 	return nil
 }

@@ -28,10 +28,10 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	return p.Rewrite(func(b payload.Block) (string, error) {
-		return o.shrink(b.Text, query), nil
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	query := sample.Terms(data.Attrs[payload.AttrQuery])
+	return data.Rewrite(func(block payload.Block) (string, error) {
+		return o.shrink(block.Text, query), nil
 	}, detect.SEARCH)
 }
 
@@ -48,7 +48,7 @@ func (o *Optimizer) shrink(text string, query []string) string {
 			continue
 		}
 		var links []link
-		if json.Unmarshal([]byte(raw[len("Links: "):]), &links) != nil || slices.ContainsFunc(links, func(k link) bool { return k.URL == "" }) {
+		if json.Unmarshal([]byte(raw[len("Links: "):]), &links) != nil || slices.ContainsFunc(links, func(item link) bool { return item.URL == "" }) {
 			continue
 		}
 		lines[i] = o.render(links, query) + l[len(raw):]
@@ -91,11 +91,11 @@ func (o *Optimizer) pick(links []link, query []string) []bool {
 	for i := range order {
 		order[i] = i
 	}
-	slices.SortStableFunc(order, func(a, b int) int {
+	slices.SortStableFunc(order, func(left, right int) int {
 		switch {
-		case scores[a] > scores[b]:
+		case scores[left] > scores[right]:
 			return -1
-		case scores[a] < scores[b]:
+		case scores[left] < scores[right]:
 			return 1
 		}
 		return 0
@@ -109,26 +109,26 @@ func (o *Optimizer) pick(links []link, query []string) []bool {
 // dedupe drops links whose URL was listed before.
 func dedupe(links []link) []link {
 	seen := map[string]bool{}
-	return slices.DeleteFunc(slices.Clone(links), func(k link) bool {
-		dup := seen[k.URL]
-		seen[k.URL] = true
+	return slices.DeleteFunc(slices.Clone(links), func(item link) bool {
+		dup := seen[item.URL]
+		seen[item.URL] = true
 		return dup
 	})
 }
 
 // describe is `title: url`, or the URL alone when the title is empty or only
 // the host (search engines title bare pages that way).
-func describe(k link) string {
-	if k.Title == "" || hostOnly(k) {
-		return k.URL
+func describe(item link) string {
+	if item.Title == "" || hostOnly(item) {
+		return item.URL
 	}
-	return k.Title + ": " + k.URL
+	return item.Title + ": " + item.URL
 }
 
-func hostOnly(k link) bool {
-	u, err := url.Parse(k.URL)
+func hostOnly(item link) bool {
+	u, err := url.Parse(item.URL)
 	if err != nil {
 		return false
 	}
-	return strings.EqualFold(strings.TrimPrefix(u.Hostname(), "www."), strings.TrimPrefix(strings.TrimSpace(k.Title), "www."))
+	return strings.EqualFold(strings.TrimPrefix(u.Hostname(), "www."), strings.TrimPrefix(strings.TrimSpace(item.Title), "www."))
 }

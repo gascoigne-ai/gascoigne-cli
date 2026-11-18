@@ -28,11 +28,11 @@ type Optimizer struct {
 	norm func(string) string
 }
 
-func (o *Optimizer) normalize(l string) string {
+func (o *Optimizer) normalize(line string) string {
 	if o.norm == nil {
-		return compress.Normalize(protectCodes(l))
+		return compress.Normalize(protectCodes(line))
 	}
-	return o.norm(l)
+	return o.norm(line)
 }
 
 // normalizeAll returns every line's template and, when the default
@@ -52,8 +52,8 @@ func (o *Optimizer) normalizeAll(lines []string) (norms []string, vols [][]strin
 	return norms, vols
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	for i, b := range data.Blocks {
 		if b.Type != detect.Text && detect.Family(b.Type) != detect.FamilyLog {
 			continue
 		}
@@ -75,27 +75,27 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 			}
 			lines = o.log(lines)
 		}
-		p.Blocks[i].Text = compress.Join(lines)
+		data.Blocks[i].Text = compress.Join(lines)
 	}
 	return nil
 }
 
 // prePasses are the stages that rewrite a log's lines before templating,
 // by the names in Config.Passes ("prefixes" is handled where it renders).
-var prePasses = map[string]func(b payload.Block, lines []string) []string{
+var prePasses = map[string]func(block payload.Block, lines []string) []string{
 	// Cloud log services and JSON loggers print structured events; gcloud
 	// prints YAML.
-	"entries": func(b payload.Block, lines []string) []string {
-		text := strings.TrimSpace(b.Text)
-		if strings.HasPrefix(text, "{") || strings.HasPrefix(text, "[") || b.Type == detect.GCPLogs {
+	"entries": func(block payload.Block, lines []string) []string {
+		text := strings.TrimSpace(block.Text)
+		if strings.HasPrefix(text, "{") || strings.HasPrefix(text, "[") || block.Type == detect.GCPLogs {
 			if ev, ok := entries(text); ok {
 				return ev
 			}
 		}
 		return lines
 	},
-	"units": func(b payload.Block, lines []string) []string {
-		if b.Type == detect.Journal || b.Type == detect.Syslog {
+	"units": func(block payload.Block, lines []string) []string {
+		if block.Type == detect.Journal || block.Type == detect.Syslog {
 			return unitPairs(lines)
 		}
 		return lines
@@ -108,10 +108,10 @@ var (
 	continuation = lazyre.New(`^(\s+|at |Caused by|Traceback|\.\.\. \d+ more)`)
 )
 
-func severity(l string) compress.Severity {
-	m := levelRe.FindStringSubmatch(l)
+func severity(line string) compress.Severity {
+	m := levelRe.FindStringSubmatch(line)
 	if m == nil {
-		return compress.SeverityOf(l)
+		return compress.SeverityOf(line)
 	}
 	switch strings.ToUpper(m[1] + m[2]) {
 	case "WARN", "WARNING":
@@ -122,8 +122,8 @@ func severity(l string) compress.Severity {
 	return compress.None
 }
 
-func isDebug(l string) bool {
-	m := levelRe.FindStringSubmatch(l)
+func isDebug(line string) bool {
+	m := levelRe.FindStringSubmatch(line)
 	if m == nil {
 		return false
 	}
@@ -157,11 +157,11 @@ func texts(es []entry) []string {
 
 // template templates lines; src[i] is line i's source, nil when there are none.
 func (o *Optimizer) template(lines []string, src []int) []entry {
-	sources := func(i int) []int {
+	sources := func(index int) []int {
 		if src == nil {
 			return nil
 		}
-		return []int{src[i]}
+		return []int{src[index]}
 	}
 	important := make([]bool, len(lines))
 	for i, l := range lines {
@@ -346,13 +346,13 @@ func (o *Optimizer) dedupeRuns(es []entry) []entry {
 }
 
 // union adds b's sources to a, keeping them sorted and distinct.
-func union(a, b []int) []int {
-	for _, s := range b {
-		if i, found := slices.BinarySearch(a, s); !found {
-			a = slices.Insert(slices.Clone(a), i, s)
+func union(left, right []int) []int {
+	for _, s := range right {
+		if i, found := slices.BinarySearch(left, s); !found {
+			left = slices.Insert(slices.Clone(left), i, s)
 		}
 	}
-	return a
+	return left
 }
 
 // rarityShare bounds what Rarity adds: MaxLines/rarityShare entries. Filling
@@ -407,7 +407,7 @@ func (o *Optimizer) rarest(es []entry, keep []bool, room int) []int {
 			idx = append(idx, i)
 		}
 	}
-	slices.SortStableFunc(idx, func(a, b int) int { return cmp.Compare(es[a].n, es[b].n) })
+	slices.SortStableFunc(idx, func(left, right int) int { return cmp.Compare(es[left].n, es[right].n) })
 	return idx[:max(0, min(room, len(idx)))]
 }
 
@@ -429,7 +429,7 @@ var stampRe = lazyre.New(`\d{4}-\d\d-\d\d[T ]\d\d:\d\d:\d\d(\.\d+)?(Z|[+-]\d\d:?
 func (o *Optimizer) foldText(lines []string) []string {
 	t := &Optimizer{
 		cfg:  &Config{Context: o.cfg.Context, MaxLines: math.MaxInt},
-		norm: func(l string) string { return stampRe.ReplaceAllString(l, "#") },
+		norm: func(line string) string { return stampRe.ReplaceAllString(line, "#") },
 	}
 	norms := map[string]bool{}
 	n := 0

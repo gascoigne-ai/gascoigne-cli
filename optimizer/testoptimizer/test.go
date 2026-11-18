@@ -18,9 +18,9 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	return p.RewriteFamily(func(b payload.Block) (string, error) {
-		lines, err := o.compressBlock(b)
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	return data.RewriteFamily(func(block payload.Block) (string, error) {
+		lines, err := o.compressBlock(block)
 		if err != nil {
 			return "", err
 		}
@@ -28,18 +28,18 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 	}, detect.FamilyTest)
 }
 
-func (o *Optimizer) compressBlock(b payload.Block) ([]string, error) {
-	switch dialect := detect.Dialect(b.Type); dialect {
+func (o *Optimizer) compressBlock(block payload.Block) ([]string, error) {
+	switch dialect := detect.Dialect(block.Type); dialect {
 	case "junit":
-		return testreport.JUnit(b.Text)
+		return testreport.JUnit(block.Text)
 	case "coverage":
-		return testreport.Coverage(compress.Lines(b.Text), o.cfg.CoverageBelow), nil
+		return testreport.Coverage(compress.Lines(block.Text), o.cfg.CoverageBelow), nil
 	case "go-json":
-		return testreport.GoJSON(b.Text)
+		return testreport.GoJSON(block.Text)
 	case "go":
-		return testreport.Go(compress.CleanLines(b.Text)), nil
+		return testreport.Go(compress.CleanLines(block.Text)), nil
 	default:
-		lines := testreport.CoverageTables(compress.CleanLines(b.Text), o.cfg.CoverageBelow)
+		lines := testreport.CoverageTables(compress.CleanLines(block.Text), o.cfg.CoverageBelow)
 		out, ok := testreport.Compress(dialect, lines)
 		if !ok {
 			return lines, nil

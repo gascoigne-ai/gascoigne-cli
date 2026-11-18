@@ -23,22 +23,22 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	topts := tree.Options{MaxDepth: o.cfg.TreeDepth, Query: sample.Terms(p.Attrs[payload.AttrQuery])}
-	return p.RewriteFamily(func(b payload.Block) (string, error) {
-		dialect := detect.Dialect(b.Type)
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	topts := tree.Options{MaxDepth: o.cfg.TreeDepth, Query: sample.Terms(data.Attrs[payload.AttrQuery])}
+	return data.RewriteFamily(func(block payload.Block) (string, error) {
+		dialect := detect.Dialect(block.Type)
 		switch dialect {
 		case "tree":
-			return compress.Join(tree.Compress(compress.CleanLines(b.Text), topts)), nil
+			return compress.Join(tree.Compress(compress.CleanLines(block.Text), topts)), nil
 		case "list":
-			return compress.Join(pkglist.Compress(compress.CleanLines(b.Text))), nil
+			return compress.Join(pkglist.Compress(compress.CleanLines(block.Text))), nil
 		case "gomodgraph":
-			return compress.Join(tree.Edges(compress.CleanLines(b.Text))), nil
+			return compress.Join(tree.Edges(compress.CleanLines(block.Text))), nil
 		}
 		r, ok := pkgnoise.For(dialect)
 		if !ok {
-			return b.Text, nil
+			return block.Text, nil
 		}
-		return compress.Join(pkgnoise.Compress(compress.CleanLines(b.Text), r)), nil
+		return compress.Join(pkgnoise.Compress(compress.CleanLines(block.Text), r)), nil
 	}, detect.FamilyPkg)
 }

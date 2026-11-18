@@ -52,7 +52,7 @@ func composeUp(lines []string) []string {
 	}
 	for _, svc := range order {
 		ls := compress.DedupeRuns(logs[svc])
-		ls = compress.KeepWithContext(ls, func(l string) bool { return compress.SeverityOf(l) != compress.None }, 1, 2)
+		ls = compress.KeepWithContext(ls, func(line string) bool { return compress.SeverityOf(line) != compress.None }, 1, 2)
 		out = append(out, svc+":")
 		for _, l := range compress.HeadTail(ls, 3, 5) {
 			out = append(out, "  "+l)

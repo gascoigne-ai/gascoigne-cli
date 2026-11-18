@@ -28,13 +28,13 @@ var splitters = map[string]func([]string) []string{
 	"ci":      ciLog,
 }
 
-func (Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	return p.RewriteFamily(func(b payload.Block) (string, error) {
-		split, ok := splitters[detect.Dialect(b.Type)]
+func (Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	return data.RewriteFamily(func(block payload.Block) (string, error) {
+		split, ok := splitters[detect.Dialect(block.Type)]
 		if !ok {
-			return b.Text, nil
+			return block.Text, nil
 		}
-		return compress.Join(compress.SqueezeBlank(split(compress.CleanLines(b.Text)))), nil
+		return compress.Join(compress.SqueezeBlank(split(compress.CleanLines(block.Text)))), nil
 	}, detect.FamilyTask)
 }
 

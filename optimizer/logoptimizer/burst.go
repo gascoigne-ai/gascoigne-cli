@@ -15,13 +15,13 @@ const (
 // the shortest stretch holding burstShare of them. It reports that stretch
 // (first and last line index) when it covers at most burstSpan of the total
 // lines: repeats in a storm, not a steady heartbeat.
-func burst(at []int, n, total int) (first, last int, ok bool) {
-	if n < burstMinRepeats || total == 0 || len(at) != n {
+func burst(at []int, repeats, total int) (first, last int, ok bool) {
+	if repeats < burstMinRepeats || total == 0 || len(at) != repeats {
 		return 0, 0, false
 	}
-	k := int(math.Ceil(burstShare * float64(n)))
+	k := int(math.Ceil(burstShare * float64(repeats)))
 	best := -1
-	for j := 0; j+k-1 < n; j++ {
+	for j := 0; j+k-1 < repeats; j++ {
 		if span := at[j+k-1] - at[j]; best < 0 || span < best {
 			best, first, last = span, at[j], at[j+k-1]
 		}
