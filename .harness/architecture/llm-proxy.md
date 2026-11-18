@@ -104,7 +104,7 @@ The server is started first (`serverUp`). Then:
 - `install -proxy` refuses in the same cases. `install -proxy claude` writes the env for good
   (SessionStart starts the server); unwrap removes it.
 
-## Replay (`cmd/gascoigne/replay.go`)
+## Replay (`cmd/gascoigne/replay.go`, `replay_report.go`, `replay_session.go`)
 
 `gascoigne replay` rebuilds Claude Code transcripts (`~/.claude/projects`, newest first) into one
 request per model turn after tool results:

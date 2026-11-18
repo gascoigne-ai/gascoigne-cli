@@ -45,7 +45,7 @@ inproc/                              public facade over the engine: Engine, Opti
 | [detection](architecture/detection.md) | `internal/detect/`, `filter/detectfilter`, new dialects |
 | [families](architecture/families.md) | any `optimizer/*`, `internal/compress/*` engines, `pcomb` rule tables, `embedjson`/`dense`/`paths`/`truncate` |
 | [mcp](architecture/mcp.md) | `receiver/mcp*`, `internal/mcptool/`, `sdk.go` |
-| [llm-proxy](architecture/llm-proxy.md) | `receiver/httpproxyreceiver`, `llmproxy.go`, `replay.go` |
+| [llm-proxy](architecture/llm-proxy.md) | `receiver/httpproxyreceiver`, `llmproxy.go`, `replay.go`, `replay_report.go`, `replay_session.go` |
 | [source-files](architecture/source-files.md) | `optimizer/catoptimizer` |
 | [agents](architecture/agents.md) | `agents.go`, `install.go`, `unwrap.go`, `guide.go`, `proxy.go`, `codextoml.go` |
 | [hooks](architecture/hooks.md) | `hook.go`, `hookwrap.go`, `hooktranscript.go`, `posthook.go`, tool-result coverage, command rewriting, resume snapshot |
@@ -53,7 +53,7 @@ inproc/                              public facade over the engine: Engine, Opti
 | [full-payload](architecture/full-payload.md) | `internal/service`, hints, raw ids |
 | [ledger](architecture/ledger.md) | `extension/ledger`, `gain`, cost, lessons, skip reasons |
 | [server](architecture/server.md) | `cmd/gascoigne/server.go` |
-| [reports](architecture/reports.md) | `context.go`, `context_session.go`, `context_cost.go`, `context_report.go`, `context_print.go`, `mcpreview.go`, `dashboard.go` and their pages |
+| [reports](architecture/reports.md) | `context.go`, `context_session.go`, `context_cost.go`, `context_report.go`, `context_print.go`, `mcpreview.go`, `mcpreview_http.go`, `dashboard.go` and their pages |
 | [config](architecture/config.md) | `configs/`, `internal/config`, overrides |
 | [adding-component](architecture/adding-component.md) | new receiver/filter/optimizer/exporter/extension |
 

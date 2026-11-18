@@ -43,7 +43,7 @@ session id and per-turn usage (the LLM proxy has no session).
   apart (`addSubagent`, `subagent_usd`, a KPI on the page) because their context is not the conversation's.
 - Everything local and read-only; the page says compacting saves tokens, not detail.
 
-## MCP review (`mcpreview.go`, `mcp.html`)
+## MCP review (`mcpreview.go`, `mcpreview_http.go`, `mcp.html`)
 
 `GET /mcp` (one embedded page, same design tokens as `setup.html`, DOM built without `innerHTML`,
 sort by accessor) over `GET /api/mcp` = `buildReview(ledger.ToolStats, ledger.MCPCommands, now)`:

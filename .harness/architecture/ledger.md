@@ -70,7 +70,7 @@ habit is named where it starts; compare the `big` count of that command in `lear
 | `gain -by day\|week\|month` | trend, oldest first, bars scaled to the best period |
 | `gain -by agent\|model\|session\|command\|optimizer\|family\|outcome\|reason\|route\|pipeline\|type` | one grouping; `pipeline` and `type` read live events only (the daily totals keep neither, so the pruned history is not merged, same as session and reason) |
 | `gain -failures` | sources that bypass optimization after going bad |
-| `gain` (essentials: `minimalSections` = trend, agent, command, failing), `-full`, `-show a,b`, `-hide a,b` | overview sections by name (`overviewSections` in `render.go`: one table row per section, so a new section is a row); the totals header always prints; refused with `-by` |
+| `gain` (essentials: `minimalSections` = trend, agent, command, failing), `-full`, `-show a,b`, `-hide a,b` | overview sections by name (`overviewSections` in `render_overview.go`: one table row per section, so a new section is a row); the totals header always prints; refused with `-by` |
 | `-top N` (10; 0 all), `-sort saved\|runs\|in\|pct\|name`, `-min-tokens N` | rows of every grouped table (`gainView.rows`, `gainview.go`); a dim note counts the rows cut; trends stay chronological |
 | `-csv` | with `-by` or `-failures`: header row, plain numbers, total row last (`statsCSV`); not with `-json`, `-oneline` or the overview |
 | filters, any view | `-session`, `-agent`, `-model`, `-pipeline NAME[,NAME]` (`events.pipeline IN`, names trimmed, not checked against config; live events only, so rolled-up days are left out while it is set), `-since 7d\|4w\|6mo\|24h` (combine freely); also `-all`, `-json`. `gain -pipeline exec,hook -by command` keeps eval, cli and proxy traffic out of a real-usage reading |
@@ -78,7 +78,7 @@ habit is named where it starts; compare the `big` count of that command in `lear
 - The overview ends with `estimates` (`Overview.Estimates`, JSON `estimates`, MCP `stats`): what
   is estimated and how (tokens.Estimate error, cost factors and rereads, image pixels/750, tool
   sets counted once), so totals are not read as billing.
-- Terminal output (`cmd/gascoigne/render.go`): human token counts, savings/share bars, colors by
+- Terminal output (`cmd/gascoigne/render.go`, `render_overview.go`, `render_usage.go`): human token counts, savings/share bars, colors by
   saved % (green ≥ 60, yellow ≥ 30, red). `-color auto|always|never`; auto honors `NO_COLOR` and
   TTY detection.
 - MCP `stats {by?, session?, format?: json}` stays plain text (no ANSI or bars: they cost the

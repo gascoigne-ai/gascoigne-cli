@@ -96,7 +96,7 @@
   also printed by the terminal form): the
   choice is `prefs.experimental`, which `experimentalOn` reads next to `$GASCOIGNE_EXPERIMENTAL` and
   the config's list; `setup -experimental` asks only those, and a test keeps `experiments` in step with
-  the commands marked experimental in `help.go`;
+  the commands marked experimental in `help.go` (entries in `help_commands.go`);
   a further optional question, `prose_model` (`proseModelDecision`, choices in `proseChoices`), picks the
   prose model: `prefs.prose_model` is laid over `optimizers.prose.model` by `configData`, so
   `configProseModel`, `prose install`, `prose status` and the optimizer all follow it; when prose is on,
