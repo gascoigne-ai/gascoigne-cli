@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
@@ -56,7 +57,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 	}
 	var err error
 	if inv.Watch {
-		err = r.watch(ctx, cmd, &out)
+		err = r.watch(ctx, inv, cmd, &out)
 	} else {
 		err = cmd.Run()
 	}
@@ -86,7 +87,7 @@ func (r *Receiver) process(ctx context.Context, inv *Invocation, text string) er
 
 // watch runs cmd and processes its output a cycle at a time; what follows
 // the last cycle is left in rest.
-func (r *Receiver) watch(ctx context.Context, cmd *exec.Cmd, rest *bytes.Buffer) error {
+func (r *Receiver) watch(ctx context.Context, inv *Invocation, cmd *exec.Cmd, rest *bytes.Buffer) error {
 	pr, pw := io.Pipe()
 	cmd.Stdout, cmd.Stderr = pw, pw
 	if err := cmd.Start(); err != nil {
@@ -98,7 +99,9 @@ func (r *Receiver) watch(ctx context.Context, cmd *exec.Cmd, rest *bytes.Buffer)
 		pw.Close()
 		done <- err
 	}()
-	inv, _ := ctx.Value(ctxKey{}).(*Invocation)
+	// Closing the read side fails the command's writes, so it cannot block on a
+	// full pipe when we return early; then wait for it.
+	defer pr.Close()
 	sc := bufio.NewScanner(pr)
 	sc.Buffer(make([]byte, 64<<10), 16<<20)
 	var cycle strings.Builder
@@ -108,9 +111,14 @@ func (r *Receiver) watch(ctx context.Context, cmd *exec.Cmd, rest *bytes.Buffer)
 			continue
 		}
 		if err := r.process(ctx, inv, cycle.String()); err != nil {
+			pr.Close()
+			<-done
 			return err
 		}
 		cycle.Reset()
+	}
+	if err := sc.Err(); err != nil {
+		slog.Debug("exec watch: scan output", "err", err)
 	}
 	io.Copy(io.Discard, pr) // a line over the buffer: drain so the command can exit
 	rest.WriteString(cycle.String())

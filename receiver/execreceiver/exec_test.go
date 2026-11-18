@@ -2,7 +2,12 @@ package execreceiver
 
 import (
 	"context"
+	"errors"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
+	"syscall"
 	"testing"
 
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
@@ -78,5 +83,36 @@ exit 130`
 	if len(next.got) != 3 || !strings.HasSuffix(next.got[0], "Found 1 error. Watching for file changes.\n") ||
 		!strings.Contains(next.got[0], "TS2304") || next.got[2] != "Terminating\n" || inv.ExitCode != 130 {
 		t.Fatalf("cycles %q, exit %d", next.got, inv.ExitCode)
+	}
+}
+
+type failNext struct{}
+
+func (failNext) Process(context.Context, *payload.Payload) (*payload.Payload, error) {
+	return nil, errors.New("boom")
+}
+
+// Regression: watch returned on a process error without draining the pipe or
+// waiting for the command, so a command still writing blocked on the full pipe
+// and outlived Run until ctx ended.
+func TestWatchProcessErrorReapsCommand(t *testing.T) {
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel() // kills the command if the fix regresses
+	pidFile := filepath.Join(t.TempDir(), "pid")
+	script := `echo $$ > ` + pidFile + `
+echo "[7:00:02 AM] Found 1 error. Watching for file changes."
+while :; do echo more; done`
+	r := &Receiver{cfg: &Config{Kind: payload.CmdOutput}, next: failNext{}}
+	inv := &Invocation{Args: []string{"sh", "-c", script}, Stdin: strings.NewReader(""), Watch: true}
+	if err := r.Run(With(ctx, inv)); err == nil || err.Error() != "boom" {
+		t.Fatalf("err %v", err)
+	}
+	b, err := os.ReadFile(pidFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pid, _ := strconv.Atoi(strings.TrimSpace(string(b)))
+	if err := syscall.Kill(pid, 0); err == nil {
+		t.Fatalf("command %d still running after Run returned", pid)
 	}
 }
