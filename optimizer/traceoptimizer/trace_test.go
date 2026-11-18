@@ -1,4 +1,4 @@
-package trace
+package traceoptimizer
 
 import (
 	"strings"
@@ -38,7 +38,7 @@ func TestCycles(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := strings.Join(Cycles(strings.Split(tt.in, "\n"), 8, 3), "\n")
+			got := strings.Join(foldCycles(strings.Split(tt.in, "\n"), 8, 3), "\n")
 			if got != tt.want {
 				t.Fatalf("got\n%s\nwant\n%s", got, tt.want)
 			}
@@ -66,7 +66,7 @@ func TestGoroutines(t *testing.T) {
 		"example.com/shop/queue.(*Worker).loop(0xc000180000)\n\t/src/shop/queue/worker.go:88 +0x9c\n" +
 		"created by example.com/shop/queue.Start in goroutine 1\n\t/src/shop/queue/worker.go:40 +0x1f\n\n" +
 		"goroutine 30 [select]:\nexample.com/shop/http.serve()\n\t/src/shop/http/serve.go:20 +0x10"
-	got := strings.Join(Goroutines(strings.Split(strings.TrimSuffix(in, "\n"), "\n"), 3), "\n")
+	got := strings.Join(foldGoroutines(strings.Split(strings.TrimSuffix(in, "\n"), "\n"), 3), "\n")
 	if got != want {
 		t.Fatalf("got\n%s\nwant\n%s", got, want)
 	}

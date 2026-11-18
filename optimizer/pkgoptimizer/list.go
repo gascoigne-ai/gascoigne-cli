@@ -3,7 +3,7 @@
 // "name version" line per package. Padding, header underlines and per-tool
 // decoration go; consecutive packages with the same version share a line
 // (`5.87-2: bluez bluez-libs bluez-utils`).
-package pkglist
+package pkgoptimizer
 
 import (
 	"strings"
@@ -12,8 +12,10 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
 
-// noise lines carry no package.
-var noise = pcomb.Rules{
+// The list engine compresses
+
+// listNoise lines carry no package.
+var listNoise = pcomb.Rules{
 	{
 		Name:  "blank and rulers",
 		Match: pcomb.Re(`^\s*$|^-+(\s+-+)*\s*$`),
@@ -28,14 +30,14 @@ var noise = pcomb.Rules{
 	},
 }
 
-// form turns a line into a package: match group 1 is the name, key what is
+// listForm turns a line into a package: match group 1 is the name, key what is
 // left of the line (version and decoration).
-type form struct {
+type listForm struct {
 	re  *lazyre.Regexp
 	key func(match []string) string
 }
 
-var forms = []form{
+var listForms = []listForm{
 	// apt: `curl/noble-updates,now 8.5.0-2 amd64 [installed,automatic]`
 	{lazyre.New(`^([^\s/]+)/\S+ (\S+) (\S+)(?: \[(.*)\])?$`), func(match []string) string {
 		flags := strings.TrimPrefix(strings.TrimPrefix(match[4], "installed"), ",")
@@ -51,8 +53,8 @@ var forms = []form{
 	}},
 }
 
-// Compress rewrites lines; lines that are no package pass through in place.
-func Compress(lines []string) []string {
+// compressList rewrites lines; lines that are no package pass through in place.
+func compressList(lines []string) []string {
 	var out, names []string // names: the run of packages sharing key
 	var key string
 	flush := func() {
@@ -66,15 +68,15 @@ func Compress(lines []string) []string {
 		names = nil
 	}
 	for _, l := range lines {
-		if keepHeader(l) {
+		if listKeepHeader(l) {
 			flush()
 			out = append(out, strings.Join(strings.Fields(l), " "))
 			continue
 		}
-		if noise.Match(l) {
+		if listNoise.Match(l) {
 			continue
 		}
-		name, k, ok := parse(l)
+		name, k, ok := parseListLine(l)
 		if !ok {
 			flush()
 			out = append(out, l)
@@ -89,16 +91,16 @@ func Compress(lines []string) []string {
 	return out
 }
 
-// keepHeader: a pip header with more than name and version columns
+// listKeepHeader: a pip header with more than name and version columns
 // (`Package Version Latest Type`) says what the extra values mean.
-func keepHeader(line string) bool {
+func listKeepHeader(line string) bool {
 	f := strings.Fields(line)
 	return len(f) > 2 && f[0] == "Package" && f[1] == "Version"
 }
 
-func parse(line string) (name, key string, ok bool) {
+func parseListLine(line string) (name, key string, ok bool) {
 	line = strings.TrimSpace(line)
-	for _, f := range forms {
+	for _, f := range listForms {
 		if m := f.re.FindStringSubmatch(line); m != nil {
 			return m[1], f.key(m), true
 		}

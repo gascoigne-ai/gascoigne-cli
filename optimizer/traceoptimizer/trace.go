@@ -1,8 +1,4 @@
-// Package trace folds the waste in stack traces without dropping a frame
-// kind: a recursion's frame cycle repeated hundreds of times is shown once
-// with a count, and goroutines of a Go dump parked on the same stack are
-// shown once with the ids of the others.
-package trace
+package traceoptimizer
 
 import (
 	"fmt"
@@ -12,9 +8,9 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
-// Cycles folds runs where a block of up to maxPeriod lines repeats at least
+// foldCycles folds runs where a block of up to maxPeriod lines repeats at least
 // minRepeats times in a row: the first copy stays, a marker counts the rest.
-func Cycles(lines []string, maxPeriod, minRepeats int) []string {
+func foldCycles(lines []string, maxPeriod, minRepeats int) []string {
 	var out []string
 	for i := 0; i < len(lines); {
 		period, reps := cycleAt(lines, i, maxPeriod)
@@ -57,11 +53,11 @@ var (
 	goVolatile = lazyre.New(`0x[0-9a-f]+\??|in goroutine \d+`)
 )
 
-// Goroutines groups the goroutines of a Go dump that wait in the same state
+// foldGoroutines groups the goroutines of a Go dump that wait in the same state
 // on the same stack: the first one stays with its frames, the header names
 // how many more there are and their ids. Groups smaller than min stay as
 // they are.
-func Goroutines(lines []string, min int) []string {
+func foldGoroutines(lines []string, min int) []string {
 	type group struct {
 		first int // index of the first member's header in blocks
 		ids   []string

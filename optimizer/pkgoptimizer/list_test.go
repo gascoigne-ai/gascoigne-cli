@@ -1,4 +1,4 @@
-package pkglist
+package pkgoptimizer
 
 import (
 	"strings"
@@ -8,12 +8,12 @@ import (
 )
 
 func TestNoiseRulesVerify(t *testing.T) {
-	if err := noise.Verify(); err != nil {
+	if err := listNoise.Verify(); err != nil {
 		t.Error(err)
 	}
 }
 
-func TestCompress(t *testing.T) {
+func TestCompressList(t *testing.T) {
 	tests := []struct{ name, in, want string }{
 		{"pip list", "Package  Version\n-------- -------\nflask    3.0.3\nclick    8.1.7\n", "flask 3.0.3\nclick 8.1.7\n"},
 		{"pip list outdated keeps columns", "Package Version Latest Type\n------- ------- ------ -----\nflask   3.0.2   3.0.3  wheel\n", "Package Version Latest Type\nflask 3.0.2 3.0.3 wheel\n"},
@@ -26,7 +26,7 @@ func TestCompress(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := compress.Join(Compress(compress.Lines(tc.in)))
+			got := compress.Join(compressList(compress.Lines(tc.in)))
 			if strings.TrimSpace(got) != strings.TrimSpace(tc.want) {
 				t.Errorf("got:\n%s\nwant:\n%s", got, tc.want)
 			}

@@ -1,9 +1,4 @@
-// Package drain mines log templates online, after Drain (He et al., 2017):
-// lines go down a fixed-depth tree keyed on token count and leading tokens,
-// then join the most similar cluster in the leaf or start a new one. Unlike
-// the exact key of compress.Normalize, lines that differ in a few words
-// (a host name, a user) share a cluster. Output depends only on line order.
-package drain
+package logoptimizer
 
 import (
 	"strconv"
@@ -13,8 +8,8 @@ import (
 // wildcard marks a token position that varies inside a cluster.
 const wildcard = "<*>"
 
-// Config tunes the miner.
-type Config struct {
+// drainConfig tunes the miner.
+type drainConfig struct {
 	// Depth is the tree depth: the length level, then Depth-2 leading tokens.
 	Depth int
 	// Similarity is the share of equal token positions a line needs to join
@@ -29,36 +24,41 @@ type Config struct {
 	MaxVars int
 }
 
-type cluster struct {
+type drainCluster struct {
 	id     int
 	tokens []string
 }
 
-type node struct {
-	children map[string]*node
-	clusters []*cluster // leaves only
+type drainNode struct {
+	children map[string]*drainNode
+	clusters []*drainCluster // leaves only
 }
 
-// Miner assigns each added line a cluster id.
-type Miner struct {
-	cfg      Config
-	root     *node
-	clusters []*cluster
+// drainMiner mines log templates online, after Drain (He et al., 2017):
+// lines go down a fixed-depth tree keyed on token count and leading tokens,
+// then join the most similar cluster in the leaf or start a new one. Unlike
+// the exact key of compress.Normalize, lines that differ in a few words
+// (a host name, a user) share a cluster. Output depends only on line order.
+// It assigns each added line a cluster id.
+type drainMiner struct {
+	cfg      drainConfig
+	root     *drainNode
+	clusters []*drainCluster
 }
 
-func New(cfg Config) *Miner {
-	return &Miner{cfg: cfg, root: &node{}}
+func newDrain(cfg drainConfig) *drainMiner {
+	return &drainMiner{cfg: cfg, root: &drainNode{}}
 }
 
-// Add puts the line in a cluster and returns its id. The line must be masked
+// add puts the line in a cluster and returns its id. The line must be masked
 // already (compress.Normalize or Split): callers have it, and masking again
 // would scan every line twice. Lines with different
 // tags never share a cluster; tag is how a caller keeps, say, debug lines
 // apart from the rest. Ids count from 0 in order of first appearance.
-func (m *Miner) Add(tag, line string) int {
+func (m *drainMiner) add(tag, line string) int {
 	toks := tokens(line)
 	leaf := m.leaf(tag, toks)
-	var best *cluster
+	var best *drainCluster
 	bestSim := -1.0
 	for _, c := range leaf.clusters {
 		if m.cfg.MaxVars > 0 && wordVars(c.tokens, toks) > m.cfg.MaxVars {
@@ -72,16 +72,16 @@ func (m *Miner) Add(tag, line string) int {
 		merge(best.tokens, toks)
 		return best.id
 	}
-	c := &cluster{id: len(m.clusters), tokens: toks}
+	c := &drainCluster{id: len(m.clusters), tokens: toks}
 	m.clusters = append(m.clusters, c)
 	leaf.clusters = append(leaf.clusters, c)
 	return c.id
 }
 
-// Words returns the words of the masked line at the places where cluster id varies:
+// words returns the words of the masked line at the places where cluster id varies:
 // what tells the lines of one template apart, apart from numbers and ids. Call
 // it after every line is added, when the template has settled.
-func (m *Miner) Words(id int, line string) []string {
+func (m *drainMiner) words(id int, line string) []string {
 	toks := tokens(line)
 	var out []string
 	for i, t := range m.clusters[id].tokens {
@@ -99,7 +99,7 @@ func tokens(line string) []string {
 }
 
 // leaf finds, creating the path as needed, the leaf for tag and tokens.
-func (m *Miner) leaf(tag string, toks []string) *node {
+func (m *drainMiner) leaf(tag string, toks []string) *drainNode {
 	n := m.root.child(tag+"\x00"+strconv.Itoa(len(toks)), m.cfg.MaxChildren)
 	for i := 0; i < min(m.cfg.Depth-2, len(toks)); i++ {
 		key := toks[i]
@@ -113,9 +113,9 @@ func (m *Miner) leaf(tag string, toks []string) *node {
 
 // child returns the branch for key; once max branches exist, new keys share
 // the wildcard branch.
-func (n *node) child(key string, max int) *node {
+func (n *drainNode) child(key string, max int) *drainNode {
 	if n.children == nil {
-		n.children = map[string]*node{}
+		n.children = map[string]*drainNode{}
 	}
 	if c, ok := n.children[key]; ok {
 		return c
@@ -123,7 +123,7 @@ func (n *node) child(key string, max int) *node {
 	if len(n.children) >= max && key != wildcard {
 		return n.child(wildcard, max+1)
 	}
-	c := &node{}
+	c := &drainNode{}
 	n.children[key] = c
 	return c
 }

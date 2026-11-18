@@ -1,4 +1,4 @@
-package trace
+package traceoptimizer
 
 import (
 	"cmp"
@@ -71,11 +71,11 @@ var runtimes = []runtime{
 	},
 }
 
-// Frames drops runs of at least minRun frames that lie inside a language
+// foldFrames drops runs of at least minRun frames that lie inside a language
 // runtime or framework (JVM, Python, Rust, Ruby, .NET, Node/Deno/Bun, PHP,
 // native debuggers, D), one marker per run. Frames of the program stay, so does
 // every frame that is not part of such a run.
-func Frames(lines []string, minRun int) []string {
+func foldFrames(lines []string, minRun int) []string {
 	var out []string
 	for i := 0; i < len(lines); {
 		rt, n := noiseRun(lines, i)

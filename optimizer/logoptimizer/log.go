@@ -15,7 +15,6 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/drain"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
@@ -244,7 +243,7 @@ func (o *Optimizer) repeatKeys(lines, norms []string, important []bool) (keys []
 	if o.cfg.Miner != minerDrain || o.norm != nil {
 		return norms, nil
 	}
-	m := drain.New(drain.Config{Depth: o.cfg.DrainDepth, Similarity: o.cfg.DrainSimilarity, MaxChildren: o.cfg.DrainMaxChildren, MaxVars: o.cfg.DrainMaxVars})
+	m := newDrain(drainConfig{Depth: o.cfg.DrainDepth, Similarity: o.cfg.DrainSimilarity, MaxChildren: o.cfg.DrainMaxChildren, MaxVars: o.cfg.DrainMaxVars})
 	ids := make([]int, len(lines))
 	for i, l := range lines {
 		if important[i] {
@@ -254,7 +253,7 @@ func (o *Optimizer) repeatKeys(lines, norms []string, important []bool) (keys []
 		if isDebug(l) {
 			tag = "debug"
 		}
-		ids[i] = m.Add(tag, norms[i])
+		ids[i] = m.add(tag, norms[i])
 	}
 	keys = slices.Clone(norms)
 	owners := map[int][]string{} // cluster -> variants with a key of their own
@@ -263,7 +262,7 @@ func (o *Optimizer) repeatKeys(lines, norms []string, important []bool) (keys []
 		if important[i] {
 			continue
 		}
-		variant := strings.Join(m.Words(ids[i], norms[i]), " ")
+		variant := strings.Join(m.words(ids[i], norms[i]), " ")
 		own := owners[ids[i]]
 		if !slices.Contains(own, variant) && len(own) < o.cfg.DrainVariants {
 			own = append(own, variant)

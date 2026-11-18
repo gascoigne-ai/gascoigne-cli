@@ -1,4 +1,4 @@
-package drain
+package logoptimizer
 
 import (
 	"testing"
@@ -57,10 +57,10 @@ func TestMinerGroups(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := New(Config{Depth: 4, Similarity: 0.6, MaxChildren: 100})
+			m := newDrain(drainConfig{Depth: 4, Similarity: 0.6, MaxChildren: 100})
 			ids := make([]int, len(tt.lines))
 			for i, l := range tt.lines {
-				ids[i] = m.Add("", compress.Normalize(l))
+				ids[i] = m.add("", compress.Normalize(l))
 			}
 			for _, p := range tt.same {
 				if ids[p[0]] != ids[p[1]] {
@@ -77,9 +77,9 @@ func TestMinerGroups(t *testing.T) {
 }
 
 func TestMinerTagSeparates(t *testing.T) {
-	m := New(Config{Depth: 4, Similarity: 0.6, MaxChildren: 100})
-	a := m.Add("debug", compress.Normalize("cache warmed in shard alpha"))
-	b := m.Add("", compress.Normalize("cache warmed in shard beta"))
+	m := newDrain(drainConfig{Depth: 4, Similarity: 0.6, MaxChildren: 100})
+	a := m.add("debug", compress.Normalize("cache warmed in shard alpha"))
+	b := m.add("", compress.Normalize("cache warmed in shard beta"))
 	if a == b {
 		t.Fatalf("different tags share cluster %d", a)
 	}
@@ -88,10 +88,10 @@ func TestMinerTagSeparates(t *testing.T) {
 func TestMinerDeterministic(t *testing.T) {
 	lines := []string{"a b c d e", "a b c x e", "a b y d e", "q w e r t", "a b c d z"}
 	run := func() []int {
-		m := New(Config{Depth: 4, Similarity: 0.6, MaxChildren: 2})
+		m := newDrain(drainConfig{Depth: 4, Similarity: 0.6, MaxChildren: 2})
 		var ids []int
 		for _, l := range lines {
-			ids = append(ids, m.Add("", compress.Normalize(l)))
+			ids = append(ids, m.add("", compress.Normalize(l)))
 		}
 		return ids
 	}
@@ -104,14 +104,14 @@ func TestMinerDeterministic(t *testing.T) {
 }
 
 func TestMinerBlankLine(t *testing.T) {
-	m := New(Config{Depth: 4, Similarity: 0.6, MaxChildren: 100})
-	if m.Add("", "") != m.Add("", "   ") {
+	m := newDrain(drainConfig{Depth: 4, Similarity: 0.6, MaxChildren: 100})
+	if m.add("", "") != m.add("", "   ") {
 		t.Fatal("blank lines should share a cluster")
 	}
 }
 
 func TestMinerWords(t *testing.T) {
-	m := New(Config{Depth: 4, Similarity: 0.6, MaxChildren: 100})
+	m := newDrain(drainConfig{Depth: 4, Similarity: 0.6, MaxChildren: 100})
 	lines := []string{
 		"Started Session 1 of User dev",
 		"Started Session 2 of User root",
@@ -119,11 +119,11 @@ func TestMinerWords(t *testing.T) {
 	}
 	var ids []int
 	for _, l := range lines {
-		ids = append(ids, m.Add("", compress.Normalize(l)))
+		ids = append(ids, m.add("", compress.Normalize(l)))
 	}
 	want := []string{"dev", "root", "dev"}
 	for i, l := range lines {
-		got := m.Words(ids[i], compress.Normalize(l))
+		got := m.words(ids[i], compress.Normalize(l))
 		if len(got) != 1 || got[0] != want[i] {
 			t.Errorf("Words(%q) = %v, want [%s] (numbers are not words)", l, got, want[i])
 		}
@@ -142,9 +142,9 @@ func TestMinerMaxVars(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := New(Config{Depth: 3, Similarity: 0.5, MaxChildren: 100, MaxVars: tt.maxVars})
-			a := m.Add("", compress.Normalize("Stopped Avahi mDNS Stack ok now"))
-			b := m.Add("", compress.Normalize("Stopped Plymouth mDNS Screen ok now"))
+			m := newDrain(drainConfig{Depth: 3, Similarity: 0.5, MaxChildren: 100, MaxVars: tt.maxVars})
+			a := m.add("", compress.Normalize("Stopped Avahi mDNS Stack ok now"))
+			b := m.add("", compress.Normalize("Stopped Plymouth mDNS Screen ok now"))
 			if (a == b) != tt.same {
 				t.Fatalf("clusters %d and %d, same = %v, want %v", a, b, a == b, tt.same)
 			}

@@ -1,11 +1,4 @@
-// Package tree shortens dependency trees drawn with box glyphs (npm ls,
-// pnpm list, pipdeptree, uv tree, poetry show --tree) and edge lists (go mod
-// graph). Leaf children of a package share one line, repeats of subtrees shown
-// elsewhere (`deduped`, `(*)`) are dropped unless they match the query (then
-// `=name`), a version is written at its first use only, identical subtrees
-// are named once, and branches deeper than MaxDepth are counted. Branches
-// that lead to a query term are never cut.
-package tree
+package pkgoptimizer
 
 import (
 	"fmt"
@@ -15,8 +8,12 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
-// Options tune a run.
-type Options struct {
+// The tree engine shortens dependency trees drawn with box glyphs (npm ls,
+// pnpm list, pipdeptree, uv tree, poetry show --tree) and edge lists (go mod
+// graph). Leaf children of a
+
+// treeOptions tune a run.
+type treeOptions struct {
 	MaxDepth int      // deepest package that gets its own line (root = 0)
 	Query    []string // lower-case terms: matching packages and their path stay
 }
@@ -40,19 +37,19 @@ var (
 	spaceVersion = lazyre.New(`^(\S+) (v?\d\S*)(.*)$`)
 )
 
-type node struct {
+type treeNode struct {
 	label   string
 	repeat  bool
-	repeats []*node // repeats that match the query
-	kids    []*node
+	repeats []*treeNode // repeats that match the query
+	kids    []*treeNode
 	keep    bool // this node or one below matches the query
 	size    int  // descendants
 }
 
-// Compress rewrites a glyph tree; lines come back unchanged when they are not
+// compressTree rewrites a glyph tree; lines come back unchanged when they are not
 // one.
-func Compress(lines []string, options Options) []string {
-	roots, glyphLines := parse(lines)
+func compressTree(lines []string, options treeOptions) []string {
+	roots, glyphLines := parseTree(lines)
 	if glyphLines < minGlyphLines {
 		return lines
 	}
@@ -69,12 +66,12 @@ func Compress(lines []string, options Options) []string {
 	return c.out
 }
 
-// parse builds the forest: a line's parent is the nearest earlier line with a
+// parseTree builds the forest: a line's parent is the nearest earlier line with a
 // smaller label column. Lines without glyphs are roots.
-func parse(lines []string) (roots []*node, glyphLines int) {
+func parseTree(lines []string) (roots []*treeNode, glyphLines int) {
 	type open struct {
 		col int
-		n   *node
+		n   *treeNode
 	}
 	var stack []open
 	for _, l := range lines {
@@ -82,14 +79,14 @@ func parse(lines []string) (roots []*node, glyphLines int) {
 		prefix, label := m[1], m[2]
 		switch {
 		case !glyphs.MatchString(prefix):
-			root := &node{label: strings.TrimSpace(l)}
+			root := &treeNode{label: strings.TrimSpace(l)}
 			roots, stack = append(roots, root), append(stack[:0], open{0, root})
 			continue
 		case label == "":
 			continue // a lone connector between lines
 		}
 		glyphLines++
-		n := &node{label: label}
+		n := &treeNode{label: label}
 		if loc := repeatTag.FindStringIndex(label); loc != nil {
 			n.label, n.repeat = label[:loc[0]], true
 		}
@@ -122,9 +119,9 @@ func short(label string) string {
 	return m[1] + " " + m[2]
 }
 
-// run is the state of one Compress call.
+// run is the state of one compressTree call.
 type run struct {
-	o        Options
+	o        treeOptions
 	out      []string
 	opened   map[string]bool            // packages whose dependencies are written
 	defined  map[string]bool            // labels written, whose version later uses may drop
@@ -133,7 +130,7 @@ type run struct {
 }
 
 // prepare counts descendants and marks the nodes on a path to a query term.
-func (c *run) prepare(item *node) {
+func (c *run) prepare(item *treeNode) {
 	item.keep = c.matches(item.label)
 	// Repeats only say that a package is listed elsewhere: dropped unless
 	// they match the query.
@@ -197,10 +194,10 @@ func (c *run) text(label string) string {
 }
 
 // render writes n and what is below it, indented by depth.
-func (c *run) render(item *node, depth int) {
+func (c *run) render(item *treeNode, depth int) {
 	head := c.text(item.label)
 	var leaves []string
-	var branches []*node
+	var branches []*treeNode
 	for _, k := range item.kids {
 		if c.plain(k) {
 			leaves = append(leaves, c.text(k.label))
@@ -225,11 +222,11 @@ func (c *run) render(item *node, depth int) {
 
 // cut removes the branches past the depth cap that lead to no query term and
 // returns how many packages that hides.
-func (c *run) cut(branches *[]*node, depth int) (hidden int) {
+func (c *run) cut(branches *[]*treeNode, depth int) (hidden int) {
 	if c.o.MaxDepth == 0 || depth+1 <= c.o.MaxDepth {
 		return 0
 	}
-	*branches = slices.DeleteFunc(*branches, func(child *node) bool {
+	*branches = slices.DeleteFunc(*branches, func(child *treeNode) bool {
 		if child.keep {
 			return false
 		}
@@ -242,13 +239,13 @@ func (c *run) cut(branches *[]*node, depth int) (hidden int) {
 // plain reports a package that needs no line of its own: it has nothing below
 // it, or its dependencies are written already (the same package under
 // another parent repeats the same subtree).
-func (c *run) plain(item *node) bool {
+func (c *run) plain(item *treeNode) bool {
 	return len(item.kids) == 0 && len(item.repeats) == 0 || c.opened[item.label] && !item.keep
 }
 
 // branch renders a package with children. A sibling earlier in the walk may
 // have written the package since the parent chose its branches.
-func (c *run) branch(item *node, depth int) {
+func (c *run) branch(item *treeNode, depth int) {
 	if c.plain(item) {
 		c.write(depth, c.text(item.label), nil)
 		return
@@ -281,9 +278,9 @@ func (c *run) write(depth int, head string, items []string) {
 
 var edge = lazyre.New(`^(\S+) (\S+@\S+)$`)
 
-// Edges groups `go mod graph` lines (`module dependency`) by module:
+// compressEdges groups `go mod graph` lines (`module dependency`) by module:
 // `module: dep, dep`. Lines come back unchanged when they are not edges.
-func Edges(lines []string) []string {
+func compressEdges(lines []string) []string {
 	var order []string
 	deps := map[string][]string{}
 	for _, l := range lines {

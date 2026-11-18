@@ -1,4 +1,4 @@
-package trace
+package traceoptimizer
 
 import (
 	"slices"
@@ -139,12 +139,12 @@ ValueError: bad`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := Frames(strings.Split(tt.in, "\n"), 3)
+			got := foldFrames(strings.Split(tt.in, "\n"), 3)
 			if want := strings.Split(tt.want, "\n"); !slices.Equal(got, want) {
 				t.Errorf("got:\n%s\nwant:\n%s", strings.Join(got, "\n"), tt.want)
 			}
 			// idempotent: a second pass changes nothing
-			if again := Frames(got, 3); !slices.Equal(again, got) {
+			if again := foldFrames(got, 3); !slices.Equal(again, got) {
 				t.Errorf("not idempotent:\n%s", strings.Join(again, "\n"))
 			}
 		})
