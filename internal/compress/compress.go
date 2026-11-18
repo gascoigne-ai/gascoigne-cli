@@ -9,7 +9,17 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
-var ansi = lazyre.New(`\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)|\r`)
+const escapeExpr = `\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)`
+
+var (
+	escapes = lazyre.New(escapeExpr)
+	ansi    = lazyre.New(escapeExpr + `|\r`)
+)
+
+// StripEscapes removes terminal escapes and keeps carriage returns.
+func StripEscapes(text string) string {
+	return escapes.ReplaceAllString(text, "")
+}
 
 // StripANSI removes terminal escapes and carriage returns. Most output has
 // none, and scanning big text with the regexp costs more than the check.

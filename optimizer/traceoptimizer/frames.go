@@ -20,54 +20,52 @@ type runtime struct {
 	keepTop bool
 }
 
-func re(pattern string) *lazyre.Regexp { return lazyre.New(pattern) }
-
 var runtimes = []runtime{
 	{ // JVM: java, scala, kotlin
 		keepTop: true,
-		frame:   re(`^\s+at [\w$.<>/]+\(.*\)$`),
-		noise:   re(`^\s+at (java\.|javax\.|jdk\.|sun\.|com\.sun\.|scala\.|kotlin\.|kotlinx\.|org\.junit|org\.scalatest|org\.apache\.(maven|catalina|tomcat)|org\.springframework\.(aop|cglib|web\.servlet|web\.filter)|io\.netty|akka\.|cats\.effect|zio\.|reactor\.core)`),
+		frame:   lazyre.New(`^\s+at [\w$.<>/]+\(.*\)$`),
+		noise:   lazyre.New(`^\s+at (java\.|javax\.|jdk\.|sun\.|com\.sun\.|scala\.|kotlin\.|kotlinx\.|org\.junit|org\.scalatest|org\.apache\.(maven|catalina|tomcat)|org\.springframework\.(aop|cglib|web\.servlet|web\.filter)|io\.netty|akka\.|cats\.effect|zio\.|reactor\.core)`),
 	},
 	{ // Python: a File line and the source line under it
-		frame:  re(`^\s+File ".*", line \d+`),
-		noise:  re(`^\s+File ".*(site-packages|dist-packages|/lib/python3?[\d.]*/)`),
-		detail: re(`^\s{4}\S`),
+		frame:  lazyre.New(`^\s+File ".*", line \d+`),
+		noise:  lazyre.New(`^\s+File ".*(site-packages|dist-packages|/lib/python3?[\d.]*/)`),
+		detail: lazyre.New(`^\s{4}\S`),
 	},
 	{ // Rust: "  N: path::fn" and "  at file:line" under it
-		frame:  re(`^\s+\d+: \S`),
-		noise:  re(`^\s+\d+: (std::|core::|alloc::|tokio::|futures_|rust_begin_unwind|__rust|<(alloc|core|std)::|<tokio::|_start|__libc|main$)`),
-		detail: re(`^\s+at \S`),
+		frame:  lazyre.New(`^\s+\d+: \S`),
+		noise:  lazyre.New(`^\s+\d+: (std::|core::|alloc::|tokio::|futures_|rust_begin_unwind|__rust|<(alloc|core|std)::|<tokio::|_start|__libc|main$)`),
+		detail: lazyre.New(`^\s+at \S`),
 	},
 	{ // Ruby
-		frame: re(`^\s+(from )?\S+:\d+:in [` + "`" + `'<]`),
-		noise: re(`^\s+(from )?\S*(/gems/|/rubygems/|/ruby/\d|<internal:)`),
+		frame: lazyre.New(`^\s+(from )?\S+:\d+:in [` + "`" + `'<]`),
+		noise: lazyre.New(`^\s+(from )?\S*(/gems/|/rubygems/|/ruby/\d|<internal:)`),
 	},
 	{ // .NET
 		keepTop: true,
-		frame:   re(`^\s+at [\w.` + "`" + `<>+\[\],]+\(.*\)( in .+:line \d+)?$`),
-		noise:   re(`^\s+at (System\.|Microsoft\.|Xunit\.|NUnit\.)`),
+		frame:   lazyre.New(`^\s+at [\w.` + "`" + `<>+\[\],]+\(.*\)( in .+:line \d+)?$`),
+		noise:   lazyre.New(`^\s+at (System\.|Microsoft\.|Xunit\.|NUnit\.)`),
 	},
 	{ // Node, Deno, Bun: "at fn (file:line:col)", "at async fn (...)", "at file:line:col"
 		keepTop: true,
-		frame:   re(`^\s+at (async )?(\S.* \(.+\)|\S+:\d+(:\d+)?)$`),
-		noise:   re(`^\s+at (async )?(.+ \()?(node:|ext:)\w|^\s+at .*node_modules/|^\s+at .+ \((native|<anonymous>)\)$|^\s+at .+ \(native:\d`),
+		frame:   lazyre.New(`^\s+at (async )?(\S.* \(.+\)|\S+:\d+(:\d+)?)$`),
+		noise:   lazyre.New(`^\s+at (async )?(.+ \()?(node:|ext:)\w|^\s+at .*node_modules/|^\s+at .+ \((native|<anonymous>)\)$|^\s+at .+ \(native:\d`),
 	},
 	{ // PHP
-		frame: re(`^#\d+ \S+\(\d+\): |^#\d+ \[internal function\]`),
-		noise: re(`^#\d+ \S*vendor/|^#\d+ \[internal function\]`),
+		frame: lazyre.New(`^#\d+ \S+\(\d+\): |^#\d+ \[internal function\]`),
+		noise: lazyre.New(`^#\d+ \S*vendor/|^#\d+ \[internal function\]`),
 	},
 	{ // gdb, lldb, sanitizers, valgrind: "#3 0x... in fn file:line", "#1 0x...  (/usr/lib/libc.so.6+0x27780)"
-		frame: re(`^\s*#\d+ +0x[0-9a-f]+ |^\s*==\d+==\s+(at|by) 0x`),
-		noise: re(`^\s*#\d+ +0x[0-9a-f]+ in (__libc|_start|start_thread|clone|std::|__gnu_cxx|__cxx11|__asan|__interceptor|__sanitizer|operator new|operator delete)|^\s*#\d+ +0x[0-9a-f]+ +(in \S+ )?\(/(usr/)?lib[^)]*\.so[\w.]*\+0x[0-9a-f]+\)|^\s*==\d+==\s+(at|by) 0x[0-9A-F]+: (\(below main\)|__libc|_start|start_thread|operator new|malloc|calloc|realloc)`),
+		frame: lazyre.New(`^\s*#\d+ +0x[0-9a-f]+ |^\s*==\d+==\s+(at|by) 0x`),
+		noise: lazyre.New(`^\s*#\d+ +0x[0-9a-f]+ in (__libc|_start|start_thread|clone|std::|__gnu_cxx|__cxx11|__asan|__interceptor|__sanitizer|operator new|operator delete)|^\s*#\d+ +0x[0-9a-f]+ +(in \S+ )?\(/(usr/)?lib[^)]*\.so[\w.]*\+0x[0-9a-f]+\)|^\s*==\d+==\s+(at|by) 0x[0-9A-F]+: (\(below main\)|__libc|_start|start_thread|operator new|malloc|calloc|realloc)`),
 	},
 	{ // AddressSanitizer's shadow memory dump and legend
-		frame: re(`^Shadow bytes around the buggy address:$|^\s*(=>)?0x[0-9a-f]+:( |\[)[0-9a-f]{2}|^Shadow byte legend|^  [A-Z][A-Za-z ]+:\s+[0-9a-f]{2}( [0-9a-f]{2})*\s*$`),
-		noise: re(`^Shadow bytes around the buggy address:$|^\s*(=>)?0x[0-9a-f]+:( |\[)[0-9a-f]{2}|^Shadow byte legend|^  [A-Z][A-Za-z ]+:\s+[0-9a-f]{2}( [0-9a-f]{2})*\s*$`),
+		frame: lazyre.New(`^Shadow bytes around the buggy address:$|^\s*(=>)?0x[0-9a-f]+:( |\[)[0-9a-f]{2}|^Shadow byte legend|^  [A-Z][A-Za-z ]+:\s+[0-9a-f]{2}( [0-9a-f]{2})*\s*$`),
+		noise: lazyre.New(`^Shadow bytes around the buggy address:$|^\s*(=>)?0x[0-9a-f]+:( |\[)[0-9a-f]{2}|^Shadow byte legend|^  [A-Z][A-Za-z ]+:\s+[0-9a-f]{2}( [0-9a-f]{2})*\s*$`),
 		what:  "sanitizer shadow lines",
 	},
 	{ // D
-		frame: re(`^\?\?:\? |^\S+\.d:\d+ `),
-		noise: re(`^\?\?:\? `),
+		frame: lazyre.New(`^\?\?:\? |^\S+\.d:\d+ `),
+		noise: lazyre.New(`^\?\?:\? `),
 	},
 }
 

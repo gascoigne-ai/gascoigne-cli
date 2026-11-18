@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
@@ -13,11 +14,9 @@ const (
 	sampleBytes = 64 << 10
 )
 
-var ansi = lazyre.New(`\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)`)
-
 // sample is the head of text as ANSI-stripped lines.
 func sample(text string) []string {
-	lines := strings.Split(ansi.ReplaceAllString(text[:min(len(text), sampleBytes)], ""), "\n")
+	lines := strings.Split(compress.StripEscapes(text[:min(len(text), sampleBytes)]), "\n")
 	return lines[:min(len(lines), sampleLines)]
 }
 

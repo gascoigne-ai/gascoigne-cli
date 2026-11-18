@@ -11,14 +11,10 @@ import (
 // anthropic shortens tool_result blocks of a Messages request; the tool_use
 // blocks they answer say which tool produced them.
 func anthropic(ctx context.Context, receiver *Receiver, doc map[string]any, info meta) bool {
-	msgs, _ := doc["messages"].([]any)
 	calls := map[string]call{}
 	changed := false
-	for _, mv := range msgs {
-		msg, _ := mv.(map[string]any)
-		blocks, _ := msg["content"].([]any)
-		for _, bv := range blocks {
-			b, _ := bv.(map[string]any)
+	for msg := range messages(doc, "messages") {
+		for b := range objects(msg["content"]) {
 			switch b["type"] {
 			case "tool_use":
 				id, _ := b["id"].(string)
@@ -53,8 +49,7 @@ func replaceContent(ctx context.Context, receiver *Receiver, toolCall call, cont
 		return out, out != v
 	case []any:
 		changed := false
-		for _, bv := range v {
-			b, _ := bv.(map[string]any)
+		for b := range objects(v) {
 			if receiver.shrinkImages(ctx, b) {
 				changed = true
 				continue
@@ -75,13 +70,10 @@ func replaceContent(ctx context.Context, receiver *Receiver, toolCall call, cont
 
 // chatCompletions shortens role "tool" messages of a Chat Completions request.
 func chatCompletions(ctx context.Context, receiver *Receiver, doc map[string]any, info meta) bool {
-	msgs, _ := doc["messages"].([]any)
 	calls := map[string]call{}
 	changed := false
-	for _, mv := range msgs {
-		msg, _ := mv.(map[string]any)
-		for _, tv := range asList(msg["tool_calls"]) {
-			tc, _ := tv.(map[string]any)
+	for msg := range messages(doc, "messages") {
+		for tc := range objects(msg["tool_calls"]) {
 			fn, _ := tc["function"].(map[string]any)
 			id, _ := tc["id"].(string)
 			name, _ := fn["name"].(string)
@@ -106,8 +98,7 @@ func chatCompletions(ctx context.Context, receiver *Receiver, doc map[string]any
 func responses(ctx context.Context, receiver *Receiver, doc map[string]any, info meta) bool {
 	calls := map[string]call{}
 	changed := false
-	for _, iv := range asList(doc["input"]) {
-		item, _ := iv.(map[string]any)
+	for item := range messages(doc, "input") {
 		id, _ := item["call_id"].(string)
 		switch item["type"] {
 		case "function_call":
@@ -133,11 +124,6 @@ func responses(ctx context.Context, receiver *Receiver, doc map[string]any, info
 		}
 	}
 	return changed
-}
-
-func asList(value any) []any {
-	l, _ := value.([]any)
-	return l
 }
 
 // arguments decodes a tool call's JSON arguments; codex shells pass
@@ -177,10 +163,8 @@ func normalize(args map[string]any) map[string]any {
 func gemini(ctx context.Context, receiver *Receiver, doc map[string]any, info meta) bool {
 	var calls []*geminiCall
 	changed := false
-	for _, cv := range asList(doc["contents"]) {
-		content, _ := cv.(map[string]any)
-		for _, pv := range asList(content["parts"]) {
-			part, _ := pv.(map[string]any)
+	for content := range messages(doc, "contents") {
+		for part := range objects(content["parts"]) {
 			if fc, ok := part["functionCall"].(map[string]any); ok {
 				name, _ := fc["name"].(string)
 				id, _ := fc["id"].(string)
@@ -237,7 +221,7 @@ func (r *Receiver) shrinkImages(ctx context.Context, block map[string]any) bool 
 	}
 	mt, _ := src["media_type"].(string)
 	key := "image\x00" + cacheKey(call{name: mt}, data)
-	out, ok := r.cache.get(key)
+	out, ok := r.cache.Get(key)
 	if !ok {
 		var before, after int
 		var shrunk bool
@@ -245,7 +229,7 @@ func (r *Receiver) shrinkImages(ctx context.Context, block map[string]any) bool 
 		if shrunk {
 			r.keepImage(ctx, data, mt, before, after)
 		}
-		r.cache.put(key, out)
+		r.cache.Put(key, out)
 	}
 	if out == data {
 		return false

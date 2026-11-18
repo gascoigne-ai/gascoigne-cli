@@ -28,7 +28,7 @@ type Receiver struct {
 	transport mcp.Transport
 	http      *http.Client
 	sessions  *mcptool.Sessions
-	fetched   fetchCache
+	fetched   *fetchCache
 }
 
 func (r *Receiver) Start(_ context.Context, host component.Host) error {
@@ -115,7 +115,7 @@ func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in Fetc
 	}
 	key := fetchKey(p.Attrs[payload.AttrSession], u.String(), in.Query)
 	hash := fetchHash(resp.StatusCode, body)
-	prev, seen := r.fetched.get(key)
+	prev, seen := r.fetched.Get(key)
 	if seen && prev.hash == hash {
 		return mcptool.Result(fmt.Sprintf("%sunchanged since earlier fetch in this session · full: %s id=%s", head, r.cfg.Retrieve, prev.rawID)), nil, nil
 	}
@@ -130,7 +130,7 @@ func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in Fetc
 	if id == "" {
 		return mcptool.Result(head + mcptool.Text(out)), nil, nil
 	}
-	r.fetched.put(key, fetchEntry{hash: hash, rawID: id, text: out.Text()})
+	r.fetched.Put(key, fetchEntry{hash: hash, rawID: id, text: out.Text()})
 	if seen {
 		if d, ok := lineDiff(prev.text, out.Text()); ok {
 			return mcptool.Result(fmt.Sprintf("%schanged since earlier fetch in this session (full: %s id=%s):\n%s", head, r.cfg.Retrieve, id, d)), nil, nil

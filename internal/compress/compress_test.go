@@ -168,3 +168,9 @@ func TestIsWord(t *testing.T) {
 		}
 	}
 }
+
+func TestStripEscapesKeepsCarriageReturns(t *testing.T) {
+	if got := StripEscapes("\x1b[1;32mok\x1b[0m\r\n\x1b]0;title\x07x"); got != "ok\r\nx" {
+		t.Fatalf("got %q", got)
+	}
+}

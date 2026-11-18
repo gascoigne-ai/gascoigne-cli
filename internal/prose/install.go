@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/gascoigne-ai/gascoigne-cli/internal/httpget"
 )
 
 // runtimeDir holds the ONNX Runtime libraries inside the model directory.
@@ -84,11 +86,7 @@ func newClient() *http.Client {
 }
 
 func fetch(ctx context.Context, url, path string) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return err
-	}
-	res, err := newClient().Do(req)
+	res, err := httpget.Do(ctx, newClient(), url, nil)
 	if err != nil {
 		return err
 	}

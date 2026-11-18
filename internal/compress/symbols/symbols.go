@@ -203,30 +203,37 @@ var (
 		"new": true, "else": true, "do": true, "try": true, "throw": true, "await": true, "sizeof": true, "typeof": true}
 )
 
+// frame is an open block: the index in defs of the definition it belongs to,
+// -1 for other blocks.
+type frame struct {
+	def int
+}
+
+// qualify prefixes name with the innermost enclosing definition and turns a
+// func inside one into a method.
+func qualify(defs []Def, stack []frame, name, kind string) (string, string) {
+	for k := len(stack) - 1; k >= 0; k-- {
+		if stack[k].def >= 0 {
+			if kind == "func" {
+				kind = "method"
+			}
+			return defs[stack[k].def].Name + "." + name, kind
+		}
+	}
+	return name, kind
+}
+
 // braceDefs finds definitions whose body opens with { on the signature
 // line or one of the next three, and closes at the matching brace.
 func braceDefs(lines []string) []Def {
 	var defs []Def
-	type open struct {
-		name string
-		def  int // index in defs, -1 for other blocks
-	}
-	var stack []open
+	var stack []frame
 	pending := -1 // index in defs of a signature waiting for its {
 	sigLine := 0
 	for i, l := range lines {
 		code := stripCode(l)
 		if name, kind := defName(code); name != "" {
-			qualified := name
-			for k := len(stack) - 1; k >= 0; k-- {
-				if stack[k].def >= 0 {
-					qualified = defs[stack[k].def].Name + "." + name
-					if kind == "func" {
-						kind = "method"
-					}
-					break
-				}
-			}
+			qualified, kind := qualify(defs, stack, name, kind)
 			from := i
 			for from > 0 && isDocLine(lines[from-1]) {
 				from--
@@ -237,7 +244,7 @@ func braceDefs(lines []string) []Def {
 		for _, c := range code {
 			switch c {
 			case '{':
-				o := open{def: -1}
+				o := frame{def: -1}
 				if pending >= 0 && i-sigLine <= 3 {
 					o.def = pending
 				}

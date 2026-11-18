@@ -5,8 +5,6 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
 
-func re(pattern string) *lazyre.Regexp { return lazyre.New(pattern) }
-
 var rules = map[string]Rules{
 	"npm": {
 		Noise: pcomb.Rules{
@@ -29,7 +27,7 @@ var rules = map[string]Rules{
 				No:    []string{"npm ERR! audit", "To fix"},
 			},
 		},
-		Fold: []Fold{{"npm warn deprecated", re(`^npm (?:warn|WARN) deprecated (\S+?):`)}},
+		Fold: []Fold{{"npm warn deprecated", lazyre.New(`^npm (?:warn|WARN) deprecated (\S+?):`)}},
 	},
 	"pnpm": {
 		Noise: pcomb.Rules{
@@ -58,7 +56,7 @@ var rules = map[string]Rules{
 				No:    []string{"│ Update available │", "x ╭"},
 			},
 		},
-		Fold: []Fold{{"WARN deprecated", re(`^\s*WARN\s+deprecated (\S+?):`)}, {"WARN deprecated subdependencies", re(`^\s*WARN\s+\d+ deprecated subdependencies found: (.+)$`)}},
+		Fold: []Fold{{"WARN deprecated", lazyre.New(`^\s*WARN\s+deprecated (\S+?):`)}, {"WARN deprecated subdependencies", lazyre.New(`^\s*WARN\s+\d+ deprecated subdependencies found: (.+)$`)}},
 	},
 	"yarn": {
 		Noise: pcomb.Rules{
@@ -81,7 +79,7 @@ var rules = map[string]Rules{
 				No:    []string{"➤ YN0000: Done in 1s", "➤ YN0001: Exception"},
 			},
 		},
-		Fold: []Fold{{"warning deprecated", re(`^warning (\S+?): .*deprecated`)}, {"unmet peer dependency", re(`^warning "(\S+?)" has (?:unmet|incorrect) peer dependency`)}},
+		Fold: []Fold{{"warning deprecated", lazyre.New(`^warning (\S+?): .*deprecated`)}, {"unmet peer dependency", lazyre.New(`^warning "(\S+?)" has (?:unmet|incorrect) peer dependency`)}},
 	},
 	"bun": {
 		Noise: pcomb.Rules{
@@ -140,7 +138,7 @@ var rules = map[string]Rules{
 				No:    []string{"Package operations", "Installing dependencies"},
 			},
 		},
-		Fold: []Fold{{"installed", re(`^\s+- Installing (\S+ \(\S+\))$`)}, {"updated", re(`^\s+- Updating (\S+ \(\S+ -> \S+\))$`)}},
+		Fold: []Fold{{"installed", lazyre.New(`^\s+- Installing (\S+ \(\S+\))$`)}, {"updated", lazyre.New(`^\s+- Updating (\S+ \(\S+ -> \S+\))$`)}},
 	},
 	"go-mod": {
 		Noise: pcomb.Rules{
@@ -151,7 +149,7 @@ var rules = map[string]Rules{
 				No:    []string{"go: added golang.org/x/text v0.14.0", "go: downloading", "go: finding modules"},
 			},
 		},
-		Fold: []Fold{{"go: added", re(`^go: added (\S+ \S+)$`)}, {"go: upgraded", re(`^go: upgraded (\S+ \S+ => \S+)$`)}},
+		Fold: []Fold{{"go: added", lazyre.New(`^go: added (\S+ \S+)$`)}, {"go: upgraded", lazyre.New(`^go: upgraded (\S+ \S+ => \S+)$`)}},
 	},
 	"cargo": {
 		Noise: pcomb.Rules{
@@ -162,7 +160,7 @@ var rules = map[string]Rules{
 				No:    []string{"Compiling serde", "error: could not compile", "    Compilingly"},
 			},
 		},
-		Fold: []Fold{{"features enabled", re(`^\s+\+ (\S+)$`)}, {"features available", re(`^\s+- (\S+)$`)}},
+		Fold: []Fold{{"features enabled", lazyre.New(`^\s+\+ (\S+)$`)}, {"features available", lazyre.New(`^\s+- (\S+)$`)}},
 	},
 	"os": {
 		Noise: pcomb.Rules{
@@ -213,7 +211,7 @@ var rules = map[string]Rules{
 				No:    []string{"packages you are using are looking for funding"},
 			},
 		},
-		Fold: []Fold{{"installed", re(`^\s+- Installing (\S+ \([^)]+\))(?:: .*)?$`)}, {"updated", re(`^\s+- Upgrading (\S+ \([^)]+\))(?:: .*)?$`)}},
+		Fold: []Fold{{"installed", lazyre.New(`^\s+- Installing (\S+ \([^)]+\))(?:: .*)?$`)}, {"updated", lazyre.New(`^\s+- Upgrading (\S+ \([^)]+\))(?:: .*)?$`)}},
 	},
 	"gem": {
 		Noise: pcomb.Rules{
@@ -224,7 +222,7 @@ var rules = map[string]Rules{
 				No:    []string{"Fetching rake 13.0.6 (x)", "Could not find gem foo"},
 			},
 		},
-		Fold: []Fold{{"Using", re(`^Using (\S+ [\d.]+)`)}, {"Installing", re(`^Installing (\S+ [\d.]+)$`)}},
+		Fold: []Fold{{"Using", lazyre.New(`^Using (\S+ [\d.]+)`)}, {"Installing", lazyre.New(`^Installing (\S+ [\d.]+)$`)}},
 	},
 	"mix": {
 		Noise: pcomb.Rules{
@@ -235,7 +233,7 @@ var rules = map[string]Rules{
 				No:    []string{"* Getting phoenix (Hex package)", "Resolution"},
 			},
 		},
-		Fold: []Fold{{"fetched", re(`^\* Getting (\S+) `)}},
+		Fold: []Fold{{"fetched", lazyre.New(`^\* Getting (\S+) `)}},
 	},
 	"pub": {
 		Noise: pcomb.Rules{
@@ -246,7 +244,7 @@ var rules = map[string]Rules{
 				No:    []string{"+ http 1.2.0", "..."},
 			},
 		},
-		Fold: []Fold{{"added", re(`^\+ (\S+ \S+)(?: \(.*\))?$`)}},
+		Fold: []Fold{{"added", lazyre.New(`^\+ (\S+ \S+)(?: \(.*\))?$`)}},
 	},
 	"swift": {
 		Noise: pcomb.Rules{

@@ -60,7 +60,7 @@ func connect(t *testing.T) (*mcp.ClientSession, *pipeline, *ledger) {
 	pl, l := &pipeline{}, &ledger{}
 	cfg := &Config{Retrieve: "retrieve", FetchTimeout: defaultTimeout, FetchMaxBytes: 1 << 20}
 	serverT, clientT := mcp.NewInMemoryTransports()
-	r := &Receiver{cfg: cfg, next: pl, log: slog.New(slog.DiscardHandler), ledger: l, transport: serverT, http: http.DefaultClient}
+	r := &Receiver{cfg: cfg, next: pl, log: slog.New(slog.DiscardHandler), ledger: l, transport: serverT, http: http.DefaultClient, fetched: newFetchCache()}
 	ctx, cancel := context.WithCancel(context.Background())
 	go r.Run(ctx)
 	cs, err := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "0"}, nil).Connect(ctx, clientT, nil)

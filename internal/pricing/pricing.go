@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/httpget"
 )
 
 // Defaults and limits.
@@ -498,29 +499,26 @@ func (c Config) fetch(ctx context.Context, layer *entry, force bool) (body []byt
 	if err := checkURL(c.URL); err != nil {
 		return nil, false, err
 	}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, c.URL, nil)
-	if err != nil {
-		return nil, false, err
-	}
-	request.Header.Set("Accept", "application/json")
+	header := http.Header{}
+	header.Set("Accept", "application/json")
 	if c.HeaderEnv != "" {
 		if name, value, ok := strings.Cut(os.Getenv(c.HeaderEnv), ":"); ok && strings.TrimSpace(name) != "" {
-			request.Header.Set(strings.TrimSpace(name), strings.TrimSpace(value))
+			header.Set(strings.TrimSpace(name), strings.TrimSpace(value))
 		}
 	}
 	if !force && len(layer.Sheet) > 0 {
 		if layer.ETag != "" {
-			request.Header.Set("If-None-Match", layer.ETag)
+			header.Set("If-None-Match", layer.ETag)
 		}
 		if layer.Modified != "" {
-			request.Header.Set("If-Modified-Since", layer.Modified)
+			header.Set("If-Modified-Since", layer.Modified)
 		}
 	}
 	client := c.Client
 	if client == nil {
 		client = &http.Client{CheckRedirect: redirectPolicy}
 	}
-	response, err := client.Do(request)
+	response, err := httpget.Do(ctx, client, c.URL, header)
 	if err != nil {
 		return nil, false, err
 	}
@@ -531,12 +529,8 @@ func (c Config) fetch(ctx context.Context, layer *entry, force bool) (body []byt
 	if response.StatusCode != http.StatusOK {
 		return nil, false, fmt.Errorf("%s: %s", c.URL, response.Status)
 	}
-	body, err = io.ReadAll(io.LimitReader(response.Body, MaxBytes+1))
-	if err != nil {
+	if body, err = httpget.Bytes(response, MaxBytes); err != nil {
 		return nil, false, err
-	}
-	if len(body) > MaxBytes {
-		return nil, false, fmt.Errorf("response over %d bytes", MaxBytes)
 	}
 	layer.ETag, layer.Modified = response.Header.Get("ETag"), response.Header.Get("Last-Modified")
 	return body, false, nil

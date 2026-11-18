@@ -5,8 +5,6 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
 
-func re(pattern string) *lazyre.Regexp { return lazyre.New(pattern) }
-
 var mavenNoise = pcomb.Rules{
 	{
 		Name:  "downloads",
@@ -108,7 +106,7 @@ var rules = map[string]Rules{
 			No:    []string{"    at main (/src/app.js:3:1)", "at x node_modules"},
 		},
 	}},
-	"docker": {Strip: re(`^#\d+ \d+\.\d+( |$)|^\d+\.\d+ `), Noise: pcomb.Rules{
+	"docker": {Strip: lazyre.New(`^#\d+ \d+\.\d+( |$)|^\d+\.\d+ `), Noise: pcomb.Rules{
 		{
 			Name:  "buildkit step status",
 			Match: pcomb.Re(`^#\d+ (\[internal\]|DONE|CACHED)`),
@@ -237,7 +235,7 @@ var rules = map[string]Rules{
 		No:    []string{"source/app.d(4,5): Error: undefined identifier x", "Performing debug build"},
 	}}},
 	"scala": {
-		Tag: re(`^\[(error|warn)\] `),
+		Tag: lazyre.New(`^\[(error|warn)\] `),
 		Noise: pcomb.Rules{
 			{
 				Name:  "sbt info",

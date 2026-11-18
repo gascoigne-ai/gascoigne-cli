@@ -26,6 +26,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lru"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
@@ -37,7 +38,7 @@ type Receiver struct {
 	cfg    *Config
 	next   component.Pipeline
 	log    *slog.Logger
-	cache  *cache
+	cache  *lru.Cache[string, string]
 	ledger component.Ledger        // keeps originals of folded results; nil: no folding
 	usage  component.UsageRecorder // keeps API usage from responses; nil: not metered
 	active atomic.Int64
@@ -48,7 +49,7 @@ func New(cfg *Config, next component.Pipeline, log *slog.Logger) *Receiver {
 	if log == nil {
 		log = slog.New(slog.DiscardHandler)
 	}
-	return &Receiver{cfg: cfg, next: next, log: log, cache: newCache(cfg.CacheEntries)}
+	return &Receiver{cfg: cfg, next: next, log: log, cache: lru.New[string, string](cfg.CacheEntries)}
 }
 
 // Start finds the ledger that keeps originals of folded results and, when

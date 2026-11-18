@@ -113,3 +113,28 @@ func TestFind(t *testing.T) {
 		t.Fatalf("sql: %v", err)
 	}
 }
+
+func TestQualify(t *testing.T) {
+	defs := []Def{{Name: "Server"}, {Name: "Other"}}
+	tests := []struct {
+		name  string
+		stack []frame
+		kind  string
+		want  string
+		wantK string
+	}{
+		{"top level", nil, "func", "run", "func"},
+		{"only plain blocks", []frame{{def: -1}}, "func", "run", "func"},
+		{"func in def becomes method", []frame{{def: 0}, {def: -1}}, "func", "Server.run", "method"},
+		{"innermost def wins", []frame{{def: 0}, {def: 1}}, "func", "Other.run", "method"},
+		{"type keeps kind", []frame{{def: 0}}, "type", "Server.run", "type"},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, kind := qualify(defs, tc.stack, "run", tc.kind)
+			if got != tc.want || kind != tc.wantK {
+				t.Errorf("qualify = %q %q, want %q %q", got, kind, tc.want, tc.wantK)
+			}
+		})
+	}
+}

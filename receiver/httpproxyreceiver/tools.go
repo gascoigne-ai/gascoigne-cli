@@ -70,10 +70,10 @@ func (r *Receiver) recordTools(ctx context.Context, before string, tools any, in
 	}
 	sum := sha256.Sum256([]byte(before))
 	key := "tools:" + hex.EncodeToString(sum[:8])
-	if _, ok := r.cache.get(key); ok {
+	if _, ok := r.cache.Get(key); ok {
 		return
 	}
-	r.cache.put(key, "")
+	r.cache.Put(key, "")
 	after, err := json.Marshal(tools)
 	if err != nil {
 		return

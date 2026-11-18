@@ -1,7 +1,6 @@
 package httpproxyreceiver
 
 import (
-	"container/list"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -9,7 +8,6 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/hint"
 	"slices"
 	"strings"
-	"sync"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
@@ -43,11 +41,11 @@ func (r *Receiver) result(ctx context.Context, toolCall call, text string, info 
 // shorten runs one result through the pipeline, remembered by content.
 func (r *Receiver) shorten(ctx context.Context, toolCall call, text string, info meta) string {
 	key := cacheKey(toolCall, text)
-	if out, ok := r.cache.get(key); ok {
+	if out, ok := r.cache.Get(key); ok {
 		return out
 	}
 	out := r.optimize(ctx, toolCall, text, info)
-	r.cache.put(key, out)
+	r.cache.Put(key, out)
 	return out
 }
 
@@ -132,45 +130,4 @@ func renumber(plain string, nums []string, opt string) string {
 		b.WriteString(l + "\n")
 	}
 	return b.String()
-}
-
-// cache is a bounded LRU of transformed tool results.
-type cache struct {
-	mu    sync.Mutex
-	max   int
-	order *list.List
-	items map[string]*list.Element
-}
-
-type entry struct{ key, val string }
-
-func newCache(max int) *cache {
-	return &cache{max: max, order: list.New(), items: map[string]*list.Element{}}
-}
-
-func (c *cache) get(key string) (string, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	e, ok := c.items[key]
-	if !ok {
-		return "", false
-	}
-	c.order.MoveToFront(e)
-	return e.Value.(*entry).val, true
-}
-
-func (c *cache) put(key, value string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if e, ok := c.items[key]; ok {
-		e.Value.(*entry).val = value
-		c.order.MoveToFront(e)
-		return
-	}
-	c.items[key] = c.order.PushFront(&entry{key, value})
-	for c.order.Len() > c.max {
-		last := c.order.Back()
-		c.order.Remove(last)
-		delete(c.items, last.Value.(*entry).key)
-	}
 }

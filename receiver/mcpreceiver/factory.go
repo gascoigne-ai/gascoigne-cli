@@ -23,6 +23,7 @@ func NewFactory() component.Factory {
 				log:       set.Logger,
 				transport: &mcp.StdioTransport{},
 				http:      &http.Client{Timeout: cfg.FetchTimeout},
+				fetched:   newFetchCache(),
 			}, nil
 		})
 }

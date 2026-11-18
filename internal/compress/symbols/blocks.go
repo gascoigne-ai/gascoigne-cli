@@ -22,11 +22,8 @@ var (
 // elixir, lua…), using the block patterns of the language row.
 func endDefs(lines []string, row detect.Language) []Def {
 	open, fn, cont := lazyre.Cached(row.Open), lazyre.Cached(row.Func), lazyre.Cached(row.Container)
-	type block struct {
-		def int // index in defs, -1 for other blocks
-	}
 	var defs []Def
-	var stack []block
+	var stack []frame
 	for i, l := range lines {
 		t := strings.TrimSpace(l)
 		switch {
@@ -49,21 +46,12 @@ func endDefs(lines []string, row detect.Language) []Def {
 				kind = "func"
 			}
 			if m := endName.FindStringSubmatch(l); m != nil && kind != "" {
-				name := m[1]
-				for k := len(stack) - 1; k >= 0; k-- {
-					if stack[k].def >= 0 {
-						name = defs[stack[k].def].Name + "." + name
-						if kind == "func" {
-							kind = "method"
-						}
-						break
-					}
-				}
+				name, kind := qualify(defs, stack, m[1], kind)
 				def = len(defs)
 				defs = append(defs, Def{Name: name, Kind: kind, From: docStart(lines, i, row) + 1, Line: i + 1, To: i + 1})
 			}
 			if !endOneLine.MatchString(t) {
-				stack = append(stack, block{def})
+				stack = append(stack, frame{def})
 			}
 		}
 	}

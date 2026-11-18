@@ -26,8 +26,7 @@ var htmlComment = lazyre.New(`(?s)<!--.*?-->\n?`)
 // request, and so is its shrunk form (cached by hash): the prompt cache holds.
 func (r *Receiver) skills(ctx context.Context, doc map[string]any, info meta) bool {
 	changed := false
-	for _, mv := range asList(doc["messages"]) {
-		msg, _ := mv.(map[string]any)
+	for msg := range messages(doc, "messages") {
 		if msg["role"] != "user" {
 			continue
 		}
@@ -37,8 +36,7 @@ func (r *Receiver) skills(ctx context.Context, doc map[string]any, info meta) bo
 			}
 			continue
 		}
-		for _, bv := range asList(msg["content"]) {
-			b, _ := bv.(map[string]any)
+		for b := range objects(msg["content"]) {
 			text, _ := b["text"].(string)
 			if b["type"] != "text" {
 				continue
@@ -57,13 +55,13 @@ func (r *Receiver) skill(ctx context.Context, text string, info meta) string {
 		return text
 	}
 	key := "skill\x00" + cacheKey(call{name: "skill"}, text)
-	if out, ok := r.cache.get(key); ok {
+	if out, ok := r.cache.Get(key); ok {
 		return out
 	}
 	out := r.shrinkSkill(ctx, text, info)
-	r.cache.put(key, out)
+	r.cache.Put(key, out)
 	// A shrunk body seen again passes as it is, unrecorded.
-	r.cache.put("skill\x00"+cacheKey(call{name: "skill"}, out), out)
+	r.cache.Put("skill\x00"+cacheKey(call{name: "skill"}, out), out)
 	return out
 }
 

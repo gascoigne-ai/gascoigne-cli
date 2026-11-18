@@ -15,7 +15,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"log/slog"
 	"net/http"
@@ -27,6 +26,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/httpget"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
@@ -80,11 +80,7 @@ func O200k(ctx context.Context, dir string) (*BPE, error) {
 }
 
 func download(ctx context.Context, url string) ([]byte, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := httpClient.Do(req)
+	resp, err := httpget.Do(ctx, httpClient, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +88,7 @@ func download(ctx context.Context, url string) ([]byte, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("GET %s: %s", url, resp.Status)
 	}
-	return io.ReadAll(io.LimitReader(resp.Body, 16<<20))
+	return httpget.Bytes(resp, 16<<20)
 }
 
 // parseVocab reads "base64token rank" lines.

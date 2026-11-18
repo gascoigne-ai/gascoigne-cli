@@ -4,7 +4,8 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"strings"
-	"sync"
+
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lru"
 )
 
 const (
@@ -24,11 +25,9 @@ type fetchEntry struct {
 // fetchCache remembers the last fetch per session, URL and query, so a
 // repeat can answer "unchanged" or a diff. In memory only: a lost entry just
 // means a full result, never a wrong one.
-type fetchCache struct {
-	mu      sync.Mutex
-	entries map[string]fetchEntry
-	order   []string
-}
+type fetchCache = lru.Cache[string, fetchEntry]
+
+func newFetchCache() *fetchCache { return lru.New[string, fetchEntry](maxCacheEntries) }
 
 func fetchKey(session, url, query string) string {
 	return strings.Join([]string{session, url, query}, "\x00")
@@ -36,29 +35,6 @@ func fetchKey(session, url, query string) string {
 
 func fetchHash(status int, body []byte) [32]byte {
 	return sha256.Sum256(fmt.Appendf(nil, "%d\n%s", status, body))
-}
-
-func (c *fetchCache) get(key string) (fetchEntry, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	e, ok := c.entries[key]
-	return e, ok
-}
-
-func (c *fetchCache) put(key string, entry fetchEntry) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.entries == nil {
-		c.entries = map[string]fetchEntry{}
-	}
-	if _, ok := c.entries[key]; !ok {
-		c.order = append(c.order, key)
-		if len(c.order) > maxCacheEntries {
-			delete(c.entries, c.order[0])
-			c.order = c.order[1:]
-		}
-	}
-	c.entries[key] = entry
 }
 
 // lineDiff returns the changed lines of b against a ("- old", "+ new") and

@@ -187,7 +187,7 @@ func (r *Receiver) keep(ctx context.Context, toolCall call, before, folded strin
 		return before
 	}
 	key := "fold\x00" + cacheKey(toolCall, before) + cacheKey(toolCall, folded)
-	if out, ok := r.cache.get(key); ok {
+	if out, ok := r.cache.Get(key); ok {
 		return out
 	}
 	p := payload.New(payload.ToolResult, before)
@@ -199,7 +199,7 @@ func (r *Receiver) keep(ctx context.Context, toolCall call, before, folded strin
 		r.log.Warn("fold tool result", "tool", toolCall.name, "err", err)
 		return before
 	}
-	r.cache.put(key, out)
+	r.cache.Put(key, out)
 	return out
 }
 

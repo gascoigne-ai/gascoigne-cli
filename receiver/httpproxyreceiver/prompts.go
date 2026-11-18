@@ -45,16 +45,13 @@ func instructions(doc map[string]any) []string {
 	if si, ok := doc["systemInstruction"].(map[string]any); ok {
 		add(si["parts"])
 	}
-	for _, key := range []string{"messages", "input"} {
-		for _, mv := range asList(doc[key]) {
-			msg, _ := mv.(map[string]any)
-			switch msg["role"] {
-			case "system", "developer":
-				add(msg["content"])
-			case "user":
-				for _, t := range texts(msg["content"]) {
-					out = append(out, reminder.FindAllString(t, -1)...)
-				}
+	for msg := range messages(doc, "messages", "input") {
+		switch msg["role"] {
+		case "system", "developer":
+			add(msg["content"])
+		case "user":
+			for _, t := range texts(msg["content"]) {
+				out = append(out, reminder.FindAllString(t, -1)...)
 			}
 		}
 	}
@@ -68,11 +65,9 @@ func texts(value any) []string {
 		return []string{s}
 	}
 	var out []string
-	for _, pv := range asList(value) {
-		if p, ok := pv.(map[string]any); ok {
-			if t, ok := p["text"].(string); ok {
-				out = append(out, t)
-			}
+	for part := range objects(value) {
+		if t, ok := part["text"].(string); ok {
+			out = append(out, t)
 		}
 	}
 	return out
@@ -81,10 +76,10 @@ func texts(value any) []string {
 func (r *Receiver) recordPrompt(ctx context.Context, text string, info meta) {
 	sum := sha256.Sum256([]byte(text))
 	key := "prompt:" + hex.EncodeToString(sum[:8])
-	if _, ok := r.cache.get(key); ok {
+	if _, ok := r.cache.Get(key); ok {
 		return
 	}
-	r.cache.put(key, "")
+	r.cache.Put(key, "")
 	// The text is kept like an original (gascoigne raw <id>, the dashboard's
 	// run view), so what an agent was told can be read back.
 	p := payload.New(payload.Message, text)
