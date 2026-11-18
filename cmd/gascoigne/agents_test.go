@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -239,5 +241,28 @@ func TestResultReplyShapes(t *testing.T) {
 				t.Fatalf("got keys %v, want %v", got, want)
 			}
 		})
+	}
+}
+
+// A cancelled ctx stops wrap before the agent starts.
+func TestWrapCancelledContextDoesNotStartAgent(t *testing.T) {
+	sandbox(t)
+	t.Setenv("GASCOIGNE_SERVER", "off")
+	bin := t.TempDir()
+	marker := filepath.Join(bin, "ran")
+	write(t, filepath.Join(bin, "claude"), "#!/bin/sh\n: > "+marker+"\n")
+	if err := os.Chmod(filepath.Join(bin, "claude"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", bin)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := cmdWrap(ctx, []string{"claude"}); err == nil {
+		t.Fatal("cmdWrap with a cancelled ctx returned nil")
+	} else if !errors.Is(err, context.Canceled) {
+		t.Fatalf("got %v, want context canceled", err)
+	}
+	if _, err := os.Stat(marker); err == nil {
+		t.Fatal("agent ran despite a cancelled ctx")
 	}
 }

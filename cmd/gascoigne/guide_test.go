@@ -43,7 +43,7 @@ func TestGuideOnlyFileDeleted(t *testing.T) {
 func TestInstallWritesGuides(t *testing.T) {
 	sandbox(t)
 	for _, name := range []string{"codex", "cursor", "pi"} {
-		if _, err := agents[name].add("gascoigne", false); err != nil {
+		if _, err := agents[name].add(context.Background(), "gascoigne", false); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -54,7 +54,7 @@ func TestInstallWritesGuides(t *testing.T) {
 		t.Errorf("cursor rule:\n%s", got)
 	}
 	for _, name := range []string{"codex", "cursor", "pi"} {
-		if _, err := agents[name].remove(); err != nil {
+		if _, err := agents[name].remove(context.Background()); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -89,13 +89,13 @@ func TestGuidePromisesOnlyWhatTheAgentHas(t *testing.T) {
 
 func TestInstallGuideBlocksPerAgent(t *testing.T) {
 	sandbox(t)
-	if _, err := agents["codex"].add("gascoigne", false); err != nil {
+	if _, err := agents["codex"].add(context.Background(), "gascoigne", false); err != nil {
 		t.Fatal(err)
 	}
 	if got := read(t, "AGENTS.md"); !strings.Contains(got, "call retrieve") {
 		t.Errorf("codex has the MCP tools:\n%s", got)
 	}
-	if _, err := agents["pi"].add("gascoigne", false); err != nil {
+	if _, err := agents["pi"].add(context.Background(), "gascoigne", false); err != nil {
 		t.Fatal(err)
 	}
 	if got := read(t, "AGENTS.md"); strings.Contains(got, "call retrieve") {
@@ -165,7 +165,7 @@ func TestGuideOffInstallsNoGuide(t *testing.T) {
 	sandbox(t)
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
 	for _, name := range []string{"codex", "cursor"} {
-		if _, err := agents[name].add("gascoigne", false); err != nil {
+		if _, err := agents[name].add(context.Background(), "gascoigne", false); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -174,7 +174,7 @@ func TestGuideOffInstallsNoGuide(t *testing.T) {
 	}
 	t.Setenv("GASCOIGNE_GUIDE", "off")
 	for _, name := range []string{"codex", "cursor"} {
-		if _, err := agents[name].add("gascoigne", false); err != nil {
+		if _, err := agents[name].add(context.Background(), "gascoigne", false); err != nil {
 			t.Fatal(err)
 		}
 	}

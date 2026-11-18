@@ -15,7 +15,7 @@ import (
 // cmdUnwrap removes what registers gascoigne with agents for good (the config
 // wrap -print shows), from user and project config files. Edited files keep
 // their original as <file>.gascoigne-bak.
-func cmdUnwrap(_ context.Context, args []string) error {
+func cmdUnwrap(ctx context.Context, args []string) error {
 	fset := newFlags("unwrap")
 	if err := fset.Parse(args); err != nil {
 		return err
@@ -31,7 +31,7 @@ func cmdUnwrap(_ context.Context, args []string) error {
 		if !ok {
 			return unknownAgent(name)
 		}
-		done, err := a.remove()
+		done, err := a.remove(ctx)
 		errs = append(errs, err)
 		for _, d := range done {
 			fmt.Printf("%s: %s\n", name, d)
@@ -62,7 +62,7 @@ func configFiles(user string, project ...string) []string {
 	return files
 }
 
-func removeClaude() ([]string, error) {
+func removeClaude(ctx context.Context) ([]string, error) {
 	var done []string
 	var errs []error
 	for _, f := range configFiles(".claude/settings.json", ".claude/settings.json", ".claude/settings.local.json") {
@@ -81,7 +81,7 @@ func removeClaude() ([]string, error) {
 	// itself keeps writing: let its CLI remove them.
 	if _, err := exec.LookPath("claude"); err == nil {
 		for _, scope := range []string{"user", "local"} {
-			if exec.Command("claude", "mcp", "remove", "--scope", scope, "gascoigne").Run() == nil {
+			if exec.CommandContext(ctx, "claude", "mcp", "remove", "--scope", scope, "gascoigne").Run() == nil {
 				done = append(done, "claude mcp: removed MCP server gascoigne ("+scope+" scope)")
 			}
 		}
@@ -121,7 +121,7 @@ func removeCursorHooks(root *object) []string {
 	return nil
 }
 
-func removeCursor() ([]string, error) {
+func removeCursor(_ context.Context) ([]string, error) {
 	var done []string
 	var errs []error
 	for _, f := range configFiles(".cursor/hooks.json", ".cursor/hooks.json") {
@@ -175,7 +175,7 @@ func unproxyClaudeState(root *object) []string {
 	return []string{"proxy from MCP servers " + strings.Join(names, ", ")}
 }
 
-func removeCodex() ([]string, error) {
+func removeCodex(_ context.Context) ([]string, error) {
 	user := ".codex/config.toml"
 	files := configFiles(user, ".codex/config.toml")
 	if home := os.Getenv("CODEX_HOME"); home != "" {
@@ -196,7 +196,7 @@ func removeCodex() ([]string, error) {
 
 const piHeader = "// gascoigne: routes bash tool calls"
 
-func removePi() ([]string, error) {
+func removePi(_ context.Context) ([]string, error) {
 	files := configFiles(".pi/agent/extensions/gascoigne.ts", ".pi/extensions/gascoigne.ts")
 	if dir, err := os.UserCacheDir(); err == nil {
 		files = append(files, filepath.Join(dir, "gascoigne", "pi", "gascoigne.ts")) // left by wrap pi

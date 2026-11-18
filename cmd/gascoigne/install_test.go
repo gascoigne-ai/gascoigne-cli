@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +19,7 @@ func TestInstallProject(t *testing.T) {
 	write(t, ".claude/settings.json", `{"model": "opus", "hooks": {"PreToolUse": [{"matcher": "Edit", "hooks": [{"type": "command", "command": "lint"}]}]}}`)
 	write(t, ".codex/config.toml", "model = \"o3\"\n")
 	for _, name := range []string{"claude", "cursor", "codex", "pi", "gemini", "opencode"} {
-		if _, err := agents[name].add(exe, false); err != nil {
+		if _, err := agents[name].add(context.Background(), exe, false); err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}
 	}
@@ -50,10 +51,10 @@ func TestInstallProject(t *testing.T) {
 func TestInstallTwiceChangesNothing(t *testing.T) {
 	sandbox(t)
 	for _, name := range []string{"claude", "cursor", "codex", "pi", "gemini", "opencode"} {
-		if _, err := agents[name].add("gascoigne", false); err != nil {
+		if _, err := agents[name].add(context.Background(), "gascoigne", false); err != nil {
 			t.Fatal(err)
 		}
-		done, err := agents[name].add("gascoigne", false)
+		done, err := agents[name].add(context.Background(), "gascoigne", false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -71,7 +72,7 @@ func TestInstallTwiceChangesNothing(t *testing.T) {
 func TestInstallGlobalUnwrapRoundTrip(t *testing.T) {
 	home := sandbox(t)
 	for _, name := range []string{"claude", "cursor", "codex", "pi", "gemini", "opencode"} {
-		if _, err := agents[name].add("/opt/bin/gascoigne", true); err != nil {
+		if _, err := agents[name].add(context.Background(), "/opt/bin/gascoigne", true); err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}
 	}
@@ -85,7 +86,7 @@ func TestInstallGlobalUnwrapRoundTrip(t *testing.T) {
 		t.Error("global install touched the project")
 	}
 	for _, name := range []string{"claude", "cursor", "codex", "pi", "gemini", "opencode"} {
-		if done, err := agents[name].remove(); err != nil || len(done) == 0 {
+		if done, err := agents[name].remove(context.Background()); err != nil || len(done) == 0 {
 			t.Errorf("%s: unwrap done %q, err %v", name, done, err)
 		}
 	}
@@ -97,7 +98,7 @@ func TestInstallGlobalUnwrapRoundTrip(t *testing.T) {
 func TestInstallLeavesForeignPiExtension(t *testing.T) {
 	sandbox(t)
 	write(t, ".pi/extensions/gascoigne.ts", "// mine\n")
-	if _, err := addPi("gascoigne", false); err == nil {
+	if _, err := addPi(context.Background(), "gascoigne", false); err == nil {
 		t.Fatal("overwrote a file gascoigne did not write")
 	}
 	if got := read(t, ".pi/extensions/gascoigne.ts"); got != "// mine\n" {
@@ -145,7 +146,7 @@ func TestInstallDeniesRoundTrip(t *testing.T) {
 	home := sandbox(t)
 	t.Setenv("XDG_STATE_HOME", filepath.Join(home, ".state"))
 	write(t, ".claude/settings.json", `{"permissions": {"deny": ["Bash(rm -rf:*)", "Glob"]}}`)
-	if _, err := addClaude("gascoigne", false); err != nil {
+	if _, err := addClaude(context.Background(), "gascoigne", false); err != nil {
 		t.Fatal(err)
 	}
 	got := read(t, ".claude/settings.json")
@@ -154,7 +155,7 @@ func TestInstallDeniesRoundTrip(t *testing.T) {
 			t.Errorf("settings lack %s:\n%s", want, got)
 		}
 	}
-	if _, err := removeClaude(); err != nil {
+	if _, err := removeClaude(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	got = read(t, ".claude/settings.json")
@@ -171,16 +172,16 @@ func TestInstallProxyRoundTrip(t *testing.T) {
 	t.Setenv("ANTHROPIC_API_KEY", "sk-test")
 	t.Setenv("ANTHROPIC_BASE_URL", "")
 	t.Setenv("CLAUDE_CODE_USE_BEDROCK", "")
-	if _, err := addClaude("gascoigne", false); err != nil {
+	if _, err := addClaude(context.Background(), "gascoigne", false); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := addClaudeProxy(false); err != nil {
+	if _, err := addClaudeProxy(context.Background(), false); err != nil {
 		t.Fatal(err)
 	}
 	if got := read(t, ".claude/settings.json"); !strings.Contains(got, `"ANTHROPIC_BASE_URL": "http://127.0.0.1:7878"`) || !strings.Contains(got, `"FOO": "1"`) {
 		t.Fatalf("settings:\n%s", got)
 	}
-	if _, err := removeClaude(); err != nil {
+	if _, err := removeClaude(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	if got := read(t, ".claude/settings.json"); strings.Contains(got, "ANTHROPIC_BASE_URL") || !strings.Contains(got, `"FOO": "1"`) {
@@ -212,7 +213,7 @@ func TestClaudeProxyNeedsKeyOrOverride(t *testing.T) {
 	t.Setenv("ANTHROPIC_API_KEY", "")
 	t.Setenv("ANTHROPIC_AUTH_TOKEN", "")
 	t.Setenv("GASCOIGNE_PROXY", "")
-	if _, err := addClaudeProxy(false); err == nil || !strings.Contains(err.Error(), "install -proxy refused") {
+	if _, err := addClaudeProxy(context.Background(), false); err == nil || !strings.Contains(err.Error(), "install -proxy refused") {
 		t.Fatalf("install -proxy with a login: %v", err)
 	}
 	if env := proxyForClaude(); env != nil {
@@ -267,13 +268,13 @@ func TestInstallBedrockProxyRoundTrip(t *testing.T) {
 	t.Setenv("AWS_REGION", "us-east-1")
 	t.Setenv("ANTHROPIC_BEDROCK_BASE_URL", "")
 	t.Setenv("ANTHROPIC_BASE_URL", "")
-	if _, err := addClaudeProxy(false); err != nil {
+	if _, err := addClaudeProxy(context.Background(), false); err != nil {
 		t.Fatal(err)
 	}
 	if got := read(t, ".claude/settings.json"); !strings.Contains(got, `"ANTHROPIC_BEDROCK_BASE_URL": "http://127.0.0.1:7878/bedrock/us-east-1"`) {
 		t.Fatalf("settings:\n%s", got)
 	}
-	if _, err := removeClaude(); err != nil {
+	if _, err := removeClaude(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	if got := read(t, ".claude/settings.json"); strings.Contains(got, "BEDROCK") {
@@ -346,7 +347,7 @@ func TestInstallAllowRules(t *testing.T) {
 		if err := saveAllowLevel(level); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := addClaude("gascoigne", false); err != nil {
+		if _, err := addClaude(context.Background(), "gascoigne", false); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -379,7 +380,7 @@ func TestInstallAllowRules(t *testing.T) {
 		t.Fatalf("none removes gascoigne's rules, keeps the user's (show was theirs): %v", got)
 	}
 	install("all")
-	if _, err := removeClaude(); err != nil {
+	if _, err := removeClaude(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	if got := read(t, settings); !strings.Contains(got, `"Bash(go test:*)"`) || strings.Contains(got, "retrieve") || strings.Contains(got, "fetch") || !strings.Contains(got, "mcp__gascoigne__show") {
@@ -395,7 +396,7 @@ func TestCursorRemoteServerRoundTrip(t *testing.T) {
 	exe := "/opt/bin/gascoigne"
 	orig := `{"mcpServers": {"docs": {"url": "https://mcp.example.com/mcp", "headers": {"Authorization": "Bearer ${env:DOCS_KEY}"}}, "db": {"command": "pg-mcp"}}}`
 	write(t, ".cursor/mcp.json", orig)
-	if _, err := addCursor(exe, false); err != nil {
+	if _, err := addCursor(context.Background(), exe, false); err != nil {
 		t.Fatal(err)
 	}
 	got := read(t, ".cursor/mcp.json")
@@ -407,7 +408,7 @@ func TestCursorRemoteServerRoundTrip(t *testing.T) {
 	if strings.Contains(got, `"url"`) {
 		t.Errorf("url left in the entry:\n%s", got)
 	}
-	if _, err := removeCursor(); err != nil {
+	if _, err := removeCursor(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	if after := read(t, ".cursor/mcp.json"); !strings.Contains(after, `"url": "https://mcp.example.com/mcp"`) || strings.Contains(after, "gascoigne") || strings.Contains(after, `"type"`) {
@@ -448,7 +449,7 @@ func TestSyncClaudeWindow(t *testing.T) {
 		t.Fatal(err)
 	}
 	write(t, ".claude/settings.json", strings.Replace(read(t, ".claude/settings.json"), "250000", "500000", 1))
-	if _, err := removeClaude(); err != nil {
+	if _, err := removeClaude(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	if got := read(t, ".claude/settings.json"); !strings.Contains(got, `"autoCompactWindow": 500000`) {

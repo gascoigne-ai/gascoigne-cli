@@ -65,7 +65,7 @@ func cmdHook(ctx context.Context, args []string) error {
 		in.syncNote = sessionNotes(ctx, in)
 	}
 	if in.HookEventName == "UserPromptSubmit" {
-		return promptHook(in)
+		return promptHook(ctx, in)
 	}
 	model := adoptEvent(&shared, name, in)
 	if skipHook(in.HookEventName) {
@@ -113,13 +113,13 @@ func sessionNotes(ctx context.Context, in hookInput) string {
 
 // promptHook starts the server when a prompt arrives and prints the context
 // nudge, if there is one.
-func promptHook(in hookInput) error {
+func promptHook(ctx context.Context, in hookInput) error {
 	// The server exits when idle; a prompt is where an agent starts
 	// talking to its API again, so bring it back first. It is also where a
 	// release that appeared mid-session opens its page (the reply stays empty).
 	releaseNudge("prompt")
 	if !serverOff() {
-		if err := serverUp(); err != nil {
+		if err := serverUp(ctx); err != nil {
 			fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
 		}
 	}

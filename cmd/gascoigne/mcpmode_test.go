@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"slices"
 	"strings"
 	"testing"
@@ -69,7 +70,7 @@ func TestManualModeInstallsNoDenyRules(t *testing.T) {
 		if err := saveMCPMode(mode); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := addClaude("gascoigne", false); err != nil {
+		if _, err := addClaude(context.Background(), "gascoigne", false); err != nil {
 			t.Fatal(err)
 		}
 	}

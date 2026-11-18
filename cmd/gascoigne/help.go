@@ -330,7 +330,7 @@ func lookup(name string) (command, bool) {
 	return commandList[i], true
 }
 
-func cmdHelp(_ context.Context, args []string) error {
+func cmdHelp(ctx context.Context, args []string) error {
 	if len(args) == 0 {
 		printOverview(os.Stdout)
 		return nil
@@ -344,7 +344,7 @@ func cmdHelp(_ context.Context, args []string) error {
 		return nil
 	}
 	// The command defines its flags, so let it print its page.
-	return c.run(context.Background(), []string{"-h"})
+	return c.run(ctx, []string{"-h"})
 }
 
 func unknownCommand(name string) error {

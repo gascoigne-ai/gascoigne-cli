@@ -16,7 +16,7 @@ import (
 // cmdInstall registers gascoigne with agents for good: in the project's
 // config files, or with -g in the user's. Earlier gascoigne entries are
 // replaced, so running it again refreshes them; unwrap removes them.
-func cmdInstall(_ context.Context, args []string) error {
+func cmdInstall(ctx context.Context, args []string) error {
 	fset := newFlags("install")
 	global := fset.Bool("g", false, "register for every project (user config) instead of this one")
 	proxy := fset.Bool("proxy", false, "also route the agent's LLM API traffic through the background server's LLM proxy (claude); a stopped server stops the agent until its SessionStart hook starts it")
@@ -48,10 +48,10 @@ func cmdInstall(_ context.Context, args []string) error {
 		if !ok {
 			return unknownAgent(name)
 		}
-		done, err := a.add(cmd, *global)
+		done, err := a.add(ctx, cmd, *global)
 		errs = append(errs, err)
 		if *proxy && a.addProxy != nil && err == nil {
-			d, err := a.addProxy(*global)
+			d, err := a.addProxy(ctx, *global)
 			done, errs = append(done, d...), append(errs, err)
 		} else if *proxy {
 			done = append(done, "LLM proxy: not available for this agent; gascoigne wrap "+name+" uses it per run where it can")
@@ -140,7 +140,7 @@ func scoped(global bool, user, project string) (string, error) {
 }
 
 // addClaude writes gascoigne's claude registration: settings, MCP server.
-func addClaude(exe string, global bool) ([]string, error) {
+func addClaude(ctx context.Context, exe string, global bool) ([]string, error) {
 	done, err := syncClaude(exe, global)
 	if err != nil {
 		return nil, err
@@ -160,8 +160,8 @@ func addClaude(exe string, global bool) ([]string, error) {
 		d, err := addJSON(claudeJSON(), mcpEdit, mcpServers(exe), "MCP server gascoigne", nil)
 		return append(done, d), err
 	}
-	_ = exec.Command("claude", "mcp", "remove", "--scope", "user", "gascoigne").Run() // absent is fine
-	if out, err := exec.Command("claude", "mcp", "add", "--scope", "user", "gascoigne", "--", exe, "mcp").CombinedOutput(); err != nil {
+	_ = exec.CommandContext(ctx, "claude", "mcp", "remove", "--scope", "user", "gascoigne").Run() // absent is fine
+	if out, err := exec.CommandContext(ctx, "claude", "mcp", "add", "--scope", "user", "gascoigne", "--", exe, "mcp").CombinedOutput(); err != nil {
 		return done, fmt.Errorf("claude mcp add: %v: %s", err, strings.TrimSpace(string(out)))
 	}
 	return append(done, "claude mcp: added MCP server gascoigne (user scope)"), nil
@@ -217,7 +217,7 @@ func syncClaude(exe string, global bool) ([]string, error) {
 	return append(done, skills...), err
 }
 
-func addCursor(exe string, global bool) ([]string, error) {
+func addCursor(_ context.Context, exe string, global bool) ([]string, error) {
 	hooksFile, err := scoped(global, ".cursor/hooks.json", ".cursor/hooks.json")
 	if err != nil {
 		return nil, err
@@ -254,7 +254,7 @@ func addCursor(exe string, global bool) ([]string, error) {
 	return append(done, added(cursorRuleFile, "usage guide rule", "", err)), nil
 }
 
-func addCodex(exe string, global bool) ([]string, error) {
+func addCodex(_ context.Context, exe string, global bool) ([]string, error) {
 	file, err := scoped(global, ".codex/config.toml", ".codex/config.toml")
 	if err != nil {
 		return nil, err
@@ -283,7 +283,7 @@ func addCodex(exe string, global bool) ([]string, error) {
 	return append(done, d), err
 }
 
-func addPi(exe string, global bool) ([]string, error) {
+func addPi(_ context.Context, exe string, global bool) ([]string, error) {
 	file, err := scoped(global, ".pi/agent/extensions/gascoigne.ts", ".pi/extensions/gascoigne.ts")
 	if err != nil {
 		return nil, err
@@ -467,7 +467,7 @@ func added(file, what, backup string, err error) string {
 
 // addClaudeProxy sets ANTHROPIC_BASE_URL to the proxy in Claude's settings.
 // Only with an API key or gateway token, or GASCOIGNE_PROXY=on.
-func addClaudeProxy(global bool) ([]string, error) {
+func addClaudeProxy(ctx context.Context, global bool) ([]string, error) {
 	key, path, note := claudeProxyVar()
 	if key == "" {
 		return nil, fmt.Errorf("install -proxy refused: %s", cmp.Or(note, "a base URL is already set (your gateway stays)"))
@@ -483,7 +483,7 @@ func addClaudeProxy(global bool) ([]string, error) {
 	}
 	if proxyOff() || serverOff() {
 		d += "; GASCOIGNE_PROXY or GASCOIGNE_SERVER is off: the server was not started"
-	} else if err := serverUp(); err != nil {
+	} else if err := serverUp(ctx); err != nil {
 		d += "; server not running yet: " + err.Error()
 	}
 	return []string{d}, nil

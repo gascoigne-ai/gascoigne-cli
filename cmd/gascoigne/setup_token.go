@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/hex"
@@ -56,7 +57,7 @@ func setupLink() (string, error) {
 	if serverOff() {
 		return "", errors.New("the background server is off (GASCOIGNE_SERVER=off)")
 	}
-	if err := serverUp(); err != nil {
+	if err := serverUp(context.Background()); err != nil {
 		return "", err
 	}
 	tok, err := newSetupToken()

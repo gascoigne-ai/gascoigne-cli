@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,7 +20,7 @@ func TestCheckInstall(t *testing.T) {
 	sandbox(t)
 	t.Setenv("GASCOIGNE_SERVER_ADDR", "127.0.0.1:1") // nothing listens: no real server in the report
 	home, _ := os.UserHomeDir()
-	if _, err := addClaude("gascoigne", true); err != nil {
+	if _, err := addClaude(context.Background(), "gascoigne", true); err != nil {
 		t.Fatal(err)
 	}
 	if err := recordInstall("claude", true, "gascoigne", false); err != nil {

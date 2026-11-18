@@ -371,7 +371,7 @@ func cmdContext(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	if !asJSON && !text && dir == claudeProjects() && canBrowse() {
+	if !asJSON && !text && dir == claudeProjects() && canBrowse(ctx) {
 		link := fmt.Sprintf("http://%s/context?since=%s", serverAddr(), *since)
 		fmt.Println(link)
 		if open {

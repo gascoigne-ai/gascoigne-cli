@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -138,7 +139,7 @@ func TestInstallProxiesAndUnwrapRestores(t *testing.T) {
 	write(t, ".codex/config.toml", codexConfig)
 	write(t, ".cursor/mcp.json", mcp)
 	for _, name := range []string{"claude", "codex", "cursor"} {
-		done, err := agents[name].add("gascoigne", false)
+		done, err := agents[name].add(context.Background(), "gascoigne", false)
 		if err != nil || !strings.Contains(strings.Join(done, "\n"), "proxied MCP servers github") {
 			t.Fatalf("%s: %q, err %v", name, done, err)
 		}
@@ -147,7 +148,7 @@ func TestInstallProxiesAndUnwrapRestores(t *testing.T) {
 		t.Fatalf(".mcp.json:\n%s", got)
 	}
 	for _, name := range []string{"claude", "codex", "cursor"} {
-		if _, err := agents[name].remove(); err != nil {
+		if _, err := agents[name].remove(context.Background()); err != nil {
 			t.Fatal(err)
 		}
 	}

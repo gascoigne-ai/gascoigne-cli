@@ -125,7 +125,7 @@ var proxyOnce = sync.OnceValue(func() string {
 	if proxyOff() || serverOff() {
 		return ""
 	}
-	if err := serverUp(); err != nil {
+	if err := serverUp(context.Background()); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne: LLM proxy not used:", err)
 		return ""
 	}
@@ -139,7 +139,7 @@ func runProxy() string { return proxyOnce() }
 
 // serverUp makes sure the background server answers, as gascoigne
 // server start does.
-func serverUp() error {
+func serverUp(ctx context.Context) error {
 	if _, err := health(serverAddr()); err == nil {
 		return nil
 	}
@@ -147,7 +147,7 @@ func serverUp() error {
 	if err != nil {
 		return err
 	}
-	out, err := exec.Command(exe, "server", "start").CombinedOutput()
+	out, err := exec.CommandContext(ctx, exe, "server", "start").CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("server start: %v: %s", err, out)
 	}
@@ -277,9 +277,9 @@ func proxyForOpencode() map[string]any {
 // ensureProxyFor starts the server when this process's agent was pointed
 // at it for good (install -proxy): Claude runs its SessionStart hook with
 // the settings' env.
-func ensureProxyFor() {
+func ensureProxyFor(ctx context.Context) {
 	if os.Getenv("ANTHROPIC_BASE_URL") == proxyURL() && !serverOff() {
-		if err := serverUp(); err != nil {
+		if err := serverUp(ctx); err != nil {
 			fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
 		}
 	}

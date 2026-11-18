@@ -136,7 +136,7 @@ func TestLegacyInstallsAreFound(t *testing.T) {
 	t.Setenv("GASCOIGNE_SERVER", "off")
 	// An install made by a gascoigne from before installs.json: the hook is in
 	// the agent's config, nothing records it.
-	if _, err := addClaude("gascoigne", true); err != nil {
+	if _, err := addClaude(context.Background(), "gascoigne", true); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat(installsFile()); !os.IsNotExist(err) {

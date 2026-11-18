@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,7 +60,7 @@ func TestRemoveClaudeKeepsOtherSettings(t *testing.T) {
   }
 }
 `)
-	done, err := removeClaude()
+	done, err := removeClaude(context.Background())
 	if err != nil || len(done) != 1 || !strings.Contains(done[0], "PreToolUse hook, GASCOIGNE_AGENT env") {
 		t.Fatalf("done %q, err %v", done, err)
 	}
@@ -113,7 +114,7 @@ func TestRemoveRoundTrip(t *testing.T) {
 	write(t, filepath.Join(home, ".pi/agent/extensions/gascoigne.ts"), piExtension(exe))
 
 	for _, name := range []string{"claude", "cursor", "codex", "pi"} {
-		done, err := agents[name].remove()
+		done, err := agents[name].remove(context.Background())
 		if err != nil || len(done) == 0 {
 			t.Fatalf("%s: done %q, err %v", name, done, err)
 		}
@@ -134,7 +135,7 @@ func TestRemoveRoundTrip(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(home, ".pi/agent/extensions/gascoigne.ts")); !os.IsNotExist(err) {
 		t.Error("pi extension still there")
 	}
-	if done, _ := removeClaude(); len(done) != 0 {
+	if done, _ := removeClaude(context.Background()); len(done) != 0 {
 		t.Errorf("second run changed again: %q", done)
 	}
 }
@@ -174,7 +175,7 @@ func TestRemovePiOnlyOurExtension(t *testing.T) {
 	home := sandbox(t)
 	other := filepath.Join(home, ".pi/agent/extensions/gascoigne.ts")
 	write(t, other, "// my own extension that happens to share the name\n")
-	if done, _ := removePi(); len(done) != 0 {
+	if done, _ := removePi(context.Background()); len(done) != 0 {
 		t.Fatalf("removed a foreign file: %q", done)
 	}
 	if read(t, other) == "" {

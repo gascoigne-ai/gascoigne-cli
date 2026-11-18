@@ -245,7 +245,7 @@ func opencodeInstall(exe string) string {
 		"\n// save as ~/.config/opencode/plugins/gascoigne.ts (or .opencode/plugins/gascoigne.ts)\n" + opencodePlugin(exe)
 }
 
-func addOpencode(exe string, global bool) ([]string, error) {
+func addOpencode(_ context.Context, exe string, global bool) ([]string, error) {
 	cfgFile, plugin, agentsMD := "opencode.json", filepath.Join(".opencode", "plugins", "gascoigne.ts"), "AGENTS.md"
 	if global {
 		home := opencodeHome()
@@ -271,7 +271,7 @@ func addOpencode(exe string, global bool) ([]string, error) {
 	return append(done, d), err
 }
 
-func removeOpencode() ([]string, error) {
+func removeOpencode(_ context.Context) ([]string, error) {
 	var done []string
 	var errs []error
 	for _, f := range []string{filepath.Join(opencodeHome(), "opencode.json"), "opencode.json"} {

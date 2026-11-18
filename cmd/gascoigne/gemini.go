@@ -157,7 +157,7 @@ func geminiInstall(exe string) string {
 	return "// merge into ~/.gemini/settings.json (or .gemini/settings.json in a project)\n" + indentJSON(geminiSettings(exe)) + "\n"
 }
 
-func addGemini(exe string, global bool) ([]string, error) {
+func addGemini(_ context.Context, exe string, global bool) ([]string, error) {
 	file, err := scoped(global, ".gemini/settings.json", ".gemini/settings.json")
 	if err != nil {
 		return nil, err
@@ -176,7 +176,7 @@ func removeGeminiSettings(root *object) []string {
 	return what
 }
 
-func removeGemini() ([]string, error) {
+func removeGemini(_ context.Context) ([]string, error) {
 	var done []string
 	var errs []error
 	for _, f := range configFiles(".gemini/settings.json", ".gemini/settings.json") {

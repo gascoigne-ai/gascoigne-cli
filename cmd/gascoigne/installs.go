@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -157,7 +158,8 @@ func syncInstalls() []string {
 // one (claude: settings only, not ~/.claude.json, which a running Claude
 // Code rewrites), else its install; the LLM proxy again if it was chosen.
 func (a agent) resync(entry install) error {
-	write := a.add
+	ctx := context.Background() // runs from a hook or upgrade with no caller ctx
+	write := func(exe string, global bool) ([]string, error) { return a.add(ctx, exe, global) }
 	if a.sync != nil {
 		write = a.sync
 	}
@@ -165,7 +167,7 @@ func (a agent) resync(entry install) error {
 		return err
 	}
 	if entry.Proxy && a.addProxy != nil {
-		_, err := a.addProxy(entry.Global)
+		_, err := a.addProxy(ctx, entry.Global)
 		return err
 	}
 	return nil

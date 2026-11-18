@@ -418,7 +418,7 @@ func cmdMCPReview(ctx context.Context, args []string) error {
 			}
 			fmt.Printf("%d tool(s) load on request from the next session, %d tokens out of the tool list\n", len(applied), savedBy(applied))
 		}
-		if !asJSON && !text && canBrowse() {
+		if !asJSON && !text && canBrowse(ctx) {
 			link := "http://" + serverAddr() + "/mcp"
 			fmt.Println(link)
 			if open {
@@ -442,8 +442,8 @@ func cmdMCPReview(ctx context.Context, args []string) error {
 
 // canBrowse reports whether the review page can be shown: a display, no CI,
 // and the background server answering.
-func canBrowse() bool {
-	return !serverOff() && os.Getenv("CI") == "" && hasDisplay(runtime.GOOS) && serverUp() == nil
+func canBrowse(ctx context.Context) bool {
+	return !serverOff() && os.Getenv("CI") == "" && hasDisplay(runtime.GOOS) && serverUp(ctx) == nil
 }
 
 // labelDuplicates adds the command hash to servers that share a name.

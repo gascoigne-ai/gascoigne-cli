@@ -457,7 +457,7 @@ func integrate(name string) string {
 		return name + ": could not be set up, run gascoigne install -g " + name
 	}
 	cmd := installedName(exe)
-	if _, err := a.add(cmd, true); err != nil {
+	if _, err := a.add(context.Background(), cmd, true); err != nil {
 		return fmt.Sprintf("%s: could not be set up (%v), run gascoigne install -g %s", name, err, name)
 	}
 	if err := recordInstall(name, true, cmd, false); err != nil {

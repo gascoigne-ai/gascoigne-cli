@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"io"
 	"os"
 	"strings"
@@ -44,7 +45,7 @@ func TestUpgradeWritesStaleAndLostHooks(t *testing.T) {
 	t.Setenv("GASCOIGNE_SERVER", "off")
 	_ = saveAllowLevel("none")
 	_ = saveAutosync("off")
-	if _, err := addClaude("gascoigne", true); err != nil {
+	if _, err := addClaude(context.Background(), "gascoigne", true); err != nil {
 		t.Fatal(err)
 	}
 	if err := recordInstall("claude", true, "gascoigne", false); err != nil {

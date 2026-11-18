@@ -18,17 +18,17 @@ import (
 // agent wires gascoigne into one coding agent: shell output through
 // gascoigne exec (or optimized after the fact), the MCP server for web data.
 type agent struct {
-	bin     string                                          // program wrap starts
-	launch  func(exe string) ([]string, error)              // per-run config args
-	env     func(exe string) ([]string, error)              // per-run config env (NAME=value); neither: the agent has no per-run config
-	install func(exe string) string                         // config to register gascoigne for good (wrap -print)
-	add     func(exe string, global bool) ([]string, error) // writes that config: user files, else project ones
+	bin     string                                                               // program wrap starts
+	launch  func(exe string) ([]string, error)                                   // per-run config args
+	env     func(exe string) ([]string, error)                                   // per-run config env (NAME=value); neither: the agent has no per-run config
+	install func(exe string) string                                              // config to register gascoigne for good (wrap -print)
+	add     func(ctx context.Context, exe string, global bool) ([]string, error) // writes that config: user files, else project ones
 	// sync is what an automatic update writes when it differs from add: the
 	// parts of the install that are safe while the agent runs.
 	sync func(exe string, global bool) ([]string, error)
 	// addProxy points the agent at the LLM API proxy for good (install -proxy).
-	addProxy func(global bool) ([]string, error)
-	remove   func() ([]string, error) // undoes install: what it removed
+	addProxy func(ctx context.Context, global bool) ([]string, error)
+	remove   func(ctx context.Context) ([]string, error) // undoes install: what it removed
 	hook     hookFunc
 }
 
@@ -114,7 +114,7 @@ func unknownAgent(name string) error {
 
 // cmdWrap starts an agent with gascoigne registered for this run only, or
 // prints the config that registers it for good.
-func cmdWrap(_ context.Context, args []string) error {
+func cmdWrap(ctx context.Context, args []string) error {
 	fs := newFlags("wrap")
 	print := fs.Bool("print", false, "print the config that registers gascoigne with the agent for good, instead of starting it")
 	if err := fs.Parse(args); err != nil {
@@ -149,13 +149,13 @@ func cmdWrap(_ context.Context, args []string) error {
 	}
 	if !serverOff() {
 		// The dashboard address goes to stderr before the agent takes the terminal.
-		start := exec.Command(exe, "server", "start")
+		start := exec.CommandContext(ctx, exe, "server", "start")
 		start.Stdout, start.Stderr = os.Stderr, os.Stderr
 		if err := start.Run(); err != nil {
 			fmt.Fprintln(os.Stderr, "gascoigne: dashboard not started:", err)
 		}
 	}
-	cmd := exec.Command(a.bin, append(extra, fs.Args()[1:]...)...)
+	cmd := exec.CommandContext(ctx, a.bin, append(extra, fs.Args()[1:]...)...)
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 	cmd.Env = append(append(os.Environ(), env...),
 		"GASCOIGNE_AGENT="+cmp.Or(os.Getenv("GASCOIGNE_AGENT"), name),

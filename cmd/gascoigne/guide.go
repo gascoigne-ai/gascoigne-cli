@@ -69,9 +69,9 @@ func withGuide(next hookFunc) hookFunc {
 		if in.HookEventName != "SessionStart" {
 			return next(ctx, shared, in, prefix)
 		}
-		ensureProxyFor()
+		ensureProxyFor(ctx)
 		// Level off keeps only the news of an update.
-		text := strings.TrimSpace(in.syncNote + "\n" + guide(true) + resumeContext(in))
+		text := strings.TrimSpace(in.syncNote + "\n" + guide(true) + resumeContext(ctx, in))
 		if text == "" {
 			return nil, nil
 		}
@@ -180,7 +180,7 @@ func codexHome() string {
 
 // resumeContext is the snapshot a session start after compaction or resume
 // carries, when the continuity experiment is on.
-func resumeContext(in hookInput) string {
+func resumeContext(ctx context.Context, in hookInput) string {
 	if in.Source != "compact" && in.Source != "resume" || !experimentalOn("continuity") {
 		return ""
 	}
@@ -188,7 +188,7 @@ func resumeContext(in hookInput) string {
 	if s == "" {
 		return ""
 	}
-	if runs := shortenedRuns(context.Background(), in.SessionID); len(runs) > 0 {
+	if runs := shortenedRuns(ctx, in.SessionID); len(runs) > 0 {
 		s += "- shortened outputs you can read in full instead of running the command again (gascoigne raw <id> -grep PATTERN): " + strings.Join(runs, ", ") + "\n"
 	}
 	return "\n" + s

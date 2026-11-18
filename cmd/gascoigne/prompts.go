@@ -56,7 +56,10 @@ type promptFinding struct {
 
 // cmdPrompts lists the instruction text an agent sends with every request
 // and what it costs.
-func cmdPrompts(_ context.Context, args []string) error {
+func cmdPrompts(ctx context.Context, args []string) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	fs := newFlags("prompts")
 	agent := fs.String("agent", "claude", "agent whose instruction files to read: claude or codex")
 	model := fs.String("model", "", "model to price (default: the agent's)")
