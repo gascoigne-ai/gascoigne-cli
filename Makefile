@@ -1,7 +1,7 @@
 BIN := bin/gascoigne
 PREFIX ?= $(HOME)/.local
 
-.PHONY: build install uninstall test vet fmt fmt-check imports lazyre cover eval eval-experimental check clean
+.PHONY: build install uninstall test vet fmt fmt-check imports lazyre paramnames cover eval eval-experimental check clean
 
 build:
 	go build -o $(BIN) ./cmd/gascoigne
@@ -33,6 +33,10 @@ imports:
 lazyre:
 	@out=$$(grep -rnE --include='*.go' '^var .*regexp\.(Must)?Compile\(' . | grep -v '^\./internal/lazyre/'); if [ -n "$$out" ]; then echo "package-level regexp must use lazyre.New:"; echo "$$out"; exit 1; fi
 
+# cmd/paramnames exits 0 even with violations, so fail on any detail line (file:line: name).
+paramnames:
+	@all=$$(go run ./cmd/paramnames -v ./...) || exit 1; out=$$(echo "$$all" | grep -E '\.go:[0-9]+:'); if [ -n "$$out" ]; then echo "one-letter parameters:"; echo "$$out"; echo "rename each to a word that says what it holds"; exit 1; fi
+
 cover:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -func=coverage.out | tail -1
@@ -46,7 +50,7 @@ eval-experimental: build
 	GASCOIGNE_EXPERIMENTAL=prose bin/gascoigne eval -cases testdata/eval-experimental/cases.yaml -record -set optimizers.prose.enabled=true -set optimizers.prose.model=kompress-v2-base
 	GASCOIGNE_EXPERIMENTAL=prose bin/gascoigne eval -cases testdata/eval-experimental/ctxprune-small/cases.yaml -record -set optimizers.prose.enabled=true -set optimizers.prose.model=ctxprune-small
 
-check: fmt-check vet imports lazyre test
+check: fmt-check vet imports lazyre paramnames test
 
 clean:
 	rm -rf bin coverage.out

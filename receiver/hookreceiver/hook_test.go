@@ -9,9 +9,9 @@ import (
 
 type tag struct{}
 
-func (tag) Process(_ context.Context, p *payload.Payload) (*payload.Payload, error) {
-	p.Set(payload.AttrRawID, "r1")
-	return p, nil
+func (tag) Process(_ context.Context, data *payload.Payload) (*payload.Payload, error) {
+	data.Set(payload.AttrRawID, "r1")
+	return data, nil
 }
 
 func TestRun(t *testing.T) {
