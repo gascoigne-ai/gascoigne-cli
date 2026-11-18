@@ -21,6 +21,13 @@ func (h *history) RecentOutputs(_ context.Context, session, key string, since ti
 	return h.outs, nil
 }
 
+// psTable is the head of a real `ps aux` (testdata/eval/table/ps-aux.txt).
+const psTable = `USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  0.0  0.0  20640 15452 ?        Ss   00:05   0:01 /sbin/init splash
+root           2  0.0  0.0      0     0 ?        S    00:05   0:00 [kthreadd]
+root           3  0.0  0.0      0     0 ?        S    00:05   0:00 [pool_workqueue_release]
+`
+
 const failure = `--- FAIL: TestParse (0.01s)
     parse_test.go:40: config mismatch
         got:  {Name:api Port:8080 Hosts:[a b c]}
@@ -53,6 +60,13 @@ func TestRerun(t *testing.T) {
 			cur:  "a line\nb line\n",
 			want: "a line\nb line\n",
 			typ:  "test/go",
+		},
+		{
+			name: "table repeated verbatim folds",
+			prev: psTable,
+			cur:  psTable,
+			want: `[↑ 4 lines as in the previous run, from "USER         PID %CPU %MEM    VSZ   RSS TTY      …"]` + "\n",
+			typ:  "table/ps",
 		},
 		{
 			name: "source never folded",

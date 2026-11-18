@@ -348,8 +348,9 @@ PHP `vendor/`, gdb/lldb/sanitizer/valgrind frames in libc and libstdc++, D runti
 Agents re-run tests and builds after every edit. When the same command runs again in the same
 session (within `max_age`, 20 minutes), runs of 4+ lines that one of the last 3 outputs already
 showed become `[↑ 5 lines as in the previous run, from "--- FAIL: TestParse"]`, so only what
-changed is read again. Needs a session (wrap, hooks); test, build, task, pkg, log, search and vcs
-output only.
+changed is read again. Needs a session (wrap, hooks); test, build, task, pkg, log, search, vcs
+and table output only. A subagent counts as its own session where the hook payload carries an
+`agent_id` (Claude Code), so a pointer never refers to output another conversation saw.
 
 ## Dense lines (`dense`, after the family engines)
 

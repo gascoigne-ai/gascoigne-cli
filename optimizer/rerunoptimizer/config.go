@@ -26,7 +26,7 @@ type Config struct {
 func defaults() *Config {
 	return &Config{
 		Ledger:   "ledger",
-		Families: []string{"test", "build", "task", "pkg", "log", "search", "vcs"},
+		Families: []string{"test", "build", "task", "pkg", "log", "search", "vcs", "table"},
 		MaxAge:   20 * time.Minute,
 		Runs:     3,
 		MinLines: 4,

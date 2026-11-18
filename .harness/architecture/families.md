@@ -121,6 +121,10 @@ lives in public libs so engines and composite families can reuse it. Families ar
    lines after it (got/want); with a `query` attr, the `query_lines` best BM25 matches (`query_diverse: true`: maximal marginal relevance, `sample.MMR`, λ 0.5, so near-identical matches do not fill the budget)
    (`sample.Terms`/`sample.BM25`) of the middle stay too; long lines are cut.
    `skip`: fs/code, data, k8s, cloud.
+7. **`rerun`** (`optimizer/rerunoptimizer`): runs of 4+ lines a recent run of the same command in the
+   same ledger session already showed (within `max_age`, last `runs` outputs) → one pointer line. Families:
+   test, build, task, pkg, log, search, vcs, table (`ps`, `docker ps`, `lsof` polled in a loop). The session is
+   `session_id`, plus `#agent_id` for a Claude subagent (`hooks.md`), so pointers never cross agents.
 
 ## Shared libraries
 

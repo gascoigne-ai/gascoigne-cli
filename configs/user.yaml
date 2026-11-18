@@ -269,7 +269,7 @@ version: 1
 #     skip: [fs/code, data, k8s, cloud]             ## types or families never cut: source, structured data
 #   rerun:                                        ## a re-run: lines the last runs of the command in the session showed → one pointer
 #     ledger: ledger                              ## extension keeping earlier outputs; "" off
-#     families: [test, build, task, pkg, log, search, vcs]  ## re-run output, not files edited by exact text
+#     families: [test, build, task, pkg, log, search, vcs, table]  ## re-run output, not files edited by exact text
 #     max_age: 20m                                ## older runs may have left the agent's context
 #     runs: 3                                     ## earlier outputs compared
 #     min_lines: 4                                ## shortest run folded
