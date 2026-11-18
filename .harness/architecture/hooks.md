@@ -158,27 +158,43 @@ registration (SessionStart is already installed). Gemini's `PreCompress` has no 
 
 - Shared by every rewrite agent (claude, cursor, gemini, opencode, pi); codex and gemini's AfterTool use only the
   detect side (`detect.FromCmd` on the command that ran).
-- **Wrapped**: every command of a `&&`/`;` list, except builtins, quiet, interactive and REPL
+- **Per-segment rewrite**: the line is cut by `segments` at `;`, `&&` and unquoted newlines (not inside quotes,
+  `$( )`, backticks, `${ }`, after a backslash; a backslash-newline continues the segment). Each segment is
+  wrapped or emitted verbatim on its own, so one redirect or substitution no longer keeps a whole line raw.
+- **Wrapped**: every plain command of a segment list, except builtins, quiet, interactive and REPL
   commands (`passthrough`; unknown programs are detected by content).
+- **Verbatim segments**: a segment with a redirect (other than a trailing `2>&1`), `$(`, a backtick, or a pipe
+  `wrapPipeline` refuses is kept as written; the rest of the line is still wrapped.
+- **Payoff gate** (`worthWrapping`): each wrapped segment pays a hint, so in a multi-segment line a command is
+  wrapped only when `detect.FromCmd` names a known dialect; unknown programs stay verbatim (and a line where
+  nothing qualifies is untouched). A single-segment line is wrapped whatever the program is. A pipeline in a
+  multi-segment line needs a known last stage.
 - **Kept pipes**: `| head` / `| tail` stages at the end of any command of a list (they then cut
   optimized text). Before `head`, exec gets `-attr hint=top`: the stdout exporter prints the hint first so
   the cut keeps it.
-- **Pipelines** (`wrapPipeline`): any other pipeline in the last command of the line (`| grep`, `| jq .`,
+- **Pipelines** (`wrapPipeline`): any other pipeline of plain commands in any segment (`| grep`, `| jq .`,
   `| sort | uniq -c`, `| wc -l`) is not wrapped at the first stage, since later stages would search optimized
   text. Instead ` | gascoigne run -attr cmd='<last stage>'` is appended, so every stage sees raw text and
   only the final output is optimized. `; (exit ${PIPESTATUS[n]:-${pipestatus[n+1]}})` follows, so the
-  line keeps the last original stage's exit status (bash and zsh; `run` would return 0). Skipped: a pipeline
-  before the end of a list, `pipefail`, a stage that is a builtin, quiet, interactive or streaming command,
-  and stages with redirects, substitutions or loops. A first stage like `echo` skips it (nothing to shorten).
+  segment keeps the last original stage's exit status (bash and zsh; `run` would return 0). A pipeline that
+  is the whole line or the last segment after `;` or a newline keeps that bare text; any other one (first or
+  middle, after `&&`, or followed by another segment) is emitted as `{ ...; (exit ...); }` so `&&`, `;` and
+  `set -e` see the original status. The `{` keyword bail applies to user input only: a second hook run sees
+  `gascoigne` (`ownCommand`) and leaves the line alone. A pipeline stays verbatim with a stage that is a
+  builtin, quiet, interactive or streaming command, or has redirects, substitutions or loops. A first stage
+  like `echo` skips it (nothing to shorten).
   `| & < >` inside quotes are literal (`grep 'a\|b'`); a `$(` or backtick inside double quotes still runs,
   and a quote that never closes leaves the line alone (`hasShellOperator`). Replayed on 306 commands of one
-  real session the head/tail rule alone wrapped 93 instead of 56; the pipeline rule is covered by
-  `TestWrapPipelineBashParity` (exit status and output compared under bash) and the `TestWrapCommand` cases.
-- **Left as they are**:
-  - lines with loops, conditionals or `{ }` groups
-  - redirects (except `2>&1`), subshells, `||`, background runs
-  - commands that run gascoigne itself
+  real session the head/tail rule alone wrapped 93 instead of 56; per-segment and braced pipeline rewrites are
+  covered by `TestWrapCommandShellParity` (sh), `TestWrapPipelineBashParity` (exit status and output compared
+  under bash), `TestSegments` (lexer) and the `TestWrapCommand` cases.
+- **Left as they are** (the whole line, returned unchanged):
+  - `||`, a background `&`, heredocs and here-strings (`<<` outside quotes), `pipefail`
+  - loops, conditionals, `case`, `{ }` groups, bare `(` `)` subshells
+  - a quote, backtick or `$(` that never closes
+  - commands that run gascoigne itself (also on any line of a multi-line script)
   - commands that run until stopped (`-f`/`--follow`, `--watch`, `dev`, `serve`, `start`, `up`,
-    plain `vite`), since exec shows output only when the command exits
+    plain `vite`), since exec shows output only when the command exits (that segment stays verbatim)
+- **Registration 7**: `registrationVersion` is 7 because installed hooks gain this rewrite.
 - **Watch mode exception**: build tools in watch mode (`watched`) run as `exec -watch`, which
   processes each cycle when `watch.End` sees its result line; background runs included.

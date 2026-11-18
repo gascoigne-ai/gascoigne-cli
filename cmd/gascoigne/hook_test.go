@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -30,7 +31,7 @@ func TestWrapCommand(t *testing.T) {
 		{"quoted env only", `PG="a b"`, ""},
 		{"quiet after env", "A=1 echo hi", ""},
 		{"flag with =", "x --format=y", "gascoigne exec -- x --format=y"},
-		{"quoted env after cd", `cd api && PG="a" pbbb`, `cd api && PG="a" gascoigne exec -- pbbb`},
+		{"quoted env after cd", `cd api && PG="a" git status`, `cd api && PG="a" gascoigne exec -- git status`},
 		{"builtin", "cd api", ""},
 		{"tail pipe", "go test ./... | tail -5", "gascoigne exec -- go test ./... | tail -5"},
 		{"head pipe", "git log -n 50 2>&1 | head -n 20", "gascoigne exec -attr hint=top -- git log -n 50 2>&1 | head -n 20"},
@@ -67,7 +68,7 @@ func TestWrapCommand(t *testing.T) {
 		{"watch", "kubectl get pods --watch", ""},
 		{"dev server", "npm run dev", ""},
 		{"compose up", "docker compose up", ""},
-		{"multiline", "go test ./...\ngo vet ./...", ""},
+		{"multiline", "go test ./...\ngo vet ./...", "gascoigne exec -- go test ./...\ngascoigne exec -- go vet ./..."},
 
 		// Operators inside quotes are literal; a head or tail ends any stage of a list, not only the last.
 		{"quoted pipe of a grep pattern", `grep -n 'a\|b' x.go | head -20`, `gascoigne exec -attr hint=top -- grep -n 'a\|b' x.go | head -20`},
@@ -79,9 +80,9 @@ func TestWrapCommand(t *testing.T) {
 		{"tail in the middle of a && list", "go test ./... | tail -5 && git status", "gascoigne exec -- go test ./... | tail -5 && gascoigne exec -- git status"},
 		{"stderr merge before the end", "cat a.json 2>&1; ls docs", "gascoigne exec -- cat a.json 2>&1; gascoigne exec -- ls docs"},
 		{"pipeline ends a list", "ls | head -3; go test ./... | grep FAIL", "gascoigne exec -attr hint=top -- ls | head -3; go test ./... | grep FAIL | gascoigne run -attr cmd='grep FAIL'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}})"},
-		{"pipeline in the middle of a list", "go test ./... | grep FAIL; ls", ""},
+		{"pipeline in the middle of a list", "go test ./... | grep FAIL; ls", "{ go test ./... | grep FAIL | gascoigne run -attr cmd='grep FAIL'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}}); }; gascoigne exec -- ls"},
 		{"quoted pipe then a real one", `grep 'a|b' x.go | wc -l`, `grep 'a|b' x.go | wc -l | gascoigne run -attr cmd='wc -l'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}})`},
-		{"three stages after a list", "cd api && cat a.json | jq .items | sort -u", "cd api && cat a.json | jq .items | sort -u | gascoigne run -attr cmd='sort -u'; (exit ${PIPESTATUS[2]:-${pipestatus[3]}})"},
+		{"three stages after a list", "cd api && cat a.json | jq .items | grep x", "cd api && { cat a.json | jq .items | grep x | gascoigne run -attr cmd='grep x'; (exit ${PIPESTATUS[2]:-${pipestatus[3]}}); }"},
 		{"pipe with env on the last stage", "ls | A=1 grep x", "ls | A=1 grep x | gascoigne run -attr cmd='grep x'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}})"},
 		{"pipe into a redirect", "ls | grep x > out.txt", ""},
 		{"pipe with substitution", "ls | grep $(cat p)", ""},
@@ -97,6 +98,59 @@ func TestWrapCommand(t *testing.T) {
 		{"background after quotes", `grep 'a' x.go &`, ""},
 		{"or list with quotes", `grep 'a' x.go || true`, ""},
 		{"unterminated quote", `grep 'a x.go | head`, ""},
+
+		// Compound lines are rewritten per segment: what cannot be wrapped stays verbatim, the rest is wrapped.
+		{"redirect segment verbatim", "go test ./... > out.txt; go vet ./...", "go test ./... > out.txt; gascoigne exec -- go vet ./..."},
+		{"redirect segment after", "go vet ./... && go test ./... > out.txt", "gascoigne exec -- go vet ./... && go test ./... > out.txt"},
+		{"substitution segment verbatim", `echo "$(date)"; go vet ./...`, `echo "$(date)"; gascoigne exec -- go vet ./...`},
+		{"substitution in a work segment", "git status && go test $(go list ./...)", "gascoigne exec -- git status && go test $(go list ./...)"},
+		{"semicolon inside substitution", "echo $(echo a; echo b); go vet ./...", "echo $(echo a; echo b); gascoigne exec -- go vet ./..."},
+		{"backtick holds a list", "echo `echo a; echo b`; go vet ./...", "echo `echo a; echo b`; gascoigne exec -- go vet ./..."},
+		{"escaped semicolon", `find . -name x -exec cat {} \; ; ls`, `gascoigne exec -- find . -name x -exec cat {} \;; gascoigne exec -- ls`},
+		{"escaped ampersands", `echo a\&\&b; go vet ./...`, `echo a\&\&b; gascoigne exec -- go vet ./...`},
+		{"multi-line list", "git status\nls docs\ngo vet ./...", "gascoigne exec -- git status\ngascoigne exec -- ls docs\ngascoigne exec -- go vet ./..."},
+		{"blank line and trailing newline", "git status\n\nls docs\n", "gascoigne exec -- git status\n\ngascoigne exec -- ls docs"},
+		{"quoted newline stays in its segment", "grep -n \"a\nb\" x.go; ls", "gascoigne exec -- grep -n \"a\nb\" x.go; gascoigne exec -- ls"},
+		{"backslash newline continues", "go test \\\n ./...; git status", "gascoigne exec -- go test \\\n ./...; gascoigne exec -- git status"},
+		{"redirect line in a script", "ls > files.txt\ngo vet ./...", "ls > files.txt\ngascoigne exec -- go vet ./..."},
+		{"or list bails", "go vet ./... || go test ./...", ""},
+		{"or list after a list", "git status; go vet ./... || true", ""},
+		{"background bails", "go vet ./... & go test ./...", ""},
+		{"trailing background bails", "git status; go test ./... &", ""},
+		{"heredoc bails", "cat <<EOF\nx\nEOF\ngo vet ./...", ""},
+		{"quoted heredoc bails", "cat <<'EOF'\nx\nEOF\ngo vet ./...", ""},
+		{"here-string bails", "go vet ./... <<< x; ls", ""},
+		{"heredoc marker in quotes is text", `echo "<<EOF"; go vet ./...`, `echo "<<EOF"; gascoigne exec -- go vet ./...`},
+		{"pipefail bails", "set -o pipefail; go vet ./...", ""},
+		{"subshell bails", "(cd api; go test ./...); go vet ./...", ""},
+		{"bare paren bails", "go vet ./...; (cd api && go test ./...)", ""},
+		{"loop over lines bails", "for d in a b\ndo\n go test ./$d\ndone", ""},
+		{"if over lines bails", "if true\nthen go vet ./...\nfi", ""},
+		{"case bails", "case x in x) go vet ./... ;; esac", ""},
+		{"group after a list bails", "git status; { go vet ./...; }", ""},
+		{"unbalanced substitution bails", "go vet ./...; echo $(echo a", ""},
+		{"unbalanced backtick bails", "go vet ./...; echo `echo a", ""},
+		{"unterminated quote in a later segment bails", "go vet ./...; echo 'a", ""},
+		{"own command later bails", "go vet ./...\ngascoigne gain", ""},
+
+		// Pipelines anywhere in a list: the last one after ; keeps the plain form, any other one is braced so
+		// PIPESTATUS and the status are read right after it.
+		{"pipeline before and", "seq 1 5 | grep 9 && echo skipped", "{ seq 1 5 | grep 9 | gascoigne run -attr cmd='grep 9'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}}); } && echo skipped"},
+		{"pipeline before semicolon", "seq 1 5 | grep 9; echo $?", "{ seq 1 5 | grep 9 | gascoigne run -attr cmd='grep 9'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}}); }; echo $?"},
+		{"pipeline after and is braced", "git status && seq 1 5 | grep 3", "gascoigne exec -- git status && { seq 1 5 | grep 3 | gascoigne run -attr cmd='grep 3'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}}); }"},
+		{"pipeline last after semicolon is plain", "git status; seq 1 5 | grep 3", "gascoigne exec -- git status; seq 1 5 | grep 3 | gascoigne run -attr cmd='grep 3'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}})"},
+		{"pipeline last after newline is plain", "git status\nseq 1 5 | grep 3", "gascoigne exec -- git status\nseq 1 5 | grep 3 | gascoigne run -attr cmd='grep 3'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}})"},
+		{"two pipelines", "seq 1 5 | grep 3 && seq 1 5 | grep 4", "{ seq 1 5 | grep 3 | gascoigne run -attr cmd='grep 3'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}}); } && { seq 1 5 | grep 4 | gascoigne run -attr cmd='grep 4'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}}); }"},
+		{"pipeline with redirect stays verbatim", "seq 1 5 | grep 3 > out.txt; git status", "seq 1 5 | grep 3 > out.txt; gascoigne exec -- git status"},
+		{"pipeline of quiet stage stays verbatim", "echo a | grep a; git status", "echo a | grep a; gascoigne exec -- git status"},
+
+		// Payoff gate: in a list only commands of a known dialect are worth a hint.
+		{"unknown program in a list stays", "mytool x; git status", "mytool x; gascoigne exec -- git status"},
+		{"all unknown in a list is untouched", "mytool x; mytool y", ""},
+		{"unknown after cd is untouched", "cd api && mytool x", ""},
+		{"unknown single command still wrapped", "mytool x", "gascoigne exec -- mytool x"},
+		{"unknown pipeline end in a list stays", "seq 1 5 | sort -u && git status", "seq 1 5 | sort -u && gascoigne exec -- git status"},
+		{"unknown pipeline end alone still wrapped", "seq 1 5 | sort -u", "seq 1 5 | sort -u | gascoigne run -attr cmd='sort -u'; (exit ${PIPESTATUS[1]:-${pipestatus[2]}})"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -106,6 +160,53 @@ func TestWrapCommand(t *testing.T) {
 			}
 			if ok && got != tt.want {
 				t.Fatalf("got %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+// segments is the lexer under wrapCommand: it cuts only at separators that run at the top level of the line.
+func TestSegments(t *testing.T) {
+	tests := []struct {
+		name, in string
+		parts    []string
+		seps     []string
+		ok       bool
+	}{
+		{"one command", "ls -a", []string{"ls -a"}, nil, true},
+		{"semicolon and and", "a; b && c", []string{"a", "b", "c"}, []string{";", "&&"}, true},
+		{"newline", "a\nb", []string{"a", "b"}, []string{"\n"}, true},
+		{"quoted separators", `a "x; y && z\nw" 'p; q'`, []string{`a "x; y && z\nw" 'p; q'`}, nil, true},
+		{"escaped separators", `a \; b \&\& c`, []string{`a \; b \&\& c`}, nil, true},
+		{"backslash newline continues", "a \\\nb; c", []string{"a \\\nb", "c"}, []string{";"}, true},
+		{"escaped quote in double quotes", `a "x\"; y"; b`, []string{`a "x\"; y"`, "b"}, []string{";"}, true},
+		{"substitution", "a $(b; c && d); e", []string{"a $(b; c && d)", "e"}, []string{";"}, true},
+		{"nested substitution", "a $(b $(c; d); e)", []string{"a $(b $(c; d); e)"}, nil, true},
+		{"quotes inside substitution", `a $(b ")" ';'); e`, []string{`a $(b ")" ';')`, "e"}, []string{";"}, true},
+		{"substitution inside double quotes", `a "$(b; c)"; d`, []string{`a "$(b; c)"`, "d"}, []string{";"}, true},
+		{"arithmetic", "a $((1 + 2)); b", []string{"a $((1 + 2))", "b"}, []string{";"}, true},
+		{"backticks", "a `b; c`; d", []string{"a `b; c`", "d"}, []string{";"}, true},
+		{"parameter expansion", "a ${x:-p;q}; b", []string{"a ${x:-p;q}", "b"}, []string{";"}, true},
+		{"redirect ampersands", "a 2>&1; b &>f; c >&2", []string{"a 2>&1", "b &>f", "c >&2"}, []string{";", ";"}, true},
+		{"empty segments are kept", "a;\n\nb;", []string{"a", "", "", "b", ""}, []string{";", "\n", "\n", ";"}, true},
+		{"or list", "a || b", nil, nil, false},
+		{"background", "a & b", nil, nil, false},
+		{"pipe ampersand", "a |& b", nil, nil, false},
+		{"heredoc", "a <<EOF", nil, nil, false},
+		{"here-string", "a <<< x", nil, nil, false},
+		{"subshell", "(a; b)", nil, nil, false},
+		{"closing paren", "a)", nil, nil, false},
+		{"open substitution", "a $(b; c", nil, nil, false},
+		{"open backtick", "a `b; c", nil, nil, false},
+		{"open double quote", `a "b; c`, nil, nil, false},
+		{"open single quote", "a 'b; c", nil, nil, false},
+		{"open expansion", "a ${b; c", nil, nil, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			parts, seps, ok := segments(tt.in)
+			if ok != tt.ok || ok && (!slices.Equal(parts, tt.parts) || !slices.Equal(seps, tt.seps)) {
+				t.Fatalf("segments(%q) = %q %q %v, want %q %q %v", tt.in, parts, seps, ok, tt.parts, tt.seps, tt.ok)
 			}
 		})
 	}
@@ -288,14 +389,15 @@ func TestTranscriptModel(t *testing.T) {
 }
 
 // Every agent that rewrites commands shares wrapCommand: quoted pipes are
-// literal, and a multi-line command stays as it is.
+// literal, a multi-line command is wrapped per line, and an or list stays as it is.
 func TestRewriteSharedWrapping(t *testing.T) {
 	tests := []struct {
 		name, cmd, want string
 	}{
 		{"quoted pipe", `grep 'a\|b' f.txt | head -5`, `gascoigne exec -attr hint=top -- grep 'a\|b' f.txt | head -5`},
 		{"two commands", "go build ./... && go vet ./... | tail -3", "gascoigne exec -- go build ./... && gascoigne exec -- go vet ./... | tail -3"},
-		{"multi-line", "go build ./...\ngo vet ./...", ""},
+		{"multi-line", "go build ./...\ngo vet ./...", "gascoigne exec -- go build ./...\ngascoigne exec -- go vet ./..."},
+		{"or list", "go build ./... || go vet ./...", ""},
 	}
 	for _, name := range []string{"claude", "cursor", "gemini", "opencode", "pi"} {
 		for _, tt := range tests {

@@ -47,6 +47,25 @@ func TestWrapPipelineBashParity(t *testing.T) {
 		`sh -c 'exit 2'; seq 1 3 | grep '1|2'`,
 		`seq 1 30 | grep -F "1" | wc -l`,
 		`seq 1 30 | head -5 | grep 3`,
+		// pipelines inside a list, where the original status steers && ; and set -e
+		`seq 1 5 | grep 9 && echo skipped`,
+		`seq 1 5 | grep 3 && echo found`,
+		`seq 1 5 | grep 9; echo $?`,
+		`seq 1 5 | grep 3; echo $?`,
+		`seq 1 3 | ls /no/such/dir-xyz 2>&1 && echo no; echo $?`,
+		`seq 1 3 | ls /no/such/dir-xyz 2>&1; echo status $?; echo again`,
+		`set -e; seq 1 3 | grep 9; echo after`,
+		`set -e; seq 1 3 | grep 1; echo after`,
+		`echo start; seq 1 5 | grep 9; echo $?`,
+		`echo start && seq 1 5 | grep 9; echo $?`,
+		`sh -c 'exit 2'; seq 1 5 | grep 9 && echo skipped; echo $?`,
+		`sh -c 'exit 3' | grep x && echo no; echo $?`,
+		`seq 1 5 | grep 3 && seq 1 5 | grep 9; echo $?`,
+		`seq 1 5 | grep 3 && seq 1 5 | grep 4 && echo both`,
+		`seq 1 5 | grep 3 > /dev/null; seq 1 5 | grep 9; echo $?`,
+		"seq 1 5 | grep 9\necho $?",
+		"seq 1 5 | grep 3\nseq 1 5 | grep 4\necho $?",
+		`seq 1 20 | grep 1 | head -3; seq 1 5 | grep 9; echo $?`,
 	}
 	for _, line := range lines {
 		t.Run(line, func(t *testing.T) {
