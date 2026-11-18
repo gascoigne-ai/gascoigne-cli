@@ -145,8 +145,8 @@ func split(text string) []string {
 	return out
 }
 
-func isSpace(s string) bool {
-	return strings.TrimFunc(s, unicode.IsSpace) == ""
+func isSpace(text string) bool {
+	return strings.TrimFunc(text, unicode.IsSpace) == ""
 }
 
 // pair is a merge candidate: the tokens starting at i and j, spanning
@@ -156,14 +156,14 @@ type pair struct{ rank, i, j, end int }
 type pairHeap []pair
 
 func (h pairHeap) Len() int { return len(h) }
-func (h pairHeap) Less(a, b int) bool {
-	if h[a].rank != h[b].rank {
-		return h[a].rank < h[b].rank
+func (h pairHeap) Less(left, right int) bool {
+	if h[left].rank != h[right].rank {
+		return h[left].rank < h[right].rank
 	}
-	return h[a].i < h[b].i
+	return h[left].i < h[right].i
 }
-func (h pairHeap) Swap(a, b int) { h[a], h[b] = h[b], h[a] }
-func (h *pairHeap) Push(x any)   { *h = append(*h, x.(pair)) }
+func (h pairHeap) Swap(left, right int) { h[left], h[right] = h[right], h[left] }
+func (h *pairHeap) Push(item any)       { *h = append(*h, item.(pair)) }
 func (h *pairHeap) Pop() any {
 	old := *h
 	p := old[len(old)-1]
@@ -186,17 +186,17 @@ func (b *BPE) pieceTokens(piece string) int {
 		next[i], prev[i] = i+1, i-1
 	}
 	var h pairHeap
-	push := func(i int) {
-		if i < 0 {
+	push := func(index int) {
+		if index < 0 {
 			return
 		}
-		j := next[i]
+		j := next[index]
 		if j >= n {
 			return
 		}
 		end := next[j]
-		if r, ok := b.ranks[piece[i:end]]; ok {
-			heap.Push(&h, pair{r, i, j, end})
+		if r, ok := b.ranks[piece[index:end]]; ok {
+			heap.Push(&h, pair{r, index, j, end})
 		}
 	}
 	for i := range n - 1 {

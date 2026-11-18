@@ -57,34 +57,34 @@ func (c *Config) Only(ids []string) *Config {
 }
 
 // Route returns the first matching route's name and optimizer chain, else the default.
-func (c *Config) Route(p *payload.Payload) (string, []string) {
+func (c *Config) Route(data *payload.Payload) (string, []string) {
 	for i, r := range c.Routes {
-		if r.Match.matches(p) {
+		if r.Match.matches(data) {
 			return r.label(i), r.Optimizers
 		}
 	}
 	return DefaultRoute, c.Default
 }
 
-func (r Route) label(i int) string {
+func (r Route) label(index int) string {
 	if r.Name != "" {
 		return r.Name
 	}
-	return fmt.Sprintf("route%d", i)
+	return fmt.Sprintf("route%d", index)
 }
 
-func (m Match) matches(p *payload.Payload) bool {
-	if m.Kind != "" && m.Kind != p.Kind() {
+func (m Match) matches(data *payload.Payload) bool {
+	if m.Kind != "" && m.Kind != data.Kind() {
 		return false
 	}
-	if m.MinTokens > 0 && p.Tokens() < m.MinTokens {
+	if m.MinTokens > 0 && data.Tokens() < m.MinTokens {
 		return false
 	}
-	if m.Content != "" && !slices.ContainsFunc(p.Blocks, func(b payload.Block) bool { return Glob(m.Content, b.Type) }) {
+	if m.Content != "" && !slices.ContainsFunc(data.Blocks, func(block payload.Block) bool { return Glob(m.Content, block.Type) }) {
 		return false
 	}
 	for k, pattern := range m.Attrs {
-		v, ok := p.Attrs[k]
+		v, ok := data.Attrs[k]
 		if !ok || !Glob(pattern, v) {
 			return false
 		}
@@ -94,22 +94,22 @@ func (m Match) matches(p *payload.Payload) bool {
 
 // Glob matches s against pattern where '*' matches any run of characters,
 // including '/' (unlike path.Match, since commands and paths contain slashes).
-func Glob(pattern, s string) bool {
+func Glob(pattern, text string) bool {
 	parts := strings.Split(pattern, "*")
 	if len(parts) == 1 {
-		return pattern == s
+		return pattern == text
 	}
 	first, last := parts[0], parts[len(parts)-1]
-	if !strings.HasPrefix(s, first) {
+	if !strings.HasPrefix(text, first) {
 		return false
 	}
-	s = s[len(first):]
+	text = text[len(first):]
 	for _, part := range parts[1 : len(parts)-1] {
-		i := strings.Index(s, part)
+		i := strings.Index(text, part)
 		if i < 0 {
 			return false
 		}
-		s = s[i+len(part):]
+		text = text[i+len(part):]
 	}
-	return strings.HasSuffix(s, last)
+	return strings.HasSuffix(text, last)
 }

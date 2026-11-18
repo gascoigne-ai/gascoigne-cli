@@ -12,7 +12,7 @@ func openLibrary(path string) (uintptr, error) {
 	return purego.Dlopen(path, purego.RTLD_NOW|purego.RTLD_GLOBAL)
 }
 
-func lookup(h uintptr, name string) (uintptr, error) { return purego.Dlsym(h, name) }
+func lookup(handle uintptr, name string) (uintptr, error) { return purego.Dlsym(handle, name) }
 
 // modelPath is a C string: ORTCHAR_T is char here.
 func modelPath(path string) unsafe.Pointer {

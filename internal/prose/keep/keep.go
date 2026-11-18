@@ -19,7 +19,7 @@ type Scorer interface {
 
 // Tokenizer encodes one word into token ids and names the sequence markers.
 type Tokenizer interface {
-	Word(w string) []int
+	Word(word string) []int
 	Markers() (cls, sep int)
 }
 

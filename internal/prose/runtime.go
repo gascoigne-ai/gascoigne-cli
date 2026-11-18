@@ -192,12 +192,12 @@ func isLib(name string) bool {
 	return strings.Contains(base, ".so") || strings.HasSuffix(base, ".dylib") || strings.HasSuffix(base, ".dll")
 }
 
-func write(root *os.Root, name string, r io.Reader, mode os.FileMode) error {
+func write(root *os.Root, name string, reader io.Reader, mode os.FileMode) error {
 	f, err := root.OpenFile(name, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode|0o644)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	_, err = io.Copy(f, r)
+	_, err = io.Copy(f, reader)
 	return err
 }

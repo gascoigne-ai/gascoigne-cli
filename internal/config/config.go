@@ -101,13 +101,13 @@ type Pipeline struct {
 }
 
 // RouterFor returns the router config a pipeline uses.
-func (c *Config) RouterFor(p Pipeline) *router.Config {
+func (c *Config) RouterFor(pipeline Pipeline) *router.Config {
 	r := &c.Router
-	if p.Router != nil {
-		r = p.Router
+	if pipeline.Router != nil {
+		r = pipeline.Router
 	}
-	if len(p.Optimizers) > 0 {
-		return r.Only(p.Optimizers)
+	if len(pipeline.Optimizers) > 0 {
+		return r.Only(pipeline.Optimizers)
 	}
 	return r
 }
@@ -139,11 +139,11 @@ func Decode(data []byte, out any) error {
 }
 
 // DecodeNode strictly decodes a component's raw node over out (which holds defaults).
-func DecodeNode(n Node, out any) error {
-	if n.Kind == 0 {
+func DecodeNode(node Node, out any) error {
+	if node.Kind == 0 {
 		return nil
 	}
-	data, err := yaml.Marshal(&n)
+	data, err := yaml.Marshal(&node)
 	if err != nil {
 		return err
 	}

@@ -36,10 +36,10 @@ func copyWithBar(dst io.Writer, src io.Reader, total int64) (int64, error) {
 	return n, err
 }
 
-func (p *progress) Write(b []byte) (int, error) {
-	p.done += int64(len(b))
+func (p *progress) Write(data []byte) (int, error) {
+	p.done += int64(len(data))
 	p.draw(false)
-	return len(b), nil
+	return len(data), nil
 }
 
 // draw redraws at most ten times a second, unless final.

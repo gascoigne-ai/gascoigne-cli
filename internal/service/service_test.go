@@ -23,9 +23,9 @@ var words = strings.Repeat("alpha beta ", 30)
 
 type upper struct{ component.Nop }
 
-func (upper) Optimize(_ context.Context, p *payload.Payload) error {
-	for i := range p.Blocks {
-		p.Blocks[i].Text = strings.ToUpper(strings.ReplaceAll(p.Blocks[i].Text, " ", ""))
+func (upper) Optimize(_ context.Context, data *payload.Payload) error {
+	for i := range data.Blocks {
+		data.Blocks[i].Text = strings.ToUpper(strings.ReplaceAll(data.Blocks[i].Text, " ", ""))
 	}
 	return nil
 }
@@ -36,15 +36,15 @@ func (noop) Optimize(context.Context, *payload.Payload) error { return nil }
 
 type boom struct{ component.Nop }
 
-func (boom) Optimize(_ context.Context, p *payload.Payload) error {
-	p.Blocks[0].Text = "partial"
+func (boom) Optimize(_ context.Context, data *payload.Payload) error {
+	data.Blocks[0].Text = "partial"
 	return errors.New("boom")
 }
 
 type grow struct{ component.Nop }
 
-func (grow) Optimize(_ context.Context, p *payload.Payload) error {
-	p.Blocks[0].Text = strings.ReplaceAll(p.Blocks[0].Text, " ", " | ")
+func (grow) Optimize(_ context.Context, data *payload.Payload) error {
+	data.Blocks[0].Text = strings.ReplaceAll(data.Blocks[0].Text, " ", " | ")
 	return nil
 }
 
@@ -53,14 +53,14 @@ type capture struct {
 	got []*payload.Payload
 }
 
-func (c *capture) Export(_ context.Context, p *payload.Payload) error {
-	c.got = append(c.got, p)
+func (c *capture) Export(_ context.Context, data *payload.Payload) error {
+	c.got = append(c.got, data)
 	return nil
 }
 
-func factory[C component.Component](kind component.Kind, typ string, c C) component.Factory {
+func factory[C component.Component](kind component.Kind, typ string, instance C) component.Factory {
 	return component.NewFactory(kind, typ, func() *empty { return &empty{} },
-		func(context.Context, component.Settings, *empty) (component.Component, error) { return c, nil },
+		func(context.Context, component.Settings, *empty) (component.Component, error) { return instance, nil },
 		component.WithFamily("test"))
 }
 
@@ -105,14 +105,14 @@ func newService(t *testing.T, yaml string) (*Service, *capture) {
 	return s, exp
 }
 
-func process(t *testing.T, s *Service, cmd, text string, attrs ...string) *payload.Payload {
+func process(t *testing.T, svc *Service, cmd, text string, attrs ...string) *payload.Payload {
 	t.Helper()
 	p := payload.New(payload.CmdOutput, text)
 	p.Set(payload.AttrCmd, cmd)
 	for i := 0; i < len(attrs); i += 2 {
 		p.Set(attrs[i], attrs[i+1])
 	}
-	pl, _ := s.Pipeline("cli")
+	pl, _ := svc.Pipeline("cli")
 	out, err := pl.Process(t.Context(), p)
 	if err != nil {
 		t.Fatal(err)
@@ -343,10 +343,10 @@ func TestRemoteOptimizes(t *testing.T) {
 	exp := &capture{}
 	var gotPipeline string
 	var gotAttrs map[string]string
-	remote := func(_ context.Context, pipeline string, p *payload.Payload) (*payload.Payload, error) {
-		gotPipeline, gotAttrs = pipeline, p.Attrs
-		p.Blocks[0].Text = "remote"
-		return p, nil
+	remote := func(_ context.Context, pipeline string, data *payload.Payload) (*payload.Payload, error) {
+		gotPipeline, gotAttrs = pipeline, data.Attrs
+		data.Blocks[0].Text = "remote"
+		return data, nil
 	}
 	// No upper/boom factories: a remote service builds no optimizers.
 	s, err := New(t.Context(), cfg, append(registry.Factories(), factory(component.KindExporter, "capture", exp)), Options{Attrs: map[string]string{"session": "s1"}, Remote: remote})

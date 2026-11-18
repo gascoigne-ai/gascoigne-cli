@@ -49,9 +49,9 @@ func String() string { return Number + " (" + Commit() + ")" }
 // MAJOR.MINOR.PATCH with an optional -suffix: a suffixed version (0.2.2-dev)
 // comes before its plain release (0.2.2). Text that is not a version is
 // never newer, and nothing is newer than it.
-func Newer(a, b string) bool {
-	x, okx := parse(a)
-	y, oky := parse(b)
+func Newer(left, right string) bool {
+	x, okx := parse(left)
+	y, oky := parse(right)
 	if !okx || !oky {
 		return false
 	}
@@ -68,8 +68,8 @@ type parsed struct {
 	pre bool // has a -suffix: before the release itself
 }
 
-func parse(s string) (p parsed, ok bool) {
-	core, suffix, _ := strings.Cut(s, "-")
+func parse(text string) (p parsed, ok bool) {
+	core, suffix, _ := strings.Cut(text, "-")
 	p.pre = suffix != ""
 	parts := strings.Split(core, ".")
 	if len(parts) != 3 {

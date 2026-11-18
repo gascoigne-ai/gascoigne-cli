@@ -9,8 +9,8 @@ import (
 type fakeTok struct{}
 
 func (fakeTok) Markers() (int, int) { return 1, 2 }
-func (fakeTok) Word(w string) []int {
-	ids := make([]int, len(w))
+func (fakeTok) Word(word string) []int {
+	ids := make([]int, len(word))
 	for i := range ids {
 		ids[i] = 10 + i
 	}

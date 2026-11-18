@@ -215,18 +215,18 @@ type Saving struct {
 // Estimate prices tokens saved (tokens.Estimate units) on model m: one
 // first read (a cache write), then c.Rereads reads, c.Miss of them full
 // writes again.
-func Estimate(m Model, saved int, c Context) Saving {
-	t := Tokenizers[m.Tokenizer]
+func Estimate(model Model, saved int, ctx Context) Saving {
+	t := Tokenizers[model.Tokenizer]
 	n := float64(saved) * t.Factor
-	first := n * m.CacheWrite / 1e6
-	reread := n * ((1-c.Miss)*m.CacheRead + c.Miss*m.CacheWrite) / 1e6
-	return Saving{Model: m.ID, Family: m.Family(), Tokenizer: t.Name, Tokens: saved, ModelTokens: int(n + 0.5),
-		FirstRead: first, InContext: first + c.Rereads*reread}
+	first := n * model.CacheWrite / 1e6
+	reread := n * ((1-ctx.Miss)*model.CacheRead + ctx.Miss*model.CacheWrite) / 1e6
+	return Saving{Model: model.ID, Family: model.Family(), Tokenizer: t.Name, Tokens: saved, ModelTokens: int(n + 0.5),
+		FirstRead: first, InContext: first + ctx.Rereads*reread}
 }
 
 // Total sums savings.
-func Total(s []Saving) (first, inContext float64) {
-	for _, x := range s {
+func Total(savings []Saving) (first, inContext float64) {
+	for _, x := range savings {
 		first += x.FirstRead
 		inContext += x.InContext
 	}
@@ -234,6 +234,6 @@ func Total(s []Saving) (first, inContext float64) {
 }
 
 // Sort orders savings by value in context, highest first.
-func Sort(s []Saving) {
-	slices.SortStableFunc(s, func(a, b Saving) int { return cmp.Compare(b.InContext, a.InContext) })
+func Sort(savings []Saving) {
+	slices.SortStableFunc(savings, func(left, right Saving) int { return cmp.Compare(right.InContext, left.InContext) })
 }

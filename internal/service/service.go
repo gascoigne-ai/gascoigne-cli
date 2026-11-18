@@ -28,7 +28,7 @@ type Options struct {
 
 // Remote runs a pipeline's filters, router, optimizers and ledger
 // bookkeeping (Pipeline.Optimize) somewhere else.
-type Remote func(ctx context.Context, pipeline string, p *payload.Payload) (*payload.Payload, error)
+type Remote func(ctx context.Context, pipeline string, data *payload.Payload) (*payload.Payload, error)
 
 type Service struct {
 	log        *slog.Logger
@@ -132,9 +132,9 @@ func (s *Service) buildLocal(ctx context.Context, cfg *config.Config) error {
 	return buildAll(ctx, s, component.KindOptimizer, cfg.Optimizers, s.optimizers)
 }
 
-func buildAll[T any](ctx context.Context, s *Service, kind component.Kind, comps config.Components, into map[string]T) error {
+func buildAll[T any](ctx context.Context, svc *Service, kind component.Kind, comps config.Components, into map[string]T) error {
 	for _, id := range slices.Sorted(maps.Keys(comps)) {
-		c, err := s.create(ctx, kind, id, comps[id], nil)
+		c, err := svc.create(ctx, kind, id, comps[id], nil)
 		if err != nil {
 			return err
 		}
@@ -179,8 +179,8 @@ func (s *Service) create(ctx context.Context, kind component.Kind, rawID string,
 // optimizers, filters, receivers. On failure, already started ones are shut down.
 func (s *Service) Start(ctx context.Context) error {
 	var order []component.Component
-	for _, id := range slices.SortedFunc(maps.Keys(s.extensions), func(a, b component.ID) int {
-		return cmp.Compare(a.String(), b.String())
+	for _, id := range slices.SortedFunc(maps.Keys(s.extensions), func(left, right component.ID) int {
+		return cmp.Compare(left.String(), right.String())
 	}) {
 		order = append(order, s.extensions[id])
 	}
@@ -201,9 +201,9 @@ func (s *Service) Start(ctx context.Context) error {
 	return nil
 }
 
-func appendSorted[T component.Component](order []component.Component, m map[string]T) []component.Component {
-	for _, id := range slices.Sorted(maps.Keys(m)) {
-		order = append(order, m[id])
+func appendSorted[T component.Component](order []component.Component, items map[string]T) []component.Component {
+	for _, id := range slices.Sorted(maps.Keys(items)) {
+		order = append(order, items[id])
 	}
 	return order
 }

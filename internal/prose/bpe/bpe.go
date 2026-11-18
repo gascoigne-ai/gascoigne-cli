@@ -96,12 +96,12 @@ func byteRunes() (m [256]rune) {
 }
 
 // Word returns the ids of one word.
-func (t *Tokenizer) Word(w string) []int {
+func (t *Tokenizer) Word(word string) []int {
 	if t.metaspace {
-		return t.spmWord(w)
+		return t.spmWord(word)
 	}
 	var ids []int
-	for _, piece := range gpt2Split.FindAllString(norm.NFC.String(w), -1) {
+	for _, piece := range gpt2Split.FindAllString(norm.NFC.String(word), -1) {
 		for _, tok := range t.merge(piece) {
 			ids = append(ids, t.vocab[tok])
 		}
@@ -112,12 +112,12 @@ func (t *Tokenizer) Word(w string) []int {
 // spmWord tokenizes a word as it would sit in a space-joined text: "▁" in
 // front, merges over characters, and a character the vocabulary lacks becomes
 // one <0xHH> token per byte. No Unicode normalization.
-func (t *Tokenizer) spmWord(w string) []int {
-	if id, ok := t.added[w]; ok { // only a whole word, not one inside a longer word
+func (t *Tokenizer) spmWord(word string) []int {
+	if id, ok := t.added[word]; ok { // only a whole word, not one inside a longer word
 		return []int{id}
 	}
 	var parts []string
-	for _, r := range "▁" + w {
+	for _, r := range "▁" + word {
 		parts = append(parts, string(r))
 	}
 	var ids []int

@@ -72,7 +72,7 @@ func Call(ctx context.Context, name string) (string, error) {
 // rng is seeded per generator, so every run produces the same bytes.
 func rng(seed uint64) *rand.Rand { return rand.New(rand.NewPCG(seed, seed)) }
 
-func pick[T any](r *rand.Rand, xs ...T) T { return xs[r.IntN(len(xs))] }
+func pick[T any](rng *rand.Rand, xs ...T) T { return xs[rng.IntN(len(xs))] }
 
 func issues() string {
 	r := rng(1)

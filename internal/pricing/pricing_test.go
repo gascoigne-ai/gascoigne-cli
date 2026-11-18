@@ -16,7 +16,7 @@ import (
 
 const sheetA = `{"version":1,"models":{"acme-large":{"in":3,"out":15,"cache_read":0.3,"cache_write":3.75,"tokenizer":"claude"}}}`
 
-func price(v float64) *float64 { return &v }
+func price(value float64) *float64 { return &value }
 
 func lookup(t *testing.T, result Result, id string) (cost.Model, string) {
 	t.Helper()

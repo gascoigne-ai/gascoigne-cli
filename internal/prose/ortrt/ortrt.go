@@ -73,7 +73,7 @@ type api struct {
 	appendCUDAV2      func(opts, cuda uintptr) uintptr
 	createCUDAOptions func(out *uintptr) uintptr
 	releaseCUDAOpts   func(uintptr)
-	appendProvider    func(opts uintptr, name, keys, values unsafe.Pointer, n uintptr) uintptr
+	appendProvider    func(opts uintptr, name, keys, values unsafe.Pointer, count uintptr) uintptr
 }
 
 // Open loads the ONNX Runtime library at path (or its bare name, found on the
@@ -254,7 +254,7 @@ func (r *Runtime) check(status uintptr) error {
 	return errors.New(goString(r.api.getErrorMessage(status)))
 }
 
-func cstr(s string) []byte { return append([]byte(s), 0) }
+func cstr(text string) []byte { return append([]byte(text), 0) }
 
 // ptr converts a C address to a pointer without go vet's uintptr warning:
 // the memory is C's, never Go's.

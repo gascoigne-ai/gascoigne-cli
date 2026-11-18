@@ -98,4 +98,4 @@ func TestFamily(t *testing.T) {
 	}
 }
 
-func near(a, b float64) bool { return math.Abs(a-b) < 1e-9 }
+func near(left, right float64) bool { return math.Abs(left-right) < 1e-9 }

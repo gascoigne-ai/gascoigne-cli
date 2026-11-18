@@ -20,9 +20,9 @@ type Matcher func(line string) bool
 // Prefix matches lines that start with any of the given strings.
 func Prefix(prefixes ...string) Matcher {
 	mustNotBeEmpty("Prefix", prefixes)
-	return func(s string) bool {
+	return func(line string) bool {
 		for _, p := range prefixes {
-			if strings.HasPrefix(s, p) {
+			if strings.HasPrefix(line, p) {
 				return true
 			}
 		}
@@ -40,9 +40,9 @@ func Word(keywords ...string) Matcher {
 			panic("pcomb: Word keyword must end in a letter, digit or _: " + k)
 		}
 	}
-	return func(s string) bool {
+	return func(line string) bool {
 		for _, k := range keywords {
-			if strings.HasPrefix(s, k) && (len(s) == len(k) || !isWord(s[len(k)])) {
+			if strings.HasPrefix(line, k) && (len(line) == len(k) || !isWord(line[len(k)])) {
 				return true
 			}
 		}
@@ -55,9 +55,9 @@ func Exact(lines ...string) Matcher {
 	if len(lines) == 0 {
 		panic("pcomb: Exact needs at least one string")
 	}
-	return func(s string) bool {
+	return func(line string) bool {
 		for _, l := range lines {
-			if s == l {
+			if line == l {
 				return true
 			}
 		}
@@ -67,34 +67,34 @@ func Exact(lines ...string) Matcher {
 
 // Prefixed matches lines that start with prefix followed by something m
 // accepts, as in Prefixed("[INFO] ", Prefix("Download", "Scanning")).
-func Prefixed(prefix string, m Matcher) Matcher {
+func Prefixed(prefix string, matcher Matcher) Matcher {
 	mustNotBeEmpty("Prefixed", []string{prefix})
-	return func(s string) bool {
-		rest, ok := strings.CutPrefix(s, prefix)
-		return ok && m(rest)
+	return func(line string) bool {
+		rest, ok := strings.CutPrefix(line, prefix)
+		return ok && matcher(rest)
 	}
 }
 
 // Indented matches lines with at least one leading whitespace character
 // followed by m. All leading whitespace is skipped before m runs, so m must
 // not start with whitespace itself.
-func Indented(m Matcher) Matcher {
-	return func(s string) bool {
-		t := trimSpace(s)
-		return len(t) < len(s) && m(t)
+func Indented(matcher Matcher) Matcher {
+	return func(line string) bool {
+		t := trimSpace(line)
+		return len(t) < len(line) && matcher(t)
 	}
 }
 
 // Trimmed matches lines where m matches after any leading whitespace.
-func Trimmed(m Matcher) Matcher {
-	return func(s string) bool { return m(trimSpace(s)) }
+func Trimmed(matcher Matcher) Matcher {
+	return func(line string) bool { return matcher(trimSpace(line)) }
 }
 
 // Any matches when at least one of ms matches.
 func Any(ms ...Matcher) Matcher {
-	return func(s string) bool {
+	return func(line string) bool {
 		for _, m := range ms {
-			if m(s) {
+			if m(line) {
 				return true
 			}
 		}
@@ -121,15 +121,15 @@ func mustNotBeEmpty(fn string, ss []string) {
 }
 
 // isWord is regexp's \w: ASCII letters, digits and underscore.
-func isWord(c byte) bool {
-	return c == '_' || '0' <= c && c <= '9' || 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z'
+func isWord(char byte) bool {
+	return char == '_' || '0' <= char && char <= '9' || 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z'
 }
 
 // trimSpace drops leading regexp \s: space, \t, \n, \f, \r.
-func trimSpace(s string) string {
+func trimSpace(line string) string {
 	i := 0
-	for i < len(s) && strings.IndexByte(" \t\n\f\r", s[i]) >= 0 {
+	for i < len(line) && strings.IndexByte(" \t\n\f\r", line[i]) >= 0 {
 		i++
 	}
-	return s[i:]
+	return line[i:]
 }

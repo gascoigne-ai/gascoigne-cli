@@ -15,9 +15,9 @@ func TestExtractLibsTar(t *testing.T) {
 	f, _ := os.Create(archive)
 	gz := gzip.NewWriter(f)
 	tw := tar.NewWriter(gz)
-	add := func(h tar.Header, body string) {
-		h.Size = int64(len(body))
-		tw.WriteHeader(&h)
+	add := func(header tar.Header, body string) {
+		header.Size = int64(len(body))
+		tw.WriteHeader(&header)
 		tw.Write([]byte(body))
 	}
 	add(tar.Header{Name: "ort-1/lib/libonnxruntime.so.1.29.0", Mode: 0o755, Typeflag: tar.TypeReg}, "lib")

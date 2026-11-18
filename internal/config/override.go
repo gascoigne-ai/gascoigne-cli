@@ -23,8 +23,8 @@ type Overrides struct {
 }
 
 // ParseWith parses data after applying overrides.
-func ParseWith(data []byte, o Overrides) (*Config, error) {
-	data, err := applySets(data, o.Set)
+func ParseWith(data []byte, overrides Overrides) (*Config, error) {
+	data, err := applySets(data, overrides.Set)
 	if err != nil {
 		return nil, fmt.Errorf("config: %w", err)
 	}
@@ -32,7 +32,7 @@ func ParseWith(data []byte, o Overrides) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := c.restrict(o.Only, o.Disable); err != nil {
+	if err := c.restrict(overrides.Only, overrides.Disable); err != nil {
 		return nil, fmt.Errorf("config: %w", err)
 	}
 	return c, nil
@@ -70,30 +70,30 @@ func applySets(data []byte, sets []string) ([]byte, error) {
 }
 
 // setPath assigns v at keys inside mapping n, creating mappings on the way.
-func setPath(n *yaml.Node, keys []string, v *yaml.Node) error {
-	if n.Kind == yaml.ScalarNode && n.Tag == "!!null" {
-		n.Kind, n.Tag, n.Value = yaml.MappingNode, "!!map", ""
+func setPath(node *yaml.Node, keys []string, value *yaml.Node) error {
+	if node.Kind == yaml.ScalarNode && node.Tag == "!!null" {
+		node.Kind, node.Tag, node.Value = yaml.MappingNode, "!!map", ""
 	}
-	if n.Kind != yaml.MappingNode {
+	if node.Kind != yaml.MappingNode {
 		return fmt.Errorf("%q is not a mapping", keys[0])
 	}
-	for i := 0; i+1 < len(n.Content); i += 2 {
-		if n.Content[i].Value != keys[0] {
+	for i := 0; i+1 < len(node.Content); i += 2 {
+		if node.Content[i].Value != keys[0] {
 			continue
 		}
 		if len(keys) == 1 {
-			n.Content[i+1] = v
+			node.Content[i+1] = value
 			return nil
 		}
-		return setPath(n.Content[i+1], keys[1:], v)
+		return setPath(node.Content[i+1], keys[1:], value)
 	}
-	child := v
+	child := value
 	if len(keys) > 1 {
 		child = &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 	}
-	n.Content = append(n.Content, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: keys[0]}, child)
+	node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: keys[0]}, child)
 	if len(keys) > 1 {
-		return setPath(child, keys[1:], v)
+		return setPath(child, keys[1:], value)
 	}
 	return nil
 }
@@ -115,10 +115,10 @@ func (c *Config) restrict(only, disable []string) error {
 	keep := func(id string) bool {
 		return (len(only) == 0 || slices.Contains(only, id)) && !slices.Contains(disable, id)
 	}
-	filter := func(r *router.Config) {
-		r.Default = slices.DeleteFunc(r.Default, func(id string) bool { return !keep(id) })
-		for i := range r.Routes {
-			r.Routes[i].Optimizers = slices.DeleteFunc(r.Routes[i].Optimizers, func(id string) bool { return !keep(id) })
+	filter := func(routerConfig *router.Config) {
+		routerConfig.Default = slices.DeleteFunc(routerConfig.Default, func(id string) bool { return !keep(id) })
+		for i := range routerConfig.Routes {
+			routerConfig.Routes[i].Optimizers = slices.DeleteFunc(routerConfig.Routes[i].Optimizers, func(id string) bool { return !keep(id) })
 		}
 	}
 	filter(&c.Router)

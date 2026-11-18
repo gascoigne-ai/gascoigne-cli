@@ -50,21 +50,21 @@ func TestBPEMerges(t *testing.T) {
 }
 
 func TestClaudeCount(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/v1/messages/count_tokens" || r.Header.Get("x-api-key") != "k" {
-			http.Error(w, "bad", http.StatusUnauthorized)
+	srv := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if request.URL.Path != "/v1/messages/count_tokens" || request.Header.Get("x-api-key") != "k" {
+			http.Error(writer, "bad", http.StatusUnauthorized)
 			return
 		}
 		var body strings.Builder
 		buf := make([]byte, 4096)
-		n, _ := r.Body.Read(buf)
+		n, _ := request.Body.Read(buf)
 		body.Write(buf[:n])
 		// Frame of 7 tokens; "." is one token, the text 40.
 		if strings.Contains(body.String(), `"content":"."`) {
-			fmt.Fprint(w, `{"input_tokens":8}`)
+			fmt.Fprint(writer, `{"input_tokens":8}`)
 			return
 		}
-		fmt.Fprint(w, `{"input_tokens":47}`)
+		fmt.Fprint(writer, `{"input_tokens":47}`)
 	}))
 	defer srv.Close()
 	n, err := Claude{Key: "k", Model: "claude-opus-5-5", URL: srv.URL}.Count(t.Context(), "some text")

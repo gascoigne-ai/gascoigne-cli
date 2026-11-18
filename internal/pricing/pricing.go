@@ -232,24 +232,24 @@ func fileStamp(path string) (string, error) {
 }
 
 // due reports whether a cached layer should be refreshed now by itself.
-func (c Config) due(name string, e *entry) bool {
+func (c Config) due(name string, cached *entry) bool {
 	if name == LayerJSON {
 		// A changed file is news even in manual mode.
 		stamp, err := fileStamp(c.File)
-		if err == nil && (e == nil || e.Stamp != stamp) {
-			return e == nil || e.Error == "" || c.now().Sub(e.Attempt) >= FailureBackoff
+		if err == nil && (cached == nil || cached.Stamp != stamp) {
+			return cached == nil || cached.Error == "" || c.now().Sub(cached.Attempt) >= FailureBackoff
 		}
 	}
 	if c.Manual {
 		return false
 	}
-	if e == nil || e.Fetched.IsZero() && e.Attempt.IsZero() {
+	if cached == nil || cached.Fetched.IsZero() && cached.Attempt.IsZero() {
 		return true
 	}
-	if e.Error != "" && c.now().Sub(e.Attempt) < FailureBackoff {
+	if cached.Error != "" && c.now().Sub(cached.Attempt) < FailureBackoff {
 		return false
 	}
-	return c.now().Sub(e.Fetched) >= c.ttl()
+	return c.now().Sub(cached.Fetched) >= c.ttl()
 }
 
 // Load builds the user's prices from the settings and the cache. It reads files and never the
@@ -322,26 +322,26 @@ func Load(cfg Config) Result {
 
 // fromCache turns a layer's cached sheet into prices and fills its status. No sheet yet is not
 // an error unless the last run failed.
-func fromCache(e *entry, name string, layer *Layer, cfg Config) ([]cost.Override, error) {
-	if e == nil {
+func fromCache(cached *entry, name string, layer *Layer, cfg Config) ([]cost.Override, error) {
+	if cached == nil {
 		return nil, nil
 	}
-	layer.Fetched = e.Fetched
+	layer.Fetched = cached.Fetched
 	switch {
 	case cfg.Manual:
-	case !e.Fetched.IsZero():
-		layer.Next = e.Fetched.Add(cfg.ttl())
-	case e.Error != "": // nothing fetched yet: the failure's backoff dates the next try
-		layer.Next = e.Attempt.Add(FailureBackoff)
+	case !cached.Fetched.IsZero():
+		layer.Next = cached.Fetched.Add(cfg.ttl())
+	case cached.Error != "": // nothing fetched yet: the failure's backoff dates the next try
+		layer.Next = cached.Attempt.Add(FailureBackoff)
 	}
 	var err error
-	if e.Error != "" {
-		err = errors.New(e.Error)
+	if cached.Error != "" {
+		err = errors.New(cached.Error)
 	}
-	if len(e.Sheet) == 0 {
+	if len(cached.Sheet) == 0 {
 		return nil, err
 	}
-	list, perr := cost.ParsePrices(e.Sheet, name)
+	list, perr := cost.ParsePrices(cached.Sheet, name)
 	if perr != nil {
 		return nil, perr
 	}
@@ -424,7 +424,7 @@ func lock(cfg Config) (release func(), ok bool) {
 }
 
 // run fetches or translates one layer into e.
-func (c Config) run(ctx context.Context, name string, e *entry, force bool) error {
+func (c Config) run(ctx context.Context, name string, layer *entry, force bool) error {
 	ctx, cancel := context.WithTimeout(ctx, c.timeout())
 	defer cancel()
 	var input []byte
@@ -437,9 +437,9 @@ func (c Config) run(ctx context.Context, name string, e *entry, force bool) erro
 		if input, err = readSheet(c.File); err != nil {
 			return fmt.Errorf("%s prices: %w", name, err)
 		}
-		e.Stamp = stamp
+		layer.Stamp = stamp
 	case LayerAPI:
-		body, notModified, err := c.fetch(ctx, e, force)
+		body, notModified, err := c.fetch(ctx, layer, force)
 		if err != nil {
 			return fmt.Errorf("%s prices: %w", name, err)
 		}
@@ -458,12 +458,12 @@ func (c Config) run(ctx context.Context, name string, e *entry, force bool) erro
 	if _, err := cost.ParsePrices(sheet, name); err != nil {
 		return err
 	}
-	e.Sheet = sheet
+	layer.Sheet = sheet
 	return nil
 }
 
 // fetch GETs the URL, conditionally unless forced.
-func (c Config) fetch(ctx context.Context, e *entry, force bool) (body []byte, notModified bool, err error) {
+func (c Config) fetch(ctx context.Context, layer *entry, force bool) (body []byte, notModified bool, err error) {
 	if err := checkURL(c.URL); err != nil {
 		return nil, false, err
 	}
@@ -477,12 +477,12 @@ func (c Config) fetch(ctx context.Context, e *entry, force bool) (body []byte, n
 			request.Header.Set(strings.TrimSpace(name), strings.TrimSpace(value))
 		}
 	}
-	if !force && len(e.Sheet) > 0 {
-		if e.ETag != "" {
-			request.Header.Set("If-None-Match", e.ETag)
+	if !force && len(layer.Sheet) > 0 {
+		if layer.ETag != "" {
+			request.Header.Set("If-None-Match", layer.ETag)
 		}
-		if e.Modified != "" {
-			request.Header.Set("If-Modified-Since", e.Modified)
+		if layer.Modified != "" {
+			request.Header.Set("If-Modified-Since", layer.Modified)
 		}
 	}
 	client := c.Client
@@ -494,7 +494,7 @@ func (c Config) fetch(ctx context.Context, e *entry, force bool) (body []byte, n
 		return nil, false, err
 	}
 	defer response.Body.Close()
-	if response.StatusCode == http.StatusNotModified && len(e.Sheet) > 0 {
+	if response.StatusCode == http.StatusNotModified && len(layer.Sheet) > 0 {
 		return nil, true, nil
 	}
 	if response.StatusCode != http.StatusOK {
@@ -507,7 +507,7 @@ func (c Config) fetch(ctx context.Context, e *entry, force bool) (body []byte, n
 	if len(body) > MaxBytes {
 		return nil, false, fmt.Errorf("response over %d bytes", MaxBytes)
 	}
-	e.ETag, e.Modified = response.Header.Get("ETag"), response.Header.Get("Last-Modified")
+	layer.ETag, layer.Modified = response.Header.Get("ETag"), response.Header.Get("Last-Modified")
 	return body, false, nil
 }
 
@@ -554,12 +554,12 @@ type limited struct {
 	overflow bool
 }
 
-func (l *limited) Write(p []byte) (int, error) {
-	if l.buf.Len()+len(p) > l.max {
+func (l *limited) Write(chunk []byte) (int, error) {
+	if l.buf.Len()+len(chunk) > l.max {
 		l.overflow = true
 		return 0, errors.New("output too large")
 	}
-	return l.buf.Write(p)
+	return l.buf.Write(chunk)
 }
 
 // translate runs the command: input on stdin, the price sheet on stdout.

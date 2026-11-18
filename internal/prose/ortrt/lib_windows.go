@@ -10,8 +10,8 @@ func openLibrary(path string) (uintptr, error) {
 	return uintptr(h), err
 }
 
-func lookup(h uintptr, name string) (uintptr, error) {
-	return syscall.GetProcAddress(syscall.Handle(h), name)
+func lookup(handle uintptr, name string) (uintptr, error) {
+	return syscall.GetProcAddress(syscall.Handle(handle), name)
 }
 
 // modelPath is UTF-16: ORTCHAR_T is wchar_t on Windows.

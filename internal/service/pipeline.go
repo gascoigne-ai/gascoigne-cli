@@ -76,42 +76,42 @@ func (pl *Pipeline) Optimize(ctx context.Context, in *payload.Payload) (*payload
 	return p, nil
 }
 
-func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.Event) (*payload.Payload, error) {
+func (pl *Pipeline) run(ctx context.Context, data *payload.Payload, ev *component.Event) (*payload.Payload, error) {
 	for _, f := range pl.filters {
-		d, err := f.c.Filter(ctx, p)
+		d, err := f.c.Filter(ctx, data)
 		if err != nil {
 			return nil, fmt.Errorf("filter %s: %w", f.id, err)
 		}
 		if d == component.Bypass {
 			pl.svc.log.Debug("bypass", "filter", f.id, "key", ev.Key)
 			ev.Outcome, ev.Filter = component.Bypassed, f.id
-			ev.Reason = cmp.Or(p.Attrs[payload.AttrSkip], "bypassed by "+f.id)
-			return p, nil
+			ev.Reason = cmp.Or(data.Attrs[payload.AttrSkip], "bypassed by "+f.id)
+			return data, nil
 		}
 	}
 
-	ev.Route, ev.Optimizers = pl.router.Route(p)
-	p.Set(payload.AttrRoute, ev.Route)
-	orig := p.Clone()
+	ev.Route, ev.Optimizers = pl.router.Route(data)
+	data.Set(payload.AttrRoute, ev.Route)
+	orig := data.Clone()
 	for _, id := range ev.Optimizers {
-		before, texts := p.Tokens(), blockTexts(p)
-		if err := pl.svc.optimizers[id].Optimize(ctx, p); err != nil {
+		before, texts := data.Tokens(), blockTexts(data)
+		if err := pl.svc.optimizers[id].Optimize(ctx, data); err != nil {
 			// Never fail the agent: fall back to the original and remember the source.
 			pl.svc.log.Warn("optimizer failed, using original", "optimizer", id, "err", err)
 			ev.Outcome, ev.Steps, ev.Filter, ev.Reason = component.Failed, nil, id, firstLine(err.Error())
 			pl.markFailure(ctx, ev.Key, component.ReasonError)
 			return orig, nil
 		}
-		if after := p.Tokens(); after != before {
+		if after := data.Tokens(); after != before {
 			ev.Steps = append(ev.Steps, component.Step{Optimizer: id, Family: pl.svc.families[id],
-				Dialect: changedTypes(p, texts), RawTokens: before, OutTokens: after})
+				Dialect: changedTypes(data, texts), RawTokens: before, OutTokens: after})
 		}
 	}
-	if p.SameContent(orig) {
-		ev.Outcome, ev.Reason = component.Unchanged, unchangedReason(p, ev.Optimizers)
-		return p, nil
+	if data.SameContent(orig) {
+		ev.Outcome, ev.Reason = component.Unchanged, unchangedReason(data, ev.Optimizers)
+		return data, nil
 	}
-	if in, out := orig.Tokens(), p.Tokens(); in-out < minSaving {
+	if in, out := orig.Tokens(), data.Tokens(); in-out < minSaving {
 		// Rewritten but not worth it: the retrieve hint every consumer adds
 		// costs about minSaving tokens, and the original reads better.
 		ev.Outcome, ev.Steps = component.Unchanged, nil
@@ -126,11 +126,11 @@ func (pl *Pipeline) run(ctx context.Context, p *payload.Payload, ev *component.E
 		ev.Outcome, ev.Steps, ev.Filter, ev.Reason = component.Failed, nil, "ledger", "save original: "+firstLine(err.Error())
 		return orig, nil
 	}
-	p.Set(payload.AttrRawID, id)
+	data.Set(payload.AttrRawID, id)
 	ev.RawID = id
 	ev.Outcome = component.Optimized
-	ev.Output = p.Text()
-	return p, nil
+	ev.Output = data.Text()
+	return data, nil
 }
 
 func (pl *Pipeline) markFailure(ctx context.Context, key, reason string) {
@@ -144,50 +144,50 @@ func (pl *Pipeline) markFailure(ctx context.Context, key, reason string) {
 
 // command names the payload's source for reports: the normalized command
 // line, else the tool (and URL host), else empty.
-func command(p *payload.Payload) string {
-	if c := detect.Command(p.Attrs[payload.AttrCmd]); c != "" {
+func command(data *payload.Payload) string {
+	if c := detect.Command(data.Attrs[payload.AttrCmd]); c != "" {
 		return c
 	}
-	tool := p.Attrs[payload.AttrTool]
-	if u, err := url.Parse(p.Attrs[payload.AttrURL]); err == nil && u.Host != "" {
+	tool := data.Attrs[payload.AttrTool]
+	if u, err := url.Parse(data.Attrs[payload.AttrURL]); err == nil && u.Host != "" {
 		return strings.TrimSpace(tool + " " + u.Host)
 	}
 	return tool
 }
 
 // unchangedReason tells which content no optimizer handled.
-func unchangedReason(p *payload.Payload, optimizers []string) string {
+func unchangedReason(data *payload.Payload, optimizers []string) string {
 	if len(optimizers) == 0 {
 		return "route has no optimizers"
 	}
 	var types []string
-	for _, b := range p.Blocks {
+	for _, b := range data.Blocks {
 		types = append(types, cmp.Or(b.Type, "undetected"))
 	}
 	reason := "no optimizer changed it · types: " + strings.Join(slices.Compact(types), ", ")
-	if note := p.Attrs[payload.AttrSkip]; note != "" {
+	if note := data.Attrs[payload.AttrSkip]; note != "" {
 		reason = note + " · types: " + strings.Join(slices.Compact(types), ", ")
 	}
 	return reason
 }
 
-func firstLine(s string) string {
-	line, _, _ := strings.Cut(s, "\n")
+func firstLine(text string) string {
+	line, _, _ := strings.Cut(text, "\n")
 	return line
 }
 
-func blockTexts(p *payload.Payload) []string {
-	texts := make([]string, len(p.Blocks))
-	for i, b := range p.Blocks {
+func blockTexts(data *payload.Payload) []string {
+	texts := make([]string, len(data.Blocks))
+	for i, b := range data.Blocks {
 		texts[i] = b.Text
 	}
 	return texts
 }
 
 // changedTypes lists the types of blocks whose text differs from before.
-func changedTypes(p *payload.Payload, before []string) string {
+func changedTypes(data *payload.Payload, before []string) string {
 	var types []string
-	for i, b := range p.Blocks {
+	for i, b := range data.Blocks {
 		if i >= len(before) || b.Text != before[i] {
 			types = append(types, cmp.Or(b.Type, "-"))
 		}

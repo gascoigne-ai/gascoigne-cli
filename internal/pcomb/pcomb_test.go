@@ -135,9 +135,9 @@ func TestAgreesWithRegexp(t *testing.T) {
 	}
 }
 
-func FuzzAgreesWithRegexp(f *testing.F) {
+func FuzzAgreesWithRegexp(fuzz *testing.F) {
 	for _, s := range diffLines {
-		f.Add(s)
+		fuzz.Add(s)
 	}
 	word := Word("Compiling", "Checking", "a")
 	indented := Indented(Word("Compiling", "Finished"))
@@ -145,17 +145,17 @@ func FuzzAgreesWithRegexp(f *testing.F) {
 	wordRe := regexp.MustCompile(`^(Compiling|Checking|a)\b`)
 	indentedRe := regexp.MustCompile(`^\s+(Compiling|Finished)\b`)
 	prefixRe := regexp.MustCompile(`^(ab|Compiling|✓ )`)
-	f.Fuzz(func(t *testing.T, s string) {
+	fuzz.Fuzz(func(t *testing.T, input string) {
 		// regexp reads invalid UTF-8 as U+FFFD, which is never a word character
 		// either, so the two still agree on arbitrary bytes.
-		if got, want := word(s), wordRe.MatchString(s); got != want {
-			t.Errorf("Word %q: got %v, regexp %v", s, got, want)
+		if got, want := word(input), wordRe.MatchString(input); got != want {
+			t.Errorf("Word %q: got %v, regexp %v", input, got, want)
 		}
-		if got, want := indented(s), indentedRe.MatchString(s); got != want {
-			t.Errorf("Indented %q: got %v, regexp %v", s, got, want)
+		if got, want := indented(input), indentedRe.MatchString(input); got != want {
+			t.Errorf("Indented %q: got %v, regexp %v", input, got, want)
 		}
-		if got, want := prefix(s), prefixRe.MatchString(s); got != want {
-			t.Errorf("Prefix %q: got %v, regexp %v", s, got, want)
+		if got, want := prefix(input), prefixRe.MatchString(input); got != want {
+			t.Errorf("Prefix %q: got %v, regexp %v", input, got, want)
 		}
 	})
 }

@@ -50,22 +50,24 @@ func Check() error {
 // Regexp is the compiled expression.
 func (r *Regexp) Regexp() *regexp.Regexp { return r.get() }
 
-func (r *Regexp) String() string                       { return r.expr }
-func (r *Regexp) MatchString(s string) bool            { return r.get().MatchString(s) }
-func (r *Regexp) FindStringIndex(s string) []int       { return r.get().FindStringIndex(s) }
-func (r *Regexp) FindStringSubmatch(s string) []string { return r.get().FindStringSubmatch(s) }
-func (r *Regexp) FindStringSubmatchIndex(s string) []int {
-	return r.get().FindStringSubmatchIndex(s)
+func (r *Regexp) String() string                          { return r.expr }
+func (r *Regexp) MatchString(text string) bool            { return r.get().MatchString(text) }
+func (r *Regexp) FindStringIndex(text string) []int       { return r.get().FindStringIndex(text) }
+func (r *Regexp) FindStringSubmatch(text string) []string { return r.get().FindStringSubmatch(text) }
+func (r *Regexp) FindStringSubmatchIndex(text string) []int {
+	return r.get().FindStringSubmatchIndex(text)
 }
-func (r *Regexp) FindAllString(s string, n int) []string { return r.get().FindAllString(s, n) }
-func (r *Regexp) FindAllStringIndex(s string, n int) [][]int {
-	return r.get().FindAllStringIndex(s, n)
+func (r *Regexp) FindAllString(text string, limit int) []string {
+	return r.get().FindAllString(text, limit)
 }
-func (r *Regexp) FindAllStringSubmatch(s string, n int) [][]string {
-	return r.get().FindAllStringSubmatch(s, n)
+func (r *Regexp) FindAllStringIndex(text string, limit int) [][]int {
+	return r.get().FindAllStringIndex(text, limit)
 }
-func (r *Regexp) FindAllStringSubmatchIndex(s string, n int) [][]int {
-	return r.get().FindAllStringSubmatchIndex(s, n)
+func (r *Regexp) FindAllStringSubmatch(text string, limit int) [][]string {
+	return r.get().FindAllStringSubmatch(text, limit)
+}
+func (r *Regexp) FindAllStringSubmatchIndex(text string, limit int) [][]int {
+	return r.get().FindAllStringSubmatchIndex(text, limit)
 }
 func (r *Regexp) ReplaceAllString(src, repl string) string {
 	return r.get().ReplaceAllString(src, repl)
@@ -76,5 +78,5 @@ func (r *Regexp) ReplaceAllLiteralString(src, repl string) string {
 func (r *Regexp) ReplaceAllStringFunc(src string, repl func(string) string) string {
 	return r.get().ReplaceAllStringFunc(src, repl)
 }
-func (r *Regexp) Split(s string, n int) []string { return r.get().Split(s, n) }
-func (r *Regexp) Match(b []byte) bool            { return r.get().Match(b) }
+func (r *Regexp) Split(text string, limit int) []string { return r.get().Split(text, limit) }
+func (r *Regexp) Match(data []byte) bool                { return r.get().Match(data) }
