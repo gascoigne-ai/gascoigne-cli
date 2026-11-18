@@ -32,7 +32,9 @@ Retention (pruned once, when the ledger starts): `raw` at `raw_ttl` (30 d), `eve
 
 **Raw ids** are sha256 prefixes of the original's text, attrs aside: the same output from two
 sessions is stored once. 8 hex digits, unless that prefix holds another text (then 12, 16, 64):
-~7 fewer tokens in every hint, still content-addressed and unique.
+~7 fewer tokens in every hint, still content-addressed and unique. The optimized text of an
+original is kept once, the first shown: a later run of it may be folded by `rerun` against that
+text, and a stored pointer would leave nothing to compare with.
 
 **Source keys** over 200 bytes (whole command lines, heredocs) are stored as a 160-byte prefix +
 `…#<hash>` (`keys.go` `storedKey`, applied by every method). Ledgers from before were converted

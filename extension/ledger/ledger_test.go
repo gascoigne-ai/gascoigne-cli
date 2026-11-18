@@ -631,6 +631,29 @@ func TestRecentOutputs(t *testing.T) {
 	}
 }
 
+// A rerun folds against the full output an earlier run showed. The same original
+// hashes to one raw row, so a later run's folded text used to overwrite that
+// output and the run after it was compared with a pointer instead of the lines.
+func TestRecordKeepsFirstOutputOfRepeatedOriginal(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	now := time.Now()
+	id, err := l.SaveRaw(ctx, "cmd:go test", payload.New(payload.CmdOutput, "same original\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, output := range []string{"full output\n", "[\u2191 folded]\n", "[\u2191 folded again]\n"} {
+		ev := component.Event{TS: now.Add(time.Duration(i-3) * time.Minute), Session: "s1", Key: "cmd:go test", RawID: id, Outcome: component.Optimized, Output: output}
+		if err := l.Record(ctx, ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, ok, err := l.GetOutput(ctx, id)
+	if err != nil || !ok || got != "full output\n" {
+		t.Fatalf("stored output = %q (%v, %v), want the first full output", got, ok, err)
+	}
+}
+
 func TestRawIDShortAndUnique(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()

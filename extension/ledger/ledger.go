@@ -378,12 +378,15 @@ func (l *Ledger) Forget(ctx context.Context, key string) error {
 	return l.db.WithContext(ctx).Delete(&failure{Key: storedKey(key)}).Error
 }
 
+// saveOutput keeps the first output shown for original id. The same original
+// is one row, and a later run of it can be folded by rerun against this very
+// output, so overwriting it would leave only a pointer to compare with.
 func (l *Ledger) saveOutput(ctx context.Context, id, text string) error {
 	packed, err := pack([]byte(text))
 	if err != nil {
 		return err
 	}
-	return l.db.WithContext(ctx).Model(&raw{}).Where("id = ?", id).Update("output", packed).Error
+	return l.db.WithContext(ctx).Model(&raw{}).Where("id = ? AND (output IS NULL OR length(output) = 0)", id).Update("output", packed).Error
 }
 
 // RecentOutputs returns outputs of the latest optimized runs of key in
@@ -409,7 +412,7 @@ func (l *Ledger) RecentOutputs(ctx context.Context, session, key string, since t
 	return outs, nil
 }
 
-// GetOutput returns the optimized text last produced from original id;
+// GetOutput returns the optimized text first produced from original id;
 // false when none was kept (runs from before outputs were kept, or pruned).
 func (l *Ledger) GetOutput(ctx context.Context, id string) (string, bool, error) {
 	var r raw
