@@ -377,3 +377,41 @@ func TestNotSmallerKeepsOriginal(t *testing.T) {
 		t.Fatalf("out %q attrs %v", out.Text(), out.Attrs)
 	}
 }
+
+// The event keeps the content type detected before optimizers ran, also when
+// a filter bypassed the run, and several block types join sorted with "+".
+func TestEventCarriesDetectedType(t *testing.T) {
+	yaml := strings.Replace(strings.Replace(cfgYAML, "filters: { bypass", "filters: { detect: {}, bypass", 1),
+		"filters: [bypass, history]", "filters: [detect, bypass, history]", 1)
+	jsonText := `{"name": "alpha", "items": [1, 2, 3], "ok": true}`
+	logText := strings.Repeat("2026-01-02T03:04:05Z INFO server started on port 8080\n", 3)
+	for name, tt := range map[string]struct {
+		cmd    string
+		blocks []string
+		attrs  []string
+		want   string
+	}{
+		"optimized":  {cmd: "up x", blocks: []string{words}, want: "doc/text"},
+		"bypassed":   {cmd: "up x", blocks: []string{jsonText}, attrs: []string{payload.AttrRaw, "true"}, want: "data/json"},
+		"multiblock": {cmd: "up x", blocks: []string{logText, jsonText, logText}, want: "data/json+log/app"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			s, _ := newService(t, yaml)
+			p := &payload.Payload{Attrs: map[string]string{payload.AttrCmd: tt.cmd}}
+			for _, text := range tt.blocks {
+				p.Blocks = append(p.Blocks, payload.Block{Text: text})
+			}
+			for i := 0; i < len(tt.attrs); i += 2 {
+				p.Set(tt.attrs[i], tt.attrs[i+1])
+			}
+			pl, _ := s.Pipeline("cli")
+			if _, err := pl.Process(t.Context(), p); err != nil {
+				t.Fatal(err)
+			}
+			got, err := s.Ledger().Stats(t.Context(), component.StatsQuery{By: component.ByType})
+			if err != nil || len(got) != 1 || got[0].Group != tt.want {
+				t.Fatalf("by type: %+v, %v; want one group %q", got, err, tt.want)
+			}
+		})
+	}
+}

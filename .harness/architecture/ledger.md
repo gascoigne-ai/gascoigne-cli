@@ -14,12 +14,14 @@
 
 | Table | Holds |
 |---|---|
-| `events` | every trip: route, tokens, outcome, `session`, `command`, `reason`, bypassing `filter` |
+| `events` | every trip: route, tokens, outcome, `session`, `command`, `reason`, bypassing `filter`, detected `type` (`fs/code`; several blocks = sorted distinct types joined with `+`, same shape as a step's dialect; empty = unknown). `type` is read once after the filters, before optimizers rewrite block types, and set on filter-bypassed runs too. Added by `AutoMigrate` as a text column default empty: old rows and hook events (`posthook.go` does not set it) stay empty, shown as `-`; no backfill, no `user_version` bump. Quote it as `events."type"` in raw SQL |
+
+Structure choice for `type`: a plain column on `events`, grouped by scan (access pattern: group and filter by pipeline, no per-type lookup), over a side table or parsing `reason` (rejected: a join for one value per run; `reason` is free text). Revisit when a run needs several typed parts queried separately (then a per-block table).
 
 **Rerequested**: an `optimized` event becomes `rerequested` when the agent then asks for the original: a full fetch (`MarkFailure` with `raw_requested` marks the source's latest optimized run) or a raw rerun (`Record` of a bypass with a `raw requested` reason marks the earlier optimized run of that source and session). `migrateRerequested` applies this once to old data (`user_version` 2). Stats count a rerequested run as the agent read it: the optimized result plus the original (out = out + raw), so savings net out the give-back; `Ledger.Impact` / `GET /api/impact` split gross savings and give-back per day for the dashboard chart. The dashboard's Raw filter is the other case: a raw request with no earlier run of that source.
 | `steps` | per event, each optimizer that changed tokens: optimizer, family, tokens before/after |
 | `raw` | originals, gzip-compressed (plain JSON rows from before still read); TTL-pruned. `gascoigne flush [-older]` / `POST /api/flush` delete and VACUUM |
-| `daily_stats`, `daily_step_stats` | totals of runs and steps pruned at `events_ttl`, per local day and agent, model, command, route, outcome (steps: optimizer, family, dialect; `rollup.go`). Added in the same transaction that deletes the runs; no session or reason; `Ledger.Stats` merges them into every grouping that has them, a `-since` inside a rolled-up day counts the whole day. Pruned at `rollup_ttl` (0, forever) |
+| `daily_stats`, `daily_step_stats` | totals of runs and steps pruned at `events_ttl`, per local day and agent, model, command, route, outcome (steps: optimizer, family, dialect; `rollup.go`). Added in the same transaction that deletes the runs; no session or reason; `Ledger.Stats` merges them into every grouping that has them (not with `-pipeline` or `-by pipeline\|type`), a `-since` inside a rolled-up day counts the whole day. Pruned at `rollup_ttl` (0, forever) |
 | `failures` | per-key failure count |
 | `tool_stats` | per day, agent, MCP server, tool: definition tokens (last listing that day) and calls. Written by `mcp-proxy` through the optional `mcptool.ToolStatRecorder` (not a `component/` contract); pruned at `stats_ttl` (1 y). Direct servers' calls are the hook's events whose command is the tool name |
 | `usage` | per proxied API request: agent, model, input, cache read/write and output tokens as the provider billed them |
@@ -64,12 +66,12 @@ habit is named where it starts; compare the `big` count of that command in `lear
 |---|---|
 | `gain` | essentials (`-full` for all of this): totals line; last 7 days trend (quiet days shown); by agent; by model (once recorded); by outcome (optimized/unchanged/bypassed/error, with tokens and share of input); by command (`go test`, `git log`, `fetch go.dev`); by optimizer (with family); skipped / failed / unchanged with reasons; count of failing sources |
 | `gain -by day\|week\|month` | trend, oldest first, bars scaled to the best period |
-| `gain -by agent\|model\|session\|command\|optimizer\|family\|outcome\|reason\|route` | one grouping |
+| `gain -by agent\|model\|session\|command\|optimizer\|family\|outcome\|reason\|route\|pipeline\|type` | one grouping; `pipeline` and `type` read live events only (the daily totals keep neither, so the pruned history is not merged, same as session and reason) |
 | `gain -failures` | sources that bypass optimization after going bad |
 | `gain` (essentials: `minimalSections` = trend, agent, command, failing), `-full`, `-show a,b`, `-hide a,b` | overview sections by name (`overviewSections` in `render.go`: one table row per section, so a new section is a row); the totals header always prints; refused with `-by` |
 | `-top N` (10; 0 all), `-sort saved\|runs\|in\|pct\|name`, `-min-tokens N` | rows of every grouped table (`gainView.rows`, `gainview.go`); a dim note counts the rows cut; trends stay chronological |
 | `-csv` | with `-by` or `-failures`: header row, plain numbers, total row last (`statsCSV`); not with `-json`, `-oneline` or the overview |
-| filters, any view | `-session`, `-agent`, `-model`, `-since 7d\|4w\|6mo\|24h` (combine freely); also `-all`, `-json` |
+| filters, any view | `-session`, `-agent`, `-model`, `-pipeline NAME[,NAME]` (`events.pipeline IN`, names trimmed, not checked against config; live events only, so rolled-up days are left out while it is set), `-since 7d\|4w\|6mo\|24h` (combine freely); also `-all`, `-json`. `gain -pipeline exec,hook -by command` keeps eval, cli and proxy traffic out of a real-usage reading |
 
 - The overview ends with `estimates` (`Overview.Estimates`, JSON `estimates`, MCP `stats`): what
   is estimated and how (tokens.Estimate error, cost factors and rereads, image pixels/750, tool

@@ -37,7 +37,10 @@ type Event struct {
 	Outcome    Outcome
 	Filter     string // component that stopped optimization: bypassing filter, failing optimizer, "ledger"
 	Reason     string // why it was not optimized: filter detail, optimizer error, unhandled types
-	Steps      []Step // optimizers that changed the payload, in order
+	// Type is the content type detected before optimizing ("fs/code"); several
+	// blocks give the sorted distinct types joined by "+"; empty = unknown.
+	Type  string
+	Steps []Step // optimizers that changed the payload, in order
 	// Output is the optimized text of an optimized run; ledgers may keep it
 	// next to the original (RawID) so both can be compared.
 	Output string
@@ -102,7 +105,9 @@ const (
 	ByMonth         = "month" // YYYY-MM
 	// ByReason groups runs that were not optimized by outcome, filter (or
 	// optimizer for errors) and command, with the latest reason.
-	ByReason = "reason"
+	ByReason   = "reason"
+	ByPipeline = "pipeline" // pipeline the run went through (exec, hook, mcp, proxy, ...)
+	ByType     = "type"     // content type detected before optimizing
 )
 
 // StatsQuery selects what Stats aggregates.
@@ -111,7 +116,9 @@ type StatsQuery struct {
 	Session string // filters; empty = all
 	Agent   string
 	Model   string
-	Since   time.Time // zero = all time
+	// Pipelines keeps runs of these pipelines; empty = all.
+	Pipelines []string
+	Since     time.Time // zero = all time
 }
 
 // Chronological reports time groupings, which sort by time, not savings.

@@ -86,9 +86,11 @@ func (pl *Pipeline) run(ctx context.Context, data *payload.Payload, ev *componen
 			pl.svc.log.Debug("bypass", "filter", f.id, "key", ev.Key)
 			ev.Outcome, ev.Filter = component.Bypassed, f.id
 			ev.Reason = cmp.Or(data.Attrs[payload.AttrSkip], "bypassed by "+f.id)
+			ev.Type = detectedTypes(data)
 			return data, nil
 		}
 	}
+	ev.Type = detectedTypes(data) // before optimizers rewrite block types
 
 	ev.Route, ev.Optimizers = pl.router.Route(data)
 	data.Set(payload.AttrRoute, ev.Route)
@@ -192,6 +194,23 @@ func changedTypes(data *payload.Payload, before []string) string {
 			types = append(types, cmp.Or(b.Type, "-"))
 		}
 	}
+	return joinTypes(types)
+}
+
+// detectedTypes lists the types detected for the payload's blocks, same shape
+// as changedTypes; empty when no block has one.
+func detectedTypes(data *payload.Payload) string {
+	var types []string
+	for _, b := range data.Blocks {
+		if b.Type != "" {
+			types = append(types, b.Type)
+		}
+	}
+	return joinTypes(types)
+}
+
+// joinTypes sorts the types, drops repeats and joins them with "+".
+func joinTypes(types []string) string {
 	slices.Sort(types)
 	return strings.Join(slices.Compact(types), "+")
 }

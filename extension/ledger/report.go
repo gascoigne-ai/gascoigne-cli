@@ -32,6 +32,10 @@ func (l *Ledger) liveStats(ctx context.Context, query component.StatsQuery) ([]c
 		tx, group, table = l.events(ctx), "events.model", "events"
 	case component.ByCommand:
 		tx, group, table = l.events(ctx), "events.command", "events"
+	case component.ByPipeline:
+		tx, group, table = l.events(ctx), "events.pipeline", "events"
+	case component.ByType:
+		tx, group, table = l.events(ctx), `events."type"`, "events"
 	case component.ByOutcome:
 		tx, group, table = l.events(ctx), "events.outcome", "events"
 	case component.ByDay, component.ByWeek, component.ByMonth:
@@ -82,7 +86,7 @@ func period(by string) string {
 	return fmt.Sprintf("strftime('%s', events.ts / 1000, 'unixepoch', 'localtime')", format)
 }
 
-// filter applies the query's session, agent, model and time filters to an
+// filter applies the query's session, agent, model, pipeline and time filters to an
 // events table (or alias).
 func filter(tx *gorm.DB, events string, query component.StatsQuery) *gorm.DB {
 	for col, v := range map[string]string{"session": query.Session, "agent": query.Agent, "model": query.Model} {
@@ -90,10 +94,24 @@ func filter(tx *gorm.DB, events string, query component.StatsQuery) *gorm.DB {
 			tx = tx.Where(events+"."+col+" = ?", v)
 		}
 	}
+	if names := pipelineNames(query.Pipelines); len(names) > 0 {
+		tx = tx.Where(events+".pipeline IN ?", names)
+	}
 	if !query.Since.IsZero() {
 		tx = tx.Where(events+".ts >= ?", query.Since.UnixMilli())
 	}
 	return tx
+}
+
+// pipelineNames trims the filter's names and drops empty ones.
+func pipelineNames(names []string) []string {
+	var out []string
+	for _, name := range names {
+		if name = strings.TrimSpace(name); name != "" {
+			out = append(out, name)
+		}
+	}
+	return out
 }
 
 func (l *Ledger) events(ctx context.Context) *gorm.DB {
@@ -268,7 +286,7 @@ func (r event) component() component.Event {
 		TS: time.UnixMilli(r.TS), Session: r.Session, Agent: r.Agent, Model: r.Model, Command: r.Command,
 		Pipeline: r.Pipeline, Key: r.Key, Route: r.Route, Optimizers: optimizers,
 		RawTokens: r.RawTokens, OutTokens: r.OutTokens, Duration: time.Duration(r.DurationMS) * time.Millisecond,
-		RawID: r.RawID, Outcome: component.Outcome(r.Outcome), Filter: r.Filter, Reason: r.Reason, Steps: steps,
+		RawID: r.RawID, Outcome: component.Outcome(r.Outcome), Filter: r.Filter, Reason: r.Reason, Type: r.Type, Steps: steps,
 	}
 }
 
@@ -276,7 +294,7 @@ func (r event) component() component.Event {
 // reports how many events went. all also deletes stored originals and
 // failure history, which carry no session or agent, so it takes no filters.
 func (l *Ledger) Reset(ctx context.Context, query component.StatsQuery, all bool) (int64, error) {
-	if all && (query.Session != "" || query.Agent != "" || query.Model != "" || !query.Since.IsZero()) {
+	if all && (query.Session != "" || query.Agent != "" || query.Model != "" || len(pipelineNames(query.Pipelines)) > 0 || !query.Since.IsZero()) {
 		return 0, errors.New("reset: originals and failure history cannot be filtered; drop the filters or the full reset")
 	}
 	var n int64
@@ -290,7 +308,7 @@ func (l *Ledger) Reset(ctx context.Context, query component.StatsQuery, all bool
 			return res.Error
 		}
 		n = res.RowsAffected
-		if query.Session == "" { // usage has no session
+		if query.Session == "" && len(pipelineNames(query.Pipelines)) == 0 { // usage has no session or pipeline
 			if err := usageFilter(tx.Where("1 = 1"), query).Delete(&usage{}).Error; err != nil {
 				return err
 			}

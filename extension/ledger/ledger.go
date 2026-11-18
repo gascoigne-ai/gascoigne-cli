@@ -313,6 +313,7 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 		Command:    ev.Command,
 		Filter:     ev.Filter,
 		Reason:     ev.Reason,
+		Type:       ev.Type,
 		Pipeline:   ev.Pipeline,
 		Key:        storedKey(ev.Key),
 		Route:      ev.Route,

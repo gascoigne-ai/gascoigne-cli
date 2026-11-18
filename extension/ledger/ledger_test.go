@@ -557,6 +557,47 @@ func TestMigrateRerequested(t *testing.T) {
 	}
 }
 
+// An old database has no events.type column: starting adds it, old rows read
+// as unknown, new rows keep their type, and a second start changes nothing.
+func TestMigrateAddsTypeColumn(t *testing.T) {
+	cfg := &Config{Path: filepath.Join(t.TempDir(), "l.db")}
+	ctx := t.Context()
+	l := New(cfg)
+	if err := l.Start(ctx, nil); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.db.Exec(`ALTER TABLE events DROP COLUMN "type"`).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := l.db.Exec("INSERT INTO events (ts, session, agent, model, command, pipeline, key, route, optimizers, raw_tokens, out_tokens, duration_ms, raw_id, outcome, filter, reason) VALUES (strftime('%s', 'now') * 1000, '', '', '', '', 'exec', 'old', 'r', '', 10, 10, 0, '', 'unchanged', '', '')").Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Shutdown(ctx); err != nil {
+		t.Fatal(err)
+	}
+	for range 2 { // the second start must change nothing
+		l = New(cfg)
+		if err := l.Start(ctx, nil); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { l.Shutdown(context.Background()) })
+		if err := l.Record(ctx, component.Event{TS: time.Now(), Pipeline: "exec", Key: "new", Outcome: component.Unchanged, Type: "fs/code"}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := l.Page(ctx, component.StatsQuery{}, Page{Limit: 10})
+	if err != nil {
+		t.Fatal(err)
+	}
+	types := map[string]string{}
+	for _, entry := range got {
+		types[entry.Key] = entry.Type
+	}
+	if len(got) != 3 || types["old"] != "" || types["new"] != "fs/code" {
+		t.Errorf("types after migration = %v over %d rows", types, len(got))
+	}
+}
+
 func TestRecentOutputs(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()

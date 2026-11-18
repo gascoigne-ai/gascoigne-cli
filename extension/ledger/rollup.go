@@ -56,7 +56,7 @@ func (l *Ledger) pruneRollup(ctx context.Context) error {
 // counts whole when the query's Since falls inside it.
 func (l *Ledger) Stats(ctx context.Context, query component.StatsQuery) ([]component.Stat, error) {
 	live, err := l.liveStats(ctx, query)
-	if err != nil || query.Session != "" || query.By == component.BySession || query.By == component.ByReason || query.By == component.ByFamilyOutcome {
+	if err != nil || query.Session != "" || skipsRolled(query) {
 		return live, err
 	}
 	old, err := l.rolledStats(ctx, query)
@@ -64,6 +64,16 @@ func (l *Ledger) Stats(ctx context.Context, query component.StatsQuery) ([]compo
 		return live, err
 	}
 	return mergeStats(query, live, old), nil
+}
+
+// skipsRolled tells which queries the daily totals cannot answer: they keep no
+// session, reason, pipeline or type.
+func skipsRolled(query component.StatsQuery) bool {
+	switch query.By {
+	case component.BySession, component.ByReason, component.ByFamilyOutcome, component.ByPipeline, component.ByType:
+		return true
+	}
+	return len(pipelineNames(query.Pipelines)) > 0
 }
 
 // rolledStats is liveStats over the daily totals.

@@ -23,7 +23,10 @@ type event struct {
 	Outcome    string `gorm:"not null"`
 	Filter     string `gorm:"not null;default:''"`
 	Reason     string `gorm:"not null;default:''"`
-	Steps      []step `gorm:"foreignKey:EventID"`
+	// Type is the content type detected before optimizing; empty for rows from
+	// before the column and for hook events.
+	Type  string `gorm:"column:type;not null;default:''"`
+	Steps []step `gorm:"foreignKey:EventID"`
 }
 
 // step is one optimizer's effect within an event.

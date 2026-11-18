@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -127,7 +128,7 @@ func TestCompressRetrieveStats(t *testing.T) {
 		t.Fatalf("stats json = %q", text)
 	}
 	call(t, cs, "stats", map[string]any{"session": "all", "by": "route"})
-	if l.query != (component.StatsQuery{By: component.ByRoute}) {
+	if !reflect.DeepEqual(l.query, component.StatsQuery{By: component.ByRoute}) {
 		t.Fatalf("stats query %+v", l.query)
 	}
 }

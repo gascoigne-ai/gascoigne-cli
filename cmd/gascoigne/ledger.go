@@ -141,13 +141,15 @@ func cmdGain(ctx context.Context, args []string) error {
 		asCSV    bool
 		color    string
 		since    string
+		pipeline string
 		rereads  float64
 		view     gainViewFlags
 	)
 	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
 		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
 		fs.BoolVar(&refetch, "refetch", false, "per optimizer family, how often the original was fetched after an optimized result (what makes the history filter go gentle)")
-		fs.StringVar(&by, "by", "", "one `grouping` instead of the overview: day, week, month, agent, model, session, command, optimizer, family, dialect, outcome, reason, route")
+		fs.StringVar(&by, "by", "", "one `grouping` instead of the overview: day, week, month, agent, model, session, command, optimizer, family, dialect, outcome, reason, route, pipeline, type")
+		fs.StringVar(&pipeline, "pipeline", "", "only runs of these pipelines, `NAME[,NAME]` (exec, hook, mcp, proxy, cli, eval); rolled-up history has none")
 		fs.BoolVar(&all, "all", false, "ignore session/agent/model from $GASCOIGNE_* (flags still filter)")
 		fs.StringVar(&since, "since", "", "only the last `period`: 24h, 7d, 4w, 6mo")
 		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
@@ -175,7 +177,7 @@ func cmdGain(ctx context.Context, args []string) error {
 		if all {
 			id = mcptool.Identity{Session: shared.session, Agent: shared.agent, Model: shared.model}
 		}
-		q := component.StatsQuery{By: by, Session: id.Session, Agent: id.Agent, Model: id.Model}
+		q := component.StatsQuery{By: by, Session: id.Session, Agent: id.Agent, Model: id.Model, Pipelines: splitList(pipeline, ",")}
 		if since != "" {
 			d, err := parseSince(since)
 			if err != nil {

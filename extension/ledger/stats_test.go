@@ -56,6 +56,7 @@ func (m *model) selected(query component.StatsQuery) []*run {
 		case query.Session != "" && r.session != query.Session,
 			query.Agent != "" && r.agent != query.Agent,
 			query.Model != "" && r.model != query.Model,
+			len(query.Pipelines) > 0 && !slices.Contains(query.Pipelines, r.ev.Pipeline),
 			!query.Since.IsZero() && r.ev.TS.UnixMilli() < query.Since.UnixMilli():
 		default:
 			out = append(out, r)
@@ -74,6 +75,7 @@ func (m *model) label(row *run, by string) string {
 	g := map[string]string{
 		component.ByRoute: row.rt, component.BySession: row.session, component.ByAgent: row.agent,
 		component.ByModel: row.model, component.ByCommand: row.command, component.ByOutcome: string(row.outcome),
+		component.ByPipeline: row.ev.Pipeline, component.ByType: row.ev.Type,
 		component.ByDay: t.Format("2006-01-02"), component.ByWeek: week(t), component.ByMonth: t.Format("2006-01"),
 	}[by]
 	return cmp.Or(g, "-")
@@ -182,6 +184,7 @@ func randomLedger(t *testing.T, seed uint64, count int) (*Ledger, *model) {
 			TS: ts, Session: pick("s1", "s2", "s3", ""), Agent: pick("a1", "a2", ""), Model: pick("m1", "m2", ""),
 			Command: pick("c0", "c1", "c2", "c3"), Key: pick("k0", "k1", "k2", "k3", "k4"), Route: pick("r0", "r1", "r2", ""),
 			RawTokens: raw, OutTokens: raw,
+			Pipeline: pick("exec", "hook", "mcp", "proxy", ""), Type: pick("fs/code", "fs/code+log/go", "log/go", ""),
 		}
 		switch rng.IntN(10) {
 		case 0, 1, 2, 3, 4:
@@ -217,7 +220,7 @@ func randomLedger(t *testing.T, seed uint64, count int) (*Ledger, *model) {
 var allGroupings = []string{
 	component.ByRoute, component.BySession, component.ByAgent, component.ByModel, component.ByCommand,
 	component.ByOutcome, component.ByDay, component.ByWeek, component.ByMonth,
-	component.ByFamily, component.ByOptimizer, component.ByDialect,
+	component.ByFamily, component.ByOptimizer, component.ByDialect, component.ByPipeline, component.ByType,
 }
 
 // Every grouping, under every filter combination, equals the reference model.
@@ -227,13 +230,15 @@ func TestStatsMatchModel(t *testing.T) {
 			l, m := randomLedger(t, seed, 400)
 			mid := m.runs[len(m.runs)/2].ev.TS
 			filters := map[string]component.StatsQuery{
-				"all":      {},
-				"session":  {Session: "s1"},
-				"agent":    {Agent: "a2"},
-				"model":    {Model: "m1"},
-				"since":    {Since: mid},
-				"combined": {Session: "s2", Agent: "a1", Since: mid},
-				"nothing":  {Session: "nobody"},
+				"all":              {},
+				"session":          {Session: "s1"},
+				"agent":            {Agent: "a2"},
+				"model":            {Model: "m1"},
+				"since":            {Since: mid},
+				"pipeline":         {Pipelines: []string{"exec", "hook"}},
+				"pipeline+session": {Pipelines: []string{"mcp"}, Session: "s1", Since: mid},
+				"combined":         {Session: "s2", Agent: "a1", Since: mid},
+				"nothing":          {Session: "nobody"},
 			}
 			for fname, f := range filters {
 				for _, by := range allGroupings {
@@ -598,8 +603,8 @@ func TestRollupKeepsTotals(t *testing.T) {
 			}
 			for fname, f := range filters {
 				for _, by := range allGroupings {
-					if by == component.BySession {
-						continue
+					if by == component.BySession || by == component.ByPipeline || by == component.ByType {
+						continue // rolled-up days keep no session, pipeline or type
 					}
 					q := f
 					q.By = by
@@ -706,5 +711,120 @@ func TestStatsByFamilyOutcome(t *testing.T) {
 	}
 	if !maps.Equal(runs, want) {
 		t.Errorf("runs %v, want %v", runs, want)
+	}
+}
+
+// -by pipeline and -by type group live events; an empty type (hook rows, old
+// rows) shows as "-" and several block types stay one joined group.
+func TestStatsByPipelineAndType(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	now := time.Now()
+	for i, ev := range []component.Event{
+		{Pipeline: "exec", Type: "fs/code", RawTokens: 100, OutTokens: 40},
+		{Pipeline: "exec", Type: "fs/code", RawTokens: 100, OutTokens: 60},
+		{Pipeline: "hook", Type: "", RawTokens: 50, OutTokens: 50},
+		{Pipeline: "mcp", Type: "fs/code+log/go", RawTokens: 30, OutTokens: 30},
+	} {
+		ev.TS, ev.Key, ev.Outcome = now.Add(time.Duration(i)*time.Second), "k", component.Unchanged
+		if err := l.Record(t.Context(), ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	groups := func(query component.StatsQuery) map[string]int {
+		got, err := l.Stats(t.Context(), query)
+		if err != nil {
+			t.Fatal(err)
+		}
+		out := map[string]int{}
+		for _, s := range got {
+			out[s.Group] = s.Runs
+		}
+		return out
+	}
+	if got, want := groups(component.StatsQuery{By: component.ByPipeline}), (map[string]int{"exec": 2, "hook": 1, "mcp": 1}); !maps.Equal(got, want) {
+		t.Errorf("by pipeline = %v, want %v", got, want)
+	}
+	if got, want := groups(component.StatsQuery{By: component.ByType}), (map[string]int{"fs/code": 2, "-": 1, "fs/code+log/go": 1}); !maps.Equal(got, want) {
+		t.Errorf("by type = %v, want %v", got, want)
+	}
+	// the pipeline filter sums only the named pipelines, names trimmed, blanks dropped
+	if got, want := groups(component.StatsQuery{By: component.ByOutcome, Pipelines: []string{" exec", "hook ", ""}}), (map[string]int{"unchanged": 3}); !maps.Equal(got, want) {
+		t.Errorf("exec+hook = %v, want %v", got, want)
+	}
+	if got := groups(component.StatsQuery{By: component.ByOutcome, Pipelines: []string{"nope"}}); len(got) != 0 {
+		t.Errorf("unknown pipeline matched %v", got)
+	}
+}
+
+// Rolled-up days keep no pipeline or type, so a pipeline filter or grouping
+// must not add their totals to the live rows.
+func TestPipelineStatsSkipRolledDays(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	old, now := time.Now().Add(-5*24*time.Hour), time.Now()
+	for _, ev := range []component.Event{
+		{TS: old, Pipeline: "exec", Type: "fs/code", RawTokens: 1000, OutTokens: 100},
+		{TS: now, Pipeline: "exec", Type: "fs/code", RawTokens: 10, OutTokens: 10},
+	} {
+		ev.Key, ev.Outcome, ev.Route = "k", component.Unchanged, "r"
+		if err := l.Record(t.Context(), ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	l.cfg.EventsTTL = 24 * time.Hour
+	if err := l.pruneEvents(t.Context()); err != nil { // rolls the old run up
+		t.Fatal(err)
+	}
+	total := func(query component.StatsQuery) int {
+		got, err := l.Stats(t.Context(), query)
+		if err != nil {
+			t.Fatal(err)
+		}
+		n := 0
+		for _, s := range got {
+			n += s.RawTokens
+		}
+		return n
+	}
+	if got := total(component.StatsQuery{By: component.ByRoute}); got != 1010 {
+		t.Fatalf("route total %d, want 1010 (rolled day merged)", got)
+	}
+	for name, query := range map[string]component.StatsQuery{
+		"filter":   {By: component.ByRoute, Pipelines: []string{"exec"}},
+		"pipeline": {By: component.ByPipeline},
+		"type":     {By: component.ByType},
+	} {
+		if got := total(query); got != 10 {
+			t.Errorf("%s: raw %d, want 10 (live only)", name, got)
+		}
+	}
+}
+
+// Reset with a pipeline filter deletes only those pipelines' runs and keeps usage.
+func TestResetByPipeline(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	for _, pipeline := range []string{"exec", "hook", "eval"} {
+		ev := component.Event{TS: time.Now(), Pipeline: pipeline, Key: "k", Outcome: component.Unchanged}
+		if err := l.Record(t.Context(), ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := l.db.Create(&usage{TS: time.Now().UnixMilli(), Agent: "a", Model: "m", Input: 5}).Error; err != nil {
+		t.Fatal(err)
+	}
+	n, err := l.Reset(t.Context(), component.StatsQuery{Pipelines: []string{"eval", "hook"}}, false)
+	if err != nil || n != 2 {
+		t.Fatalf("reset %d, %v; want 2", n, err)
+	}
+	got, _ := l.Stats(t.Context(), component.StatsQuery{By: component.ByPipeline})
+	if len(got) != 1 || got[0].Group != "exec" {
+		t.Errorf("left %v, want only exec", got)
+	}
+	var kept int64
+	l.db.Model(&usage{}).Count(&kept)
+	if kept != 1 {
+		t.Errorf("usage rows %d, want 1: usage has no pipeline", kept)
+	}
+	if _, err := l.Reset(t.Context(), component.StatsQuery{Pipelines: []string{"exec"}}, true); err == nil {
+		t.Error("full reset accepted a pipeline filter")
 	}
 }
