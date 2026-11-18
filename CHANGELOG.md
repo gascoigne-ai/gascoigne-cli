@@ -14,18 +14,54 @@ words. The technical details follow.
   read recent events only.
 - **`cat` of mixed file types.** `cat src/index.ts package.json` is no longer typed by its last file, so the
   JSON optimizer is not handed source text and the source is no longer marked as failing.
+- **Compound shell lines are wrapped per segment.** `make && go test ./...; git status` now shortens each plain
+  command, and leaves redirects and substitutions alone. The hooks change, so they are re-registered after you
+  upgrade.
+- **`git merge`, `rebase`, `cherry-pick`, `commit`, `checkout` and `stash pop` are shortened.** Stat bars and runs
+  of created or deleted files fold; conflicts, errors and markers stay as they are.
+- **Repeated tables fold.** A second `ps` or `ss` in the same session becomes a pointer to the first, and the
+  pointer no longer leaks from a parent session into its subagents.
+- **Steadier servers.** A cancelled command no longer starts or keeps child processes, a hung GPU probe or download
+  times out, and a long-running server no longer grows without bound.
 - **Current prices.** Fable 5.2, Mythos 5.2, GPT-6 and Gemini 4 are in the price table.
 
 ### Added
 - `gain -pipeline NAME[,NAME]`, `gain -by pipeline` and `gain -by type`; the ledger records an event type at
   detection time.
 - Config files carry a version: a missing key means 1, a newer version fails naming the file.
+- The `vcs/git-stat` dialect for `git merge`, `rebase`, `cherry-pick`, `commit`, `checkout` and `stash pop`.
+- Compound Bash lines are split at `;`, `&&` and newlines and each plain segment is wrapped. Redirect and
+  substitution segments stay verbatim, mid-list pipelines are braced so `PIPESTATUS` and the exit status stay
+  correct, and unknown programs in multi-segment lines are skipped. `registrationVersion` is 7.
+- `table` is a rerun family: a repeated `ps`, `ss` or similar table in the same session folds into a pointer.
+- `eval` prints a colored per-suite summary table.
+- Acceptance scenarios (`e2e/`) run against the built binary.
 
 ### Fixed
 - A file reader (`cat`, `head`, `sed`, ...) naming files of different types leaves the type to the sniffer
   (`detect.FromCmd`). Before, the last file's type was given to the whole output, the json optimizer failed on the
   source text and the run was recorded as an error, which made later runs of that source gentler.
 - A price layer whose first fetch failed shows when it will try again.
+- Output from two or more command families (`mixed=true`) runs only the dense, paths and truncate optimizers, so a
+  family engine cannot reorder or fold lines across parts.
+- Subagents share their parent's session id, so a subagent could get a rerun pointer to output only the parent saw.
+  A hook payload with an `agent_id` now records the session as `session_id#agent_id`. The field is taken from the
+  Claude Code hook docs and is not yet checked against a live subagent capture.
+- The ledger kept only the latest output of a repeated original, so after a re-run folded, the next one was compared
+  with the pointer and not folded: full, folded, full, folded. The first output now stays.
+- `du` accepts padded sizes and the `B` unit, and `df` drops rows by mount point (`/dev`, `/run`, `/sys`, `/proc`)
+  and strips the macOS inode columns.
+- `symbols` registered three regexps on every call and each stayed registered, so a long-running server grew without
+  bound. `lazyre.Cached` shares one per distinct expression.
+- The exec receiver's watcher returned on a process error without closing the pipe or waiting for the reader, so a
+  child that kept writing blocked it until the context ended.
+- Agent launches and `claude mcp` calls ignored cancellation; they now use `exec.CommandContext`.
+- The GPU probe and downloads of prose setup take a context and timeouts; before, a hung `nvidia-smi` or a silent
+  download server could block setup.
+- A truncated transcript read as complete, corrupt state files vanished without a trace, and two state files were
+  written without the atomic 0600 helper. Scan errors now stop the read, corrupt state logs at debug, and the
+  writers use `saveJSON`.
+- The ledger returns the database error from holds.
 - CI checks out the harness submodule; every run had failed at the imports step.
 - `newAgents` no longer takes an unused settings argument, and its doc now says declined agents stay listed as
   answered "no", so `setup -all` can change the answer. No behavior change.
@@ -35,6 +71,9 @@ words. The technical details follow.
   `cmd/gascoigne` files are split by job (context, setup, dashboard routes, hook rewriter, Codex TOML editor), and
   shared file helpers replace repeated copies. No behavior change; `make check` now also rejects one-letter
   parameters and package-level `regexp.MustCompile`.
+- Internal: configuration flows through factories, agent hook replies are typed structs, symbols with no outside user
+  are unexported, long functions are split, and the `go fix` modernizers and gopls style hints are applied. No
+  behavior change.
 
 ## [0.11.0] - 2026-11-05
 
