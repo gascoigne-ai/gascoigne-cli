@@ -11,6 +11,7 @@ const (
 	family = "vcs"
 )
 
+// NewFactory returns the factory that builds the "git" optimizer and puts it in the "vcs" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{ContextLines: 1, MaxFileLines: 200, MinMoveLines: 4} },

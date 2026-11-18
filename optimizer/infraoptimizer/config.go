@@ -2,6 +2,7 @@ package infraoptimizer
 
 import "errors"
 
+// Config caps how much of plans and helm diffs the infra engine keeps.
 type Config struct {
 	// MaxPlanLines caps plan resource bodies; past it, created and updated
 	// resources keep their header only. Destroys and replacements stay whole.

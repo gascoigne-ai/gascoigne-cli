@@ -18,6 +18,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the fs family engine for listings: ls, tree, find, du and df output.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

@@ -19,6 +19,8 @@ const (
 	EnvMode  = "GASCOIGNE_CAT_MODE"
 )
 
+// Config sets the mode of the cat optimizer and the sizes at which auto mode
+// cleans or outlines a file.
 type Config struct {
 	Mode string `yaml:"mode"`
 	// CleanMinTokens: auto mode leaves smaller files untouched.

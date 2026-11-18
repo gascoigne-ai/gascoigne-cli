@@ -13,6 +13,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the vcs family engine for git and GitHub CLI output.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

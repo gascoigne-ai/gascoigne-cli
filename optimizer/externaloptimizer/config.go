@@ -16,6 +16,8 @@ const (
 	RPC  = "rpc"
 )
 
+// Config says which program to run, over which blocks, and how long and how large
+// a call may be.
 type Config struct {
 	// Command is the argv to run. It is never passed to a shell.
 	Command []string `yaml:"command"`

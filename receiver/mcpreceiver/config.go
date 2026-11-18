@@ -7,6 +7,7 @@ import (
 
 const defaultTimeout = 20 * time.Second
 
+// Config names the retrieve tool and bounds the fetch tool.
 type Config struct {
 	// Retrieve names the tool returning originals.
 	Retrieve string `yaml:"retrieve"`

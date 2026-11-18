@@ -9,6 +9,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
 )
 
+// Config selects the local model that the prose optimizer runs and tunes it.
 type Config struct {
 	// Enabled is set by the experimental prose setting (see the prose command);
 	// setting it false there vetoes it.

@@ -13,6 +13,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the test family engine. Failures and summaries stay, and passing tests collapse
+// to a count.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

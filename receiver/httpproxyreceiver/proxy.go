@@ -33,6 +33,8 @@ import (
 // RawHeader set to 1 forwards a request untouched.
 const RawHeader = "X-Gascoigne-Raw"
 
+// Receiver is the LLM API proxy: an HTTP server that optimizes the tool results in
+// requests before it forwards them upstream.
 type Receiver struct {
 	component.Nop
 	cfg    *Config

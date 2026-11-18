@@ -17,6 +17,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the log family engine. Warnings and errors stay, and the other lines collapse
+// to one example per template with a count.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

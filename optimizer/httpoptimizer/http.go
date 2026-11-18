@@ -19,6 +19,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the web family engine for HTTP responses with headers. It drops connection
+// chatter and compacts the body according to its type.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

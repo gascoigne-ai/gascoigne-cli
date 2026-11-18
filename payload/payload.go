@@ -9,8 +9,11 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
+// Kind says where the text of a block came from, so routes and optimizers can tell
+// command output from tool results, chat messages and JSON documents.
 type Kind string
 
+// The block kinds.
 const (
 	CmdOutput  Kind = "cmd_output"
 	ToolResult Kind = "tool_result"
@@ -36,6 +39,7 @@ const (
 	AttrOutTokens = "out_tokens"
 )
 
+// Block is one piece of text with its kind and, once detected, its content type.
 type Block struct {
 	Kind Kind   `json:"kind"`
 	Text string `json:"text"`
@@ -43,15 +47,20 @@ type Block struct {
 	Type string `json:"type,omitempty"`
 }
 
+// Payload is the unit every pipeline stage works on: text blocks plus string
+// attributes that describe where they came from (see the Attr keys).
 type Payload struct {
 	Blocks []Block           `json:"blocks"`
 	Attrs  map[string]string `json:"attrs,omitempty"`
 }
 
+// New returns a payload with one block of the given kind and text, and empty attrs.
 func New(kind Kind, text string) *Payload {
 	return &Payload{Blocks: []Block{{Kind: kind, Text: text}}, Attrs: map[string]string{}}
 }
 
+// Clone copies the blocks and attrs, so a stage can change the copy and leave the
+// original intact.
 func (p *Payload) Clone() *Payload {
 	return &Payload{Blocks: slices.Clone(p.Blocks), Attrs: maps.Clone(p.Attrs)}
 }
@@ -64,6 +73,7 @@ func (p *Payload) Kind() Kind {
 	return p.Blocks[0].Kind
 }
 
+// Text joins the text of all blocks with newlines.
 func (p *Payload) Text() string {
 	texts := make([]string, len(p.Blocks))
 	for i, b := range p.Blocks {
@@ -72,6 +82,7 @@ func (p *Payload) Text() string {
 	return strings.Join(texts, "\n")
 }
 
+// Tokens estimates the token count of all blocks together.
 func (p *Payload) Tokens() int {
 	n := 0
 	for _, b := range p.Blocks {
@@ -85,6 +96,7 @@ func (p *Payload) SameContent(other *Payload) bool {
 	return slices.Equal(p.Blocks, other.Blocks)
 }
 
+// Set stores an attr, creating the attrs map when the payload has none.
 func (p *Payload) Set(key, value string) {
 	if p.Attrs == nil {
 		p.Attrs = map[string]string{}

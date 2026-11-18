@@ -18,6 +18,8 @@ const (
 	HintTop  = "top"
 )
 
+// Exporter writes the text of the payload to its writer, followed by the hint for
+// fetching the original when the payload was optimized and hints are enabled.
 type Exporter struct {
 	component.Nop
 	cfg *Config

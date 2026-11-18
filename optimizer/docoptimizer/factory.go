@@ -11,6 +11,7 @@ const (
 	family = "doc"
 )
 
+// NewFactory returns the factory that builds the "doc" optimizer and puts it in the "doc" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config {

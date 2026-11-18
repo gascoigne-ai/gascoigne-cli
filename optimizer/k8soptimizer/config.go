@@ -6,6 +6,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/table"
 )
 
+// Config tunes the Kubernetes engine: list sampling, the table limits and the length
+// of helm NOTES.
 type Config struct {
 	// MaxItems samples longer resource lists (kind: List); unhealthy items stay.
 	MaxItems int `yaml:"max_items"`

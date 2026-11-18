@@ -8,6 +8,7 @@ import (
 
 const typ = "bypass"
 
+// NewFactory returns the factory that builds the "bypass" filter.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindFilter, typ,
 		func() *Config { return &Config{Env: DefaultEnv} },

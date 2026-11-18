@@ -37,6 +37,7 @@ type Overview struct {
 	Estimates []string `json:"estimates"`
 }
 
+// BuildOverview gathers the overview that the stats tool shows for what filter selects.
 func BuildOverview(ctx context.Context, ledger component.Ledger, filter component.StatsQuery) (Overview, error) {
 	o := Overview{Session: filter.Session, Filter: filter}
 	if err := o.fillGroups(ctx, ledger, filter); err != nil {

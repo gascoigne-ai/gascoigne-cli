@@ -21,6 +21,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
+// Optimizer is the optimizer that replaces long path prefixes repeated across a payload with
+// short ids that are defined once.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

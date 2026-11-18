@@ -7,6 +7,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Outcome says what a pipeline run did with a payload.
 type Outcome string
 
 const (

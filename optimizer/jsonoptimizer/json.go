@@ -12,8 +12,11 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Config is the setting of the JSON crusher, shared with the other engines that
+// crush JSON.
 type Config = jsonx.Config
 
+// Optimizer is the data family engine for JSON and NDJSON.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

@@ -13,6 +13,7 @@ const (
 	family = "data"
 )
 
+// NewFactory returns the factory that builds the "data" optimizer and puts it in the "data" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config {

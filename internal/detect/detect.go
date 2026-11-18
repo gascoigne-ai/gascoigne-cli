@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+// Hints is what the caller knows about a text besides its content.
 type Hints struct {
 	Cmd  string // command line that produced the text
 	File string // source file path
@@ -23,6 +24,8 @@ func HintsFrom(attrs map[string]string) Hints {
 	return Hints{Cmd: attrs["cmd"], File: attrs["file"], MIME: attrs["mime"]}
 }
 
+// Detect returns the content type of text. The first of the command, file and MIME
+// hints that names a type wins; without one, the text is sniffed.
 func Detect(text string, hints Hints) string {
 	for _, t := range []string{FromCmd(hints.Cmd), FromFile(hints.File), FromMIME(hints.MIME)} {
 		if t != "" {

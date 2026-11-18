@@ -12,6 +12,7 @@ const (
 	family = "log"
 )
 
+// NewFactory returns the factory that builds the "log" optimizer and puts it in the "log" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config {

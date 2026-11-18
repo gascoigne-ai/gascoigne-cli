@@ -9,6 +9,7 @@ import (
 
 const typ = "stdout"
 
+// NewFactory returns the factory that builds the "stdout" exporter.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindExporter, typ,
 		func() *Config { return &Config{Hint: true} },

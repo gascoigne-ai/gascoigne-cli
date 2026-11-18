@@ -11,6 +11,7 @@ import (
 
 const typ = "mcp"
 
+// NewFactory returns the factory that builds the "mcp" receiver.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindReceiver, typ,
 		func() *Config {

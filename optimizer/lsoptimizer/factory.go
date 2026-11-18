@@ -11,6 +11,7 @@ const (
 	family = "fs"
 )
 
+// NewFactory returns the factory that builds the "ls" optimizer and puts it in the "fs" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{SizesUpTo: 60, Width: 120, MaxPerDir: 12} },

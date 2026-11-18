@@ -27,8 +27,11 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// ErrNotFound is returned when a raw id has no stored original, for instance
+// because it outlived RawTTL.
 var ErrNotFound = errors.New("not found")
 
+// Ledger is the sqlite-backed implementation of component.Ledger.
 type Ledger struct {
 	cfg  *Config
 	db   *gorm.DB
@@ -41,10 +44,12 @@ func (l *Ledger) Path() string { return l.path }
 
 var _ component.Ledger = (*Ledger)(nil)
 
+// New returns a ledger that is not started yet; Start opens its database.
 func New(cfg *Config) *Ledger {
 	return &Ledger{cfg: cfg, now: time.Now}
 }
 
+// Start opens the database and creates or migrates its schema.
 func (l *Ledger) Start(ctx context.Context, _ component.Host) error {
 	path, err := l.cfg.File()
 	if err != nil {
@@ -112,6 +117,7 @@ func openMemory() (*gorm.DB, error) {
 	return db, nil
 }
 
+// Shutdown closes the database.
 func (l *Ledger) Shutdown(context.Context) error {
 	if l.db == nil {
 		return nil
@@ -223,6 +229,8 @@ func (l *Ledger) holds(ctx context.Context, id, text string) (taken, same bool, 
 	return true, json.Unmarshal(blob, &old) == nil && old.Text() == text, nil
 }
 
+// GetRaw returns the original saved under id and the key it was saved for. It
+// wraps ErrNotFound when the id is unknown.
 func (l *Ledger) GetRaw(ctx context.Context, id string) (string, *payload.Payload, error) {
 	var r raw
 	err := l.db.WithContext(ctx).Take(&r, "id = ?", id).Error
@@ -293,6 +301,8 @@ func (l *Ledger) FlushRaw(ctx context.Context, cutoff time.Time) (int64, error) 
 	return res.RowsAffected, l.db.WithContext(ctx).Exec("VACUUM").Error
 }
 
+// Record stores the event of one pipeline run for the stats, and the optimized
+// output when the event carries one.
 func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 	if ev.RawID != "" && ev.Output != "" {
 		if err := l.saveOutput(ctx, ev.RawID, ev.Output); err != nil {
@@ -350,6 +360,8 @@ func (l *Ledger) recover(db *gorm.DB, key string) error {
 	return db.Delete(&failure{}, "key = ? AND count <= 0", key).Error
 }
 
+// MarkFailure counts one more failure for key. The history filter reads the count
+// back with Failures.
 func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
 	f := failure{Key: storedKey(key), Count: 1, LastTS: time.Now().UnixMilli(), Reason: reason}
 	if reason == component.ReasonRawRequested {
@@ -368,6 +380,7 @@ func (l *Ledger) MarkFailure(ctx context.Context, key, reason string) error {
 	}).Create(&f).Error
 }
 
+// Failures reports how often key failed; the count is zero when it never did.
 func (l *Ledger) Failures(ctx context.Context, key string) (component.FailureInfo, error) {
 	var f failure
 	err := l.db.WithContext(ctx).Take(&f, "key = ?", storedKey(key)).Error

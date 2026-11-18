@@ -19,6 +19,7 @@ type Rules struct {
 	Fold []Fold
 }
 
+// Fold is a rule that groups the lines matching Re under one kind.
 type Fold struct {
 	Kind string
 	Re   *lazyre.Regexp

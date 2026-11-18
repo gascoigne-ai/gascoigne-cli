@@ -21,6 +21,8 @@ const (
 	MixedTrue = "true"
 )
 
+// Filter sets the content type of every untyped block with detect.Detect. It never
+// bypasses a payload.
 type Filter struct {
 	component.Nop
 	cfg *Config

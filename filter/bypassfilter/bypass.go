@@ -11,6 +11,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Filter bypasses optimization when the payload or the environment asks for the raw text.
 type Filter struct {
 	component.Nop
 	cfg *Config

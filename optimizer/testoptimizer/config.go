@@ -2,6 +2,7 @@ package testoptimizer
 
 import "errors"
 
+// Config sets the coverage percent below which a file is listed.
 type Config struct {
 	// CoverageBelow is the coverage percent under which a file of a
 	// coverage report is listed; the others are counted.

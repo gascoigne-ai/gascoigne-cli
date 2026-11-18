@@ -23,6 +23,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the Kubernetes family engine for manifests, describe output and the tables
+// of kubectl and helm.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

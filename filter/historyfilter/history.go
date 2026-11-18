@@ -22,6 +22,8 @@ const (
 	LevelGentle = "gentle"
 )
 
+// Filter bypasses keys whose optimized output the agent had to fetch raw before,
+// and routes less clear cases through the gentle route.
 type Filter struct {
 	cfg    *Config
 	log    *slog.Logger

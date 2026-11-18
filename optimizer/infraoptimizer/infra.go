@@ -17,6 +17,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the infra family engine for infrastructure-as-code output. Plans, applies and
+// ansible runs keep their changes, errors and summary.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

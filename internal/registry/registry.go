@@ -46,6 +46,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/stdinreceiver"
 )
 
+// Factories returns the factories of every built-in component.
 func Factories() []component.Factory {
 	return []component.Factory{
 		// receivers

@@ -8,6 +8,7 @@ import (
 
 const typ = "httpproxy"
 
+// NewFactory returns the factory that builds the "httpproxy" receiver.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindReceiver, typ,
 		func() *Config {

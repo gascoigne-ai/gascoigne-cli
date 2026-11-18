@@ -2,6 +2,7 @@ package pkgoptimizer
 
 import "errors"
 
+// Config sets how deep a dependency tree gets its own lines.
 type Config struct {
 	// TreeDepth is the deepest package of a dependency tree that gets its own
 	// line; below it only a count stays. Packages leading to a query term are

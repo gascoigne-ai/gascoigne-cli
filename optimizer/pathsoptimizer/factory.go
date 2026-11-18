@@ -11,6 +11,7 @@ const (
 	family = "core"
 )
 
+// NewFactory returns the factory that builds the "paths" optimizer and puts it in the "core" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		defaults,

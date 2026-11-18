@@ -2,6 +2,7 @@ package truncateoptimizer
 
 import "errors"
 
+// Config sets how many tokens, error lines and query matches survive a cut.
 type Config struct {
 	// MaxTokens is the largest block left whole after every other optimizer.
 	MaxTokens int `yaml:"max_tokens"`

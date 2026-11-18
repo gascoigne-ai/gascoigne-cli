@@ -2,6 +2,7 @@ package component
 
 import "context"
 
+// Factory creates the components of one kind and type from their config.
 type Factory interface {
 	Kind() Kind
 	Type() string
@@ -25,6 +26,7 @@ type factory[C any] struct {
 	create func(context.Context, Settings, *C) (Component, error)
 }
 
+// FactoryOption is an optional setting for NewFactory.
 type FactoryOption func(*factoryOptions)
 
 type factoryOptions struct{ family string }

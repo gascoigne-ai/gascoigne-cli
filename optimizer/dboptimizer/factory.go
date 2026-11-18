@@ -12,6 +12,7 @@ const (
 	family = "db"
 )
 
+// NewFactory returns the factory that builds the "db" optimizer and puts it in the "db" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{Limits: table.Limits{MaxRows: 30, MaxCell: 80}, PlanMinShare: 0.02} },

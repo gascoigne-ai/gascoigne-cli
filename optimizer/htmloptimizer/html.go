@@ -10,6 +10,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the optimizer that turns web pages into markdown.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

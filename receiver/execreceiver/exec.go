@@ -36,6 +36,7 @@ func With(ctx context.Context, inv *Invocation) context.Context {
 	return context.WithValue(ctx, ctxKey{}, inv)
 }
 
+// Receiver runs the command from the context and sends its output down the pipeline.
 type Receiver struct {
 	component.Nop
 	cfg  *Config

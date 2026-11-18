@@ -2,6 +2,8 @@ package jsonx
 
 import "errors"
 
+// Config tunes the JSON crusher: which values are dropped, how arrays are
+// tabulated or sampled, and how much of a document stays.
 type Config struct {
 	// DropEmpty removes null, "", [] and {} values.
 	DropEmpty bool `yaml:"drop_empty"`

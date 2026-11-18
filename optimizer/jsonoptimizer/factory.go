@@ -12,6 +12,7 @@ const (
 	family = "data"
 )
 
+// NewFactory returns the factory that builds the "json" optimizer and puts it in the "data" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		jsonx.Default,

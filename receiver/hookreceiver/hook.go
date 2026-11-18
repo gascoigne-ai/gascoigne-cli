@@ -24,6 +24,7 @@ func With(ctx context.Context, out *Output) context.Context {
 	return context.WithValue(ctx, ctxKey{}, out)
 }
 
+// Receiver sends the output carried in the context down the pipeline.
 type Receiver struct {
 	component.Nop
 	cfg  *Config

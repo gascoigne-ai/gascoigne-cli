@@ -11,6 +11,7 @@ const (
 	family = "build"
 )
 
+// NewFactory returns the factory that builds the "build" optimizer and puts it in the "build" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{MaxFrame: 4} },

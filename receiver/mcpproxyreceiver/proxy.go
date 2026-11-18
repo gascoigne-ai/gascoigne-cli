@@ -31,6 +31,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
+// Receiver is an MCP server that mirrors a downstream server's tools and optimizes
+// their results.
 type Receiver struct {
 	cfg      *Config
 	next     component.Pipeline

@@ -23,6 +23,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the web family engine for an agent's web search results. The summary stays
+// byte-exact and each Links line becomes one line per link.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

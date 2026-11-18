@@ -18,6 +18,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
+// Optimizer is the optimizer that runs the user's own program over each block. When that
+// program fails, the original block stays as it was.
 type Optimizer struct {
 	cfg   *Config
 	id    component.ID

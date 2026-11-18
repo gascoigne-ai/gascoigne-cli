@@ -11,6 +11,7 @@ const (
 	family = "search"
 )
 
+// NewFactory returns the factory that builds the "grep" optimizer and puts it in the "search" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{MaxPerFile: 20, MaxFiles: 100, MaxLineLen: 160} },

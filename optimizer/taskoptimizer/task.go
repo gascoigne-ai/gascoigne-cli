@@ -16,6 +16,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the task family engine for task runners and CI logs. Successful tasks collapse
+// to a line and failing ones keep their output.
 type Optimizer struct{ component.Nop }
 
 var splitters = map[string]func([]string) []string{

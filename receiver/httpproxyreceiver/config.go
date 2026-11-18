@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// Config sets the upstream APIs, which tools have their results left alone, and
+// how results are cached and folded.
 type Config struct {
 	// Anthropic, OpenAI and Gemini are the upstream APIs requests are forwarded to.
 	Anthropic string `yaml:"anthropic"`

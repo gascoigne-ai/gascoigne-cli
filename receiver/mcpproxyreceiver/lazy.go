@@ -46,10 +46,14 @@ func lazyDescription(tools []*mcp.Tool, all bool) string {
 	return fmt.Sprintf("%d more tools of this server are not listed: %s. Find one by what it does; returns the best matches with their input schemas. Run one with call_tool.", len(tools), list)
 }
 
+// SearchToolsInput is the argument of the search_tools tool, which finds downstream
+// tools by what they do.
 type SearchToolsInput struct {
 	Query string `json:"query,omitempty" jsonschema:"what the tool should do; empty lists every tool's name"`
 }
 
+// CallToolInput is the argument of the call_tool tool, which runs a downstream tool
+// found with search_tools.
 type CallToolInput struct {
 	Name      string         `json:"name" jsonschema:"tool name from search_tools"`
 	Arguments map[string]any `json:"arguments,omitempty" jsonschema:"arguments matching the tool's input schema"`

@@ -8,6 +8,7 @@ import (
 
 const typ = "ledger"
 
+// NewFactory returns the factory that builds the "ledger" extension.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindExtension, typ,
 		func() *Config {

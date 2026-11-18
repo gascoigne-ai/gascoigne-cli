@@ -32,6 +32,8 @@ const (
 
 const codeType = "fs/code"
 
+// Optimizer is the optimizer that elides machine-generated lines such as minified code, base64
+// blobs and data URIs, keeping the start and end of each line.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

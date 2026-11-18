@@ -9,6 +9,7 @@ import (
 
 const typ = "history"
 
+// NewFactory returns the factory that builds the "history" filter.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindFilter, typ,
 		func() *Config {

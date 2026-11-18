@@ -13,6 +13,7 @@ const (
 	family = "cloud"
 )
 
+// NewFactory returns the factory that builds the "cloud" optimizer and puts it in the "cloud" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config {

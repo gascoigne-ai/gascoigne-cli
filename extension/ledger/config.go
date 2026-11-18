@@ -26,6 +26,7 @@ const DefaultMemoryMaxBytes = 64 << 20
 // EnvPath overrides the configured path; eval uses it to isolate runs.
 const EnvPath = "GASCOIGNE_LEDGER"
 
+// Config is the ledger's storage location and retention settings.
 type Config struct {
 	// Path to the sqlite db; env vars are expanded. Default: $XDG_DATA_HOME/gascoigne/ledger.db.
 	Path string `yaml:"path"`

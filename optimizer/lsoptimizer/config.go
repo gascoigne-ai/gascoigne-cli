@@ -2,6 +2,8 @@ package lsoptimizer
 
 import "errors"
 
+// Config tunes listings: when sizes are shown, the line width and the number of
+// files listed per directory.
 type Config struct {
 	// SizesUpTo shows file sizes when a listing has at most this many files.
 	SizesUpTo int `yaml:"sizes_up_to"`

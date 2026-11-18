@@ -207,6 +207,7 @@ func SqueezeBlank(lines []string) []string {
 	return out
 }
 
+// Severity ranks how bad a line looks; None is the zero value.
 type Severity int
 
 const (
@@ -231,6 +232,7 @@ func SeverityOf(line string) Severity {
 	return None
 }
 
+// IsError reports whether SeverityOf rates the line as an error.
 func IsError(line string) bool { return SeverityOf(line) == Error }
 
 // singular drops the plural ending: items→item, matches→match, nodes→node.

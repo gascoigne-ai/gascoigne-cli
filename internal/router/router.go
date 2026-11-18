@@ -9,6 +9,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// DefaultRoute is the name reported when no route matches and the default chain runs.
 const DefaultRoute = "default"
 
 // Match conditions are ANDed; zero values match anything.
@@ -19,12 +20,14 @@ type Match struct {
 	MinTokens int               `yaml:"min_tokens"`
 }
 
+// Route is an optimizer chain, used for the payloads that its Match accepts.
 type Route struct {
 	Name       string   `yaml:"name"`
 	Match      Match    `yaml:"match"`
 	Optimizers []string `yaml:"optimizers"`
 }
 
+// Config is the router: routes tried in order, then the default chain.
 type Config struct {
 	Routes  []Route  `yaml:"routes"`
 	Default []string `yaml:"default"`

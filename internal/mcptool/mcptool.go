@@ -48,10 +48,13 @@ func Text(body *payload.Payload) string {
 	return text + hint.Of(id)
 }
 
+// Result wraps text as a tool result.
 func Result(text string) *mcp.CallToolResult {
 	return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: text}}}
 }
 
+// RetrieveInput is the argument of the retrieve tool, which returns an original or
+// parts of it.
 type RetrieveInput struct {
 	ID      string `json:"id" jsonschema:"id from an [optimized ... id=<id>] hint"`
 	Lines   string `json:"lines,omitempty" jsonschema:"only these lines, e.g. 120-180"`
@@ -92,6 +95,7 @@ func Original(ctx context.Context, ledger component.Ledger, id string, sl Slice)
 	return sl.Apply(p.Text())
 }
 
+// StatsInput is the argument of the stats tool.
 type StatsInput struct {
 	By      string `json:"by,omitempty" jsonschema:"one grouping (command, optimizer, family, outcome, reason, session, route); default: overview"`
 	Session string `json:"session,omitempty" jsonschema:"session id; default this session, 'all' for every session"`

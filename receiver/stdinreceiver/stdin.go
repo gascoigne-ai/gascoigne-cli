@@ -9,6 +9,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Receiver reads all of its input and sends it down the pipeline as one payload.
 type Receiver struct {
 	component.Nop
 	cfg  *Config

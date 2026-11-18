@@ -12,6 +12,7 @@ const (
 	family = "k8s"
 )
 
+// NewFactory returns the factory that builds the "k8s" optimizer and puts it in the "k8s" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config {

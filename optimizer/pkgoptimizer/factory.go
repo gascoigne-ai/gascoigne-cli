@@ -11,6 +11,7 @@ const (
 	family = "pkg"
 )
 
+// NewFactory returns the factory that builds the "pkg" optimizer and puts it in the "pkg" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{TreeDepth: 5} },

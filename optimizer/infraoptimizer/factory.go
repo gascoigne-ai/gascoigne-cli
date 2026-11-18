@@ -11,6 +11,7 @@ const (
 	family = "infra"
 )
 
+// NewFactory returns the factory that builds the "infra" optimizer and puts it in the "infra" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{MaxPlanLines: 300, DiffContext: 3} },

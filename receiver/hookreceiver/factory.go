@@ -9,6 +9,7 @@ import (
 
 const typ = "hook"
 
+// NewFactory returns the factory that builds the "hook" receiver.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindReceiver, typ,
 		func() *Config { return &Config{Kind: payload.CmdOutput} },

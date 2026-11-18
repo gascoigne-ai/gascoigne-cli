@@ -13,6 +13,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the opt-in optimizer that drops low-value words from prose paragraphs with a
+// local model. It is lossy, so the original stays in the ledger.
 type Optimizer struct {
 	component.Nop
 	cfg   *Config

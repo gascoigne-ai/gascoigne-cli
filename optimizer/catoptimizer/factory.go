@@ -11,6 +11,7 @@ const (
 	family = "fs"
 )
 
+// NewFactory returns the factory that builds the "cat" optimizer and puts it in the "fs" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{Mode: Auto, CleanMinTokens: 800, OutlineMinTokens: 4000, MinBody: 4} },

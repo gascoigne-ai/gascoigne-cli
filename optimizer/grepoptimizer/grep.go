@@ -18,6 +18,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the optimizer that groups search results (grep, rg, git grep) by file.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

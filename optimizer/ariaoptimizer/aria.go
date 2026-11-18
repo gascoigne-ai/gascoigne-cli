@@ -21,6 +21,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the web family engine for browser accessibility snapshots. It drops wrappers
+// that only group nodes and shortens long runs of similar siblings.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

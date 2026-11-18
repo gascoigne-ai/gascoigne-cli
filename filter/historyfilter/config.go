@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+// Config sets when a key that failed before is bypassed or routed through the
+// gentle route.
 type Config struct {
 	// MaxFailures bypasses a key once it failed this many times.
 	MaxFailures int `yaml:"max_failures"`

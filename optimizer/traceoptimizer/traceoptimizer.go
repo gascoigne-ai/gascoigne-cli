@@ -16,6 +16,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the optimizer that folds stack traces: recursion cycles, goroutines on the same
+// stack and runs of framework frames.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

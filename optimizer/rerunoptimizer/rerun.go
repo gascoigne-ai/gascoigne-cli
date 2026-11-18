@@ -25,6 +25,8 @@ import (
 // "ok") cannot make matching quadratic.
 const maxAnchors = 16
 
+// Optimizer is the optimizer that folds what a re-run repeats. Lines that an earlier output of
+// the same command in the same session already showed become a pointer line.
 type Optimizer struct {
 	component.Nop
 	cfg     *Config

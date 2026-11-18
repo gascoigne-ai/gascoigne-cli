@@ -6,6 +6,8 @@ import (
 	"slices"
 )
 
+// Config tunes the log engine: the context kept around problems, whether debug
+// lines are dropped, the line cap and which passes run.
 type Config struct {
 	// Context lines kept around warnings and errors.
 	Context int `yaml:"context"`

@@ -5,6 +5,8 @@ import (
 	"net/url"
 )
 
+// Config says how to reach the downstream MCP server and how its tools are
+// presented.
 type Config struct {
 	// Command starts the downstream MCP server (stdio). The CLI can pass it
 	// instead: gascoigne mcp-proxy -- npx some-mcp-server

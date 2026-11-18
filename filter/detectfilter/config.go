@@ -2,6 +2,8 @@ package detectfilter
 
 import "errors"
 
+// Config sets the families whose files are typed as source when they are read
+// for editing.
 type Config struct {
 	// EditSafe lists families whose files, read from disk (cat, sed -n,
 	// head, an agent's Read through the LLM proxy) and smaller than

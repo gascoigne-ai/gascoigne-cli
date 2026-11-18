@@ -17,6 +17,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the build family engine. It turns compiler, linter and bundler output into
+// diagnostics grouped by file and drops tool noise.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

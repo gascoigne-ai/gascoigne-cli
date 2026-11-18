@@ -30,6 +30,7 @@ type Pipeline struct {
 	exporters []named[component.Exporter]
 }
 
+// Process optimizes the payload and then hands the result to the exporters.
 func (pl *Pipeline) Process(ctx context.Context, in *payload.Payload) (*payload.Payload, error) {
 	p, err := pl.Optimize(ctx, in)
 	if err != nil {

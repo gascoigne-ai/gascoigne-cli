@@ -45,6 +45,8 @@ func Show(path, symbol string) (string, error) {
 	return out.String(), nil
 }
 
+// ShowInput is the argument of the show tool, which prints one symbol or lists the
+// definitions of a source file.
 type ShowInput struct {
 	File   string `json:"file" jsonschema:"source file path"`
 	Symbol string `json:"symbol,omitempty" jsonschema:"function, method (Type.Method) or type; empty lists the file's definitions"`

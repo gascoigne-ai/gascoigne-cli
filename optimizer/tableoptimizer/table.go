@@ -15,6 +15,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the table family engine for columnar CLI output. It drops padding, hoists
+// constant columns and samples long tables.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

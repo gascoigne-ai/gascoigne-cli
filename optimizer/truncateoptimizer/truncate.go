@@ -16,6 +16,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
+// Optimizer is the last-resort optimizer at the end of the chain. A block that is still over
+// max_tokens keeps its head, its tail and its error lines.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

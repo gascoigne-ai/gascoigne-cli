@@ -21,6 +21,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
+// Optimizer is the data family engine for YAML, CSV/TSV, XML and TOML. JSON has its own optimizer.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

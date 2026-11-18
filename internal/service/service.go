@@ -16,6 +16,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Options are the settings New takes besides the config.
 type Options struct {
 	Logger *slog.Logger
 	// Attrs are added to every payload unless already set (e.g. CLI -attr flags).
@@ -30,6 +31,7 @@ type Options struct {
 // bookkeeping (Pipeline.Optimize) somewhere else.
 type Remote func(ctx context.Context, pipeline string, data *payload.Payload) (*payload.Payload, error)
 
+// Service owns the components built from a config and runs their pipelines.
 type Service struct {
 	log        *slog.Logger
 	attrs      map[string]string
@@ -46,6 +48,8 @@ type Service struct {
 	started    []component.Component
 }
 
+// New builds every component the config names, using the given factories. It does
+// not start them; see Start.
 func New(ctx context.Context, cfg *config.Config, factories []component.Factory, opts Options) (*Service, error) {
 	s := &Service{
 		log:        opts.Logger,
@@ -250,6 +254,8 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	return errors.Join(errs...)
 }
 
+// Extension returns the configured extension with the given ID. It makes Service a
+// component.Host.
 func (s *Service) Extension(id component.ID) (component.Component, bool) {
 	c, ok := s.extensions[id]
 	return c, ok
@@ -258,11 +264,13 @@ func (s *Service) Extension(id component.ID) (component.Component, bool) {
 // Ledger returns the ledger extension, or nil when none is configured.
 func (s *Service) Ledger() component.Ledger { return s.ledger }
 
+// Pipeline returns the pipeline with the given name.
 func (s *Service) Pipeline(name string) (*Pipeline, bool) {
 	pl, ok := s.pipelines[name]
 	return pl, ok
 }
 
+// PipelineNames returns the names of all pipelines, sorted.
 func (s *Service) PipelineNames() []string {
 	return slices.Sorted(maps.Keys(s.pipelines))
 }

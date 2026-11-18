@@ -9,6 +9,7 @@ import (
 
 const typ = "exec"
 
+// NewFactory returns the factory that builds the "exec" receiver.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindReceiver, typ,
 		func() *Config { return &Config{Kind: payload.CmdOutput} },

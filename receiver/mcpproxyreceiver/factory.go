@@ -10,6 +10,7 @@ import (
 
 const typ = "mcp_proxy"
 
+// NewFactory returns the factory that builds the "mcp_proxy" receiver.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindReceiver, typ,
 		func() *Config { return &Config{Retrieve: "gascoigne_retrieve", CompactTools: true} },

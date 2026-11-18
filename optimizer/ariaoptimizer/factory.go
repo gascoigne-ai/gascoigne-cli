@@ -11,6 +11,7 @@ const (
 	family = "web"
 )
 
+// NewFactory returns the factory that builds the "aria" optimizer and puts it in the "web" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{MaxItems: 20, Head: 10, Tail: 4} },

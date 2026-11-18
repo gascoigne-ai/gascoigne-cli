@@ -11,6 +11,7 @@ const (
 	family = "web"
 )
 
+// NewFactory returns the factory that builds the "html" optimizer and puts it in the "web" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{Links: true} },

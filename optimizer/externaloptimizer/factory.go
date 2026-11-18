@@ -12,6 +12,7 @@ const (
 	family = "external"
 )
 
+// NewFactory returns the factory that builds the "external" optimizer and puts it in the "external" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config {

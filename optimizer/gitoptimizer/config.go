@@ -2,6 +2,7 @@ package gitoptimizer
 
 import "errors"
 
+// Config caps how much of a diff the vcs engine keeps.
 type Config struct {
 	// ContextLines kept around changes in diffs.
 	ContextLines int `yaml:"context_lines"`

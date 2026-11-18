@@ -18,6 +18,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
+// Optimizer is the optimizer that crushes JSON embedded in text, such as response bodies in
+// logs and test failures.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

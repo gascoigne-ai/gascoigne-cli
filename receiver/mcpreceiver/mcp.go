@@ -20,6 +20,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Receiver is the MCP server that exposes the fetch, compress, retrieve and stats
+// tools.
 type Receiver struct {
 	cfg       *Config
 	next      component.Pipeline
@@ -67,6 +69,7 @@ func (r *Receiver) server() *mcp.Server {
 	return s
 }
 
+// FetchInput is the argument of the fetch tool.
 type FetchInput struct {
 	URL   string `json:"url" jsonschema:"http or https URL"`
 	Query string `json:"query,omitempty" jsonschema:"what you are looking for; matching items and page sections survive compression"`
@@ -167,6 +170,7 @@ func (r *Receiver) fetchOptimized(ctx context.Context, request *payload.Payload,
 	return head + mcptool.Text(out), nil
 }
 
+// CompressInput is the argument of the compress tool.
 type CompressInput struct {
 	Text  string `json:"text"`
 	Cmd   string `json:"cmd,omitempty" jsonschema:"command that produced the text, e.g. go test ./..."`

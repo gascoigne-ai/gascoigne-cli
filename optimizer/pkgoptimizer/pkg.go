@@ -16,6 +16,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the pkg family engine. It turns package inventories and dependency trees into
+// one line per package.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

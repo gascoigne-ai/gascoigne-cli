@@ -8,6 +8,7 @@ import (
 
 const typ = "minsize"
 
+// NewFactory returns the factory that builds the "minsize" filter.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindFilter, typ,
 		func() *Config { return &Config{MinTokens: 200} },

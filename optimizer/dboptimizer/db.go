@@ -17,6 +17,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the db family engine. It samples query results, prunes EXPLAIN plans, folds redis
+// key listings and drops migration tool chatter.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

@@ -11,6 +11,7 @@ const (
 	family = "test"
 )
 
+// NewFactory returns the factory that builds the "test" optimizer and puts it in the "test" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{CoverageBelow: 80} },

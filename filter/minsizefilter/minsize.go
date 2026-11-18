@@ -9,6 +9,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Filter bypasses payloads that are below the configured token count.
 type Filter struct {
 	component.Nop
 	cfg *Config

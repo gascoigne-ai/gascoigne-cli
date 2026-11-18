@@ -11,6 +11,7 @@ const (
 	family = "task"
 )
 
+// NewFactory returns the factory that builds the "task" optimizer and puts it in the "task" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{} },

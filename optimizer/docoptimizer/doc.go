@@ -17,6 +17,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the doc family engine for markdown, reStructuredText, man pages and --help output.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

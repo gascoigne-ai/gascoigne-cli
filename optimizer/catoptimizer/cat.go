@@ -24,6 +24,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/tokens"
 )
 
+// Optimizer is the optimizer for source files that agents read. Small files pass untouched,
+// medium ones lose comments and large ones become outlines without function bodies.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

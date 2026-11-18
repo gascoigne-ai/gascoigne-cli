@@ -5,6 +5,7 @@ import (
 	"slices"
 )
 
+// Config says which families get path aliases and when an alias is worth its legend.
 type Config struct {
 	// Families whose blocks get aliases. Source files, data and listings are
 	// left alone: agents copy those verbatim.

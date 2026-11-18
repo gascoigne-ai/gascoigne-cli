@@ -2,6 +2,8 @@ package docoptimizer
 
 import "errors"
 
+// Config tunes the doc engine: how much of a code block or markdown page stays, and
+// which man page sections are dropped.
 type Config struct {
 	// MaxCodeLines keeps head and tail of longer code blocks.
 	MaxCodeLines int `yaml:"max_code_lines"`

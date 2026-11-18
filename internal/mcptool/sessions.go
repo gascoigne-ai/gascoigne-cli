@@ -29,11 +29,14 @@ type Sessions struct {
 	generated string
 }
 
+// NewSessions returns a Sessions that falls back to one id generated per server run
+// when the context names no session.
 func NewSessions(ctx context.Context) *Sessions {
 	explicit, _ := ctx.Value(identityKey{}).(Identity)
 	return &Sessions{explicit: explicit, generated: fmt.Sprintf("mcp-%s-%04x", time.Now().Format("20060102-150405"), rand.N(1<<16))}
 }
 
+// Of returns the session id for a tool request.
 func (s *Sessions) Of(req *mcp.CallToolRequest) string {
 	if s.explicit.Session != "" {
 		return s.explicit.Session

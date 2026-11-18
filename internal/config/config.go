@@ -57,10 +57,15 @@ func errTooNew(version int) error {
 	return fmt.Errorf("version %d is newer than this gascoigne supports (%d); update gascoigne", version, SupportedVersion)
 }
 
+// Node is the raw YAML config of one component. Its factory decodes it over the
+// default config.
 type Node = yaml.Node
 
+// Components maps the IDs of the configured components of one kind to their raw config.
 type Components map[string]Node
 
+// Config is the gascoigne config file: the components of each kind, the router
+// chains and the pipelines that wire them together.
 type Config struct {
 	Version    int                 `yaml:"version"`
 	Extensions Components          `yaml:"extensions"`
@@ -89,6 +94,7 @@ type Tokenizers struct {
 	O200k bool `yaml:"o200k"`
 }
 
+// Pipeline names the components one flow uses, by their IDs in the sections of Config.
 type Pipeline struct {
 	Receivers []string `yaml:"receivers"`
 	Filters   []string `yaml:"filters,omitempty"`
@@ -112,6 +118,7 @@ func (c *Config) RouterFor(pipeline Pipeline) *router.Config {
 	return r
 }
 
+// Load reads the config file at path and parses it.
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -120,6 +127,7 @@ func Load(path string) (*Config, error) {
 	return Parse(data)
 }
 
+// Parse decodes config data strictly and validates the result.
 func Parse(data []byte) (*Config, error) {
 	c := Config{Version: SupportedVersion}
 	if err := Decode(data, &c); err != nil {
@@ -150,6 +158,9 @@ func DecodeNode(node Node, out any) error {
 	return Decode(data, out)
 }
 
+// Validate checks the version and that there is at least one pipeline. It also
+// checks that every ID is well formed and that each pipeline names only components
+// the config defines.
 func (c *Config) Validate() error {
 	if c.Version > SupportedVersion {
 		return errTooNew(c.Version)

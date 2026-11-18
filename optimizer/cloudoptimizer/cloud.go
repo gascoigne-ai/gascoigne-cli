@@ -21,6 +21,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
+// Optimizer is the cloud family engine for the AWS, Google Cloud and Azure CLIs. It crushes JSON
+// and YAML responses, compacts tables and summarizes object listings.
 type Optimizer struct {
 	component.Nop
 	cfg *Config

@@ -7,6 +7,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/table"
 )
 
+// Config tunes the data engine: the JSON crusher that YAML goes through, the table
+// limits and the caps for XML siblings and notebook cell outputs.
 type Config struct {
 	// JSON tunes the crusher YAML goes through.
 	JSON jsonx.Config `yaml:"json"`

@@ -19,6 +19,7 @@ type StatsReport struct {
 	Total   StatsJSON   `json:"total"`
 }
 
+// StatsJSON is one group of a StatsReport, or its total.
 type StatsJSON struct {
 	Group     string     `json:"group"`
 	Family    string     `json:"family,omitempty"`

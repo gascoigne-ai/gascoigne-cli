@@ -7,6 +7,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/table"
 )
 
+// Config tunes the cloud engine: the JSON crusher, the table limits and the size up
+// to which an object listing is shown in full.
 type Config struct {
 	// JSON tunes the JSON crusher used for API responses.
 	JSON jsonx.Config `yaml:"json"`

@@ -2,6 +2,8 @@ package grepoptimizer
 
 import "errors"
 
+// Config caps the matches per file, the files and the line length of grouped search
+// results.
 type Config struct {
 	// MaxPerFile caps matches shown per file.
 	MaxPerFile int `yaml:"max_per_file"`

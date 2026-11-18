@@ -168,6 +168,8 @@ func (l *Ledger) aggregates(by string) string {
 		min(ts) AS first_ts, max(ts) AS last_ts`
 }
 
+// Failure is a source whose optimization failed, with how often it failed and how
+// many tokens it then passed unoptimized.
 type Failure struct {
 	Key    string
 	Count  int

@@ -12,6 +12,7 @@ const (
 	family = "table"
 )
 
+// NewFactory returns the factory that builds the "table" optimizer and puts it in the "table" family.
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config { return &Config{Limits: table.Limits{MaxRows: 30, MaxCell: 60}} },
