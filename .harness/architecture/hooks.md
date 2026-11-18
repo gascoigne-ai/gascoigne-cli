@@ -138,7 +138,7 @@ The hooks stay registered in manual mode (the server start, the guide and nudges
 | WebFetch | denied → gascoigne `fetch` (MCP) | no hook | no hook | no hook |
 | Read | image Reads above `max_image_pixels` are downscaled (shape kept, original in the ledger); text not shortened: the hooks accept a replaced result of the tool's shape, but Claude numbers the lines itself, so only line-preserving changes are safe, and they save under 1% (see backlog); the LLM proxy shortens it when on | no hook | no hook | no hook |
 | MCP tools | PostToolUse `mcp__*`, plus `mcp-proxy` | PostToolUse `mcp__*` | AfterTool `mcp_*` | opencode: `tool.execute.after` plus `mcp-proxy`; pi, cursor: `mcp-proxy` only |
-| Subagents | hooks run there too: gascoigne's own PreToolUse and PostToolUse show in subagent transcripts (13 files, 2026-10-12) | unverified | unverified | unverified |
+| Subagents | hooks run there too: gascoigne's own PreToolUse and PostToolUse show in subagent transcripts (13 files, 2026-10-12). The payload's `agent_id` (per Claude Code docs, not verified against a live capture) makes the ledger session `<session_id>#<agent_id>`, so `rerun` pointers never cross between parent and subagent; without it they share `session_id` | unverified; no agent id read, so rerun is not isolated | unverified; same | unverified; same |
 
 Cursor has the preToolUse hook only: no result replacement is known (`postToolUse` unverified, not built). A status line can show the
 savings: `gascoigne gain -oneline -since 1d` (`docs/agents.md`).

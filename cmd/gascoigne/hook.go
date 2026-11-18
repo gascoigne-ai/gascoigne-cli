@@ -21,7 +21,10 @@ import (
 // hookInput is the event agent hooks send on stdin. Claude Code, Codex and
 // Cursor share these fields; the pi extension sends the same shape.
 type hookInput struct {
-	SessionID      string          `json:"session_id"`
+	SessionID string `json:"session_id"`
+	// AgentID is set when a subagent made the call (Claude Code's hook
+	// payload, per its docs; not verified against a live capture).
+	AgentID        string          `json:"agent_id"`
 	HookEventName  string          `json:"hook_event_name"`
 	ToolName       string          `json:"tool_name"`
 	TranscriptPath string          `json:"transcript_path"`
@@ -68,7 +71,7 @@ func cmdHook(ctx context.Context, args []string) error {
 	if skipHook(in.HookEventName) {
 		return nil
 	}
-	reply, err := agent.hook(ctx, &shared, in, execPrefix(self(), name, in.SessionID, model, lastContext(transcriptEnd(in.TranscriptPath))))
+	reply, err := agent.hook(ctx, &shared, in, execPrefix(self(), name, hookSession(in), model, lastContext(transcriptEnd(in.TranscriptPath))))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
 		return nil
@@ -82,6 +85,17 @@ func cmdHook(ctx context.Context, args []string) error {
 	}
 	_, err = os.Stdout.Write(data)
 	return err
+}
+
+// hookSession is the session the ledger records for the event. A subagent
+// shares its parent's session_id, so it gets its agent id appended: rerun
+// pointers then never lead to output only the other agent saw. Agents whose
+// payload has no agent_id keep the plain session id.
+func hookSession(in hookInput) string {
+	if in.SessionID == "" || in.AgentID == "" {
+		return in.SessionID
+	}
+	return in.SessionID + "#" + in.AgentID
 }
 
 // sessionNotes returns the note a session start or prompt event carries: the
@@ -123,7 +137,7 @@ func adoptEvent(shared *common, name string, in hookInput) (model string) {
 		shared.agent = name
 	}
 	if shared.sessionID() == "" {
-		shared.session = in.SessionID
+		shared.session = hookSession(in)
 	}
 	if shared.model == "" && os.Getenv("GASCOIGNE_MODEL") == "" {
 		model = transcriptModel(in.TranscriptPath)
