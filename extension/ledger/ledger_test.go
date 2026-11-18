@@ -16,6 +16,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
+	"gorm.io/gorm"
 )
 
 func start(t *testing.T, cfg *Config) *Ledger {
@@ -839,4 +840,30 @@ func TestOptimizedRunsForgiveFailures(t *testing.T) {
 			t.Fatalf("count = %d, want 1", got)
 		}
 	})
+}
+
+// A failed insert followed by a failed lookup must surface the lookup error,
+// not read as "id taken by other text" and move on to a longer id.
+func TestSaveRawReturnsHoldsError(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	boom := errors.New("boom")
+	failQuery := false
+	if err := l.db.Callback().Create().Before("gorm:create").Register("test:fail_create", func(tx *gorm.DB) {
+		failQuery = true
+		tx.AddError(errors.New("insert failed"))
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.db.Callback().Query().Before("gorm:query").Register("test:fail_query", func(tx *gorm.DB) {
+		if failQuery {
+			failQuery = false // one lookup only: a retry with a longer id would succeed
+			tx.AddError(boom)
+		}
+	}); err != nil {
+		t.Fatal(err)
+	}
+	_, err := l.SaveRaw(t.Context(), "", payload.New(payload.Message, "x"))
+	if !errors.Is(err, boom) {
+		t.Fatalf("err %v, want holds error", err)
+	}
 }

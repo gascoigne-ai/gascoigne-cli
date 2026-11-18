@@ -190,7 +190,11 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, content *payload.Paylo
 			if err == nil {
 				return id, l.evictRaw(ctx, id)
 			}
-			if _, same, _ = l.holds(ctx, id, content.Text()); !same {
+			var herr error
+			if _, same, herr = l.holds(ctx, id, content.Text()); herr != nil {
+				return "", fmt.Errorf("raw %s: check after failed insert (%v): %w", id, err, herr)
+			}
+			if !same {
 				continue
 			}
 		}
