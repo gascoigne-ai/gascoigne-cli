@@ -8,7 +8,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 )
 
-func run(in string, r Rules) string { return compress.Join(Compress(compress.Lines(in), r)) }
+func run(in string, rules Rules) string { return compress.Join(Compress(compress.Lines(in), rules)) }
 
 func TestGroupsByFileAndDedupes(t *testing.T) {
 	in := `src/a.ts(3,9): error TS2322: Type 'string' is not assignable to type 'number'.

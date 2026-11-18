@@ -71,22 +71,22 @@ func (c *crusher) plainTable(items []any) (map[string]any, bool) {
 
 // tabulateMap turns a map whose values are similar objects (e.g. lockfile
 // "packages") into a table with the map key as first column.
-func (c *crusher) tabulateMap(m map[string]any) any {
-	if len(m) < c.cfg.TabulateMin {
-		return m
+func (c *crusher) tabulateMap(object map[string]any) any {
+	if len(object) < c.cfg.TabulateMin {
+		return object
 	}
-	keys := sortedKeys(m)
-	objs := make([]map[string]any, 0, len(m))
+	keys := sortedKeys(object)
+	objs := make([]map[string]any, 0, len(object))
 	for _, k := range keys {
-		obj, ok := m[k].(map[string]any)
+		obj, ok := object[k].(map[string]any)
 		if !ok {
-			return m
+			return object
 		}
 		objs = append(objs, obj)
 	}
 	cols, ok := c.columns(objs)
 	if !ok {
-		return m
+		return object
 	}
 	rows := make([]any, len(keys))
 	for i, k := range keys {
@@ -151,16 +151,16 @@ func hoist(cols []string, rows []any) map[string]any {
 		}
 		keepCols = append(keepCols, c)
 	}
-	nulls := func(c int) (n int) {
+	nulls := func(column int) (n int) {
 		for _, row := range objRows {
-			if row[c] == nil {
+			if row[column] == nil {
 				n++
 			}
 		}
 		return n
 	}
 	// Sparse columns last, so rows can end before their trailing nulls.
-	slices.SortStableFunc(keepCols, func(a, b int) int { return cmp.Compare(nulls(a), nulls(b)) })
+	slices.SortStableFunc(keepCols, func(left, right int) int { return cmp.Compare(nulls(left), nulls(right)) })
 	outCols := make([]string, len(keepCols))
 	for i, c := range keepCols {
 		outCols[i] = cols[c]
@@ -196,19 +196,19 @@ func trimNulls(cells []any) []any {
 	return cells
 }
 
-func allEqual(rows [][]any, c int) bool {
-	return !slices.ContainsFunc(rows[1:], func(r []any) bool { return !reflect.DeepEqual(r[c], rows[0][c]) })
+func allEqual(rows [][]any, column int) bool {
+	return !slices.ContainsFunc(rows[1:], func(row []any) bool { return !reflect.DeepEqual(row[column], rows[0][column]) })
 }
 
 // sharedAffix returns the prefix and suffix shared by all string cells of
 // column c; empty unless every non-null cell is a string longer than both.
-func sharedAffix(rows [][]any, c int) (string, string) {
+func sharedAffix(rows [][]any, column int) (string, string) {
 	if len(rows) < 2 {
 		return "", ""
 	}
 	var vals []string
 	for _, r := range rows {
-		switch v := r[c].(type) {
+		switch v := r[column].(type) {
 		case nil: // missing cells stay null
 		case string:
 			vals = append(vals, v)
@@ -243,23 +243,23 @@ func sharedAffix(rows [][]any, c int) (string, string) {
 	return pre, suf
 }
 
-func isSep(c byte) bool {
-	return c < utf8.RuneSelf && !unicode.IsLetter(rune(c)) && !unicode.IsDigit(rune(c))
+func isSep(char byte) bool {
+	return char < utf8.RuneSelf && !unicode.IsLetter(rune(char)) && !unicode.IsDigit(rune(char))
 }
 
 // hashLike matches checksums and ids: "sha512-…", "h1:…=", long hex/base64.
 var hashLike = lazyre.New(`^([A-Za-z0-9]{1,10}[:-])?[A-Za-z0-9+/=_-]{40,}$`)
 
-func (c *crusher) str(s string) any {
-	if c.cfg.ShortenHashes && len(s) >= 40 && !strings.ContainsAny(s, " .") && hashLike.MatchString(s) && digits(s) >= 4 {
-		return s[:min(len(s), 16)] + "…"
+func (c *crusher) str(text string) any {
+	if c.cfg.ShortenHashes && len(text) >= 40 && !strings.ContainsAny(text, " .") && hashLike.MatchString(text) && digits(text) >= 4 {
+		return text[:min(len(text), 16)] + "…"
 	}
-	return compress.TruncateLine(s, c.cfg.MaxString)
+	return compress.TruncateLine(text, c.cfg.MaxString)
 }
 
-func digits(s string) int {
+func digits(text string) int {
 	n := 0
-	for _, r := range s {
+	for _, r := range text {
 		if unicode.IsDigit(r) {
 			n++
 		}
@@ -267,9 +267,9 @@ func digits(s string) int {
 	return n
 }
 
-func sortedKeys[V any](m map[string]V) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
+func sortedKeys[V any](entries map[string]V) []string {
+	keys := make([]string, 0, len(entries))
+	for k := range entries {
 		keys = append(keys, k)
 	}
 	slices.Sort(keys)

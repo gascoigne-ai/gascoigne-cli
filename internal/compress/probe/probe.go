@@ -25,9 +25,9 @@ type Tally struct {
 func (t Tally) Kept() int { return t.Total - len(t.Lost) }
 
 // Add merges u into t.
-func (t *Tally) Add(u Tally) {
-	t.Total += u.Total
-	t.Lost = append(t.Lost, u.Lost...)
+func (t *Tally) Add(other Tally) {
+	t.Total += other.Total
+	t.Lost = append(t.Lost, other.Lost...)
 }
 
 // Report is the outcome per kind of fact.
@@ -113,7 +113,7 @@ func artifacts(text string) []string {
 			out = append(out, m)
 		}
 	}
-	return distinct(slices.DeleteFunc(out, func(s string) bool { return len(s) < minLen }))
+	return distinct(slices.DeleteFunc(out, func(word string) bool { return len(word) < minLen }))
 }
 
 // numerics returns [match, key, number] triples.
@@ -131,18 +131,18 @@ func numerics(text string) [][]string {
 }
 
 // isHash: 7–64 hex digits mixing letters and digits (words like "defaced" are not).
-func isHash(s string) bool {
-	return len(s) >= 7 && len(s) <= 64 && strings.ContainsAny(s, "abcdef") && strings.ContainsAny(s, "0123456789") &&
-		strings.Trim(s, "0123456789abcdef") == ""
+func isHash(text string) bool {
+	return len(text) >= 7 && len(text) <= 64 && strings.ContainsAny(text, "abcdef") && strings.ContainsAny(text, "0123456789") &&
+		strings.Trim(text, "0123456789abcdef") == ""
 }
 
-func distinct(s []string) []string {
+func distinct(words []string) []string {
 	seen := map[string]bool{}
-	return slices.DeleteFunc(s, func(x string) bool {
-		if seen[x] {
+	return slices.DeleteFunc(words, func(word string) bool {
+		if seen[word] {
 			return true
 		}
-		seen[x] = true
+		seen[word] = true
 		return false
 	})
 }
@@ -168,18 +168,18 @@ func newHaystack(text string) *haystack {
 	return h
 }
 
-func normalize(s string) string {
-	return strings.Join(strings.Fields(punctRe.ReplaceAllString(s, " ")), " ")
+func normalize(text string) string {
+	return strings.Join(strings.Fields(punctRe.ReplaceAllString(text, " ")), " ")
 }
 
-func (h *haystack) hasWord(w string) bool { return h.words[normalize(w)] }
+func (h *haystack) hasWord(word string) bool { return h.words[normalize(word)] }
 
 // hasText: exact, normalized, or every word present (regrouped lines).
-func (h *haystack) hasText(s string) bool {
-	if strings.Contains(h.raw, s) {
+func (h *haystack) hasText(text string) bool {
+	if strings.Contains(h.raw, text) {
 		return true
 	}
-	n := normalize(s)
+	n := normalize(text)
 	if n == "" || strings.Contains(h.norm, n) {
 		return true
 	}
@@ -193,14 +193,14 @@ func (h *haystack) hasText(s string) bool {
 
 // hasArtifact: verbatim, a hash by its short form, or a path whose segments
 // all appear (listings grouped by directory).
-func (h *haystack) hasArtifact(a string) bool {
-	if strings.Contains(h.raw, a) {
+func (h *haystack) hasArtifact(artifact string) bool {
+	if strings.Contains(h.raw, artifact) {
 		return true
 	}
-	if isHash(a) {
-		return strings.Contains(h.raw, a[:7])
+	if isHash(artifact) {
+		return strings.Contains(h.raw, artifact[:7])
 	}
-	for _, s := range strings.Split(strings.Trim(a, "/"), "/") {
+	for _, s := range strings.Split(strings.Trim(artifact, "/"), "/") {
 		if s != "" && s != "." && s != ".." && s != "~" && !h.words[s] {
 			return false
 		}

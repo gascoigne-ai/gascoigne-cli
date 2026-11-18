@@ -26,35 +26,35 @@ type list struct {
 
 var headings = map[atom.Atom]string{atom.H1: "#", atom.H2: "##", atom.H3: "###", atom.H4: "####", atom.H5: "#####", atom.H6: "######"}
 
-func (w *writer) node(n *html.Node) {
-	switch n.Type {
+func (w *writer) node(node *html.Node) {
+	switch node.Type {
 	case html.TextNode:
-		w.text(n.Data)
+		w.text(node.Data)
 		return
 	case html.ElementNode:
 	default:
-		w.children(n)
+		w.children(node)
 		return
 	}
-	if skip[n.DataAtom] || w.dense[n] || attr(n, "hidden") != "" || attr(n, "aria-hidden") == "true" {
+	if skip[node.DataAtom] || w.dense[node] || attr(node, "hidden") != "" || attr(node, "aria-hidden") == "true" {
 		return
 	}
-	switch a := n.DataAtom; {
+	switch a := node.DataAtom; {
 	case headings[a] != "":
 		w.block()
-		w.b.WriteString(headings[a] + " " + w.inline(n))
+		w.b.WriteString(headings[a] + " " + w.inline(node))
 		w.block()
 	case a == atom.P || a == atom.Div || a == atom.Section || a == atom.Article || a == atom.Main ||
 		a == atom.Dl || a == atom.Figure || a == atom.Details || a == atom.Summary:
 		w.block()
-		w.children(n)
+		w.children(node)
 		w.block()
 	case a == atom.Dt || a == atom.Dd:
 		w.line()
-		w.children(n)
+		w.children(node)
 	case a == atom.Tr:
 		w.line()
-		w.children(n)
+		w.children(node)
 		w.b.WriteString("|")
 	case a == atom.Br:
 		w.line()
@@ -63,17 +63,17 @@ func (w *writer) node(n *html.Node) {
 	case a == atom.Ul || a == atom.Ol:
 		w.lists = append(w.lists, list{ordered: a == atom.Ol})
 		w.block()
-		w.children(n)
+		w.children(node)
 		w.lists = w.lists[:len(w.lists)-1]
 		w.block()
 	case a == atom.Li:
 		w.item()
-		w.children(n)
+		w.children(node)
 	case a == atom.Pre:
 		w.block()
 		w.b.WriteString("```\n")
 		w.inPre = true
-		w.children(n)
+		w.children(node)
 		w.inPre = false
 		if !strings.HasSuffix(w.b.String(), "\n") {
 			w.b.WriteString("\n")
@@ -82,41 +82,41 @@ func (w *writer) node(n *html.Node) {
 		w.block()
 	case a == atom.Code && !w.inPre:
 		w.b.WriteString("`")
-		w.children(n)
+		w.children(node)
 		w.b.WriteString("`")
 	case a == atom.A:
-		w.link(n)
+		w.link(node)
 	case a == atom.Blockquote:
 		w.quote++
 		w.block()
-		w.children(n)
+		w.children(node)
 		w.quote--
 		w.block()
 	case a == atom.Td || a == atom.Th:
 		w.b.WriteString("| ")
-		w.children(n)
+		w.children(node)
 		w.b.WriteString(" ")
 	default:
-		w.children(n)
+		w.children(node)
 	}
 }
 
-func (w *writer) children(n *html.Node) {
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
+func (w *writer) children(node *html.Node) {
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
 		w.node(c)
 	}
 }
 
-func (w *writer) text(s string) {
+func (w *writer) text(text string) {
 	if w.inPre {
-		w.b.WriteString(s)
+		w.b.WriteString(text)
 		return
 	}
-	s = spaces.ReplaceAllString(s, " ")
+	text = spaces.ReplaceAllString(text, " ")
 	if w.atLineStart() {
-		s = strings.TrimLeft(s, " ")
+		text = strings.TrimLeft(text, " ")
 	}
-	w.b.WriteString(s)
+	w.b.WriteString(text)
 }
 
 // scriptScheme reports hrefs that run code or embed data instead of pointing at a page.
@@ -125,15 +125,15 @@ func scriptScheme(href string) bool {
 	return strings.HasPrefix(h, "javascript:") || strings.HasPrefix(h, "data:") || strings.HasPrefix(h, "vbscript:")
 }
 
-func (w *writer) link(n *html.Node) {
-	href := attr(n, "href")
+func (w *writer) link(node *html.Node) {
+	href := attr(node, "href")
 	if !w.links || w.inLink || href == "" || strings.HasPrefix(href, "#") || scriptScheme(href) {
-		w.children(n)
+		w.children(node)
 		return
 	}
 	start := w.b.Len()
 	w.inLink = true
-	w.children(n)
+	w.children(node)
 	w.inLink = false
 	label := strings.TrimSpace(w.b.String()[start:])
 	if label == "" {
@@ -153,14 +153,14 @@ func (w *writer) atLineStart() bool {
 // inline renders n's children on one line: doc sites wrap heading text in
 // divs and anchor icons ("<h2><div><a>\u200b</a></div><span>Hooks</span>"),
 // which would otherwise leave an empty "##" with the title lines below.
-func (w *writer) inline(n *html.Node) string {
+func (w *writer) inline(node *html.Node) string {
 	sub := &writer{links: w.links}
-	sub.children(n)
-	text := strings.Map(func(r rune) rune {
-		if r == '\u200b' || r == '\ufeff' {
+	sub.children(node)
+	text := strings.Map(func(char rune) rune {
+		if char == '\u200b' || char == '\ufeff' {
 			return -1
 		}
-		return r
+		return char
 	}, sub.b.String())
 	return strings.Join(strings.Fields(text), " ")
 }

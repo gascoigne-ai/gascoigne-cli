@@ -5,7 +5,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
 
-func re(s string) *lazyre.Regexp { return lazyre.New(s) }
+func re(pattern string) *lazyre.Regexp { return lazyre.New(pattern) }
 
 var mavenNoise = pcomb.Rules{
 	{

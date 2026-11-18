@@ -9,9 +9,9 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
-func links(n, labelLen int) string {
+func links(count, labelLen int) string {
 	var b strings.Builder
-	for i := range n {
+	for i := range count {
 		fmt.Fprintf(&b, `<li><a href="/p/%d">%s%d</a></li>`, i, strings.Repeat("x", labelLen), i)
 	}
 	return b.String()

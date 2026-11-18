@@ -4,8 +4,8 @@ import "encoding/json"
 
 // size estimates the compact JSON length of v without encoding it; escapes
 // are ignored. Good enough to compare forms and count tokens.
-func size(v any) int {
-	switch v := v.(type) {
+func size(value any) int {
+	switch v := value.(type) {
 	case nil:
 		return 4
 	case bool:

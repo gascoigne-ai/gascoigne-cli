@@ -26,7 +26,7 @@ type Def struct{ Id, Value string }
 var lineRe = lazyre.New(`\[(paths|rules|names): ([^\]\n]+)\]`)
 
 // ID is the short id of the i-th entry (from 0) of a kind: §1, ¶2, †3.
-func ID(kind string, i int) string { return sigil[kind] + strconv.Itoa(i+1) }
+func ID(kind string, index int) string { return sigil[kind] + strconv.Itoa(index+1) }
 
 // Render is the legend line for defs, without a newline.
 func Render(kind string, defs []Def) string {
@@ -48,8 +48,8 @@ func Has(text string) bool { return lineRe.MatchString(text) }
 
 // Worth is the bytes saved by replacing n uses of value with id, the legend
 // entry (id=value and a separator) counted. Negative means a loss.
-func Worth(n, valueLen, idLen int) int {
-	return n*(valueLen-idLen) - idLen - valueLen - 2
+func Worth(count, valueLen, idLen int) int {
+	return count*(valueLen-idLen) - idLen - valueLen - 2
 }
 
 // Expand puts every id of every legend in text back to its value. Legend
@@ -63,7 +63,7 @@ func Expand(text string) string {
 		return text
 	}
 	// Longest ids first: §12 must not be read as §1 followed by 2.
-	slices.SortStableFunc(defs, func(a, b Def) int { return len(b.Id) - len(a.Id) })
+	slices.SortStableFunc(defs, func(left, right Def) int { return len(right.Id) - len(left.Id) })
 	pairs := make([]string, 0, 2*len(defs))
 	for _, d := range defs {
 		pairs = append(pairs, d.Id, d.Value)
@@ -86,9 +86,9 @@ func parse(body string) []Def {
 	return defs
 }
 
-func isID(s string) bool {
+func isID(token string) bool {
 	for _, sg := range sigil {
-		if strings.HasPrefix(s, sg) && len(s) > len(sg) {
+		if strings.HasPrefix(token, sg) && len(token) > len(sg) {
 			return true
 		}
 	}

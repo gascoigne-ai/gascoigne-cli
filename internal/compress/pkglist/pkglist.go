@@ -32,22 +32,22 @@ var noise = pcomb.Rules{
 // left of the line (version and decoration).
 type form struct {
 	re  *lazyre.Regexp
-	key func(m []string) string
+	key func(match []string) string
 }
 
 var forms = []form{
 	// apt: `curl/noble-updates,now 8.5.0-2 amd64 [installed,automatic]`
-	{lazyre.New(`^([^\s/]+)/\S+ (\S+) (\S+)(?: \[(.*)\])?$`), func(m []string) string {
-		flags := strings.TrimPrefix(strings.TrimPrefix(m[4], "installed"), ",")
-		return strings.TrimSpace(m[2] + " " + m[3] + " " + flags)
+	{lazyre.New(`^([^\s/]+)/\S+ (\S+) (\S+)(?: \[(.*)\])?$`), func(match []string) string {
+		flags := strings.TrimPrefix(strings.TrimPrefix(match[4], "installed"), ",")
+		return strings.TrimSpace(match[2] + " " + match[3] + " " + flags)
 	}},
 	// pip freeze: `Flask==3.0.3`
-	{lazyre.New(`^([^\s=:]+)==(\S+)$`), func(m []string) string { return m[2] }},
+	{lazyre.New(`^([^\s=:]+)==(\S+)$`), func(match []string) string { return match[2] }},
 	// gem list: `rspec (3.13.2)`, `json (default: 2.9.1)`, `rake (13.0.6, 12.3.3)`
-	{lazyre.New(`^(\S+) \((?:default: )?([^)]+)\)$`), func(m []string) string { return strings.ReplaceAll(m[2], ", ", ",") }},
+	{lazyre.New(`^(\S+) \((?:default: )?([^)]+)\)$`), func(match []string) string { return strings.ReplaceAll(match[2], ", ", ",") }},
 	// pip list, pacman -Q, brew list --versions, go list -m all
-	{lazyre.New(`^([^\s:=]+)\s+(\S+)((?:\s+\S+)*)$`), func(m []string) string {
-		return strings.Join(strings.Fields(m[2]+" "+m[3]), " ")
+	{lazyre.New(`^([^\s:=]+)\s+(\S+)((?:\s+\S+)*)$`), func(match []string) string {
+		return strings.Join(strings.Fields(match[2]+" "+match[3]), " ")
 	}},
 }
 
@@ -91,15 +91,15 @@ func Compress(lines []string) []string {
 
 // keepHeader: a pip header with more than name and version columns
 // (`Package Version Latest Type`) says what the extra values mean.
-func keepHeader(l string) bool {
-	f := strings.Fields(l)
+func keepHeader(line string) bool {
+	f := strings.Fields(line)
 	return len(f) > 2 && f[0] == "Package" && f[1] == "Version"
 }
 
-func parse(l string) (name, key string, ok bool) {
-	l = strings.TrimSpace(l)
+func parse(line string) (name, key string, ok bool) {
+	line = strings.TrimSpace(line)
 	for _, f := range forms {
-		if m := f.re.FindStringSubmatch(l); m != nil {
+		if m := f.re.FindStringSubmatch(line); m != nil {
 			return m[1], f.key(m), true
 		}
 	}

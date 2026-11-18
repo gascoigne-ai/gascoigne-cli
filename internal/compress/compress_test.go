@@ -50,7 +50,7 @@ func TestDedupeAll(t *testing.T) {
 
 func TestKeepWithContext(t *testing.T) {
 	in := strings.Split("a b c ERR d e f g", " ")
-	got := KeepWithContext(in, func(l string) bool { return l == "ERR" }, 1, 1)
+	got := KeepWithContext(in, func(line string) bool { return line == "ERR" }, 1, 1)
 	want := []string{"… 2 lines omitted", "c", "ERR", "d", "… 3 lines omitted"}
 	if !slices.Equal(got, want) {
 		t.Fatalf("got %q", got)

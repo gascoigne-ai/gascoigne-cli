@@ -70,14 +70,14 @@ func Decode(text string) ([]any, error) {
 	}
 }
 
-func encode(w *bytes.Buffer, v any) error {
-	enc := json.NewEncoder(w)
+func encode(buffer *bytes.Buffer, value any) error {
+	enc := json.NewEncoder(buffer)
 	enc.SetEscapeHTML(false)
-	return enc.Encode(v) // compact, sorted keys, newline-terminated
+	return enc.Encode(value) // compact, sorted keys, newline-terminated
 }
 
-func (c *crusher) crush(v any) any {
-	switch v := v.(type) {
+func (c *crusher) crush(value any) any {
+	switch v := value.(type) {
 	case map[string]any:
 		out := map[string]any{}
 		for k, x := range v {
@@ -95,7 +95,7 @@ func (c *crusher) crush(v any) any {
 	case string:
 		return c.str(v)
 	}
-	return v
+	return value
 }
 
 // array keeps every item when a lossless table is enough; otherwise samples.
@@ -124,8 +124,8 @@ func (c *crusher) array(items []any) any {
 	return kept
 }
 
-func empty(v any) bool {
-	switch v := v.(type) {
+func empty(value any) bool {
+	switch v := value.(type) {
 	case nil:
 		return true
 	case string:

@@ -59,12 +59,12 @@ func Shrink(data, mediaType string, maxPixels int) (out string, before, after in
 // Keep saves the original image (base64) so `gascoigne raw` returns it, and
 // records the saving in image tokens. ev holds who and where (TS, Session,
 // Agent, Model, Pipeline); the rest is filled in.
-func Keep(ctx context.Context, l component.Ledger, ev component.Event, data, mediaType string, before, after int) error {
+func Keep(ctx context.Context, ledger component.Ledger, ev component.Event, data, mediaType string, before, after int) error {
 	p := payload.New(payload.ToolResult, data)
 	p.Set("mime", mediaType)
 	sum := sha256.Sum256([]byte(mediaType + "\x00" + data))
 	ev.Key = "image:" + hex.EncodeToString(sum[:8])
-	id, err := l.SaveRaw(ctx, ev.Key, p)
+	id, err := ledger.SaveRaw(ctx, ev.Key, p)
 	if err != nil {
 		return fmt.Errorf("save original image: %w", err)
 	}
@@ -72,19 +72,19 @@ func Keep(ctx context.Context, l component.Ledger, ev component.Event, data, med
 	ev.Route, ev.Command, ev.Optimizers = "image", "image "+mediaType, []string{"image"}
 	ev.RawTokens, ev.OutTokens, ev.RawID, ev.Outcome = in, out, id, component.Optimized
 	ev.Steps = []component.Step{{Optimizer: "image", Family: "core", RawTokens: in, OutTokens: out}}
-	if err := l.Record(ctx, ev); err != nil {
+	if err := ledger.Record(ctx, ev); err != nil {
 		return fmt.Errorf("record image: %w", err)
 	}
 	return nil
 }
 
-func boxScale(src image.Image, w, h int) *image.NRGBA {
+func boxScale(src image.Image, width, height int) *image.NRGBA {
 	b := src.Bounds()
-	dst := image.NewNRGBA(image.Rect(0, 0, w, h))
-	for y := range h {
-		y0, y1 := b.Min.Y+y*b.Dy()/h, b.Min.Y+max((y+1)*b.Dy()/h, y*b.Dy()/h+1)
-		for x := range w {
-			x0, x1 := b.Min.X+x*b.Dx()/w, b.Min.X+max((x+1)*b.Dx()/w, x*b.Dx()/w+1)
+	dst := image.NewNRGBA(image.Rect(0, 0, width, height))
+	for y := range height {
+		y0, y1 := b.Min.Y+y*b.Dy()/height, b.Min.Y+max((y+1)*b.Dy()/height, y*b.Dy()/height+1)
+		for x := range width {
+			x0, x1 := b.Min.X+x*b.Dx()/width, b.Min.X+max((x+1)*b.Dx()/width, x*b.Dx()/width+1)
 			var r, g, bl, a, n uint64
 			for sy := y0; sy < y1; sy++ {
 				for sx := x0; sx < x1; sx++ {

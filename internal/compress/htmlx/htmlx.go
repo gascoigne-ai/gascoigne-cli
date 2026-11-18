@@ -54,13 +54,13 @@ func mainContent(doc *html.Node) *html.Node {
 	var best *html.Node
 	bestLen := 0
 	var walk func(*html.Node)
-	walk = func(n *html.Node) {
-		if n.Type == html.ElementNode && (n.DataAtom == atom.Main || n.DataAtom == atom.Article) && !holdsArticle(n) && !isComment(n) {
-			if l := visible(n); l > bestLen {
-				best, bestLen = n, l
+	walk = func(node *html.Node) {
+		if node.Type == html.ElementNode && (node.DataAtom == atom.Main || node.DataAtom == atom.Article) && !holdsArticle(node) && !isComment(node) {
+			if l := visible(node); l > bestLen {
+				best, bestLen = node, l
 			}
 		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
 			walk(c)
 		}
 	}
@@ -72,14 +72,14 @@ func mainContent(doc *html.Node) *html.Node {
 }
 
 // trimmed is s without surrounding space.
-func trimmed(s string) string { return strings.TrimSpace(s) }
+func trimmed(text string) string { return strings.TrimSpace(text) }
 
-func isComment(n *html.Node) bool {
-	return strings.Contains(strings.ToLower(attr(n, "class")+" "+attr(n, "id")), "comment")
+func isComment(node *html.Node) bool {
+	return strings.Contains(strings.ToLower(attr(node, "class")+" "+attr(node, "id")), "comment")
 }
 
-func holdsArticle(n *html.Node) bool {
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
+func holdsArticle(node *html.Node) bool {
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
 		if find(c, atom.Article) != nil {
 			return true
 		}
@@ -88,49 +88,49 @@ func holdsArticle(n *html.Node) bool {
 }
 
 // visible counts the non-space text bytes the writer would keep.
-func visible(n *html.Node) int {
-	if n.Type == html.ElementNode && skip[n.DataAtom] {
+func visible(node *html.Node) int {
+	if node.Type == html.ElementNode && skip[node.DataAtom] {
 		return 0
 	}
-	if n.Type == html.TextNode {
-		return len(strings.TrimSpace(n.Data))
+	if node.Type == html.TextNode {
+		return len(strings.TrimSpace(node.Data))
 	}
 	total := 0
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
 		total += visible(c)
 	}
 	return total
 }
 
-func find(n *html.Node, a atom.Atom) *html.Node {
-	if n.Type == html.ElementNode && n.DataAtom == a {
-		return n
+func find(node *html.Node, tag atom.Atom) *html.Node {
+	if node.Type == html.ElementNode && node.DataAtom == tag {
+		return node
 	}
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		if f := find(c, a); f != nil {
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
+		if f := find(c, tag); f != nil {
 			return f
 		}
 	}
 	return nil
 }
 
-func text(n *html.Node) string {
+func text(node *html.Node) string {
 	var b strings.Builder
 	var walk func(*html.Node)
-	walk = func(n *html.Node) {
-		if n.Type == html.TextNode {
-			b.WriteString(n.Data)
+	walk = func(node *html.Node) {
+		if node.Type == html.TextNode {
+			b.WriteString(node.Data)
 		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
 			walk(c)
 		}
 	}
-	walk(n)
+	walk(node)
 	return b.String()
 }
 
-func attr(n *html.Node, key string) string {
-	for _, a := range n.Attr {
+func attr(node *html.Node, key string) string {
+	for _, a := range node.Attr {
 		if a.Key == key {
 			return a.Val
 		}

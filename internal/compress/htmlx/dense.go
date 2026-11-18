@@ -25,19 +25,19 @@ func denseBlocks(root *html.Node) map[*html.Node]bool {
 	found := map[*html.Node]bool{}
 	dropped := 0
 	var walk func(*html.Node)
-	walk = func(n *html.Node) {
-		if n.Type == html.ElementNode && skip[n.DataAtom] {
+	walk = func(node *html.Node) {
+		if node.Type == html.ElementNode && skip[node.DataAtom] {
 			return
 		}
-		switch n.DataAtom { // a document or text node has none of these
+		switch node.DataAtom { // a document or text node has none of these
 		case atom.Ul, atom.Ol, atom.Div, atom.Section, atom.Dl, atom.P, atom.Span:
-			if links, linkText, all := linkStats(n); linkDense(links, linkText, all) {
-				found[n] = true
+			if links, linkText, all := linkStats(node); linkDense(links, linkText, all) {
+				found[node] = true
 				dropped += all
 				return
 			}
 		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
 			walk(c)
 		}
 	}
@@ -54,27 +54,27 @@ func linkDense(links, linkText, all int) bool {
 
 // linkStats counts the links under n, the text bytes inside them and all the
 // visible text bytes.
-func linkStats(n *html.Node) (links, linkText, all int) {
+func linkStats(node *html.Node) (links, linkText, all int) {
 	var walk func(*html.Node, bool)
-	walk = func(n *html.Node, inLink bool) {
+	walk = func(node *html.Node, inLink bool) {
 		switch {
-		case n.Type == html.TextNode:
-			t := len(trimmed(n.Data))
+		case node.Type == html.TextNode:
+			t := len(trimmed(node.Data))
 			all += t
 			if inLink {
 				linkText += t
 			}
 			return
-		case n.Type != html.ElementNode || skip[n.DataAtom]:
+		case node.Type != html.ElementNode || skip[node.DataAtom]:
 			return
-		case n.DataAtom == atom.A && attr(n, "href") != "" && !inLink:
+		case node.DataAtom == atom.A && attr(node, "href") != "" && !inLink:
 			links++
 			inLink = true
 		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
 			walk(c, inLink)
 		}
 	}
-	walk(n, false)
+	walk(node, false)
 	return links, linkText, all
 }

@@ -24,7 +24,7 @@ type Fold struct {
 	Re   *lazyre.Regexp
 }
 
-func re(s string) *lazyre.Regexp { return lazyre.New(s) }
+func re(pattern string) *lazyre.Regexp { return lazyre.New(pattern) }
 
 var rules = map[string]Rules{
 	"npm": {
@@ -387,17 +387,17 @@ func For(dialect string) (Rules, bool) {
 
 // Compress drops noise, folds lines by kind (at the first one's position)
 // and squeezes blank runs.
-func Compress(lines []string, r Rules) []string {
+func Compress(lines []string, rules Rules) []string {
 	var out []string
 	at := map[string]int{}
 	items := map[string][]string{}
 	for _, l := range lines {
 		t := strings.TrimRight(l, " \t")
-		if r.Noise.Match(t) {
+		if rules.Noise.Match(t) {
 			continue
 		}
 		folded := false
-		for _, f := range r.Fold {
+		for _, f := range rules.Fold {
 			if m := f.Re.FindStringSubmatch(t); m != nil {
 				if _, ok := at[f.Kind]; !ok {
 					at[f.Kind] = len(out)

@@ -5,8 +5,8 @@ package jsonx
 // Arrays of wide, nested, mostly identical objects (API lists, manifests)
 // then tabulate leaf by leaf, so a leaf equal in every item hoists into
 // _same instead of repeating a whole subtree per row.
-func Flatten(dst map[string]any, prefix string, m map[string]any) {
-	for k, x := range m {
+func Flatten(dst map[string]any, prefix string, object map[string]any) {
+	for k, x := range object {
 		key := prefix + k
 		if l, ok := x.([]any); ok && len(l) == 1 {
 			if one, ok := l[0].(map[string]any); ok && !isTable(one) {
@@ -23,8 +23,8 @@ func Flatten(dst map[string]any, prefix string, m map[string]any) {
 }
 
 // isTable reports a map the crusher already turned into a table.
-func isTable(m map[string]any) bool {
-	_, ok := m["_cols"]
+func isTable(object map[string]any) bool {
+	_, ok := object["_cols"]
 	return ok
 }
 

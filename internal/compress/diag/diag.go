@@ -68,9 +68,9 @@ type Rules struct {
 }
 
 // Compress parses lines into diagnostics and renders them grouped by file.
-func Compress(lines []string, r Rules) []string {
-	if r.MaxFrame == 0 {
-		r.MaxFrame = 4
+func Compress(lines []string, rules Rules) []string {
+	if rules.MaxFrame == 0 {
+		rules.MaxFrame = 4
 	}
 	lines = collapse(lines, 2)
 	var (
@@ -82,13 +82,13 @@ func Compress(lines []string, r Rules) []string {
 		esFile  string
 		dropped int
 	)
-	add := func(d *Diagnostic) {
-		diags = append(diags, d)
-		order = append(order, d)
-		cur = d
+	add := func(diagnostic *Diagnostic) {
+		diags = append(diags, diagnostic)
+		order = append(order, diagnostic)
+		cur = diagnostic
 	}
-	keep := func(t string) {
-		other = append(other, t)
+	keep := func(line string) {
+		other = append(other, line)
 		order = append(order, len(other)-1)
 	}
 	// flushPending keeps a header that never got a location as plain text.
@@ -100,12 +100,12 @@ func Compress(lines []string, r Rules) []string {
 	}
 	for _, l := range lines {
 		t := strings.TrimRight(l, " \t")
-		if r.Strip != nil {
-			t = r.Strip.ReplaceAllString(t, "")
+		if rules.Strip != nil {
+			t = rules.Strip.ReplaceAllString(t, "")
 		}
 		tag := ""
-		if r.Tag != nil {
-			if m := r.Tag.FindStringSubmatch(t); m != nil {
+		if rules.Tag != nil {
+			if m := rules.Tag.FindStringSubmatch(t); m != nil {
 				// Only diagnostics and their frames lose the prefix; other lines stay as printed.
 				if rest := t[len(m[0]):]; match(rest) != nil || cur != nil && frameRe.MatchString(rest) {
 					tag, t = tagSeverity(m[1]), rest
@@ -113,7 +113,7 @@ func Compress(lines []string, r Rules) []string {
 			}
 		}
 		switch m := match(t); {
-		case r.Noise.Match(t):
+		case rules.Noise.Match(t):
 			dropped++
 		case m != nil:
 			if m.Severity == "" {
@@ -161,23 +161,23 @@ func Compress(lines []string, r Rules) []string {
 	if len(diags) == 0 {
 		return compress.SqueezeBlank(other)
 	}
-	return render(diags, other, order, r.MaxFrame)
+	return render(diags, other, order, rules.MaxFrame)
 }
 
-func match(t string) *Diagnostic {
-	if s := mavenRe.FindStringSubmatch(t); s != nil {
+func match(line string) *Diagnostic {
+	if s := mavenRe.FindStringSubmatch(line); s != nil {
 		return &Diagnostic{File: s[2], Line: atoi(s[3]), Col: atoi(s[4]), Severity: strings.ToLower(s[1]), Message: s[5]}
 	}
-	if s := dartRe.FindStringSubmatch(t); s != nil {
+	if s := dartRe.FindStringSubmatch(line); s != nil {
 		return &Diagnostic{File: s[2], Line: atoi(s[3]), Col: atoi(s[4]), Severity: s[1], Code: s[6], Message: s[5]}
 	}
-	if s := kotlinRe.FindStringSubmatch(t); s != nil {
+	if s := kotlinRe.FindStringSubmatch(line); s != nil {
 		return &Diagnostic{File: s[2], Line: atoi(s[3]), Col: atoi(s[4]), Severity: map[string]string{"e": "error", "w": "warning"}[s[1]], Message: s[5]}
 	}
-	if s := parenRe.FindStringSubmatch(t); s != nil {
+	if s := parenRe.FindStringSubmatch(line); s != nil {
 		return &Diagnostic{File: s[1], Line: atoi(s[2]), Col: atoi(s[3]), Severity: strings.ToLower(s[4]), Code: s[5], Message: s[6]}
 	}
-	if s := colonRe.FindStringSubmatch(t); s != nil && !strings.Contains(s[1], " ") {
+	if s := colonRe.FindStringSubmatch(line); s != nil && !strings.Contains(s[1], " ") {
 		d := &Diagnostic{File: s[1], Line: atoi(s[2]), Col: atoi(s[3]), Severity: s[4], Code: strings.Trim(s[5], "[]"), Message: s[6]}
 		if d.Severity == "" && noteRe.MatchString(d.Message) {
 			d.Severity = "note" // gcc's instantiation chain: "required from here"
@@ -188,15 +188,15 @@ func match(t string) *Diagnostic {
 }
 
 // tagSeverity names the level of a tool's own prefix: sbt says warn.
-func tagSeverity(s string) string {
-	if s == "warn" {
+func tagSeverity(severity string) string {
+	if severity == "warn" {
 		return "warning"
 	}
-	return s
+	return severity
 }
 
-func atoi(s string) int {
-	n, _ := strconv.Atoi(s)
+func atoi(digits string) int {
+	n, _ := strconv.Atoi(digits)
 	return n
 }
 
@@ -224,7 +224,7 @@ func render(diags []*Diagnostic, other []string, order []any, maxFrame int) []st
 			printed = true
 			shared := sharedAcross(byFile, files)
 			for _, f := range files {
-				ds := slices.DeleteFunc(slices.Clone(byFile[f]), func(d *Diagnostic) bool { return shared[sig(d)] != nil })
+				ds := slices.DeleteFunc(slices.Clone(byFile[f]), func(diagnostic *Diagnostic) bool { return shared[sig(diagnostic)] != nil })
 				if len(ds) == 0 {
 					continue
 				}
@@ -258,7 +258,7 @@ func fileLines(ds []*Diagnostic, maxFrame int) []string {
 		if d.Col > 0 {
 			pos += ":" + strconv.Itoa(d.Col)
 		}
-		head := strings.Join(slices.DeleteFunc([]string{"  " + pos, d.Severity, d.Code}, func(s string) bool { return s == "" }), " ")
+		head := strings.Join(slices.DeleteFunc([]string{"  " + pos, d.Severity, d.Code}, func(part string) bool { return part == "" }), " ")
 		line := head + " " + text(d)
 		if n := len(lines[k]); n > 1 {
 			line += repeats(n, d.Line, lines[k])
@@ -273,21 +273,21 @@ func fileLines(ds []*Diagnostic, maxFrame int) []string {
 }
 
 // text is the message with the detail lines the compiler printed under it.
-func text(d *Diagnostic) string {
-	if len(d.Detail) == 0 {
-		return d.Message
+func text(diagnostic *Diagnostic) string {
+	if len(diagnostic.Detail) == 0 {
+		return diagnostic.Message
 	}
-	return d.Message + " [" + strings.Join(d.Detail, "; ") + "]"
+	return diagnostic.Message + " [" + strings.Join(diagnostic.Detail, "; ") + "]"
 }
 
 // repeats says a finding came n times: at which other lines, or "same place"
 // when a tool printed it twice (maven and dotnet repeat errors in a summary).
-func repeats(n, first int, lines []int) string {
-	other := slices.DeleteFunc(slices.Compact(slices.Sorted(slices.Values(lines))), func(l int) bool { return l == first })
+func repeats(count, first int, lines []int) string {
+	other := slices.DeleteFunc(slices.Compact(slices.Sorted(slices.Values(lines))), func(line int) bool { return line == first })
 	if len(other) == 0 {
-		return fmt.Sprintf(" (×%d, same place)", n)
+		return fmt.Sprintf(" (×%d, same place)", count)
 	}
-	return fmt.Sprintf(" (×%d, also at %s)", n, alsoAt(other))
+	return fmt.Sprintf(" (×%d, also at %s)", count, alsoAt(other))
 }
 
 // alsoAt lists lines of a repeated finding, the first maxAlso of them.
@@ -316,11 +316,11 @@ func summary(diags []*Diagnostic, files int) string {
 	return fmt.Sprintf("%s in %d %s", strings.Join(parts, ", "), files, plural("file", files))
 }
 
-func plural(s string, n int) string {
-	if n == 1 {
-		return s
+func plural(word string, count int) string {
+	if count == 1 {
+		return word
 	}
-	return s + "s"
+	return word + "s"
 }
 
 // annotated frame lines point at the problem: carets, labels, help and notes.
@@ -361,7 +361,9 @@ func capFrame(ctx []string, max int) []string {
 
 type signature struct{ sev, code, msg string }
 
-func sig(d *Diagnostic) signature { return signature{d.Severity, d.Code, text(d)} }
+func sig(diagnostic *Diagnostic) signature {
+	return signature{diagnostic.Severity, diagnostic.Code, text(diagnostic)}
+}
 
 // shared is a diagnostic repeated in several files, printed once.
 type shared struct {
@@ -397,14 +399,14 @@ func sharedLines(found map[signature]*shared, maxFrame int) []string {
 		return nil
 	}
 	list := slices.Collect(maps.Values(found))
-	slices.SortFunc(list, func(a, b *shared) int {
-		return cmp.Or(cmp.Compare(a.where[0], b.where[0]), cmp.Compare(a.first.Line, b.first.Line),
-			cmp.Compare(a.first.Code, b.first.Code), cmp.Compare(a.first.Message, b.first.Message))
+	slices.SortFunc(list, func(left, right *shared) int {
+		return cmp.Or(cmp.Compare(left.where[0], right.where[0]), cmp.Compare(left.first.Line, right.first.Line),
+			cmp.Compare(left.first.Code, right.first.Code), cmp.Compare(left.first.Message, right.first.Message))
 	})
 	out := []string{"same in several files:"}
 	for _, s := range list {
 		d := s.first
-		head := strings.Join(slices.DeleteFunc([]string{"  " + cmp.Or(d.Severity, "error"), d.Code}, func(s string) bool { return s == "" }), " ")
+		head := strings.Join(slices.DeleteFunc([]string{"  " + cmp.Or(d.Severity, "error"), d.Code}, func(part string) bool { return part == "" }), " ")
 		out = append(out, head+" "+text(d))
 		out = append(out, "    at "+strings.Join(s.where, ", "))
 		for _, c := range capFrame(d.Context, maxFrame) {

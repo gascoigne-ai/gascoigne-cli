@@ -13,30 +13,30 @@ var ansi = lazyre.New(`\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(\x07|\x1b\\)
 
 // StripANSI removes terminal escapes and carriage returns. Most output has
 // none, and scanning big text with the regexp costs more than the check.
-func StripANSI(s string) string {
-	if !strings.ContainsAny(s, "\x1b\r") {
-		return s
+func StripANSI(text string) string {
+	if !strings.ContainsAny(text, "\x1b\r") {
+		return text
 	}
-	return ansi.ReplaceAllString(s, "")
+	return ansi.ReplaceAllString(text, "")
 }
 
 // Lines splits s into lines, dropping the empty element after a final newline.
-func Lines(s string) []string {
-	s = strings.TrimSuffix(s, "\n")
-	if s == "" {
+func Lines(text string) []string {
+	text = strings.TrimSuffix(text, "\n")
+	if text == "" {
 		return nil
 	}
-	return strings.Split(s, "\n")
+	return strings.Split(text, "\n")
 }
 
 // IsFence reports a Markdown code fence line (``` or ~~~, indented or not).
-func IsFence(l string) bool {
-	l = strings.TrimLeft(l, " \t\n\f\r")
-	return strings.HasPrefix(l, "```") || strings.HasPrefix(l, "~~~")
+func IsFence(line string) bool {
+	line = strings.TrimLeft(line, " \t\n\f\r")
+	return strings.HasPrefix(line, "```") || strings.HasPrefix(line, "~~~")
 }
 
 // CleanLines is Lines of s without terminal escapes: how optimizers read output.
-func CleanLines(s string) []string { return Lines(StripANSI(s)) }
+func CleanLines(text string) []string { return Lines(StripANSI(text)) }
 
 // Join joins lines and ends with a newline when there is any line.
 func Join(lines []string) string {
@@ -47,14 +47,14 @@ func Join(lines []string) string {
 }
 
 // Omitted is the marker left where lines were dropped.
-func Omitted(n int, what string) string {
+func Omitted(count int, what string) string {
 	if what == "" {
 		what = "lines"
 	}
-	if n == 1 {
+	if count == 1 {
 		what = singular(what)
 	}
-	return fmt.Sprintf("… %d %s omitted", n, what)
+	return fmt.Sprintf("… %d %s omitted", count, what)
 }
 
 var volatile = lazyre.New(
@@ -179,10 +179,10 @@ func HeadTail(lines []string, head, tail int) []string {
 }
 
 // TruncateLine shortens s to about max runes, cutting the middle.
-func TruncateLine(s string, max int) string {
-	r := []rune(s)
+func TruncateLine(line string, max int) string {
+	r := []rune(line)
 	if max <= 0 || len(r) <= max {
-		return s
+		return line
 	}
 	half := max / 2
 	return string(r[:half]) + " … " + string(r[len(r)-half:])
@@ -234,11 +234,11 @@ func SeverityOf(line string) Severity {
 func IsError(line string) bool { return SeverityOf(line) == Error }
 
 // singular drops the plural ending: items→item, matches→match, nodes→node.
-func singular(s string) string {
+func singular(word string) string {
 	for _, suf := range []string{"ches", "shes", "sses", "xes"} {
-		if strings.HasSuffix(s, suf) {
-			return s[:len(s)-2]
+		if strings.HasSuffix(word, suf) {
+			return word[:len(word)-2]
 		}
 	}
-	return strings.TrimSuffix(s, "s")
+	return strings.TrimSuffix(word, "s")
 }
