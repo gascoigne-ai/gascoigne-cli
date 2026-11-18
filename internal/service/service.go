@@ -120,7 +120,10 @@ func (s *Service) buildLocal(ctx context.Context, cfg *config.Config) error {
 		if err != nil {
 			return err
 		}
-		pid, _ := component.ParseID(id)
+		pid, err := component.ParseID(id)
+		if err != nil {
+			return err
+		}
 		s.extensions[pid] = c
 		if l, ok := c.(component.Ledger); ok && s.ledger == nil {
 			s.ledger = l

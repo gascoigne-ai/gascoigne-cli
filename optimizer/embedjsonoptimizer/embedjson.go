@@ -6,6 +6,7 @@ package embedjsonoptimizer
 
 import (
 	"context"
+	"log/slog"
 	"slices"
 	"strings"
 
@@ -20,6 +21,7 @@ import (
 type Optimizer struct {
 	component.Nop
 	cfg *Config
+	log *slog.Logger
 }
 
 var legend = "// " + jsonx.Legend + "\n"
@@ -73,6 +75,9 @@ func (o *Optimizer) value(span string, query []string) (string, bool) {
 	}
 	out, err := jsonx.Render(values, false, &o.cfg.JSON, query)
 	if err != nil {
+		if o.log != nil {
+			o.log.Debug("embedjson: render failed, span left as written", "err", err)
+		}
 		return "", false
 	}
 	out = strings.TrimSuffix(strings.TrimPrefix(out, legend), "\n")

@@ -13,8 +13,11 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -62,11 +65,16 @@ func O200k(ctx context.Context, dir string) (*BPE, error) {
 		}
 	}
 	if sum := sha256.Sum256(data); hex.EncodeToString(sum[:]) != o200kSHA256 {
-		os.Remove(path)
+		if err := os.Remove(path); err != nil && !errors.Is(err, fs.ErrNotExist) {
+			return nil, fmt.Errorf("o200k vocabulary: hash mismatch, could not remove %s: %w", path, err)
+		}
 		return nil, fmt.Errorf("o200k vocabulary: hash mismatch, removed %s", path)
 	}
-	if err := os.MkdirAll(dir, 0o755); err == nil {
-		os.WriteFile(path, data, 0o644) // a failed cache write only costs a later download
+	// a failed cache write only costs a later download
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		slog.Debug("exact: vocabulary cache dir failed", "dir", dir, "err", err)
+	} else if err := os.WriteFile(path, data, 0o644); err != nil {
+		slog.Debug("exact: vocabulary cache write failed", "path", path, "err", err)
 	}
 	return parseVocab(data)
 }

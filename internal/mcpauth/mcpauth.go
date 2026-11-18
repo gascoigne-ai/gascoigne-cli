@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -55,7 +56,11 @@ func Display(serverURL string) string {
 func (s *Store) read() map[string]Creds {
 	all := map[string]Creds{}
 	if data, err := os.ReadFile(s.Path); err == nil {
-		_ = json.Unmarshal(data, &all) // an unreadable file reads as no logins; the next login rewrites it
+		if err := json.Unmarshal(data, &all); err != nil {
+			// an unreadable file reads as no logins; the next login rewrites it
+			slog.Debug("mcpauth: login file unreadable, reading as empty", "path", s.Path, "err", err)
+			all = map[string]Creds{}
+		}
 	}
 	return all
 }

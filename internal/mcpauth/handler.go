@@ -3,6 +3,7 @@ package mcpauth
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"golang.org/x/oauth2"
@@ -68,7 +69,9 @@ func (v *saver) Token() (*oauth2.Token, error) {
 	if v.creds.Token == nil || t.AccessToken != v.creds.Token.AccessToken {
 		v.creds.Token = t
 		// Best effort: the token works for this run; a failed save costs a refresh next time.
-		_ = v.store.Put(v.url, v.creds)
+		if err := v.store.Put(v.url, v.creds); err != nil {
+			slog.Debug("mcpauth: save renewed token failed", "server", Display(v.url), "err", err)
+		}
 	}
 	return t, nil
 }

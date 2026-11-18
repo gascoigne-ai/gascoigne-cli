@@ -1,9 +1,12 @@
 package mcpauth
 
 import (
+	"golang.org/x/oauth2"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -99,5 +102,52 @@ func TestStoreDelete(t *testing.T) {
 	}
 	if found, _ := s.Delete("https://x/mcp"); found {
 		t.Fatal("deleted twice")
+	}
+}
+
+func debugLog(t *testing.T) *strings.Builder {
+	t.Helper()
+	var buf strings.Builder
+	old := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelDebug})))
+	t.Cleanup(func() { slog.SetDefault(old) })
+	return &buf
+}
+
+func TestCorruptLoginFileReadsEmptyAndSaysWhy(t *testing.T) {
+	buf := debugLog(t)
+	path := filepath.Join(t.TempDir(), "a.json")
+	if err := os.WriteFile(path, []byte("{broken"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	s := &Store{Path: path}
+	if _, ok := s.Get("https://x/mcp"); ok {
+		t.Fatal("corrupt file returned a login")
+	}
+	if !strings.Contains(buf.String(), "login file unreadable") {
+		t.Fatalf("no debug line for the corrupt file: %q", buf.String())
+	}
+}
+
+func TestSaverLogsFailedSave(t *testing.T) {
+	buf := debugLog(t)
+	dir := t.TempDir()
+	blocker := filepath.Join(dir, "file")
+	if err := os.WriteFile(blocker, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	// the store path sits below a regular file, so every save fails
+	s := &saver{
+		src:   oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "new"}),
+		store: &Store{Path: filepath.Join(blocker, "a.json")},
+		url:   "https://x/mcp",
+		creds: Creds{Token: &oauth2.Token{AccessToken: "old"}},
+	}
+	tok, err := s.Token()
+	if err != nil || tok.AccessToken != "new" {
+		t.Fatalf("token = %v, %v", tok, err)
+	}
+	if !strings.Contains(buf.String(), "save renewed token") {
+		t.Fatalf("no debug line for the failed save: %q", buf.String())
 	}
 }

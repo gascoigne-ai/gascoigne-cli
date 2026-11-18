@@ -171,7 +171,10 @@ func (c cache) write(dir string) error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return err
 	}
-	data, _ := json.MarshalIndent(c, "", "  ")
+	data, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		return err
+	}
 	tmp := filepath.Join(dir, cacheFile+".tmp")
 	if err := os.WriteFile(tmp, data, 0o600); err != nil {
 		return err

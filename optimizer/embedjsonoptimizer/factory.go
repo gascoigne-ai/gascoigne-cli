@@ -17,8 +17,8 @@ func NewFactory() component.Factory {
 		func() *Config {
 			return &Config{Types: []string{"log", "test", "build", "task", "doc/text"}, JSON: *jsonx.Default()}
 		},
-		func(_ context.Context, _ component.Settings, cfg *Config) (component.Component, error) {
-			return &Optimizer{cfg: cfg}, nil
+		func(_ context.Context, set component.Settings, cfg *Config) (component.Component, error) {
+			return &Optimizer{cfg: cfg, log: set.Logger}, nil
 		},
 		component.WithFamily(family))
 }

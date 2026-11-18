@@ -2,6 +2,7 @@ package pricing
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -440,5 +441,16 @@ func TestFirstFetchFailureShowsTheNextTry(t *testing.T) {
 	}
 	if want := now.Add(FailureBackoff); !layers[0].Next.Equal(want) {
 		t.Fatalf("Next = %v, want %v", layers[0].Next, want)
+	}
+}
+
+func TestCacheWriteReportsUnencodableEntry(t *testing.T) {
+	dir := t.TempDir()
+	c := cache{Layers: map[string]*entry{"api": {Sheet: json.RawMessage("{not json")}}}
+	if err := c.write(dir); err == nil {
+		t.Fatal("write of an unencodable cache returned nil")
+	}
+	if _, err := os.Stat(filepath.Join(dir, cacheFile)); err == nil {
+		t.Fatal("an empty cache file was written")
 	}
 }
