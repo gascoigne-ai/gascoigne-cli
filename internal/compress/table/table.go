@@ -77,10 +77,10 @@ func parseBoxed(lines []string) (Table, bool) {
 	return t, len(t.Rows) > 0
 }
 
-func cells(l string) []string {
-	l = strings.TrimSpace(l)
-	l = strings.TrimFunc(l, func(r rune) bool { return r == '|' || r == '│' || r == '┃' })
-	parts := cellSep.Split(strings.TrimSpace(l), -1)
+func cells(line string) []string {
+	line = strings.TrimSpace(line)
+	line = strings.TrimFunc(line, func(char rune) bool { return char == '|' || char == '│' || char == '┃' })
+	parts := cellSep.Split(strings.TrimSpace(line), -1)
 	for i := range parts {
 		parts[i] = strings.TrimSpace(parts[i])
 	}
@@ -130,7 +130,7 @@ func parseAligned(lines []string) (Table, bool) {
 		}
 	}
 	// Prefer columns separated by 2+ spaces (docker, kubectl): names may contain spaces.
-	if r, ok := split(body[:end], len(byGap), func(l string) []string { return gapRe.Split(strings.TrimSpace(l), -1) }); ok && len(byGap) > 1 {
+	if r, ok := split(body[:end], len(byGap), func(line string) []string { return gapRe.Split(strings.TrimSpace(line), -1) }); ok && len(byGap) > 1 {
 		t.Header, t.Rows = byGap, r
 	} else if r, ok := split(body[:end], len(byWord), strings.Fields); ok && len(byWord) > 2 {
 		t.Header, t.Rows = byWord, r // every row has one word per column: no empty cells to place
@@ -140,7 +140,7 @@ func parseAligned(lines []string) (Table, bool) {
 		for _, l := range body[:end] {
 			t.Rows = append(t.Rows, slice(l, starts))
 		}
-	} else if r, ok := split(body[:end], len(byWord), func(l string) []string { return fieldsN(l, len(byWord)) }); ok {
+	} else if r, ok := split(body[:end], len(byWord), func(line string) []string { return fieldsN(line, len(byWord)) }); ok {
 		t.Header, t.Rows = byWord, r // single-space tables (ps, ss): last column takes the rest
 	} else {
 		return Table{}, false
@@ -156,16 +156,16 @@ var treePrefix = lazyre.New(`^[│ ]*│[│ ]*`)
 func glueTree(lines []string) []string {
 	out := make([]string, len(lines))
 	for i, l := range lines {
-		out[i] = treePrefix.ReplaceAllStringFunc(l, func(p string) string { return strings.ReplaceAll(p, " ", "") })
+		out[i] = treePrefix.ReplaceAllStringFunc(l, func(prefix string) string { return strings.ReplaceAll(prefix, " ", "") })
 	}
 	return out
 }
 
-func split(lines []string, n int, f func(string) []string) ([][]string, bool) {
+func split(lines []string, columns int, splitLine func(string) []string) ([][]string, bool) {
 	var out [][]string
 	for _, l := range lines {
-		c := f(l)
-		if len(c) != n {
+		c := splitLine(l)
+		if len(c) != columns {
 			return nil, false
 		}
 		out = append(out, c)
@@ -174,17 +174,17 @@ func split(lines []string, n int, f func(string) []string) ([][]string, bool) {
 }
 
 // fieldsN splits on whitespace into at most n fields.
-func fieldsN(l string, n int) []string {
-	f := strings.Fields(l)
-	if len(f) <= n {
+func fieldsN(line string, count int) []string {
+	f := strings.Fields(line)
+	if len(f) <= count {
 		return f
 	}
-	return append(f[:n-1:n-1], strings.Join(f[n-1:], " "))
+	return append(f[:count-1:count-1], strings.Join(f[count-1:], " "))
 }
 
 // isHeader: 2+ tokens, mostly upper-case words (NAME, READY, %CPU, CONTAINER ID).
-func isHeader(l string) bool {
-	f := strings.Fields(l)
+func isHeader(line string) bool {
+	f := strings.Fields(line)
 	if len(f) < 2 {
 		return false
 	}
@@ -212,15 +212,15 @@ func ForQuery(maxRows, maxCell int, query []string) Options {
 }
 
 // Render prints the table compactly.
-func Render(t Table, o Options) []string {
-	out := append([]string{}, t.Before...)
-	header, rows := squarePad(t.Header, t.Rows)
+func Render(table Table, options Options) []string {
+	out := append([]string{}, table.Before...)
+	header, rows := squarePad(table.Header, table.Rows)
 	hdr, body, same := hoist(header, rows)
 	if len(same) > 0 {
 		out = append(out, "same in all rows: "+strings.Join(same, ", "))
 	}
-	lines := append([]string{strings.Join(hdr, cell)}, sampleRows(hdr, body, o)...)
-	return append(append(out, align(lines)...), t.After...)
+	lines := append([]string{strings.Join(hdr, cell)}, sampleRows(hdr, body, options)...)
+	return append(append(out, align(lines)...), table.After...)
 }
 
 // squarePad gives the header and every row as many cells as the widest of
@@ -232,18 +232,18 @@ func squarePad(header []string, rows [][]string) ([]string, [][]string) {
 	for _, r := range rows {
 		width = max(width, len(r))
 	}
-	fill := func(r []string, name func(int) string) []string {
-		if len(r) == width {
-			return r
+	fill := func(row []string, name func(int) string) []string {
+		if len(row) == width {
+			return row
 		}
 		out := make([]string, width)
-		copy(out, r)
-		for i := len(r); i < width; i++ {
+		copy(out, row)
+		for i := len(row); i < width; i++ {
 			out[i] = name(i)
 		}
 		return out
 	}
-	header = fill(header, func(i int) string { return fmt.Sprintf("C%d", i+1) })
+	header = fill(header, func(column int) string { return fmt.Sprintf("C%d", column+1) })
 	padded := make([][]string, len(rows))
 	for i, r := range rows {
 		padded[i] = fill(r, func(int) string { return "" })
@@ -317,10 +317,10 @@ func hoist(header []string, data [][]string) ([]string, [][]string, []string) {
 		}
 		keep = append(keep, c)
 	}
-	pick := func(r []string) []string {
+	pick := func(row []string) []string {
 		out := make([]string, len(keep))
 		for i, c := range keep {
-			out[i] = r[c]
+			out[i] = row[c]
 		}
 		return out
 	}
@@ -332,15 +332,15 @@ func hoist(header []string, data [][]string) ([]string, [][]string, []string) {
 }
 
 // sampleRows keeps notable rows of long tables via sample.Sample.
-func sampleRows(header []string, data [][]string, o Options) []string {
-	line := func(r []string) string {
-		cs := make([]string, len(r))
-		for i, c := range r {
-			cs[i] = compress.TruncateLine(c, o.MaxCell)
+func sampleRows(header []string, data [][]string, options Options) []string {
+	line := func(row []string) string {
+		cs := make([]string, len(row))
+		for i, c := range row {
+			cs[i] = compress.TruncateLine(c, options.MaxCell)
 		}
 		return strings.Join(cs, cell)
 	}
-	if o.MaxRows <= 0 || len(data) <= o.MaxRows {
+	if options.MaxRows <= 0 || len(data) <= options.MaxRows {
 		out := make([]string, len(data))
 		for i, r := range data {
 			out[i] = line(r)
@@ -355,8 +355,8 @@ func sampleRows(header []string, data [][]string, o Options) []string {
 		}
 		items[i] = m
 	}
-	opts := o.Rows
-	opts.MaxItems = o.MaxRows
+	opts := options.Rows
+	opts.MaxItems = options.MaxRows
 	var out []string
 	for _, it := range sample.Sample(items, opts) {
 		switch it := it.(type) {
@@ -370,11 +370,11 @@ func sampleRows(header []string, data [][]string, o Options) []string {
 }
 
 // value turns numeric cells into json.Number so anomaly signals see them.
-func value(s string) any {
-	if _, err := strconv.ParseFloat(s, 64); err == nil {
-		return json.Number(s)
+func value(text string) any {
+	if _, err := strconv.ParseFloat(text, 64); err == nil {
+		return json.Number(text)
 	}
-	return s
+	return text
 }
 
 // columnStarts are the byte offsets where header columns begin (columns are
@@ -399,22 +399,22 @@ func columnStarts(header string) []int {
 
 // slice cuts l at column starts, moving each cut left to a space so values
 // that spill left (right-aligned numbers) stay whole.
-func slice(l string, starts []int) []string {
+func slice(line string, starts []int) []string {
 	cuts := make([]int, len(starts))
 	for i, st := range starts {
-		c := min(st, len(l))
-		for c > 0 && c < len(l) && l[c-1] != ' ' {
+		c := min(st, len(line))
+		for c > 0 && c < len(line) && line[c-1] != ' ' {
 			c--
 		}
 		cuts[i] = c
 	}
 	out := make([]string, len(starts))
 	for i := range starts {
-		end := len(l)
+		end := len(line)
 		if i+1 < len(cuts) {
 			end = max(cuts[i+1], cuts[i])
 		}
-		out[i] = strings.TrimSpace(l[cuts[i]:end])
+		out[i] = strings.TrimSpace(line[cuts[i]:end])
 	}
 	return out
 }

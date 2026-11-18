@@ -32,14 +32,14 @@ func Cycles(lines []string, maxPeriod, minRepeats int) []string {
 
 // cycleAt finds the period at i repeated most often (by lines covered,
 // shorter periods first), and how many times it occurs.
-func cycleAt(lines []string, i, maxPeriod int) (period, reps int) {
+func cycleAt(lines []string, start, maxPeriod int) (period, reps int) {
 	best := 0
-	for p := 1; p <= maxPeriod && i+2*p <= len(lines); p++ {
-		if strings.TrimSpace(lines[i]) == "" {
+	for p := 1; p <= maxPeriod && start+2*p <= len(lines); p++ {
+		if strings.TrimSpace(lines[start]) == "" {
 			break
 		}
 		n := 1
-		for i+(n+1)*p <= len(lines) && slices.Equal(lines[i:i+p], lines[i+n*p:i+(n+1)*p]) {
+		for start+(n+1)*p <= len(lines) && slices.Equal(lines[start:start+p], lines[start+n*p:start+(n+1)*p]) {
 			n++
 		}
 		if n > 1 && n*p > best {
@@ -126,9 +126,9 @@ func ids(list []string) string {
 	return fmt.Sprintf("%s …%d more", strings.Join(list[:10], " "), len(list)-10)
 }
 
-func plural(n int, what string) string {
-	if n == 1 {
+func plural(count int, what string) string {
+	if count == 1 {
 		return "1 " + what
 	}
-	return fmt.Sprintf("%d %ss", n, what)
+	return fmt.Sprintf("%d %ss", count, what)
 }

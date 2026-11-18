@@ -60,28 +60,28 @@ func Encode(docs []*yaml.Node) (string, error) {
 }
 
 // block turns JSON flow style into YAML block style (fewer tokens).
-func block(n *yaml.Node) {
-	n.Style &^= yaml.FlowStyle
-	if n.Kind == yaml.ScalarNode && n.Style&yaml.DoubleQuotedStyle != 0 && plain(n.Value) {
-		n.Style &^= yaml.DoubleQuotedStyle
+func block(node *yaml.Node) {
+	node.Style &^= yaml.FlowStyle
+	if node.Kind == yaml.ScalarNode && node.Style&yaml.DoubleQuotedStyle != 0 && plain(node.Value) {
+		node.Style &^= yaml.DoubleQuotedStyle
 	}
-	for _, c := range n.Content {
+	for _, c := range node.Content {
 		block(c)
 	}
 }
 
 // plain reports strings safe without quotes (no YAML-special meaning).
-func plain(s string) bool {
-	if s == "" || strings.TrimSpace(s) != s || strings.ContainsAny(s, "\n{}[]") ||
-		strings.ContainsAny(s[:1], "-?:,#&*!|>'\"%@`") || strings.Contains(s, ": ") ||
-		strings.Contains(s, " #") || strings.HasSuffix(s, ":") {
+func plain(text string) bool {
+	if text == "" || strings.TrimSpace(text) != text || strings.ContainsAny(text, "\n{}[]") ||
+		strings.ContainsAny(text[:1], "-?:,#&*!|>'\"%@`") || strings.Contains(text, ": ") ||
+		strings.Contains(text, " #") || strings.HasSuffix(text, ":") {
 		return false
 	}
-	switch strings.ToLower(s) {
+	switch strings.ToLower(text) {
 	case "true", "false", "yes", "no", "on", "off", "null", "~":
 		return false
 	}
-	for _, r := range s {
+	for _, r := range text {
 		if r < '0' || r > '9' {
 			if r != '.' && r != '-' && r != '+' && r != 'e' && r != 'E' {
 				return true
@@ -92,19 +92,19 @@ func plain(s string) bool {
 }
 
 // Prune applies rules and then drops empty mappings, sequences and nulls.
-func Prune(n *yaml.Node, rules []Rule) {
-	prune(n, "", rules)
+func Prune(node *yaml.Node, rules []Rule) {
+	prune(node, "", rules)
 }
 
-func prune(n *yaml.Node, parent string, rules []Rule) {
-	switch n.Kind {
+func prune(node *yaml.Node, parent string, rules []Rule) {
+	switch node.Kind {
 	case yaml.DocumentNode:
-		for _, c := range n.Content {
+		for _, c := range node.Content {
 			prune(c, parent, rules)
 		}
 	case yaml.SequenceNode:
 		var keep []*yaml.Node
-		for _, item := range n.Content {
+		for _, item := range node.Content {
 			if dropItem(item, parent, rules) {
 				continue
 			}
@@ -113,11 +113,11 @@ func prune(n *yaml.Node, parent string, rules []Rule) {
 				keep = append(keep, item)
 			}
 		}
-		n.Content = keep
+		node.Content = keep
 	case yaml.MappingNode:
 		var keep []*yaml.Node
-		for i := 0; i+1 < len(n.Content); i += 2 {
-			k, v := n.Content[i], n.Content[i+1]
+		for i := 0; i+1 < len(node.Content); i += 2 {
+			k, v := node.Content[i], node.Content[i+1]
 			if dropEntry(k.Value, v, parent, rules) {
 				continue
 			}
@@ -127,16 +127,16 @@ func prune(n *yaml.Node, parent string, rules []Rule) {
 			}
 			keep = append(keep, k, v)
 		}
-		n.Content = keep
+		node.Content = keep
 	}
 }
 
-func dropEntry(key string, v *yaml.Node, parent string, rules []Rule) bool {
+func dropEntry(key string, value *yaml.Node, parent string, rules []Rule) bool {
 	for _, r := range rules {
 		if r.Key != key || r.ItemField != "" || r.ItemMatch != nil || r.Parent != "" && r.Parent != parent {
 			continue
 		}
-		if r.Equals == "" || v.Kind == yaml.ScalarNode && v.Value == r.Equals {
+		if r.Equals == "" || value.Kind == yaml.ScalarNode && value.Value == r.Equals {
 			return true
 		}
 	}
@@ -167,24 +167,24 @@ func dropItem(item *yaml.Node, parent string, rules []Rule) bool {
 	return false
 }
 
-func field(m *yaml.Node, key string) string {
-	if m.Kind != yaml.MappingNode {
+func field(mapping *yaml.Node, key string) string {
+	if mapping.Kind != yaml.MappingNode {
 		return ""
 	}
-	for i := 0; i+1 < len(m.Content); i += 2 {
-		if m.Content[i].Value == key {
-			return m.Content[i+1].Value
+	for i := 0; i+1 < len(mapping.Content); i += 2 {
+		if mapping.Content[i].Value == key {
+			return mapping.Content[i+1].Value
 		}
 	}
 	return "\x00" // absent: never equals a wanted value
 }
 
-func empty(n *yaml.Node) bool {
-	switch n.Kind {
+func empty(node *yaml.Node) bool {
+	switch node.Kind {
 	case yaml.MappingNode, yaml.SequenceNode:
-		return len(n.Content) == 0
+		return len(node.Content) == 0
 	case yaml.ScalarNode:
-		return n.Tag == "!!null" || n.Value == "" && n.Style == 0
+		return node.Tag == "!!null" || node.Value == "" && node.Style == 0
 	}
 	return false
 }

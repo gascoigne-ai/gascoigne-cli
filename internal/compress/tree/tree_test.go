@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func lines(s string) []string { return strings.Split(strings.TrimRight(s, "\n"), "\n") }
+func lines(text string) []string { return strings.Split(strings.TrimRight(text, "\n"), "\n") }
 
 func fixture(t *testing.T, name string) []string {
 	t.Helper()

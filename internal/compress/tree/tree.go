@@ -51,12 +51,12 @@ type node struct {
 
 // Compress rewrites a glyph tree; lines come back unchanged when they are not
 // one.
-func Compress(lines []string, o Options) []string {
+func Compress(lines []string, options Options) []string {
 	roots, glyphLines := parse(lines)
 	if glyphLines < minGlyphLines {
 		return lines
 	}
-	c := &run{o: o, opened: map[string]bool{}, defined: map[string]bool{}, versions: map[string]map[string]bool{}}
+	c := &run{o: options, opened: map[string]bool{}, defined: map[string]bool{}, versions: map[string]map[string]bool{}}
 	for _, r := range roots {
 		c.prepare(r)
 	}
@@ -133,29 +133,29 @@ type run struct {
 }
 
 // prepare counts descendants and marks the nodes on a path to a query term.
-func (c *run) prepare(n *node) {
-	n.keep = c.matches(n.label)
+func (c *run) prepare(item *node) {
+	item.keep = c.matches(item.label)
 	// Repeats only say that a package is listed elsewhere: dropped unless
 	// they match the query.
-	kids := n.kids[:0]
-	for _, k := range n.kids {
+	kids := item.kids[:0]
+	for _, k := range item.kids {
 		switch {
 		case !k.repeat:
 			kids = append(kids, k)
 		case c.matches(k.label):
-			n.repeats = append(n.repeats, k)
-			n.keep = true
+			item.repeats = append(item.repeats, k)
+			item.keep = true
 		default:
 			c.legend = true
 		}
 	}
-	n.kids = kids
-	for _, k := range n.kids {
+	item.kids = kids
+	for _, k := range item.kids {
 		c.prepare(k)
-		n.size += 1 + k.size
-		n.keep = n.keep || k.keep
+		item.size += 1 + k.size
+		item.keep = item.keep || k.keep
 	}
-	if name, version, _, ok := split(n.label); ok {
+	if name, version, _, ok := split(item.label); ok {
 		if c.versions[name] == nil {
 			c.versions[name] = map[string]bool{}
 		}
@@ -165,7 +165,7 @@ func (c *run) prepare(n *node) {
 
 func (c *run) matches(label string) bool {
 	low := strings.ToLower(label)
-	return slices.ContainsFunc(c.o.Query, func(t string) bool { return strings.Contains(low, t) })
+	return slices.ContainsFunc(c.o.Query, func(term string) bool { return strings.Contains(low, term) })
 }
 
 // split cuts a label into package name, version and what follows the version
@@ -197,25 +197,25 @@ func (c *run) text(label string) string {
 }
 
 // render writes n and what is below it, indented by depth.
-func (c *run) render(n *node, depth int) {
-	head := c.text(n.label)
+func (c *run) render(item *node, depth int) {
+	head := c.text(item.label)
 	var leaves []string
 	var branches []*node
-	for _, k := range n.kids {
+	for _, k := range item.kids {
 		if c.plain(k) {
 			leaves = append(leaves, c.text(k.label))
 		} else {
 			branches = append(branches, k)
 		}
 	}
-	for _, r := range n.repeats {
+	for _, r := range item.repeats {
 		leaves = append(leaves, "="+c.text(r.label))
 	}
 	hidden := c.cut(&branches, depth)
 	if hidden > 0 {
 		head += fmt.Sprintf(" (+%d deeper)", hidden)
 	} else {
-		c.opened[n.label] = true
+		c.opened[item.label] = true
 	}
 	c.write(depth, head, leaves)
 	for _, b := range branches {
@@ -229,11 +229,11 @@ func (c *run) cut(branches *[]*node, depth int) (hidden int) {
 	if c.o.MaxDepth == 0 || depth+1 <= c.o.MaxDepth {
 		return 0
 	}
-	*branches = slices.DeleteFunc(*branches, func(b *node) bool {
-		if b.keep {
+	*branches = slices.DeleteFunc(*branches, func(child *node) bool {
+		if child.keep {
 			return false
 		}
-		hidden += 1 + b.size
+		hidden += 1 + child.size
 		return true
 	})
 	return hidden
@@ -242,18 +242,18 @@ func (c *run) cut(branches *[]*node, depth int) (hidden int) {
 // plain reports a package that needs no line of its own: it has nothing below
 // it, or its dependencies are written already (the same package under
 // another parent repeats the same subtree).
-func (c *run) plain(n *node) bool {
-	return len(n.kids) == 0 && len(n.repeats) == 0 || c.opened[n.label] && !n.keep
+func (c *run) plain(item *node) bool {
+	return len(item.kids) == 0 && len(item.repeats) == 0 || c.opened[item.label] && !item.keep
 }
 
 // branch renders a package with children. A sibling earlier in the walk may
 // have written the package since the parent chose its branches.
-func (c *run) branch(n *node, depth int) {
-	if c.plain(n) {
-		c.write(depth, c.text(n.label), nil)
+func (c *run) branch(item *node, depth int) {
+	if c.plain(item) {
+		c.write(depth, c.text(item.label), nil)
 		return
 	}
-	c.render(n, depth)
+	c.render(item, depth)
 }
 
 // write adds `head: item, item`; a long list continues on lines ending in a

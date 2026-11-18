@@ -9,49 +9,49 @@ import (
 var seed = maphash.MakeSeed()
 
 // hash fingerprints a decoded JSON value; equal values hash equally.
-func hash(v any) uint64 {
+func hash(value any) uint64 {
 	var h maphash.Hash
 	h.SetSeed(seed)
-	writeHash(&h, v)
+	writeHash(&h, value)
 	return h.Sum64()
 }
 
-func writeHash(h *maphash.Hash, v any) {
-	switch v := v.(type) {
+func writeHash(hasher *maphash.Hash, value any) {
+	switch v := value.(type) {
 	case nil:
-		h.WriteByte('n')
+		hasher.WriteByte('n')
 	case bool:
 		if v {
-			h.WriteByte('t')
+			hasher.WriteByte('t')
 		} else {
-			h.WriteByte('f')
+			hasher.WriteByte('f')
 		}
 	case string:
-		h.WriteByte('s')
-		h.WriteString(v)
-		h.WriteByte(0)
+		hasher.WriteByte('s')
+		hasher.WriteString(v)
+		hasher.WriteByte(0)
 	case json.Number:
-		h.WriteByte('#')
-		h.WriteString(string(v))
-		h.WriteByte(0)
+		hasher.WriteByte('#')
+		hasher.WriteString(string(v))
+		hasher.WriteByte(0)
 	case []any:
-		h.WriteByte('[')
+		hasher.WriteByte('[')
 		for _, x := range v {
-			writeHash(h, x)
+			writeHash(hasher, x)
 		}
-		h.WriteByte(']')
+		hasher.WriteByte(']')
 	case map[string]any:
-		h.WriteByte('{')
+		hasher.WriteByte('{')
 		keys := make([]string, 0, len(v))
 		for k := range v {
 			keys = append(keys, k)
 		}
 		slices.Sort(keys)
 		for _, k := range keys {
-			h.WriteString(k)
-			h.WriteByte(0)
-			writeHash(h, v[k])
+			hasher.WriteString(k)
+			hasher.WriteByte(0)
+			writeHash(hasher, v[k])
 		}
-		h.WriteByte('}')
+		hasher.WriteByte('}')
 	}
 }

@@ -56,9 +56,9 @@ func findTable(lines []string) (covTable, bool) {
 }
 
 // pyTable reads the rows after the header at i up to the TOTAL row.
-func pyTable(lines []string, i int) covTable {
-	t := covTable{start: i, total: -1}
-	j := i + 1
+func pyTable(lines []string, start int) covTable {
+	t := covTable{start: start, total: -1}
+	j := start + 1
 	for ; j < len(lines); j++ {
 		l := strings.TrimSpace(lines[j])
 		if tableRule.MatchString(l) {
@@ -83,9 +83,9 @@ func pyTable(lines []string, i int) covTable {
 }
 
 // coverCol is the index of the first percent after the name.
-func coverCol(f []string) int {
-	for k := 1; k < len(f); k++ {
-		if strings.HasSuffix(f[k], "%") {
+func coverCol(fields []string) int {
+	for k := 1; k < len(fields); k++ {
+		if strings.HasSuffix(fields[k], "%") {
 			return k
 		}
 	}
@@ -94,13 +94,13 @@ func coverCol(f []string) int {
 
 // istTable reads the rows after the header at i. A directory row (indent 1,
 // followed by a file at indent 2) gives the path prefix of the files below it.
-func istTable(lines []string, i int) covTable {
-	t := covTable{start: i, total: -1}
-	if i > 0 && tableRule.MatchString(lines[i-1]) {
-		t.start = i - 1
+func istTable(lines []string, start int) covTable {
+	t := covTable{start: start, total: -1}
+	if start > 0 && tableRule.MatchString(lines[start-1]) {
+		t.start = start - 1
 	}
 	var rows [][]string
-	j := i + 1
+	j := start + 1
 	for ; j < len(lines) && strings.Contains(lines[j], "|"); j++ {
 		if !tableRule.MatchString(lines[j]) {
 			rows = append(rows, strings.Split(lines[j], "|"))
@@ -141,9 +141,9 @@ func istTable(lines []string, i int) covTable {
 	return t
 }
 
-func leadingSpaces(s string) int { return len(s) - len(strings.TrimLeft(s, " ")) }
+func leadingSpaces(text string) int { return len(text) - len(strings.TrimLeft(text, " ")) }
 
-func isListSep(r rune) bool { return r == ',' || r == ' ' }
+func isListSep(char rune) bool { return char == ',' || char == ' ' }
 
 // totalOr is the mean of the files when the table has no total row.
 func totalOr(total float64, files []fileCover) float64 {

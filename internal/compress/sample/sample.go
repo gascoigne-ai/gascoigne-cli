@@ -38,28 +38,28 @@ type Options struct {
 // an even sample of the rest. Identical items collapse into one.
 // Items are decoded JSON values; objects (map[string]any with json.Number
 // numbers) feed the signals.
-func Sample(items []any, o Options) []any {
+func Sample(items []any, options Options) []any {
 	uniq, firstOf, dups := dedupe(items)
 	objs := objects(items, uniq)
 
 	keep := map[int]bool{}
-	for _, i := range slices.Concat(errorItems(objs, o.MaxItems), rareKeys(objs), rareValues(objs)) {
+	for _, i := range slices.Concat(errorItems(objs, options.MaxItems), rareKeys(objs), rareValues(objs)) {
 		keep[i] = true
 	}
 	score := map[int]float64{}
-	for i, z := range anomalies(objs, o.AnomalyStd) {
+	for i, z := range anomalies(objs, options.AnomalyStd) {
 		score[i] = max(score[i], z)
 	}
-	for _, i := range changePoints(objs, o.MaxItems) {
+	for _, i := range changePoints(objs, options.MaxItems) {
 		score[i] += scoreChange
 	}
-	for i, s := range relevance(items, uniq, o.Query, o.RelevanceK) {
+	for i, s := range relevance(items, uniq, options.Query, options.RelevanceK) {
 		score[i] += scoreRelevance + s
 	}
 
-	budget := o.MaxItems
-	head := int(math.Ceil(o.HeadShare * float64(budget)))
-	tail := int(math.Ceil(o.TailShare * float64(budget)))
+	budget := options.MaxItems
+	head := int(math.Ceil(options.HeadShare * float64(budget)))
+	tail := int(math.Ceil(options.TailShare * float64(budget)))
 	slots := budget - len(keep) - head - tail // errors count against the budget but never drop
 	for _, i := range sortedByScore(score) {
 		if slots <= 0 {
@@ -88,7 +88,7 @@ func dedupe(items []any) (uniq, firstOf []int, dups map[int]int) {
 	dups = map[int]int{}
 	for i, it := range items {
 		h := hash(it)
-		j := slices.IndexFunc(byHash[h], func(j int) bool { return reflect.DeepEqual(items[j], it) })
+		j := slices.IndexFunc(byHash[h], func(index int) bool { return reflect.DeepEqual(items[index], it) })
 		if j >= 0 {
 			f := byHash[h][j]
 			firstOf[i] = f
@@ -177,8 +177,8 @@ func sortedByScore(score map[int]float64) []int {
 	for i := range score {
 		idx = append(idx, i)
 	}
-	slices.SortFunc(idx, func(a, b int) int {
-		return cmp.Or(cmp.Compare(score[b], score[a]), cmp.Compare(a, b))
+	slices.SortFunc(idx, func(left, right int) int {
+		return cmp.Or(cmp.Compare(score[right], score[left]), cmp.Compare(left, right))
 	})
 	return idx
 }
@@ -195,8 +195,8 @@ var (
 // HTTP 4xx/5xx code.
 func errorItems(objs []object, limit int) []int {
 	bad := map[string]bool{} // statuses repeat: match each distinct value once
-	isBadStatus := func(v any) bool {
-		s, ok := v.(string)
+	isBadStatus := func(value any) bool {
+		s, ok := value.(string)
 		if !ok || len(s) >= 40 {
 			return false
 		}
@@ -247,8 +247,8 @@ func errorItems(objs []object, limit int) []int {
 	return idx
 }
 
-func isHTTPError(v any) bool {
-	n, ok := v.(json.Number)
+func isHTTPError(value any) bool {
+	n, ok := value.(json.Number)
 	if !ok {
 		return false
 	}
@@ -339,15 +339,15 @@ type point struct {
 
 // anomalies scores items whose numeric fields lie more than k standard
 // deviations from the field mean; the score is the largest z.
-func anomalies(objs []object, k float64) map[int]float64 {
+func anomalies(objs []object, deviations float64) map[int]float64 {
 	out := map[int]float64{}
 	for _, pts := range numeric(objs) {
-		mean, std := stats(pts, func(p point) float64 { return p.v })
+		mean, std := stats(pts, func(entry point) float64 { return entry.v })
 		if std == 0 {
 			continue
 		}
 		for _, p := range pts {
-			if z := math.Abs(p.v-mean) / std; z > k {
+			if z := math.Abs(p.v-mean) / std; z > deviations {
 				out[p.i] = max(out[p.i], z)
 			}
 		}
@@ -365,7 +365,7 @@ func changePoints(objs []object, limit int) []int {
 		for j := 1; j < len(pts); j++ {
 			steps = append(steps, point{pts[j].i, math.Abs(pts[j].v - pts[j-1].v)})
 		}
-		mean, std := stats(steps, func(p point) float64 { return p.v })
+		mean, std := stats(steps, func(entry point) float64 { return entry.v })
 		var found []int
 		for _, s := range steps {
 			if std > 0 && s.v > mean+3*std {
@@ -409,23 +409,23 @@ func distinct(vals []string) int {
 	return len(seen)
 }
 
-func stats[T any](xs []T, f func(T) float64) (mean, std float64) {
+func stats[T any](xs []T, measure func(T) float64) (mean, std float64) {
 	if len(xs) == 0 {
 		return 0, 0
 	}
 	for _, x := range xs {
-		mean += f(x)
+		mean += measure(x)
 	}
 	mean /= float64(len(xs))
 	for _, x := range xs {
-		d := f(x) - mean
+		d := measure(x) - mean
 		std += d * d
 	}
 	return mean, math.Sqrt(std / float64(len(xs)))
 }
 
-func empty(v any) bool {
-	switch v := v.(type) {
+func empty(value any) bool {
+	switch v := value.(type) {
 	case nil:
 		return true
 	case string:
@@ -439,8 +439,8 @@ func empty(v any) bool {
 }
 
 // notReady matches "0/1"-style readiness below its total.
-func notReady(v any) bool {
-	s, ok := v.(string)
+func notReady(value any) bool {
+	s, ok := value.(string)
 	if !ok {
 		return false
 	}
@@ -448,9 +448,9 @@ func notReady(v any) bool {
 	return m != nil && m[1] != m[2]
 }
 
-func sortedKeys[V any](m map[string]V) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
+func sortedKeys[V any](values map[string]V) []string {
+	keys := make([]string, 0, len(values))
+	for k := range values {
 		keys = append(keys, k)
 	}
 	slices.Sort(keys)

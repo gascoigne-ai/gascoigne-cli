@@ -43,42 +43,42 @@ func Go(lines []string) []string {
 	return s.result()
 }
 
-func (s *summary) line(l string) {
-	trimmed := strings.TrimSpace(l)
+func (s *summary) line(line string) {
+	trimmed := strings.TrimSpace(line)
 	switch {
-	case s.inPanic && !isPkgResult(l):
-		s.panicLine(l)
+	case s.inPanic && !isPkgResult(line):
+		s.panicLine(line)
 	case hasAnyPrefix(trimmed, "=== RUN", "=== PAUSE", "=== CONT", "=== NAME"):
 		s.current = strings.TrimSpace(trimmed[len("=== RUN"):])
 		s.test(s.current)
 	case strings.HasPrefix(trimmed, "--- FAIL: "):
 		s.current = testName(trimmed)
 		t := s.test(s.current)
-		t.failed, t.header = true, l
+		t.failed, t.header = true, line
 		s.order = append(s.order, s.current)
 	case hasAnyPrefix(trimmed, "--- PASS: ", "--- SKIP: "):
 		s.passed++
 		s.current = testName(trimmed)
 		s.test(s.current)
 	case trimmed == "PASS" || trimmed == "FAIL":
-	case strings.HasPrefix(l, "ok  \t"):
-		s.okPkgs = append(s.okPkgs, strings.Fields(l)[1])
+	case strings.HasPrefix(line, "ok  \t"):
+		s.okPkgs = append(s.okPkgs, strings.Fields(line)[1])
 		s.flushPackage()
-	case strings.HasPrefix(l, "?   \t"):
+	case strings.HasPrefix(line, "?   \t"):
 		s.noTests++
-	case strings.HasPrefix(l, "FAIL\t"):
+	case strings.HasPrefix(line, "FAIL\t"):
 		s.flushPanic()
 		s.flushPackage()
-		s.out = append(s.out, l)
-	case strings.HasPrefix(l, "panic: "):
+		s.out = append(s.out, line)
+	case strings.HasPrefix(line, "panic: "):
 		s.inPanic = true
 		s.flushPackage()
-		s.out = append(s.out, l)
+		s.out = append(s.out, line)
 	case s.current != "":
 		t := s.tests[s.current]
-		t.out = append(t.out, l)
+		t.out = append(t.out, line)
 	default:
-		s.out = append(s.out, l)
+		s.out = append(s.out, line)
 	}
 }
 
@@ -103,19 +103,19 @@ func (s *summary) flushPackage() {
 
 // panicLine keeps goroutine headers and frames of user code. Frames come in
 // pairs: "pkg.Func(args)" then "\t/path/file.go:12 +0x1f".
-func (s *summary) panicLine(l string) {
+func (s *summary) panicLine(line string) {
 	switch {
-	case strings.HasPrefix(l, "\t"):
+	case strings.HasPrefix(line, "\t"):
 		if last := len(s.out) - 1; last >= 0 && s.out[last] == "" {
 			s.out = s.out[:last] // placeholder of a dropped std frame
 			return
 		}
-		s.out = append(s.out, l)
-	case isStdFrame(l):
+		s.out = append(s.out, line)
+	case isStdFrame(line):
 		s.stdFrames++
 		s.out = append(s.out, "") // its file line follows
 	default:
-		s.out = append(s.out, l)
+		s.out = append(s.out, line)
 	}
 }
 
@@ -149,22 +149,22 @@ func (s *summary) result() []string {
 	return out
 }
 
-func isPkgResult(l string) bool {
-	return hasAnyPrefix(l, "FAIL\t", "ok  \t")
+func isPkgResult(line string) bool {
+	return hasAnyPrefix(line, "FAIL\t", "ok  \t")
 }
 
 // isStdFrame reports a stack frame of the standard library: by convention its
 // import path has no dot in the first element ("testing.tRunner", not "example.com/x.F").
-func isStdFrame(l string) bool {
-	if strings.HasPrefix(l, "goroutine ") {
+func isStdFrame(line string) bool {
+	if strings.HasPrefix(line, "goroutine ") {
 		return false
 	}
-	fn := strings.TrimPrefix(l, "created by ")
+	fn := strings.TrimPrefix(line, "created by ")
 	first, _, _ := strings.Cut(fn, "/")
 	if strings.Contains(fn, "/") {
 		return !strings.Contains(first, ".")
 	}
-	return strings.Contains(fn, "(") || strings.HasPrefix(l, "created by ")
+	return strings.Contains(fn, "(") || strings.HasPrefix(line, "created by ")
 }
 
 func testName(trimmed string) string {
@@ -175,8 +175,8 @@ func testName(trimmed string) string {
 	return f[2]
 }
 
-func hasAnyPrefix(s string, prefixes ...string) bool {
-	return slices.ContainsFunc(prefixes, func(p string) bool { return strings.HasPrefix(s, p) })
+func hasAnyPrefix(text string, prefixes ...string) bool {
+	return slices.ContainsFunc(prefixes, func(prefix string) bool { return strings.HasPrefix(text, prefix) })
 }
 
 // commonPrefix returns the longest shared prefix ending in "/".
@@ -196,9 +196,9 @@ func commonPrefix(paths []string) string {
 	return ""
 }
 
-func plural(n int, word string) string {
-	if n == 1 {
+func plural(count int, word string) string {
+	if count == 1 {
 		return "1 " + word
 	}
-	return fmt.Sprintf("%d %ss", n, word)
+	return fmt.Sprintf("%d %ss", count, word)
 }

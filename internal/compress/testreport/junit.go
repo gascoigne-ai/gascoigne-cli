@@ -56,10 +56,10 @@ func JUnit(text string) ([]string, error) {
 	return out, nil
 }
 
-func suite(s junitSuite) []string {
+func suite(group junitSuite) []string {
 	var out, details []string
 	passed, failed, skipped := 0, 0, 0
-	for _, c := range s.Cases {
+	for _, c := range group.Cases {
 		name := strings.TrimPrefix(c.Class+"::"+c.Name, "::")
 		switch {
 		case c.Failure != nil || c.Error != nil:
@@ -85,35 +85,35 @@ func suite(s junitSuite) []string {
 			passed++
 		}
 	}
-	head := fmt.Sprintf("%s: %d passed, %d failed, %d skipped", s.Name, passed, failed, skipped)
-	if s.Time != "" {
-		head += " (" + s.Time + "s)"
+	head := fmt.Sprintf("%s: %d passed, %d failed, %d skipped", group.Name, passed, failed, skipped)
+	if group.Time != "" {
+		head += " (" + group.Time + "s)"
 	}
-	if len(s.Cases) > 0 {
+	if len(group.Cases) > 0 {
 		out = append(out, head)
 	}
 	out = append(out, details...)
-	for _, sub := range s.Suites {
+	for _, sub := range group.Suites {
 		out = append(out, suite(sub)...)
 	}
 	return out
 }
 
-func problem(kind, name string, p *junitProblem) []string {
+func problem(kind, name string, issue *junitProblem) []string {
 	head := kind + " " + name
-	if msg := strings.TrimSpace(p.Message); msg != "" {
+	if msg := strings.TrimSpace(issue.Message); msg != "" {
 		head += ": " + firstLine(msg)
 	}
 	out := []string{head}
-	text := strings.TrimSpace(p.Text)
-	if text != "" && text != strings.TrimSpace(p.Message) {
+	text := strings.TrimSpace(issue.Text)
+	if text != "" && text != strings.TrimSpace(issue.Message) {
 		out = append(out, indent(compress.Lines(text))...)
 	}
 	return out
 }
 
-func firstLine(s string) string {
-	l, _, _ := strings.Cut(s, "\n")
+func firstLine(text string) string {
+	l, _, _ := strings.Cut(text, "\n")
 	return l
 }
 

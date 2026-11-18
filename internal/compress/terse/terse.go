@@ -64,7 +64,7 @@ func Prune(text string, ratio float64) string {
 		}
 	}
 	budget := int(float64(total) * ratio)
-	slices.SortStableFunc(cands, func(a, b cand) int { return cmp.Compare(a.w.bits, b.w.bits) })
+	slices.SortStableFunc(cands, func(left, right cand) int { return cmp.Compare(left.w.bits, right.w.bits) })
 	drop := map[int][]word{}
 	for _, c := range cands[:min(budget, len(cands))] {
 		drop[c.line] = append(drop[c.line], c.w)
@@ -78,12 +78,12 @@ func Prune(text string, ratio float64) string {
 
 // candidates lists the droppable words of a prose line and counts its words.
 // Text inside backticks or quotes is never touched.
-func candidates(l string) ([]word, int) {
+func candidates(line string) ([]word, int) {
 	var out []word
 	n := 0
 	inCode, inQuote := false, false
-	for i := 0; i < len(l); {
-		c := l[i]
+	for i := 0; i < len(line); {
+		c := line[i]
 		switch {
 		case c == '`':
 			inCode = !inCode
@@ -100,13 +100,13 @@ func candidates(l string) ([]word, int) {
 			continue
 		}
 		j := i
-		for j < len(l) && (l[j] < 0x80 && (unicode.IsLetter(rune(l[j])) || l[j] == '\'')) {
+		for j < len(line) && (line[j] < 0x80 && (unicode.IsLetter(rune(line[j])) || line[j] == '\'')) {
 			j++
 		}
 		// A word glued to path, identifier or number characters is not prose.
-		glued := i > 0 && strings.ContainsRune("/._-$@:=<>[]{}()0123456789", rune(l[i-1])) ||
-			j < len(l) && strings.ContainsRune("/._-$@=<>[]{}(0123456789", rune(l[j]))
-		w, lower := l[i:j], strings.ToLower(l[i:j])
+		glued := i > 0 && strings.ContainsRune("/._-$@:=<>[]{}()0123456789", rune(line[i-1])) ||
+			j < len(line) && strings.ContainsRune("/._-$@=<>[]{}(0123456789", rune(line[j]))
+		w, lower := line[i:j], strings.ToLower(line[i:j])
 		n++
 		// Capitalized words may be names ("May", "Will"); articles starting
 		// a sentence are not.
@@ -121,19 +121,19 @@ func candidates(l string) ([]word, int) {
 }
 
 // remove cuts the words (and one space next to each) from l.
-func remove(l string, ws []word) string {
+func remove(line string, ws []word) string {
 	if len(ws) == 0 {
-		return l
+		return line
 	}
-	slices.SortFunc(ws, func(a, b word) int { return b.from - a.from })
+	slices.SortFunc(ws, func(left, right word) int { return right.from - left.from })
 	for _, w := range ws {
 		from, to := w.from, w.to
-		if to < len(l) && l[to] == ' ' {
+		if to < len(line) && line[to] == ' ' {
 			to++
-		} else if from > 0 && l[from-1] == ' ' {
+		} else if from > 0 && line[from-1] == ' ' {
 			from--
 		}
-		l = l[:from] + l[to:]
+		line = line[:from] + line[to:]
 	}
-	return l
+	return line
 }

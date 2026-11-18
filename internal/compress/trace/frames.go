@@ -20,7 +20,7 @@ type runtime struct {
 	keepTop bool
 }
 
-func re(s string) *lazyre.Regexp { return lazyre.New(s) }
+func re(pattern string) *lazyre.Regexp { return lazyre.New(pattern) }
 
 var runtimes = []runtime{
 	{ // JVM: java, scala, kotlin
@@ -102,16 +102,16 @@ func Frames(lines []string, minRun int) []string {
 
 // noiseRun finds the runtime whose noise frames start at lines[i] and how
 // many lines the run covers, details included. nil when i starts none.
-func noiseRun(lines []string, i int) (*runtime, int) {
+func noiseRun(lines []string, index int) (*runtime, int) {
 	for k := range runtimes {
 		rt := &runtimes[k]
-		if !rt.noise.MatchString(lines[i]) {
+		if !rt.noise.MatchString(lines[index]) {
 			continue
 		}
 		n := 0
-		for i+n < len(lines) && rt.noise.MatchString(lines[i+n]) {
+		for index+n < len(lines) && rt.noise.MatchString(lines[index+n]) {
 			n++
-			for rt.detail != nil && i+n < len(lines) && !rt.frame.MatchString(lines[i+n]) && rt.detail.MatchString(lines[i+n]) {
+			for rt.detail != nil && index+n < len(lines) && !rt.frame.MatchString(lines[index+n]) && rt.detail.MatchString(lines[index+n]) {
 				n++
 			}
 		}

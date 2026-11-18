@@ -68,15 +68,15 @@ func endDefs(lines []string, row detect.Language) []Def {
 	}
 	// A def whose end never came (a pattern this table misses) is dropped
 	// rather than shown with a wrong range.
-	return slices.DeleteFunc(defs, func(d Def) bool {
-		return d.To == d.Line && !endOneLine.MatchString(strings.TrimSpace(lines[d.Line-1]))
+	return slices.DeleteFunc(defs, func(def Def) bool {
+		return def.To == def.Line && !endOneLine.MatchString(strings.TrimSpace(lines[def.Line-1]))
 	})
 }
 
 // docStart is the first line of the comments (and @doc/@spec attributes)
 // right above line i.
-func docStart(lines []string, i int, row detect.Language) int {
-	from := i
+func docStart(lines []string, index int, row detect.Language) int {
+	from := index
 	for from > 0 {
 		t := strings.TrimSpace(lines[from-1])
 		switch {
@@ -98,8 +98,8 @@ func docStart(lines []string, i int, row detect.Language) int {
 	return from
 }
 
-func isWord(c byte) bool {
-	return c == '_' || c >= '0' && c <= '9' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z'
+func isWord(char byte) bool {
+	return char == '_' || char >= '0' && char <= '9' || char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z'
 }
 
 // mdHead is an ATX heading: 1-6 hashes, a space, the title.
@@ -145,8 +145,8 @@ func mdDefs(lines []string) []Def {
 }
 
 // fenceOf is the ``` or ~~~ opening or closing a fenced code block, else "".
-func fenceOf(l string) string {
-	t := strings.TrimLeft(l, " ")
+func fenceOf(line string) string {
+	t := strings.TrimLeft(line, " ")
 	for _, f := range []string{"```", "~~~"} {
 		if strings.HasPrefix(t, f) {
 			return f

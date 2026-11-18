@@ -23,12 +23,12 @@ var dotted = lazyre.New(`[\p{L}\p{N}]+(\.[\p{L}\p{N}]+)+`)
 // Versions are terms too, with their shorter prefixes: "go1.27.2" adds
 // "go1.27.2" and "go1.27", so a query for go1.27 finds its patch releases
 // instead of every line that mentions go1.
-func Terms(s string) []string {
-	s = strings.ToLower(s)
-	terms := strings.FieldsFunc(s, func(r rune) bool {
-		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
+func Terms(text string) []string {
+	text = strings.ToLower(text)
+	terms := strings.FieldsFunc(text, func(char rune) bool {
+		return !unicode.IsLetter(char) && !unicode.IsDigit(char)
 	})
-	for _, v := range dotted.FindAllString(s, -1) {
+	for _, v := range dotted.FindAllString(text, -1) {
 		if !strings.ContainsFunc(v, unicode.IsDigit) {
 			continue
 		}
@@ -42,8 +42,8 @@ func Terms(s string) []string {
 
 // relevance scores items against query terms with BM25 and returns the top k
 // (score > 0), scores normalized to 0..1.
-func relevance(items []any, uniq []int, query []string, k int) map[int]float64 {
-	if len(query) == 0 || k == 0 {
+func relevance(items []any, uniq []int, query []string, limit int) map[int]float64 {
+	if len(query) == 0 || limit == 0 {
 		return nil
 	}
 	docs := make([][]string, len(uniq))
@@ -53,7 +53,7 @@ func relevance(items []any, uniq []int, query []string, k int) map[int]float64 {
 	scores := BM25(docs, query)
 	best := slices.Max(scores)
 	out := map[int]float64{}
-	for range k {
+	for range limit {
 		top := -1
 		for d, s := range scores {
 			if s > 0 && (top < 0 || s > scores[top]) {
@@ -107,11 +107,11 @@ func BM25(docs [][]string, query []string) []float64 {
 }
 
 // flatten joins an item's keys and scalar values into one text.
-func flatten(v any) string {
+func flatten(value any) string {
 	var b strings.Builder
 	var walk func(any)
-	walk = func(v any) {
-		switch v := v.(type) {
+	walk = func(value any) {
+		switch v := value.(type) {
 		case map[string]any:
 			for k, x := range v {
 				b.WriteString(k + " ")
@@ -127,7 +127,7 @@ func flatten(v any) string {
 			b.WriteString(v.String() + " ")
 		}
 	}
-	walk(v)
+	walk(value)
 	return b.String()
 }
 

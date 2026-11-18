@@ -40,7 +40,9 @@ func Coverage(lines []string, below float64) []string {
 
 // render lists the files under the threshold, worst first, after the total.
 func render(files []fileCover, total, below float64) []string {
-	slices.SortStableFunc(files, func(a, b fileCover) int { return cmp.Or(cmp.Compare(a.pct, b.pct), strings.Compare(a.name, b.name)) })
+	slices.SortStableFunc(files, func(left, right fileCover) int {
+		return cmp.Or(cmp.Compare(left.pct, right.pct), strings.Compare(left.name, right.name))
+	})
 	out := []string{fmt.Sprintf("total: %s of %d files", pct(total), len(files))}
 	low := 0
 	for _, f := range files {
@@ -173,4 +175,4 @@ func capRanges(parts []string) string {
 	return strings.Join(parts, ",")
 }
 
-func pct(v float64) string { return strconv.FormatFloat(v, 'f', 1, 64) + "%" }
+func pct(value float64) string { return strconv.FormatFloat(value, 'f', 1, 64) + "%" }

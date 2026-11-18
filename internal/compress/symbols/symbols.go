@@ -29,12 +29,12 @@ type Def struct {
 var ErrLang = fmt.Errorf("symbols: unsupported language")
 
 // Defs lists the definitions of text, in file order.
-func Defs(text string, h detect.Hints) ([]Def, error) {
+func Defs(text string, hints detect.Hints) ([]Def, error) {
 	lines := strings.Split(strings.TrimSuffix(text, "\n"), "\n")
-	if slices.Contains([]string{".md", ".markdown", ".mdx"}, detect.SourceExt(h)) {
+	if slices.Contains([]string{".md", ".markdown", ".mdx"}, detect.SourceExt(hints)) {
 		return mdDefs(lines), nil
 	}
-	row, _ := detect.Source(text, h)
+	row, _ := detect.Source(text, hints)
 	switch row.Class {
 	case detect.LangGo:
 		return goDefs(text)
@@ -80,7 +80,7 @@ func goDefs(src string) ([]Def, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parse: %w", err)
 	}
-	line := func(p token.Pos) int { return fset.Position(p).Line }
+	line := func(pos token.Pos) int { return fset.Position(pos).Line }
 	var defs []Def
 	for _, d := range f.Decls {
 		switch d := d.(type) {
@@ -124,8 +124,8 @@ func cmpDoc(own, decl *ast.CommentGroup, specs int) *ast.CommentGroup {
 	return nil
 }
 
-func recvName(e ast.Expr) string {
-	switch t := e.(type) {
+func recvName(expr ast.Expr) string {
+	switch t := expr.(type) {
 	case *ast.StarExpr:
 		return recvName(t.X)
 	case *ast.IndexExpr:
@@ -177,9 +177,9 @@ func pyDefs(lines []string) []Def {
 }
 
 // pyEnd is the last non-blank line indented deeper than the definition.
-func pyEnd(lines []string, i, indent int) int {
-	end := i
-	for j := i + 1; j < len(lines); j++ {
+func pyEnd(lines []string, start, indent int) int {
+	end := start
+	for j := start + 1; j < len(lines); j++ {
 		t := strings.TrimSpace(lines[j])
 		if t == "" {
 			continue
@@ -257,7 +257,7 @@ func braceDefs(lines []string) []Def {
 			}
 		}
 	}
-	return slices.DeleteFunc(defs, func(d Def) bool { return d.To == d.Line && !strings.Contains(stripCode(lines[d.Line-1]), "}") })
+	return slices.DeleteFunc(defs, func(def Def) bool { return def.To == def.Line && !strings.Contains(stripCode(lines[def.Line-1]), "}") })
 }
 
 func defName(code string) (string, string) {
@@ -276,24 +276,24 @@ func defName(code string) (string, string) {
 	return name, "func"
 }
 
-func isDocLine(l string) bool {
-	t := strings.TrimSpace(l)
+func isDocLine(line string) bool {
+	t := strings.TrimSpace(line)
 	return strings.HasPrefix(t, "//") || strings.HasPrefix(t, "/*") || strings.HasPrefix(t, "*") ||
 		strings.HasPrefix(t, "#[") || strings.HasPrefix(t, "@")
 }
 
 // stripCode drops strings and line comments, so braces inside them do not count.
-func stripCode(l string) string {
+func stripCode(line string) string {
 	var b strings.Builder
-	for j := 0; j < len(l); j++ {
-		c := l[j]
+	for j := 0; j < len(line); j++ {
+		c := line[j]
 		switch {
-		case c == '/' && j+1 < len(l) && (l[j+1] == '/' || l[j+1] == '*'):
+		case c == '/' && j+1 < len(line) && (line[j+1] == '/' || line[j+1] == '*'):
 			return b.String()
 		case c == '"' || c == '\'' || c == '`':
 			q := c
-			for j++; j < len(l) && l[j] != q; j++ {
-				if l[j] == '\\' {
+			for j++; j < len(line) && line[j] != q; j++ {
+				if line[j] == '\\' {
 					j++
 				}
 			}
