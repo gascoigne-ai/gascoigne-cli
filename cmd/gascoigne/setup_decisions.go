@@ -1,32 +1,17 @@
 package main
 
 import (
-	"bufio"
 	"cmp"
 	"context"
-	"crypto/rand"
-	"crypto/subtle"
-	_ "embed"
-	"encoding/hex"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"path/filepath"
-	"runtime"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
-
-//go:embed setup.html
-var setupHTML []byte
 
 // A decision is one question gascoigne asks the user before it changes
 // something beyond its own files: in the browser (/setup) or in the terminal
@@ -336,89 +321,95 @@ func pendingDecisions(settings prefs) []decision {
 	return slices.DeleteFunc(decisions(settings), func(choice decision) bool { return choice.Current != "" })
 }
 
+// answerState is what applying answers builds up: the prefs to save, the
+// report lines so far, and whether the installed configs need writing again.
+type answerState struct {
+	prefs   *prefs
+	out     []string
+	rewrite bool
+}
+
+// answerHandlers say what each answer does, by the start of the question id.
+// An id that is only the prefix (allow, release) has an empty name.
+var answerHandlers = []struct {
+	prefix string
+	apply  func(state *answerState, name, value string)
+}{
+	{integratePrefix, func(state *answerState, name, value string) {
+		state.prefs.Declined = slices.DeleteFunc(state.prefs.Declined, func(existing string) bool { return existing == name })
+		if value == "no" {
+			state.prefs.Declined = append(state.prefs.Declined, name)
+			return
+		}
+		state.out = append(state.out, integrate(name))
+		state.rewrite = true
+	}},
+	{experimentPrefix, func(state *answerState, name, value string) {
+		state.prefs.Experimental = slices.DeleteFunc(state.prefs.Experimental, func(existing string) bool { return existing == name })
+		if value == "on" {
+			state.prefs.Experimental = append(state.prefs.Experimental, name)
+		}
+		state.rewrite = state.rewrite || name == "compaction" // reaches claude's settings
+	}},
+	{proseModelID, func(state *answerState, _, value string) { state.prefs.ProseModel = value }},
+	{"release", func(state *answerState, _, value string) { state.prefs.ReleaseCheck = value }},
+	{"mcp_review", func(state *answerState, _, value string) { state.prefs.MCPReview = value }},
+	{"update", func(state *answerState, _, value string) {
+		if value == "no" {
+			state.prefs.UpdateDeclined = registrationVersion
+			return
+		}
+		state.rewrite = true
+	}},
+	// A changed choice of these reaches the installed configs.
+	{"allow", func(state *answerState, _, value string) { state.prefs.Allow, state.rewrite = value, true }},
+	{"autosync", func(state *answerState, _, value string) { state.prefs.Autosync, state.rewrite = value, true }},
+	{"mcp_mode", func(state *answerState, _, value string) { state.prefs.MCPMode, state.rewrite = value, true }},
+	{"billing", func(state *answerState, _, value string) { state.prefs.Pricing.Billing = value }},
+}
+
+// checkAnswers refuses an answer for an unknown question or with a value the
+// question does not offer.
+func checkAnswers(settings prefs, answers map[string]string) error {
+	questions := decisions(settings)
+	for id, value := range answers {
+		index := slices.IndexFunc(questions, func(choice decision) bool { return choice.ID == id })
+		if index < 0 {
+			return fmt.Errorf("unknown question %q", id)
+		}
+		if !slices.ContainsFunc(questions[index].Options, func(candidate option) bool { return candidate.Value == value }) {
+			return fmt.Errorf("%s: %q is not an option", id, value)
+		}
+	}
+	return nil
+}
+
 // applyAnswers saves the answers (decision id → option value) and writes the
 // user-scope installs again so the new choices reach the configs. Unknown ids
 // or values refuse the whole request.
 func applyAnswers(answers map[string]string) ([]string, error) {
-	p := readPrefs()
-	for _, d := range decisions(p) {
-		v, ok := answers[d.ID]
-		if !ok {
-			continue
-		}
-		if !slices.ContainsFunc(d.Options, func(candidate option) bool { return candidate.Value == v }) {
-			return nil, fmt.Errorf("%s: %q is not an option", d.ID, v)
-		}
+	settings := readPrefs()
+	if err := checkAnswers(settings, answers); err != nil {
+		return nil, err
 	}
-	for id := range answers {
-		if !slices.ContainsFunc(decisions(p), func(choice decision) bool { return choice.ID == id }) {
-			return nil, fmt.Errorf("unknown question %q", id)
-		}
-	}
-	var out []string
-	for id, v := range answers {
-		name, ok := strings.CutPrefix(id, integratePrefix)
-		if !ok {
-			continue
-		}
-		p.Declined = slices.DeleteFunc(p.Declined, func(existing string) bool { return existing == name })
-		if v == "no" {
-			p.Declined = append(p.Declined, name)
-			continue
-		}
-		out = append(out, integrate(name))
-	}
-	slices.Sort(p.Declined)
-	for id, v := range answers {
-		if name, ok := strings.CutPrefix(id, experimentPrefix); ok {
-			p.Experimental = slices.DeleteFunc(p.Experimental, func(existing string) bool { return existing == name })
-			if v == "on" {
-				p.Experimental = append(p.Experimental, name)
+	state := answerState{prefs: &settings}
+	for id, value := range answers {
+		for _, handler := range answerHandlers {
+			if name, ok := strings.CutPrefix(id, handler.prefix); ok {
+				handler.apply(&state, name, value)
+				break
 			}
 		}
 	}
-	slices.Sort(p.Experimental)
-	if v, ok := answers[proseModelID]; ok {
-		p.ProseModel = v
-	}
-	if v, ok := answers["release"]; ok {
-		p.ReleaseCheck = v
-	}
-	if v, ok := answers["mcp_review"]; ok {
-		p.MCPReview = v
-	}
-	rewrite := len(out) > 0
-	if v, ok := answers["update"]; ok {
-		if v == "no" {
-			p.UpdateDeclined = registrationVersion
-		} else {
-			rewrite = true
-		}
-	}
-	for _, id := range []string{"allow", "autosync", "mcp_mode", experimentPrefix + "compaction"} {
-		if _, ok := answers[id]; ok {
-			rewrite = true // a changed choice reaches the installed configs
-		}
-	}
-	if v, ok := answers["allow"]; ok {
-		p.Allow = v
-	}
-	if v, ok := answers["autosync"]; ok {
-		p.Autosync = v
-	}
-	if v, ok := answers["mcp_mode"]; ok {
-		p.MCPMode = v
-	}
-	if v, ok := answers["billing"]; ok {
-		p.Pricing.Billing = v
-	}
-	if err := p.save(); err != nil {
+	slices.Sort(settings.Declined)
+	slices.Sort(settings.Experimental)
+	if err := settings.save(); err != nil {
 		return nil, err
 	}
-	if !rewrite {
-		return out, nil
+	if !state.rewrite {
+		return state.out, nil
 	}
-	return append(out, rewriteInstalls()...), nil
+	return append(state.out, rewriteInstalls()...), nil
 }
 
 // needsProseModel reports a prose experiment that is on, by this setup's
@@ -502,324 +493,6 @@ func rewriteInstalls() []string {
 		out = append(out, "could not record the update: "+err.Error())
 	}
 	return out
-}
-
-// The page that changes agent settings is opened with a one-time token that
-// install (or a hook) puts on disk, so only someone who can read the user's
-// state dir, or was handed the link, can answer.
-type setupToken struct {
-	Token   string    `json:"token"`
-	Expires time.Time `json:"expires"`
-}
-
-func setupTokenFile() string { return filepath.Join(stateDir(), "setup.json") }
-
-func newSetupToken() (string, error) {
-	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
-		return "", err
-	}
-	t := setupToken{Token: hex.EncodeToString(b), Expires: time.Now().Add(24 * time.Hour)}
-	if err := os.MkdirAll(stateDir(), 0o700); err != nil {
-		return "", err
-	}
-	data, _ := json.Marshal(t)
-	return t.Token, os.WriteFile(setupTokenFile(), data, 0o600)
-}
-
-// validSetupToken reports whether got is the saved, unexpired token.
-func validSetupToken(got string) bool {
-	var t setupToken
-	data, err := os.ReadFile(setupTokenFile())
-	if err != nil || json.Unmarshal(data, &t) != nil || time.Now().After(t.Expires) {
-		return false
-	}
-	return got != "" && subtle.ConstantTimeCompare([]byte(got), []byte(t.Token)) == 1
-}
-
-// setupLink starts the server if needed and returns the page's URL with a
-// fresh token.
-func setupLink() (string, error) {
-	if serverOff() {
-		return "", errors.New("the background server is off (GASCOIGNE_SERVER=off)")
-	}
-	if err := serverUp(); err != nil {
-		return "", err
-	}
-	tok, err := newSetupToken()
-	if err != nil {
-		return "", err
-	}
-	return "http://" + serverAddr() + "/setup?token=" + tok, nil
-}
-
-// askInBrowser opens the setup page when decisions are pending. A browser is
-// not opened from CI or without a display; the link is returned either way.
-func askInBrowser() (link string, err error) {
-	link, err = setupLink()
-	if err != nil {
-		return "", err
-	}
-	if os.Getenv("CI") == "" {
-		openBrowser(link)
-	}
-	return link, nil
-}
-
-// offerSetup is what install does at its end: ask in the browser about the
-// questions still open, and say where else to answer.
-func offerSetup(out io.Writer) {
-	p := readPrefs()
-	if len(pendingDecisions(p)) == 0 {
-		return
-	}
-	p.AskedAt = time.Now()
-	if err := p.save(); err != nil {
-		fmt.Fprintln(out, "gascoigne:", err)
-	}
-	link, err := askInBrowser()
-	if err != nil {
-		fmt.Fprintln(out, "settings await your decision: run gascoigne setup")
-		return
-	}
-	fmt.Fprintf(out, "settings await your decision: %s (or run gascoigne setup)\n", link)
-}
-
-// askInterval is how soon a session start may open the page again: a page
-// closed without an answer comes back with the next session, but restarts in
-// quick succession do not open a window each time.
-const askInterval = 10 * time.Minute
-
-// setupNudge is what a SessionStart hook does while installs exist and
-// questions are open: open the page, again at every new session until the
-// questions are answered, and tell the agent how to answer if it cannot.
-// source is the SessionStart source: a compaction or /clear is not a new
-// session for the user.
-func setupNudge(source string) string {
-	p := readPrefs()
-	pending := pendingDecisions(p)
-	upgraded := p.SetupVersion != version.Number
-	if (len(pending) == 0 && !upgraded) || len(readInstalls()) == 0 || source == "compact" || source == "clear" ||
-		time.Since(p.AskedAt) < askInterval {
-		return ""
-	}
-	p.AskedAt = time.Now()
-	p.SetupVersion = version.Number
-	if p.save() != nil {
-		return ""
-	}
-	if _, err := askInBrowser(); err != nil {
-		fmt.Fprintln(os.Stderr, "gascoigne:", err)
-	}
-	var agentsNew []string
-	for _, d := range pending {
-		if name, ok := strings.CutPrefix(d.ID, integratePrefix); ok {
-			agentsNew = append(agentsNew, name)
-		}
-	}
-	switch {
-	case len(pending) == 0:
-		return "gascoigne was upgraded to " + version.Number + "; the setup page was opened in a browser to finish the update (or run gascoigne setup -all)."
-	case len(agentsNew) > 0:
-		return "gascoigne found " + strings.Join(agentsNew, ", ") + " on PATH without a gascoigne install; it asks the user (browser, or gascoigne setup) and installs nothing by itself."
-	case slices.ContainsFunc(pending, func(choice decision) bool { return choice.ID == "update" }):
-		return "gascoigne was upgraded and its hooks installed for some agents are older than this version; it asks the user (browser, or gascoigne setup) and changes nothing by itself."
-	}
-	return "gascoigne has settings that await the user's decision (opened in a browser); the terminal form is: gascoigne setup."
-}
-
-// setupHandlers serves the page and its two calls, all behind the token.
-func setupHandlers(mux *http.ServeMux) {
-	mux.HandleFunc("GET /setup", func(response http.ResponseWriter, _ *http.Request) {
-		response.Header().Set("Content-Type", "text/html; charset=utf-8")
-		response.Write(setupHTML)
-	})
-	// The dashboard's Change button: the page needs a token, which only a
-	// same-origin POST (localOnly) may mint.
-	mux.HandleFunc("POST /api/setup/link", func(response http.ResponseWriter, _ *http.Request) {
-		link, err := setupLink()
-		respond(response, map[string]string{"url": link}, err)
-	})
-	mux.HandleFunc("GET /api/setup", func(response http.ResponseWriter, request *http.Request) {
-		if !validSetupToken(request.URL.Query().Get("token")) {
-			http.Error(response, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
-			return
-		}
-		respond(response, buildSetupView(readPrefs()), nil)
-	})
-	mux.HandleFunc("POST /api/setup", func(response http.ResponseWriter, request *http.Request) {
-		var req struct {
-			Token   string            `json:"token"`
-			Answers map[string]string `json:"answers"`
-			Pricing *pricingForm      `json:"pricing"`
-		}
-		decoder := json.NewDecoder(http.MaxBytesReader(response, request.Body, 1<<20))
-		decoder.DisallowUnknownFields()
-		if err := decoder.Decode(&req); err != nil {
-			http.Error(response, err.Error(), http.StatusBadRequest)
-			return
-		}
-		if !validSetupToken(req.Token) {
-			http.Error(response, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
-			return
-		}
-		// The pricing form is checked before anything is saved: all or nothing.
-		saved := readPrefs()
-		if req.Pricing != nil {
-			if err := req.Pricing.apply(&saved.Pricing); err != nil {
-				http.Error(response, err.Error(), http.StatusBadRequest)
-				return
-			}
-		}
-		lines, err := applyAnswers(req.Answers)
-		if err != nil {
-			http.Error(response, err.Error(), http.StatusBadRequest)
-			return
-		}
-		if req.Pricing != nil {
-			// applyAnswers saved the answers (billing among them); the form's interval and prices go on top.
-			current := readPrefs()
-			current.Pricing.TTL, current.Pricing.Prices = saved.Pricing.TTL, saved.Pricing.Prices
-			if err := current.save(); err != nil {
-				http.Error(response, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			applyPricing(false)
-			lines = append(lines, "costs: pricing settings saved")
-		}
-		os.Remove(setupTokenFile()) // one answer per link
-		if needsProseModel(req.Answers) {
-			// Minutes of download: not within this request.
-			go func() {
-				if err := installProseModel(context.Background()); err != nil {
-					fmt.Fprintln(os.Stderr, "gascoigne: prose download failed, run gascoigne prose install:", err)
-				}
-			}()
-			name := configProseModel()
-			lines = append(lines, fmt.Sprintf("prose: downloading %s (%s) in the background; gascoigne prose status says when it is ready", name, proseSize(name)))
-		}
-		respond(response, map[string][]string{"done": lines}, nil)
-	})
-}
-
-// cmdSetup asks the open questions: in the browser when one can open here,
-// else in the terminal (-t forces the terminal). -y takes the defaults; -all
-// asks the answered questions again.
-func cmdSetup(ctx context.Context, args []string) error {
-	fset := newFlags("setup")
-	yes := fset.Bool("y", false, "take the default answer to every question")
-	all := fset.Bool("all", false, "also ask the questions already answered")
-	term := fset.Bool("t", false, "ask in the terminal even where a browser can open")
-	experimental := fset.Bool("experimental", false, "ask only about the experimental features")
-	if err := fset.Parse(args); err != nil {
-		return err
-	}
-	p := readPrefs()
-	ds := pendingDecisions(p)
-	if *all {
-		ds = decisions(p)
-	}
-	if *experimental {
-		ds = append(experimentDecisions(p), proseModelDecision(p))
-	}
-	if len(ds) == 0 {
-		fmt.Println("nothing to decide; setup -all asks again")
-		return repairProse(ctx, nil)
-	}
-	if useBrowser(*yes, *term) {
-		link, err := setupLink()
-		if err == nil {
-			openBrowser(link)
-			fmt.Printf("answer in the browser: %s\n(gascoigne setup -t asks here instead)\n", link)
-			return nil
-		}
-		fmt.Fprintln(os.Stderr, "gascoigne:", err, "- asking here instead")
-	}
-	if !*yes && !isTerminal(os.Stdin) {
-		return errors.New("setup: needs a browser or a terminal to ask; -y takes the defaults")
-	}
-	answers, err := ask(os.Stdin, os.Stdout, ds, *yes)
-	if err != nil {
-		return err
-	}
-	lines, err := applyAnswers(answers)
-	for _, l := range lines {
-		fmt.Println(l)
-	}
-	if err != nil {
-		return err
-	}
-	return repairProse(ctx, answers)
-}
-
-// repairProse fetches the prose files again when they are missing or corrupt.
-func repairProse(ctx context.Context, answers map[string]string) error {
-	if !needsProseModel(answers) {
-		return nil
-	}
-	name := configProseModel()
-	fmt.Printf("prose: downloading %s (%s) and ONNX Runtime\n", name, proseSize(name))
-	if err := installProseModel(ctx); err != nil {
-		return fmt.Errorf("prose is on but the download failed (%w); run gascoigne prose install to retry", err)
-	}
-	return nil
-}
-
-// useBrowser decides where setup asks: the page, unless defaults were asked
-// for, the terminal was chosen, or no browser can open here (ssh, CI, server off).
-func useBrowser(yes, term bool) bool {
-	return !yes && !term && hasDisplay(runtime.GOOS) && os.Getenv("CI") == "" && !serverOff()
-}
-
-// ask puts each question to w and reads the number of the chosen option from
-// r; an empty line takes the default.
-func ask(input io.Reader, out io.Writer, ds []decision, defaults bool) (map[string]string, error) {
-	in := bufio.NewScanner(input)
-	answers := map[string]string{}
-	for _, d := range ds {
-		answers[d.ID] = d.Default
-		if defaults {
-			continue
-		}
-		fmt.Fprintf(out, "\n%s\n%s\n", d.Title, d.Text)
-		for _, part := range []struct{ name, text string }{{"Example", d.Example}, {"How it works", d.How}, {"Impact", d.Impact}} {
-			if part.text != "" {
-				fmt.Fprintf(out, "  %s:\n    %s\n", part.name, strings.ReplaceAll(part.text, "\n", "\n    "))
-			}
-		}
-		for i, o := range d.Options {
-			mark := " "
-			if o.Value == d.Default {
-				mark = "*"
-			}
-			fmt.Fprintf(out, " %s %d) %s\n", mark, i+1, o.Label)
-			if o.Detail != "" {
-				fmt.Fprintf(out, "       %s\n", o.Detail)
-			}
-		}
-		for {
-			fmt.Fprint(out, "choose [default *]: ")
-			if !in.Scan() {
-				return nil, errors.New("setup: no answer")
-			}
-			line := strings.TrimSpace(in.Text())
-			if line == "" {
-				break
-			}
-			var n int
-			if _, err := fmt.Sscanf(line, "%d", &n); err == nil && n >= 1 && n <= len(d.Options) {
-				answers[d.ID] = d.Options[n-1].Value
-				break
-			}
-			fmt.Fprintf(out, "enter 1-%d\n", len(d.Options))
-		}
-	}
-	return answers, nil
-}
-
-func isTerminal(file *os.File) bool {
-	info, err := file.Stat()
-	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
 
 // experiment is one switched-on experimental feature as the dashboard lists it.

@@ -16,6 +16,10 @@
   proxy.
 - Commands: `server run|start|stop|status`; `dashboard` = `server start -open` (opens a browser
   unless there is no display; `-open=false`); `GASCOIGNE_SERVER=off` disables it.
+- The server's HTTP surface is the dashboard mux (`dashboard()`, `dashboard_routes.go`: one handler
+  group per area, pages and assets in one table) behind `localOnly`. The setup page's handlers and
+  terminal prompt are `setup_http.go`, its token and link `setup_token.go`, its questions and
+  `applyAnswers` (a table of question-id prefix to handler) `setup_decisions.go`.
 
 **Server mode** (`remote.go`): `exec`, `run` and the codex hook (`common.useServer`) build only
 their pipeline's receivers and exporters (`service.Options.Remote`) and POST the payload to

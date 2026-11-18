@@ -74,7 +74,7 @@
   `hook <agent>` while nothing records it. `readInstalls` returns them as registration 0, so the
   update question, `upgrade` and `doctor` treat them as stale; recording an install (or `upgrade`)
   makes them regular entries.
-- **Decisions** (`setup.go`, `setup.html`): changes beyond gascoigne's own files wait for the
+- **Decisions** (`setup_decisions.go`, `setup.html`): changes beyond gascoigne's own files wait for the
   user. Open questions = unset `allow` / `autosync` in `prefs.json`. `install` (end) and a claude
   SessionStart hook (source startup or resume, not compact or clear; at most every ten minutes,
   `prefs.asked_at`; again at each new session until every question is answered; recorded installs

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cmp"
 	"context"
 	_ "embed"
 	"encoding/json"
@@ -11,13 +10,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
-	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
@@ -54,205 +51,15 @@ func cmdDashboard(ctx context.Context, args []string) error {
 // ends the server.
 func dashboard(store *ledger.Ledger, poll time.Duration, info serverInfo, stop func()) http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/health", func(writer http.ResponseWriter, _ *http.Request) {
-		respond(writer, info, nil)
-	})
-	mux.HandleFunc("GET /api/experiments", func(writer http.ResponseWriter, _ *http.Request) {
-		respond(writer, enabledExperiments(), nil)
-	})
-	mux.HandleFunc("POST /api/shutdown", func(writer http.ResponseWriter, _ *http.Request) {
-		writer.WriteHeader(http.StatusAccepted)
-		go stop() // after the response is written
-	})
-	mux.HandleFunc("POST /api/reset", func(writer http.ResponseWriter, request *http.Request) {
-		q, err := statsQuery(request.URL.Query())
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		n, err := store.Reset(request.Context(), q, request.URL.Query().Get("all") == "1")
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		respond(writer, map[string]int64{"deleted_events": n}, nil)
-	})
-	mux.HandleFunc("GET /api/originals", func(writer http.ResponseWriter, request *http.Request) {
-		u, err := store.RawUsage(request.Context())
-		respond(writer, u, err)
-	})
-	mux.HandleFunc("POST /api/flush", func(writer http.ResponseWriter, request *http.Request) {
-		n, err := store.FlushRaw(request.Context(), time.Time{})
-		respond(writer, map[string]int64{"deleted_originals": n}, err)
-	})
+	serverHandlers(mux, info, stop)
+	ledgerHandlers(mux, store)
 	setupHandlers(mux)
-	mux.HandleFunc("GET /mcp", func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "text/html; charset=utf-8")
-		writer.Write(mcpHTML)
-	})
-	mux.HandleFunc("GET /assets/pages.css", func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "text/css; charset=utf-8")
-		writer.Header().Set("Cache-Control", "no-cache")
-		writer.Write(pagesCSS)
-	})
-	mux.HandleFunc("GET /assets/pages.js", func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "text/javascript; charset=utf-8")
-		writer.Header().Set("Cache-Control", "no-cache")
-		writer.Write(pagesJS)
-	})
-	mux.HandleFunc("GET /costs", func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "text/html; charset=utf-8")
-		writer.Write(costsHTML)
-	})
-	mux.HandleFunc("GET /api/costs", func(writer http.ResponseWriter, request *http.Request) {
-		q, err := statsQuery(request.URL.Query())
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		c, err := mcptool.BuildCosts(request.Context(), store, q, cost.AgentContext)
-		respond(writer, c, err)
-	})
 	pricingHandlers(mux)
-	mux.HandleFunc("GET /context", func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "text/html; charset=utf-8")
-		writer.Write(contextHTML)
-	})
-	mux.HandleFunc("GET /api/context", func(writer http.ResponseWriter, request *http.Request) {
-		period, err := parseSince(cmp.Or(request.URL.Query().Get("since"), "14d"))
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		report, err := loadContext(claudeProjects(), min(max(period, time.Hour), 90*24*time.Hour), time.Now())
-		respond(writer, report, err)
-	})
-	mux.HandleFunc("GET /api/mcp", func(writer http.ResponseWriter, request *http.Request) {
-		review, err := loadReview(request.Context(), store, time.Now(), lazyChoices(), readPrefs().LearnedMCP)
-		respond(writer, review, err)
-	})
-	mux.HandleFunc("POST /api/mcp/lazy", setLazy(store))
-	mux.HandleFunc("POST /api/mcp/learn", learnNow(store))
-	mux.HandleFunc("POST /api/mcp/rules", setRules(store))
-	mux.HandleFunc("POST /api/mcp/optimize", optimizeMCP(store))
-	newLoginFlows(authStore(), tryOpenBrowser).handlers(mux)
-	mux.HandleFunc("GET /{$}", func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "text/html; charset=utf-8")
-		writer.Write(dashboardHTML)
-	})
-	mux.HandleFunc("GET /api/overview", func(writer http.ResponseWriter, request *http.Request) {
-		q, err := statsQuery(request.URL.Query())
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		o, err := mcptool.BuildOverview(request.Context(), store, q)
-		respond(writer, o, err)
-	})
-	mux.HandleFunc("GET /api/usage", func(writer http.ResponseWriter, request *http.Request) {
-		q, err := statsQuery(request.URL.Query())
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		models, err := store.UsageStats(request.Context(), q)
-		if err != nil {
-			respond(writer, nil, err)
-			return
-		}
-		days, err := store.UsageDays(request.Context(), q)
-		respond(writer, map[string]any{"models": nonNil(models), "days": nonNil(days)}, err)
-	})
-	mux.HandleFunc("GET /api/impact", func(writer http.ResponseWriter, request *http.Request) {
-		q, err := statsQuery(request.URL.Query())
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		days, err := store.Impact(request.Context(), q)
-		respond(writer, nonNil(fillImpact(days, q.Since, time.Now())), err)
-	})
-	mux.HandleFunc("GET /api/sessions", func(writer http.ResponseWriter, request *http.Request) {
-		q, err := statsQuery(request.URL.Query())
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		q.Session, q.By = "", component.BySession // the list offers every session of the period
-		stats, err := store.Stats(request.Context(), q)
-		respond(writer, mcptool.Report(q, stats).Groups, err)
-	})
-	mux.HandleFunc("GET /api/events", func(writer http.ResponseWriter, request *http.Request) {
-		q, err := statsQuery(request.URL.Query())
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		v := request.URL.Query()
-		after, _ := strconv.ParseUint(v.Get("after"), 10, strconv.IntSize)
-		before, _ := strconv.ParseUint(v.Get("before"), 10, strconv.IntSize)
-		limit, _ := strconv.Atoi(v.Get("limit"))
-		entries, err := store.Page(request.Context(), q, ledger.Page{After: uint(after), Before: uint(before),
-			Outcomes: outcomes(v), RawAsked: v.Get("raw") == "1", Limit: min(cmp.Or(limit, 100), 500)})
-		respond(writer, eventsJSON(entries), err)
-	})
-	mux.HandleFunc("GET /api/stream", func(writer http.ResponseWriter, request *http.Request) {
-		q, err := statsQuery(request.URL.Query())
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		stream(writer, request, store, q, ledger.Page{Outcomes: outcomes(request.URL.Query()), RawAsked: request.URL.Query().Get("raw") == "1"}, poll)
-	})
-	mux.HandleFunc("GET /api/raw/{id}", func(writer http.ResponseWriter, request *http.Request) {
-		// Unlike gascoigne raw, looking does not mark the source as failing:
-		// a person debugging is not an agent that lacked information.
-		key, p, err := store.GetRaw(request.Context(), request.PathValue("id"))
-		if err != nil {
-			http.Error(writer, "original not found (expired or unknown id)", http.StatusNotFound)
-			return
-		}
-		if hiddenKey(key) {
-			http.Error(writer, hiddenText, http.StatusForbidden)
-			return
-		}
-		writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		io.WriteString(writer, p.Text())
-	})
-	mux.HandleFunc("GET /api/out/{id}", func(writer http.ResponseWriter, request *http.Request) {
-		if key, _, err := store.GetRaw(request.Context(), request.PathValue("id")); err == nil && hiddenKey(key) {
-			http.Error(writer, hiddenText, http.StatusForbidden)
-			return
-		}
-		out, ok, err := store.GetOutput(request.Context(), request.PathValue("id"))
-		if err != nil || !ok {
-			http.Error(writer, "optimized output not kept for this run", http.StatusNotFound)
-			return
-		}
-		writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		io.WriteString(writer, out)
-	})
-	mux.HandleFunc("GET /api/failures", func(writer http.ResponseWriter, request *http.Request) {
-		fs, err := store.FailureList(request.Context())
-		type failure struct {
-			Key    string    `json:"key"`
-			Count  int       `json:"count"`
-			Last   time.Time `json:"last"`
-			Reason string    `json:"reason"`
-		}
-		out := make([]failure, len(fs))
-		for i, f := range fs {
-			out[i] = failure{f.Key, f.Count, f.Last, f.Reason}
-		}
-		respond(writer, out, err)
-	})
-	mux.HandleFunc("POST /api/forget", func(writer http.ResponseWriter, request *http.Request) {
-		if err := store.Forget(request.Context(), request.URL.Query().Get("key")); err != nil {
-			http.Error(writer, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		writer.WriteHeader(http.StatusNoContent)
-	})
+	assetHandlers(mux)
+	costHandlers(mux, store)
+	reportHandlers(mux, store)
+	runHandlers(mux, store, poll)
+	mcpHandlers(mux, store)
 	return localOnly(mux)
 }
 

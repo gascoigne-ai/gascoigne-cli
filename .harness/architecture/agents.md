@@ -49,7 +49,7 @@ Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay 
 
 ## Compaction window (`window.go`, experimental: `compaction`)
 
-One switch, in `gascoigne setup -experimental` (the `experiments` table in `setup.go`). While it is on, `syncClaude`
+One switch, in `gascoigne setup -experimental` (the `experiments` table in `setup_decisions.go`). While it is on, `syncClaude`
 (install, autosync, setup's rewrite) writes claude's `autoCompactWindow` = `compactWindow` (250k; Claude Code accepts
 100k-1M and caps it at the model's window); turning it off removes it on the next sync. No flag, no size to pick.
 The size gascoigne wrote is kept in prefs (`window`): `removeClaudeWindow` (also run by `unwrap`) drops the key only

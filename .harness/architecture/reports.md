@@ -110,9 +110,16 @@ Own page, shared `pages.css`/`pages.js` and nav, Period filter only (same period
 - The Context page says it covers Claude Code only, its Cost is the main conversation (the total with
   subagents is a tile beside it), and cache-rewrite causes are "likely".
 
-## Dashboard (`dashboard.go`)
+## Dashboard (`dashboard.go`, `dashboard_routes.go`)
 
 One embedded `dashboard.html`, no build step, serving the ledger live.
+- Routes: `dashboard()` only composes one handler group per file area: `serverHandlers` (health,
+  experiments, shutdown), `ledgerHandlers` (reset, originals, flush, failures, forget),
+  `costHandlers`, `reportHandlers`, `runHandlers` (events, stream, raw, out), `mcpHandlers` (review,
+  lazy, learn, rules, optimize, sign-in), `setupHandlers` and `pricingHandlers`. Pages and assets
+  are one table, `staticPages()` (pattern, content type, cache header, embedded bytes), served by
+  `assetHandlers`. `dashboard_routes_test.go` pins the route list (methods per path) and the
+  content types.
 - Tables (`lazyTable`): click a header to sort (numbers by value through a column's `sort`
   accessor; first click largest or A-Z, second reverses, third restores the server's order) and a
   filter box on every table; both survive live refreshes. The recent-runs feed does the same on
