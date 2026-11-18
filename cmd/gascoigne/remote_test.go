@@ -82,14 +82,15 @@ func hookRun(t *testing.T, cfgFile string) *payload.Payload {
 	if err != nil {
 		t.Fatal(err)
 	}
-	c := common{config: cfgFile, attrs: attrFlag{}, session: "s1", useServer: true, pipeline: "hook"}
+	out := &hookreceiver.Output{Text: string(text), Cmd: "go test ./..."}
+	c := common{config: cfgFile, attrs: attrFlag{}, session: "s1", useServer: true, pipeline: "hook",
+		factories: []component.Factory{hookreceiver.NewFactory(hookreceiver.WithOutput(out))}}
 	svc, err := c.start(t.Context())
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer svc.Shutdown(context.Background())
-	out := &hookreceiver.Output{Text: string(text), Cmd: "go test ./..."}
-	if err := svc.Run(hookreceiver.With(t.Context(), out), "hook"); err != nil {
+	if err := svc.Run(t.Context(), "hook"); err != nil {
 		t.Fatal(err)
 	}
 	if out.Result == nil || out.Result.Attrs[payload.AttrRawID] == "" {

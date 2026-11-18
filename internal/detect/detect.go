@@ -51,7 +51,7 @@ func fetchesPage(cmd string) bool {
 
 // refine swaps a generic type for a spec refining it whose sniffer matches.
 func refine(generic, text string) string {
-	for _, s := range specs {
+	for _, s := range specTable() {
 		if slices.Contains(s.Refines, generic) && s.Sniff(text, sample(text)) {
 			return s.Type
 		}

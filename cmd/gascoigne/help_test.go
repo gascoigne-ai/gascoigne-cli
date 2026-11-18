@@ -14,7 +14,7 @@ func TestOverviewListsCommands(t *testing.T) {
 	t.Setenv("GASCOIGNE_CONFIG", filepath.Join(t.TempDir(), "none.yaml"))
 	var b bytes.Buffer
 	printOverview(&b)
-	for _, c := range commandList {
+	for _, c := range commandList() {
 		listed := strings.Contains(b.String(), "\n  "+c.name+" ") || strings.Contains(b.String(), "\n  "+c.name+"\n")
 		if listed != (c.group != "" && available(c)) {
 			t.Errorf("%s: listed %v, group %q", c.name, listed, c.group)
@@ -65,7 +65,7 @@ func TestExperimentalCommands(t *testing.T) {
 
 func TestEveryCommandHasHelp(t *testing.T) {
 	sandbox(t)
-	for _, c := range commandList {
+	for _, c := range commandList() {
 		if c.name == "help" {
 			continue
 		}

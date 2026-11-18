@@ -151,34 +151,34 @@ func TestReleaseNudgeOpensThePageOnce(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if releaseNudge("startup") != "" {
+	if releaseNudge("startup", tryOpenBrowser) != "" {
 		t.Fatal("nothing known yet")
 	}
 	save(version.Number) // the release being run
-	if releaseNudge("startup") != "" {
+	if releaseNudge("startup", tryOpenBrowser) != "" {
 		t.Fatal("not newer than this one")
 	}
 	save("99.0.0")
-	if releaseNudge("compact") != "" || releaseNudge("clear") != "" {
+	if releaseNudge("compact", tryOpenBrowser) != "" || releaseNudge("clear", tryOpenBrowser) != "" {
 		t.Fatal("a compaction or /clear is not a new session")
 	}
-	note := releaseNudge("startup")
+	note := releaseNudge("startup", tryOpenBrowser)
 	if !strings.Contains(note, "99.0.0 is out") || !strings.Contains(note, "https://site/releases/99.0.0/") || !strings.Contains(note, "gascoigne upgrade") {
 		t.Fatalf("note: %q", note)
 	}
 	if readPrefs().SeenRelease != "99.0.0" {
 		t.Error("the shown release is remembered")
 	}
-	if releaseNudge("resume") != "" {
+	if releaseNudge("resume", tryOpenBrowser) != "" {
 		t.Fatal("a release page opens once")
 	}
 	save("99.1.0")
-	if !strings.Contains(releaseNudge("startup"), "99.1.0") {
+	if !strings.Contains(releaseNudge("startup", tryOpenBrowser), "99.1.0") {
 		t.Fatal("the next release opens its own page")
 	}
 	t.Setenv("GASCOIGNE_RELEASE_CHECK", "off")
 	save("99.2.0")
-	if releaseNudge("startup") != "" {
+	if releaseNudge("startup", tryOpenBrowser) != "" {
 		t.Fatal("off: no page")
 	}
 }
@@ -210,26 +210,24 @@ func TestReleaseNudgeRetriesWhenThePageDoesNotOpen(t *testing.T) {
 	t.Setenv("CI", "")
 	var opened []string
 	works := false
-	prev := openPage
-	openPage = func(address string) bool { opened = append(opened, address); return works }
-	t.Cleanup(func() { openPage = prev })
+	openPage := func(address string) bool { opened = append(opened, address); return works }
 	if err := (release{ID: "99.0.0", URL: "https://site/releases/99.0.0/", CheckedAt: time.Now()}).save(); err != nil {
 		t.Fatal(err)
 	}
-	if note := releaseNudge("startup"); !strings.Contains(note, "99.0.0 is out") {
+	if note := releaseNudge("startup", openPage); !strings.Contains(note, "99.0.0 is out") {
 		t.Fatalf("the agent is told even when no page opens: %q", note)
 	}
 	if readPrefs().SeenRelease == "99.0.0" {
 		t.Fatal("an unopened page is not remembered as seen")
 	}
 	works = true
-	if releaseNudge("startup") == "" || len(opened) != 2 {
+	if releaseNudge("startup", openPage) == "" || len(opened) != 2 {
 		t.Fatalf("tried again: opened %v", opened)
 	}
 	if readPrefs().SeenRelease != "99.0.0" {
 		t.Fatal("remembered once opened")
 	}
-	if releaseNudge("startup") != "" || len(opened) != 2 {
+	if releaseNudge("startup", openPage) != "" || len(opened) != 2 {
 		t.Fatalf("opens once: %v", opened)
 	}
 }
@@ -243,13 +241,11 @@ func TestPromptChecksAndOpensNewRelease(t *testing.T) {
 	base, hits := site(t, `{"id":"99.0.0"}`, 200)
 	t.Setenv("GASCOIGNE_RELEASE_URL", base)
 	var opened []string
-	prev := openPage
-	openPage = func(address string) bool { opened = append(opened, address); return true }
-	t.Cleanup(func() { openPage = prev })
+	openPage := func(address string) bool { opened = append(opened, address); return true }
 
 	for range 2 {
 		checkReleaseQuick(t.Context())
-		releaseNudge("prompt")
+		releaseNudge("prompt", openPage)
 	}
 	if hits.Load() != 1 || len(opened) != 1 {
 		t.Fatalf("one read, one page: hits %d, opened %v", hits.Load(), opened)
@@ -258,7 +254,7 @@ func TestPromptChecksAndOpensNewRelease(t *testing.T) {
 	r.CheckedAt = time.Now().Add(-releaseEvery - time.Minute)
 	r.save()
 	checkReleaseQuick(t.Context())
-	if releaseNudge("prompt"); hits.Load() != 2 || len(opened) != 1 {
+	if releaseNudge("prompt", openPage); hits.Load() != 2 || len(opened) != 1 {
 		t.Fatalf("read again after 15 min, page not reopened: hits %d, opened %v", hits.Load(), opened)
 	}
 }

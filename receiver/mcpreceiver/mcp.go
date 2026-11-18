@@ -31,6 +31,16 @@ type Receiver struct {
 	http      *http.Client
 	sessions  *mcptool.Sessions
 	fetched   *fetchCache
+	identity  mcptool.Identity
+}
+
+// Option sets one input of the receiver, in the factory.
+type Option func(*Receiver)
+
+// WithIdentity sets the explicit session, agent and model of the tool calls
+// this receiver records, for example from command-line flags.
+func WithIdentity(id mcptool.Identity) Option {
+	return func(rec *Receiver) { rec.identity = id }
 }
 
 func (r *Receiver) Start(_ context.Context, host component.Host) error {
@@ -45,7 +55,7 @@ func (r *Receiver) Start(_ context.Context, host component.Host) error {
 func (r *Receiver) Shutdown(context.Context) error { return nil }
 
 func (r *Receiver) Run(ctx context.Context) error {
-	r.sessions = mcptool.NewSessions(ctx)
+	r.sessions = mcptool.NewSessions(r.identity)
 	return r.server().Run(ctx, r.transport)
 }
 

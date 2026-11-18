@@ -39,7 +39,7 @@ var pagesJS []byte
 // opens it in a browser.
 func cmdDashboard(ctx context.Context, args []string) error {
 	checkReleaseQuick(ctx)
-	if note := releaseNudge("dashboard"); note != "" {
+	if note := releaseNudge("dashboard", tryOpenBrowser); note != "" {
 		fmt.Fprintln(os.Stderr, note)
 	}
 	return cmdServer(ctx, append([]string{"start", "-open"}, args...))

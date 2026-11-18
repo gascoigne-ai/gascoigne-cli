@@ -238,7 +238,7 @@ var sniffInline = map[string]string{
 }
 
 func TestDialectMatrix(t *testing.T) {
-	for _, s := range specs {
+	for _, s := range specTable() {
 		if IsRow(s.Type) {
 			continue // rows carry their own examples (TestRows)
 		}

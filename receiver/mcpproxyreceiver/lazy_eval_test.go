@@ -68,7 +68,9 @@ func startProxy(t *testing.T, down *mcp.Server, cfg *Config, lazy map[string][]s
 	led := &statLedger{calls: map[string]int{}, listed: make(chan struct{})}
 	upServerT, upClientT := mcp.NewInMemoryTransports()
 	r := &Receiver{cfg: cfg, next: pipeline{}, log: slog.New(slog.DiscardHandler), ledger: led, upstream: upServerT}
-	go r.Run(WithLazy(WithTransport(ctx, downClientT), lazy))
+	WithTransport(downClientT)(r)
+	WithLazy(lazy)(r)
+	go r.Run(ctx)
 	cs, err := mcp.NewClient(&mcp.Implementation{Name: "agent", Version: "0"}, nil).Connect(ctx, upClientT, nil)
 	if err != nil {
 		t.Fatal(err)

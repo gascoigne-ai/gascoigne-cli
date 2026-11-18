@@ -27,7 +27,7 @@ func Sniff(text string) string {
 	}
 	// Full text is passed on (JSON validity needs all of it); lines are sampled.
 	lines := sample(text)
-	for _, s := range specs {
+	for _, s := range specTable() {
 		if s.Sniff != nil && s.Sniff(text, lines) {
 			return s.Type
 		}

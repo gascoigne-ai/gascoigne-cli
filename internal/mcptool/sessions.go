@@ -1,7 +1,6 @@
 package mcptool
 
 import (
-	"context"
 	"fmt"
 	"math/rand/v2"
 	"time"
@@ -11,18 +10,11 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
-type identityKey struct{}
-
 // Identity is who tool calls run for; empty fields are resolved per call.
 type Identity struct{ Session, Agent, Model string }
 
-// WithIdentity sets explicit identity (e.g. from CLI flags) for MCP servers run with ctx.
-func WithIdentity(ctx context.Context, id Identity) context.Context {
-	return context.WithValue(ctx, identityKey{}, id)
-}
-
-// Sessions resolves the identity of tool calls: explicit values from the
-// context first; else the MCP transport's session id (or one generated per
+// Sessions resolves the identity of tool calls: explicit values given to
+// NewSessions first; else the MCP transport's session id (or one generated per
 // server run) and the client's name as agent.
 type Sessions struct {
 	explicit  Identity
@@ -30,9 +22,8 @@ type Sessions struct {
 }
 
 // NewSessions returns a Sessions that falls back to one id generated per server run
-// when the context names no session.
-func NewSessions(ctx context.Context) *Sessions {
-	explicit, _ := ctx.Value(identityKey{}).(Identity)
+// when the explicit identity names no session.
+func NewSessions(explicit Identity) *Sessions {
 	return &Sessions{explicit: explicit, generated: fmt.Sprintf("mcp-%s-%04x", time.Now().Format("20060102-150405"), rand.N(1<<16))}
 }
 

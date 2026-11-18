@@ -151,13 +151,10 @@ func checkReleaseQuick(ctx context.Context) {
 	}
 }
 
-// openPage opens a release page; a test replaces it.
-var openPage = tryOpenBrowser
-
 // releaseNudge is what a session start does when a newer release than the
 // running one is known (from the file checkRelease saved): open its
-// page once, and tell the agent. A compaction or /clear is not a new session.
-func releaseNudge(source string) string {
+// page once with open, and tell the agent. A compaction or /clear is not a new session.
+func releaseNudge(source string, open func(address string) bool) string {
 	if source == "compact" || source == "clear" || !releaseCheckOn() {
 		return ""
 	}
@@ -168,7 +165,7 @@ func releaseNudge(source string) string {
 	}
 	// Remembered only once the page opened (or opening is off), so a session
 	// without a desktop does not use up the release.
-	if os.Getenv("CI") != "" || openPage(r.URL) {
+	if os.Getenv("CI") != "" || open(r.URL) {
 		p.SeenRelease = r.ID
 		if p.save() != nil {
 			return ""

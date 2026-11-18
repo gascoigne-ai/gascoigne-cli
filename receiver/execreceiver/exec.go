@@ -1,6 +1,6 @@
 // Package execreceiver runs a command and feeds its combined output through
 // the pipeline, so agents can wrap any shell command: gascoigne exec -- go test ./...
-// The command comes from the context (see With), set per CLI invocation.
+// The command comes from an option set in the factory (see WithInvocation), once per CLI invocation.
 package execreceiver
 
 import (
@@ -29,24 +29,26 @@ type Invocation struct {
 	ExitCode int
 }
 
-type ctxKey struct{}
+// Option sets one input of the exec receiver, in the factory.
+type Option func(*Receiver)
 
-// With attaches inv to ctx for the exec receiver.
-func With(ctx context.Context, inv *Invocation) context.Context {
-	return context.WithValue(ctx, ctxKey{}, inv)
+// WithInvocation sets the command run by the receiver; Run fills in its ExitCode.
+func WithInvocation(inv *Invocation) Option {
+	return func(rec *Receiver) { rec.inv = inv }
 }
 
-// Receiver runs the command from the context and sends its output down the pipeline.
+// Receiver runs its invocation and sends the output down the pipeline.
 type Receiver struct {
 	component.Nop
 	cfg  *Config
 	next component.Pipeline
+	inv  *Invocation
 }
 
-// Run executes the invocation from ctx; without one it does nothing.
+// Run executes the invocation set by WithInvocation; without one it does nothing.
 func (r *Receiver) Run(ctx context.Context) error {
-	inv, ok := ctx.Value(ctxKey{}).(*Invocation)
-	if !ok || len(inv.Args) == 0 {
+	inv := r.inv
+	if inv == nil || len(inv.Args) == 0 {
 		return nil
 	}
 	var out bytes.Buffer

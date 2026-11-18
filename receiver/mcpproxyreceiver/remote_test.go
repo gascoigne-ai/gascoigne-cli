@@ -53,7 +53,8 @@ func TestRemote(t *testing.T) {
 				upstream: upServerT,
 			}
 			remote := Remote{URL: srv.URL, SSE: tc.sse, Auto: tc.auto, Headers: map[string]string{"Authorization": "Bearer k"}}
-			go r.Run(WithRemote(t.Context(), remote))
+			WithRemote(remote)(r)
+			go r.Run(t.Context())
 
 			cs, err := mcp.NewClient(&mcp.Implementation{Name: "agent", Version: "0"}, nil).Connect(t.Context(), upClientT, nil)
 			if err != nil {
@@ -111,7 +112,8 @@ func TestRemoteLoginNeeded(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			r := &Receiver{cfg: &Config{Retrieve: "r"}, next: pipeline{}, log: slog.New(slog.DiscardHandler)}
-			err := r.Run(WithRemote(t.Context(), Remote{URL: srv.URL + "?key=secret", Headers: tc.headers}))
+			WithRemote(Remote{URL: srv.URL + "?key=secret", Headers: tc.headers})(r)
+			err := r.Run(t.Context())
 			if err == nil || !strings.Contains(err.Error(), tc.want) || strings.Contains(err.Error(), "secret") {
 				t.Fatalf("err = %v, want %q", err, tc.want)
 			}
@@ -137,7 +139,8 @@ func TestRemoteLoginInProxy(t *testing.T) {
 	}
 	upServerT, upClientT := mcp.NewInMemoryTransports()
 	r := &Receiver{cfg: &Config{Retrieve: "gascoigne_retrieve"}, next: pipeline{}, log: slog.New(slog.DiscardHandler), ledger: ledger{}, upstream: upServerT}
-	go r.Run(WithRemote(t.Context(), Remote{URL: url, Store: store, Login: login}))
+	WithRemote(Remote{URL: url, Store: store, Login: login})(r)
+	go r.Run(t.Context())
 
 	cs, err := mcp.NewClient(&mcp.Implementation{Name: "agent", Version: "0"}, nil).Connect(t.Context(), upClientT, nil)
 	if err != nil {
@@ -182,7 +185,8 @@ func TestLoginToolReturnsAddress(t *testing.T) {
 	store := &mcpauth.Store{Path: filepath.Join(t.TempDir(), "mcp-auth.json")}
 	upServerT, upClientT := mcp.NewInMemoryTransports()
 	r := &Receiver{cfg: &Config{Retrieve: "gascoigne_retrieve"}, next: pipeline{}, log: slog.New(slog.DiscardHandler), ledger: ledger{}, upstream: upServerT}
-	go r.Run(WithRemote(t.Context(), Remote{URL: url, Store: store})) // nobody completes the login
+	WithRemote(Remote{URL: url, Store: store})(r)
+	go r.Run(t.Context()) // nobody completes the login
 
 	cs, err := mcp.NewClient(&mcp.Implementation{Name: "agent", Version: "0"}, nil).Connect(t.Context(), upClientT, nil)
 	if err != nil {

@@ -41,13 +41,22 @@ type Receiver struct {
 	upstream mcp.Transport
 	sessions *mcptool.Sessions
 	server   string // serverID of the downstream server, the key of its tool stats
+
+	// The inputs the options set; each overrides the config or fills what it lacks.
+	command   []string
+	remote    *Remote
+	lazy      map[string][]string
+	rules     map[string][]Rule
+	transport mcp.Transport
+	identity  mcptool.Identity
 }
 
-type ctxKey struct{}
+// Option sets one input of the receiver, in the factory.
+type Option func(*Receiver)
 
-// With sets the downstream server command for this run, overriding config.
-func With(ctx context.Context, command []string) context.Context {
-	return context.WithValue(ctx, ctxKey{}, command)
+// WithCommand sets the downstream server command for this run, overriding config.
+func WithCommand(command []string) Option {
+	return func(rec *Receiver) { rec.command = command }
 }
 
 // Remote is a downstream MCP server reached over HTTP instead of a command.
@@ -69,30 +78,27 @@ type Remote struct {
 // proxy, often without a display or a long life.
 type LoginFunc func(ctx context.Context, serverURL string, shown func(authURL string)) error
 
-type remoteKey struct{}
-
 // WithRemote sets the downstream remote server for this run, overriding config.
-func WithRemote(ctx context.Context, remote Remote) context.Context {
-	return context.WithValue(ctx, remoteKey{}, remote)
+func WithRemote(remote Remote) Option {
+	return func(rec *Receiver) { rec.remote = &remote }
 }
-
-type lazyKey struct{}
 
 // WithLazy sets which tools each proxied server offers on request only: tool
 // names by server id (see serverID). Read when the proxy starts, so a change
 // reaches the next session and a session's tool list never changes.
-func WithLazy(ctx context.Context, choices map[string][]string) context.Context {
-	return context.WithValue(ctx, lazyKey{}, choices)
-}
-
-func lazyChoices(ctx context.Context) map[string][]string {
-	c, _ := ctx.Value(lazyKey{}).(map[string][]string)
-	return c
+func WithLazy(choices map[string][]string) Option {
+	return func(rec *Receiver) { rec.lazy = choices }
 }
 
 // WithTransport sets the downstream transport directly (tests, in-process servers).
-func WithTransport(ctx context.Context, transport mcp.Transport) context.Context {
-	return context.WithValue(ctx, ctxKey{}, transport)
+func WithTransport(transport mcp.Transport) Option {
+	return func(rec *Receiver) { rec.transport = transport }
+}
+
+// WithIdentity sets the explicit session, agent and model of the tool calls
+// this receiver records, for example from command-line flags.
+func WithIdentity(id mcptool.Identity) Option {
+	return func(rec *Receiver) { rec.identity = id }
 }
 
 func (r *Receiver) Start(_ context.Context, host component.Host) error {
@@ -109,22 +115,22 @@ func (r *Receiver) Shutdown(context.Context) error { return nil }
 // Run proxies until the agent disconnects; without a downstream it does nothing.
 func (r *Receiver) Run(ctx context.Context) error {
 	var unauthorized atomic.Bool
-	down := r.downstream(ctx, &unauthorized)
+	down := r.downstream(&unauthorized)
 	if down == nil {
 		return nil
 	}
-	r.sessions = mcptool.NewSessions(ctx)
+	r.sessions = mcptool.NewSessions(r.identity)
 	client := mcp.NewClient(&mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}, nil)
 	cs, err := client.Connect(ctx, down, nil)
-	if rm := r.remote(ctx); err != nil && rm.Auto && rm.URL != "" && !rm.SSE {
+	if rm := r.remoteServer(); err != nil && rm.Auto && rm.URL != "" && !rm.SSE {
 		rm.SSE = true
 		cs, err = client.Connect(ctx, rm.transport(&unauthorized), nil)
 	}
 	if err != nil {
-		if rm := r.remote(ctx); unauthorized.Load() && canLogin(rm) {
+		if rm := r.remoteServer(); unauthorized.Load() && canLogin(rm) {
 			return r.runLogin(ctx, client, rm)
 		}
-		return fmt.Errorf("connect downstream: %w", r.explainAuth(ctx, err, unauthorized.Load()))
+		return fmt.Errorf("connect downstream: %w", r.explainAuth(err, unauthorized.Load()))
 	}
 	defer cs.Close()
 
@@ -144,7 +150,7 @@ func (r *Receiver) Run(ctx context.Context) error {
 // tool. Stats (the middleware) only before the server runs: middleware cannot
 // be added to a running server, so a late login goes without.
 func (r *Receiver) populate(ctx context.Context, server *mcp.Server, cs *mcp.ClientSession, info *mcp.Implementation, stats bool) error {
-	r.server = serverID(info.Name, r.identity(ctx))
+	r.server = serverID(info.Name, r.serverIdentity())
 	tools, err := r.downstreamTools(ctx, cs)
 	if err != nil {
 		return err
@@ -236,8 +242,8 @@ func (r *Receiver) registerTools(server *mcp.Server, cs *mcp.ClientSession, tool
 // rest. Nothing is lazy when the server has a tool named like one of the two
 // tools that reach lazy ones.
 func (r *Receiver) splitLazy(ctx context.Context, tools []*mcp.Tool) (direct, lazy []*mcp.Tool) {
-	chosen := lazyChoices(ctx)[r.server]
-	rules := r.rulesFor(ctx)
+	chosen := r.lazy[r.server]
+	rules := r.rulesFor()
 	if len(chosen) == 0 && len(rules) == 0 {
 		return tools, nil
 	}
@@ -319,23 +325,23 @@ func compactSchema(name string, in any) any {
 	return s
 }
 
-func (r *Receiver) downstream(ctx context.Context, unauthorized *atomic.Bool) mcp.Transport {
-	if t, ok := ctx.Value(ctxKey{}).(mcp.Transport); ok {
-		return t
+func (r *Receiver) downstream(unauthorized *atomic.Bool) mcp.Transport {
+	if r.transport != nil {
+		return r.transport
 	}
-	if rm := r.remote(ctx); rm.URL != "" {
+	if rm := r.remoteServer(); rm.URL != "" {
 		return rm.transport(unauthorized)
 	}
-	if c := r.command(ctx); len(c) > 0 {
+	if c := r.commandLine(); len(c) > 0 {
 		return &mcp.CommandTransport{Command: exec.Command(c[0], c[1:]...)}
 	}
 	return nil
 }
 
-// remote is the downstream remote server: the one passed for this run, else the configured one.
-func (r *Receiver) remote(ctx context.Context) Remote {
-	if rm, ok := ctx.Value(remoteKey{}).(Remote); ok {
-		return rm
+// remoteServer is the downstream remote server: the one passed for this run, else the configured one.
+func (r *Receiver) remoteServer() Remote {
+	if r.remote != nil {
+		return *r.remote
 	}
 	return Remote{URL: r.cfg.URL, SSE: r.cfg.SSE, Headers: r.cfg.Headers}
 }
@@ -372,8 +378,8 @@ func (t headerTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 
 // explainAuth names the fix when a remote server refused us: a 401 without
 // any login means OAuth, which the proxy cannot start itself.
-func (r *Receiver) explainAuth(ctx context.Context, err error, unauthorized bool) error {
-	rm := r.remote(ctx)
+func (r *Receiver) explainAuth(err error, unauthorized bool) error {
+	rm := r.remoteServer()
 	switch {
 	case !unauthorized || rm.URL == "" || errors.Is(err, mcpauth.ErrLoginNeeded):
 		return err
@@ -394,18 +400,18 @@ func hasAuthorization(headers map[string]string) bool {
 
 // identity is what tells downstream servers apart for serverID: the command
 // line, or the URL of a remote server (it can hold keys, so only its hash is kept).
-func (r *Receiver) identity(ctx context.Context) []string {
-	if rm := r.remote(ctx); rm.URL != "" {
+func (r *Receiver) serverIdentity() []string {
+	if rm := r.remoteServer(); rm.URL != "" {
 		return []string{rm.URL}
 	}
-	return r.command(ctx)
+	return r.commandLine()
 }
 
 // command is the downstream server's command line: the one passed for this
 // run, else the configured one.
-func (r *Receiver) command(ctx context.Context) []string {
-	if c, ok := ctx.Value(ctxKey{}).([]string); ok && len(c) > 0 {
-		return c
+func (r *Receiver) commandLine() []string {
+	if len(r.command) > 0 {
+		return r.command
 	}
 	return r.cfg.Command
 }
@@ -439,7 +445,7 @@ func (r *Receiver) forward(cs *mcp.ClientSession, name string) mcp.ToolHandler {
 // call runs a downstream tool and optimizes its text results.
 func (r *Receiver) call(ctx context.Context, cs *mcp.ClientSession, name string, args any, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	r.recordCall(ctx, req, name)
-	rules := r.rulesFor(ctx)
+	rules := r.rulesFor()
 	res, err := cs.CallTool(ctx, &mcp.CallToolParams{Name: name, Arguments: args})
 	if err != nil {
 		return nil, err

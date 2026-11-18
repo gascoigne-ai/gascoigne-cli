@@ -37,7 +37,8 @@ func TestRun(t *testing.T) {
 			next := &capture{}
 			r := &Receiver{cfg: &Config{Kind: payload.CmdOutput}, next: next}
 			inv := &Invocation{Args: tt.args, Stdin: strings.NewReader("")}
-			err := r.Run(With(t.Context(), inv))
+			WithInvocation(inv)(r)
+			err := r.Run(t.Context())
 			if (err != nil) != tt.wantErr || inv.ExitCode != tt.wantCode {
 				t.Fatalf("err %v, code %d", err, inv.ExitCode)
 			}
@@ -77,7 +78,8 @@ exit 130`
 	next := &collect{}
 	r := &Receiver{cfg: &Config{Kind: payload.CmdOutput}, next: next}
 	inv := &Invocation{Args: []string{"sh", "-c", script}, Stdin: strings.NewReader(""), Watch: true}
-	if err := r.Run(With(t.Context(), inv)); err != nil {
+	WithInvocation(inv)(r)
+	if err := r.Run(t.Context()); err != nil {
 		t.Fatal(err)
 	}
 	if len(next.got) != 3 || !strings.HasSuffix(next.got[0], "Found 1 error. Watching for file changes.\n") ||
@@ -104,7 +106,8 @@ echo "[7:00:02 AM] Found 1 error. Watching for file changes."
 while :; do echo more; done`
 	r := &Receiver{cfg: &Config{Kind: payload.CmdOutput}, next: failNext{}}
 	inv := &Invocation{Args: []string{"sh", "-c", script}, Stdin: strings.NewReader(""), Watch: true}
-	if err := r.Run(With(ctx, inv)); err == nil || err.Error() != "boom" {
+	WithInvocation(inv)(r)
+	if err := r.Run(ctx); err == nil || err.Error() != "boom" {
 		t.Fatalf("err %v", err)
 	}
 	b, err := os.ReadFile(pidFile)

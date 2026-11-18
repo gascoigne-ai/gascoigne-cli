@@ -5,6 +5,7 @@ import (
 	"path"
 	"slices"
 	"strings"
+	"sync"
 )
 
 // Spec declares a dialect: how to recognize it from a command, a file name,
@@ -33,13 +34,20 @@ type Spec struct {
 // Sniffer recognizes content from the full text and sampled, ANSI-stripped lines.
 type Sniffer func(text string, lines []string) bool
 
-var specs []Spec
+// declared holds the specs in the order the family files declare them. Only
+// register writes to it, during package initialization.
+var declared []Spec
 
 // register adds dialect specs; family files call it from init.
 func register(added ...Spec) {
-	specs = append(specs, added...)
-	slices.SortStableFunc(specs, func(left, right Spec) int { return cmp.Compare(left.Priority, right.Priority) })
+	declared = append(declared, added...)
 }
+
+// specTable returns the specs ordered by priority, built once on first use. The
+// sort is stable, so specs of equal priority keep their declaration order.
+var specTable = sync.OnceValue(func() []Spec {
+	return slices.SortedStableFunc(slices.Values(declared), func(left, right Spec) int { return cmp.Compare(left.Priority, right.Priority) })
+})
 
 // fileReaders print a file: their type comes from the file name.
 var fileReaders = map[string]bool{"cat": true, "head": true, "tail": true, "bat": true, "less": true, "more": true, "sed": true}
@@ -72,7 +80,7 @@ func FromCmd(cmd string) string {
 		return Code
 	}
 	best, score := "", 0
-	for _, s := range specs {
+	for _, s := range specTable() {
 		if n := s.matchCmd(args); n > score {
 			best, score = s.Type, n
 		}
@@ -140,7 +148,7 @@ func FromFile(name string) string {
 		return ""
 	}
 	base := strings.ToLower(path.Base(name))
-	for _, s := range specs {
+	for _, s := range specTable() {
 		for _, g := range s.Files {
 			if ok, _ := path.Match(g, base); ok {
 				return s.Type
@@ -157,7 +165,7 @@ func FromFile(name string) string {
 func FromMIME(mime string) string {
 	mime, _, _ = strings.Cut(strings.ToLower(mime), ";")
 	mime = strings.TrimSpace(mime)
-	for _, s := range specs {
+	for _, s := range specTable() {
 		if slices.Contains(s.MIME, mime) {
 			return s.Type
 		}

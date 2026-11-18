@@ -1,7 +1,6 @@
 package mcpproxyreceiver
 
 import (
-	"context"
 	"fmt"
 	"path"
 	"slices"
@@ -66,16 +65,13 @@ func Resolve(rules []Rule, server, tool string) Action {
 	return ""
 }
 
-type rulesKey struct{}
-
 // WithRules sets the rules saved outside the config (the review page's), by
 // server id. They are tried after the config's own.
-func WithRules(ctx context.Context, rules map[string][]Rule) context.Context {
-	return context.WithValue(ctx, rulesKey{}, rules)
+func WithRules(rules map[string][]Rule) Option {
+	return func(rec *Receiver) { rec.rules = rules }
 }
 
 // rulesFor are the rules of this server: the config's first, then the saved ones.
-func (r *Receiver) rulesFor(ctx context.Context) []Rule {
-	saved, _ := ctx.Value(rulesKey{}).(map[string][]Rule)
-	return slices.Concat(r.cfg.Rules, saved[r.server])
+func (r *Receiver) rulesFor() []Rule {
+	return slices.Concat(r.cfg.Rules, r.rules[r.server])
 }

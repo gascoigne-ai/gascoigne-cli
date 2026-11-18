@@ -12,19 +12,23 @@ import (
 const typ = "mcp"
 
 // NewFactory returns the factory that builds the "mcp" receiver.
-func NewFactory() component.Factory {
+func NewFactory(opts ...Option) component.Factory {
 	return component.NewFactory(component.KindReceiver, typ,
 		func() *Config {
 			return &Config{Retrieve: "retrieve", FetchTimeout: defaultTimeout, FetchMaxBytes: 5 << 20}
 		},
 		func(_ context.Context, set component.Settings, cfg *Config) (component.Component, error) {
-			return &Receiver{
+			r := &Receiver{
 				cfg:       cfg,
 				next:      set.Pipeline,
 				log:       set.Logger,
 				transport: &mcp.StdioTransport{},
 				http:      &http.Client{Timeout: cfg.FetchTimeout},
 				fetched:   newFetchCache(),
-			}, nil
+			}
+			for _, opt := range opts {
+				opt(r)
+			}
+			return r, nil
 		})
 }

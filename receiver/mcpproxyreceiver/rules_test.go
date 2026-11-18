@@ -60,8 +60,8 @@ func TestRuleValidate(t *testing.T) {
 
 func TestSavedRulesFollowConfigRules(t *testing.T) {
 	r := &Receiver{server: "git#aaaa1111", cfg: &Config{Rules: []Rule{{"a", ActionSkip}}}}
-	ctx := WithRules(t.Context(), map[string][]Rule{"git#aaaa1111": {{"b", ActionLazy}}, "other#1": {{"c", ActionLazy}}})
-	got := r.rulesFor(ctx)
+	WithRules(map[string][]Rule{"git#aaaa1111": {{"b", ActionLazy}}, "other#1": {{"c", ActionLazy}}})(r)
+	got := r.rulesFor()
 	if len(got) != 2 || got[0].Match != "a" || got[1].Match != "b" {
 		t.Fatalf("rules %v: want the config's, then this server's saved ones", got)
 	}

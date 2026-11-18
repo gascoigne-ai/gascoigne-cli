@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/hint"
 	"maps"
 	"os"
@@ -106,7 +107,7 @@ func sessionNotes(ctx context.Context, in hookInput) string {
 	if in.HookEventName != "SessionStart" { // a prompt event leaves asking to the session start
 		return note
 	}
-	setup, release := setupNudge(in.Source), releaseNudge(in.Source)
+	setup, release := setupNudge(in.Source), releaseNudge(in.Source, tryOpenBrowser)
 	notes := []string{note, setup, release, mcpNudge(in.Source, setup != "" || release != ""), learnNudge(ctx, in.Source)}
 	return strings.Join(slices.DeleteFunc(notes, func(note string) bool { return note == "" }), " ")
 }
@@ -117,7 +118,7 @@ func promptHook(ctx context.Context, in hookInput) error {
 	// The server exits when idle; a prompt is where an agent starts
 	// talking to its API again, so bring it back first. It is also where a
 	// release that appeared mid-session opens its page (the reply stays empty).
-	releaseNudge("prompt")
+	releaseNudge("prompt", tryOpenBrowser)
 	if !serverOff() {
 		if err := serverUp(ctx); err != nil {
 			fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
@@ -219,12 +220,13 @@ func shellOutput(raw json.RawMessage) (string, int, bool) {
 // optimize runs text through the hook pipeline.
 func (c *common) optimize(ctx context.Context, text, cmd string) (*payload.Payload, error) {
 	c.server, c.useServer, c.project, c.pipeline = true, true, true, "hook"
+	out := &hookreceiver.Output{Text: text, Cmd: cmd}
+	c.factories = []component.Factory{hookreceiver.NewFactory(hookreceiver.WithOutput(out))}
 	svc, err := c.start(ctx)
 	if err != nil {
 		return nil, err
 	}
-	out := &hookreceiver.Output{Text: text, Cmd: cmd}
-	runErr := svc.Run(hookreceiver.With(ctx, out), "hook")
+	runErr := svc.Run(ctx, "hook")
 	return out.Result, errors.Join(runErr, svc.Shutdown(context.WithoutCancel(ctx)))
 }
 

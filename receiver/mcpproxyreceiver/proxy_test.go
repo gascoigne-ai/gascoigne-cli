@@ -55,7 +55,8 @@ func TestProxy(t *testing.T) {
 		ledger:   ledger{},
 		upstream: upServerT,
 	}
-	go r.Run(WithTransport(ctx, downClientT))
+	WithTransport(downClientT)(r)
+	go r.Run(ctx)
 
 	cs, err := mcp.NewClient(&mcp.Implementation{Name: "agent", Version: "0"}, nil).Connect(ctx, upClientT, nil)
 	if err != nil {

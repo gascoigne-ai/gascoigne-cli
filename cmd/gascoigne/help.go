@@ -8,6 +8,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
 )
@@ -49,19 +50,23 @@ const (
 
 var groups = []string{groupAgents, groupOptimize, groupSavings, groupServer, groupDev}
 
-// commandList is filled in init: the command funcs refer back to help.
-var commandList []command
+// commandList is the command table, built on first use. It is assigned in init
+// because the command funcs refer back to help, which a variable initializer
+// cannot do without an initialization cycle.
+var commandList func() []command
 
 func init() {
-	commandList = slices.Concat(agentCommands(), optimizeCommands(), ledgerCommands(), insightCommands(), dashboardAndDevCommands())
+	commandList = sync.OnceValue(func() []command {
+		return slices.Concat(agentCommands(), optimizeCommands(), ledgerCommands(), insightCommands(), dashboardAndDevCommands())
+	})
 }
 
 func lookup(name string) (command, bool) {
-	i := slices.IndexFunc(commandList, func(cmd command) bool { return cmd.name == name && available(cmd) })
+	i := slices.IndexFunc(commandList(), func(cmd command) bool { return cmd.name == name && available(cmd) })
 	if i < 0 {
 		return command{}, false
 	}
-	return commandList[i], true
+	return commandList()[i], true
 }
 
 func cmdHelp(ctx context.Context, args []string) error {
@@ -82,7 +87,7 @@ func cmdHelp(ctx context.Context, args []string) error {
 }
 
 func unknownCommand(name string) error {
-	if i := slices.IndexFunc(commandList, func(cmd command) bool { return cmd.name == name }); i >= 0 {
+	if i := slices.IndexFunc(commandList(), func(cmd command) bool { return cmd.name == name }); i >= 0 {
 		return fmt.Errorf("%q is experimental: turn it on with gascoigne setup -experimental, add it to experimental in the config, or set GASCOIGNE_EXPERIMENTAL=%s", name, name)
 	}
 	msg := fmt.Sprintf("unknown command %q", name)
@@ -95,7 +100,7 @@ func unknownCommand(name string) error {
 // suggest is the command a typo or prefix most likely meant, if any is close.
 func suggest(name string) string {
 	best, bestDist := "", 3
-	for _, c := range commandList {
+	for _, c := range commandList() {
 		if !available(c) {
 			continue
 		}
@@ -148,7 +153,7 @@ func printOverview(out io.Writer) {
 	const width = 26
 	for _, g := range groups {
 		fmt.Fprintf(out, "\n%s\n", p.paint(bold, strings.ToUpper(g)))
-		for _, c := range commandList {
+		for _, c := range commandList() {
 			if c.group != g || !available(c) {
 				continue
 			}

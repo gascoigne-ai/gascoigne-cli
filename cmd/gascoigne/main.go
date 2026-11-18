@@ -11,11 +11,13 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"slices"
 	"strings"
 	"syscall"
 
 	"go.yaml.in/yaml/v3"
 
+	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/config"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
@@ -24,6 +26,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/execreceiver"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/mcpproxyreceiver"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/mcpreceiver"
 )
 
 func main() {
@@ -85,6 +88,9 @@ type common struct {
 	// pipeline, when set, is the only one this run builds: a remote run has
 	// no ledger for the other pipelines' receivers (MCP) to start with.
 	pipeline string
+	// factories replace the built-in factory of the same kind and type, to give
+	// a receiver the inputs of this run (the command to run, the identity).
+	factories []component.Factory
 }
 
 func (c *common) register(fs *flag.FlagSet) {
@@ -163,7 +169,7 @@ func (c *common) start(ctx context.Context) (*service.Service, error) {
 	if c.useServer {
 		opts.Remote = c.remote(data, cfg, log)
 	}
-	svc, err := service.New(ctx, cfg, registry.Factories(), opts)
+	svc, err := service.New(ctx, cfg, withFactories(registry.Factories(), c.factories), opts)
 	if err != nil {
 		return nil, err
 	}
@@ -178,6 +184,21 @@ func (c *common) start(ctx context.Context) (*service.Service, error) {
 		}
 	}
 	return svc, nil
+}
+
+// withFactories returns base with each factory of replacements put in place of
+// the one of the same kind and type.
+func withFactories(base, replacements []component.Factory) []component.Factory {
+	out := slices.Clone(base)
+	for _, repl := range replacements {
+		i := slices.IndexFunc(out, func(built component.Factory) bool { return built.Kind() == repl.Kind() && built.Type() == repl.Type() })
+		if i < 0 {
+			out = append(out, repl)
+			continue
+		}
+		out[i] = repl
+	}
+	return out
 }
 
 // configData is the config this run uses.
@@ -260,12 +281,13 @@ func cmdExec(ctx context.Context, args []string) error {
 		c.attrs[payload.AttrRaw] = "true"
 	}
 	c.server, c.useServer, c.project, c.pipeline = true, true, true, *pipeline
+	inv := &execreceiver.Invocation{Args: fs.Args(), Watch: *watch}
+	c.factories = []component.Factory{execreceiver.NewFactory(execreceiver.WithInvocation(inv))}
 	svc, err := c.start(ctx)
 	if err != nil {
 		return err
 	}
-	inv := &execreceiver.Invocation{Args: fs.Args(), Watch: *watch}
-	runErr := svc.Run(execreceiver.With(ctx, inv), *pipeline)
+	runErr := svc.Run(ctx, *pipeline)
 	if err := errors.Join(runErr, svc.Shutdown(context.WithoutCancel(ctx))); err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne:", err)
 	}
@@ -276,7 +298,9 @@ func cmdExec(ctx context.Context, args []string) error {
 }
 
 func cmdMCP(ctx context.Context, args []string) error {
-	return serve(ctx, "mcp", args, nil, func(ctx context.Context, _ []string) context.Context { return ctx })
+	return serve(ctx, "mcp", args, nil, func(_ []string, id mcptool.Identity) []component.Factory {
+		return []component.Factory{mcpreceiver.NewFactory(mcpreceiver.WithIdentity(id))}
+	})
 }
 
 func cmdMCPProxy(ctx context.Context, args []string) error {
@@ -297,14 +321,15 @@ func cmdMCPProxy(ctx context.Context, args []string) error {
 			return nil
 		})
 	}
-	return serve(ctx, "mcp-proxy", args, register, func(ctx context.Context, command []string) context.Context {
+	return serve(ctx, "mcp-proxy", args, register, func(command []string, id mcptool.Identity) []component.Factory {
+		opts := []mcpproxyreceiver.Option{mcpproxyreceiver.WithIdentity(id), mcpproxyreceiver.WithLazy(lazyChoices()), mcpproxyreceiver.WithRules(savedRules())}
 		if remote.URL != "" {
 			remote.Store, remote.Login = authStore(), remoteLogin
-			ctx = mcpproxyreceiver.WithRemote(ctx, remote)
+			opts = append(opts, mcpproxyreceiver.WithRemote(remote))
 		} else {
-			ctx = mcpproxyreceiver.With(ctx, command)
+			opts = append(opts, mcpproxyreceiver.WithCommand(command))
 		}
-		return mcpproxyreceiver.WithRules(mcpproxyreceiver.WithLazy(ctx, lazyChoices()), savedRules())
+		return []component.Factory{mcpproxyreceiver.NewFactory(opts...)}
 	})
 }
 
@@ -326,8 +351,9 @@ func lazyChoices() map[string][]string {
 	return readPrefs().LazyTools
 }
 
-// serve runs one long-lived pipeline; with sets per-run receiver input from positional args.
-func serve(ctx context.Context, pipeline string, args []string, register func(*flag.FlagSet), with func(context.Context, []string) context.Context) error {
+// serve runs one long-lived pipeline; with returns the receiver factories that carry the per-run
+// input, from the positional args and the identity.
+func serve(ctx context.Context, pipeline string, args []string, register func(*flag.FlagSet), with func([]string, mcptool.Identity) []component.Factory) error {
 	var c common
 	fs := newFlags(pipeline)
 	c.register(fs)
@@ -339,12 +365,12 @@ func serve(ctx context.Context, pipeline string, args []string, register func(*f
 		return err
 	}
 	c.server = true
+	c.factories = with(fs.Args(), c.identity())
 	svc, err := c.start(ctx)
 	if err != nil {
 		return err
 	}
-	run := mcptool.WithIdentity(with(ctx, fs.Args()), c.identity())
-	return errors.Join(svc.Run(run, *name), svc.Shutdown(context.WithoutCancel(ctx)))
+	return errors.Join(svc.Run(ctx, *name), svc.Shutdown(context.WithoutCancel(ctx)))
 }
 
 func cmdConfig(_ context.Context, args []string) error {

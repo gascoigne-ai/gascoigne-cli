@@ -418,7 +418,7 @@ func TestEveryExperimentalCommandCanBeTurnedOnInSetup(t *testing.T) {
 	for _, x := range experiments {
 		listed[x.name] = true
 	}
-	for _, c := range commandList {
+	for _, c := range commandList() {
 		if c.experimental && !listed[c.name] {
 			t.Errorf("experimental command %q has no question in setup (experiments in setup.go)", c.name)
 		}

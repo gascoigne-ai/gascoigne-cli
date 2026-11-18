@@ -10,10 +10,14 @@ import (
 const typ = "hook"
 
 // NewFactory returns the factory that builds the "hook" receiver.
-func NewFactory() component.Factory {
+func NewFactory(opts ...Option) component.Factory {
 	return component.NewFactory(component.KindReceiver, typ,
 		func() *Config { return &Config{Kind: payload.CmdOutput} },
 		func(_ context.Context, set component.Settings, cfg *Config) (component.Component, error) {
-			return &Receiver{cfg: cfg, next: set.Pipeline}, nil
+			r := &Receiver{cfg: cfg, next: set.Pipeline}
+			for _, opt := range opts {
+				opt(r)
+			}
+			return r, nil
 		})
 }
