@@ -51,12 +51,12 @@ func decisions(settings prefs) []decision {
 				{"all", "Also allow fetch", "fetch reads web pages and APIs, so it reaches the network."},
 				{"none", "Keep asking", "claude asks before every gascoigne tool call, as now."},
 			}},
-		{ID: "autosync", Group: "updates", Current: settings.Autosync, Default: "on",
+		{ID: "autosync", Group: "updates", Current: string(settings.Autosync), Default: string(toggleOn),
 			Title: "Update hooks automatically after upgrades",
 			Text:  "A new gascoigne can add or change the hooks it installed in your agents.",
 			Options: []option{
-				{"on", "Keep them up to date", "At the next session start after an upgrade, in your user-level configs. Other keys stay and a backup is kept. Project files are never touched automatically."},
-				{"off", "Only when I ask", "Nothing changes until you run gascoigne upgrade."},
+				{string(toggleOn), "Keep them up to date", "At the next session start after an upgrade, in your user-level configs. Other keys stay and a backup is kept. Project files are never touched automatically."},
+				{string(toggleOff), "Only when I ask", "Nothing changes until you run gascoigne upgrade."},
 			}},
 	}
 	ds = append(ds, mcpModeDecision(settings), billingDecision(settings))
@@ -87,7 +87,7 @@ func staleInstalls() []install {
 // unless autosync does it by itself.
 func updateDecision(settings prefs) (decision, bool) {
 	stale := staleInstalls()
-	if len(stale) == 0 || settings.Autosync == "on" {
+	if len(stale) == 0 || settings.Autosync == toggleOn {
 		return decision{}, false
 	}
 	var which, news []string
@@ -212,13 +212,13 @@ var experiments = []struct{ name, title, text, example, how, impact string }{
 func experimentDecisions(settings prefs) []decision {
 	var ds []decision
 	for _, x := range experiments {
-		current := "off"
+		current := string(toggleOff)
 		if slices.Contains(settings.Experimental, x.name) {
-			current = "on"
+			current = string(toggleOn)
 		}
-		ds = append(ds, decision{ID: experimentPrefix + x.name, Group: "experimental", Current: current, Default: "off", Optional: true,
+		ds = append(ds, decision{ID: experimentPrefix + x.name, Group: "experimental", Current: current, Default: string(toggleOff), Optional: true,
 			Title: x.title, Text: x.text, Example: x.example, How: x.how, Impact: x.impact,
-			Options: []option{{"on", "Turn on", ""}, {"off", "Leave off", "The feature stays unavailable."}}})
+			Options: []option{{string(toggleOn), "Turn on", ""}, {string(toggleOff), "Leave off", "The feature stays unavailable."}}})
 	}
 	return ds
 }
@@ -346,14 +346,14 @@ var answerHandlers = []struct {
 	}},
 	{experimentPrefix, func(state *answerState, name, value string) {
 		state.prefs.Experimental = slices.DeleteFunc(state.prefs.Experimental, func(existing string) bool { return existing == name })
-		if value == "on" {
+		if toggle(value) == toggleOn {
 			state.prefs.Experimental = append(state.prefs.Experimental, name)
 		}
 		state.rewrite = state.rewrite || name == "compaction" // reaches claude's settings
 	}},
 	{proseModelID, func(state *answerState, _, value string) { state.prefs.ProseModel = value }},
-	{"release", func(state *answerState, _, value string) { state.prefs.ReleaseCheck = value }},
-	{"mcp_review", func(state *answerState, _, value string) { state.prefs.MCPReview = value }},
+	{"release", func(state *answerState, _, value string) { state.prefs.ReleaseCheck = toggle(value) }},
+	{"mcp_review", func(state *answerState, _, value string) { state.prefs.MCPReview = toggle(value) }},
 	{"update", func(state *answerState, _, value string) {
 		if value == "no" {
 			state.prefs.UpdateDeclined = registrationVersion
@@ -363,7 +363,7 @@ var answerHandlers = []struct {
 	}},
 	// A changed choice of these reaches the installed configs.
 	{"allow", func(state *answerState, _, value string) { state.prefs.Allow, state.rewrite = value, true }},
-	{"autosync", func(state *answerState, _, value string) { state.prefs.Autosync, state.rewrite = value, true }},
+	{"autosync", func(state *answerState, _, value string) { state.prefs.Autosync, state.rewrite = toggle(value), true }},
 	{"mcp_mode", func(state *answerState, _, value string) { state.prefs.MCPMode, state.rewrite = value, true }},
 	{"billing", func(state *answerState, _, value string) { state.prefs.Pricing.Billing = value }},
 }
@@ -417,7 +417,7 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 // checksums: setup then fetches them, so the optimizer works right away.
 func needsProseModel(answers map[string]string) bool {
 	on := cmp.Or(answers[experimentPrefix+"prose"], boolWord(experimentalOn("prose")))
-	if on != "on" {
+	if toggle(on) != toggleOn {
 		return false
 	}
 	dir, err := prose.ModelDir()
@@ -433,7 +433,7 @@ func needsProseModel(answers map[string]string) bool {
 
 func boolWord(on bool) string {
 	if on {
-		return "on"
+		return string(toggleOn)
 	}
 	return ""
 }
@@ -511,7 +511,7 @@ func enabledExperiments() []experiment {
 		if !experimentalOn(e.name) {
 			continue
 		}
-		x := experiment{Name: e.name, Title: e.title, State: "on", Detail: e.text}
+		x := experiment{Name: e.name, Title: e.title, State: string(toggleOn), Detail: e.text}
 		if e.name == "prose" {
 			st := loadProseStatus()
 			x.State, x.Detail = st.State, st.Detail

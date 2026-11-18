@@ -11,7 +11,7 @@ import (
 func levels(fs []finding) string {
 	var b strings.Builder
 	for _, f := range fs {
-		b.WriteString(f.level + ": " + f.text + "\n")
+		b.WriteString(string(f.level) + ": " + f.text + "\n")
 	}
 	return b.String()
 }

@@ -36,7 +36,7 @@ type prefs struct {
 	Pricing pricingPrefs `json:"pricing,omitzero"`
 	// Autosync (on or off) lets agent hooks bring user-scope installs made
 	// by an older gascoigne up to date; unset = not decided, nothing is synced.
-	Autosync string `json:"autosync,omitempty"`
+	Autosync toggle `json:"autosync,omitempty"`
 	// AskedAt is when the setup page was last opened by install or a session
 	// start: it comes back with a new session while questions stay open.
 	AskedAt time.Time `json:"asked_at,omitzero"`
@@ -50,7 +50,7 @@ type prefs struct {
 	// ReleaseCheck (on or off; unset = on) lets gascoigne read the
 	// website's latest.json every 15 minutes; SeenRelease is the release whose page
 	// was already opened.
-	ReleaseCheck string `json:"release_check,omitempty"`
+	ReleaseCheck toggle `json:"release_check,omitempty"`
 	SeenRelease  string `json:"seen_release,omitempty"`
 	// Window is the auto-compact window (tokens) install -window wrote into
 	// claude's settings; unwrap removes the key only while it still holds it.
@@ -75,7 +75,7 @@ type prefs struct {
 	// MCPRules are the manual rules set on the review page, by server id; the
 	// config's mcp_proxy.rules come first.
 	MCPRules      map[string][]mcpproxyreceiver.Rule `json:"mcp_rules,omitempty"`
-	MCPReview     string                             `json:"mcp_review,omitempty"`
+	MCPReview     toggle                             `json:"mcp_review,omitempty"`
 	LastMCPReview time.Time                          `json:"last_mcp_review,omitzero"`
 }
 

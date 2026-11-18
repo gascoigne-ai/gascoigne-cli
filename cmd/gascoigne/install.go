@@ -89,7 +89,7 @@ func saveGuideLevel(level string) error {
 }
 
 func saveAutosync(choice string) error {
-	return savePref("autosync", choice, autosyncChoices, func(saved *prefs, choice string) { saved.Autosync = choice })
+	return savePref("autosync", choice, autosyncChoices, func(saved *prefs, choice string) { saved.Autosync = toggle(choice) })
 }
 
 func saveAllowLevel(level string) error {
@@ -97,7 +97,7 @@ func saveAllowLevel(level string) error {
 }
 
 // autosyncChoices are the answers to "update installed hooks after an upgrade".
-var autosyncChoices = []string{"on", "off"}
+var autosyncChoices = toggleChoices
 
 // foundAgents are the agents whose program PATH finds.
 func foundAgents() []string {

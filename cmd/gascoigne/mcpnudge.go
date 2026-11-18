@@ -23,7 +23,7 @@ const (
 
 // mcpReviewOn: the daily review is on unless the user or the environment says off.
 func mcpReviewOn() bool {
-	return os.Getenv("GASCOIGNE_MCP_REVIEW") != "off" && readPrefs().MCPReview != "off"
+	return !envOff("GASCOIGNE_MCP_REVIEW") && readPrefs().MCPReview != toggleOff
 }
 
 // mcpNudge is what a session start does at most once a day when MCP tool definitions
@@ -114,15 +114,15 @@ func (s mcpServer) idleUnchosenTokens() int {
 // mcpReviewDecision is the setup question about the daily page; optional,
 // on until the user says otherwise.
 func mcpReviewDecision(preferences prefs) decision {
-	current := "on"
-	if preferences.MCPReview == "off" {
-		current = "off"
+	current := string(toggleOn)
+	if preferences.MCPReview == toggleOff {
+		current = string(toggleOff)
 	}
-	return decision{ID: "mcp_review", Group: "updates", Optional: true, Current: current, Default: "on",
+	return decision{ID: "mcp_review", Group: "updates", Optional: true, Current: current, Default: string(toggleOn),
 		Title: "Review my MCP servers once a day",
 		Text:  "MCP servers add their tool definitions to the agent's tool list, used or not; most agents send that list with every request.",
 		Options: []option{
-			{"on", "Open the review when it finds something", "At most once a day, at a session start, and only when tools nobody called in " + fmt.Sprint(unusedDays) + " days cost over " + fmt.Sprint(mcpNudgeTokens) + " tokens per request. It opens a page on this machine; nothing leaves it, and nothing changes unless you choose something there."},
-			{"off", "Never open it", "You can still run gascoigne mcp-review whenever you like."},
+			{string(toggleOn), "Open the review when it finds something", "At most once a day, at a session start, and only when tools nobody called in " + fmt.Sprint(unusedDays) + " days cost over " + fmt.Sprint(mcpNudgeTokens) + " tokens per request. It opens a page on this machine; nothing leaves it, and nothing changes unless you choose something there."},
+			{string(toggleOff), "Never open it", "You can still run gascoigne mcp-review whenever you like."},
 		}}
 }

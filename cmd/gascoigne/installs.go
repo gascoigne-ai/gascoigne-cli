@@ -122,7 +122,7 @@ func forgetInstalls(names []string) error {
 // are left to gascoigne upgrade, run in the project. It returns what it did,
 // one line per install, and never fails the caller.
 func syncInstalls() []string {
-	if os.Getenv("GASCOIGNE_AUTOSYNC") == "off" || readPrefs().Autosync != "on" {
+	if envOff("GASCOIGNE_AUTOSYNC") || readPrefs().Autosync != toggleOn {
 		return nil
 	}
 	stale := func(entry install) bool { return entry.Registration < registrationVersion && entry.Global }

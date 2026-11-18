@@ -15,8 +15,16 @@ import (
 
 // A finding is one line of the doctor's report. fix, when set, repairs it
 // (gascoigne upgrade runs it).
+type findingLevel string
+
+const (
+	levelOK      findingLevel = "ok"
+	levelWarn    findingLevel = "warn"
+	levelProblem findingLevel = "problem"
+)
+
 type finding struct {
-	level string // ok, warn or problem
+	level findingLevel
 	text  string
 	fix   func() error
 }
@@ -30,7 +38,7 @@ func cmdDoctor(_ context.Context, args []string) error {
 	problems := 0
 	for _, f := range diagnose() {
 		fmt.Printf("%-7s %s\n", f.level, f.text)
-		if f.level == "problem" {
+		if f.level == levelProblem {
 			problems++
 		}
 	}
@@ -44,34 +52,34 @@ func cmdDoctor(_ context.Context, args []string) error {
 // every recorded install.
 func diagnose() []finding {
 	var out []finding
-	add := func(level, format string, args ...any) {
+	add := func(level findingLevel, format string, args ...any) {
 		out = append(out, finding{level: level, text: fmt.Sprintf(format, args...)})
 	}
 
 	exe, _ := os.Executable()
 	if p, err := exec.LookPath("gascoigne"); err == nil && sameFile(p, exe) {
-		add("ok", "gascoigne %s is on PATH", version.String())
+		add(levelOK, "gascoigne %s is on PATH", version.String())
 	} else {
-		add("warn", "gascoigne %s is not on PATH, so agent configs call the full path %s (project files cannot be shared)", version.String(), exe)
+		add(levelWarn, "gascoigne %s is not on PATH, so agent configs call the full path %s (project files cannot be shared)", version.String(), exe)
 	}
 	switch info, err := health(serverAddr()); {
 	case serverOff():
-		add("warn", "background server is switched off (GASCOIGNE_SERVER=off): no dashboard, no LLM proxy")
+		add(levelWarn, "background server is switched off (GASCOIGNE_SERVER=off): no dashboard, no LLM proxy")
 	case err != nil:
-		add("ok", "background server: stopped; it starts by itself with the next command or agent prompt")
+		add(levelOK, "background server: stopped; it starts by itself with the next command or agent prompt")
 	default:
-		add("ok", "background server: running at http://%s (pid %d)", info.Addr, info.PID)
+		add(levelOK, "background server: running at http://%s (pid %d)", info.Addr, info.PID)
 	}
 
 	p := readPrefs()
-	add("ok", "usage text for agents: %s", guideLevel())
+	add(levelOK, "usage text for agents: %s", guideLevel())
 	switch r := readRelease(); {
 	case !releaseCheckOn():
-		add("ok", "release notice: off")
+		add(levelOK, "release notice: off")
 	case r.newer():
-		add("warn", "gascoigne %s is out (you run %s): %s. After installing it, run gascoigne upgrade.", r.ID, version.Number, r.URL)
+		add(levelWarn, "gascoigne %s is out (you run %s): %s. After installing it, run gascoigne upgrade.", r.ID, version.Number, r.URL)
 	default:
-		add("ok", "release notice: on, every 15 min (%s); latest known: %s", releaseBase(), cmp.Or(r.ID, "not checked yet"))
+		add(levelOK, "release notice: on, every 15 min (%s); latest known: %s", releaseBase(), cmp.Or(r.ID, "not checked yet"))
 	}
 	var waiting []string
 	for _, q := range pendingDecisions(p) {
@@ -80,7 +88,7 @@ func diagnose() []finding {
 		}
 	}
 	if len(waiting) > 0 {
-		add("warn", "choices waiting for you: %s. Answer them with: gascoigne setup", strings.Join(waiting, "; "))
+		add(levelWarn, "choices waiting for you: %s. Answer them with: gascoigne setup", strings.Join(waiting, "; "))
 	}
 
 	installs := readInstalls()
@@ -89,11 +97,11 @@ func diagnose() []finding {
 	}
 	for _, name := range foundAgents() {
 		if !slices.ContainsFunc(installs, func(entry install) bool { return entry.Agent == name }) {
-			add("warn", "%s: found on this machine, but gascoigne is not connected to it yet (connect it for all projects: gascoigne install -g %s)", name, name)
+			add(levelWarn, "%s: found on this machine, but gascoigne is not connected to it yet (connect it for all projects: gascoigne install -g %s)", name, name)
 		}
 	}
 	if len(installs) == 0 && len(foundAgents()) == 0 {
-		add("warn", "no coding agent found on this machine, and none connected to gascoigne")
+		add(levelWarn, "no coding agent found on this machine, and none connected to gascoigne")
 	}
 	return out
 }
@@ -110,14 +118,14 @@ func checkInstall(entry install) finding {
 	data, err := os.ReadFile(file)
 	lost := err != nil || !strings.Contains(string(data), "hook "+entry.Agent)
 	stale := entry.Registration < registrationVersion
-	f := finding{level: "problem"}
+	f := finding{level: levelProblem}
 	switch {
 	case lost:
 		f.text = fmt.Sprintf("%s: gascoigne's hook is missing from %s", label, display(file))
 	case stale:
 		f.text = fmt.Sprintf("%s: set up by an older gascoigne, so newer hooks and rules are missing", label)
 	default:
-		return finding{level: "ok", text: label + ": connected"}
+		return finding{level: levelOK, text: label + ": connected"}
 	}
 	cwd, _ := os.Getwd()
 	if !entry.Global && entry.Dir != cwd {

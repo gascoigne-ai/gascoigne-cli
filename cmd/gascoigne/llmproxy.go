@@ -21,11 +21,11 @@ import (
 // agents' base URL is the server's address: one process, one port.
 
 // proxyOff reports GASCOIGNE_PROXY=off: agents are never pointed at it.
-func proxyOff() bool { return os.Getenv("GASCOIGNE_PROXY") == "off" }
+func proxyOff() bool { return envOff("GASCOIGNE_PROXY") }
 
 // proxyForced reports GASCOIGNE_PROXY=on: the proxy is used for Claude even
 // with a claude.ai login, on the user's own judgment (see claudeProxyOK).
-func proxyForced() bool { return os.Getenv("GASCOIGNE_PROXY") == "on" }
+func proxyForced() bool { return toggle(os.Getenv("GASCOIGNE_PROXY")) == toggleOn }
 
 // claudeKey reports an Anthropic API key or gateway token in the
 // environment, the credentials gateways are documented for.

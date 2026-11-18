@@ -15,7 +15,7 @@ import (
 // 16% in an A/B run at the same success rate, the rest is not measured. mcp: the agent has gascoigne's
 // MCP tools (pi does not), so the guide names only what the agent can call.
 func guide(mcp bool) string {
-	if guideLevel() == "off" {
+	if guideLevel() == string(toggleOff) {
 		return ""
 	}
 	if mcpMode() == mcpManual {
@@ -49,7 +49,7 @@ func manualGuide(mcp bool) string {
 // guideLevels are how much usage text agents get: none, or what an agent
 // cannot guess (the hint and path ids). There was a longer "full" level with
 // usage tips; it is gone, and a saved "full" now reads as short.
-var guideLevels = []string{"off", "short"}
+var guideLevels = []string{string(toggleOff), "short"}
 
 // guideLevel is $GASCOIGNE_GUIDE, else the saved pref, else short. Unknown
 // values mean short: a typo must not silently remove the hint explanation.

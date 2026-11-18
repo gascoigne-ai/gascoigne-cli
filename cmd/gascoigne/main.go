@@ -311,7 +311,7 @@ func cmdMCPProxy(ctx context.Context, args []string) error {
 // savedRules are the rules set on the review page, by server id; GASCOIGNE_MCP_LAZY=off
 // ignores them with the lazy choices.
 func savedRules() map[string][]mcpproxyreceiver.Rule {
-	if os.Getenv("GASCOIGNE_MCP_LAZY") == "off" {
+	if envOff("GASCOIGNE_MCP_LAZY") {
 		return nil
 	}
 	return readPrefs().MCPRules
@@ -320,7 +320,7 @@ func savedRules() map[string][]mcpproxyreceiver.Rule {
 // lazyChoices are the tools to load on request, by server id. GASCOIGNE_MCP_LAZY=off
 // ignores them for a run, without touching the saved choices.
 func lazyChoices() map[string][]string {
-	if os.Getenv("GASCOIGNE_MCP_LAZY") == "off" {
+	if envOff("GASCOIGNE_MCP_LAZY") {
 		return nil
 	}
 	return readPrefs().LazyTools

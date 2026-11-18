@@ -48,7 +48,7 @@ func releaseBase() string {
 
 // releaseCheckOn reports whether the website is read at all.
 func releaseCheckOn() bool {
-	return os.Getenv("GASCOIGNE_RELEASE_CHECK") != "off" && readPrefs().ReleaseCheck != "off"
+	return !envOff("GASCOIGNE_RELEASE_CHECK") && readPrefs().ReleaseCheck != toggleOff
 }
 
 // A release is what the last read of latest.json said.
@@ -184,15 +184,15 @@ func releaseNudge(source string) string {
 // releaseDecision is the setup question about the check; it is optional and
 // answered "on" until the user says otherwise.
 func releaseDecision(settings prefs) decision {
-	current := "on"
-	if settings.ReleaseCheck == "off" {
-		current = "off"
+	current := string(toggleOn)
+	if settings.ReleaseCheck == toggleOff {
+		current = string(toggleOff)
 	}
-	return decision{ID: "release", Group: "updates", Optional: true, Current: current, Default: "on",
+	return decision{ID: "release", Group: "updates", Optional: true, Current: current, Default: string(toggleOn),
 		Title: "Tell me about new releases",
 		Text:  "gascoigne can notice when a new version is out and open its page once.",
 		Options: []option{
-			{"on", "Check every 15 minutes", "gascoigne reads " + releaseBase() + "latest.json at most every 15 minutes. It is a plain request: nothing about you or this machine is sent, but the site's host sees your IP address as for any web page. A newer release opens its page once the next time a session starts or you send a prompt."},
-			{"off", "Never check", "No request is made. Look for releases on the website or on GitHub yourself."},
+			{string(toggleOn), "Check every 15 minutes", "gascoigne reads " + releaseBase() + "latest.json at most every 15 minutes. It is a plain request: nothing about you or this machine is sent, but the site's host sees your IP address as for any web page. A newer release opens its page once the next time a session starts or you send a prompt."},
+			{string(toggleOff), "Never check", "No request is made. Look for releases on the website or on GitHub yourself."},
 		}}
 }

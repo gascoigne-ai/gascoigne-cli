@@ -46,7 +46,7 @@ type serverInfo struct {
 func serverAddr() string { return cmp.Or(os.Getenv("GASCOIGNE_SERVER_ADDR"), defaultServerAddr) }
 
 // serverOff reports GASCOIGNE_SERVER=off: commands then never start one.
-func serverOff() bool { return os.Getenv("GASCOIGNE_SERVER") == "off" }
+func serverOff() bool { return envOff("GASCOIGNE_SERVER") }
 
 // cmdServer manages the background server hosting the dashboard. Commands
 // that optimize start it when it is not running, so the dashboard is there

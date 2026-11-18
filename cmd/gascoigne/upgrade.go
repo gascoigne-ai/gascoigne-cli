@@ -52,7 +52,7 @@ func upgradeHooks(dry bool) bool {
 	did := false
 	for _, e := range readInstalls() {
 		f := checkInstall(e)
-		if f.level == "ok" {
+		if f.level == levelOK {
 			continue
 		}
 		did = true

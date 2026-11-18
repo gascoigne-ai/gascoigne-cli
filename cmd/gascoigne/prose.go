@@ -18,7 +18,7 @@ type proseStatus struct {
 
 func loadProseStatus() proseStatus {
 	if !experimentalOn("prose") {
-		return proseStatus{"off", "add prose to experimental in the config"}
+		return proseStatus{string(toggleOff), "add prose to experimental in the config"}
 	}
 	dir, _ := prose.ModelDir()
 	name := configProseModel()
