@@ -157,11 +157,11 @@ type haystack struct {
 func newHaystack(text string) *haystack {
 	text = legend.Expand(compress.StripANSI(text))
 	h := &haystack{raw: text, norm: normalize(text), words: map[string]bool{}}
-	for _, w := range strings.Fields(h.norm) {
+	for w := range strings.FieldsSeq(h.norm) {
 		h.words[w] = true
 		// Paths split into segments too, so a file listed under its
 		// directory still counts.
-		for _, s := range strings.Split(w, "/") {
+		for s := range strings.SplitSeq(w, "/") {
 			h.words[s] = true
 		}
 	}
@@ -183,7 +183,7 @@ func (h *haystack) hasText(text string) bool {
 	if n == "" || strings.Contains(h.norm, n) {
 		return true
 	}
-	for _, w := range strings.Fields(n) {
+	for w := range strings.FieldsSeq(n) {
 		if !h.words[w] {
 			return false
 		}
@@ -200,7 +200,7 @@ func (h *haystack) hasArtifact(artifact string) bool {
 	if isHash(artifact) {
 		return strings.Contains(h.raw, artifact[:7])
 	}
-	for _, s := range strings.Split(strings.Trim(artifact, "/"), "/") {
+	for s := range strings.SplitSeq(strings.Trim(artifact, "/"), "/") {
 		if s != "" && s != "." && s != ".." && s != "~" && !h.words[s] {
 			return false
 		}

@@ -53,8 +53,7 @@ func main() {
 	if err == nil || errors.Is(err, flag.ErrHelp) {
 		return
 	}
-	var code exitCode
-	if errors.As(err, &code) {
+	if code, ok := errors.AsType[exitCode](err); ok {
 		os.Exit(int(code))
 	}
 	fmt.Fprintln(os.Stderr, "gascoigne:", err)

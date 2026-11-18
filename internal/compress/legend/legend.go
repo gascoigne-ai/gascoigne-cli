@@ -75,7 +75,7 @@ func Expand(text string) string {
 // where the next id starts: a sigil or a source letter, then "=".
 func parse(body string) []Def {
 	var defs []Def
-	for _, f := range strings.Fields(body) {
+	for f := range strings.FieldsSeq(body) {
 		id, value, ok := strings.Cut(f, "=")
 		if ok && isID(id) {
 			defs = append(defs, Def{id, value})

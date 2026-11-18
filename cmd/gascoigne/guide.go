@@ -91,9 +91,6 @@ func guideBlock(mcp bool) string {
 	return guideStart + "\n" + guide(mcp) + guideEnd + "\n"
 }
 
-// cutGuide removes the marked block from text.
-func cutGuide(text string) (string, bool) { return cutBlock(text, guideStart, guideEnd) }
-
 // cutBlock removes the block between the start and end markers, and the blank
 // line it leaves.
 func cutBlock(text, startMark, endMark string) (string, bool) {
@@ -124,7 +121,7 @@ func addGuide(file string, mcp bool) (string, error) {
 		return strings.Join(d, "; "), err
 	}
 	backup, err := writeConfig(file, func(text string) (string, error) {
-		text, _ = cutGuide(text)
+		text, _ = cutBlock(text, guideStart, guideEnd)
 		if text = strings.TrimRight(text, "\n"); text != "" {
 			text += "\n\n"
 		}

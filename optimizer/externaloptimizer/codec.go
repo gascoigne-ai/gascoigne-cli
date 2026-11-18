@@ -7,6 +7,7 @@ import (
 	"maps"
 	"slices"
 	"strings"
+	"unicode"
 )
 
 // Version is the wire contract version (docs/external-optimizer.md).
@@ -74,7 +75,7 @@ func attrEnv(attrs map[string]string) []string {
 	for k, v := range attrs {
 		key := strings.Map(func(char rune) rune {
 			if char >= 'a' && char <= 'z' {
-				return char - 32
+				return unicode.ToUpper(char)
 			}
 			if char >= 'A' && char <= 'Z' || char >= '0' && char <= '9' {
 				return char

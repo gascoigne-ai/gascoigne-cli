@@ -114,7 +114,8 @@ func flatten(value any) string {
 		switch v := value.(type) {
 		case map[string]any:
 			for k, x := range v {
-				b.WriteString(k + " ")
+				b.WriteString(k)
+				b.WriteString(" ")
 				walk(x)
 			}
 		case []any:
@@ -122,9 +123,11 @@ func flatten(value any) string {
 				walk(x)
 			}
 		case string:
-			b.WriteString(v + " ")
+			b.WriteString(v)
+			b.WriteString(" ")
 		case json.Number:
-			b.WriteString(v.String() + " ")
+			b.WriteString(v.String())
+			b.WriteString(" ")
 		}
 	}
 	walk(value)
@@ -141,7 +144,7 @@ var intentNoise = wordSet(`a an the and or of to in on at for from with by into
 
 func wordSet(words string) map[string]bool {
 	set := map[string]bool{}
-	for _, w := range strings.Fields(words) {
+	for w := range strings.FieldsSeq(words) {
 		set[w] = true
 	}
 	return set

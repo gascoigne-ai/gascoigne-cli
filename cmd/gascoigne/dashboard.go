@@ -135,10 +135,6 @@ func stream(writer http.ResponseWriter, request *http.Request, store *ledger.Led
 	}
 }
 
-// outcomes reads ?outcome=optimized,bypassed for the run feed (?raw=1 keeps
-// runs where the agent asked for the original at once).
-func outcomes(values url.Values) []string { return splitList(values.Get("outcome"), ",") }
-
 func statsQuery(values url.Values) (component.StatsQuery, error) {
 	q := component.StatsQuery{Session: values.Get("session"), Agent: values.Get("agent"), Model: values.Get("model")}
 	if s := values.Get("since"); s != "" {

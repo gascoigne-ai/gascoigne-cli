@@ -214,7 +214,8 @@ func (w *writer) item() {
 	if len(w.lists) > 0 && w.lists[len(w.lists)-1].ordered {
 		l := &w.lists[len(w.lists)-1]
 		l.n++
-		w.b.WriteString(strconv.Itoa(l.n) + ". ")
+		w.b.WriteString(strconv.Itoa(l.n))
+		w.b.WriteString(". ")
 		return
 	}
 	w.b.WriteString("- ")

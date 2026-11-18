@@ -185,8 +185,8 @@ func codexSources(dir, home string) []promptSource {
 		l.load(filepath.Join(home, ".codex", "AGENTS.md"), "user", maxImportDepth)
 	}
 	root := ancestors(dir)
-	for i := len(root) - 1; i >= 0; i-- {
-		if _, err := os.Stat(filepath.Join(root[i], ".git")); err == nil {
+	for i, d := range slices.Backward(root) {
+		if _, err := os.Stat(filepath.Join(d, ".git")); err == nil {
 			root = root[i:]
 			break
 		}

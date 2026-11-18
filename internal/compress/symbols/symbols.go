@@ -212,12 +212,12 @@ type frame struct {
 // qualify prefixes name with the innermost enclosing definition and turns a
 // func inside one into a method.
 func qualify(defs []Def, stack []frame, name, kind string) (string, string) {
-	for k := len(stack) - 1; k >= 0; k-- {
-		if stack[k].def >= 0 {
+	for _, f := range slices.Backward(stack) {
+		if f.def >= 0 {
 			if kind == "func" {
 				kind = "method"
 			}
-			return defs[stack[k].def].Name + "." + name, kind
+			return defs[f.def].Name + "." + name, kind
 		}
 	}
 	return name, kind

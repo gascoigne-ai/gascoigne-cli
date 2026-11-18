@@ -203,7 +203,7 @@ func eventsHandler(store *ledger.Ledger) http.HandlerFunc {
 		before, _ := strconv.ParseUint(values.Get("before"), 10, strconv.IntSize)
 		limit, _ := strconv.Atoi(values.Get("limit"))
 		entries, err := store.Page(request.Context(), query, ledger.Page{After: uint(after), Before: uint(before),
-			Outcomes: outcomes(values), RawAsked: values.Get("raw") == "1", Limit: min(cmp.Or(limit, 100), 500)})
+			Outcomes: splitList(values.Get("outcome"), ","), RawAsked: values.Get("raw") == "1", Limit: min(cmp.Or(limit, 100), 500)})
 		respond(writer, eventsJSON(entries), err)
 	}
 }
@@ -216,7 +216,7 @@ func streamHandler(store *ledger.Ledger, poll time.Duration) http.HandlerFunc {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		stream(writer, request, store, query, ledger.Page{Outcomes: outcomes(request.URL.Query()), RawAsked: request.URL.Query().Get("raw") == "1"}, poll)
+		stream(writer, request, store, query, ledger.Page{Outcomes: splitList(request.URL.Query().Get("outcome"), ","), RawAsked: request.URL.Query().Get("raw") == "1"}, poll)
 	}
 }
 

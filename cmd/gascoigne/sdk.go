@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"strconv"
 	"time"
@@ -74,9 +75,7 @@ func sdkOptimize(cache *warm) http.Handler {
 			return
 		}
 		p := payload.New(payload.ToolResult, req.Text)
-		for k, v := range req.attrs() {
-			p.Attrs[k] = v
-		}
+		maps.Copy(p.Attrs, req.attrs())
 		out, status, err := cache.optimize(request.Context(), optimizeRequest{
 			Config: string(data), Overrides: config.Overrides{}, Pipeline: inproc.Pipeline, Payload: p,
 		})

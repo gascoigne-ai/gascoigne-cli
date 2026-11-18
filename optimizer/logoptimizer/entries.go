@@ -130,7 +130,7 @@ func entryList(doc any) ([]any, bool) {
 
 func jsonLines(text string) ([]any, bool) {
 	var out []any
-	for _, l := range strings.Split(text, "\n") {
+	for l := range strings.SplitSeq(text, "\n") {
 		if strings.TrimSpace(l) == "" {
 			continue
 		}
@@ -147,7 +147,7 @@ func jsonLines(text string) ([]any, bool) {
 func pick(entry map[string]any, keys []string) string {
 	for _, k := range keys {
 		var v any = entry
-		for _, part := range strings.Split(k, ".") {
+		for part := range strings.SplitSeq(k, ".") {
 			obj, ok := v.(map[string]any)
 			if !ok {
 				v = nil

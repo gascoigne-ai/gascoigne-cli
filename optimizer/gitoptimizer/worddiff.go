@@ -78,7 +78,8 @@ func pair(old, new string) (string, bool) {
 		return "", false // most of the line changed: the two lines read better
 	}
 	var b strings.Builder
-	b.WriteString("~" + old[:p])
+	b.WriteString("~")
+	b.WriteString(old[:p])
 	if was != "" {
 		b.WriteString("[-" + was + "-]")
 	}

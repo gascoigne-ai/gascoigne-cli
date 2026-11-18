@@ -182,7 +182,8 @@ func (run *tfRun) line(line string) {
 func normalizedBody(block []string) string {
 	var b strings.Builder
 	for _, l := range block[1:] {
-		b.WriteString(compress.Normalize(l) + "\n")
+		b.WriteString(compress.Normalize(l))
+		b.WriteString("\n")
 	}
 	return b.String()
 }

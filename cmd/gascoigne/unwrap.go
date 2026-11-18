@@ -328,7 +328,8 @@ func removeCodexEntries(text string) (string, []string) {
 	var b strings.Builder
 	for i, s := range sections {
 		if !drop[i] {
-			b.WriteString(s.header + s.body)
+			b.WriteString(s.header)
+			b.WriteString(s.body)
 		}
 	}
 	return b.String(), what

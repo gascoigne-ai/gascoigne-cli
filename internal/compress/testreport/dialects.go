@@ -101,9 +101,6 @@ var (
 	}
 )
 
-// with joins rule tables into one.
-func with(tables ...pcomb.Rules) pcomb.Rules { return slices.Concat(tables...) }
-
 var dialects = map[string]rules{
 	"jest": {
 		pass: pcomb.Rules{
@@ -126,7 +123,7 @@ var dialects = map[string]rules{
 				No:    []string{"math.test.mjs failed"},
 			},
 		},
-		noise: with(envelope, pcomb.Rules{{
+		noise: slices.Concat(envelope, pcomb.Rules{{
 			Name:  "run banner",
 			Match: pcomb.Any(pcomb.Trimmed(pcomb.Prefix("Determining test suites")), pcomb.Prefix("Ran all test suites")),
 			Yes:   []string{"Determining test suites to run...", "Ran all test suites."},
@@ -149,7 +146,7 @@ var dialects = map[string]rules{
 				No:    []string{"math.test.mjs (8 tests) failed"},
 			},
 		},
-		noise: with(envelope, pcomb.Rules{
+		noise: slices.Concat(envelope, pcomb.Rules{
 			{
 				Name:  "run header",
 				Match: pcomb.Re(`^\s*RUN\s+v\d`),
@@ -172,7 +169,7 @@ var dialects = map[string]rules{
 			Yes:   []string{"(pass) adds numbers [0.12ms]", "✓ adds numbers"},
 			No:    []string{"(fail) subtracts numbers [0.40ms]"},
 		}},
-		noise: with(envelope, pcomb.Rules{{
+		noise: slices.Concat(envelope, pcomb.Rules{{
 			Name:  "file header",
 			Match: pcomb.Re(`^\S+\.(test|spec)\.\w+:$`),
 			Yes:   []string{"math.test.ts:"},

@@ -132,11 +132,6 @@ var proxyOnce = sync.OnceValue(func() string {
 	return proxyURL()
 })
 
-// runProxy is the proxy's base URL for an agent started now, starting the
-// background server if needed; "" when it is off or could not start (the
-// agent then talks to its API directly, as before).
-func runProxy() string { return proxyOnce() }
-
 // serverUp makes sure the background server answers, as gascoigne
 // server start does.
 func serverUp(ctx context.Context) error {
@@ -167,7 +162,7 @@ func proxyForClaude() []string {
 		}
 		return nil
 	}
-	if u := runProxy(); u != "" {
+	if u := proxyOnce(); u != "" {
 		return []string{key + "=" + u + path}
 	}
 	return nil
@@ -227,7 +222,7 @@ func proxyForCodex() []string {
 	if os.Getenv("OPENAI_API_KEY") == "" {
 		return nil
 	}
-	u := runProxy()
+	u := proxyOnce()
 	if u == "" {
 		return nil
 	}
@@ -243,7 +238,7 @@ func proxyForGemini() []string {
 	if os.Getenv("GEMINI_API_KEY") == "" || os.Getenv("GOOGLE_GEMINI_BASE_URL") != "" {
 		return nil
 	}
-	if u := runProxy(); u != "" {
+	if u := proxyOnce(); u != "" {
 		return []string{"GOOGLE_GEMINI_BASE_URL=" + u}
 	}
 	return nil
@@ -255,7 +250,7 @@ func proxyForOpencode() map[string]any {
 	if os.Getenv("ANTHROPIC_BASE_URL") != "" {
 		return nil
 	}
-	u := runProxy()
+	u := proxyOnce()
 	if u == "" {
 		return nil
 	}

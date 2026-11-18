@@ -97,11 +97,14 @@ func lessons(entries []ledger.Entry) []lesson {
 // learnBlock is the marked block for an instruction file.
 func learnBlock(ls []lesson) string {
 	var b strings.Builder
-	b.WriteString(learnStart + "\n## Learned from past sessions (gascoigne)\n")
+	b.WriteString(learnStart)
+	b.WriteString("\n## Learned from past sessions (gascoigne)\n")
 	for _, l := range ls {
-		b.WriteString(l.Line + "\n")
+		b.WriteString(l.Line)
+		b.WriteString("\n")
 	}
-	b.WriteString(learnEnd + "\n")
+	b.WriteString(learnEnd)
+	b.WriteString("\n")
 	return b.String()
 }
 
@@ -111,10 +114,10 @@ func learnBlock(ls []lesson) string {
 func writeLearned(file string, ls []lesson) (string, error) {
 	if len(ls) == 0 {
 		removal, err := removeBlock(file, learnStart, learnEnd)
-		switch {
-		case removal == blockFileDeleted:
+		switch removal {
+		case blockFileDeleted:
 			return display(file) + ": deleted (held only the learned lines)", err
-		case removal == blockCut:
+		case blockCut:
 			return display(file) + ": removed the learned lines", err
 		}
 		return "", err

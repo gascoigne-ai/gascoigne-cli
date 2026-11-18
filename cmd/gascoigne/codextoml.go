@@ -74,7 +74,8 @@ func setTOMLKeys(body, cmd, args string) string {
 func joinSections(secs []tomlSection) string {
 	var b strings.Builder
 	for _, s := range secs {
-		b.WriteString(s.header + s.body)
+		b.WriteString(s.header)
+		b.WriteString(s.body)
 	}
 	return b.String()
 }

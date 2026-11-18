@@ -274,7 +274,7 @@ func prefixMark(raw json.RawMessage) string {
 // shortCommand names a hook by what it runs, not by its whole command line:
 // the last two parts of the first path in it, else its first words.
 func shortCommand(cmd string) string {
-	for _, f := range strings.Fields(cmd) {
+	for f := range strings.FieldsSeq(cmd) {
 		if strings.Contains(f, "/") && !strings.HasPrefix(f, "-") {
 			parts := strings.Split(strings.Trim(f, `"'`), "/")
 			return strings.Join(parts[max(len(parts)-2, 0):], "/")

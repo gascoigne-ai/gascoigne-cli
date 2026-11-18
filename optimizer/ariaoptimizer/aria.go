@@ -59,7 +59,7 @@ func (o *Optimizer) shrink(text string, query []string) string {
 	var stack []*node
 	var depths []int
 	flush := func() {
-		out = append(out, render(o.simplify(roots, query), 0)...)
+		out = append(out, appendRender(nil, o.simplify(roots, query), 0)...)
 		roots, stack, depths = nil, nil, nil
 	}
 	for _, l := range compress.Lines(text) {
@@ -166,7 +166,7 @@ func matches(run []*node, query []string) []bool {
 	}
 	docs := make([][]string, len(run))
 	for i, n := range run {
-		docs[i] = sample.Terms(strings.Join(render([]*node{n}, 0), "\n"))
+		docs[i] = sample.Terms(strings.Join(appendRender(nil, []*node{n}, 0), "\n"))
 	}
 	scores := sample.BM25(docs, query)
 	best := slices.Max(scores)
@@ -175,8 +175,6 @@ func matches(run []*node, query []string) []bool {
 	}
 	return match
 }
-
-func render(nodes []*node, depth int) []string { return appendRender(nil, nodes, depth) }
 
 // appendRender renders into out so nested levels share one slice.
 func appendRender(out []string, nodes []*node, depth int) []string {

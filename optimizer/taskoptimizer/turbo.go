@@ -51,7 +51,7 @@ func turboFailedTasks(lines []string) map[string]bool {
 	failed := map[string]bool{}
 	for _, l := range lines {
 		if m := turboFailed.FindStringSubmatch(l); m != nil {
-			for _, t := range strings.Fields(strings.ReplaceAll(m[1], ",", " ")) {
+			for t := range strings.FieldsSeq(strings.ReplaceAll(m[1], ",", " ")) {
 				failed[strings.Replace(t, "#", ":", 1)] = true
 			}
 		}

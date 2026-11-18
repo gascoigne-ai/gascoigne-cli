@@ -104,10 +104,10 @@ func mdDefs(lines []string) []Def {
 	fence := ""
 	for i, l := range lines {
 		if f := fenceOf(l); f != "" {
-			switch {
-			case fence == "":
+			switch fence {
+			case "":
 				fence = f
-			case f == fence:
+			case f:
 				fence = ""
 			}
 			continue

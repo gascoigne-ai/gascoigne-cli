@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -47,9 +48,9 @@ func contextNudge(transcript string) string {
 // The first line of a tail may be cut; it fails to parse and is skipped.
 func lastContext(tail []byte) int {
 	lines := bytes.Split(tail, []byte("\n"))
-	for i := len(lines) - 1; i >= 0; i-- {
+	for _, line := range slices.Backward(lines) {
 		var t usageLine
-		if json.Unmarshal(lines[i], &t) != nil || t.Type != "assistant" || t.IsSidechain || strings.HasPrefix(t.Message.Model, "<") {
+		if json.Unmarshal(line, &t) != nil || t.Type != "assistant" || t.IsSidechain || strings.HasPrefix(t.Message.Model, "<") {
 			continue
 		}
 		u := t.Message.Usage

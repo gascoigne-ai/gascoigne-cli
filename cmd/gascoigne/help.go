@@ -270,7 +270,7 @@ func indent(text string) string {
 func wrap(text string, width int) []string {
 	var lines []string
 	line := ""
-	for _, word := range strings.Fields(text) {
+	for word := range strings.FieldsSeq(text) {
 		if line != "" && len(line)+1+len(word) > width {
 			lines = append(lines, line)
 			line = ""

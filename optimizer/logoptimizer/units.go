@@ -1,6 +1,10 @@
 package logoptimizer
 
-import "github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+import (
+	"slices"
+
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+)
 
 // unitLine is a systemd job message: "<time> host systemd[1]: Starting X...".
 var unitLine = lazyre.New(`^[A-Z][a-z]{2} [ \d]\d \d\d:\d\d:\d\d (\S+ \S+?\[\d+\]): (Starting|Started|Finished|Stopping|Stopped) (.+?)(\.\.\.|\.)$`)
@@ -16,8 +20,8 @@ var (
 func unitPairs(lines []string) []string {
 	done := map[string]bool{}
 	drop := make([]bool, len(lines))
-	for i := len(lines) - 1; i >= 0; i-- {
-		m := unitLine.FindStringSubmatch(lines[i])
+	for i, line := range slices.Backward(lines) {
+		m := unitLine.FindStringSubmatch(line)
 		if m == nil {
 			continue
 		}

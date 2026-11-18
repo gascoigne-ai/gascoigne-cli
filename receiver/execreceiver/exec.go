@@ -109,7 +109,8 @@ func (r *Receiver) watch(ctx context.Context, inv *Invocation, cmd *exec.Cmd, re
 	sc.Buffer(make([]byte, 64<<10), 16<<20)
 	var cycle strings.Builder
 	for sc.Scan() {
-		cycle.WriteString(sc.Text() + "\n")
+		cycle.WriteString(sc.Text())
+		cycle.WriteString("\n")
 		if !watch.End(sc.Text()) {
 			continue
 		}

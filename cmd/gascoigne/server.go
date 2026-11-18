@@ -224,10 +224,10 @@ func watchBinary(ctx context.Context, current string, every time.Duration, read 
 		case <-t.C:
 		}
 		b := read()
-		switch {
-		case b == current || b == "unknown":
+		switch b {
+		case current, "unknown":
 			seen = current
-		case b == seen:
+		case seen:
 			changed()
 			return
 		default:

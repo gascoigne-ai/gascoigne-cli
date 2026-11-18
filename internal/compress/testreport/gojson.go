@@ -3,6 +3,7 @@ package testreport
 import (
 	"bufio"
 	"encoding/json"
+	"slices"
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
@@ -58,13 +59,15 @@ func (p *pkgEvents) add(ev event) {
 // write renders the output of the failed tests and the package result as go test prints them.
 func (p *pkgEvents) write(out *strings.Builder) {
 	// Subtests fail before their parents; report parents first.
-	for i := len(p.failed) - 1; i >= 0; i-- {
-		for _, l := range p.out[p.failed[i]] {
-			out.WriteString(l + "\n")
+	for _, name := range slices.Backward(p.failed) {
+		for _, l := range p.out[name] {
+			out.WriteString(l)
+			out.WriteString("\n")
 		}
 	}
 	if p.result != "" {
-		out.WriteString(p.result + "\n")
+		out.WriteString(p.result)
+		out.WriteString("\n")
 	}
 }
 

@@ -114,7 +114,7 @@ var autosyncChoices = toggleChoices
 // foundAgents are the agents whose program PATH finds.
 func foundAgents() []string {
 	var names []string
-	for _, name := range strings.Split(agentNames(), ", ") {
+	for name := range strings.SplitSeq(agentNames(), ", ") {
 		bins := []string{agents[name].bin}
 		if name == "cursor" {
 			bins = []string{"cursor", "cursor-agent"}

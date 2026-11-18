@@ -117,7 +117,7 @@ func renumber(plain string, nums []string, opt string) string {
 	orig := strings.Split(strings.TrimRight(plain, "\n"), "\n")
 	var b strings.Builder
 	i := 0
-	for _, l := range strings.Split(strings.TrimRight(opt, "\n"), "\n") {
+	for l := range strings.SplitSeq(strings.TrimRight(opt, "\n"), "\n") {
 		j := i
 		for j < len(orig) && orig[j] != l {
 			j++
@@ -127,7 +127,8 @@ func renumber(plain string, nums []string, opt string) string {
 			i = j + 1
 			continue
 		}
-		b.WriteString(l + "\n")
+		b.WriteString(l)
+		b.WriteString("\n")
 	}
 	return b.String()
 }
