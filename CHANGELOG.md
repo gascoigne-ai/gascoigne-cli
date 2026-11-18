@@ -5,6 +5,35 @@ All notable changes to gascoigne. The format follows
 [Semantic Versioning](https://semver.org/). Each release starts with "In short": what changed for you, in plain
 words. The technical details follow.
 
+## [Unreleased]
+
+### In short
+
+- **`gain` can filter by pipeline.** `gascoigne gain -pipeline exec,hook` limits the report to those pipelines, and
+  `-by pipeline` and `-by type` group by pipeline or detected type. Rolled-up days carry neither, so these views
+  read recent events only.
+- **`cat` of mixed file types.** `cat src/index.ts package.json` is no longer typed by its last file, so the
+  JSON optimizer is not handed source text and the source is no longer marked as failing.
+- **Current prices.** Fable 5.2, Mythos 5.2, GPT-6 and Gemini 4 are in the price table.
+
+### Added
+- `gain -pipeline NAME[,NAME]`, `gain -by pipeline` and `gain -by type`; the ledger records an event type at
+  detection time.
+- Config files carry a version: a missing key means 1, a newer version fails naming the file.
+
+### Fixed
+- A file reader (`cat`, `head`, `sed`, ...) naming files of different types leaves the type to the sniffer
+  (`detect.FromCmd`). Before, the last file's type was given to the whole output, the json optimizer failed on the
+  source text and the run was recorded as an error, which made later runs of that source gentler.
+- A price layer whose first fetch failed shows when it will try again.
+- CI checks out the harness submodule; every run had failed at the imports step.
+
+### Changed
+- Internal: single-consumer compress libraries (`drain`, `trace`, `pkglist`, `tree`) live in their optimizers,
+  `cmd/gascoigne` files are split by job (context, setup, dashboard routes, hook rewriter, Codex TOML editor), and
+  shared file helpers replace repeated copies. No behavior change; `make check` now also rejects one-letter
+  parameters and package-level `regexp.MustCompile`.
+
 ## [0.11.0] - 2026-11-05
 
 A security fix for the pricing setup, and the SDK counts tokens only.
