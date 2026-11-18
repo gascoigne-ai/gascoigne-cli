@@ -98,7 +98,7 @@ func opencodeAfter(next hookFunc) hookFunc {
 		attrs := mcptool.Attrs(in.ToolName, in.ToolInput)
 		switch {
 		case in.ToolName == "bash":
-			cmd, _ := in.ToolInput["command"].(string)
+			cmd := strField(in.ToolInput, "command")
 			if ownCommand(cmd) {
 				return nil, nil
 			}

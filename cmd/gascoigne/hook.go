@@ -150,11 +150,11 @@ func adoptEvent(shared *common, name string, in hookInput) (model string) {
 // reply shapes the agent's answer (updated is nil when nothing changed).
 func rewriteHook(reply func(updated map[string]any) any) hookFunc {
 	return func(_ context.Context, _ *common, in hookInput, prefix string) (any, error) {
-		cmd, _ := in.ToolInput["command"].(string)
+		cmd := strField(in.ToolInput, "command")
 		background, _ := in.ToolInput["run_in_background"].(bool)
 		// The call's description says what the output is read for: ranked
 		// optimizers (search matches, doc sections, JSON items) keep that first.
-		desc, _ := in.ToolInput["description"].(string)
+		desc := strField(in.ToolInput, "description")
 		if q := sample.Intent(desc); q != "" {
 			prefix += " -attr query=" + mcptool.ShellQuote(q)
 		}
@@ -183,7 +183,7 @@ func optimizeHook(reply func(text string) any) hookFunc {
 			}
 			return reply(out), nil
 		}
-		cmd, _ := in.ToolInput["command"].(string)
+		cmd := strField(in.ToolInput, "command")
 		text, code, ok := shellOutput(in.ToolResponse)
 		if !ok || ownCommand(cmd) {
 			return nil, nil

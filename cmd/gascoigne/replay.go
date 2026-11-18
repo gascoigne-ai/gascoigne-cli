@@ -191,7 +191,7 @@ type toolReplay struct {
 // session is the conversation rebuilt from a transcript, as the client
 // sends it: consecutive lines of one role merged into one message.
 type session struct {
-	messages []map[string]any
+	messages []message
 	model    string
 	tools    map[string]string // tool_use id → tool name
 	// What the previous request sent: the client's messages and the
@@ -201,6 +201,14 @@ type session struct {
 	results map[string]resultTokens
 	price   cost.Model
 	tokens  map[string]int // memo: canonical message → tokens.Estimate
+}
+
+// message is one conversation message as the client sends it. Content stays a
+// block list of untyped objects: blocks reach the proxy with every field they had.
+// Content comes first so the encoded keys keep the sorted order of the old maps.
+type message struct {
+	Content []any  `json:"content"`
+	Role    string `json:"role"`
 }
 
 type resultTokens struct {
@@ -254,18 +262,16 @@ func (s *session) add(ctx context.Context, proxy http.Handler, up *upstream, pat
 	content := blocks(line.Message.Content)
 	switch {
 	case line.IsCompactSummary:
-		s.messages, s.prevOrig, s.prevFwd = []map[string]any{{"role": "user", "content": content}}, nil, nil
+		s.messages, s.prevOrig, s.prevFwd = []message{{Role: "user", Content: content}}, nil, nil
 	case line.Type == "assistant":
 		s.model = cmp.Or(line.Message.Model, s.model)
 		for _, block := range content {
 			if fields, ok := block.(map[string]any); ok && fields["type"] == "tool_use" {
-				id, _ := fields["id"].(string)
-				name, _ := fields["name"].(string)
-				s.tools[id] = name
+				s.tools[strField(fields, "id")] = strField(fields, "name")
 			}
 		}
-		if last := s.last(); last != nil && last["role"] == "assistant" && line.Message.ID == *lastID {
-			last["content"] = append(last["content"].([]any), content...)
+		if last := s.last(); last != nil && last.Role == "assistant" && line.Message.ID == *lastID {
+			last.Content = append(last.Content, content...)
 			return nil
 		}
 		if s.endsWithToolResult() {
@@ -274,13 +280,13 @@ func (s *session) add(ctx context.Context, proxy http.Handler, up *upstream, pat
 			}
 		}
 		*lastID = line.Message.ID
-		s.messages = append(s.messages, map[string]any{"role": "assistant", "content": content})
+		s.messages = append(s.messages, message{Role: "assistant", Content: content})
 	default:
-		if last := s.last(); last != nil && last["role"] == "user" {
-			last["content"] = append(last["content"].([]any), content...)
+		if last := s.last(); last != nil && last.Role == "user" {
+			last.Content = append(last.Content, content...)
 			return nil
 		}
-		s.messages = append(s.messages, map[string]any{"role": "user", "content": content})
+		s.messages = append(s.messages, message{Role: "user", Content: content})
 	}
 	return nil
 }
@@ -303,21 +309,21 @@ func (rep *replayReport) addResults(sess *session) {
 	}
 }
 
-func (s *session) last() map[string]any {
+func (s *session) last() *message {
 	if len(s.messages) == 0 {
 		return nil
 	}
-	return s.messages[len(s.messages)-1]
+	return &s.messages[len(s.messages)-1]
 }
 
 func (s *session) endsWithToolResult() bool {
 	last := s.last()
-	if last == nil || last["role"] != "user" {
+	if last == nil || last.Role != "user" {
 		return false
 	}
-	return slices.ContainsFunc(last["content"].([]any), func(block any) bool {
-		m, ok := block.(map[string]any)
-		return ok && m["type"] == "tool_result"
+	return slices.ContainsFunc(last.Content, func(block any) bool {
+		fields, ok := block.(map[string]any)
+		return ok && fields["type"] == "tool_result"
 	})
 }
 
@@ -464,8 +470,7 @@ func toolResults(body []byte) (map[string]string, error) {
 			if !ok || r["type"] != "tool_result" {
 				continue
 			}
-			id, _ := r["tool_use_id"].(string)
-			out[id] = toolResultText(r)
+			out[strField(r, "tool_use_id")] = toolResultText(r)
 		}
 	}
 	return out, nil

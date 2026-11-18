@@ -28,15 +28,15 @@ func anthropic(ctx context.Context, receiver *Receiver, doc map[string]any, info
 func anthropicBlock(ctx context.Context, receiver *Receiver, calls map[string]call, block map[string]any, info meta) bool {
 	switch block["type"] {
 	case "tool_use":
-		id, _ := block["id"].(string)
-		name, _ := block["name"].(string)
-		input, _ := block["input"].(map[string]any)
+		id := str(block, "id")
+		name := str(block, "name")
+		input := obj(block, "input")
 		calls[id] = call{name, input}
 	case "tool_result":
 		if block["is_error"] == true {
 			return false
 		}
-		id, _ := block["tool_use_id"].(string)
+		id := str(block, "tool_use_id")
 		c, ok := calls[id]
 		if !ok {
 			return false
@@ -91,16 +91,16 @@ func chatCompletions(ctx context.Context, receiver *Receiver, doc map[string]any
 	changed := false
 	for msg := range messages(doc, "messages") {
 		for tc := range objects(msg["tool_calls"]) {
-			fn, _ := tc["function"].(map[string]any)
-			id, _ := tc["id"].(string)
-			name, _ := fn["name"].(string)
-			args, _ := fn["arguments"].(string)
+			fn := obj(tc, "function")
+			id := str(tc, "id")
+			name := str(fn, "name")
+			args := str(fn, "arguments")
 			calls[id] = call{name, arguments(args)}
 		}
 		if msg["role"] != "tool" {
 			continue
 		}
-		id, _ := msg["tool_call_id"].(string)
+		id := str(msg, "tool_call_id")
 		if c, ok := calls[id]; ok {
 			if content, ok := replaceContent(ctx, receiver, c, msg["content"], info); ok {
 				msg["content"] = content
@@ -116,18 +116,18 @@ func responses(ctx context.Context, receiver *Receiver, doc map[string]any, info
 	calls := map[string]call{}
 	changed := false
 	for item := range messages(doc, "input") {
-		id, _ := item["call_id"].(string)
+		id := str(item, "call_id")
 		switch item["type"] {
 		case "function_call":
-			name, _ := item["name"].(string)
-			args, _ := item["arguments"].(string)
+			name := str(item, "name")
+			args := str(item, "arguments")
 			calls[id] = call{name, arguments(args)}
 		case "custom_tool_call":
-			name, _ := item["name"].(string)
-			input, _ := item["input"].(string)
+			name := str(item, "name")
+			input := str(item, "input")
 			calls[id] = call{name, map[string]any{"command": input}}
 		case "local_shell_call":
-			action, _ := item["action"].(map[string]any)
+			action := obj(item, "action")
 			calls[id] = call{"shell", normalize(map[string]any{"command": action["command"]})}
 		case "function_call_output", "custom_tool_call_output", "local_shell_call_output":
 			c, ok := calls[id]
@@ -182,15 +182,15 @@ func gemini(ctx context.Context, receiver *Receiver, doc map[string]any, info me
 	changed := false
 	for content := range messages(doc, "contents") {
 		for part := range objects(content["parts"]) {
-			if fc, ok := part["functionCall"].(map[string]any); ok {
-				name, _ := fc["name"].(string)
-				id, _ := fc["id"].(string)
-				args, _ := fc["args"].(map[string]any)
+			if fc := obj(part, "functionCall"); fc != nil {
+				name := str(fc, "name")
+				id := str(fc, "id")
+				args := obj(fc, "args")
 				calls = append(calls, &geminiCall{call: call{name, args}, id: id})
 				continue
 			}
-			fr, _ := part["functionResponse"].(map[string]any)
-			resp, _ := fr["response"].(map[string]any)
+			fr := obj(part, "functionResponse")
+			resp := obj(fr, "response")
 			c := answered(calls, fr)
 			if c == nil || resp == nil {
 				continue
@@ -215,8 +215,8 @@ type geminiCall struct {
 // answered finds the call a functionResponse answers, by id when it has
 // one, else the oldest open call of its name, and marks it answered.
 func answered(calls []*geminiCall, fr map[string]any) *geminiCall {
-	name, _ := fr["name"].(string)
-	id, _ := fr["id"].(string)
+	name := str(fr, "name")
+	id := str(fr, "id")
 	for _, c := range calls {
 		if !c.done && (id != "" && c.id == id || id == "" && c.name == name) {
 			c.done = true
@@ -231,12 +231,12 @@ func (r *Receiver) shrinkImages(ctx context.Context, block map[string]any) bool 
 	if r.cfg.MaxImagePixels <= 0 || block["type"] != "image" {
 		return false
 	}
-	src, _ := block["source"].(map[string]any)
-	data, _ := src["data"].(string)
+	src := obj(block, "source")
+	data := str(src, "data")
 	if src["type"] != "base64" || data == "" {
 		return false
 	}
-	mt, _ := src["media_type"].(string)
+	mt := str(src, "media_type")
 	key := "image\x00" + cacheKey(call{name: mt}, data)
 	out, ok := r.cache.Get(key)
 	if !ok {

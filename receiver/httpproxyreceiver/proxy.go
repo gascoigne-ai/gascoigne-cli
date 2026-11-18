@@ -190,7 +190,7 @@ func (r *Receiver) rewrite(req *http.Request, api rewriter) {
 	if dec.Decode(&doc) != nil {
 		return
 	}
-	model, _ := doc["model"].(string)
+	model := str(doc, "model")
 	if model == "" { // Bedrock and Gemini name it in the path
 		model = bedrockModel(req.URL.Path)
 	}

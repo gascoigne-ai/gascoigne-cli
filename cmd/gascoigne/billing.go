@@ -127,7 +127,7 @@ func detectCodex() cost.Detection {
 		dir = filepath.Join(home(), ".codex")
 	}
 	auth := readJSON(filepath.Join(dir, "auth.json"))
-	if key, _ := auth["OPENAI_API_KEY"].(string); key != "" {
+	if strField(auth, "OPENAI_API_KEY") != "" {
 		return api("auth.json holds an API key")
 	}
 	if auth["tokens"] != nil {

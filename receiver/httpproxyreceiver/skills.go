@@ -37,7 +37,7 @@ func (r *Receiver) skills(ctx context.Context, doc map[string]any, info meta) bo
 			continue
 		}
 		for b := range objects(msg["content"]) {
-			text, _ := b["text"].(string)
+			text := str(b, "text")
 			if b["type"] != "text" {
 				continue
 			}

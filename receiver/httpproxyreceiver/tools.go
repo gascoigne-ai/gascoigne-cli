@@ -29,7 +29,7 @@ func (r *Receiver) compactTools(ctx context.Context, doc map[string]any, info me
 	changed := false
 	for _, tv := range tools {
 		for _, d := range declarations(tv) {
-			name, _ := d["name"].(string)
+			name := str(d, "name")
 			for _, key := range []string{"input_schema", "parameters", "parametersJsonSchema", "inputSchema"} {
 				if s, ok := d[key].(map[string]any); ok && schema.Compact(name, s) {
 					changed = true
@@ -47,7 +47,7 @@ func (r *Receiver) compactTools(ctx context.Context, doc map[string]any, info me
 // its schema.
 func declarations(value any) []map[string]any {
 	t, _ := value.(map[string]any)
-	if fn, ok := t["function"].(map[string]any); ok {
+	if fn := obj(t, "function"); fn != nil {
 		return []map[string]any{fn}
 	}
 	if list := asList(t["functionDeclarations"]); len(list) > 0 {

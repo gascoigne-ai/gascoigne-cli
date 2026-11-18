@@ -42,7 +42,7 @@ func instructions(doc map[string]any) []string {
 	}
 	add(doc["system"])
 	add(doc["instructions"])
-	if si, ok := doc["systemInstruction"].(map[string]any); ok {
+	if si := obj(doc, "systemInstruction"); si != nil {
 		add(si["parts"])
 	}
 	for msg := range messages(doc, "messages", "input") {

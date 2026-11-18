@@ -31,6 +31,26 @@ import (
 // Claude numbers its lines itself, and dropped lines would shift the numbers
 // it shows.
 
+// strField is the string at key of a decoded JSON object; "" when absent or not a string.
+func strField(fields map[string]any, key string) string {
+	text, _ := fields[key].(string)
+	return text
+}
+
+// objField is the object at key of a decoded JSON object; nil when absent or not an object.
+// The reply keeps the tool's other fields, so objects stay maps.
+func objField(fields map[string]any, key string) map[string]any {
+	object, _ := fields[key].(map[string]any)
+	return object
+}
+
+// textBlock is the text of an MCP content block {"type":"text","text":...}.
+func textBlock(block any) (text string, ok bool) {
+	fields, _ := block.(map[string]any)
+	text, isText := fields["text"].(string)
+	return text, isText && fields["type"] == "text"
+}
+
 // withResults answers Claude's PostToolUse events; other events go to h.
 func withResults(hook hookFunc) hookFunc {
 	return func(ctx context.Context, shared *common, in hookInput, prefix string) (any, error) {
@@ -66,7 +86,7 @@ func optimizeResult(ctx context.Context, shared *common, in hookInput) (any, err
 	name := in.ToolName
 	switch {
 	case name == "Bash":
-		cmd, _ := in.ToolInput["command"].(string)
+		cmd := strField(in.ToolInput, "command")
 		if ownCommand(cmd) {
 			return nil, nil
 		}
@@ -76,7 +96,7 @@ func optimizeResult(ctx context.Context, shared *common, in hookInput) (any, err
 		if obj["mode"] != "content" {
 			return nil, nil
 		}
-		pattern, _ := in.ToolInput["pattern"].(string)
+		pattern := strField(in.ToolInput, "pattern")
 		return replaceField(ctx, shared, resp, "content", map[string]string{payload.AttrCmd: "rg -n " + mcptool.ShellQuote(pattern)})
 	case name == "Read":
 		return readImage(ctx, shared, resp)
@@ -92,8 +112,7 @@ func replaceField(ctx context.Context, shared *common, resp any, field string, a
 	if !ok {
 		return nil, nil
 	}
-	text, _ := obj[field].(string)
-	opt, err := optimizeText(ctx, shared, text, attrs)
+	opt, err := optimizeText(ctx, shared, strField(obj, field), attrs)
 	if err != nil || opt == "" {
 		return nil, err
 	}
@@ -117,9 +136,8 @@ func mcpResult(ctx context.Context, shared *common, resp any, attrs map[string]s
 		out := make([]any, len(v))
 		for i, b := range v {
 			out[i] = b
-			block, ok := b.(map[string]any)
-			text, isText := block["text"].(string)
-			if !ok || block["type"] != "text" || !isText {
+			text, ok := textBlock(b)
+			if !ok {
 				continue
 			}
 			opt, err := optimizeText(ctx, shared, text, attrs)
@@ -127,7 +145,7 @@ func mcpResult(ctx context.Context, shared *common, resp any, attrs map[string]s
 				return nil, err
 			}
 			if opt != "" {
-				nb := maps.Clone(block)
+				nb := maps.Clone(b.(map[string]any))
 				nb["text"] = opt
 				out[i], changed = nb, true
 			}
@@ -178,8 +196,8 @@ func optimizeText(ctx context.Context, shared *common, text string, attrs map[st
 // to the ledger first; if it cannot be kept the image stays.
 func readImage(ctx context.Context, shared *common, resp any) (any, error) {
 	obj, _ := resp.(map[string]any)
-	file, _ := obj["file"].(map[string]any)
-	data, _ := file["base64"].(string)
+	file := objField(obj, "file")
+	data := strField(file, "base64")
 	if obj["type"] != "image" || data == "" {
 		return nil, nil
 	}
@@ -187,7 +205,7 @@ func readImage(ctx context.Context, shared *common, resp any) (any, error) {
 	if err != nil || maxPixels <= 0 {
 		return nil, err
 	}
-	mt, _ := file["type"].(string)
+	mt := strField(file, "type")
 	out, before, after, ok := imgscale.Shrink(data, mt, maxPixels)
 	if !ok {
 		return nil, nil
@@ -197,7 +215,7 @@ func readImage(ctx context.Context, shared *common, resp any) (any, error) {
 	}
 	nf := maps.Clone(file)
 	nf["base64"] = out
-	if dims, ok := file["dimensions"].(map[string]any); ok {
+	if dims := objField(file, "dimensions"); dims != nil {
 		nf["dimensions"] = scaledDims(dims, out)
 	}
 	no := maps.Clone(obj)

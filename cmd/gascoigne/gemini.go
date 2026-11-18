@@ -69,7 +69,7 @@ func geminiAfter(next hookFunc) hookFunc {
 		}
 		attrs := mcptool.Attrs(in.ToolName, in.ToolInput)
 		if in.ToolName == "run_shell_command" {
-			cmd, _ := in.ToolInput["command"].(string)
+			cmd := strField(in.ToolInput, "command")
 			if ownCommand(cmd) {
 				return nil, nil
 			}
