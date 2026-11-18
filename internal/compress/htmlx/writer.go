@@ -24,7 +24,87 @@ type list struct {
 	n       int
 }
 
-var headings = map[atom.Atom]string{atom.H1: "#", atom.H2: "##", atom.H3: "###", atom.H4: "####", atom.H5: "#####", atom.H6: "######"}
+// elements renders one element kind; atoms not listed render their children.
+var elements = map[atom.Atom]func(md *writer, node *html.Node){}
+
+func init() {
+	for a, marks := range map[atom.Atom]string{atom.H1: "#", atom.H2: "##", atom.H3: "###", atom.H4: "####", atom.H5: "#####", atom.H6: "######"} {
+		elements[a] = func(md *writer, node *html.Node) {
+			md.block()
+			md.b.WriteString(marks + " " + md.inline(node))
+			md.block()
+		}
+	}
+	for _, a := range []atom.Atom{atom.P, atom.Div, atom.Section, atom.Article, atom.Main, atom.Dl, atom.Figure, atom.Details, atom.Summary} {
+		elements[a] = func(md *writer, node *html.Node) {
+			md.block()
+			md.children(node)
+			md.block()
+		}
+	}
+	for _, a := range []atom.Atom{atom.Dt, atom.Dd} {
+		elements[a] = func(md *writer, node *html.Node) {
+			md.line()
+			md.children(node)
+		}
+	}
+	for _, a := range []atom.Atom{atom.Ul, atom.Ol} {
+		elements[a] = func(md *writer, node *html.Node) {
+			md.lists = append(md.lists, list{ordered: a == atom.Ol})
+			md.block()
+			md.children(node)
+			md.lists = md.lists[:len(md.lists)-1]
+			md.block()
+		}
+	}
+	for _, a := range []atom.Atom{atom.Td, atom.Th} {
+		elements[a] = func(md *writer, node *html.Node) {
+			md.b.WriteString("| ")
+			md.children(node)
+			md.b.WriteString(" ")
+		}
+	}
+	elements[atom.Tr] = func(md *writer, node *html.Node) {
+		md.line()
+		md.children(node)
+		md.b.WriteString("|")
+	}
+	elements[atom.Br] = func(md *writer, _ *html.Node) { md.line() }
+	elements[atom.Hr] = func(md *writer, _ *html.Node) { md.block() }
+	elements[atom.Li] = func(md *writer, node *html.Node) {
+		md.item()
+		md.children(node)
+	}
+	elements[atom.Pre] = func(md *writer, node *html.Node) {
+		md.block()
+		md.b.WriteString("```\n")
+		md.inPre = true
+		md.children(node)
+		md.inPre = false
+		if !strings.HasSuffix(md.b.String(), "\n") {
+			md.b.WriteString("\n")
+		}
+		md.b.WriteString("```")
+		md.block()
+	}
+	elements[atom.Code] = func(md *writer, node *html.Node) {
+		if md.inPre {
+			md.children(node)
+			return
+		}
+		md.b.WriteString("`")
+		md.children(node)
+		md.b.WriteString("`")
+	}
+	elements[atom.A] = (*writer).link
+	elements[atom.Blockquote] = func(md *writer, node *html.Node) {
+		md.quote++
+		md.block()
+		md.children(node)
+		md.quote--
+		md.block()
+	}
+}
 
 func (w *writer) node(node *html.Node) {
 	switch node.Type {
@@ -39,66 +119,11 @@ func (w *writer) node(node *html.Node) {
 	if skip[node.DataAtom] || w.dense[node] || attr(node, "hidden") != "" || attr(node, "aria-hidden") == "true" {
 		return
 	}
-	switch a := node.DataAtom; {
-	case headings[a] != "":
-		w.block()
-		w.b.WriteString(headings[a] + " " + w.inline(node))
-		w.block()
-	case a == atom.P || a == atom.Div || a == atom.Section || a == atom.Article || a == atom.Main ||
-		a == atom.Dl || a == atom.Figure || a == atom.Details || a == atom.Summary:
-		w.block()
-		w.children(node)
-		w.block()
-	case a == atom.Dt || a == atom.Dd:
-		w.line()
-		w.children(node)
-	case a == atom.Tr:
-		w.line()
-		w.children(node)
-		w.b.WriteString("|")
-	case a == atom.Br:
-		w.line()
-	case a == atom.Hr:
-		w.block()
-	case a == atom.Ul || a == atom.Ol:
-		w.lists = append(w.lists, list{ordered: a == atom.Ol})
-		w.block()
-		w.children(node)
-		w.lists = w.lists[:len(w.lists)-1]
-		w.block()
-	case a == atom.Li:
-		w.item()
-		w.children(node)
-	case a == atom.Pre:
-		w.block()
-		w.b.WriteString("```\n")
-		w.inPre = true
-		w.children(node)
-		w.inPre = false
-		if !strings.HasSuffix(w.b.String(), "\n") {
-			w.b.WriteString("\n")
-		}
-		w.b.WriteString("```")
-		w.block()
-	case a == atom.Code && !w.inPre:
-		w.b.WriteString("`")
-		w.children(node)
-		w.b.WriteString("`")
-	case a == atom.A:
-		w.link(node)
-	case a == atom.Blockquote:
-		w.quote++
-		w.block()
-		w.children(node)
-		w.quote--
-		w.block()
-	case a == atom.Td || a == atom.Th:
-		w.b.WriteString("| ")
-		w.children(node)
-		w.b.WriteString(" ")
-	default:
-		w.children(node)
+	if render, ok := elements[node.DataAtom]; ok {
+		render(w, node)
+		return
 	}
+	w.children(node)
 }
 
 func (w *writer) children(node *html.Node) {

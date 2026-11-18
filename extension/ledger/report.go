@@ -13,46 +13,54 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 )
 
+// grouping is a column the live stats group by, of the events table or, when
+// steps is set, of the steps joined to their events.
+type grouping struct {
+	column string
+	steps  bool
+}
+
+var groupings = map[string]grouping{
+	component.ByRoute:    {column: "events.route"},
+	component.BySession:  {column: "events.session"},
+	component.ByAgent:    {column: "events.agent"},
+	component.ByModel:    {column: "events.model"},
+	component.ByCommand:  {column: "events.command"},
+	component.ByPipeline: {column: "events.pipeline"},
+	component.ByType:     {column: `events."type"`},
+	component.ByOutcome:  {column: "events.outcome"},
+	component.ByDay:      {column: period(component.ByDay)},
+	component.ByWeek:     {column: period(component.ByWeek)},
+	component.ByMonth:    {column: period(component.ByMonth)},
+
+	component.ByFamily:    {column: "steps.family", steps: true},
+	component.ByOptimizer: {column: "steps.optimizer", steps: true},
+	component.ByDialect:   {column: "steps.dialect", steps: true},
+}
+
+// reports are the groupings with a query of their own.
+var reports = map[string]func(ledger *Ledger, ctx context.Context, query component.StatsQuery) ([]component.Stat, error){
+	component.ByReason:        (*Ledger).reasons,
+	component.ByFamilyOutcome: (*Ledger).familyOutcomes,
+}
+
 // liveStats aggregates the events still stored by route or session, or
 // optimizer steps by family or optimizer, optionally within one session;
 // biggest savings first. Stats adds the rolled-up history to it.
 func (l *Ledger) liveStats(ctx context.Context, query component.StatsQuery) ([]component.Stat, error) {
-	var (
-		tx           *gorm.DB
-		group, table string
-	)
-	switch cmp.Or(query.By, component.ByRoute) {
-	case component.ByRoute:
-		tx, group, table = l.events(ctx), "events.route", "events"
-	case component.BySession:
-		tx, group, table = l.events(ctx), "events.session", "events"
-	case component.ByAgent:
-		tx, group, table = l.events(ctx), "events.agent", "events"
-	case component.ByModel:
-		tx, group, table = l.events(ctx), "events.model", "events"
-	case component.ByCommand:
-		tx, group, table = l.events(ctx), "events.command", "events"
-	case component.ByPipeline:
-		tx, group, table = l.events(ctx), "events.pipeline", "events"
-	case component.ByType:
-		tx, group, table = l.events(ctx), `events."type"`, "events"
-	case component.ByOutcome:
-		tx, group, table = l.events(ctx), "events.outcome", "events"
-	case component.ByDay, component.ByWeek, component.ByMonth:
-		tx, group, table = l.events(ctx), period(query.By), "events"
-	case component.ByReason:
-		return l.reasons(ctx, query)
-	case component.ByFamilyOutcome:
-		return l.familyOutcomes(ctx, query)
-	case component.ByFamily:
-		tx, group, table = l.steps(ctx), "steps.family", "steps"
-	case component.ByOptimizer:
-		tx, group, table = l.steps(ctx), "steps.optimizer", "steps"
-	case component.ByDialect:
-		tx, group, table = l.steps(ctx), "steps.dialect", "steps"
-	default:
+	by := cmp.Or(query.By, component.ByRoute)
+	if report, ok := reports[by]; ok {
+		return report(l, ctx, query)
+	}
+	g, ok := groupings[by]
+	if !ok {
 		return nil, fmt.Errorf("stats: unknown grouping %q", query.By)
 	}
+	tx, table := l.events(ctx), "events"
+	if g.steps {
+		tx, table = l.steps(ctx), "steps"
+	}
+	group := g.column
 	tx = filter(tx, "events", query)
 	order := fmt.Sprintf("sum(%[1]s.raw_tokens) - sum(%[2]s) DESC, 1", table, l.outTokens(query.By))
 	if query.Chronological() {

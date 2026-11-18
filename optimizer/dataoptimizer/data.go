@@ -26,27 +26,30 @@ type Optimizer struct {
 	cfg *Config
 }
 
+// handlers rewrite one content type; others stay as they are.
+var handlers = map[string]func(opt *Optimizer, text string, query []string) (string, error){
+	detect.YAML: (*Optimizer).yaml,
+	detect.CSV: func(opt *Optimizer, text string, query []string) (string, error) {
+		return opt.csv(text, query), nil
+	},
+	detect.XML: func(opt *Optimizer, text string, _ []string) (string, error) { return opt.xml(text) },
+	detect.TOML: func(_ *Optimizer, text string, _ []string) (string, error) {
+		return toml(text), nil
+	},
+	detect.IPYNB: func(opt *Optimizer, text string, _ []string) (string, error) { return opt.notebook(text) },
+	detect.Lock: func(_ *Optimizer, text string, _ []string) (string, error) {
+		return lock(text), nil
+	},
+}
+
 func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 	query := sample.Terms(data.Attrs[payload.AttrQuery])
 	for i, b := range data.Blocks {
-		var out string
-		var err error
-		switch b.Type {
-		case detect.YAML:
-			out, err = o.yaml(b.Text, query)
-		case detect.CSV:
-			out = o.csv(b.Text, query)
-		case detect.XML:
-			out, err = o.xml(b.Text)
-		case detect.TOML:
-			out = toml(b.Text)
-		case detect.IPYNB:
-			out, err = o.notebook(b.Text)
-		case detect.Lock:
-			out = lock(b.Text)
-		default:
+		handle, ok := handlers[b.Type]
+		if !ok {
 			continue
 		}
+		out, err := handle(o, b.Text, query)
 		if err != nil {
 			return err
 		}

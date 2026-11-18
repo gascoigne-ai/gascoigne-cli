@@ -22,23 +22,31 @@ type Optimizer struct {
 	cfg *Config
 }
 
+// handlers compress one dialect; others are result sets.
+var handlers = map[string]func(opt *Optimizer, block payload.Block, lines []string, opts table.Options) []string{
+	"explain": func(opt *Optimizer, _ payload.Block, lines []string, _ table.Options) []string {
+		return opt.plan(lines)
+	},
+	"redis": func(_ *Optimizer, _ payload.Block, lines []string, _ table.Options) []string { return redis(lines) },
+	"mongosh": func(_ *Optimizer, block payload.Block, _ []string, opts table.Options) []string {
+		return mongo(block.Text, opts)
+	},
+	"migrate": func(_ *Optimizer, _ payload.Block, lines []string, _ table.Options) []string {
+		return migrations(lines)
+	},
+}
+
 func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 	opts := o.cfg.Options(sample.Terms(data.Attrs[payload.AttrQuery]))
 	return data.RewriteFamily(func(block payload.Block) (string, error) {
 		lines := compress.CleanLines(block.Text)
-		var out []string
-		switch detect.Dialect(block.Type) {
-		case "explain":
-			out = o.plan(lines)
-		case "redis":
-			out = redis(lines)
-		case "mongosh":
-			out = mongo(block.Text, opts)
-		case "migrate":
-			out = migrations(lines)
-		default:
-			out = results(lines, opts)
+		handle, ok := handlers[detect.Dialect(block.Type)]
+		if !ok {
+			handle = func(_ *Optimizer, _ payload.Block, lines []string, opts table.Options) []string {
+				return results(lines, opts)
+			}
 		}
+		out := handle(o, block, lines, opts)
 		return compress.Join(out), nil
 	}, detect.FamilyDB)
 }

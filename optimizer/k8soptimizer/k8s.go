@@ -28,6 +28,23 @@ type Optimizer struct {
 	cfg *Config
 }
 
+// handlers compress one dialect; others are tables. Manifests are YAML
+// documents, not lines, and go first.
+var handlers = map[string]func(opt *Optimizer, lines []string, topts table.Options) []string{
+	"describe": func(_ *Optimizer, lines []string, _ table.Options) []string { return describe(lines) },
+	"events":   func(_ *Optimizer, lines []string, topts table.Options) []string { return events(lines, topts) },
+	"apply":    func(_ *Optimizer, lines []string, _ table.Options) []string { return apply(lines) },
+	"rollout":  func(_ *Optimizer, lines []string, _ table.Options) []string { return rollout(lines) },
+	"helm":     (*Optimizer).helm,
+}
+
+func tableOf(_ *Optimizer, lines []string, topts table.Options) []string {
+	if out, ok := table.Compress(lines, topts); ok {
+		return out
+	}
+	return lines
+}
+
 func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 	topts := o.cfg.Options(sample.Terms(data.Attrs[payload.AttrQuery]))
 	return data.RewriteFamily(func(block payload.Block) (string, error) {
@@ -35,24 +52,11 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 			return o.manifests(block.Text)
 		}
 		lines := compress.CleanLines(block.Text)
-		var out []string
-		switch detect.Dialect(block.Type) {
-		case "describe":
-			out = describe(lines)
-		case "events":
-			out = events(lines, topts)
-		case "apply":
-			out = apply(lines)
-		case "rollout":
-			out = rollout(lines)
-		case "helm":
-			out = o.helm(lines, topts)
-		default: // get and other tables
-			var ok bool
-			if out, ok = table.Compress(lines, topts); !ok {
-				out = lines
-			}
+		handle, ok := handlers[detect.Dialect(block.Type)]
+		if !ok {
+			handle = tableOf // get and other tables
 		}
+		out := handle(o, lines, topts)
 		return compress.Join(out), nil
 	}, detect.FamilyK8s)
 }

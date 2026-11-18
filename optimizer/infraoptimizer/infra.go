@@ -22,32 +22,27 @@ type Optimizer struct {
 	cfg *Config
 }
 
+// handlers compress one dialect; others fall back to DedupeRuns.
+var handlers = map[string]func(opt *Optimizer, lines []string) []string{
+	"terraform":          (*Optimizer).terraform,
+	"terraform-init":     func(_ *Optimizer, lines []string) []string { return terraformInit(lines) },
+	"terraform-validate": func(_ *Optimizer, lines []string) []string { return tfBoxes(lines) },
+	"terraform-state":    func(_ *Optimizer, lines []string) []string { return terraformState(lines) },
+	"terraform-output":   func(_ *Optimizer, lines []string) []string { return terraformOutput(lines) },
+	"pulumi":             func(_ *Optimizer, lines []string) []string { return pulumi(lines) },
+	"ansible":            func(_ *Optimizer, lines []string) []string { return ansible(lines) },
+	"cdk":                func(_ *Optimizer, lines []string) []string { return cdk(lines) },
+	"helm-diff":          (*Optimizer).helmDiff,
+}
+
 func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 	return data.RewriteFamily(func(block payload.Block) (string, error) {
 		lines := compress.CleanLines(block.Text)
-		var out []string
-		switch detect.Dialect(block.Type) {
-		case "terraform":
-			out = o.terraform(lines)
-		case "terraform-init":
-			out = terraformInit(lines)
-		case "terraform-validate":
-			out = tfBoxes(lines)
-		case "terraform-state":
-			out = terraformState(lines)
-		case "terraform-output":
-			out = terraformOutput(lines)
-		case "pulumi":
-			out = pulumi(lines)
-		case "ansible":
-			out = ansible(lines)
-		case "cdk":
-			out = cdk(lines)
-		case "helm-diff":
-			out = o.helmDiff(lines)
-		default:
-			out = compress.DedupeRuns(lines)
+		handle, ok := handlers[detect.Dialect(block.Type)]
+		if !ok {
+			handle = func(_ *Optimizer, lines []string) []string { return compress.DedupeRuns(lines) }
 		}
+		out := handle(o, lines)
 		return compress.Join(compress.SqueezeBlank(out)), nil
 	}, detect.FamilyInfra)
 }
