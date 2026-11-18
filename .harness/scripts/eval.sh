@@ -66,24 +66,64 @@ describe() {
 
 go build -o bin/gascoigne ./cmd/gascoigne && go build -o bin/mcpmock ./cmd/mcpmock || exit 1
 failed=()
+results=$(mktemp)
+trap 'rm -f "$results"' EXIT
 for s in $suites; do
   file=$(casesfile "$s") || { echo "unknown suite $s (fixtures ext scale mcp live ledger)" >&2; exit 2; }
   describe "$s"
+  out=$(mktemp)
   if [[ $s == ledger ]]; then
-    go test ./extension/ledger -run '^$' -bench . -benchtime 3x || failed+=("$s")
+    go test ./extension/ledger -run '^$' -bench . -benchtime 3x 2>&1 | tee "$out"
   else
     pipeline=cli
     [[ $s == mcp ]] && pipeline=mcp-proxy
-    bin/gascoigne eval -pipeline "$pipeline" -cases "$file" "$@" || failed+=("$s")
+    # tee hides the terminal from eval: ask for the colors it would show on a terminal
+    CLICOLOR_FORCE=${B:+1} bin/gascoigne eval -pipeline "$pipeline" -cases "$file" "$@" 2>&1 | tee "$out"
   fi
+  status=${PIPESTATUS[0]}
+  [[ $status -ne 0 ]] && failed+=("$s")
+  # one line per suite: name, cases, failed cases, raw tokens, out tokens, saved %
+  sed $'s/\e\\[[0-9;]*m//g' "$out" | awk -v s="$s" '
+    $1 == "total" && NF >= 5 { raw = $2; opt = $3; pct = $4 }
+    /^[0-9]+ cases:/ { cases = $1; if (match($0, /[0-9]+ FAILED/)) bad = substr($0, RSTART, RLENGTH - 7) }
+    END { printf "%s\t%s\t%s\t%s\t%s\t%s\n", s, cases + 0, bad + 0, raw + 0, opt + 0, pct }' >>"$results"
+  rm -f "$out"
 done
-printf '\n%sSummary%s\n' "$B" "$R"
-for s in $suites; do
+# bar <percent>: 10 cells, one per 10%.
+bar() {
+  local filled=$(( ($(printf '%.0f' "$1") + 5) / 10 )) out="" i
+  ((filled > 10)) && filled=10
+  for ((i = 0; i < 10; i++)); do ((i < filled)) && out+="█" || out+="░"; done
+  printf '%s' "$out"
+}
+if [[ -n $B ]]; then G=$'\e[32m' RD=$'\e[31m' Y=$'\e[33m'; else G= RD= Y=; fi
+rule=$(printf '─%.0s' {1..70})
+printf '\n%sEval summary%s\n%s%s%s\n' "$B$C" "$R" "$D" "$rule" "$R"
+printf '%s  %-9s %-7s %9s %12s %12s   %-6s %s%s\n' "$B" suite result cases "tokens in" "tokens out" saved "" "$R"
+sum=0 n=0 okc=0 total=0
+while IFS=$'\t' read -r s cases bad raw opt pct; do
+  total=$((total + 1))
   case " ${failed[*]:-} " in
-    *" $s "*) printf '  %-9s FAIL\n' "$s" ;;
-    *) printf '  %-9s ok\n' "$s" ;;
+    *" $s "*) res="${RD}✗ FAIL${R}" ;;
+    *) res="${G}✓ ok${R}  "; okc=$((okc + 1)) ;;
   esac
-done
+  if [[ $s == ledger ]]; then
+    printf '  %-9s %s %9s %12s %12s   %s%s%s\n' "$s" "$res" - - - "$D" "benchmarks, compare ns/op" "$R"
+    continue
+  fi
+  ((bad)) && cases="$((cases - bad))/$cases"
+  num=${pct%\%}
+  if awk -v p="${num:-0}" 'BEGIN { exit !(p >= 60) }'; then tint=$G; elif awk -v p="${num:-0}" 'BEGIN { exit !(p >= 30) }'; then tint=$Y; else tint=$RD; fi
+  printf '  %-9s %s %9s %12s %12s   %s%6s %s%s\n' "$s" "$res" "$cases" "$raw" "$opt" "$tint" "${pct:--}" "$(bar "${num:-0}")" "$R"
+  if [[ -n $num ]]; then
+    sum=$(awk -v a="$sum" -v p="$num" 'BEGIN { print a + p }')
+    n=$((n + 1))
+  fi
+done <"$results"
+printf '%s%s%s\n' "$D" "$rule" "$R"
+mean=$(awk -v a="$sum" -v n="$n" 'BEGIN { printf "%.1f", n ? a / n : 0 }')
+if ((okc == total)); then verdict="${G}${B}all $total suites pass${R}"; else verdict="${RD}${B}$((total - okc)) of $total suites failed${R}"; fi
+printf '  %s  ·  %smean saved %s%%%s over %d token suites\n' "$verdict" "$B" "$mean" "$R" "$n"
 if ((${#failed[@]})); then
   echo "eval failed: ${failed[*]}" >&2
   exit 1

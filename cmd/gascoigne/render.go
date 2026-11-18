@@ -29,7 +29,8 @@ const (
 
 type painter struct{ color bool }
 
-// newPainter decides on colors: never, always, or auto (a terminal and no NO_COLOR).
+// newPainter decides on colors: never, always, or auto (a terminal and no NO_COLOR;
+// CLICOLOR_FORCE set to anything but 0 counts as a terminal, for output piped through tee).
 func newPainter(mode string) (painter, error) {
 	switch mode {
 	case "always":
@@ -39,6 +40,9 @@ func newPainter(mode string) (painter, error) {
 	case "", "auto":
 		fi, err := os.Stdout.Stat()
 		tty := err == nil && fi.Mode()&os.ModeCharDevice != 0
+		if force := os.Getenv("CLICOLOR_FORCE"); force != "" && force != "0" {
+			tty = true
+		}
 		return painter{tty && os.Getenv("NO_COLOR") == ""}, nil
 	}
 	return painter{}, fmt.Errorf("-color must be auto, always or never, got %q", mode)
