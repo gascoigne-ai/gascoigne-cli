@@ -61,7 +61,7 @@ func Login(ctx context.Context, store *Store, serverURL string, open func(authUR
 			if err := store.Put(serverURL, c); err != nil {
 				return nil, err
 			}
-			return saving(store, serverURL, c), nil
+			return saving(ctx, store, serverURL, c), nil
 		},
 	})
 	if err != nil {

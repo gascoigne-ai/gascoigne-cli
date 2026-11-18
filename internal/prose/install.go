@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // runtimeDir holds the ONNX Runtime libraries inside the model directory.
@@ -37,6 +38,11 @@ func Verify(root, name string) error {
 // (in root/onnxruntime, shared by the models) and the named model (default:
 // 274 MB, int8 weight-only graph; agent: 563 MB).
 func Install(ctx context.Context, root, variant, name string) error {
+	return install(ctx, os.Stderr, root, variant, name)
+}
+
+// install is Install with its progress lines written to out.
+func install(ctx context.Context, out io.Writer, root, variant, name string) error {
 	s, dir, err := lookup(root, name)
 	if err != nil {
 		return err
@@ -44,12 +50,12 @@ func Install(ctx context.Context, root, variant, name string) error {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
-	if err := installRuntime(ctx, filepath.Join(root, runtimeDir), variant); err != nil {
+	if err := installRuntime(ctx, out, filepath.Join(root, runtimeDir), variant); err != nil {
 		return err
 	}
 	for _, f := range s.files {
 		path := filepath.Join(dir, f.local)
-		fmt.Fprintf(os.Stderr, "gascoigne prose: %s\n  sha256 %s\n", f.remote, f.sha256)
+		fmt.Fprintf(out, "gascoigne prose: %s\n  sha256 %s\n", f.remote, f.sha256)
 		if verify(path, f.sha256) == nil {
 			continue
 		}
@@ -61,9 +67,20 @@ func Install(ctx context.Context, root, variant, name string) error {
 			os.Remove(path)
 			return err
 		}
-		fmt.Fprintln(os.Stderr, "  downloaded, checksum matches")
+		fmt.Fprintln(out, "  downloaded, checksum matches")
 	}
 	return nil
+}
+
+// headerTimeout bounds the wait for a server to start answering; the body
+// itself is bounded by ctx only, as the archives are large.
+var headerTimeout = 30 * time.Second
+
+// newClient is an HTTP client that gives up on a server that never answers.
+func newClient() *http.Client {
+	t := http.DefaultTransport.(*http.Transport).Clone()
+	t.ResponseHeaderTimeout = headerTimeout
+	return &http.Client{Transport: t}
 }
 
 func fetch(ctx context.Context, url, path string) error {
@@ -71,7 +88,7 @@ func fetch(ctx context.Context, url, path string) error {
 	if err != nil {
 		return err
 	}
-	res, err := http.DefaultClient.Do(req)
+	res, err := newClient().Do(req)
 	if err != nil {
 		return err
 	}

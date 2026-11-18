@@ -15,8 +15,14 @@ type Handler struct {
 	src oauth2.TokenSource
 }
 
-// NewHandler returns the handler for a server with a stored login, nil without one.
+// NewHandler is NewHandlerContext without a caller context.
 func NewHandler(store *Store, serverURL string) *Handler {
+	return NewHandlerContext(context.Background(), store, serverURL)
+}
+
+// NewHandlerContext returns the handler for a server with a stored login, nil
+// without one. Token refreshes run under ctx.
+func NewHandlerContext(ctx context.Context, store *Store, serverURL string) *Handler {
 	if store == nil {
 		return nil
 	}
@@ -24,7 +30,7 @@ func NewHandler(store *Store, serverURL string) *Handler {
 	if !ok {
 		return nil
 	}
-	return &Handler{url: serverURL, src: saving(store, serverURL, c)}
+	return &Handler{url: serverURL, src: saving(ctx, store, serverURL, c)}
 }
 
 func (h *Handler) TokenSource(context.Context) (oauth2.TokenSource, error) { return h.src, nil }
@@ -38,13 +44,13 @@ func (h *Handler) Authorize(_ context.Context, _ *http.Request, resp *http.Respo
 
 // saving wraps the refreshing token source of a login so a renewed token is
 // written back: refresh tokens are often single-use.
-func saving(store *Store, serverURL string, creds Creds) oauth2.TokenSource {
+func saving(ctx context.Context, store *Store, serverURL string, creds Creds) oauth2.TokenSource {
 	cfg := &oauth2.Config{
 		ClientID:     creds.ClientID,
 		ClientSecret: creds.ClientSecret,
 		Endpoint:     oauth2.Endpoint{TokenURL: creds.TokenURL, AuthStyle: creds.AuthStyle},
 	}
-	return &saver{src: cfg.TokenSource(context.Background(), creds.Token), store: store, url: serverURL, creds: creds}
+	return &saver{src: cfg.TokenSource(ctx, creds.Token), store: store, url: serverURL, creds: creds}
 }
 
 type saver struct {

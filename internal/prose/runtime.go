@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 const ortVersion = "1.29.0"
@@ -45,15 +46,20 @@ func libName() string {
 	return "libonnxruntime.so"
 }
 
+// smiTimeout bounds the nvidia-smi probe: a wedged driver must not hang the install.
+var smiTimeout = 10 * time.Second
+
 var cudaVersion = lazyre.New(`CUDA Version: (\d+)`)
 
 // pickVariant resolves "auto" from the driver's CUDA version (nvidia-smi):
 // the release builds target CUDA 12 and 13.
-func pickVariant(variant string) string {
+func pickVariant(ctx context.Context, variant string) string {
 	if variant != "auto" {
 		return variant
 	}
-	out, err := exec.Command("nvidia-smi").Output()
+	ctx, cancel := context.WithTimeout(ctx, smiTimeout)
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "nvidia-smi").Output()
 	if m := cudaVersion.Regexp().FindSubmatch(out); err == nil && m != nil {
 		switch string(m[1]) {
 		case "13":
@@ -67,14 +73,14 @@ func pickVariant(variant string) string {
 
 // installRuntime downloads the ONNX Runtime libraries into dir (the CPU
 // build is 10 MB, the CUDA ones 190-420 MB) unless that archive is there.
-func installRuntime(ctx context.Context, dir, variant string) error {
-	variant = pickVariant(variant)
+func installRuntime(ctx context.Context, out io.Writer, dir, variant string) error {
+	variant = pickVariant(ctx, variant)
 	asset, ok := runtimes[runtime.GOOS+"/"+runtime.GOARCH+"/"+variant]
 	if !ok {
 		return fmt.Errorf("no ONNX Runtime %s build for %s/%s: set -lib to your own", variant, runtime.GOOS, runtime.GOARCH)
 	}
 	marker := filepath.Join(dir, ".archive")
-	fmt.Fprintf(os.Stderr, "gascoigne prose: %s\n  sha256 %s\n", asset.file, asset.sha256)
+	fmt.Fprintf(out, "gascoigne prose: %s\n  sha256 %s\n", asset.file, asset.sha256)
 	// The marker alone is not enough: the library may have been deleted since.
 	if got, _ := os.ReadFile(marker); string(got) == asset.sha256 && fileExists(filepath.Join(dir, libName())) {
 		return nil
@@ -84,19 +90,19 @@ func installRuntime(ctx context.Context, dir, variant string) error {
 	}
 	archive := filepath.Join(dir, asset.file)
 	defer os.Remove(archive)
-	fmt.Fprintf(os.Stderr, "gascoigne prose: downloading %s\n", asset.file)
+	fmt.Fprintf(out, "gascoigne prose: downloading %s\n", asset.file)
 	if err := fetch(ctx, releaseURL+asset.file, archive); err != nil {
 		return fmt.Errorf("download %s: %w", asset.file, err)
 	}
 	if err := verify(archive, asset.sha256); err != nil {
 		return err
 	}
-	fmt.Fprintln(os.Stderr, "  downloaded, checksum matches")
+	fmt.Fprintln(out, "  downloaded, checksum matches")
 	if err := extractLibs(archive, dir); err != nil {
 		return fmt.Errorf("unpack %s: %w", asset.file, err)
 	}
 	if strings.HasPrefix(variant, "cuda") {
-		fmt.Fprintln(os.Stderr, "gascoigne prose: the GPU build also needs the CUDA runtime and cuDNN 9 on the library path")
+		fmt.Fprintln(out, "gascoigne prose: the GPU build also needs the CUDA runtime and cuDNN 9 on the library path")
 	}
 	return os.WriteFile(marker, []byte(asset.sha256), 0o644)
 }

@@ -3,10 +3,17 @@ package prose
 import (
 	"archive/tar"
 	"archive/zip"
+	"bytes"
 	"compress/gzip"
+	"context"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
+	"time"
 )
 
 func TestExtractLibsTar(t *testing.T) {
@@ -70,7 +77,7 @@ func TestExtractLibsZip(t *testing.T) {
 }
 
 func TestPickVariantExplicit(t *testing.T) {
-	if got := pickVariant("cuda12"); got != "cuda12" {
+	if got := pickVariant(context.Background(), "cuda12"); got != "cuda12" {
 		t.Fatalf("got %q", got)
 	}
 }
@@ -110,5 +117,60 @@ func TestExtractLibsKeepsSymlinksInside(t *testing.T) {
 	}
 	if target, err := os.Readlink(filepath.Join(out, "libevil.so")); err != nil || target != "outside" {
 		t.Fatalf("link target %q, %v; want the bare name", target, err)
+	}
+}
+
+func TestPickVariantHungSMI(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("shell stub")
+	}
+	bin := t.TempDir()
+	if err := os.WriteFile(filepath.Join(bin, "nvidia-smi"), []byte("#!/bin/sh\nexec sleep 30\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+	old := smiTimeout
+	smiTimeout = 100 * time.Millisecond
+	defer func() { smiTimeout = old }()
+	start := time.Now()
+	if got := pickVariant(context.Background(), "auto"); got != "cpu" {
+		t.Fatalf("got %q", got)
+	}
+	if time.Since(start) > 5*time.Second {
+		t.Fatal("hung nvidia-smi not cut off")
+	}
+}
+
+func TestFetchHungServer(t *testing.T) {
+	release := make(chan struct{})
+	srv := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { <-release }))
+	defer srv.Close()
+	defer close(release)
+	old := headerTimeout
+	headerTimeout = 100 * time.Millisecond
+	defer func() { headerTimeout = old }()
+	start := time.Now()
+	if err := fetch(context.Background(), srv.URL, filepath.Join(t.TempDir(), "f")); err == nil {
+		t.Fatal("want error")
+	}
+	if time.Since(start) > 5*time.Second {
+		t.Fatal("hung server not cut off")
+	}
+}
+
+func TestInstallRuntimeWritesToWriter(t *testing.T) {
+	asset, ok := runtimes[runtime.GOOS+"/"+runtime.GOARCH+"/cpu"]
+	if !ok {
+		t.Skip("no cpu build for this platform")
+	}
+	dir := t.TempDir()
+	os.WriteFile(filepath.Join(dir, ".archive"), []byte(asset.sha256), 0o644)
+	os.WriteFile(filepath.Join(dir, libName()), nil, 0o644)
+	var buf bytes.Buffer
+	if err := installRuntime(context.Background(), &buf, dir, "cpu"); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(buf.String(), asset.sha256) {
+		t.Fatalf("got %q", buf.String())
 	}
 }
