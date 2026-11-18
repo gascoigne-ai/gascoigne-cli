@@ -37,14 +37,14 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	disk := p.Attrs[payload.AttrFile] != "" || detect.ReadsFile(p.Attrs[payload.AttrCmd])
-	for i, b := range p.Blocks {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	disk := data.Attrs[payload.AttrFile] != "" || detect.ReadsFile(data.Attrs[payload.AttrCmd])
+	for i, b := range data.Blocks {
 		// Source read from disk is edited by exact text; fetched code is not.
 		if o.skip(b.Type) || disk && b.Type == codeType {
 			continue
 		}
-		p.Blocks[i].Text = o.elide(b.Text)
+		data.Blocks[i].Text = o.elide(b.Text)
 	}
 	return nil
 }
@@ -74,26 +74,26 @@ func (o *Optimizer) elide(text string) string {
 
 // dense reports a long, nearly space-free line that is not JSON: tabs mark
 // TSV rows and JSON (alone or after a label) belongs to the JSON engine.
-func (o *Optimizer) dense(l string) bool {
-	if len(l) < o.cfg.MinLine || strings.ContainsRune(l, '\t') {
+func (o *Optimizer) dense(line string) bool {
+	if len(line) < o.cfg.MinLine || strings.ContainsRune(line, '\t') {
 		return false
 	}
-	if float64(strings.Count(l, " "))/float64(len(l)) >= maxSpaceRatio {
+	if float64(strings.Count(line, " "))/float64(len(line)) >= maxSpaceRatio {
 		return false
 	}
-	if delimitedList(l) {
+	if delimitedList(line) {
 		return false
 	}
-	i := strings.IndexAny(l, "{[")
-	return i < 0 || !json.Valid([]byte(l[i:]))
+	i := strings.IndexAny(line, "{[")
+	return i < 0 || !json.Valid([]byte(line[i:]))
 }
 
 // delimitedList reports a line of names joined by one delimiter (`a|b|c`,
 // `x,y,z`): most fields are short words, which minified code (calls, braces,
 // operators) and base64 (no delimiters) never are. Folding it loses content.
-func delimitedList(l string) bool {
+func delimitedList(line string) bool {
 	for _, sep := range "|,;" {
-		fields := strings.Split(l, string(sep))
+		fields := strings.Split(line, string(sep))
 		if len(fields) < minFields {
 			continue
 		}
@@ -110,24 +110,24 @@ func delimitedList(l string) bool {
 	return false
 }
 
-func wordLike(f string) bool {
-	f = strings.TrimSpace(f)
-	return f != "" && len(f) <= maxWord && !strings.ContainsFunc(f, func(r rune) bool {
-		return !unicode.IsLetter(r) && !unicode.IsDigit(r) && !strings.ContainsRune("_-.@", r)
+func wordLike(word string) bool {
+	word = strings.TrimSpace(word)
+	return word != "" && len(word) <= maxWord && !strings.ContainsFunc(word, func(char rune) bool {
+		return !unicode.IsLetter(char) && !unicode.IsDigit(char) && !strings.ContainsRune("_-.@", char)
 	})
 }
 
-func (o *Optimizer) cut(l string) string {
-	head := runeStart(l, o.cfg.Head)
-	tail := runeStart(l, len(l)-o.cfg.Tail)
-	return fmt.Sprintf("%s …[%d bytes dense]… %s", l[:head], tail-head, l[tail:])
+func (o *Optimizer) cut(line string) string {
+	head := runeStart(line, o.cfg.Head)
+	tail := runeStart(line, len(line)-o.cfg.Tail)
+	return fmt.Sprintf("%s …[%d bytes dense]… %s", line[:head], tail-head, line[tail:])
 }
 
 // runeStart moves i back to the start of the rune it falls in.
-func runeStart(s string, i int) int {
-	i = min(i, len(s))
-	for i > 0 && i < len(s) && !utf8.RuneStart(s[i]) {
-		i--
+func runeStart(text string, index int) int {
+	index = min(index, len(text))
+	for index > 0 && index < len(text) && !utf8.RuneStart(text[index]) {
+		index--
 	}
-	return i
+	return index
 }

@@ -50,14 +50,14 @@ func (o *Optimizer) notebook(text string) (string, error) {
 // source is a cell's text, stored as one string or a list of lines.
 type source string
 
-func (s *source) UnmarshalJSON(b []byte) error {
+func (s *source) UnmarshalJSON(raw []byte) error {
 	var parts []string
-	if err := json.Unmarshal(b, &parts); err == nil {
+	if err := json.Unmarshal(raw, &parts); err == nil {
 		*s = source(strings.Join(parts, ""))
 		return nil
 	}
 	var one string
-	err := json.Unmarshal(b, &one)
+	err := json.Unmarshal(raw, &one)
 	*s = source(one)
 	return err
 }
@@ -119,9 +119,9 @@ func binaries(data map[string]json.RawMessage) []string {
 	return out
 }
 
-func size(n int) string {
-	if n < 1024 {
-		return fmt.Sprintf("%d B", n)
+func size(bytes int) string {
+	if bytes < 1024 {
+		return fmt.Sprintf("%d B", bytes)
 	}
-	return fmt.Sprintf("%d KB", n/1024)
+	return fmt.Sprintf("%d KB", bytes/1024)
 }

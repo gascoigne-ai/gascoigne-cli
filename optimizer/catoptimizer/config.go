@@ -39,6 +39,6 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-func validMode(m string) bool {
-	return slices.Contains([]string{Auto, Full, Clean, Outline}, m)
+func validMode(mode string) bool {
+	return slices.Contains([]string{Auto, Full, Clean, Outline}, mode)
 }

@@ -82,10 +82,10 @@ func TestShrink(t *testing.T) {
 	}
 }
 
-func links(n int) string {
+func links(count int) string {
 	var b strings.Builder
 	b.WriteString("- list [ref=e0]:\n")
-	for i := 1; i <= n; i++ {
+	for i := 1; i <= count; i++ {
 		fmt.Fprintf(&b, "  - link \"item %d\" [ref=e%d]\n", i, i)
 	}
 	return b.String()

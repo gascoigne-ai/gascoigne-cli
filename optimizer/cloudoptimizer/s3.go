@@ -54,8 +54,8 @@ func (o *Optimizer) s3(lines []string) []string {
 		sizes[g] += ob.size
 	}
 	out = append(out, fmt.Sprintf("%d objects, %s total", len(objs), human(total)))
-	keys := slices.SortedFunc(maps.Keys(groups), func(a, b string) int {
-		return cmp.Or(cmp.Compare(sizes[b], sizes[a]), cmp.Compare(a, b))
+	keys := slices.SortedFunc(maps.Keys(groups), func(left, right string) int {
+		return cmp.Or(cmp.Compare(sizes[right], sizes[left]), cmp.Compare(left, right))
 	})
 	for _, k := range keys[:min(15, len(keys))] {
 		out = append(out, fmt.Sprintf("  %s ×%d %s", k, groups[k], human(sizes[k])))
@@ -64,9 +64,9 @@ func (o *Optimizer) s3(lines []string) []string {
 		out = append(out, fmt.Sprintf("  … %d more groups", len(keys)-15))
 	}
 	newest := slices.Clone(objs)
-	slices.SortStableFunc(newest, func(a, b object) int { return cmp.Compare(b.when, a.when) })
+	slices.SortStableFunc(newest, func(left, right object) int { return cmp.Compare(right.when, left.when) })
 	largest := slices.Clone(objs)
-	slices.SortStableFunc(largest, func(a, b object) int { return cmp.Compare(b.size, a.size) })
+	slices.SortStableFunc(largest, func(left, right object) int { return cmp.Compare(right.size, left.size) })
 	out = append(out, "newest:")
 	for _, ob := range newest[:5] {
 		out = append(out, fmt.Sprintf("  %s %s %s", ob.when, ob.key, human(ob.size)))
@@ -91,12 +91,12 @@ func group(key string) string {
 	return top + "/*" + ext
 }
 
-func human(n int64) string {
-	f := float64(n)
+func human(bytes int64) string {
+	f := float64(bytes)
 	for _, u := range []string{"B", "KB", "MB", "GB", "TB"} {
 		if f < 1024 || u == "TB" {
 			if u == "B" {
-				return fmt.Sprintf("%d B", n)
+				return fmt.Sprintf("%d B", bytes)
 			}
 			return strings.TrimSuffix(fmt.Sprintf("%.1f", f), ".0") + " " + u
 		}

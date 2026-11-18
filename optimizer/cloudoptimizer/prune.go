@@ -17,8 +17,8 @@ var dropKeys = map[string]bool{
 }
 
 // prune removes noise keys from decoded JSON, recursively.
-func prune(v any) any {
-	switch v := v.(type) {
+func prune(value any) any {
+	switch v := value.(type) {
 	case map[string]any:
 		for k, x := range v {
 			// Succeeded is the expected state; gcp kinds ("compute#instance") repeat the type.
@@ -33,11 +33,11 @@ func prune(v any) any {
 			v[i] = prune(x)
 		}
 	}
-	return v
+	return value
 }
 
-func isGCPKind(v any) bool {
-	s, ok := v.(string)
+func isGCPKind(value any) bool {
+	s, ok := value.(string)
 	return ok && strings.Contains(s, "#") // compute#instance, sql#instance
 }
 

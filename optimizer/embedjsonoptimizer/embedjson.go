@@ -24,11 +24,11 @@ type Optimizer struct {
 
 var legend = "// " + jsonx.Legend + "\n"
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	for i, b := range p.Blocks {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	query := sample.Terms(data.Attrs[payload.AttrQuery])
+	for i, b := range data.Blocks {
 		if o.wants(b.Type) {
-			p.Blocks[i].Text = o.crush(b.Text, query)
+			data.Blocks[i].Text = o.crush(b.Text, query)
 		}
 	}
 	return nil
@@ -80,8 +80,8 @@ func (o *Optimizer) value(span string, query []string) (string, bool) {
 }
 
 // records reports an array of at least two items, mostly objects, anywhere in v.
-func records(v any) bool {
-	switch v := v.(type) {
+func records(value any) bool {
+	switch v := value.(type) {
 	case []any:
 		objects := 0
 		for _, e := range v {

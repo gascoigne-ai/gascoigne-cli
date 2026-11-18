@@ -9,9 +9,9 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
-func orders(n int) string {
+func orders(count int) string {
 	var items []string
-	for i := range n {
+	for i := range count {
 		items = append(items, fmt.Sprintf(`{"id":"ord_%d","status":"paid","currency":"EUR","total":%d}`, i, 10+i))
 	}
 	return `{"data":[` + strings.Join(items, ",") + `],"has_more":false}`

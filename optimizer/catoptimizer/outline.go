@@ -45,11 +45,11 @@ var (
 
 // containerEnd is the index where the first container keyword of l ends (a
 // brace after it opens a container block), -1 when there is none.
-func containerEnd(l string) int {
-	if m := container.FindStringIndex(l); m != nil {
+func containerEnd(line string) int {
+	if m := container.FindStringIndex(line); m != nil {
 		return m[1]
 	}
-	if m := externBlock.FindStringIndex(l); m != nil {
+	if m := externBlock.FindStringIndex(line); m != nil {
 		return m[1] - 1
 	}
 	return -1
@@ -88,7 +88,7 @@ func (o *Optimizer) braceOutline(lines []string, lang detect.Language) []span {
 				}
 				top := stack[len(stack)-1]
 				stack = stack[:len(stack)-1]
-				outer := !slices.ContainsFunc(stack, func(s open) bool { return !s.container })
+				outer := !slices.ContainsFunc(stack, func(frame open) bool { return !frame.container })
 				if !top.container && outer && i-top.line-1 >= o.cfg.MinBody {
 					elide[top.line+1] = i - 1
 				}
@@ -107,53 +107,53 @@ type lexer struct {
 
 // skip reports whether l[j] starts or continues a comment or string, and
 // the index of the last byte of it on this line (len(l) when it goes on).
-func (x *lexer) skip(l string, j int) (end int, skipped bool) {
+func (x *lexer) skip(line string, pos int) (end int, skipped bool) {
 	switch {
 	case x.raw != "":
-		if strings.HasPrefix(l[j:], x.raw) {
-			j += len(x.raw) - 1
+		if strings.HasPrefix(line[pos:], x.raw) {
+			pos += len(x.raw) - 1
 			x.raw = ""
 		}
-		return j, true
+		return pos, true
 	case len(x.closers) > 0:
-		return x.inComment(l, j), true
-	case strings.HasPrefix(l[j:], cmp.Or(x.lang.Line, "//")):
-		return len(l), true
+		return x.inComment(line, pos), true
+	case strings.HasPrefix(line[pos:], cmp.Or(x.lang.Line, "//")):
+		return len(line), true
 	}
-	if closer := x.commentOpener(l[j:]); closer != "" {
+	if closer := x.commentOpener(line[pos:]); closer != "" {
 		x.closers = append(x.closers, closer)
-		return j + 1, true
+		return pos + 1, true
 	}
-	switch c := l[j]; {
+	switch c := line[pos]; {
 	case c == '\'':
-		return x.quote(l, j)
+		return x.quote(line, pos)
 	case c == '"' || c == '`':
-		return skipString(l, j), true
+		return skipString(line, pos), true
 	case c == 'r' && x.lang.Raw == detect.RawRust, c == 'R' && x.lang.Raw == detect.RawCpp:
-		return x.rawStart(l, j)
+		return x.rawStart(line, pos)
 	}
-	return j, false
+	return pos, false
 }
 
 // inComment moves through a block comment, opening nested ones.
-func (x *lexer) inComment(l string, j int) int {
-	if rest := l[j:]; strings.HasPrefix(rest, x.closers[len(x.closers)-1]) {
-		j += len(x.closers[len(x.closers)-1]) - 1
+func (x *lexer) inComment(line string, pos int) int {
+	if rest := line[pos:]; strings.HasPrefix(rest, x.closers[len(x.closers)-1]) {
+		pos += len(x.closers[len(x.closers)-1]) - 1
 		x.closers = x.closers[:len(x.closers)-1]
 	} else if closer := x.commentOpener(rest); closer != "" && x.nests(closer) {
 		x.closers = append(x.closers, closer)
-		j++
+		pos++
 	}
-	return j
+	return pos
 }
 
 // commentOpener is the closer of the block comment l starts with, "" when it
 // starts with none. Both delimiters are two bytes, so callers step one past.
-func (x *lexer) commentOpener(l string) string {
+func (x *lexer) commentOpener(line string) string {
 	switch {
-	case strings.HasPrefix(l, "/*"):
+	case strings.HasPrefix(line, "/*"):
 		return "*/"
-	case x.lang.Nested[0] != "" && strings.HasPrefix(l, x.lang.Nested[0]):
+	case x.lang.Nested[0] != "" && strings.HasPrefix(line, x.lang.Nested[0]):
 		return x.lang.Nested[1]
 	}
 	return ""
@@ -165,61 +165,61 @@ func (x *lexer) nests(closer string) bool {
 }
 
 // quote handles ': a char literal, a lifetime, a digit separator or a string.
-func (x *lexer) quote(l string, j int) (int, bool) {
+func (x *lexer) quote(line string, pos int) (int, bool) {
 	switch {
-	case x.lang.DigitSep && j > 0 && isDigit(l[j-1]) && j+1 < len(l) && isDigit(l[j+1]):
-		return j, true
+	case x.lang.DigitSep && pos > 0 && isDigit(line[pos-1]) && pos+1 < len(line) && isDigit(line[pos+1]):
+		return pos, true
 	case x.lang.Lifetimes:
-		if j+1 < len(l) && l[j+1] != '\\' {
-			_, w := utf8.DecodeRuneInString(l[j+1:])
-			if j+1+w >= len(l) || l[j+1+w] != '\'' {
-				return j, true // 'a: no closing quote follows
+		if pos+1 < len(line) && line[pos+1] != '\\' {
+			_, w := utf8.DecodeRuneInString(line[pos+1:])
+			if pos+1+w >= len(line) || line[pos+1+w] != '\'' {
+				return pos, true // 'a: no closing quote follows
 			}
 		}
 	}
-	return skipString(l, j), true
+	return skipString(line, pos), true
 }
 
-func isDigit(c byte) bool { return c >= '0' && c <= '9' }
+func isDigit(char byte) bool { return char >= '0' && char <= '9' }
 
-func isIdent(c byte) bool {
-	return c == '_' || isDigit(c) || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z'
+func isIdent(char byte) bool {
+	return char == '_' || isDigit(char) || char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z'
 }
 
 // rawStart opens a raw string at l[j] (r#"…"# in Rust, R"x(…)x" in C++);
 // anything else is an identifier and not skipped.
-func (x *lexer) rawStart(l string, j int) (int, bool) {
-	if j > 0 && isIdent(l[j-1]) && !strings.ContainsRune("bLuU8", rune(l[j-1])) {
-		return j, false
+func (x *lexer) rawStart(line string, pos int) (int, bool) {
+	if pos > 0 && isIdent(line[pos-1]) && !strings.ContainsRune("bLuU8", rune(line[pos-1])) {
+		return pos, false
 	}
-	rest := l[j+1:]
+	rest := line[pos+1:]
 	if x.lang.Raw == detect.RawRust {
 		hashes := len(rest) - len(strings.TrimLeft(rest, "#"))
 		if !strings.HasPrefix(rest[hashes:], `"`) {
-			return j, false
+			return pos, false
 		}
 		x.raw = `"` + rest[:hashes]
-		return j + hashes + 1, true
+		return pos + hashes + 1, true
 	}
 	delim, _, ok := strings.Cut(strings.TrimPrefix(rest, `"`), "(")
 	if !strings.HasPrefix(rest, `"`) || !ok || len(delim) > 16 || strings.ContainsAny(delim, ` )\\"`) {
-		return j, false
+		return pos, false
 	}
 	x.raw = ")" + delim + `"`
-	return j + 2 + len(delim), true
+	return pos + 2 + len(delim), true
 }
 
-func skipString(l string, j int) int {
-	q := l[j]
-	for k := j + 1; k < len(l); k++ {
-		switch l[k] {
+func skipString(line string, pos int) int {
+	q := line[pos]
+	for k := pos + 1; k < len(line); k++ {
+		switch line[k] {
 		case '\\':
 			k++
 		case q:
 			return k
 		}
 	}
-	return len(l) // unterminated on this line (template literal): ignore rest
+	return len(line) // unterminated on this line (template literal): ignore rest
 }
 
 var pyBlock = lazyre.New(`^(\s*)(async\s+def|def|class)\b`)
@@ -256,7 +256,7 @@ func (o *Optimizer) indentOutline(lines []string) []span {
 			}
 		}
 		class := strings.Contains(m[2], "class")
-		outer := !slices.ContainsFunc(stack, func(s scope) bool { return !s.class })
+		outer := !slices.ContainsFunc(stack, func(frame scope) bool { return !frame.class })
 		if !class && outer {
 			first := header + 1
 			if first <= end && strings.HasPrefix(strings.TrimSpace(lines[first]), `"""`) {
@@ -272,15 +272,15 @@ func (o *Optimizer) indentOutline(lines []string) []span {
 	return spans(elide)
 }
 
-func stripComment(l string) string {
-	if i := strings.Index(l, " #"); i >= 0 {
-		return l[:i]
+func stripComment(line string) string {
+	if i := strings.Index(line, " #"); i >= 0 {
+		return line[:i]
 	}
-	return l
+	return line
 }
 
-func indentOf(l string) int {
-	return len(l) - len(strings.TrimLeft(l, " \t"))
+func indentOf(line string) int {
+	return len(line) - len(strings.TrimLeft(line, " \t"))
 }
 
 // spans turns elided ranges (first → last line) into gaps, in line order.
@@ -291,7 +291,7 @@ func spans(elide map[int]int) []span {
 			out = append(out, span{from: from, to: to})
 		}
 	}
-	slices.SortFunc(out, func(a, b span) int { return a.from - b.from })
+	slices.SortFunc(out, func(left, right span) int { return left.from - right.from })
 	return out
 }
 
@@ -331,7 +331,7 @@ func (o *Optimizer) endOutline(lines []string, row detect.Language) []span {
 			}
 			top := stack[len(stack)-1]
 			stack = stack[:len(stack)-1]
-			outer := !slices.ContainsFunc(stack, func(b block) bool { return b.kind != 'c' })
+			outer := !slices.ContainsFunc(stack, func(frame block) bool { return frame.kind != 'c' })
 			if top.kind == 'f' && outer && i-top.line-1 >= o.cfg.MinBody {
 				elide[top.line+1] = i - 1
 			}
@@ -383,7 +383,7 @@ func (o *Optimizer) declOutline(lines []string, row detect.Language) []span {
 					end = j
 				}
 			}
-			outer := !slices.ContainsFunc(stack, func(s scope) bool { return !s.container })
+			outer := !slices.ContainsFunc(stack, func(frame scope) bool { return !frame.container })
 			if outer && end-i >= o.cfg.MinBody {
 				elide[i+1] = end
 			}
@@ -413,9 +413,9 @@ func (o *Optimizer) parenOutline(lines []string, row detect.Language) []span {
 
 // formEnd is the line where the form starting on line i closes, the last
 // line when it never does. Strings and ; comments are skipped roughly.
-func formEnd(lines []string, i int) int {
+func formEnd(lines []string, index int) int {
 	depth := 0
-	for j := i; j < len(lines); j++ {
+	for j := index; j < len(lines); j++ {
 		inStr := false
 		l := lines[j]
 		for k := 0; k < len(l); k++ {

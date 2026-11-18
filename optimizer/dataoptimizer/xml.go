@@ -72,11 +72,11 @@ func parseXML(text string) (*node, error) {
 	}
 }
 
-func qname(n xml.Name) string {
-	if n.Space != "" {
-		return n.Space + ":" + n.Local
+func qname(name xml.Name) string {
+	if name.Space != "" {
+		return name.Space + ":" + name.Local
 	}
-	return n.Local
+	return name.Local
 }
 
 var failed = lazyre.New(`^(\w+:)?(failure|error|fault|Fault)$|(status|result|outcome)="(fail|failed|error|Failed|Error)"`)
@@ -100,16 +100,16 @@ func (n *node) failed() bool {
 
 // sample keeps head and tail of each name's siblings past MaxItems, and
 // failures anywhere.
-func (o *Optimizer) sample(n *node) {
+func (o *Optimizer) sample(element *node) {
 	count := map[string]int{}
-	for _, c := range n.children {
+	for _, c := range element.children {
 		count[c.name]++
 	}
 	seen := map[string]int{}
 	var kept []*node
 	dropped := map[string]int{}
 	head, tail := o.cfg.MaxItems*2/3, o.cfg.MaxItems/3
-	for _, c := range n.children {
+	for _, c := range element.children {
 		i, total := seen[c.name], count[c.name]
 		seen[c.name]++
 		if total > o.cfg.MaxItems && i >= head && i < total-tail && !c.failed() {
@@ -120,32 +120,32 @@ func (o *Optimizer) sample(n *node) {
 		kept = append(kept, c)
 		o.sample(c)
 	}
-	n.children = kept
+	element.children = kept
 }
 
-func write(b *strings.Builder, n *node, depth int) {
+func write(out *strings.Builder, element *node, depth int) {
 	pad := strings.Repeat(" ", depth)
-	if n.omitted > 0 {
-		fmt.Fprintf(b, "%s<!-- %s -->\n", pad, compress.Omitted(n.omitted, "<"+n.name+"> elements"))
+	if element.omitted > 0 {
+		fmt.Fprintf(out, "%s<!-- %s -->\n", pad, compress.Omitted(element.omitted, "<"+element.name+"> elements"))
 	}
-	open := n.name
-	if len(n.attrs) > 0 {
-		open += " " + strings.Join(n.attrs, " ")
+	open := element.name
+	if len(element.attrs) > 0 {
+		open += " " + strings.Join(element.attrs, " ")
 	}
 	switch {
-	case len(n.children) == 0 && n.text == "":
-		fmt.Fprintf(b, "%s<%s/>\n", pad, open)
-	case len(n.children) == 0:
-		fmt.Fprintf(b, "%s<%s>%s</%s>\n", pad, open, escape(n.text), n.name)
+	case len(element.children) == 0 && element.text == "":
+		fmt.Fprintf(out, "%s<%s/>\n", pad, open)
+	case len(element.children) == 0:
+		fmt.Fprintf(out, "%s<%s>%s</%s>\n", pad, open, escape(element.text), element.name)
 	default:
-		fmt.Fprintf(b, "%s<%s>\n", pad, open)
-		if n.text != "" {
-			fmt.Fprintf(b, "%s %s\n", pad, escape(n.text))
+		fmt.Fprintf(out, "%s<%s>\n", pad, open)
+		if element.text != "" {
+			fmt.Fprintf(out, "%s %s\n", pad, escape(element.text))
 		}
-		for _, c := range n.children {
-			write(b, c, depth+1)
+		for _, c := range element.children {
+			write(out, c, depth+1)
 		}
-		fmt.Fprintf(b, "%s</%s>\n", pad, n.name)
+		fmt.Fprintf(out, "%s</%s>\n", pad, element.name)
 	}
 }
 

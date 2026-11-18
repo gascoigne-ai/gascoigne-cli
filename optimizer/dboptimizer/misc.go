@@ -67,7 +67,7 @@ var (
 
 // mongo turns mongosh output (JS-like documents) into JSON and samples the
 // documents; output that does not convert stays as is.
-func mongo(text string, o table.Options) []string {
+func mongo(text string, options table.Options) []string {
 	js := mongoWrap.ReplaceAllString(text, `"$2$3$4"`)
 	js = mongoStr.ReplaceAllString(js, `"$1"`)
 	js = mongoKey.ReplaceAllString(js, `$1"$2":`)
@@ -82,8 +82,8 @@ func mongo(text string, o table.Options) []string {
 	if !ok {
 		docs = []any{v}
 	}
-	opts := o.Rows
-	opts.MaxItems = o.MaxRows
+	opts := options.Rows
+	opts.MaxItems = options.MaxRows
 	var out []string
 	for _, d := range sample.Sample(docs, opts) {
 		b, _ := json.Marshal(d)

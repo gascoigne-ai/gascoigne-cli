@@ -116,6 +116,6 @@ func depNames(value string) []string {
 }
 
 // depth is the net count of opened brackets and braces in s.
-func depth(s string) int {
-	return strings.Count(s, "[") + strings.Count(s, "{") - strings.Count(s, "]") - strings.Count(s, "}")
+func depth(line string) int {
+	return strings.Count(line, "[") + strings.Count(line, "{") - strings.Count(line, "]") - strings.Count(line, "}")
 }

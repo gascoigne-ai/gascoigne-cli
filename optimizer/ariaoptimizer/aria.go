@@ -26,10 +26,10 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	return p.Rewrite(func(b payload.Block) (string, error) {
-		return o.shrink(b.Text, query), nil
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	query := sample.Terms(data.Attrs[payload.AttrQuery])
+	return data.Rewrite(func(block payload.Block) (string, error) {
+		return o.shrink(block.Text, query), nil
 	}, detect.ARIA)
 }
 
@@ -138,13 +138,13 @@ func (o *Optimizer) fold(nodes []*node, query []string) []*node {
 	return out
 }
 
-func marker(n int, role string) *node {
-	return &node{text: compress.Omitted(n, role+"s")}
+func marker(element int, role string) *node {
+	return &node{text: compress.Omitted(element, role+"s")}
 }
 
 // role is a node's first word: "link" of link "Home" [ref=e3].
-func role(n *node) string {
-	r, _, _ := strings.Cut(n.text, " ")
+func role(element *node) string {
+	r, _, _ := strings.Cut(element.text, " ")
 	return strings.TrimSuffix(r, ":")
 }
 

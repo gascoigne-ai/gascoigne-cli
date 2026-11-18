@@ -22,20 +22,20 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	return p.RewriteFamily(func(b payload.Block) (string, error) {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	return data.RewriteFamily(func(block payload.Block) (string, error) {
 		var out []string
-		switch detect.Dialect(b.Type) {
+		switch detect.Dialect(block.Type) {
 		case "markdown":
-			out = o.markdown(compress.Lines(htmlComment.ReplaceAllString(b.Text, "")), p.Attrs[payload.AttrQuery])
+			out = o.markdown(compress.Lines(htmlComment.ReplaceAllString(block.Text, "")), data.Attrs[payload.AttrQuery])
 		case "rst":
-			out = o.rst(compress.Lines(b.Text))
+			out = o.rst(compress.Lines(block.Text))
 		case "man":
-			out = o.man(compress.CleanLines(overstrike.ReplaceAllString(b.Text, "")))
+			out = o.man(compress.CleanLines(overstrike.ReplaceAllString(block.Text, "")))
 		case "help":
-			out = helpFor(help(compress.CleanLines(b.Text)), p.Attrs[payload.AttrQuery])
+			out = helpFor(help(compress.CleanLines(block.Text)), data.Attrs[payload.AttrQuery])
 		default:
-			return b.Text, nil
+			return block.Text, nil
 		}
 		return compress.Join(compress.SqueezeBlank(out)), nil
 	}, detect.FamilyDoc)
@@ -76,8 +76,8 @@ func (o *Optimizer) markdown(lines []string, query string) []string {
 		}
 		if strings.Contains(l, "![") { // both patterns need it; skips the regexes on most lines
 			l = badge.ReplaceAllString(l, "")
-			l = image.ReplaceAllStringFunc(l, func(m string) string {
-				if alt := image.FindStringSubmatch(m)[1]; alt != "" {
+			l = image.ReplaceAllStringFunc(l, func(match string) string {
+				if alt := image.FindStringSubmatch(match)[1]; alt != "" {
 					return "[image: " + alt + "]"
 				}
 				return ""
@@ -269,7 +269,7 @@ func dropBadgeRows(lines []string) []string {
 	for _, l := range lines {
 		refs := rstSubRef.FindAllStringSubmatch(l, -1)
 		rest := strings.Trim(rstSubRef.ReplaceAllString(l, ""), "| \t")
-		if len(refs) > 0 && rest == "" && !slices.ContainsFunc(refs, func(m []string) bool { return !images[m[1]] }) {
+		if len(refs) > 0 && rest == "" && !slices.ContainsFunc(refs, func(match []string) bool { return !images[match[1]] }) {
 			continue
 		}
 		out = append(out, l)

@@ -8,8 +8,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 )
 
-func clean(src, lang string, h detect.Hints) string {
-	return opt(Clean).rewrite(src, lang, h, Clean)
+func clean(src, lang string, hints detect.Hints) string {
+	return opt(Clean).rewrite(src, lang, hints, Clean)
 }
 
 func TestCleanKeepsLinesVerbatim(t *testing.T) {

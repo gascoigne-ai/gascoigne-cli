@@ -29,16 +29,16 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	mode := cmp.Or(p.Attrs[AttrMode], os.Getenv(EnvMode), o.cfg.Mode)
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	mode := cmp.Or(data.Attrs[AttrMode], os.Getenv(EnvMode), o.cfg.Mode)
 	if !validMode(mode) {
 		return fmt.Errorf("invalid %s %q", AttrMode, mode)
 	}
-	hints := detect.HintsFrom(p.Attrs)
-	return p.Rewrite(func(b payload.Block) (string, error) {
-		text := o.rewrite(b.Text, detect.Lang(b.Text, hints), hints, mode)
-		if text == b.Text {
-			p.Set(payload.AttrSkip, o.why(b.Text, mode))
+	hints := detect.HintsFrom(data.Attrs)
+	return data.Rewrite(func(block payload.Block) (string, error) {
+		text := o.rewrite(block.Text, detect.Lang(block.Text, hints), hints, mode)
+		if text == block.Text {
+			data.Set(payload.AttrSkip, o.why(block.Text, mode))
 		}
 		return text, nil
 	}, detect.Code)
@@ -56,7 +56,7 @@ func (o *Optimizer) why(text, mode string) string {
 	return "cat: already clean, nothing to outline"
 }
 
-func (o *Optimizer) rewrite(text, lang string, h detect.Hints, mode string) string {
+func (o *Optimizer) rewrite(text, lang string, hints detect.Hints, mode string) string {
 	if mode == Auto {
 		switch n := tokens.Estimate(text); {
 		case n < o.cfg.CleanMinTokens:
@@ -71,7 +71,7 @@ func (o *Optimizer) rewrite(text, lang string, h detect.Hints, mode string) stri
 		return text
 	}
 	lines := compress.Lines(text)
-	row, _ := detect.Source(text, h)
+	row, _ := detect.Source(text, hints)
 	if row.Class != lang {
 		row = detect.Language{}
 	}
@@ -80,7 +80,7 @@ func (o *Optimizer) rewrite(text, lang string, h detect.Hints, mode string) stri
 		bodies = o.outline(text, lines, lang, row)
 	}
 	gaps := bodies
-	syn, known := syntaxOf(lang, h)
+	syn, known := syntaxOf(lang, hints)
 	if known {
 		gaps = merge(bodies, comments(lines, syn))
 	} else {
@@ -90,7 +90,7 @@ func (o *Optimizer) rewrite(text, lang string, h detect.Hints, mode string) stri
 		return text
 	}
 	// tail shows the end of a file: its line numbers are not the file's.
-	numbered := !slices.Contains([]string{"tail", "sed", "awk"}, firstArg(h.Cmd))
+	numbered := !slices.Contains([]string{"tail", "sed", "awk"}, firstArg(hints.Cmd))
 	out := render(lines, gaps, cmp.Or(syn.line, syn.block[0]), numbered)
 	if len(bodies) > 0 {
 		note := fmt.Sprintf("%s outline: %d bodies elided (%s=full for complete source)", cmp.Or(syn.line, syn.block[0]), len(bodies), AttrMode)
@@ -138,12 +138,12 @@ func firstArg(cmd string) string {
 func merge(bodies, comments []span) []span {
 	gaps := slices.Clone(bodies)
 	for _, c := range comments {
-		inside := slices.ContainsFunc(bodies, func(b span) bool { return c.from <= b.to && b.from <= c.to })
+		inside := slices.ContainsFunc(bodies, func(body span) bool { return c.from <= body.to && body.from <= c.to })
 		if !inside {
 			gaps = append(gaps, c)
 		}
 	}
-	slices.SortFunc(gaps, func(a, b span) int { return a.from - b.from })
+	slices.SortFunc(gaps, func(left, right span) int { return left.from - right.from })
 	return gaps
 }
 
@@ -163,7 +163,7 @@ func render(lines []string, gaps []span, token string, numbered bool) []string {
 		if numbered {
 			where = lineRange(g.from+1, g.to+1)
 		}
-		marker := strings.Join(slices.DeleteFunc([]string{indent + token, "…", g.what, where}, func(s string) bool { return s == "" }), " ")
+		marker := strings.Join(slices.DeleteFunc([]string{indent + token, "…", g.what, where}, func(part string) bool { return part == "" }), " ")
 		out = append(out, marker)
 		next = g.to + 1
 	}

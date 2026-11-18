@@ -39,8 +39,8 @@ func sections(lines []string, query string, budget int) []string {
 		return lines
 	}
 	keep := make([]int, len(secs)) // lines kept per section
-	take := func(i int) {
-		keep[i] = len(secs[i].lines)
+	take := func(index int) {
+		keep[index] = len(secs[index].lines)
 	}
 	take(0)
 	used := secs[0].tokens
@@ -75,14 +75,14 @@ func sections(lines []string, query string, budget int) []string {
 }
 
 // head is how many leading lines of s fit in budget tokens (at least the heading).
-func head(s *part, budget int) int {
+func head(section *part, budget int) int {
 	used := 0
-	for n, l := range s.lines {
+	for n, l := range section.lines {
 		if used += tokens.Estimate(l) + 1; used > budget {
 			return max(n, 1)
 		}
 	}
-	return len(s.lines)
+	return len(section.lines)
 }
 
 func split(lines []string) []*part {
@@ -122,7 +122,7 @@ func byRelevance(secs []*part, query string) []int {
 			hits = append(hits, i)
 		}
 	}
-	slices.SortStableFunc(hits, func(a, b int) int { return cmp.Compare(scores[b], scores[a]) })
+	slices.SortStableFunc(hits, func(left, right int) int { return cmp.Compare(scores[right], scores[left]) })
 	return hits
 }
 

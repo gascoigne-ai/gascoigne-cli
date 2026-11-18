@@ -26,15 +26,15 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	return p.RewriteFamily(func(b payload.Block) (string, error) { return o.block(b, query) }, detect.FamilyCloud)
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	query := sample.Terms(data.Attrs[payload.AttrQuery])
+	return data.RewriteFamily(func(block payload.Block) (string, error) { return o.block(block, query) }, detect.FamilyCloud)
 }
 
-func (o *Optimizer) block(b payload.Block, query []string) (string, error) {
-	text := strings.TrimSpace(b.Text)
-	if detect.Dialect(b.Type) == "aws-s3" {
-		return compress.Join(o.s3(compress.CleanLines(b.Text))), nil
+func (o *Optimizer) block(block payload.Block, query []string) (string, error) {
+	text := strings.TrimSpace(block.Text)
+	if detect.Dialect(block.Type) == "aws-s3" {
+		return compress.Join(o.s3(compress.CleanLines(block.Text))), nil
 	}
 	switch {
 	case strings.HasPrefix(text, "{") || strings.HasPrefix(text, "["):
@@ -47,16 +47,16 @@ func (o *Optimizer) block(b payload.Block, query []string) (string, error) {
 		}
 		return jsonx.Render(values, false, &o.cfg.JSON, query)
 	}
-	if t, ok := table.Parse(compress.CleanLines(b.Text)); ok {
+	if t, ok := table.Parse(compress.CleanLines(block.Text)); ok {
 		return compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query))), nil
 	}
-	if docs, err := yamlx.Docs(b.Text); err == nil && structured(docs) {
+	if docs, err := yamlx.Docs(block.Text); err == nil && structured(docs) {
 		for _, d := range docs {
 			yamlx.Prune(d, yamlRules)
 		}
 		return yamlx.Encode(docs)
 	}
-	return b.Text, nil
+	return block.Text, nil
 }
 
 // structured reports YAML that is a mapping or sequence, not plain text

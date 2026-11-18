@@ -25,8 +25,8 @@ var (
 
 // syntaxOf picks comment syntax from the language row of the file, else by
 // language family; ok is false for languages whose comments are not known.
-func syntaxOf(lang string, h detect.Hints) (syntax, bool) {
-	if l, ok := detect.LanguageOf(h); ok && l.HasSyntax() {
+func syntaxOf(lang string, hints detect.Hints) (syntax, bool) {
+	if l, ok := detect.LanguageOf(hints); ok && l.HasSyntax() {
 		return syntax{line: l.Line, block: l.Block, strs: l.Strs, heredoc: l.Heredoc, docstrings: l.Docstrings}, true
 	}
 	switch lang {
@@ -134,20 +134,20 @@ func appendRun(spans []span, lines []string, start, from, to int, what string) [
 	return append(spans, span{from: from, to: to, what: what, indent: lines[start][:indentOf(lines[start])]})
 }
 
-func isComment(t string, syn syntax) bool {
-	if directive.MatchString(t) {
+func isComment(text string, syn syntax) bool {
+	if directive.MatchString(text) {
 		return false
 	}
-	return syn.line != "" && strings.HasPrefix(t, syn.line) ||
-		syn.block[0] != "" && strings.HasPrefix(t, syn.block[0])
+	return syn.line != "" && strings.HasPrefix(text, syn.line) ||
+		syn.block[0] != "" && strings.HasPrefix(text, syn.block[0])
 }
 
 // commentEnd is the last line of the comment run starting at i, i-1 when
 // there is none. A block comment counts only when nothing but space follows
 // its closing delimiter.
-func commentEnd(lines []string, i int, syn syntax) int {
-	end := i - 1
-	for j := i; j < len(lines); j++ {
+func commentEnd(lines []string, index int, syn syntax) int {
+	end := index - 1
+	for j := index; j < len(lines); j++ {
 		t := strings.TrimSpace(lines[j])
 		switch {
 		case syn.line != "" && strings.HasPrefix(t, syn.line) && !directive.MatchString(t):
@@ -167,11 +167,11 @@ func commentEnd(lines []string, i int, syn syntax) int {
 
 // blockEnd is the line closing a block comment opened on line i, -1 when
 // code follows the delimiter or it never closes.
-func blockEnd(lines []string, i int, close string) int {
-	first := strings.TrimSpace(lines[i])[2:]
-	for j := i; j < len(lines); j++ {
+func blockEnd(lines []string, index int, close string) int {
+	first := strings.TrimSpace(lines[index])[2:]
+	for j := index; j < len(lines); j++ {
 		l := lines[j]
-		if j == i {
+		if j == index {
 			l = first
 		}
 		if k := strings.Index(l, close); k >= 0 {
@@ -186,16 +186,16 @@ func blockEnd(lines []string, i int, close string) int {
 
 var docOpen = lazyre.New(`^[rRuUbB]{0,2}("""|''')`)
 
-func isDocstring(t string) bool { return docOpen.MatchString(t) }
+func isDocstring(text string) bool { return docOpen.MatchString(text) }
 
 // docstringEnd is the line closing the docstring opened on line i.
-func docstringEnd(lines []string, i int, t string) int {
-	q := docOpen.FindStringSubmatch(t)[1]
-	rest := t[strings.Index(t, q)+3:]
+func docstringEnd(lines []string, index int, text string) int {
+	q := docOpen.FindStringSubmatch(text)[1]
+	rest := text[strings.Index(text, q)+3:]
 	if strings.Contains(rest, q) {
-		return i
+		return index
 	}
-	for j := i + 1; j < len(lines); j++ {
+	for j := index + 1; j < len(lines); j++ {
 		if strings.Contains(lines[j], q) {
 			return j
 		}
@@ -213,41 +213,41 @@ func firstText(lines []string, from, to int) int {
 	return from
 }
 
-func isLetter(r rune) bool { return r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' }
+func isLetter(char rune) bool { return char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z' }
 
 // code is l without a trailing line comment, roughly: a token inside a
 // string cuts too early, which only makes string tracking more cautious.
-func code(l string, syn syntax) string {
+func code(line string, syn syntax) string {
 	if syn.line == "" {
-		return strings.TrimSpace(l)
+		return strings.TrimSpace(line)
 	}
-	if k := strings.Index(l, " "+syn.line); k >= 0 {
-		l = l[:k]
+	if k := strings.Index(line, " "+syn.line); k >= 0 {
+		line = line[:k]
 	}
-	return strings.TrimSpace(l)
+	return strings.TrimSpace(line)
 }
 
 var heredoc = lazyre.New(`<<[-~]?\s*['"]?(\w+)['"]?`)
 
 // opens returns the delimiter of a multi-line string left open by line l:
 // an odd count of a string delimiter, or a heredoc whose terminator follows.
-func opens(l string, syn syntax) string {
+func opens(line string, syn syntax) string {
 	for _, d := range syn.strs {
-		if strings.Count(l, d)%2 == 1 {
+		if strings.Count(line, d)%2 == 1 {
 			return d
 		}
 	}
 	if syn.heredoc {
-		if m := heredoc.FindStringSubmatch(l); m != nil {
+		if m := heredoc.FindStringSubmatch(line); m != nil {
 			return "\n" + m[1] // heredocs close on a line equal to the terminator
 		}
 	}
 	return ""
 }
 
-func closes(l, open string) bool {
+func closes(line, open string) bool {
 	if term, ok := strings.CutPrefix(open, "\n"); ok {
-		return strings.TrimSpace(l) == term
+		return strings.TrimSpace(line) == term
 	}
-	return strings.Count(l, open)%2 == 1
+	return strings.Count(line, open)%2 == 1
 }

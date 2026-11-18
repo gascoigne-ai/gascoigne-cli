@@ -22,18 +22,18 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	opts := table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, sample.Terms(p.Attrs[payload.AttrQuery]))
-	return p.RewriteFamily(func(b payload.Block) (string, error) {
-		lines := compress.CleanLines(b.Text)
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	opts := table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, sample.Terms(data.Attrs[payload.AttrQuery]))
+	return data.RewriteFamily(func(block payload.Block) (string, error) {
+		lines := compress.CleanLines(block.Text)
 		var out []string
-		switch detect.Dialect(b.Type) {
+		switch detect.Dialect(block.Type) {
 		case "explain":
 			out = o.plan(lines)
 		case "redis":
 			out = redis(lines)
 		case "mongosh":
-			out = mongo(b.Text, opts)
+			out = mongo(block.Text, opts)
 		case "migrate":
 			out = migrations(lines)
 		default:
@@ -47,14 +47,14 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 var footer = lazyre.New(`^\(\d+ rows?\)$|^\d+ rows? in set|^Empty set|^Query OK`)
 
 // results renders each result set of the output as a compact table.
-func results(lines []string, o table.Options) []string {
+func results(lines []string, options table.Options) []string {
 	var out, chunk []string
 	flush := func() {
 		if len(chunk) == 0 {
 			return
 		}
 		if t, ok := table.Parse(chunk); ok {
-			out = append(out, table.Render(t, o)...)
+			out = append(out, table.Render(t, options)...)
 		} else {
 			out = append(out, chunk...)
 		}

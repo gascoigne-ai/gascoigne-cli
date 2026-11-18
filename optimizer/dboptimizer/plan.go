@@ -70,24 +70,24 @@ func (o *Optimizer) plan(lines []string) []string {
 }
 
 // shorten rewrites a node as "-> Seq Scan on orders o (time=12.5ms rows=1000 est=10 loops=1)".
-func shorten(m []string) string {
-	s := m[1] + m[2] + strings.TrimSpace(m[3])
-	if m[4] != "" {
-		s += " on " + m[4]
-		if m[5] != "" {
-			s += " " + m[5]
+func shorten(match []string) string {
+	s := match[1] + match[2] + strings.TrimSpace(match[3])
+	if match[4] != "" {
+		s += " on " + match[4]
+		if match[5] != "" {
+			s += " " + match[5]
 		}
 	}
-	if m[8] != "" {
-		return s + fmt.Sprintf(" (time=%sms rows=%s est=%s loops=%s)", m[8], m[9], m[7], m[10])
+	if match[8] != "" {
+		return s + fmt.Sprintf(" (time=%sms rows=%s est=%s loops=%s)", match[8], match[9], match[7], match[10])
 	}
-	return s + fmt.Sprintf(" (cost=%s rows=%s)", m[6], m[7])
+	return s + fmt.Sprintf(" (cost=%s rows=%s)", match[6], match[7])
 }
 
-func timeOf(m []string) float64 {
-	v := m[6]
-	if m[8] != "" {
-		v = m[8]
+func timeOf(match []string) float64 {
+	v := match[6]
+	if match[8] != "" {
+		v = match[8]
 	}
 	f, _ := strconv.ParseFloat(v, 64)
 	return f

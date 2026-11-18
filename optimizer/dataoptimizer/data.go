@@ -26,9 +26,9 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	for i, b := range p.Blocks {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	query := sample.Terms(data.Attrs[payload.AttrQuery])
+	for i, b := range data.Blocks {
 		var out string
 		var err error
 		switch b.Type {
@@ -50,7 +50,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if err != nil {
 			return err
 		}
-		p.Blocks[i].Text = out
+		data.Blocks[i].Text = out
 	}
 	return nil
 }

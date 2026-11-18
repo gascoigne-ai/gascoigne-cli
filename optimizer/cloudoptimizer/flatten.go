@@ -8,8 +8,8 @@ import "github.com/gascoigne-ai/gascoigne-cli/internal/compress/jsonx"
 
 // reshape unwraps AWS envelopes, turns AWS tag lists into maps and flattens
 // items of object arrays, recursively.
-func reshape(v any) any {
-	switch v := v.(type) {
+func reshape(value any) any {
+	switch v := value.(type) {
 	case map[string]any:
 		if res, ok := v["Reservations"].([]any); ok {
 			v["Instances"] = instances(res)
@@ -32,7 +32,7 @@ func reshape(v any) any {
 			v[i] = x
 		}
 	}
-	return v
+	return value
 }
 
 // instances lists ec2 instances across reservations, which only group them
@@ -53,17 +53,17 @@ func instances(reservations []any) []any {
 }
 
 // tagMap turns [{"Key": k, "Value": v}] into {k: v}.
-func tagMap(v any) any {
-	list, ok := v.([]any)
+func tagMap(value any) any {
+	list, ok := value.([]any)
 	if !ok {
-		return v
+		return value
 	}
 	tags := map[string]any{}
 	for _, t := range list {
 		m, ok := t.(map[string]any)
 		key, isStr := m["Key"].(string)
 		if !ok || !isStr || len(m) != 2 {
-			return v
+			return value
 		}
 		tags[key] = m["Value"]
 	}
