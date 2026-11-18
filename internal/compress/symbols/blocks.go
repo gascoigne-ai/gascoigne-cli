@@ -4,6 +4,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
@@ -30,7 +31,7 @@ func endDefs(lines []string, row detect.Language) []Def {
 		t := strings.TrimSpace(l)
 		switch {
 		case t == "" || row.Line != "" && strings.HasPrefix(t, row.Line):
-		case strings.HasPrefix(t, "end") && (len(t) == 3 || !isWord(t[3])):
+		case strings.HasPrefix(t, "end") && (len(t) == 3 || !compress.IsWord(t[3])):
 			if len(stack) == 0 {
 				continue
 			}
@@ -96,10 +97,6 @@ func docStart(lines []string, index int, row detect.Language) int {
 		}
 	}
 	return from
-}
-
-func isWord(char byte) bool {
-	return char == '_' || char >= '0' && char <= '9' || char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z'
 }
 
 // mdHead is an ATX heading: 1-6 hashes, a space, the title.

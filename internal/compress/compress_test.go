@@ -142,3 +142,29 @@ func TestStripANSIKeepsPlainText(t *testing.T) {
 		}
 	}
 }
+
+func TestCount(t *testing.T) {
+	tests := []struct {
+		count int
+		word  string
+		want  string
+	}{
+		{0, "test", "0 tests"},
+		{1, "test", "1 test"},
+		{2, "package", "2 packages"},
+	}
+	for _, tt := range tests {
+		if got := Count(tt.count, tt.word); got != tt.want {
+			t.Errorf("Count(%d, %q) = %q, want %q", tt.count, tt.word, got, tt.want)
+		}
+	}
+}
+
+func TestIsWord(t *testing.T) {
+	for char := range 256 {
+		want := char == '_' || char >= '0' && char <= '9' || char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z'
+		if got := IsWord(byte(char)); got != want {
+			t.Errorf("IsWord(%q) = %v, want %v", byte(char), got, want)
+		}
+	}
+}

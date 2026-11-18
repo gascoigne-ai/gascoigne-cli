@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
@@ -20,7 +21,7 @@ func foldCycles(lines []string, maxPeriod, minRepeats int) []string {
 			continue
 		}
 		out = append(out, lines[i:i+period]...)
-		out = append(out, fmt.Sprintf("… %s above repeated %d more times", plural(period, "line"), reps-1))
+		out = append(out, fmt.Sprintf("… %s above repeated %d more times", compress.Count(period, "line"), reps-1))
 		i += period * reps
 	}
 	return out
@@ -120,11 +121,4 @@ func ids(list []string) string {
 		return strings.Join(list, " ")
 	}
 	return fmt.Sprintf("%s …%d more", strings.Join(list[:10], " "), len(list)-10)
-}
-
-func plural(count int, what string) string {
-	if count == 1 {
-		return "1 " + what
-	}
-	return fmt.Sprintf("%d %ss", count, what)
 }

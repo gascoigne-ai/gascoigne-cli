@@ -6,7 +6,6 @@ package testreport
 
 import (
 	"cmp"
-	"fmt"
 	"slices"
 	"strings"
 
@@ -134,17 +133,17 @@ func (s *summary) result() []string {
 		for i, p := range s.okPkgs {
 			names[i] = cmp.Or(strings.TrimPrefix(p, prefix), p)
 		}
-		line := "ok " + plural(n, "package")
+		line := "ok " + compress.Count(n, "package")
 		if prefix != "" {
 			line += " in " + strings.TrimSuffix(prefix, "/")
 		}
 		out = append(out, line+": "+strings.Join(names, ", "))
 	}
 	if s.noTests > 0 {
-		out = append(out, plural(s.noTests, "package")+" without tests")
+		out = append(out, compress.Count(s.noTests, "package")+" without tests")
 	}
 	if s.passed > 0 {
-		out = append(out, plural(s.passed, "test")+" passed")
+		out = append(out, compress.Count(s.passed, "test")+" passed")
 	}
 	return out
 }
@@ -194,11 +193,4 @@ func commonPrefix(paths []string) string {
 		return p[:i+1]
 	}
 	return ""
-}
-
-func plural(count int, word string) string {
-	if count == 1 {
-		return "1 " + word
-	}
-	return fmt.Sprintf("%d %ss", count, word)
 }

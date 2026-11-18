@@ -57,6 +57,19 @@ func Omitted(count int, what string) string {
 	return fmt.Sprintf("… %d %s omitted", count, what)
 }
 
+// Count is count and word, with an "s" added unless count is 1: "1 test", "3 tests".
+func Count(count int, word string) string {
+	if count == 1 {
+		return "1 " + word
+	}
+	return fmt.Sprintf("%d %ss", count, word)
+}
+
+// IsWord is regexp's \w: ASCII letters, digits and underscore.
+func IsWord(char byte) bool {
+	return char == '_' || '0' <= char && char <= '9' || 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z'
+}
+
 var volatile = lazyre.New(
 	`\d{4}-\d\d-\d\d[T ]\d\d:\d\d:\d\d(\.\d+)?(Z|[+-]\d\d:?\d\d)?` + // timestamps
 		`|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b` + // uuids

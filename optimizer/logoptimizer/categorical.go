@@ -1,6 +1,10 @@
 package logoptimizer
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
+)
 
 // categoricalKeys name fields whose number picks a case, not an amount: a
 // 503 among 200s is the line to read, so these values stay in the repeat key.
@@ -18,14 +22,14 @@ var categoricalKeys = map[string]bool{
 func protectCodes(line string) string {
 	var out []byte
 	for i := 0; i < len(line); i++ {
-		if !isDigit(line[i]) || i > 0 && isWord(line[i-1]) {
+		if !isDigit(line[i]) || i > 0 && compress.IsWord(line[i-1]) {
 			continue
 		}
 		j := i
 		for j < len(line) && isDigit(line[j]) {
 			j++
 		}
-		if j-i <= 3 && (j == len(line) || !isWord(line[j])) && categoricalBefore(line, i) {
+		if j-i <= 3 && (j == len(line) || !compress.IsWord(line[j])) && categoricalBefore(line, i) {
 			if out == nil {
 				out = []byte(line)
 			}
@@ -62,7 +66,7 @@ func categoricalBefore(line string, pos int) bool {
 // whole word (or two: "exit code").
 func isCategoricalKey(key string) bool {
 	start := len(key)
-	for start > 0 && isWord(key[start-1]) {
+	for start > 0 && compress.IsWord(key[start-1]) {
 		start--
 	}
 	if categoricalKeys[strings.ToLower(key[start:])] {
@@ -72,14 +76,10 @@ func isCategoricalKey(key string) bool {
 		return false
 	}
 	prev := start - 1
-	for prev > 0 && isWord(key[prev-1]) {
+	for prev > 0 && compress.IsWord(key[prev-1]) {
 		prev--
 	}
 	return categoricalKeys[strings.ToLower(key[prev:start-1]+" "+key[start:])]
 }
 
 func isDigit(char byte) bool { return char >= '0' && char <= '9' }
-
-func isWord(char byte) bool {
-	return isDigit(char) || char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z' || char == '_'
-}

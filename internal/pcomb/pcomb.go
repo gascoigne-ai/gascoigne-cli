@@ -11,6 +11,7 @@ package pcomb
 import (
 	"strings"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
@@ -36,13 +37,13 @@ func Prefix(prefixes ...string) Matcher {
 func Word(keywords ...string) Matcher {
 	mustNotBeEmpty("Word", keywords)
 	for _, k := range keywords {
-		if !isWord(k[len(k)-1]) {
+		if !compress.IsWord(k[len(k)-1]) {
 			panic("pcomb: Word keyword must end in a letter, digit or _: " + k)
 		}
 	}
 	return func(line string) bool {
 		for _, k := range keywords {
-			if strings.HasPrefix(line, k) && (len(line) == len(k) || !isWord(line[len(k)])) {
+			if strings.HasPrefix(line, k) && (len(line) == len(k) || !compress.IsWord(line[len(k)])) {
 				return true
 			}
 		}
@@ -118,11 +119,6 @@ func mustNotBeEmpty(fn string, ss []string) {
 			panic("pcomb: " + fn + " got an empty string, which matches every line")
 		}
 	}
-}
-
-// isWord is regexp's \w: ASCII letters, digits and underscore.
-func isWord(char byte) bool {
-	return char == '_' || '0' <= char && char <= '9' || 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z'
 }
 
 // trimSpace drops leading regexp \s: space, \t, \n, \f, \r.
