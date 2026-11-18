@@ -110,9 +110,12 @@ func cmdHook(ctx context.Context, args []string) error {
 	if reply == nil {
 		return nil
 	}
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetEscapeHTML(false)
-	return enc.Encode(reply)
+	data, err := encodeJSON(reply)
+	if err != nil {
+		return err
+	}
+	_, err = os.Stdout.Write(data)
+	return err
 }
 
 // rewriteHook routes shell tool calls through gascoigne exec before they run;

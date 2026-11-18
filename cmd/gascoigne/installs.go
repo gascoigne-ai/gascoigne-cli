@@ -60,7 +60,7 @@ func legacyInstalls(known []install) []install {
 		return nil
 	}
 	cwd, _ := os.Getwd()
-	home, _ := os.UserHomeDir()
+	home := home()
 	var out []install
 	for _, name := range slices.Sorted(maps.Keys(agents)) {
 		for _, e := range []install{
@@ -83,15 +83,7 @@ func legacyInstalls(known []install) []install {
 }
 
 func writeInstalls(list []install) error {
-	if err := os.MkdirAll(stateDir(), 0o700); err != nil {
-		return err
-	}
-	data, _ := json.MarshalIndent(list, "", "  ")
-	tmp := installsFile() + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
-		return err
-	}
-	return os.Rename(tmp, installsFile())
+	return saveJSON(installsFile(), list)
 }
 
 func (i install) same(other install) bool {

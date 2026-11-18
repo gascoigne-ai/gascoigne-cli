@@ -127,12 +127,11 @@ func writeValue(buf *bytes.Buffer, value any) error {
 		}
 		buf.WriteByte(']')
 	default:
-		enc := json.NewEncoder(buf)
-		enc.SetEscapeHTML(false)
-		if err := enc.Encode(v); err != nil {
+		data, err := encodeJSON(v)
+		if err != nil {
 			return fmt.Errorf("encode %T: %w", v, err)
 		}
-		buf.Truncate(buf.Len() - 1) // Encode ends with a newline
+		buf.Write(data[:len(data)-1]) // Encode ends with a newline
 	}
 	return nil
 }

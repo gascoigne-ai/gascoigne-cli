@@ -864,7 +864,7 @@ func loadContext(dir string, period time.Duration, now time.Time) (contextReport
 
 // claudeProjects is where Claude Code keeps its transcripts.
 func claudeProjects() string {
-	home, _ := os.UserHomeDir()
+	home := home()
 	return filepath.Join(home, ".claude", "projects")
 }
 

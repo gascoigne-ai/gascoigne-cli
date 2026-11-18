@@ -67,7 +67,7 @@ func cmdUninstall(ctx context.Context, args []string) error {
 // sidecars when it lives elsewhere ($GASCOIGNE_LEDGER, the server's).
 // A custom ledger path loses only its files, never its dir.
 func leftovers(ledgers ...string) []string {
-	home, _ := os.UserHomeDir()
+	home := home()
 	var dirs []string
 	if dir, err := os.UserConfigDir(); err == nil {
 		dirs = append(dirs, filepath.Join(dir, "gascoigne"))

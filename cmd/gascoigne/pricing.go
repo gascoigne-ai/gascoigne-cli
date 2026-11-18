@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"flag"
 	"fmt"
@@ -139,7 +140,7 @@ func runPricingShow(writer io.Writer) error {
 	p := readPrefs().Pricing
 	cfg, warnings := p.config()
 	result := pricing.Load(cfg)
-	fmt.Fprintf(writer, "billing: %s\n", cmpOr(p.Billing, cost.BillingAuto))
+	fmt.Fprintf(writer, "billing: %s\n", cmp.Or(p.Billing, cost.BillingAuto))
 	switch p.Billing {
 	case cost.BillingSubscription:
 		fmt.Fprintln(writer, "  flat plan: dollar figures are hidden (gascoigne pricing set -billing api shows them)")
@@ -183,13 +184,6 @@ func when(moment time.Time) string {
 		return "-"
 	}
 	return moment.Local().Format("2006-01-02 15:04")
-}
-
-func cmpOr(value, fallback string) string {
-	if value == "" {
-		return fallback
-	}
-	return value
 }
 
 // runPricingTest runs every remote source once against a scratch cache and prints what they

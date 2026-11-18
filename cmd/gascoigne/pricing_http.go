@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"net/http"
 	"strings"
@@ -41,7 +42,7 @@ func buildPricingView() pricingView {
 	cfg, warnings := p.config()
 	result := pricing.Load(cfg)
 	view := pricingView{
-		Billing: cmpOr(p.Billing, cost.BillingAuto), Detected: detectedAgents(), TTL: cmpOr(p.TTL, "24h"), Prices: p.Prices, Warnings: warnings,
+		Billing: cmp.Or(p.Billing, cost.BillingAuto), Detected: detectedAgents(), TTL: cmp.Or(p.TTL, "24h"), Prices: p.Prices, Warnings: warnings,
 		Layers: []layerView{}, Checked: cost.PricesChecked,
 		FileSet: p.File != "", URLSet: p.URL != "", TranslateSet: p.Translate != "",
 		Remote: p.URL != "" || p.Translate != "",
@@ -152,7 +153,7 @@ type pricingSetup struct {
 func buildPricingSetup(chosen prefs) *pricingSetup {
 	view := buildPricingView()
 	out := &pricingSetup{
-		pricingForm: pricingForm{TTL: cmpOr(chosen.Pricing.TTL, "24h"), Prices: chosen.Pricing.Prices},
+		pricingForm: pricingForm{TTL: cmp.Or(chosen.Pricing.TTL, "24h"), Prices: chosen.Pricing.Prices},
 		Sources: pricingSources{
 			File: chosen.Pricing.File != "", URL: chosen.Pricing.URL != "", HeaderEnv: chosen.Pricing.HeaderEnv != "",
 			Translate: chosen.Pricing.Translate != "",

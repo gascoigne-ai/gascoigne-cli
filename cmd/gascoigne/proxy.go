@@ -248,7 +248,7 @@ func anys(items []string) []any {
 
 // claudeJSON is Claude Code's state file, home of user and local MCP servers.
 func claudeJSON() string {
-	home, _ := os.UserHomeDir()
+	home := home()
 	return filepath.Join(home, ".claude.json")
 }
 
@@ -609,11 +609,8 @@ func tomlStrings(text string) ([]string, bool) {
 }
 
 func tomlQuote(text string) string {
-	var b strings.Builder
-	enc := json.NewEncoder(&b)
-	enc.SetEscapeHTML(false)
-	enc.Encode(text) // strings always encode
-	return strings.TrimSpace(b.String())
+	encoded, _ := encodeJSON(text) // strings always encode
+	return strings.TrimSpace(string(encoded))
 }
 
 func tomlArray(list []string) string {

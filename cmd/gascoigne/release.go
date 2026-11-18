@@ -69,15 +69,7 @@ func readRelease() release {
 }
 
 func (r release) save() error {
-	if err := os.MkdirAll(stateDir(), 0o700); err != nil {
-		return err
-	}
-	data, _ := json.MarshalIndent(r, "", "  ")
-	tmp := releaseFile() + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
-		return err
-	}
-	return os.Rename(tmp, releaseFile())
+	return saveJSON(releaseFile(), r)
 }
 
 // newer is true when this release is later than the running gascoigne.

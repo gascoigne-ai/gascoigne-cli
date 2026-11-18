@@ -13,7 +13,7 @@ import (
 func stateDir() string {
 	dir := os.Getenv("XDG_STATE_HOME")
 	if dir == "" {
-		home, _ := os.UserHomeDir()
+		home := home()
 		dir = filepath.Join(home, ".local", "state")
 	}
 	return filepath.Join(dir, "gascoigne")
@@ -91,13 +91,5 @@ func readPrefs() prefs {
 
 // save writes p atomically: hooks read the file while commands write it.
 func (p prefs) save() error {
-	if err := os.MkdirAll(stateDir(), 0o700); err != nil {
-		return err
-	}
-	data, _ := json.MarshalIndent(p, "", "  ")
-	tmp := prefsFile() + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
-		return err
-	}
-	return os.Rename(tmp, prefsFile())
+	return saveJSON(prefsFile(), p)
 }

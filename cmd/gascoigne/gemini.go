@@ -126,7 +126,7 @@ func geminiEnv(exe string) ([]string, error) {
 		root = toObject(map[string]any{})
 	}
 	servers := toObject(map[string]any{})
-	home, _ := os.UserHomeDir()
+	home := home()
 	for _, f := range []string{filepath.Join(home, ".gemini", "settings.json"), filepath.Join(".gemini", "settings.json")} {
 		if s := obj(path(readJSONObject(f), "mcpServers")); s != nil {
 			mergeJSON(servers, s)

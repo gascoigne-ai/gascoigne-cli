@@ -73,7 +73,7 @@ func cmdPrompts(_ context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	home, _ := os.UserHomeDir()
+	home := home()
 	m, ok := cost.Lookup(cmp.Or(*model, cost.AgentModels[*agent]))
 	if !ok {
 		return fmt.Errorf("unknown model %q", *model)
@@ -209,7 +209,7 @@ func (l *sourceLoader) load(path, via string, depth int) {
 	for _, imp := range imports(text) {
 		target := imp
 		if rest, ok := strings.CutPrefix(imp, "~/"); ok {
-			home, _ := os.UserHomeDir()
+			home := home()
 			target = filepath.Join(home, rest)
 		} else if !filepath.IsAbs(imp) {
 			target = filepath.Join(filepath.Dir(path), imp)
@@ -503,10 +503,7 @@ func terseFiles(files []string, ratio float64) error {
 			fmt.Printf("%s: unchanged\n", f)
 			continue
 		}
-		if err := os.WriteFile(f+".bak", data, 0o644); err != nil {
-			return err
-		}
-		if err := os.WriteFile(f, []byte(out), 0o644); err != nil {
+		if _, err := writeWithBackup(f, ".bak", data, []byte(out), 0o644); err != nil {
 			return err
 		}
 		before, after := tokens.Estimate(string(data)), tokens.Estimate(out)

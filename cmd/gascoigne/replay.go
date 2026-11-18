@@ -41,7 +41,7 @@ func cmdReplay(ctx context.Context, args []string) error {
 		against  string
 		sets     listFlag
 	)
-	home, _ := os.UserHomeDir()
+	home := home()
 	fs := newFlags("replay")
 	fs.StringVar(&dir, "dir", filepath.Join(home, ".claude", "projects"), "`directory` with session transcripts (*.jsonl), searched recursively")
 	fs.IntVar(&sessions, "sessions", 10, "newest `n` transcripts to replay")
@@ -389,13 +389,11 @@ func canonical(body []byte) ([]string, error) {
 		if err := dec.Decode(&v); err != nil {
 			return nil, err
 		}
-		var b bytes.Buffer
-		enc := json.NewEncoder(&b)
-		enc.SetEscapeHTML(false)
-		if err := enc.Encode(v); err != nil {
+		encoded, err := encodeJSON(v)
+		if err != nil {
 			return nil, err
 		}
-		out[i] = b.String()
+		out[i] = string(encoded)
 	}
 	return out, nil
 }

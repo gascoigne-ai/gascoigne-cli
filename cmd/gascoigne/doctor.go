@@ -140,7 +140,7 @@ func checkInstall(entry install) finding {
 
 // configOf is the file whose gascoigne hook shows an install is in place.
 func configOf(entry install) string {
-	home, _ := os.UserHomeDir()
+	home := home()
 	pick := func(user, project string) string {
 		if entry.Global {
 			return filepath.Join(home, user)

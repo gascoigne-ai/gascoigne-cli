@@ -438,10 +438,11 @@ func writeConfig(file string, edit func(text string) (string, error)) (string, e
 		if info, err := os.Stat(file); err == nil {
 			perm = info.Mode().Perm()
 		}
-		backup = file + ".gascoigne-bak"
-		if err := os.WriteFile(backup, data, perm); err != nil {
-			return "", fmt.Errorf("back up %s: %w", file, err)
+		var err error
+		if backup, err = writeWithBackup(file, ".gascoigne-bak", data, []byte(out), perm); err != nil {
+			return "", err
 		}
+		return backup, nil
 	}
 	if err := os.MkdirAll(filepath.Dir(file), 0o755); err != nil {
 		return "", err

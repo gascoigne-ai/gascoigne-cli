@@ -81,10 +81,8 @@ func writeUpgrade(path string) (dropped []string, changed bool, err error) {
 	if bytes.Equal(out, old) {
 		return nil, false, nil
 	}
-	if err := os.WriteFile(path+".bak", old, 0o644); err != nil {
-		return nil, false, err
-	}
-	return dropped, true, os.WriteFile(path, out, 0o644)
+	_, err = writeWithBackup(path, ".bak", old, out, 0o644)
+	return dropped, err == nil, err
 }
 
 // upgradeCmd runs gascoigne config -upgrade on the config file in use.

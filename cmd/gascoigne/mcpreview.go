@@ -339,7 +339,7 @@ func loadReview(ctx context.Context, store *ledger.Ledger, now time.Time, chosen
 		return mcpReview{}, err
 	}
 	review := buildReview(stats, cmds, now, idSet(learned))
-	home, _ := os.UserHomeDir()
+	home := home()
 	configs := proxiedConfigs(home, projectDirs())
 	for i, s := range review.Servers {
 		review.Servers[i].Config = []mcpConfigEntry{}

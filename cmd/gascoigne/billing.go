@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"slices"
@@ -75,12 +74,8 @@ func envSet(names ...string) string {
 
 // readJSON decodes a small file into a generic map; a missing or broken one is nil.
 func readJSON(path string) map[string]any {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil
-	}
 	var out map[string]any
-	if json.Unmarshal(data, &out) != nil {
+	if !readJSONFile(path, &out) {
 		return nil
 	}
 	return out

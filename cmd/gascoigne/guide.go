@@ -174,7 +174,7 @@ func codexHome() string {
 	if home := os.Getenv("CODEX_HOME"); home != "" {
 		return home
 	}
-	home, _ := os.UserHomeDir()
+	home := home()
 	return filepath.Join(home, ".codex")
 }
 

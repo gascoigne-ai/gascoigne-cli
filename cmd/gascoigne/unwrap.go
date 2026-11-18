@@ -50,8 +50,8 @@ func cmdUnwrap(_ context.Context, args []string) error {
 // one agent config file; a project in the home dir lists each file once.
 func configFiles(user string, project ...string) []string {
 	var files []string
-	if home, err := os.UserHomeDir(); err == nil {
-		files = append(files, filepath.Join(home, user))
+	if dir := home(); dir != "" {
+		files = append(files, filepath.Join(dir, user))
 	}
 	for _, f := range project {
 		abs, err := filepath.Abs(f)
@@ -266,20 +266,17 @@ func editFile(file string, edit func(text string) (string, []string)) ([]string,
 	if err != nil {
 		return nil, err
 	}
-	backup := file + ".gascoigne-bak"
-	if err := os.WriteFile(backup, data, info.Mode().Perm()); err != nil {
-		return nil, fmt.Errorf("back up %s: %w", file, err)
-	}
-	if err := os.WriteFile(file, []byte(out), info.Mode().Perm()); err != nil {
-		return nil, fmt.Errorf("write %s: %w", file, err)
+	backup, err := writeWithBackup(file, ".gascoigne-bak", data, []byte(out), info.Mode().Perm())
+	if err != nil {
+		return nil, err
 	}
 	return []string{fmt.Sprintf("%s: removed %s (backup: %s)", display(file), strings.Join(what, ", "), filepath.Base(backup))}, nil
 }
 
 // display shortens home paths to ~/….
 func display(file string) string {
-	if home, err := os.UserHomeDir(); err == nil {
-		if rel, ok := strings.CutPrefix(file, home+string(filepath.Separator)); ok {
+	if dir := home(); dir != "" {
+		if rel, ok := strings.CutPrefix(file, dir+string(filepath.Separator)); ok {
 			return "~/" + rel
 		}
 	}

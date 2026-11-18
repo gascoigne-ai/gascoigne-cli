@@ -120,7 +120,7 @@ func opencodeServer(exe string) map[string]any {
 
 // opencodeHome is opencode's global config directory.
 func opencodeHome() string {
-	home, _ := os.UserHomeDir()
+	home := home()
 	return filepath.Join(home, ".config", "opencode")
 }
 
