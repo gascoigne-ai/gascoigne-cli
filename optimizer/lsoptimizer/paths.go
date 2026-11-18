@@ -225,14 +225,14 @@ func pseudoMount(mount string) bool {
 }
 
 // dropInodeColumns removes the inode columns macOS df adds (iused ifree %iused).
-func dropInodeColumns(t *table.Table) {
+func dropInodeColumns(grid *table.Table) {
 	var keep []int
-	for i, h := range t.Header {
+	for i, h := range grid.Header {
 		if h != "iused" && h != "ifree" && h != "%iused" {
 			keep = append(keep, i)
 		}
 	}
-	if len(keep) == len(t.Header) {
+	if len(keep) == len(grid.Header) {
 		return
 	}
 	pick := func(row []string) []string {
@@ -242,8 +242,8 @@ func dropInodeColumns(t *table.Table) {
 		}
 		return out
 	}
-	t.Header = pick(t.Header)
-	for i, r := range t.Rows {
-		t.Rows[i] = pick(r)
+	grid.Header = pick(grid.Header)
+	for i, r := range grid.Rows {
+		grid.Rows[i] = pick(r)
 	}
 }
