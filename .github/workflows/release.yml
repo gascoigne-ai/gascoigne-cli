@@ -21,6 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          submodules: true
           ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-go@v6
         with:
