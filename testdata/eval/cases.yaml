@@ -392,6 +392,13 @@
 
 - { file: git/blame.txt, attrs: { cmd: git blame detect/detect.go }, expect_type: vcs/git-blame, keep: ["54c53fae dev 2026-10-10", "func Detect(text string, h Hints) string {"], min_saved: 30 }
 - { file: git/branch-a.txt, attrs: { cmd: git branch -a }, expect_type: vcs/git-branch, keep: ["* feature/router", "remotes/origin/HEAD -> origin/main", "mirrored locally"], min_saved: 30 }
+- { file: git/merge-ff.txt, attrs: { cmd: git merge --ff-only origin/feature }, expect_type: vcs/git-stat, keep: ["Fast-forward", "60 files changed, 2954 insertions(+)", "create mode 100644 ×"], min_saved: 40 }
+- { file: git/rebase.txt, attrs: { cmd: git rebase --stat main }, expect_type: vcs/git-stat, keep: ["Successfully rebased and updated refs/heads/r2", "32 files changed"], min_saved: 40 }
+- { file: git/rebase-conflict.txt, attrs: { cmd: git rebase --stat main }, expect_type: vcs/git-stat, keep: ["CONFLICT (add/add): Merge conflict in conf.txt", "error: could not apply a72693b... c1", "hint: You can instead skip this commit", "Could not apply a72693b"], lossless: true }
+- { file: git/cherry-pick.txt, attrs: { cmd: git cherry-pick topic }, expect_type: vcs/git-stat, keep: ["[main 9dab0f0] topic files", "30 files changed, 30 insertions(+)"], min_saved: 40 }
+- { file: git/commit-many.txt, attrs: { cmd: git commit -m wip }, expect_type: vcs/git-stat, keep: ["[main b2d23c2] feat: add generated files", "29 files changed", "create mode 100755 ×4"], min_saved: 40 }
+- { file: git/merge-conflict.txt, attrs: { cmd: git merge c1 }, expect_type: vcs/git-stat, keep: ["CONFLICT (add/add): Merge conflict in conf.txt", "Automatic merge failed; fix conflicts and then commit the result."], lossless: true }
+- { file: git/checkout.txt, attrs: { cmd: git checkout c1 }, expect_type: vcs/git-stat, keep: ["Switched to a new branch 'newb'"], lossless: true }
 - { file: git/reflog.txt, attrs: { cmd: git reflog }, expect_type: vcs/git-refs, keep: ["checkout: 7 moves between main, feature/router", "commit (initial)"], min_saved: 20 }
 - { file: git/remote-v.txt, attrs: { cmd: git remote -v }, expect_type: vcs/git-refs, keep: ["alice\tgit@code.example.com:alice/shop.git (fetch, push)", "git@push.example.com:heidi/shop.git (push)"], min_saved: 20 }
 - { file: git/for-each-ref.txt, attrs: { cmd: git for-each-ref }, expect_type: vcs/git-refs, keep: ["refs/backup/pre-anon/master"], min_saved: 15 }

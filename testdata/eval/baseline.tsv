@@ -190,6 +190,13 @@ detect/git-log	1151	2	8
 detect/git-diff	2386	1	15
 git/blame	2829	0	0
 git/branch-a	395	0	41
+git/merge-ff	873	0	0
+git/rebase	352	0	0
+git/rebase-conflict	479	0	0
+git/cherry-pick	43	0	0
+git/commit-many	38	0	0
+git/merge-conflict	34	0	0
+git/checkout	19	0	0
 git/reflog	107	0	0
 git/remote-v	250	0	0
 git/for-each-ref	435	0	0

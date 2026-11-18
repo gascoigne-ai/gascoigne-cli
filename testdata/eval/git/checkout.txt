@@ -1,0 +1,2 @@
+Switched to branch 'c1'
+Switched to a new branch 'newb'

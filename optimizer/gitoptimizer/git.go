@@ -31,6 +31,8 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 			lines = o.diff(lines)
 		case detect.GitRemote:
 			lines = remote(lines)
+		case detect.GitStat:
+			lines = o.stat(lines)
 		case detect.GitBlame:
 			lines = blame(lines)
 		case detect.GitBranch:
@@ -43,7 +45,7 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 			lines = ghView(compress.StripANSI(block.Text))
 		}
 		return compress.Join(lines), nil
-	}, detect.GitStatus, detect.GitLog, detect.Diff, detect.GitRemote, detect.GitBlame, detect.GitBranch, detect.GitRefs, detect.GHList, detect.GHView)
+	}, detect.GitStatus, detect.GitLog, detect.Diff, detect.GitRemote, detect.GitStat, detect.GitBlame, detect.GitBranch, detect.GitRefs, detect.GHList, detect.GHView)
 }
 
 var progress = lazyre.New(`^(remote: )?(Enumerating|Counting|Compressing|Writing|Receiving|Resolving|Delta compression|Total \d+|Unpacking|Updating files|Checking out files)\b|^remote:\s*$`)

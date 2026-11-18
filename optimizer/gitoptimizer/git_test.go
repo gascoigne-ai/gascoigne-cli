@@ -252,3 +252,36 @@ func TestGHListRaggedRows(t *testing.T) {
 		}
 	}
 }
+
+func TestStat(t *testing.T) {
+	cases := []struct{ name, in, want string }{
+		{"stat bars cut, create run folded",
+			"Updating a1..b2\nFast-forward\n a.go | 10 ++++++----\n b.go |  2 +-\n 2 files changed, 6 insertions(+), 6 deletions(-)\n" +
+				" create mode 100644 x/1\n create mode 100644 x/2\n create mode 100644 x/3\n create mode 100644 x/4\n",
+			"Updating a1..b2\nFast-forward\na.go | 10 +-\nb.go | 2 +-\n2 files changed, 6 insertions(+), 6 deletions(-)\n create mode 100644 ×4\n"},
+		{"two creates stay",
+			" create mode 100644 x/1\n create mode 100644 x/2\n", " create mode 100644 x/1\n create mode 100644 x/2\n"},
+		{"split on mode and kind",
+			" create mode 100644 a\n create mode 100644 b\n create mode 100644 c\n create mode 100755 d\n create mode 100755 e\n create mode 100755 f\n delete mode 100644 g\n delete mode 100644 h\n delete mode 100644 i\n",
+			" create mode 100644 ×3\n create mode 100755 ×3\n delete mode 100644 ×3\n"},
+		{"rename and mode change verbatim",
+			" rename a => b (100%)\n mode change 100644 => 100755 c\n create mode 100644 d\n",
+			" rename a => b (100%)\n mode change 100644 => 100755 c\n create mode 100644 d\n"},
+		{"conflict text verbatim",
+			"Auto-merging f\nCONFLICT (content): Merge conflict in f\nerror: could not apply 1abc... x\nhint: resolve\nfatal: bad\n<<<<<<< HEAD\n",
+			"Auto-merging f\nCONFLICT (content): Merge conflict in f\nerror: could not apply 1abc... x\nhint: resolve\nfatal: bad\n<<<<<<< HEAD\n"},
+		{"commit summary only is untouched",
+			"[main abc1234] msg\n 3 files changed, 3 insertions(+)\n", "[main abc1234] msg\n 3 files changed, 3 insertions(+)\n"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := run(t, detect.GitStat, c.in)
+			if got != c.want {
+				t.Fatalf("got:\n%q\nwant:\n%q", got, c.want)
+			}
+			if again := run(t, detect.GitStat, got); again != got {
+				t.Fatalf("not idempotent:\n%q", again)
+			}
+		})
+	}
+}

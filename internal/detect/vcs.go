@@ -6,6 +6,7 @@ const (
 	GitStatus = "vcs/git-status"
 	GitLog    = "vcs/git-log"
 	GitRemote = "vcs/git-remote" // push, pull, fetch, clone
+	GitStat   = "vcs/git-stat"   // merge, rebase, cherry-pick, commit, checkout, stash pop
 	GitBlame  = "vcs/git-blame"
 	GitBranch = "vcs/git-branch"
 	GitRefs   = "vcs/git-refs" // reflog, tag, worktree, remote -v, for-each-ref, submodule, shortlog, stash list
@@ -21,6 +22,7 @@ func init() {
 		Spec{Type: GitStatus, Cmds: []string{"git status"}, Priority: 42,
 			Sniff: anyLine(`^On branch |^HEAD detached |^Changes (not staged|to be committed)|^Untracked files:|^nothing to commit`)},
 		Spec{Type: GitRemote, Cmds: []string{"git push", "git pull", "git fetch", "git clone"}},
+		Spec{Type: GitStat, Cmds: []string{"git merge", "git rebase", "git cherry-pick", "git commit", "git checkout", "git stash pop"}},
 		Spec{Type: GitBlame, Cmds: []string{"git blame", "git annotate"}, Priority: 43,
 			Sniff: ratio(`^\^?[0-9a-f]{7,40} (\S+ )?\(.+ \d{4}-\d\d-\d\d \d\d:\d\d:\d\d [+-]\d{4} +\d+\) `, 0.8)},
 		Spec{Type: GitBranch, Cmds: []string{"git branch"}},
