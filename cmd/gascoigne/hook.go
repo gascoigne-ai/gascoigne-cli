@@ -156,7 +156,7 @@ func rewriteHook(reply func(updated map[string]any) any) hookFunc {
 		// optimizers (search matches, doc sections, JSON items) keep that first.
 		desc, _ := in.ToolInput["description"].(string)
 		if q := sample.Intent(desc); q != "" {
-			prefix += " -attr query=" + shellQuote(q)
+			prefix += " -attr query=" + mcptool.ShellQuote(q)
 		}
 		wrapped, ok := wrapCommand(cmd, prefix)
 		if !ok || background && !strings.Contains(wrapped, " -watch -- ") {
@@ -244,13 +244,13 @@ func hinted(data *payload.Payload) string {
 func execPrefix(gascoigne, agent, session, model string, context int) string {
 	out := gascoigne + " exec"
 	if os.Getenv("GASCOIGNE_AGENT") == "" {
-		out += " -agent " + shellQuote(agent)
+		out += " -agent " + mcptool.ShellQuote(agent)
 	}
 	if os.Getenv("GASCOIGNE_SESSION") == "" && session != "" {
-		out += " -session " + shellQuote(session)
+		out += " -session " + mcptool.ShellQuote(session)
 	}
 	if model != "" {
-		out += " -model " + shellQuote(model)
+		out += " -model " + mcptool.ShellQuote(model)
 	}
 	if context >= tightContextTokens {
 		out += tightBudgets
@@ -276,19 +276,11 @@ func self() string {
 	if p, err := exec.LookPath("gascoigne"); err == nil && sameFile(p, exe) {
 		return "gascoigne"
 	}
-	return shellQuote(exe)
+	return mcptool.ShellQuote(exe)
 }
 
 func sameFile(first, second string) bool {
 	x, err1 := os.Stat(first)
 	y, err2 := os.Stat(second)
 	return err1 == nil && err2 == nil && os.SameFile(x, y)
-}
-
-// shellQuote quotes s for sh when it holds anything beyond plain path characters.
-func shellQuote(text string) string {
-	if text != "" && strings.Trim(text, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-./:@+%,=") == "" {
-		return text
-	}
-	return "'" + strings.ReplaceAll(text, "'", `'\''`) + "'"
 }

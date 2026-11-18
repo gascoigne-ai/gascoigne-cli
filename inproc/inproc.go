@@ -155,7 +155,7 @@ func (e *Engine) Raw(ctx context.Context, id string) (string, error) {
 		return "", ErrNotFound
 	}
 	key, p, err := e.led.GetRaw(ctx, id)
-	if err != nil || strings.HasPrefix(key, hiddenPrefix) {
+	if err != nil || HiddenKey(key) {
 		return "", ErrNotFound
 	}
 	return p.Text(), nil
@@ -227,3 +227,7 @@ func withUserFile(base []byte) ([]byte, error) {
 	}
 	return merged, nil
 }
+
+// HiddenKey reports whether a ledger key marks instruction text, which is never handed back
+// to SDKs or shown in the dashboard.
+func HiddenKey(key string) bool { return strings.HasPrefix(key, hiddenPrefix) }

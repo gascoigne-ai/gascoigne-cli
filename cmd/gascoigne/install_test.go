@@ -456,3 +456,10 @@ func TestSyncClaudeWindow(t *testing.T) {
 		t.Fatalf("unwrap removed the user's own window:\n%s", got)
 	}
 }
+
+func TestCursorHooks(t *testing.T) {
+	want := `{"hooks":{"preToolUse":[{"command":"/opt/g hook cursor","matcher":"Shell"}]},"version":1}`
+	if got := compactJSON(cursorHooks("/opt/g")); got != want {
+		t.Errorf("cursorHooks = %s, want %s", got, want)
+	}
+}

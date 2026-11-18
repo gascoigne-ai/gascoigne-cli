@@ -51,9 +51,9 @@ func Attrs(name string, input map[string]any) map[string]string {
 		} else if mode == "count" {
 			args = "rg -c"
 		}
-		a[payload.AttrCmd] = args + " " + shellQuote(str("pattern", "query")) + " " + str("path")
+		a[payload.AttrCmd] = args + " " + ShellQuote(str("pattern", "query")) + " " + str("path")
 	case "glob", "find", "list_dir", "ls", "list_directory":
-		a[payload.AttrCmd] = "find " + cmp.Or(str("path"), ".") + " -name " + shellQuote(cmp.Or(str("pattern", "glob"), "*"))
+		a[payload.AttrCmd] = "find " + cmp.Or(str("path"), ".") + " -name " + ShellQuote(cmp.Or(str("pattern", "glob"), "*"))
 	default:
 		if cmd := str("command", "cmd"); cmd != "" {
 			a[payload.AttrCmd] = cmd
@@ -69,9 +69,9 @@ func Attrs(name string, input map[string]any) map[string]string {
 	return a
 }
 
-// shellQuote quotes s for display in a command line.
-func shellQuote(text string) string {
-	if text != "" && !strings.ContainsAny(text, " \t'\"$`\\|&;<>()*?[]{}") {
+// ShellQuote quotes text for sh when it holds anything beyond plain path characters.
+func ShellQuote(text string) string {
+	if text != "" && strings.Trim(text, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-./:@+%,=") == "" {
 		return text
 	}
 	return "'" + strings.ReplaceAll(text, "'", `'\''`) + "'"

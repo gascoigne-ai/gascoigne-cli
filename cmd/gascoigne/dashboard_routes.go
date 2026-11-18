@@ -9,6 +9,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
+	"github.com/gascoigne-ai/gascoigne-cli/inproc"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/cost"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
@@ -213,7 +214,7 @@ func runHandlers(mux *http.ServeMux, store *ledger.Ledger, poll time.Duration) {
 			http.Error(writer, "original not found (expired or unknown id)", http.StatusNotFound)
 			return
 		}
-		if hiddenKey(key) {
+		if inproc.HiddenKey(key) {
 			http.Error(writer, hiddenText, http.StatusForbidden)
 			return
 		}
@@ -221,7 +222,7 @@ func runHandlers(mux *http.ServeMux, store *ledger.Ledger, poll time.Duration) {
 		io.WriteString(writer, original.Text())
 	})
 	mux.HandleFunc("GET /api/out/{id}", func(writer http.ResponseWriter, request *http.Request) {
-		if key, _, err := store.GetRaw(request.Context(), request.PathValue("id")); err == nil && hiddenKey(key) {
+		if key, _, err := store.GetRaw(request.Context(), request.PathValue("id")); err == nil && inproc.HiddenKey(key) {
 			http.Error(writer, hiddenText, http.StatusForbidden)
 			return
 		}

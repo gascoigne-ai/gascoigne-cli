@@ -93,18 +93,6 @@ func TestInstallSnippets(t *testing.T) {
 	}
 }
 
-func TestShellQuote(t *testing.T) {
-	for in, want := range map[string]string{
-		"/usr/bin/gascoigne": "/usr/bin/gascoigne",
-		"/opt/my tools/g":    "'/opt/my tools/g'",
-		"/it's":              `'/it'\''s'`,
-	} {
-		if got := shellQuote(in); got != want {
-			t.Errorf("%q: got %q, want %q", in, got, want)
-		}
-	}
-}
-
 // decodedReply is a hook reply as the agent reads it: the JSON the hook
 // prints, decoded, so the test does not depend on the Go type or key order.
 func decodedReply(t *testing.T, reply any) map[string]any {

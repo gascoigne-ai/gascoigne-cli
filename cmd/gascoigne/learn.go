@@ -109,20 +109,21 @@ func learnBlock(ls []lesson) string {
 // removes it. The rest of the file stays; the file is deleted when nothing
 // else is in it.
 func writeLearned(file string, ls []lesson) (string, error) {
+	if len(ls) == 0 {
+		removal, err := removeBlock(file, learnStart, learnEnd)
+		switch {
+		case removal == blockFileDeleted:
+			return display(file) + ": deleted (held only the learned lines)", err
+		case removal == blockCut:
+			return display(file) + ": removed the learned lines", err
+		}
+		return "", err
+	}
 	data, err := os.ReadFile(file)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return "", err
 	}
-	text, had := cutBlock(string(data), learnStart, learnEnd)
-	if len(ls) == 0 {
-		switch {
-		case !had:
-			return "", nil
-		case strings.TrimSpace(text) == "":
-			return display(file) + ": deleted (held only the learned lines)", os.Remove(file)
-		}
-		return display(file) + ": removed the learned lines", os.WriteFile(file, []byte(text), 0o644)
-	}
+	text, _ := cutBlock(string(data), learnStart, learnEnd)
 	if text = strings.TrimRight(text, "\n"); text != "" {
 		text += "\n\n"
 	}

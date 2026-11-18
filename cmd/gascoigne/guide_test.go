@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -195,3 +196,47 @@ func TestSessionStartGuideOffAddsNothing(t *testing.T) {
 		t.Fatalf("level off must not add context: %v, %v", reply, err)
 	}
 }
+
+func TestRemoveBlock(t *testing.T) {
+	const start, end = "<!-- s -->", "<!-- e -->"
+	tests := []struct {
+		name     string
+		content  *string // nil: no file
+		want     blockRemoval
+		wantText string // file text after; "" with blockFileDeleted means the file is gone
+	}{
+		{"missing file", nil, blockAbsent, ""},
+		{"no block", ptr("keep\n"), blockAbsent, "keep\n"},
+		{"block among other text", ptr("keep\n\n" + start + "\nx\n" + end + "\n"), blockCut, "keep\n"},
+		{"only the block", ptr(start + "\nx\n" + end + "\n"), blockFileDeleted, ""},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			file := filepath.Join(t.TempDir(), "AGENTS.md")
+			if tc.content != nil {
+				write(t, file, *tc.content)
+			}
+			got, err := removeBlock(file, start, end)
+			if err != nil || got != tc.want {
+				t.Fatalf("removeBlock = %v, %v; want %v", got, err, tc.want)
+			}
+			data, readErr := os.ReadFile(file)
+			switch tc.want {
+			case blockFileDeleted:
+				if readErr == nil {
+					t.Error("file must be deleted")
+				}
+			case blockCut:
+				if string(data) != tc.wantText {
+					t.Errorf("text = %q, want %q", data, tc.wantText)
+				}
+			case blockAbsent:
+				if tc.content != nil && string(data) != tc.wantText {
+					t.Errorf("file changed: %q", data)
+				}
+			}
+		})
+	}
+}
+
+func ptr(text string) *string { return &text }

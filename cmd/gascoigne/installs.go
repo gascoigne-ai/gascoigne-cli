@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
@@ -46,9 +45,7 @@ func installsFile() string { return filepath.Join(stateDir(), "installs.json") }
 // agents' own config files (legacyInstalls).
 func readInstalls() []install {
 	var list []install
-	if data, err := os.ReadFile(installsFile()); err == nil {
-		json.Unmarshal(data, &list) // unreadable: nothing recorded
-	}
+	readJSONFile(installsFile(), &list) // unreadable: nothing recorded
 	return append(list, legacyInstalls(list)...)
 }
 

@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
 // agent wires gascoigne into one coding agent: shell output through
@@ -167,7 +169,7 @@ func cmdWrap(ctx context.Context, args []string) error {
 	return err
 }
 
-func hookCommand(exe, agent string) string { return shellQuote(exe) + " hook " + agent }
+func hookCommand(exe, agent string) string { return mcptool.ShellQuote(exe) + " hook " + agent }
 
 func mcpServers(exe string) map[string]any {
 	return map[string]any{"mcpServers": map[string]any{"gascoigne": map[string]any{"command": exe, "args": []string{"mcp"}}}}
@@ -228,7 +230,7 @@ claude mcp add --scope user gascoigne -- %s mcp
 # permission rules see the wrapped command: allow e.g. "Bash(gascoigne exec -- go test:*)"
 # optional: deny "Grep" and "Glob" so searches run through Bash (rg, find) and get optimized,
 # and "WebFetch" so pages are read with the gascoigne fetch tool
-`, indentJSON(claudeSettings(exe)), shellQuote(exe))
+`, indentJSON(claudeSettings(exe)), mcptool.ShellQuote(exe))
 }
 
 func codexArgs(exe string) ([]string, error) {
@@ -314,11 +316,8 @@ command = %s
 const codexMatcher = "^Bash$|^mcp__.*"
 
 func cursorInstall(exe string) string {
-	hooks := map[string]any{"version": 1, "hooks": map[string]any{"preToolUse": []any{
-		map[string]any{"command": hookCommand(exe, "cursor"), "matcher": "Shell"},
-	}}}
 	return fmt.Sprintf("# merge into ~/.cursor/hooks.json\n%s\n# merge into ~/.cursor/mcp.json\n%s\n",
-		indentJSON(hooks), indentJSON(mcpServers(exe)))
+		indentJSON(cursorHooks(exe)), indentJSON(mcpServers(exe)))
 }
 
 // piExtension rewrites bash tool calls through gascoigne hook pi; pi has no MCP.

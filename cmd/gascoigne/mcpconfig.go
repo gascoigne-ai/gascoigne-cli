@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/mcpproxyreceiver"
 )
 
@@ -83,17 +85,25 @@ func proxiedConfigs(home string, dirs []string) map[string][]mcpConfigEntry {
 func removeCommand(agent, key, file, scope, dir string) string {
 	switch {
 	case agent == "claude" && scope == "user":
-		return "claude mcp remove " + shellQuote(key) + " --scope user"
+		return "claude mcp remove " + mcptool.ShellQuote(key) + " --scope user"
 	case agent == "claude":
-		return "cd " + shellQuote(dir) + " && claude mcp remove " + shellQuote(key) + " --scope " + scope
+		return "cd " + mcptool.ShellQuote(dir) + " && claude mcp remove " + mcptool.ShellQuote(key) + " --scope " + scope
 	}
-	return "delete the " + shellQuote(key) + " entry from " + file
+	return "delete the " + mcptool.ShellQuote(key) + " entry from " + file
 }
 
-// readJSONFile reads path into v; false when it is missing or not JSON.
+// readJSONFile reads path into target; false when it is missing or not JSON.
+// A file that exists but is not JSON is logged at debug level.
 func readJSONFile(path string, target any) bool {
 	data, err := os.ReadFile(path)
-	return err == nil && json.Unmarshal(data, target) == nil
+	if err != nil {
+		return false
+	}
+	if err := json.Unmarshal(data, target); err != nil {
+		slog.Debug("not JSON, ignored", "file", filepath.Base(path), "err", err)
+		return false
+	}
+	return true
 }
 
 // projectDirs are the places a project-level MCP config can be: the projects

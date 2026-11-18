@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"cmp"
 	"context"
@@ -361,10 +360,7 @@ func claudeUsage(home string) usage {
 		if err != nil {
 			continue
 		}
-		sc := bufio.NewScanner(fh)
-		sc.Buffer(nil, usageLineMax)
-		for sc.Scan() {
-			line := sc.Bytes()
+		err = scanTranscript(fh, func(line []byte) {
 			if bytes.Contains(line, []byte(`"type":"tool_use"`)) {
 				u.add(line)
 			}
@@ -373,8 +369,8 @@ func claudeUsage(home string) usage {
 					u.names[baseName(string(m[1]))] = true
 				}
 			}
-		}
-		if err := sc.Err(); err != nil {
+		})
+		if err != nil {
 			// Calls past the cut are unseen: this session cannot show a skill unused.
 			slog.Debug("transcript read stopped, session not counted", "file", filepath.Base(f), "err", err)
 			u.sessions--

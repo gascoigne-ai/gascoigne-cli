@@ -55,9 +55,9 @@ func TestTranscriptScanErrors(t *testing.T) {
 	sandbox(t)
 	good := `{"type":"user","message":{"content":"first request"}}` + "\n"
 	long := `{"type":"user","message":{"content":"` + strings.Repeat("x", 2<<20) + `"}}` + "\n"
-	old := transcriptMax
-	transcriptMax = 1 << 20
-	t.Cleanup(func() { transcriptMax = old })
+	old := transcriptLineMax
+	transcriptLineMax = 1 << 20
+	t.Cleanup(func() { transcriptLineMax = old })
 	buf := debugLog(t)
 	// A line over the cap stops the scan: a snapshot of the part read would read as complete.
 	if got := resumeSnapshot(writeTranscript(t, good+long+good)); got != "" {
@@ -79,9 +79,9 @@ func TestMalformedToolInputLogged(t *testing.T) {
 
 func TestClaudeUsageTruncatedSession(t *testing.T) {
 	home := sandbox(t)
-	old := usageLineMax
-	usageLineMax = 1024
-	t.Cleanup(func() { usageLineMax = old })
+	old := transcriptLineMax
+	transcriptLineMax = 1024
+	t.Cleanup(func() { transcriptLineMax = old })
 	buf := debugLog(t)
 	proj := filepath.Join(home, ".claude", "projects", "-work")
 	call := `{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill":"used"}}]}}` + "\n"

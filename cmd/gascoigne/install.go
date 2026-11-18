@@ -222,10 +222,7 @@ func addCursor(_ context.Context, exe string, global bool) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	hooks := map[string]any{"version": 1, "hooks": map[string]any{"preToolUse": []any{
-		map[string]any{"command": hookCommand(exe, "cursor"), "matcher": "Shell"},
-	}}}
-	d1, err := addJSON(hooksFile, removeCursorHooks, hooks, "preToolUse hook", nil)
+	d1, err := addJSON(hooksFile, removeCursorHooks, cursorHooks(exe), "preToolUse hook", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -504,4 +501,11 @@ func removeClaudeProxy(root *object) []string {
 	}
 	pruneEmpty(root, "env")
 	return out
+}
+
+// cursorHooks is the content of Cursor's hooks.json that gascoigne owns.
+func cursorHooks(exe string) map[string]any {
+	return map[string]any{"version": 1, "hooks": map[string]any{"preToolUse": []any{
+		map[string]any{"command": hookCommand(exe, "cursor"), "matcher": "Shell"},
+	}}}
 }

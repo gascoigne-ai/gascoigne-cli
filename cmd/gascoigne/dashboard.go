@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
@@ -239,8 +238,6 @@ func eventsJSON(entries []ledger.Entry) []eventJSON {
 // recorded for its size; its content stays out of the dashboard, which
 // anyone with the page open could read. gascoigne raw <id> still prints it.
 const hiddenText = "instruction text is not shown in the dashboard; gascoigne raw <id> prints it"
-
-func hiddenKey(key string) bool { return strings.HasPrefix(key, "prompt:") }
 
 // nonNil turns a nil slice into an empty one, so JSON holds [] and a page can
 // read its length.

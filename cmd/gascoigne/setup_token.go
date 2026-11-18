@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -40,8 +39,7 @@ func newSetupToken() (string, error) {
 // validSetupToken reports whether got is the saved, unexpired token.
 func validSetupToken(got string) bool {
 	var t setupToken
-	data, err := os.ReadFile(setupTokenFile())
-	if err != nil || json.Unmarshal(data, &t) != nil || time.Now().After(t.Expires) {
+	if !readJSONFile(setupTokenFile(), &t) || time.Now().After(t.Expires) {
 		return false
 	}
 	return got != "" && subtle.ConstantTimeCompare([]byte(got), []byte(t.Token)) == 1

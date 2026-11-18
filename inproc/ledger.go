@@ -161,7 +161,7 @@ func RecentOf(ctx context.Context, led *ledger.Ledger, query RecentQuery) ([]Run
 
 // hideHidden drops the raw id of instruction text, which Raw refuses to hand back.
 func hideHidden(rawID, key string) string {
-	if len(key) >= len(hiddenPrefix) && key[:len(hiddenPrefix)] == hiddenPrefix {
+	if HiddenKey(key) {
 		return ""
 	}
 	return rawID

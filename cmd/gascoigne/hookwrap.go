@@ -8,6 +8,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/exporter/stdoutexporter"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/mcptool"
 )
 
 // wrapCommand routes each command of a shell line through gascoigne exec
@@ -122,7 +123,7 @@ func wrapPipeline(part, prefix string, multi bool, pos segmentPos) (string, bool
 	run := strings.Replace(prefix, " exec", " run", 1)
 	n := len(stages) - 1
 	text := fmt.Sprintf("%s | %s -attr cmd=%s; (exit ${PIPESTATUS[%d]:-${pipestatus[%d]}})",
-		part, run, shellQuote(last), n, n+1)
+		part, run, mcptool.ShellQuote(last), n, n+1)
 	if !pos.bare() {
 		text = "{ " + text + "; }"
 	}

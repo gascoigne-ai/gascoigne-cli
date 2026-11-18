@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"cmp"
 	"context"
@@ -229,20 +228,20 @@ func replayFile(ctx context.Context, proxy http.Handler, up *upstream, path stri
 	}
 	defer file.Close()
 	sess := &session{tools: map[string]string{}, results: map[string]resultTokens{}, tokens: map[string]int{}}
-	scanner := bufio.NewScanner(file)
-	scanner.Buffer(nil, 64<<20)
 	lastID := ""
-	for scanner.Scan() {
+	var addErr error
+	scanErr := scanTranscript(file, func(raw []byte) {
 		var line transcriptLine
-		if json.Unmarshal(scanner.Bytes(), &line) != nil || line.Message == nil || line.IsSidechain || (line.Type != "user" && line.Type != "assistant") {
-			continue
+		if addErr != nil || json.Unmarshal(raw, &line) != nil || line.Message == nil || line.IsSidechain || (line.Type != "user" && line.Type != "assistant") {
+			return
 		}
-		if err := sess.add(ctx, proxy, up, path, rep, line, &lastID); err != nil {
-			return err
-		}
+		addErr = sess.add(ctx, proxy, up, path, rep, line, &lastID)
+	})
+	if addErr != nil {
+		return addErr
 	}
-	if err := scanner.Err(); err != nil {
-		return err
+	if scanErr != nil {
+		return scanErr
 	}
 	rep.addResults(sess)
 	return nil

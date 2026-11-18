@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -49,11 +47,8 @@ func (k ruleKind) stateFile() string { return filepath.Join(stateDir(), k.file) 
 
 func (k ruleKind) read() map[string][]string {
 	m := map[string][]string{}
-	if data, err := os.ReadFile(k.stateFile()); err == nil {
-		if err := json.Unmarshal(data, &m); err != nil {
-			slog.Debug(k.file+" unreadable, nothing recorded", "err", err)
-			return map[string][]string{}
-		}
+	if !readJSONFile(k.stateFile(), &m) {
+		return map[string][]string{}
 	}
 	return m
 }

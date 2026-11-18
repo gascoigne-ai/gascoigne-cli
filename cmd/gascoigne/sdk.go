@@ -19,10 +19,6 @@ import (
 // speaks. Additive changes keep it; a breaking one bumps it and the path.
 const sdkProto = 1
 
-// sdkPipeline optimizes SDK payloads: the same filters and optimizers as
-// `gascoigne run`.
-const sdkPipeline = "cli"
-
 type sdkRequest struct {
 	Text    string `json:"text"`
 	Tool    string `json:"tool,omitempty"`
@@ -82,7 +78,7 @@ func sdkOptimize(cache *warm) http.Handler {
 			p.Attrs[k] = v
 		}
 		out, status, err := cache.optimize(request.Context(), optimizeRequest{
-			Config: string(data), Overrides: config.Overrides{}, Pipeline: sdkPipeline, Payload: p,
+			Config: string(data), Overrides: config.Overrides{}, Pipeline: inproc.Pipeline, Payload: p,
 		})
 		if err != nil {
 			http.Error(rw, err.Error(), status)
@@ -110,7 +106,7 @@ func sdkHealthHandler(version string, proxy bool) http.Handler {
 func sdkRaw(store *ledger.Ledger) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, request *http.Request) {
 		key, p, err := store.GetRaw(request.Context(), request.PathValue("id"))
-		if err != nil || hiddenKey(key) {
+		if err != nil || inproc.HiddenKey(key) {
 			http.Error(rw, "original not found (expired or unknown id)", http.StatusNotFound)
 			return
 		}

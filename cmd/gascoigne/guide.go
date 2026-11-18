@@ -139,24 +139,16 @@ func addGuide(file string, mcp bool) (string, error) {
 // removeGuide takes the block out of an instruction file, and deletes the
 // file when nothing else is left in it.
 func removeGuide(file string) ([]string, error) {
-	data, err := os.ReadFile(file)
-	if err != nil {
-		return nil, nil
-	}
-	text, ok := cutGuide(string(data))
-	if !ok {
-		return nil, nil
-	}
-	if strings.TrimSpace(text) == "" {
-		if err := os.Remove(file); err != nil {
-			return nil, err
-		}
-		return []string{display(file) + ": deleted usage guide (file held nothing else)"}, nil
-	}
-	if err := os.WriteFile(file, []byte(text), 0o644); err != nil {
+	removal, err := removeBlock(file, guideStart, guideEnd)
+	switch {
+	case err != nil:
 		return nil, err
+	case removal == blockFileDeleted:
+		return []string{display(file) + ": deleted usage guide (file held nothing else)"}, nil
+	case removal == blockCut:
+		return []string{display(file) + ": removed usage guide"}, nil
 	}
-	return []string{display(file) + ": removed usage guide"}, nil
+	return nil, nil
 }
 
 const (
@@ -192,4 +184,33 @@ func resumeContext(ctx context.Context, in hookInput) string {
 		s += "- shortened outputs you can read in full instead of running the command again (gascoigne raw <id> -grep PATTERN): " + strings.Join(runs, ", ") + "\n"
 	}
 	return "\n" + s
+}
+
+// blockRemoval is what removeBlock did to a file.
+type blockRemoval int
+
+const (
+	blockAbsent      blockRemoval = iota // no file or no block: nothing changed
+	blockCut                             // the block is gone, other text stays
+	blockFileDeleted                     // nothing else was left, so the file is gone
+)
+
+// removeBlock takes the marked block out of file and deletes the file when
+// nothing else is left in it. A missing file has no block.
+func removeBlock(file, startMark, endMark string) (blockRemoval, error) {
+	data, err := os.ReadFile(file)
+	if errors.Is(err, os.ErrNotExist) {
+		return blockAbsent, nil
+	}
+	if err != nil {
+		return blockAbsent, err
+	}
+	text, ok := cutBlock(string(data), startMark, endMark)
+	if !ok {
+		return blockAbsent, nil
+	}
+	if strings.TrimSpace(text) == "" {
+		return blockFileDeleted, os.Remove(file)
+	}
+	return blockCut, os.WriteFile(file, []byte(text), 0o644)
 }

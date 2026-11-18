@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -32,14 +31,6 @@ const (
 	// snapshotMinSaved is how many tokens a shortened output must have saved
 	// to be worth naming: smaller ones are cheaper to run again.
 	snapshotMinSaved = 200
-	// transcriptScan caps the length of one transcript line.
-	transcriptScan = 16 << 20
-)
-
-// transcriptMax and usageLineMax are variables so tests can lower them.
-var (
-	transcriptMax = transcriptScan
-	usageLineMax  = 64 << 20
 )
 
 // secretAssign matches NAME=value pairs whose name suggests a credential, and
@@ -80,12 +71,10 @@ func resumeSnapshot(path string) string {
 		commands = map[string]string{} // Bash tool_use id → command
 		failed   []string
 	)
-	sc := bufio.NewScanner(f)
-	sc.Buffer(make([]byte, 0, 1<<20), transcriptMax)
-	for sc.Scan() {
+	err = scanTranscript(f, func(line []byte) {
 		var l snapshotLine
-		if json.Unmarshal(sc.Bytes(), &l) != nil || l.IsSidechain {
-			continue
+		if json.Unmarshal(line, &l) != nil || l.IsSidechain {
+			return
 		}
 		for _, b := range contentBlocks(l.Message.Content) {
 			switch {
@@ -108,8 +97,8 @@ func resumeSnapshot(path string) string {
 				}
 			}
 		}
-	}
-	if err := sc.Err(); err != nil {
+	})
+	if err != nil {
 		// A snapshot of the part read would pass for the whole conversation.
 		slog.Debug("transcript: read stopped, no snapshot", "file", filepath.Base(path), "err", err)
 		return ""

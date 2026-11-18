@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"io"
 	"path/filepath"
 	"slices"
@@ -46,16 +44,8 @@ func readSession(reader io.Reader, name string, since time.Time) (sessionCost, e
 		index:   map[string]int{},
 		models:  map[string]int{},
 	}
-	buffered := bufio.NewReaderSize(reader, 1<<20)
-	for {
-		line, err := buffered.ReadBytes('\n')
-		sr.addLine(line)
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			return sr.session, err
-		}
+	if err := scanTranscript(reader, sr.addLine); err != nil {
+		return sr.session, err
 	}
 	return sr.result(), nil
 }

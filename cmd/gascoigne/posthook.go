@@ -77,7 +77,7 @@ func optimizeResult(ctx context.Context, shared *common, in hookInput) (any, err
 			return nil, nil
 		}
 		pattern, _ := in.ToolInput["pattern"].(string)
-		return replaceField(ctx, shared, resp, "content", map[string]string{payload.AttrCmd: "rg -n " + shellQuote(pattern)})
+		return replaceField(ctx, shared, resp, "content", map[string]string{payload.AttrCmd: "rg -n " + mcptool.ShellQuote(pattern)})
 	case name == "Read":
 		return readImage(ctx, shared, resp)
 	case isOtherMCP(name):
