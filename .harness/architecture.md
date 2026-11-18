@@ -52,7 +52,7 @@ inproc/                              public facade over the engine: Engine, Opti
 | [full-payload](architecture/full-payload.md) | `internal/service`, hints, raw ids |
 | [ledger](architecture/ledger.md) | `extension/ledger`, `gain`, cost, lessons, skip reasons |
 | [server](architecture/server.md) | `cmd/gascoigne/server.go` |
-| [reports](architecture/reports.md) | `context.go`, `mcpreview.go`, `dashboard.go` and their pages |
+| [reports](architecture/reports.md) | `context.go`, `context_session.go`, `context_cost.go`, `context_report.go`, `context_print.go`, `mcpreview.go`, `dashboard.go` and their pages |
 | [config](architecture/config.md) | `configs/`, `internal/config`, overrides |
 | [adding-component](architecture/adding-component.md) | new receiver/filter/optimizer/exporter/extension |
 

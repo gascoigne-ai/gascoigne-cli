@@ -1,6 +1,10 @@
 # Dashboard and review pages
 
-## Context report (`context.go`, `context.html`)
+## Context report (`context.go`, `context_session.go`, `context_cost.go`, `context_report.go`, `context_print.go`, `context.html`)
+
+One file per job: `context.go` the report types, loading and the command; `context_session.go` transcript parsing
+(`readSession`, one handler per line kind); `context_cost.go` pricing (`simulate`, `turnCost`, `effectiveModel`);
+`context_report.go` `buildContext`, one builder step per section; `context_print.go` the text output.
 
 `GET /context` over `GET /api/context?since=24h|7d|…` (default 14d, 1 hour to 90 days) = `loadContext(~/.claude/projects, period)`:
 the newest transcripts (at most 300) written within the period, read once each, each cut to the turns inside it. Not the ledger: only transcripts carry a
