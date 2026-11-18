@@ -95,8 +95,8 @@ func TestMemoryLedgerEvictsOldestRawOverCap(t *testing.T) {
 	}
 }
 
-func pseudoRandom(seed, n int) string {
-	out := make([]byte, n)
+func pseudoRandom(seed, length int) string {
+	out := make([]byte, length)
 	state := uint32(seed*2654435761 + 1)
 	for i := range out {
 		state = state*1664525 + 1013904223

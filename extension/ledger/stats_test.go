@@ -49,14 +49,14 @@ func (m *model) markLatest(key string, session *string) {
 	}
 }
 
-func (m *model) selected(q component.StatsQuery) []*run {
+func (m *model) selected(query component.StatsQuery) []*run {
 	var out []*run
 	for _, r := range m.runs {
 		switch {
-		case q.Session != "" && r.session != q.Session,
-			q.Agent != "" && r.agent != q.Agent,
-			q.Model != "" && r.model != q.Model,
-			!q.Since.IsZero() && r.ev.TS.UnixMilli() < q.Since.UnixMilli():
+		case query.Session != "" && r.session != query.Session,
+			query.Agent != "" && r.agent != query.Agent,
+			query.Model != "" && r.model != query.Model,
+			!query.Since.IsZero() && r.ev.TS.UnixMilli() < query.Since.UnixMilli():
 		default:
 			out = append(out, r)
 		}
@@ -65,43 +65,43 @@ func (m *model) selected(q component.StatsQuery) []*run {
 }
 
 // week is sqlite's %W: weeks start on Monday, days before the first Monday are week 00.
-func week(t time.Time) string {
-	return fmt.Sprintf("%d-W%02d", t.Year(), (t.YearDay()-1+7-(int(t.Weekday())+6)%7)/7)
+func week(moment time.Time) string {
+	return fmt.Sprintf("%d-W%02d", moment.Year(), (moment.YearDay()-1+7-(int(moment.Weekday())+6)%7)/7)
 }
 
-func (m *model) label(r *run, by string) string {
-	t := r.ev.TS.Local()
+func (m *model) label(row *run, by string) string {
+	t := row.ev.TS.Local()
 	g := map[string]string{
-		component.ByRoute: r.rt, component.BySession: r.session, component.ByAgent: r.agent,
-		component.ByModel: r.model, component.ByCommand: r.command, component.ByOutcome: string(r.outcome),
+		component.ByRoute: row.rt, component.BySession: row.session, component.ByAgent: row.agent,
+		component.ByModel: row.model, component.ByCommand: row.command, component.ByOutcome: string(row.outcome),
 		component.ByDay: t.Format("2006-01-02"), component.ByWeek: week(t), component.ByMonth: t.Format("2006-01"),
 	}[by]
 	return cmp.Or(g, "-")
 }
 
 // stats is Stats(q) computed in Go.
-func (m *model) stats(q component.StatsQuery) []component.Stat {
+func (m *model) stats(query component.StatsQuery) []component.Stat {
 	groups := map[string]*component.Stat{}
-	at := func(g string) *component.Stat {
-		if groups[g] == nil {
-			groups[g] = &component.Stat{Group: g}
+	at := func(group string) *component.Stat {
+		if groups[group] == nil {
+			groups[group] = &component.Stat{Group: group}
 		}
-		return groups[g]
+		return groups[group]
 	}
-	touch := func(s *component.Stat, ts time.Time) {
-		if s.First.IsZero() || ts.Before(s.First) {
-			s.First = ts
+	touch := func(stat *component.Stat, ts time.Time) {
+		if stat.First.IsZero() || ts.Before(stat.First) {
+			stat.First = ts
 		}
-		if ts.After(s.Last) {
-			s.Last = ts
+		if ts.After(stat.Last) {
+			stat.Last = ts
 		}
 	}
-	stepped := q.By == component.ByFamily || q.By == component.ByOptimizer || q.By == component.ByDialect
-	for _, r := range m.selected(q) {
+	stepped := query.By == component.ByFamily || query.By == component.ByOptimizer || query.By == component.ByDialect
+	for _, r := range m.selected(query) {
 		ts := time.UnixMilli(r.ev.TS.UnixMilli())
 		if stepped {
 			for _, st := range r.steps {
-				g := map[string]string{component.ByFamily: st.Family, component.ByOptimizer: st.Optimizer, component.ByDialect: st.Dialect}[q.By]
+				g := map[string]string{component.ByFamily: st.Family, component.ByOptimizer: st.Optimizer, component.ByDialect: st.Dialect}[query.By]
 				s := at(cmp.Or(g, "-"))
 				s.Family = max(s.Family, st.Family)
 				s.Runs++
@@ -112,7 +112,7 @@ func (m *model) stats(q component.StatsQuery) []component.Stat {
 			}
 			continue
 		}
-		s := at(m.label(r, q.By))
+		s := at(m.label(r, query.By))
 		s.Runs++
 		s.RawTokens += r.ev.RawTokens
 		s.OutTokens += r.ev.OutTokens
@@ -130,15 +130,15 @@ func (m *model) stats(q component.StatsQuery) []component.Stat {
 	for _, s := range groups {
 		out = append(out, *s)
 	}
-	if q.Chronological() {
-		slices.SortFunc(out, func(a, b component.Stat) int { return cmp.Compare(a.Group, b.Group) })
-	} else if q.By == component.BySession { // latest first
-		slices.SortFunc(out, func(a, b component.Stat) int {
-			return cmp.Or(b.Last.Compare(a.Last), cmp.Compare(a.Group, b.Group))
+	if query.Chronological() {
+		slices.SortFunc(out, func(left, right component.Stat) int { return cmp.Compare(left.Group, right.Group) })
+	} else if query.By == component.BySession { // latest first
+		slices.SortFunc(out, func(left, right component.Stat) int {
+			return cmp.Or(right.Last.Compare(left.Last), cmp.Compare(left.Group, right.Group))
 		})
 	} else {
-		slices.SortFunc(out, func(a, b component.Stat) int {
-			return cmp.Or(cmp.Compare(b.Saved(), a.Saved()), cmp.Compare(a.Group, b.Group))
+		slices.SortFunc(out, func(left, right component.Stat) int {
+			return cmp.Or(cmp.Compare(right.Saved(), left.Saved()), cmp.Compare(left.Group, right.Group))
 		})
 	}
 	return out
@@ -159,23 +159,23 @@ func diffStats(t *testing.T, label string, got, want []component.Stat) {
 	}
 }
 
-func groupsOf(s []component.Stat) []string {
+func groupsOf(stats []component.Stat) []string {
 	var out []string
-	for _, x := range s {
+	for _, x := range stats {
 		out = append(out, x.Group)
 	}
 	return out
 }
 
 // randomLedger fills a ledger and a model with the same mixed history.
-func randomLedger(t *testing.T, seed uint64, n int) (*Ledger, *model) {
+func randomLedger(t *testing.T, seed uint64, count int) (*Ledger, *model) {
 	t.Helper()
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db"), EventsTTL: 0})
 	m := &model{}
 	rng := rand.New(rand.NewPCG(seed, 7))
 	pick := func(xs ...string) string { return xs[rng.IntN(len(xs))] }
 	ts := time.Now().Add(-400 * 24 * time.Hour) // all runs in the past, as a fetch marks runs up to now
-	for range n {
+	for range count {
 		ts = ts.Add(time.Duration(1+rng.IntN(30)) * time.Hour)
 		raw := 1 + rng.IntN(5000)
 		ev := component.Event{
@@ -359,7 +359,7 @@ func TestImpactMatchModel(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if len(got) != len(want) || !slices.IsSortedFunc(got, func(a, b ImpactDay) int { return cmp.Compare(a.Day, b.Day) }) {
+		if len(got) != len(want) || !slices.IsSortedFunc(got, func(left, right ImpactDay) int { return cmp.Compare(left.Day, right.Day) }) {
 			t.Fatalf("%+v: %d days (sorted: %v), want %d", q, len(got), got, len(want))
 		}
 		for _, g := range got {
@@ -374,8 +374,8 @@ func TestImpactMatchModel(t *testing.T) {
 func TestStatsHandComputed(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ctx := t.Context()
-	at := func(h int) time.Time {
-		return time.Date(2026, 3, 2, 12, 0, 0, 0, time.Local).Add(time.Duration(h) * 24 * time.Hour)
+	at := func(hour int) time.Time {
+		return time.Date(2026, 3, 2, 12, 0, 0, 0, time.Local).Add(time.Duration(hour) * 24 * time.Hour)
 	}
 	for _, ev := range []component.Event{
 		{TS: at(0), Session: "s", Key: "a", Command: "go test", Outcome: component.Optimized, RawTokens: 1000, OutTokens: 100,
@@ -393,9 +393,9 @@ func TestStatsHandComputed(t *testing.T) {
 	if err := l.MarkFailure(ctx, "b", component.ReasonRawRequested); err != nil {
 		t.Fatal(err)
 	}
-	by := func(g string) map[string]component.Stat {
+	by := func(group string) map[string]component.Stat {
 		t.Helper()
-		got, err := l.Stats(ctx, component.StatsQuery{By: g})
+		got, err := l.Stats(ctx, component.StatsQuery{By: group})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -446,8 +446,8 @@ func TestStatsFilters(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	runs := func(q component.StatsQuery) int {
-		got, err := l.Stats(t.Context(), q)
+	runs := func(query component.StatsQuery) int {
+		got, err := l.Stats(t.Context(), query)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -483,10 +483,10 @@ func TestStatsFilters(t *testing.T) {
 func TestRerequestIsPerSession(t *testing.T) {
 	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
 	ts := time.Now().Add(-time.Hour)
-	rec := func(session string, o component.Outcome, reason string) {
+	rec := func(session string, outcome component.Outcome, reason string) {
 		t.Helper()
 		ts = ts.Add(time.Second)
-		ev := component.Event{TS: ts, Session: session, Key: "k", Outcome: o, Reason: reason, RawTokens: 100, OutTokens: 10}
+		ev := component.Event{TS: ts, Session: session, Key: "k", Outcome: outcome, Reason: reason, RawTokens: 100, OutTokens: 10}
 		if err := l.Record(t.Context(), ev); err != nil {
 			t.Fatal(err)
 		}
@@ -496,7 +496,7 @@ func TestRerequestIsPerSession(t *testing.T) {
 	rec("b", component.Bypassed, "raw requested: attr raw=true")
 	for session, want := range map[string]string{"a": "optimized", "b": "rerequested"} {
 		got, _ := l.Stats(t.Context(), component.StatsQuery{By: component.ByOutcome, Session: session})
-		if !slices.ContainsFunc(got, func(s component.Stat) bool { return s.Group == want }) {
+		if !slices.ContainsFunc(got, func(stat component.Stat) bool { return stat.Group == want }) {
 			t.Errorf("session %s: %v, want %s", session, groupsOf(got), want)
 		}
 	}
@@ -545,7 +545,7 @@ func TestResetMatchesModel(t *testing.T) {
 	if err != nil || int(n) != want {
 		t.Fatalf("reset %d, %v; want %d", n, err, want)
 	}
-	m.runs = slices.DeleteFunc(m.runs, func(r *run) bool { return r.session == "s1" && r.agent == "a1" })
+	m.runs = slices.DeleteFunc(m.runs, func(row *run) bool { return row.session == "s1" && row.agent == "a1" })
 	for _, by := range []string{component.ByOutcome, component.ByOptimizer} {
 		got, _ := l.Stats(t.Context(), component.StatsQuery{By: by})
 		diffStats(t, "after reset/"+by, got, m.stats(component.StatsQuery{By: by}))

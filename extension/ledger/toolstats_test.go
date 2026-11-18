@@ -15,11 +15,11 @@ func TestToolStats(t *testing.T) {
 	l := start(t, cfg)
 	var _ mcptool.ToolStatRecorder = l
 	ctx := t.Context()
-	day := func(n int) time.Time { return time.Date(2026, 10, 1+n, 12, 0, 0, 0, time.UTC) }
+	day := func(offset int) time.Time { return time.Date(2026, 10, 1+offset, 12, 0, 0, 0, time.UTC) }
 
-	record := func(d time.Time, calls map[string]int, sizes map[string]int) {
+	record := func(moment time.Time, calls map[string]int, sizes map[string]int) {
 		t.Helper()
-		l.now = func() time.Time { return d }
+		l.now = func() time.Time { return moment }
 		if err := l.RecordToolList(ctx, "claude", "github", sizes, nil); err != nil {
 			t.Fatal(err)
 		}

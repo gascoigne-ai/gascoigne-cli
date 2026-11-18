@@ -165,12 +165,12 @@ func (l *Ledger) pruneEvents(ctx context.Context) error {
 // its attrs (session, agent), so an output seen twice is stored once.
 var idLengths = []int{8, 12, 16, 64}
 
-func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (string, error) {
-	blob, err := json.Marshal(p)
+func (l *Ledger) SaveRaw(ctx context.Context, key string, content *payload.Payload) (string, error) {
+	blob, err := json.Marshal(content)
 	if err != nil {
 		return "", err
 	}
-	full := sha256.Sum256([]byte(p.Text()))
+	full := sha256.Sum256([]byte(content.Text()))
 	sum := hex.EncodeToString(full[:])
 	packed, err := pack(blob)
 	if err != nil {
@@ -179,7 +179,7 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (s
 	db := l.db.WithContext(ctx)
 	for _, n := range idLengths {
 		id := sum[:n]
-		taken, same, err := l.holds(ctx, id, p.Text())
+		taken, same, err := l.holds(ctx, id, content.Text())
 		if err != nil {
 			return "", err
 		}
@@ -190,7 +190,7 @@ func (l *Ledger) SaveRaw(ctx context.Context, key string, p *payload.Payload) (s
 			if err == nil {
 				return id, l.evictRaw(ctx, id)
 			}
-			if _, same, _ = l.holds(ctx, id, p.Text()); !same {
+			if _, same, _ = l.holds(ctx, id, content.Text()); !same {
 				continue
 			}
 		}

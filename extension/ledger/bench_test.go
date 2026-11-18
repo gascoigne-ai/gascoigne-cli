@@ -16,7 +16,7 @@ const benchEvents = 20_000
 // seeded fills a ledger with n events spread over the last 800 days, a third
 // of them with optimizer steps, straight through gorm in batches so setup
 // stays fast.
-func seeded(tb testing.TB, n int) *Ledger {
+func seeded(tb testing.TB, count int) *Ledger {
 	tb.Helper()
 	l := New(&Config{Path: filepath.Join(tb.TempDir(), "l.db")})
 	if err := l.Start(tb.Context(), nil); err != nil {
@@ -24,13 +24,13 @@ func seeded(tb testing.TB, n int) *Ledger {
 	}
 	tb.Cleanup(func() { l.Shutdown(tb.Context()) })
 	rng := rand.New(rand.NewPCG(42, 7))
-	pick := func(prefix string, k int) string { return fmt.Sprint(prefix, rng.IntN(k)) }
+	pick := func(prefix string, bound int) string { return fmt.Sprint(prefix, rng.IntN(bound)) }
 	start := l.now().Add(-800 * 24 * time.Hour)
-	events := make([]event, n)
+	events := make([]event, count)
 	for i := range events {
 		raw := 50 + rng.IntN(20_000)
 		e := event{
-			TS: start.Add(time.Duration(i) * (800 * 24 * time.Hour / time.Duration(n))).UnixMilli(), Session: pick("s", 400),
+			TS: start.Add(time.Duration(i) * (800 * 24 * time.Hour / time.Duration(count))).UnixMilli(), Session: pick("s", 400),
 			Agent: pick("a", 4), Model: pick("m", 6), Command: pick("cmd", 60), Pipeline: "cli", Key: pick("k", 3000),
 			Route: pick("r", 8), RawTokens: raw, OutTokens: raw, Outcome: string(component.Unchanged),
 		}
@@ -48,9 +48,9 @@ func seeded(tb testing.TB, n int) *Ledger {
 	return l
 }
 
-func totals(tb testing.TB, l *Ledger, by string) (runs, raw, out int) {
+func totals(tb testing.TB, ledger *Ledger, by string) (runs, raw, out int) {
 	tb.Helper()
-	stats, err := l.Stats(tb.Context(), component.StatsQuery{By: by})
+	stats, err := ledger.Stats(tb.Context(), component.StatsQuery{By: by})
 	if err != nil {
 		tb.Fatal(err)
 	}

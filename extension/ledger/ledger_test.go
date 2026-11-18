@@ -273,9 +273,9 @@ func TestStatsDimensionsAndFilters(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	groups := func(q component.StatsQuery) []string {
+	groups := func(query component.StatsQuery) []string {
 		t.Helper()
-		stats, err := l.Stats(ctx, q)
+		stats, err := l.Stats(ctx, query)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -285,7 +285,7 @@ func TestStatsDimensionsAndFilters(t *testing.T) {
 		}
 		return out
 	}
-	dayKey := func(t time.Time) string { return t.Format(time.DateOnly) }
+	dayKey := func(moment time.Time) string { return moment.Format(time.DateOnly) }
 	tests := []struct {
 		name string
 		q    component.StatsQuery
@@ -443,22 +443,22 @@ func TestPage(t *testing.T) {
 
 const rawReq = "raw requested: attr raw=true (-raw, MCP raw)"
 
-func recordRuns(t *testing.T, l *Ledger, runs ...component.Event) {
+func recordRuns(t *testing.T, ledger *Ledger, runs ...component.Event) {
 	t.Helper()
 	ts := time.Now().Add(-time.Minute)
 	for _, e := range runs {
 		ts = ts.Add(time.Millisecond)
 		e.TS, e.Session = ts, "s"
-		if err := l.Record(t.Context(), e); err != nil {
+		if err := ledger.Record(t.Context(), e); err != nil {
 			t.Fatal(err)
 		}
 	}
 }
 
-func pageKeys(t *testing.T, l *Ledger, p Page) []string {
+func pageKeys(t *testing.T, ledger *Ledger, page Page) []string {
 	t.Helper()
-	p.Limit = 10
-	got, err := l.Page(t.Context(), component.StatsQuery{}, p)
+	page.Limit = 10
+	got, err := ledger.Page(t.Context(), component.StatsQuery{}, page)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -703,23 +703,23 @@ func TestPruneUsesLedgerClock(t *testing.T) {
 // Recover_after optimized runs in a row without a new failure forgive one.
 func TestOptimizedRunsForgiveFailures(t *testing.T) {
 	ctx := t.Context()
-	run := func(l *Ledger, key string, outcome component.Outcome) {
+	run := func(ledger *Ledger, key string, outcome component.Outcome) {
 		t.Helper()
-		if err := l.Record(ctx, component.Event{TS: time.Now(), Key: key, Command: "go test", Outcome: outcome, RawTokens: 100, OutTokens: 10}); err != nil {
+		if err := ledger.Record(ctx, component.Event{TS: time.Now(), Key: key, Command: "go test", Outcome: outcome, RawTokens: 100, OutTokens: 10}); err != nil {
 			t.Fatal(err)
 		}
 	}
-	count := func(l *Ledger, key string) int {
+	count := func(ledger *Ledger, key string) int {
 		t.Helper()
-		info, err := l.Failures(ctx, key)
+		info, err := ledger.Failures(ctx, key)
 		if err != nil {
 			t.Fatal(err)
 		}
 		return info.Count
 	}
-	fail := func(l *Ledger, key string) {
+	fail := func(ledger *Ledger, key string) {
 		t.Helper()
-		if err := l.MarkFailure(ctx, key, component.ReasonRawRequested); err != nil {
+		if err := ledger.MarkFailure(ctx, key, component.ReasonRawRequested); err != nil {
 			t.Fatal(err)
 		}
 	}

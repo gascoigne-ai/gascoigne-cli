@@ -22,10 +22,10 @@ type usage struct {
 
 func (usage) TableName() string { return "usage" }
 
-func (l *Ledger) RecordUsage(ctx context.Context, u component.Usage) error {
+func (l *Ledger) RecordUsage(ctx context.Context, entry component.Usage) error {
 	return l.db.WithContext(ctx).Create(&usage{
-		TS: u.TS.UnixMilli(), Agent: u.Agent, Model: u.Model,
-		Input: u.Input, CacheRead: u.CacheRead, CacheWrite: u.CacheWrite, CacheWrite1h: u.CacheWrite1h, Output: u.Output,
+		TS: entry.TS.UnixMilli(), Agent: entry.Agent, Model: entry.Model,
+		Input: entry.Input, CacheRead: entry.CacheRead, CacheWrite: entry.CacheWrite, CacheWrite1h: entry.CacheWrite1h, Output: entry.Output,
 	}).Error
 }
 
@@ -63,12 +63,12 @@ const contextSQL = "(input + cache_read + cache_write)"
 
 // UsageStats sums recorded API usage per agent and model, most requests
 // first. Usage carries no session: a session filter matches nothing.
-func (l *Ledger) UsageStats(ctx context.Context, q component.StatsQuery) ([]UsageStat, error) {
+func (l *Ledger) UsageStats(ctx context.Context, query component.StatsQuery) ([]UsageStat, error) {
 	var out []UsageStat
-	if q.Session != "" {
+	if query.Session != "" {
 		return out, nil
 	}
-	err := usageFilter(l.db.WithContext(ctx).Model(&usage{}), q).
+	err := usageFilter(l.db.WithContext(ctx).Model(&usage{}), query).
 		Select(`agent, model, count(*) AS requests, sum(input) AS input, sum(cache_read) AS cache_read,
 			sum(cache_write) AS cache_write, sum(cache_write1h) AS cache_write1h, sum(output) AS output,
 			sum` + contextSQL + ` / count(*) AS mean_context, max` + contextSQL + ` AS peak_context`).
@@ -76,27 +76,27 @@ func (l *Ledger) UsageStats(ctx context.Context, q component.StatsQuery) ([]Usag
 	return out, err
 }
 
-func usageFilter(tx *gorm.DB, q component.StatsQuery) *gorm.DB {
-	if q.Agent != "" {
-		tx = tx.Where("agent = ?", q.Agent)
+func usageFilter(tx *gorm.DB, query component.StatsQuery) *gorm.DB {
+	if query.Agent != "" {
+		tx = tx.Where("agent = ?", query.Agent)
 	}
-	if q.Model != "" {
-		tx = tx.Where("model = ?", q.Model)
+	if query.Model != "" {
+		tx = tx.Where("model = ?", query.Model)
 	}
-	if !q.Since.IsZero() {
-		tx = tx.Where("ts >= ?", q.Since.UnixMilli())
+	if !query.Since.IsZero() {
+		tx = tx.Where("ts >= ?", query.Since.UnixMilli())
 	}
 	return tx
 }
 
 // UsageDays sums recorded API usage per local day, oldest first. Usage carries no
 // session: a session filter matches nothing.
-func (l *Ledger) UsageDays(ctx context.Context, q component.StatsQuery) ([]UsageDay, error) {
+func (l *Ledger) UsageDays(ctx context.Context, query component.StatsQuery) ([]UsageDay, error) {
 	var out []UsageDay
-	if q.Session != "" {
+	if query.Session != "" {
 		return out, nil
 	}
-	err := usageFilter(l.db.WithContext(ctx).Model(&usage{}), q).
+	err := usageFilter(l.db.WithContext(ctx).Model(&usage{}), query).
 		Select(dayLocal + ` AS day, count(*) AS requests,
 			sum(cache_read) AS cache_read, sum(cache_write) AS cache_write, sum(cache_write1h) AS cache_write1h, sum(output) AS output,
 			sum` + contextSQL + ` / count(*) AS mean_context, max` + contextSQL + ` AS peak_context`).

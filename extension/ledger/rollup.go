@@ -54,24 +54,24 @@ func (l *Ledger) pruneRollup(ctx context.Context) error {
 // Stats is liveStats plus the daily totals of runs pruned at events_ttl, for
 // every grouping they can answer (not session or reason). A rolled-up day
 // counts whole when the query's Since falls inside it.
-func (l *Ledger) Stats(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
-	live, err := l.liveStats(ctx, q)
-	if err != nil || q.Session != "" || q.By == component.BySession || q.By == component.ByReason || q.By == component.ByFamilyOutcome {
+func (l *Ledger) Stats(ctx context.Context, query component.StatsQuery) ([]component.Stat, error) {
+	live, err := l.liveStats(ctx, query)
+	if err != nil || query.Session != "" || query.By == component.BySession || query.By == component.ByReason || query.By == component.ByFamilyOutcome {
 		return live, err
 	}
-	old, err := l.rolledStats(ctx, q)
+	old, err := l.rolledStats(ctx, query)
 	if err != nil || len(old) == 0 {
 		return live, err
 	}
-	return mergeStats(q, live, old), nil
+	return mergeStats(query, live, old), nil
 }
 
 // rolledStats is liveStats over the daily totals.
-func (l *Ledger) rolledStats(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
+func (l *Ledger) rolledStats(ctx context.Context, query component.StatsQuery) ([]component.Stat, error) {
 	table, group, sel := "daily_stats", "", `sum(runs) AS runs, sum(CASE outcome WHEN 'optimized' THEN runs ELSE 0 END) AS optimized,
 		sum(CASE outcome WHEN 'error' THEN runs ELSE 0 END) AS failed, sum(raw_tokens) AS raw_tokens, sum(out_tokens) AS out_tokens,
 		min(first_ts) AS first_ts, max(last_ts) AS last_ts`
-	switch by := cmp.Or(q.By, component.ByRoute); by {
+	switch by := cmp.Or(query.By, component.ByRoute); by {
 	case component.ByRoute, component.ByAgent, component.ByModel, component.ByCommand, component.ByOutcome:
 		group = by
 	case component.ByDay:
@@ -85,16 +85,16 @@ func (l *Ledger) rolledStats(ctx context.Context, q component.StatsQuery) ([]com
 		sel = `max(family) AS family, sum(runs) AS runs, sum(runs) AS optimized, 0 AS failed, sum(raw_tokens) AS raw_tokens,
 			sum(out_tokens) AS out_tokens, min(first_ts) AS first_ts, max(last_ts) AS last_ts`
 	default:
-		return nil, fmt.Errorf("stats: unknown grouping %q", q.By)
+		return nil, fmt.Errorf("stats: unknown grouping %q", query.By)
 	}
 	tx := l.db.WithContext(ctx).Table(table)
-	for col, v := range map[string]string{"agent": q.Agent, "model": q.Model} {
+	for col, v := range map[string]string{"agent": query.Agent, "model": query.Model} {
 		if v != "" {
 			tx = tx.Where(col+" = ?", v)
 		}
 	}
-	if !q.Since.IsZero() {
-		tx = tx.Where("day >= ?", q.Since.Local().Format(dayLayout))
+	if !query.Since.IsZero() {
+		tx = tx.Where("day >= ?", query.Since.Local().Format(dayLayout))
 	}
 	var rows []struct {
 		Group                   string
@@ -113,7 +113,7 @@ func (l *Ledger) rolledStats(ctx context.Context, q component.StatsQuery) ([]com
 }
 
 // mergeStats sums groups present in both lists and orders them as liveStats does.
-func mergeStats(q component.StatsQuery, lists ...[]component.Stat) []component.Stat {
+func mergeStats(query component.StatsQuery, lists ...[]component.Stat) []component.Stat {
 	byGroup := map[string]component.Stat{}
 	for _, list := range lists {
 		for _, s := range list {
@@ -141,11 +141,11 @@ func mergeStats(q component.StatsQuery, lists ...[]component.Stat) []component.S
 	for _, s := range byGroup {
 		out = append(out, s)
 	}
-	slices.SortFunc(out, func(a, b component.Stat) int {
-		if q.Chronological() {
-			return cmp.Compare(a.Group, b.Group)
+	slices.SortFunc(out, func(left, right component.Stat) int {
+		if query.Chronological() {
+			return cmp.Compare(left.Group, right.Group)
 		}
-		return cmp.Or(cmp.Compare(b.Saved(), a.Saved()), cmp.Compare(a.Group, b.Group))
+		return cmp.Or(cmp.Compare(right.Saved(), left.Saved()), cmp.Compare(left.Group, right.Group))
 	})
 	return out
 }

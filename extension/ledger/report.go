@@ -16,12 +16,12 @@ import (
 // liveStats aggregates the events still stored by route or session, or
 // optimizer steps by family or optimizer, optionally within one session;
 // biggest savings first. Stats adds the rolled-up history to it.
-func (l *Ledger) liveStats(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
+func (l *Ledger) liveStats(ctx context.Context, query component.StatsQuery) ([]component.Stat, error) {
 	var (
 		tx           *gorm.DB
 		group, table string
 	)
-	switch cmp.Or(q.By, component.ByRoute) {
+	switch cmp.Or(query.By, component.ByRoute) {
 	case component.ByRoute:
 		tx, group, table = l.events(ctx), "events.route", "events"
 	case component.BySession:
@@ -35,11 +35,11 @@ func (l *Ledger) liveStats(ctx context.Context, q component.StatsQuery) ([]compo
 	case component.ByOutcome:
 		tx, group, table = l.events(ctx), "events.outcome", "events"
 	case component.ByDay, component.ByWeek, component.ByMonth:
-		tx, group, table = l.events(ctx), period(q.By), "events"
+		tx, group, table = l.events(ctx), period(query.By), "events"
 	case component.ByReason:
-		return l.reasons(ctx, q)
+		return l.reasons(ctx, query)
 	case component.ByFamilyOutcome:
-		return l.familyOutcomes(ctx, q)
+		return l.familyOutcomes(ctx, query)
 	case component.ByFamily:
 		tx, group, table = l.steps(ctx), "steps.family", "steps"
 	case component.ByOptimizer:
@@ -47,14 +47,14 @@ func (l *Ledger) liveStats(ctx context.Context, q component.StatsQuery) ([]compo
 	case component.ByDialect:
 		tx, group, table = l.steps(ctx), "steps.dialect", "steps"
 	default:
-		return nil, fmt.Errorf("stats: unknown grouping %q", q.By)
+		return nil, fmt.Errorf("stats: unknown grouping %q", query.By)
 	}
-	tx = filter(tx, "events", q)
-	order := fmt.Sprintf("sum(%[1]s.raw_tokens) - sum(%[2]s) DESC, 1", table, l.outTokens(q.By))
-	if q.Chronological() {
+	tx = filter(tx, "events", query)
+	order := fmt.Sprintf("sum(%[1]s.raw_tokens) - sum(%[2]s) DESC, 1", table, l.outTokens(query.By))
+	if query.Chronological() {
 		order = "1"
 	}
-	if q.By == component.BySession {
+	if query.By == component.BySession {
 		order = "max(events.ts) DESC, 1" // latest session first
 	}
 	var rows []struct {
@@ -64,7 +64,7 @@ func (l *Ledger) liveStats(ctx context.Context, q component.StatsQuery) ([]compo
 		RawTokens, OutTokens    int
 		FirstTS, LastTS         int64
 	}
-	err := tx.Select("CASE " + group + " WHEN '' THEN '-' ELSE " + group + " END AS \"group\", " + l.aggregates(q.By)).
+	err := tx.Select("CASE " + group + " WHEN '' THEN '-' ELSE " + group + " END AS \"group\", " + l.aggregates(query.By)).
 		Group(group).
 		Order(order).
 		Scan(&rows).Error
@@ -84,14 +84,14 @@ func period(by string) string {
 
 // filter applies the query's session, agent, model and time filters to an
 // events table (or alias).
-func filter(tx *gorm.DB, events string, q component.StatsQuery) *gorm.DB {
-	for col, v := range map[string]string{"session": q.Session, "agent": q.Agent, "model": q.Model} {
+func filter(tx *gorm.DB, events string, query component.StatsQuery) *gorm.DB {
+	for col, v := range map[string]string{"session": query.Session, "agent": query.Agent, "model": query.Model} {
 		if v != "" {
 			tx = tx.Where(events+"."+col+" = ?", v)
 		}
 	}
-	if !q.Since.IsZero() {
-		tx = tx.Where(events+".ts >= ?", q.Since.UnixMilli())
+	if !query.Since.IsZero() {
+		tx = tx.Where(events+".ts >= ?", query.Since.UnixMilli())
 	}
 	return tx
 }
@@ -160,14 +160,14 @@ func (l *Ledger) FailureList(ctx context.Context) ([]Failure, error) {
 
 // reasons groups runs that were not optimized by outcome, stopping component
 // and command, each with its latest reason.
-func (l *Ledger) reasons(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
+func (l *Ledger) reasons(ctx context.Context, query component.StatsQuery) ([]component.Stat, error) {
 	var rows []struct {
 		Outcome, Filter, Command   string
 		Runs, RawTokens, OutTokens int
 		FirstTS, LastTS            int64
 		LastID                     uint
 	}
-	tx := filter(l.db.WithContext(ctx).Table("events e"), "e", q).
+	tx := filter(l.db.WithContext(ctx).Table("events e"), "e", query).
 		Where("e.outcome NOT IN ?", []string{string(component.Optimized), string(component.Rerequested)})
 	err := tx.Select(`e.outcome, e.filter, e.command, count(*) AS runs,
 			sum(e.raw_tokens) AS raw_tokens, sum(e.out_tokens) AS out_tokens,
@@ -205,8 +205,8 @@ type Entry struct {
 
 // Recent lists events matching q's filters with an id above after, newest
 // first, at most limit.
-func (l *Ledger) Recent(ctx context.Context, q component.StatsQuery, after uint, limit int) ([]Entry, error) {
-	return l.Page(ctx, q, Page{After: after, Limit: limit})
+func (l *Ledger) Recent(ctx context.Context, query component.StatsQuery, after uint, limit int) ([]Entry, error) {
+	return l.Page(ctx, query, Page{After: after, Limit: limit})
 }
 
 // Page selects a slice of the run feed, newest first.
@@ -233,19 +233,19 @@ const earlierOptimized = "SELECT 1 FROM events e2 WHERE e2.key = events.key AND 
 	"AND e2.outcome IN ('optimized', 'rerequested') AND e2.id < events.id"
 
 // Page returns the runs matching q and p, newest first.
-func (l *Ledger) Page(ctx context.Context, q component.StatsQuery, p Page) ([]Entry, error) {
+func (l *Ledger) Page(ctx context.Context, query component.StatsQuery, page Page) ([]Entry, error) {
 	var rows []event
-	tx := filter(l.db.WithContext(ctx).Preload("Steps"), "events", q).Where("events.id > ?", p.After)
-	if p.Before > 0 {
-		tx = tx.Where("events.id < ?", p.Before)
+	tx := filter(l.db.WithContext(ctx).Preload("Steps"), "events", query).Where("events.id > ?", page.After)
+	if page.Before > 0 {
+		tx = tx.Where("events.id < ?", page.Before)
 	}
-	if len(p.Outcomes) > 0 {
-		tx = tx.Where("events.outcome IN ?", p.Outcomes)
+	if len(page.Outcomes) > 0 {
+		tx = tx.Where("events.outcome IN ?", page.Outcomes)
 	}
-	if p.RawAsked {
+	if page.RawAsked {
 		tx = tx.Where("events.reason LIKE ? AND NOT EXISTS ("+earlierOptimized+")", rawRequested)
 	}
-	if err := tx.Order("events.id DESC").Limit(p.Limit).Find(&rows).Error; err != nil {
+	if err := tx.Order("events.id DESC").Limit(page.Limit).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	out := make([]Entry, len(rows))
@@ -275,23 +275,23 @@ func (r event) component() component.Event {
 // Reset deletes recorded events and their steps matching q's filters and
 // reports how many events went. all also deletes stored originals and
 // failure history, which carry no session or agent, so it takes no filters.
-func (l *Ledger) Reset(ctx context.Context, q component.StatsQuery, all bool) (int64, error) {
-	if all && (q.Session != "" || q.Agent != "" || q.Model != "" || !q.Since.IsZero()) {
+func (l *Ledger) Reset(ctx context.Context, query component.StatsQuery, all bool) (int64, error) {
+	if all && (query.Session != "" || query.Agent != "" || query.Model != "" || !query.Since.IsZero()) {
 		return 0, errors.New("reset: originals and failure history cannot be filtered; drop the filters or the full reset")
 	}
 	var n int64
 	err := l.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		ids := filter(tx.Model(&event{}).Select("id"), "events", q)
+		ids := filter(tx.Model(&event{}).Select("id"), "events", query)
 		if err := tx.Where("event_id IN (?)", ids).Delete(&step{}).Error; err != nil {
 			return err
 		}
-		res := filter(tx.Where("1 = 1"), "events", q).Delete(&event{})
+		res := filter(tx.Where("1 = 1"), "events", query).Delete(&event{})
 		if res.Error != nil {
 			return res.Error
 		}
 		n = res.RowsAffected
-		if q.Session == "" { // usage has no session
-			if err := usageFilter(tx.Where("1 = 1"), q).Delete(&usage{}).Error; err != nil {
+		if query.Session == "" { // usage has no session
+			if err := usageFilter(tx.Where("1 = 1"), query).Delete(&usage{}).Error; err != nil {
 				return err
 			}
 		}
@@ -350,9 +350,9 @@ type ImpactDay struct {
 }
 
 // Impact is the daily optimized-versus-rerequested comparison, oldest first.
-func (l *Ledger) Impact(ctx context.Context, q component.StatsQuery) ([]ImpactDay, error) {
+func (l *Ledger) Impact(ctx context.Context, query component.StatsQuery) ([]ImpactDay, error) {
 	var days []ImpactDay
-	err := filter(l.events(ctx), "events", q).
+	err := filter(l.events(ctx), "events", query).
 		Where("events.outcome IN ?", []string{string(component.Optimized), string(component.Rerequested)}).
 		Select(period(component.ByDay) + ` AS day,
 			sum(outcome = 'optimized') AS optimized,
@@ -365,13 +365,13 @@ func (l *Ledger) Impact(ctx context.Context, q component.StatsQuery) ([]ImpactDa
 
 // familyOutcomes counts the runs per optimizer family and outcome: a run is
 // in every family one of its steps belongs to.
-func (l *Ledger) familyOutcomes(ctx context.Context, q component.StatsQuery) ([]component.Stat, error) {
+func (l *Ledger) familyOutcomes(ctx context.Context, query component.StatsQuery) ([]component.Stat, error) {
 	var rows []struct {
 		Family, Outcome            string
 		Runs, RawTokens, OutTokens int
 		FirstTS, LastTS            int64
 	}
-	tx := filter(l.steps(ctx), "events", q)
+	tx := filter(l.steps(ctx), "events", query)
 	err := tx.Select(`steps.family AS family, events.outcome AS outcome, count(DISTINCT events.id) AS runs,
 			sum(events.raw_tokens) AS raw_tokens, sum(events.out_tokens) AS out_tokens,
 			min(events.ts) AS first_ts, max(events.ts) AS last_ts`).
