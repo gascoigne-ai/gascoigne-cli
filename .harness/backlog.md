@@ -7,6 +7,16 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 `recommendations.md`.
 
 ## Open
+- Simplify audit (2026-11-18), findings not queued as tasks:
+  - `internal/cost` keeps package-level state (`SetLoader`, `SetOverrides`, `SetBilling`, `SetDetector`),
+    against the no-global-state rule. The fix threads a `cost.Table` through about 17 `cmd/gascoigne` files,
+    `internal/mcptool` and `inproc`: needs user approval first.
+  - Do not merge `jsonoptimizer` into `dataoptimizer` or `htmloptimizer` into `httpoptimizer`: `json`,
+    `json/gentle` and `html` are user config keys (`configs/default.yaml`); the gain is about 100 lines.
+  - `internal/prose/install.go` uses `http.DefaultClient` without a timeout (frequency 2 x impact 3, left alone).
+  - `internal/compress/probe` and `symbols` each have one importer outside the optimizers; leave until a
+    second appears. Keep `cost` and `pricing` apart (network and cache vs pure tables), `internal/hint`
+    separate from `service` (components may not import the engine), `internal/mcpmock` named in `rules.md`.
 - State-machine audit (2026-11-16), rated frequency x impact below 5, so left alone until a failing run shows
   otherwise:
   - MCP login after a good login: a later 401 (dead refresh token) reaches the agent as a tool error and the
