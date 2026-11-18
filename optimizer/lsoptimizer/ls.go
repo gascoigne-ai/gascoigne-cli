@@ -143,14 +143,5 @@ func human(size string) string {
 	if err != nil {
 		return size // already human (ls -h) or a device number
 	}
-	for _, unit := range []string{"", "K", "M", "G"} {
-		if n < 1024 {
-			if unit == "" {
-				return fmt.Sprintf("%.0f", n)
-			}
-			return strings.TrimSuffix(fmt.Sprintf("%.1f", n), ".0") + unit
-		}
-		n /= 1024
-	}
-	return fmt.Sprintf("%.1fT", n)
+	return compress.HumanBytes(int64(n), compress.ShortBytes)
 }

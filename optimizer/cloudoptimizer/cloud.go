@@ -47,8 +47,8 @@ func (o *Optimizer) block(block payload.Block, query []string) (string, error) {
 		}
 		return jsonx.Render(values, false, &o.cfg.JSON, query)
 	}
-	if t, ok := table.Parse(compress.CleanLines(block.Text)); ok {
-		return compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query))), nil
+	if out, ok := table.Compress(compress.CleanLines(block.Text), o.cfg.Options(query)); ok {
+		return compress.Join(out), nil
 	}
 	if docs, err := yamlx.Docs(block.Text); err == nil && structured(docs) {
 		for _, d := range docs {

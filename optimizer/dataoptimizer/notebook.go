@@ -113,15 +113,8 @@ func binaries(data map[string]json.RawMessage) []string {
 		if typ == "text/plain" {
 			continue
 		}
-		out = append(out, fmt.Sprintf("[%s %s]", typ, size(len(v))))
+		out = append(out, fmt.Sprintf("[%s %s]", typ, compress.HumanBytes(int64(len(v)), compress.WholeKB)))
 	}
 	slices.Sort(out)
 	return out
-}
-
-func size(bytes int) string {
-	if bytes < 1024 {
-		return fmt.Sprintf("%d B", bytes)
-	}
-	return fmt.Sprintf("%d KB", bytes/1024)
 }

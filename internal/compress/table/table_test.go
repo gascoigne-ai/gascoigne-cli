@@ -105,3 +105,31 @@ func TestRenderRaggedRows(t *testing.T) {
 		}
 	}
 }
+
+func TestLimitsCompress(t *testing.T) {
+	in := compress.Lines("NAME  STATE\na     up\nb     up\n")
+	got, ok := Compress(in, Limits{MaxRows: 30, MaxCell: 60}.Options(nil))
+	if want := compress.Join(Render(mustParse(t, in), Limits{MaxRows: 30, MaxCell: 60}.Options(nil))); !ok || compress.Join(got) != want || want == "" {
+		t.Fatalf("got %q want %q ok=%v", got, want, ok)
+	}
+	if _, ok := Compress([]string{"just prose"}, Options{}); ok {
+		t.Fatal("prose parsed as table")
+	}
+	for limits, want := range map[Limits]bool{{5, 10}: true, {4, 10}: false, {5, 9}: false} {
+		if limits.Valid() != want {
+			t.Errorf("%+v.Valid() = %v", limits, !want)
+		}
+	}
+	if o := (Limits{MaxRows: 7, MaxCell: 11}).Options([]string{"x"}); o.MaxRows != 7 || o.MaxCell != 11 || len(o.Rows.Query) != 1 {
+		t.Fatalf("Options = %+v", o)
+	}
+}
+
+func mustParse(t *testing.T, lines []string) Table {
+	t.Helper()
+	tb, ok := Parse(lines)
+	if !ok {
+		t.Fatalf("no table in %q", lines)
+	}
+	return tb
+}

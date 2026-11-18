@@ -71,7 +71,7 @@ func suite(group junitSuite) []string {
 			details = append(details, problem(kind, name, p)...)
 			for _, o := range []string{c.Out, c.Err} {
 				if o = strings.TrimSpace(o); o != "" {
-					details = append(details, indent(compress.Lines(o))...)
+					details = append(details, compress.Indent(compress.Lines(o))...)
 				}
 			}
 		case c.Skipped != nil:
@@ -107,7 +107,7 @@ func problem(kind, name string, issue *junitProblem) []string {
 	out := []string{head}
 	text := strings.TrimSpace(issue.Text)
 	if text != "" && text != strings.TrimSpace(issue.Message) {
-		out = append(out, indent(compress.Lines(text))...)
+		out = append(out, compress.Indent(compress.Lines(text))...)
 	}
 	return out
 }
@@ -115,12 +115,4 @@ func problem(kind, name string, issue *junitProblem) []string {
 func firstLine(text string) string {
 	l, _, _ := strings.Cut(text, "\n")
 	return l
-}
-
-func indent(lines []string) []string {
-	out := make([]string, len(lines))
-	for i, l := range lines {
-		out[i] = "  " + l
-	}
-	return out
 }

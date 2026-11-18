@@ -59,7 +59,7 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 		lines := compress.CleanLines(b.Text)
 		switch {
 		case b.Type == detect.Text:
-			lines = compress.SqueezeBlank(o.foldText(dedupeExact(lines)))
+			lines = compress.SqueezeBlank(o.foldText(compress.DedupeExact(lines)))
 		case b.Type == detect.Access:
 			lines = o.access(lines)
 		default:
@@ -442,22 +442,4 @@ func (o *Optimizer) foldText(lines []string) []string {
 		return lines
 	}
 	return texts(t.template(lines, nil))
-}
-
-// dedupeExact collapses runs of identical lines; text keeps every distinct line.
-func dedupeExact(lines []string) []string {
-	var out []string
-	for i := 0; i < len(lines); {
-		j := i + 1
-		for j < len(lines) && lines[j] == lines[i] {
-			j++
-		}
-		if n := j - i; n > 2 && lines[i] != "" {
-			out = append(out, fmt.Sprintf("%s (×%d)", lines[i], n))
-		} else {
-			out = append(out, lines[i:j]...)
-		}
-		i = j
-	}
-	return out
 }

@@ -23,7 +23,7 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
-	opts := table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, sample.Terms(data.Attrs[payload.AttrQuery]))
+	opts := o.cfg.Options(sample.Terms(data.Attrs[payload.AttrQuery]))
 	return data.RewriteFamily(func(block payload.Block) (string, error) {
 		lines := compress.CleanLines(block.Text)
 		var out []string
@@ -53,8 +53,8 @@ func results(lines []string, options table.Options) []string {
 		if len(chunk) == 0 {
 			return
 		}
-		if t, ok := table.Parse(chunk); ok {
-			out = append(out, table.Render(t, options)...)
+		if rendered, ok := table.Compress(chunk, options); ok {
+			out = append(out, rendered...)
 		} else {
 			out = append(out, chunk...)
 		}

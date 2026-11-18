@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
@@ -40,7 +41,7 @@ func (o *Optimizer) s3(lines []string) []string {
 	}
 	if len(objs) <= o.cfg.MaxObjects {
 		for _, ob := range objs {
-			out = append(out, fmt.Sprintf("%s %s %s", ob.key, human(ob.size), ob.when))
+			out = append(out, fmt.Sprintf("%s %s %s", ob.key, compress.HumanBytes(ob.size, compress.LongBytes), ob.when))
 		}
 		return out
 	}
@@ -53,12 +54,12 @@ func (o *Optimizer) s3(lines []string) []string {
 		groups[g]++
 		sizes[g] += ob.size
 	}
-	out = append(out, fmt.Sprintf("%d objects, %s total", len(objs), human(total)))
+	out = append(out, fmt.Sprintf("%d objects, %s total", len(objs), compress.HumanBytes(total, compress.LongBytes)))
 	keys := slices.SortedFunc(maps.Keys(groups), func(left, right string) int {
 		return cmp.Or(cmp.Compare(sizes[right], sizes[left]), cmp.Compare(left, right))
 	})
 	for _, k := range keys[:min(15, len(keys))] {
-		out = append(out, fmt.Sprintf("  %s ×%d %s", k, groups[k], human(sizes[k])))
+		out = append(out, fmt.Sprintf("  %s ×%d %s", k, groups[k], compress.HumanBytes(sizes[k], compress.LongBytes)))
 	}
 	if len(keys) > 15 {
 		out = append(out, fmt.Sprintf("  … %d more groups", len(keys)-15))
@@ -69,11 +70,11 @@ func (o *Optimizer) s3(lines []string) []string {
 	slices.SortStableFunc(largest, func(left, right object) int { return cmp.Compare(right.size, left.size) })
 	out = append(out, "newest:")
 	for _, ob := range newest[:5] {
-		out = append(out, fmt.Sprintf("  %s %s %s", ob.when, ob.key, human(ob.size)))
+		out = append(out, fmt.Sprintf("  %s %s %s", ob.when, ob.key, compress.HumanBytes(ob.size, compress.LongBytes)))
 	}
 	out = append(out, "largest:")
 	for _, ob := range largest[:5] {
-		out = append(out, fmt.Sprintf("  %s %s", human(ob.size), ob.key))
+		out = append(out, fmt.Sprintf("  %s %s", compress.HumanBytes(ob.size, compress.LongBytes), ob.key))
 	}
 	return out
 }
@@ -89,18 +90,4 @@ func group(key string) string {
 		return "*" + ext
 	}
 	return top + "/*" + ext
-}
-
-func human(bytes int64) string {
-	f := float64(bytes)
-	for _, u := range []string{"B", "KB", "MB", "GB", "TB"} {
-		if f < 1024 || u == "TB" {
-			if u == "B" {
-				return fmt.Sprintf("%d B", bytes)
-			}
-			return strings.TrimSuffix(fmt.Sprintf("%.1f", f), ".0") + " " + u
-		}
-		f /= 1024
-	}
-	return ""
 }

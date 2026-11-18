@@ -27,7 +27,7 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 		var out []string
 		switch detect.Dialect(block.Type) {
 		case "markdown":
-			out = o.markdown(compress.Lines(htmlComment.ReplaceAllString(block.Text, "")), data.Attrs[payload.AttrQuery])
+			out = o.markdown(compress.Lines(compress.StripHTMLComments(block.Text)), data.Attrs[payload.AttrQuery])
 		case "rst":
 			out = o.rst(compress.Lines(block.Text))
 		case "man":
@@ -42,7 +42,6 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 }
 
 var (
-	htmlComment = lazyre.New(`(?s)<!--.*?-->`)
 	// Badges: linked images, shields and CI status pictures.
 	badge = lazyre.New(`\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*(shields\.io|badge|/workflows/|codecov|travis-ci|goreportcard|pkg\.go\.dev/badge)[^)]*\)`)
 	image = lazyre.New(`!\[([^\]]*)\]\([^)]*\)`)

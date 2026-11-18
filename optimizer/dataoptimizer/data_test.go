@@ -6,10 +6,11 @@ import (
 	"testing"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/jsonx"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/table"
 )
 
 func testOptimizer() *Optimizer {
-	return &Optimizer{cfg: &Config{JSON: *jsonx.Default(), MaxRows: 30, MaxCell: 60, MaxItems: 6}}
+	return &Optimizer{cfg: &Config{JSON: *jsonx.Default(), Limits: table.Limits{MaxRows: 30, MaxCell: 60}, MaxItems: 6}}
 }
 
 func TestTOMLFoldsLockEntries(t *testing.T) {

@@ -28,7 +28,7 @@ type Optimizer struct {
 }
 
 func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
-	topts := table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, sample.Terms(data.Attrs[payload.AttrQuery]))
+	topts := o.cfg.Options(sample.Terms(data.Attrs[payload.AttrQuery]))
 	return data.RewriteFamily(func(block payload.Block) (string, error) {
 		if detect.Dialect(block.Type) == "manifest" {
 			return o.manifests(block.Text)
@@ -47,9 +47,8 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 		case "helm":
 			out = o.helm(lines, topts)
 		default: // get and other tables
-			if t, ok := table.Parse(lines); ok {
-				out = table.Render(t, topts)
-			} else {
+			var ok bool
+			if out, ok = table.Compress(lines, topts); !ok {
 				out = lines
 			}
 		}

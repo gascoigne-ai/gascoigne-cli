@@ -445,3 +445,27 @@ func parseRuled(lines []string) (Table, bool) {
 	}
 	return Table{}, false
 }
+
+// Limits are the config keys every table optimizer shares; embed them inline
+// in a config so the YAML keys stay max_rows and max_cell.
+type Limits struct {
+	// MaxRows samples longer tables: unhealthy rows, anomalies, query matches and ends stay.
+	MaxRows int `yaml:"max_rows"`
+	// MaxCell cuts longer cells in the middle.
+	MaxCell int `yaml:"max_cell"`
+}
+
+// Valid reports limits a table can still be read with.
+func (l Limits) Valid() bool { return l.MaxRows >= 5 && l.MaxCell >= 10 }
+
+// Options is ForQuery with these limits.
+func (l Limits) Options(query []string) Options { return ForQuery(l.MaxRows, l.MaxCell, query) }
+
+// Compress parses lines as a table and renders it; false when they hold none.
+func Compress(lines []string, options Options) ([]string, bool) {
+	t, ok := Parse(lines)
+	if !ok {
+		return nil, false
+	}
+	return Render(t, options), true
+}

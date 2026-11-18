@@ -26,11 +26,11 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 		if block.Type == detect.Eval {
 			return compress.Join(table.FoldReport(compress.CleanLines(block.Text))), nil
 		}
-		t, ok := table.Parse(compress.CleanLines(block.Text))
+		out, ok := table.Compress(compress.CleanLines(block.Text), o.cfg.Options(query))
 		if !ok {
 			data.Set(payload.AttrSkip, "table: no table found")
 			return block.Text, nil
 		}
-		return compress.Join(table.Render(t, table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, query))), nil
+		return compress.Join(out), nil
 	}, detect.FamilyTable)
 }

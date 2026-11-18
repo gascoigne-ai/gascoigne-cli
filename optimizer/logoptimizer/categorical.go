@@ -22,11 +22,11 @@ var categoricalKeys = map[string]bool{
 func protectCodes(line string) string {
 	var out []byte
 	for i := 0; i < len(line); i++ {
-		if !isDigit(line[i]) || i > 0 && compress.IsWord(line[i-1]) {
+		if !compress.IsDigit(line[i]) || i > 0 && compress.IsWord(line[i-1]) {
 			continue
 		}
 		j := i
-		for j < len(line) && isDigit(line[j]) {
+		for j < len(line) && compress.IsDigit(line[j]) {
 			j++
 		}
 		if j-i <= 3 && (j == len(line) || !compress.IsWord(line[j])) && categoricalBefore(line, i) {
@@ -81,5 +81,3 @@ func isCategoricalKey(key string) bool {
 	}
 	return categoricalKeys[strings.ToLower(key[prev:start-1]+" "+key[start:])]
 }
-
-func isDigit(char byte) bool { return char >= '0' && char <= '9' }

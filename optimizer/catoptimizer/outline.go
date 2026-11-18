@@ -9,6 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
@@ -166,7 +167,7 @@ func (x *lexer) nests(closer string) bool {
 // quote handles ': a char literal, a lifetime, a digit separator or a string.
 func (x *lexer) quote(line string, pos int) (int, bool) {
 	switch {
-	case x.lang.DigitSep && pos > 0 && isDigit(line[pos-1]) && pos+1 < len(line) && isDigit(line[pos+1]):
+	case x.lang.DigitSep && pos > 0 && compress.IsDigit(line[pos-1]) && pos+1 < len(line) && compress.IsDigit(line[pos+1]):
 		return pos, true
 	case x.lang.Lifetimes:
 		if pos+1 < len(line) && line[pos+1] != '\\' {
@@ -179,10 +180,8 @@ func (x *lexer) quote(line string, pos int) (int, bool) {
 	return skipString(line, pos), true
 }
 
-func isDigit(char byte) bool { return char >= '0' && char <= '9' }
-
 func isIdent(char byte) bool {
-	return char == '_' || isDigit(char) || char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z'
+	return char == '_' || compress.IsDigit(char) || char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z'
 }
 
 // rawStart opens a raw string at l[j] (r#"…"# in Rust, R"x(…)x" in C++);

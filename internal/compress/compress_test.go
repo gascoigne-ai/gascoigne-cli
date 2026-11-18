@@ -174,3 +174,83 @@ func TestStripEscapesKeepsCarriageReturns(t *testing.T) {
 		t.Fatalf("got %q", got)
 	}
 }
+
+func TestHumanBytes(t *testing.T) {
+	for _, c := range []struct {
+		n     int64
+		style ByteStyle
+		want  string
+	}{
+		{0, LongBytes, "0 B"},
+		{1023, LongBytes, "1023 B"},
+		{1024, LongBytes, "1 KB"},
+		{1536, LongBytes, "1.5 KB"},
+		{1 << 20, LongBytes, "1 MB"},
+		{5 << 40, LongBytes, "5 TB"},
+		{2048 << 40, LongBytes, "2048 TB"},
+		{0, ShortBytes, "0"},
+		{1023, ShortBytes, "1023"},
+		{1024, ShortBytes, "1K"},
+		{1536, ShortBytes, "1.5K"},
+		{3 << 30, ShortBytes, "3G"},
+		{1023, WholeKB, "1023 B"},
+		{1536, WholeKB, "1 KB"},
+		{46*1024 + 600, WholeKB, "46 KB"},
+		{5 << 20, WholeKB, "5120 KB"},
+	} {
+		if got := HumanBytes(c.n, c.style); got != c.want {
+			t.Errorf("HumanBytes(%d) = %q, want %q", c.n, got, c.want)
+		}
+	}
+}
+
+func TestTally(t *testing.T) {
+	tally := Tally{"b": 2, "a": 2, "c": 9}
+	if got := tally.Counts(false); got != "a 2, b 2, c 9" {
+		t.Errorf("Counts(false) = %q", got)
+	}
+	if got := tally.Counts(true); got != "c 9, a 2, b 2" {
+		t.Errorf("Counts(true) = %q", got)
+	}
+	if got := tally.Top(2); got != "c ×9, a ×2, … 1 more" {
+		t.Errorf("Top(2) = %q", got)
+	}
+	if got := tally.Top(5); got != "c ×9, a ×2, b ×2" {
+		t.Errorf("Top(5) = %q", got)
+	}
+	if got := (Tally{}).Top(3); got != "" {
+		t.Errorf("empty Top = %q", got)
+	}
+}
+
+func TestIndent(t *testing.T) {
+	if got := Indent([]string{"a", "", "b"}); !slices.Equal(got, []string{"  a", "  ", "  b"}) {
+		t.Fatalf("Indent = %q", got)
+	}
+	if got := Indent(nil); len(got) != 0 {
+		t.Fatalf("Indent(nil) = %q", got)
+	}
+}
+
+func TestIsDigit(t *testing.T) {
+	for char, want := range map[byte]bool{'0': true, '9': true, '5': true, '/': false, ':': false, 'a': false} {
+		if IsDigit(char) != want {
+			t.Errorf("IsDigit(%q) = %v", char, !want)
+		}
+	}
+}
+
+func TestStripHTMLComments(t *testing.T) {
+	in := "a <!-- one --> b\n<!--\nmulti\nline\n-->c <!-- unclosed"
+	if got, want := StripHTMLComments(in), "a  b\nc <!-- unclosed"; got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
+func TestDedupeExact(t *testing.T) {
+	in := []string{"a", "a", "b", "b", "b", "", "", "", "c"}
+	want := []string{"a", "a", "b (×3)", "", "", "", "c"}
+	if got := DedupeExact(in); !slices.Equal(got, want) {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}

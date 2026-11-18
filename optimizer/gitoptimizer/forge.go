@@ -100,14 +100,13 @@ func (o *Optimizer) ghList(lines []string, query []string) []string {
 }
 
 var (
-	emptyField  = lazyre.New(`^[a-z-]+:\t*$`)
-	htmlComment = lazyre.New(`(?s)<!--.*?-->`)
+	emptyField = lazyre.New(`^[a-z-]+:\t*$`)
 )
 
 // ghView drops empty metadata fields and template comments.
 func ghView(text string) []string {
 	var out []string
-	for _, l := range compress.Lines(htmlComment.ReplaceAllString(text, "")) {
+	for _, l := range compress.Lines(compress.StripHTMLComments(text)) {
 		if !emptyField.MatchString(l) {
 			out = append(out, strings.Replace(l, ":\t", ": ", 1))
 		}

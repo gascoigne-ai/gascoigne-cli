@@ -25,7 +25,7 @@ note -->
 
 ## Install
 ` + "```sh\n1\n2\n3\n4\n5\n6\n7\n8\n9\n```\n"
-	got := compress.Join(testOptimizer().markdown(compress.Lines(htmlComment.ReplaceAllString(in, "")), ""))
+	got := compress.Join(testOptimizer().markdown(compress.Lines(compress.StripHTMLComments(in)), ""))
 	want := "# Tool\n\n[image: diagram]\n\n## Install\n```sh\n1\n2\n3\n4\n… 3 lines omitted\n8\n9\n```\n… 2 table of contents entries omitted\n"
 	if got := compress.Join(compress.SqueezeBlank(compress.Lines(got))); got != want {
 		t.Fatalf("got:\n%s", got)
