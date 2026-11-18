@@ -23,6 +23,6 @@ func init() {
 			Sniff: ratio(`^(\./|/)?[\w.@+-]+(/[\w.@+ -]+)+/?$`, 0.95)},
 		Spec{Type: DU, Cmds: []string{"du"}, Priority: 72, Sniff: ratio(`^\d+([.,]\d+)?[KMGTP]?\t\S`, 0.9)},
 		Spec{Type: DF, Cmds: []string{"df"}, Priority: 72, Sniff: firstLine(`^Filesystem\s+(Type\s+)?(Size|1K-blocks|\d+[KM]?-blocks|Inodes)`)},
-		Spec{Type: Code, Priority: 90, Sniff: func(t string, _ []string) bool { return Lang(t, Hints{}) != "" }},
+		Spec{Type: Code, Priority: 90, Sniff: func(text string, _ []string) bool { return Lang(text, Hints{}) != "" }},
 	)
 }

@@ -24,8 +24,8 @@ const (
 func init() {
 	register(
 		Spec{Type: SARIF, Files: []string{"*.sarif", "*.sarif.json"}, MIME: []string{"application/sarif+json"}, Priority: 18, Refines: []string{"data/json"},
-			Sniff: func(t string, _ []string) bool {
-				head := t[:min(len(t), 2048)]
+			Sniff: func(text string, _ []string) bool {
+				head := text[:min(len(text), 2048)]
 				return strings.Contains(head, `"runs"`) && (strings.Contains(head, "sarif") || strings.Contains(head, `"2.1.0"`))
 			}},
 		Spec{Type: GoBuild, Cmds: []string{"go build", "go vet", "go install", "staticcheck"}, Priority: 51,
@@ -36,8 +36,8 @@ func init() {
 			Sniff: anyLine(`^✖ \d+ problems? \(\d+ errors?, \d+ warnings?\)`)},
 		Spec{Type: GolangCI, Cmds: []string{"golangci-lint"}, Priority: 49, Sniff: anyLine(`\.go:\d+:\d+: .* \((errcheck|govet|staticcheck|unused|gosimple|ineffassign|revive|gocritic)\)$`)},
 		Spec{Type: Ruff, Cmds: []string{"ruff", "ruff check", "flake8"}, Priority: 52,
-			Sniff: func(t string, l []string) bool {
-				return ruffConcise(t, l) || ruffFull(t, l) && ruffLoc(t, l)
+			Sniff: func(text string, lines []string) bool {
+				return ruffConcise(text, lines) || ruffFull(text, lines) && ruffLoc(text, lines)
 			}},
 		Spec{Type: Mypy, Cmds: []string{"mypy", "pyright"}, Priority: 52, Sniff: anyLine(`^Found \d+ errors? in \d+ files? \(checked|^\S+\.py:\d+: error: .*\[[a-z-]+\]$`)},
 		Spec{Type: Rustc, Cmds: []string{"cargo build", "cargo check", "cargo clippy", "rustc"}, Priority: 52,

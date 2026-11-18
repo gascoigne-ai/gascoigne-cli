@@ -35,8 +35,8 @@ func TestReportEmpty(t *testing.T) {
 
 type fakeLedger struct{ component.Ledger }
 
-func (fakeLedger) Stats(_ context.Context, q component.StatsQuery) ([]component.Stat, error) {
-	switch q.By {
+func (fakeLedger) Stats(_ context.Context, query component.StatsQuery) ([]component.Stat, error) {
+	switch query.By {
 	case component.ByOutcome:
 		return []component.Stat{{Group: "optimized", Runs: 1, RawTokens: 100, OutTokens: 10}, {Group: "bypassed", Runs: 2, RawTokens: 30, OutTokens: 30}}, nil
 	case component.ByCommand:

@@ -16,15 +16,15 @@ type Handler struct {
 }
 
 // NewHandler returns the handler for a server with a stored login, nil without one.
-func NewHandler(s *Store, serverURL string) *Handler {
-	if s == nil {
+func NewHandler(store *Store, serverURL string) *Handler {
+	if store == nil {
 		return nil
 	}
-	c, ok := s.Get(serverURL)
+	c, ok := store.Get(serverURL)
 	if !ok {
 		return nil
 	}
-	return &Handler{url: serverURL, src: saving(s, serverURL, c)}
+	return &Handler{url: serverURL, src: saving(store, serverURL, c)}
 }
 
 func (h *Handler) TokenSource(context.Context) (oauth2.TokenSource, error) { return h.src, nil }
@@ -38,13 +38,13 @@ func (h *Handler) Authorize(_ context.Context, _ *http.Request, resp *http.Respo
 
 // saving wraps the refreshing token source of a login so a renewed token is
 // written back: refresh tokens are often single-use.
-func saving(s *Store, serverURL string, c Creds) oauth2.TokenSource {
+func saving(store *Store, serverURL string, creds Creds) oauth2.TokenSource {
 	cfg := &oauth2.Config{
-		ClientID:     c.ClientID,
-		ClientSecret: c.ClientSecret,
-		Endpoint:     oauth2.Endpoint{TokenURL: c.TokenURL, AuthStyle: c.AuthStyle},
+		ClientID:     creds.ClientID,
+		ClientSecret: creds.ClientSecret,
+		Endpoint:     oauth2.Endpoint{TokenURL: creds.TokenURL, AuthStyle: creds.AuthStyle},
 	}
-	return &saver{src: cfg.TokenSource(context.Background(), c.Token), store: s, url: serverURL, creds: c}
+	return &saver{src: cfg.TokenSource(context.Background(), creds.Token), store: store, url: serverURL, creds: creds}
 }
 
 type saver struct {

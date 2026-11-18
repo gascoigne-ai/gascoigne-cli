@@ -70,9 +70,9 @@ func Attrs(name string, input map[string]any) map[string]string {
 }
 
 // shellQuote quotes s for display in a command line.
-func shellQuote(s string) string {
-	if s != "" && !strings.ContainsAny(s, " \t'\"$`\\|&;<>()*?[]{}") {
-		return s
+func shellQuote(text string) string {
+	if text != "" && !strings.ContainsAny(text, " \t'\"$`\\|&;<>()*?[]{}") {
+		return text
 	}
-	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
+	return "'" + strings.ReplaceAll(text, "'", `'\''`) + "'"
 }

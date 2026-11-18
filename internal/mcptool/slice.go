@@ -61,12 +61,12 @@ func (s Slice) Apply(text string) (string, error) {
 }
 
 // lineRange parses "a-b", "a-", "-b" or "a" into a 0-based half-open range.
-func lineRange(spec string, n int) (int, int, error) {
+func lineRange(spec string, total int) (int, int, error) {
 	a, b, isRange := strings.Cut(spec, "-")
 	if !isRange {
 		b = a
 	}
-	from, to := 1, n
+	from, to := 1, total
 	var err error
 	if a != "" {
 		if from, err = strconv.Atoi(a); err != nil || from < 1 {
@@ -78,15 +78,15 @@ func lineRange(spec string, n int) (int, int, error) {
 			return 0, 0, fmt.Errorf("lines %q: want 120-180", spec)
 		}
 	}
-	if from > n {
-		return 0, 0, fmt.Errorf("lines %q: text has %d lines", spec, n)
+	if from > total {
+		return 0, 0, fmt.Errorf("lines %q: text has %d lines", spec, total)
 	}
-	return from - 1, min(to, n), nil
+	return from - 1, min(to, total), nil
 }
 
 // queryHits returns the indexes of up to k lines scoring at least a third of
 // the best BM25 match, in text order.
-func queryHits(lines []string, query string, k int) []int {
+func queryHits(lines []string, query string, limit int) []int {
 	docs := make([][]string, len(lines))
 	for i, l := range lines {
 		docs[i] = sample.Terms(l)
@@ -102,8 +102,8 @@ func queryHits(lines []string, query string, k int) []int {
 			hits = append(hits, i)
 		}
 	}
-	slices.SortStableFunc(hits, func(a, b int) int { return cmp.Compare(scores[b], scores[a]) })
-	hits = hits[:min(k, len(hits))]
+	slices.SortStableFunc(hits, func(left, right int) int { return cmp.Compare(scores[right], scores[left]) })
+	hits = hits[:min(limit, len(hits))]
 	slices.Sort(hits)
 	return hits
 }

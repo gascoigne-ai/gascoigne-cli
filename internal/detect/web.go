@@ -23,17 +23,17 @@ const (
 func init() {
 	register(
 		Spec{Type: ARIA, Priority: 16, Refines: []string{"data/yaml", Markdown, Text},
-			Sniff: func(t string, _ []string) bool { return len(ariaNode.FindAllStringIndex(t, 8)) >= 8 }},
+			Sniff: func(text string, _ []string) bool { return len(ariaNode.FindAllStringIndex(text, 8)) >= 8 }},
 		Spec{Type: SEARCH, Priority: 15, Refines: []string{Markdown, Text},
-			Sniff: func(t string, _ []string) bool {
-				return strings.HasPrefix(t, `Web search results for query: "`) && strings.Contains(t, "\nLinks: [")
+			Sniff: func(text string, _ []string) bool {
+				return strings.HasPrefix(text, `Web search results for query: "`) && strings.Contains(text, "\nLinks: [")
 			}},
 		Spec{Type: HTTP, Priority: 17,
 			CmdFunc: func(args []string) bool {
 				switch args[0] {
 				case "curl":
-					return slices.ContainsFunc(args[1:], func(a string) bool {
-						return a == "--include" || a == "--head" || a == "--verbose" || strings.HasPrefix(a, "-") && !strings.HasPrefix(a, "--") && strings.ContainsAny(a, "iIv")
+					return slices.ContainsFunc(args[1:], func(arg string) bool {
+						return arg == "--include" || arg == "--head" || arg == "--verbose" || strings.HasPrefix(arg, "-") && !strings.HasPrefix(arg, "--") && strings.ContainsAny(arg, "iIv")
 					})
 				case "http", "https", "xh":
 					return slices.Contains(args[1:], "-v") || slices.Contains(args[1:], "--verbose") || slices.Contains(args[1:], "--headers")
@@ -42,25 +42,25 @@ func init() {
 			},
 			Sniff: anyLine(`^(< )?HTTP/[\d.]+ \d{3}( |$)`)},
 		Spec{Type: HTML, Files: []string{"*.html", "*.htm"}, MIME: []string{"text/html", "application/xhtml+xml"}, Priority: 30,
-			Sniff: func(t string, _ []string) bool {
-				head := strings.ToLower(t[:min(len(t), 2048)])
+			Sniff: func(text string, _ []string) bool {
+				head := strings.ToLower(text[:min(len(text), 2048)])
 				return containsAny(head, "<!doctype html", "<html", "<body", "<head")
 			}},
 	)
 }
 
-func containsAny(s string, subs ...string) bool {
+func containsAny(text string, subs ...string) bool {
 	for _, sub := range subs {
-		if strings.Contains(s, sub) {
+		if strings.Contains(text, sub) {
 			return true
 		}
 	}
 	return false
 }
 
-func containsAll(s string, subs ...string) bool {
+func containsAll(text string, subs ...string) bool {
 	for _, sub := range subs {
-		if !strings.Contains(s, sub) {
+		if !strings.Contains(text, sub) {
 			return false
 		}
 	}

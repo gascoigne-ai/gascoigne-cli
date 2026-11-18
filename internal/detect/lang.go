@@ -151,8 +151,8 @@ var languageByExt = func() map[string]Language {
 }()
 
 // LanguageOf is the language of the file named by the hints, by extension.
-func LanguageOf(h Hints) (Language, bool) {
-	l, ok := languageByExt[SourceExt(h)]
+func LanguageOf(hints Hints) (Language, bool) {
+	l, ok := languageByExt[SourceExt(hints)]
 	return l, ok
 }
 
@@ -177,10 +177,10 @@ var langSniffers = []struct {
 
 // SourceExt is the lower-case extension of the file named by the file hint
 // or the command's last argument (cat x.go), "" when there is none.
-func SourceExt(h Hints) string {
-	file := h.File
+func SourceExt(hints Hints) string {
+	file := hints.File
 	if file == "" {
-		if args := Argv(h.Cmd); len(args) > 1 {
+		if args := Argv(hints.Cmd); len(args) > 1 {
 			file = args[len(args)-1]
 		}
 	}
@@ -190,8 +190,8 @@ func SourceExt(h Hints) string {
 // Source is the language of source code: its row by file extension, else a
 // guess from the text (a row only for languages told apart by content).
 // ok is false when text is not code.
-func Source(text string, h Hints) (l Language, ok bool) {
-	if l, ok := LanguageOf(h); ok {
+func Source(text string, hints Hints) (l Language, ok bool) {
+	if l, ok := LanguageOf(hints); ok {
 		return l, true
 	}
 	head := text[:min(len(text), 8192)]
@@ -199,7 +199,7 @@ func Source(text string, h Hints) (l Language, ok bool) {
 		if !s.re.MatchString(head) {
 			continue
 		}
-		if i := slices.IndexFunc(languages, func(l Language) bool { return l.Name == s.name }); i >= 0 {
+		if i := slices.IndexFunc(languages, func(language Language) bool { return language.Name == s.name }); i >= 0 {
 			return languages[i], true
 		}
 		return Language{Class: s.class}, true
@@ -208,7 +208,7 @@ func Source(text string, h Hints) (l Language, ok bool) {
 }
 
 // Lang returns the language class of source code, or "" when text is not code.
-func Lang(text string, h Hints) string {
-	l, _ := Source(text, h)
+func Lang(text string, hints Hints) string {
+	l, _ := Source(text, hints)
 	return l.Class
 }

@@ -40,8 +40,8 @@ type Pricing struct {
 
 // BuildCosts prices the savings of the runs matching filter, per agent and
 // model; runs without a model are priced as the agent's default model.
-func BuildCosts(ctx context.Context, l component.Ledger, filter component.StatsQuery, c cost.Context) (Costs, error) {
-	out := Costs{Billing: cost.BillingAPI, Savings: []cost.Saving{}, Rereads: c.Rereads, Pricing: Pricing{
+func BuildCosts(ctx context.Context, ledger component.Ledger, filter component.StatsQuery, pricing cost.Context) (Costs, error) {
+	out := Costs{Billing: cost.BillingAPI, Savings: []cost.Saving{}, Rereads: pricing.Rereads, Pricing: Pricing{
 		Basis:   "estimate from the providers' official list prices (standard tier, short context); discounts, batch and priority tiers, and your plan are not applied",
 		Checked: cost.PricesChecked,
 		Sources: cost.PriceSources,
@@ -53,7 +53,7 @@ func BuildCosts(ctx context.Context, l component.Ledger, filter component.StatsQ
 	}
 	q := filter
 	q.By = component.ByAgent
-	agents, err := l.Stats(ctx, q)
+	agents, err := ledger.Stats(ctx, q)
 	if err != nil {
 		return out, err
 	}
@@ -69,7 +69,7 @@ func BuildCosts(ctx context.Context, l component.Ledger, filter component.StatsQ
 			out.SubscriptionAgents = append(out.SubscriptionAgents, a.Group)
 			continue // a plan bills nothing per token
 		}
-		models, err := l.Stats(ctx, mq)
+		models, err := ledger.Stats(ctx, mq)
 		if err != nil {
 			return out, err
 		}
@@ -92,12 +92,12 @@ func BuildCosts(ctx context.Context, l component.Ledger, filter component.StatsQ
 			saved[[2]string{model.ID, assumed}] += m.Saved()
 		}
 	}
-	for _, k := range slices.SortedFunc(maps.Keys(saved), func(a, b [2]string) int {
-		return cmp.Or(cmp.Compare(a[0], b[0]), cmp.Compare(a[1], b[1]))
+	for _, k := range slices.SortedFunc(maps.Keys(saved), func(left, right [2]string) int {
+		return cmp.Or(cmp.Compare(left[0], right[0]), cmp.Compare(left[1], right[1]))
 	}) {
 		n := saved[k]
 		m, source := cost.LookupSource(k[0])
-		s := cost.Estimate(m, n, c)
+		s := cost.Estimate(m, n, pricing)
 		s.Assumed = k[1] != ""
 		s.Source = source
 		custom = custom || source != cost.SourceBuiltIn

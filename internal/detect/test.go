@@ -28,19 +28,19 @@ const (
 func init() {
 	register(
 		Spec{Type: JUnit, Files: []string{"junit*.xml", "TEST-*.xml"}, Priority: 30, Refines: []string{"data/xml"},
-			Sniff: func(t string, _ []string) bool {
-				head := t[:min(len(t), 4096)]
-				return strings.Contains(head, "<testsuite") && strings.Contains(t, "<testcase")
+			Sniff: func(text string, _ []string) bool {
+				head := text[:min(len(text), 4096)]
+				return strings.Contains(head, "<testsuite") && strings.Contains(text, "<testcase")
 			}},
 		Spec{Type: Coverage, Cmds: []string{"go tool cover -func", "coverage report", "nyc report", "c8 report"}, Files: []string{"lcov.info", "*.lcov"}, Priority: 47,
-			Sniff: func(t string, l []string) bool {
-				return len(l) > 1 && (strings.HasPrefix(l[0], "TN:") || strings.HasPrefix(l[0], "SF:")) ||
-					slices.ContainsFunc(l, func(s string) bool { return strings.HasPrefix(s, "total:\t") && strings.HasSuffix(s, "%") }) ||
-					coverageTable(t, l)
+			Sniff: func(text string, lines []string) bool {
+				return len(lines) > 1 && (strings.HasPrefix(lines[0], "TN:") || strings.HasPrefix(lines[0], "SF:")) ||
+					slices.ContainsFunc(lines, func(line string) bool { return strings.HasPrefix(line, "total:\t") && strings.HasSuffix(line, "%") }) ||
+					coverageTable(text, lines)
 			}},
 		Spec{Type: GoTestJSON, Cmds: []string{"go test -json"}, Priority: 10,
-			Sniff: func(_ string, l []string) bool {
-				return len(l) > 0 && containsAll(l[0], `"Action":`, `"Package":`)
+			Sniff: func(_ string, lines []string) bool {
+				return len(lines) > 0 && containsAll(lines[0], `"Action":`, `"Package":`)
 			}},
 		Spec{Type: GoTest, Cmds: []string{"go test"}, Priority: 50,
 			Sniff: anyLine(`^=== RUN |^--- (FAIL|PASS|SKIP): |^ok  \t|^FAIL\t|^\?   \t.*\[no test files\]`)},
@@ -71,6 +71,6 @@ var (
 
 // coverageTable: a coverage.py/pytest-cov or istanbul table (jest, nyc, c8, vitest)
 // on its own; with a test run around it the runner's dialect keeps the failures.
-func coverageTable(t string, _ []string) bool {
-	return coverageHeader.MatchString(t) && !testRunHeader.MatchString(t)
+func coverageTable(text string, _ []string) bool {
+	return coverageHeader.MatchString(text) && !testRunHeader.MatchString(text)
 }

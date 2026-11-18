@@ -24,7 +24,7 @@ func init() {
 		Spec{Type: MySQL, Cmds: []string{"mysql", "mariadb"}, Priority: 59, Sniff: all(anyLine(`^\d+ rows? in set \(|^Empty set \(`), anyLine(`^\+-+(\+-+)*\+$`))},
 		Spec{Type: SQLite, Cmds: []string{"sqlite3", "duckdb", "litecli"}},
 		Spec{Type: Redis, Cmds: []string{"redis-cli", "valkey-cli"}, Priority: 62,
-			Sniff: func(t string, l []string) bool { return redisList(t, l) || redisInfo(t, l) }},
+			Sniff: func(text string, lines []string) bool { return redisList(text, lines) || redisInfo(text, lines) }},
 		Spec{Type: Mongosh, Cmds: []string{"mongosh", "mongo"}, Priority: 58, Sniff: anyLine(`ObjectId\(['"][0-9a-f]{24}['"]\)`)},
 		Spec{Type: Migrate, Cmds: []string{"prisma migrate", "alembic", "migrate", "goose", "flyway", "dbmate", "atlas migrate"}, Priority: 58,
 			Sniff: anyLine(`^INFO  \[alembic\.runtime\.migration\] Running|^Applying migration ` + "`" + `|^The following migration\(s\) have been applied|^\d+/u \S+ \(\d+(\.\d+)?m?s\)$|^OK   \d+_\S+\.sql`)},

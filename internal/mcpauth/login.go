@@ -23,7 +23,7 @@ const LoginTimeout = 5 * time.Minute
 // Login runs the authorization code flow (PKCE, dynamic client registration)
 // against a server: open shows the authorization page to the user (a browser,
 // or a printed address), and the tokens are saved in the store.
-func Login(ctx context.Context, s *Store, serverURL string, open func(authURL string) error) error {
+func Login(ctx context.Context, store *Store, serverURL string, open func(authURL string) error) error {
 	ctx, cancel := context.WithTimeout(ctx, LoginTimeout)
 	defer cancel()
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
@@ -58,10 +58,10 @@ func Login(ctx context.Context, s *Store, serverURL string, open func(authURL st
 		},
 		NewTokenSource: func(ctx context.Context, cfg *oauth2.Config, tok *oauth2.Token) (oauth2.TokenSource, error) {
 			c := Creds{ClientID: cfg.ClientID, ClientSecret: cfg.ClientSecret, TokenURL: cfg.Endpoint.TokenURL, AuthStyle: cfg.Endpoint.AuthStyle, Token: tok}
-			if err := s.Put(serverURL, c); err != nil {
+			if err := store.Put(serverURL, c); err != nil {
 				return nil, err
 			}
-			return saving(s, serverURL, c), nil
+			return saving(store, serverURL, c), nil
 		},
 	})
 	if err != nil {
@@ -73,7 +73,7 @@ func Login(ctx context.Context, s *Store, serverURL string, open func(authURL st
 		return fmt.Errorf("log in to %s: %w", Display(serverURL), err)
 	}
 	cs.Close()
-	if _, ok := s.Get(serverURL); !ok {
+	if _, ok := store.Get(serverURL); !ok {
 		return errors.New("the server did not ask for a login (OAuth)")
 	}
 	return nil
@@ -93,29 +93,29 @@ func discoveryClient() *http.Client {
 // ".../oauth-authorization-server/" with a redirect to http and a 404.
 type trimWellKnown struct{ http.RoundTripper }
 
-func (t trimWellKnown) RoundTrip(r *http.Request) (*http.Response, error) {
-	if strings.HasPrefix(r.URL.Path, "/.well-known/") && strings.HasSuffix(r.URL.Path, "/") {
-		r = r.Clone(r.Context())
-		r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
+func (t trimWellKnown) RoundTrip(request *http.Request) (*http.Response, error) {
+	if strings.HasPrefix(request.URL.Path, "/.well-known/") && strings.HasSuffix(request.URL.Path, "/") {
+		request = request.Clone(request.Context())
+		request.URL.Path = strings.TrimSuffix(request.URL.Path, "/")
 	}
-	return t.RoundTripper.RoundTrip(r)
+	return t.RoundTripper.RoundTrip(request)
 }
 
 // serveCallback answers the browser's redirect once and hands the result on.
 func serveCallback(ln net.Listener) <-chan *auth.AuthorizationResult {
 	results := make(chan *auth.AuthorizationResult, 1)
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /callback", func(w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
+	mux.HandleFunc("GET /callback", func(writer http.ResponseWriter, request *http.Request) {
+		q := request.URL.Query()
 		if q.Get("code") == "" {
-			http.Error(w, "login failed: "+q.Get("error"), http.StatusBadRequest)
+			http.Error(writer, "login failed: "+q.Get("error"), http.StatusBadRequest)
 			return
 		}
 		select {
 		case results <- &auth.AuthorizationResult{Code: q.Get("code"), State: q.Get("state"), Iss: q.Get("iss")}:
 		default:
 		}
-		fmt.Fprintln(w, "Logged in. You can close this tab and return to the terminal.")
+		fmt.Fprintln(writer, "Logged in. You can close this tab and return to the terminal.")
 	})
 	go (&http.Server{Handler: mux, ReadHeaderTimeout: 10 * time.Second}).Serve(ln)
 	return results

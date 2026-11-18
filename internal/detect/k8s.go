@@ -21,8 +21,8 @@ func init() {
 			CmdFunc: func(args []string) bool {
 				return slices.Contains([]string{"kubectl", "oc", "k"}, args[0]) && slices.Contains([]string{"yaml", "json"}, flagValue(args, "-o", "--output"))
 			},
-			Sniff: func(t string, l []string) bool {
-				return yamlManifest(t, l) || isJSON(t, l) && containsAll(t[:min(len(t), 4096)], `"apiVersion"`, `"kind"`)
+			Sniff: func(text string, lines []string) bool {
+				return yamlManifest(text, lines) || isJSON(text, lines) && containsAll(text[:min(len(text), 4096)], `"apiVersion"`, `"kind"`)
 			}},
 		Spec{Type: K8sDescribe, Cmds: []string{"kubectl describe", "oc describe", "k describe"}, Priority: 46,
 			Sniff: all(anyLine(`^Name:\s+\S`), anyLine(`^Namespace:\s+\S`), anyLine(`^Events:`))},

@@ -43,9 +43,9 @@ func Ledger(host component.Host, id string) (component.Ledger, error) {
 }
 
 // Text returns the payload text plus, when optimized, how to get the original.
-func Text(p *payload.Payload) string {
-	text := p.Text()
-	id := p.Attrs[payload.AttrRawID]
+func Text(body *payload.Payload) string {
+	text := body.Text()
+	id := body.Attrs[payload.AttrRawID]
 	if id == "" {
 		return text
 	}
@@ -70,13 +70,13 @@ type RetrieveInput struct {
 // AddRetrieve registers a tool returning original, unoptimized content.
 // Asking for all of it marks the source as badly optimized, so next time it is
 // not; a part (lines, grep, query) is a lookup, not a complaint.
-func AddRetrieve(s *mcp.Server, name string, l component.Ledger) {
-	mcp.AddTool(s, &mcp.Tool{
+func AddRetrieve(server *mcp.Server, name string, ledger component.Ledger) {
+	mcp.AddTool(server, &mcp.Tool{
 		Name:        name,
 		Description: "Return the original content of an optimized result, by the id from its [optimized ...] hint; lines, grep or query return only part of it.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in RetrieveInput) (*mcp.CallToolResult, any, error) {
 		sl := Slice{Lines: in.Lines, Grep: in.Grep, Query: in.Query, Context: in.Context}
-		text, err := Original(ctx, l, in.ID, sl)
+		text, err := Original(ctx, ledger, in.ID, sl)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -86,13 +86,13 @@ func AddRetrieve(s *mcp.Server, name string, l component.Ledger) {
 
 // Original returns the original stored under id, or the part sl selects.
 // A whole read marks the source as failing: the optimized output was not enough.
-func Original(ctx context.Context, l component.Ledger, id string, sl Slice) (string, error) {
-	key, p, err := l.GetRaw(ctx, id)
+func Original(ctx context.Context, ledger component.Ledger, id string, sl Slice) (string, error) {
+	key, p, err := ledger.GetRaw(ctx, id)
 	if err != nil {
 		return "", err
 	}
 	if key != "" && !sl.Partial() {
-		if err := l.MarkFailure(ctx, key, component.ReasonRawRequested); err != nil {
+		if err := ledger.MarkFailure(ctx, key, component.ReasonRawRequested); err != nil {
 			return "", err
 		}
 	}
@@ -107,8 +107,8 @@ type StatsInput struct {
 
 // AddStats registers a tool reporting token savings, by default per optimizer
 // family in the calling session.
-func AddStats(s *mcp.Server, l component.Ledger, sessions *Sessions) {
-	mcp.AddTool(s, &mcp.Tool{
+func AddStats(server *mcp.Server, ledger component.Ledger, sessions *Sessions) {
+	mcp.AddTool(server, &mcp.Tool{
 		Name:        "stats",
 		Description: "Token savings so far (this session by default): overview of outcomes, commands, optimizers and skips, or one grouping.",
 	}, func(ctx context.Context, req *mcp.CallToolRequest, in StatsInput) (*mcp.CallToolResult, any, error) {
@@ -120,7 +120,7 @@ func AddStats(s *mcp.Server, l component.Ledger, sessions *Sessions) {
 			q.Session = ""
 		}
 		if q.By == "" {
-			o, err := BuildOverview(ctx, l, q)
+			o, err := BuildOverview(ctx, ledger, q)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -130,7 +130,7 @@ func AddStats(s *mcp.Server, l component.Ledger, sessions *Sessions) {
 			}
 			return Result(o.Table()), nil, nil
 		}
-		stats, err := l.Stats(ctx, q)
+		stats, err := ledger.Stats(ctx, q)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -190,10 +190,10 @@ func (s *Sessions) Agent(req *mcp.CallToolRequest) string {
 }
 
 // Tag sets session, agent and model attrs on p for a tool call.
-func (s *Sessions) Tag(p *payload.Payload, req *mcp.CallToolRequest) {
-	p.Set(payload.AttrSession, s.Of(req))
-	p.Set(payload.AttrAgent, s.Agent(req))
-	p.Set(payload.AttrModel, s.explicit.Model)
+func (s *Sessions) Tag(body *payload.Payload, req *mcp.CallToolRequest) {
+	body.Set(payload.AttrSession, s.Of(req))
+	body.Set(payload.AttrAgent, s.Agent(req))
+	body.Set(payload.AttrModel, s.explicit.Model)
 }
 
 // StatsReport is the JSON form of a stats query.
@@ -222,8 +222,8 @@ type StatsJSON struct {
 }
 
 // Report builds the JSON form of stats, with totals.
-func Report(q component.StatsQuery, stats []component.Stat) StatsReport {
-	r := StatsReport{By: cmp.Or(q.By, component.ByRoute), Session: q.Session, Groups: []StatsJSON{}}
+func Report(query component.StatsQuery, stats []component.Stat) StatsReport {
+	r := StatsReport{By: cmp.Or(query.By, component.ByRoute), Session: query.Session, Groups: []StatsJSON{}}
 	total := component.Stat{Group: "total"}
 	for _, s := range stats {
 		j := statJSON(s)
@@ -235,22 +235,22 @@ func Report(q component.StatsQuery, stats []component.Stat) StatsReport {
 	return r
 }
 
-func statJSON(s component.Stat) StatsJSON {
+func statJSON(stat component.Stat) StatsJSON {
 	pct := 0.0
-	if s.RawTokens > 0 {
-		pct = math.Round(1000*float64(s.Saved())/float64(s.RawTokens)) / 10
+	if stat.RawTokens > 0 {
+		pct = math.Round(1000*float64(stat.Saved())/float64(stat.RawTokens)) / 10
 	}
-	return StatsJSON{Group: s.Group, Family: s.Family, Command: s.Command, Outcome: s.Outcome, Reason: s.Reason, Runs: s.Runs, Optimized: s.Optimized, Failed: s.Failed,
-		RawTokens: s.RawTokens, OutTokens: s.OutTokens, Saved: s.Saved(), SavedPct: pct}
+	return StatsJSON{Group: stat.Group, Family: stat.Family, Command: stat.Command, Outcome: stat.Outcome, Reason: stat.Reason, Runs: stat.Runs, Optimized: stat.Optimized, Failed: stat.Failed,
+		RawTokens: stat.RawTokens, OutTokens: stat.OutTokens, Saved: stat.Saved(), SavedPct: pct}
 }
 
-func add(a, b component.Stat) component.Stat {
-	a.Runs += b.Runs
-	a.Optimized += b.Optimized
-	a.Failed += b.Failed
-	a.RawTokens += b.RawTokens
-	a.OutTokens += b.OutTokens
-	return a
+func add(total, stat component.Stat) component.Stat {
+	total.Runs += stat.Runs
+	total.Optimized += stat.Optimized
+	total.Failed += stat.Failed
+	total.RawTokens += stat.RawTokens
+	total.OutTokens += stat.OutTokens
+	return total
 }
 
 // StatsTable renders stats with a total row.
@@ -268,16 +268,16 @@ func StatsTable(by string, stats []component.Stat) string {
 		fmt.Fprintf(w, "%s\truns\toptimized\tfailed\traw tok\tout tok\tsaved\tsaved %%\n", by)
 	}
 	total := component.Stat{Group: "total"}
-	row := func(s component.Stat) {
-		saved := fmt.Sprintf("%d\t%d\t%d\t%s", s.RawTokens, s.OutTokens, s.Saved(), Percent(s.Saved(), s.RawTokens))
+	row := func(stat component.Stat) {
+		saved := fmt.Sprintf("%d\t%d\t%d\t%s", stat.RawTokens, stat.OutTokens, stat.Saved(), Percent(stat.Saved(), stat.RawTokens))
 		switch {
 		case steps:
-			fmt.Fprintf(w, "%s\t%d\t%s\n", s.Group, s.Runs, saved)
-		case by == component.BySession && s.Group != "total":
-			fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%s\t%s\t%s\n", s.Group, s.Runs, s.Optimized, s.Failed, saved,
-				s.First.Format(time.DateTime), s.Last.Format(time.DateTime))
+			fmt.Fprintf(w, "%s\t%d\t%s\n", stat.Group, stat.Runs, saved)
+		case by == component.BySession && stat.Group != "total":
+			fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%s\t%s\t%s\n", stat.Group, stat.Runs, stat.Optimized, stat.Failed, saved,
+				stat.First.Format(time.DateTime), stat.Last.Format(time.DateTime))
 		default:
-			fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%s\n", s.Group, s.Runs, s.Optimized, s.Failed, saved)
+			fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%s\n", stat.Group, stat.Runs, stat.Optimized, stat.Failed, saved)
 		}
 	}
 	for _, s := range stats {
@@ -321,7 +321,7 @@ type Overview struct {
 	Estimates []string `json:"estimates"`
 }
 
-func BuildOverview(ctx context.Context, l component.Ledger, filter component.StatsQuery) (Overview, error) {
+func BuildOverview(ctx context.Context, ledger component.Ledger, filter component.StatsQuery) (Overview, error) {
 	o := Overview{Session: filter.Session, Filter: filter}
 	for _, part := range []struct {
 		by  string
@@ -344,7 +344,7 @@ func BuildOverview(ctx context.Context, l component.Ledger, filter component.Sta
 		if part.by == component.ByDay {
 			q.By = chartBucket(time.Since(q.Since))
 		}
-		stats, err := l.Stats(ctx, q)
+		stats, err := ledger.Stats(ctx, q)
 		if err != nil {
 			return o, err
 		}
@@ -357,14 +357,14 @@ func BuildOverview(ctx context.Context, l component.Ledger, filter component.Sta
 			o.Total = r.Total
 		}
 	}
-	costs, err := BuildCosts(ctx, l, filter, cost.AgentContext)
+	costs, err := BuildCosts(ctx, ledger, filter, cost.AgentContext)
 	if err != nil {
 		return o, err
 	}
 	o.Cost = costs
 	rq := filter
 	rq.By = component.ByReason
-	reasons, err := l.Stats(ctx, rq)
+	reasons, err := ledger.Stats(ctx, rq)
 	if err != nil {
 		return o, err
 	}
@@ -390,16 +390,16 @@ func BuildOverview(ctx context.Context, l component.Ledger, filter component.Sta
 
 // estimates explains how the overview's numbers are made: what is counted,
 // what is modeled, and what the counts leave out.
-func estimates(o Overview) []string {
+func estimates(overview Overview) []string {
 	notes := []string{
 		"tokens: estimated from the text (tokens.Estimate, ~10% mean error against a 200k-vocabulary tokenizer), not billed counts",
 	}
-	if len(o.Cost.Savings) > 0 {
+	if len(overview.Cost.Savings) > 0 {
 		notes = append(notes,
 			"cost: saved tokens × the model's tokenizer factor × the providers' official list prices (checked "+cost.PricesChecked+"; no discounts or plan terms); in context assumes each result is reread "+
-				strconv.FormatFloat(o.Cost.Rereads, 'f', 0, 64)+" times from the prompt cache (measured median), 0.8% of reads missing it")
+				strconv.FormatFloat(overview.Cost.Rereads, 'f', 0, 64)+" times from the prompt cache (measured median), 0.8% of reads missing it")
 	}
-	for _, r := range o.Optimizers {
+	for _, r := range overview.Optimizers {
 		switch r.Group {
 		case "image":
 			notes = append(notes, "image: proxied screenshots counted as pixels/750 tokens (Anthropic's image formula)")
@@ -456,23 +456,23 @@ func (o Overview) Table() string {
 		}
 		w.Flush()
 	}
-	section("by outcome", "outcome\truns\traw tok\tout tok\tsaved\tshare of input\t", o.Outcomes, func(w *tabwriter.Writer, r StatsJSON) {
-		fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%s\t%s\n", r.Group, r.Runs, r.RawTokens, r.OutTokens, r.Saved, Percent(r.RawTokens, t.RawTokens), outcomeNotes[r.Group])
+	section("by outcome", "outcome\truns\traw tok\tout tok\tsaved\tshare of input\t", o.Outcomes, func(writer *tabwriter.Writer, stat StatsJSON) {
+		fmt.Fprintf(writer, "%s\t%d\t%d\t%d\t%d\t%s\t%s\n", stat.Group, stat.Runs, stat.RawTokens, stat.OutTokens, stat.Saved, Percent(stat.RawTokens, t.RawTokens), outcomeNotes[stat.Group])
 	})
-	section("by command", "command\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", o.Commands, func(w *tabwriter.Writer, r StatsJSON) {
-		fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", r.Group, r.Runs, r.Optimized, r.RawTokens, r.OutTokens, r.Saved, Percent(r.Saved, r.RawTokens))
+	section("by command", "command\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", o.Commands, func(writer *tabwriter.Writer, stat StatsJSON) {
+		fmt.Fprintf(writer, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", stat.Group, stat.Runs, stat.Optimized, stat.RawTokens, stat.OutTokens, stat.Saved, Percent(stat.Saved, stat.RawTokens))
 	})
-	section("by agent", "agent\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", Named(o.Agents), func(w *tabwriter.Writer, r StatsJSON) {
-		fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", r.Group, r.Runs, r.Optimized, r.RawTokens, r.OutTokens, r.Saved, Percent(r.Saved, r.RawTokens))
+	section("by agent", "agent\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", Named(o.Agents), func(writer *tabwriter.Writer, stat StatsJSON) {
+		fmt.Fprintf(writer, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", stat.Group, stat.Runs, stat.Optimized, stat.RawTokens, stat.OutTokens, stat.Saved, Percent(stat.Saved, stat.RawTokens))
 	})
-	section("by model", "model\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", Named(o.Models), func(w *tabwriter.Writer, r StatsJSON) {
-		fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", r.Group, r.Runs, r.Optimized, r.RawTokens, r.OutTokens, r.Saved, Percent(r.Saved, r.RawTokens))
+	section("by model", "model\truns\toptimized\traw tok\tout tok\tsaved\tsaved %", Named(o.Models), func(writer *tabwriter.Writer, stat StatsJSON) {
+		fmt.Fprintf(writer, "%s\t%d\t%d\t%d\t%d\t%d\t%s\n", stat.Group, stat.Runs, stat.Optimized, stat.RawTokens, stat.OutTokens, stat.Saved, Percent(stat.Saved, stat.RawTokens))
 	})
-	section("by optimizer", "optimizer\tfamily\tsteps\traw tok\tout tok\tsaved\tsaved %", o.Optimizers, func(w *tabwriter.Writer, r StatsJSON) {
-		fmt.Fprintf(w, "%s\t%s\t%d\t%d\t%d\t%d\t%s\n", r.Group, cmp.Or(r.Family, "-"), r.Runs, r.RawTokens, r.OutTokens, r.Saved, Percent(r.Saved, r.RawTokens))
+	section("by optimizer", "optimizer\tfamily\tsteps\traw tok\tout tok\tsaved\tsaved %", o.Optimizers, func(writer *tabwriter.Writer, stat StatsJSON) {
+		fmt.Fprintf(writer, "%s\t%s\t%d\t%d\t%d\t%d\t%s\n", stat.Group, cmp.Or(stat.Family, "-"), stat.Runs, stat.RawTokens, stat.OutTokens, stat.Saved, Percent(stat.Saved, stat.RawTokens))
 	})
-	reasons := func(w *tabwriter.Writer, r StatsJSON) {
-		fmt.Fprintf(w, "%s\t%s\t%d\t%d\t%s\n", r.Group, cmp.Or(r.Command, "-"), r.Runs, r.RawTokens, r.Reason)
+	reasons := func(writer *tabwriter.Writer, stat StatsJSON) {
+		fmt.Fprintf(writer, "%s\t%s\t%d\t%d\t%s\n", stat.Group, cmp.Or(stat.Command, "-"), stat.Runs, stat.RawTokens, stat.Reason)
 	}
 	section("skipped", "filter\tcommand\truns\ttokens\treason (latest)", o.Skipped, reasons)
 	section("failed", "optimizer\tcommand\truns\ttokens\terror (latest)", o.Failed, reasons)

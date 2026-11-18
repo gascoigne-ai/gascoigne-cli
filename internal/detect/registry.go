@@ -36,9 +36,9 @@ type Sniffer func(text string, lines []string) bool
 var specs []Spec
 
 // register adds dialect specs; family files call it from init.
-func register(s ...Spec) {
-	specs = append(specs, s...)
-	slices.SortStableFunc(specs, func(a, b Spec) int { return cmp.Compare(a.Priority, b.Priority) })
+func register(added ...Spec) {
+	specs = append(specs, added...)
+	slices.SortStableFunc(specs, func(left, right Spec) int { return cmp.Compare(left.Priority, right.Priority) })
 }
 
 // Types lists every registered dialect type.

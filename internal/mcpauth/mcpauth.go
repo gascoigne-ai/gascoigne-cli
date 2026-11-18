@@ -69,8 +69,8 @@ func (s *Store) Get(serverURL string) (Creds, bool) {
 }
 
 // Put saves a server's login.
-func (s *Store) Put(serverURL string, c Creds) error {
-	return s.update(func(all map[string]Creds) { all[key(serverURL)] = c })
+func (s *Store) Put(serverURL string, creds Creds) error {
+	return s.update(func(all map[string]Creds) { all[key(serverURL)] = creds })
 }
 
 // Delete removes a server's login; false when there was none.

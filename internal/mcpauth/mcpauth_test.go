@@ -66,7 +66,7 @@ func TestDiscoveryClientOptsOutOfPrivateIPGuard(t *testing.T) {
 
 func TestDiscoveryClientTrimsWellKnownSlash(t *testing.T) {
 	var paths []string
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { paths = append(paths, r.URL.Path) }))
+	srv := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) { paths = append(paths, request.URL.Path) }))
 	defer srv.Close()
 
 	c := discoveryClient()

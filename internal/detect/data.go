@@ -18,10 +18,10 @@ func init() {
 	register(
 		// Before JSON: a notebook is a JSON document.
 		Spec{Type: IPYNB, Files: []string{"*.ipynb"}, MIME: []string{"application/x-ipynb+json"}, Priority: 19, Refines: []string{JSON},
-			Sniff: func(t string, _ []string) bool {
-				head := t[:min(len(t), 4096)]
+			Sniff: func(text string, _ []string) bool {
+				head := text[:min(len(text), 4096)]
 				return strings.HasPrefix(strings.TrimSpace(head), "{") && strings.Contains(head, `"cells"`) &&
-					strings.Contains(t[max(0, len(t)-4096):], `"nbformat"`)
+					strings.Contains(text[max(0, len(text)-4096):], `"nbformat"`)
 			}},
 		// Before JSON: every NDJSON text is also a valid JSON stream.
 		Spec{Type: NDJSON, Files: []string{"*.jsonl", "*.ndjson"}, MIME: []string{"application/x-ndjson", "application/jsonl"},

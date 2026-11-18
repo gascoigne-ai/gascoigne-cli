@@ -66,4 +66,4 @@ func alignedTable(_ string, lines []string) bool {
 
 var gap = lazyre.New(`\s{2,}`)
 
-func splitGap(l string) []string { return gap.Split(strings.TrimSpace(l), -1) }
+func splitGap(line string) []string { return gap.Split(strings.TrimSpace(line), -1) }

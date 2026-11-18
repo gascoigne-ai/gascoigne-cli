@@ -111,15 +111,15 @@ func firstLine(pattern string) Sniffer {
 }
 
 // isJSON accepts one JSON value or a stream of concatenated values (go list -json).
-func isJSON(t string, _ []string) bool {
-	t = strings.TrimSpace(t)
-	if !strings.HasPrefix(t, "{") && !strings.HasPrefix(t, "[") {
+func isJSON(text string, _ []string) bool {
+	text = strings.TrimSpace(text)
+	if !strings.HasPrefix(text, "{") && !strings.HasPrefix(text, "[") {
 		return false
 	}
-	if json.Valid([]byte(t)) {
+	if json.Valid([]byte(text)) {
 		return true
 	}
-	dec := json.NewDecoder(strings.NewReader(t))
+	dec := json.NewDecoder(strings.NewReader(text))
 	for {
 		var v json.RawMessage
 		if err := dec.Decode(&v); err == io.EOF {
@@ -146,7 +146,7 @@ func isNDJSON(_ string, lines []string) bool {
 }
 
 // atLeast matches when at least n sampled lines match pattern.
-func atLeast(pattern string, n int) Sniffer {
+func atLeast(pattern string, minimum int) Sniffer {
 	re := lazyre.New(pattern)
 	return func(_ string, lines []string) bool {
 		hits := 0
@@ -155,6 +155,6 @@ func atLeast(pattern string, n int) Sniffer {
 				hits++
 			}
 		}
-		return hits >= n
+		return hits >= minimum
 	}
 }

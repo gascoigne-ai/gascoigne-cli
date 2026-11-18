@@ -12,16 +12,16 @@ import (
 // gascoigne has no price for.
 type agentLedger struct{ component.Ledger }
 
-func (agentLedger) Stats(_ context.Context, q component.StatsQuery) ([]component.Stat, error) {
+func (agentLedger) Stats(_ context.Context, query component.StatsQuery) ([]component.Stat, error) {
 	switch {
-	case q.By == component.ByAgent:
+	case query.By == component.ByAgent:
 		return []component.Stat{{Group: "claude"}, {Group: "pi"}}, nil
-	case q.By == component.ByModel && q.Agent == "claude":
+	case query.By == component.ByModel && query.Agent == "claude":
 		return []component.Stat{
 			{Group: "claude-sonnet-5-5", RawTokens: 3000, OutTokens: 1000},
 			{Group: "-", RawTokens: 2000, OutTokens: 1000},
 		}, nil
-	case q.By == component.ByModel && q.Agent == "pi":
+	case query.By == component.ByModel && query.Agent == "pi":
 		return []component.Stat{{Group: "local-llama", RawTokens: 500, OutTokens: 100}}, nil
 	}
 	return nil, nil
@@ -54,13 +54,13 @@ func TestBuildCosts(t *testing.T) {
 // are synthetic, so they are neither priced nor listed as an unpriced agent.
 type evalLedger struct{ component.Ledger }
 
-func (evalLedger) Stats(_ context.Context, q component.StatsQuery) ([]component.Stat, error) {
+func (evalLedger) Stats(_ context.Context, query component.StatsQuery) ([]component.Stat, error) {
 	switch {
-	case q.By == component.ByAgent:
+	case query.By == component.ByAgent:
 		return []component.Stat{{Group: "claude"}, {Group: "eval"}}, nil
-	case q.By == component.ByModel && q.Agent == "claude":
+	case query.By == component.ByModel && query.Agent == "claude":
 		return []component.Stat{{Group: "claude-sonnet-5-5", RawTokens: 3000, OutTokens: 1000}}, nil
-	case q.By == component.ByModel && q.Agent == "eval":
+	case query.By == component.ByModel && query.Agent == "eval":
 		return []component.Stat{{Group: "-", RawTokens: 9000, OutTokens: 1000}}, nil
 	}
 	return nil, nil

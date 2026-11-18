@@ -23,14 +23,14 @@ func HintsFrom(attrs map[string]string) Hints {
 	return Hints{Cmd: attrs["cmd"], File: attrs["file"], MIME: attrs["mime"]}
 }
 
-func Detect(text string, h Hints) string {
-	for _, t := range []string{FromCmd(h.Cmd), FromFile(h.File), FromMIME(h.MIME)} {
+func Detect(text string, hints Hints) string {
+	for _, t := range []string{FromCmd(hints.Cmd), FromFile(hints.File), FromMIME(hints.MIME)} {
 		if t != "" {
 			return refine(t, text)
 		}
 	}
 	t := Sniff(text)
-	if t == HTML && h.Cmd != "" && !fetchesPage(h.Cmd) {
+	if t == HTML && hints.Cmd != "" && !fetchesPage(hints.Cmd) {
 		return Code // markup printed by a file read or a script is source, not a page
 	}
 	return t
@@ -47,13 +47,13 @@ func fetchesPage(cmd string) bool {
 }
 
 // refine swaps a generic type for a spec refining it whose sniffer matches.
-func refine(t, text string) string {
+func refine(generic, text string) string {
 	for _, s := range specs {
-		if slices.Contains(s.Refines, t) && s.Sniff(text, sample(text)) {
+		if slices.Contains(s.Refines, generic) && s.Sniff(text, sample(text)) {
 			return s.Type
 		}
 	}
-	return t
+	return generic
 }
 
 // Family is the family part of a type: "test" for "test/jest".
@@ -136,7 +136,7 @@ func positional(args []string) []string {
 }
 
 func hasFlag(args []string, flag string) bool {
-	return slices.ContainsFunc(args, func(a string) bool { return a == flag || strings.HasPrefix(a, flag+"=") })
+	return slices.ContainsFunc(args, func(arg string) bool { return arg == flag || strings.HasPrefix(arg, flag+"=") })
 }
 
 // flagValue returns the value of -o yaml, -o=yaml, -oyaml style flags.
