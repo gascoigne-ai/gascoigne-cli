@@ -7,4 +7,4 @@ engine       ./internal/config,./internal/router,./internal/service,./internal/r
 lib          ./internal/...                                                              lib,public
 components   ./receiver/...,./filter/...,./optimizer/...,./exporter/...,./extension/...  components,lib,public
 assets       ./configs                                                                   assets
-app          ./cmd/...,./inproc                                                          app,assets,engine,lib,public,components
+app          ./cmd/...,./inproc,./e2e                                                          app,assets,engine,lib,public,components

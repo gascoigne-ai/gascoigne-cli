@@ -16,6 +16,42 @@ make cover      # test coverage
 - Temporary files via `t.TempDir()`; a ledger via `ledger.Config.Path` in a temp dir.
 - Bugs get a failing test first, then the fix.
 
+### Acceptance tests (`e2e/`)
+
+`e2e/` runs the compiled binary like a user does and checks what the CLI promises: output, exit
+codes, files, and what the ledger remembers between commands. `make check` runs the fast scenarios
+through `go test ./...`; `make e2e` runs all, including the `Slow` ones (a real server, eval runs).
+Every scenario gets its own HOME, XDG dirs, working dir and a `PATH` holding only `gascoigne`,
+`mcpmock` and `emit` (the stand-in tool from `cmd/e2estub`, which also plays `claude`, `codex`,
+`gemini`, `opencode` and `pi` when the scenario lists them in `Agents`). The server, proxy and
+release check are off, and the server address points at a closed port, so no scenario can reach
+a developer's real server.
+
+A scenario is a table row in the file of its area (`dispatch_test.go`, `exec_test.go`, ...):
+
+```go
+Scenario{Name: "exec passes the child's exit code through", Steps: []Step{
+    {Run: "gascoigne exec -- emit -exit 7", Exit: 7},
+}}
+```
+
+- `Run` is the command line (quotes work, no pipes); `${work}`, `${home}`, `${root}`, `${bin}`,
+  `${record}` and values saved by `Save` expand in it. `Files` creates files in the working dir; `"@testdata/..."` copies
+  a repo fixture, so inputs stay real tool output.
+- `MCP` turns a step into an MCP session: `Run` starts the server, `Stdout` judges its tool list,
+  each `Call` judges one tool result. `Gone` lists paths that must not exist after the step.
+  `Server: true` gives the scenario a real background server on a free port, stopped at the end.
+- `Stdout`, `Stderr` and `Files` take checks: `Has`, `Lacks`, `Is`, `Empty`, `Like`, `SameAsFile`,
+  `ShorterThan`, `JSONField` (`e2e/checks_test.go`). A step fails on the first wrong exit code or
+  check, and the message shows the command, both streams and the sandbox path.
+- `coverage_test.go` keeps the lists honest: every command in `gascoigne help` must be in
+  `docs/cli.md` and have a scenario (or a reason in `notCovered`), and every documented
+  `GASCOIGNE_*` variable must be set by a scenario (or a reason in `notExercised`).
+- A new area is a new `e2e/<area>_test.go` with `var _ = group("<area>", ...)`; nothing else to wire.
+- Run one group: `go test ./e2e -run 'TestScenarios/exec/'`. `GASCOIGNE_E2E_BIN=path` tests a
+  prebuilt binary instead of building one.
+- A user-visible behavior change needs a scenario. Savings quality stays with `make eval`.
+
 ## Eval
 
 ```sh

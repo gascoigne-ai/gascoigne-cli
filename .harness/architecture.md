@@ -22,13 +22,14 @@ internal/version                     release number + git commit from build info
 internal/cost  prose  mcpauth        tokenizer families and prices, prose model runtime, MCP OAuth
 internal/exact                       exact counts: o200k BPE in Go, Claude via count_tokens
 cmd/gascoigne  configs/              CLI + embedded default config; configs.Overlay merges YAML layers
+e2e/  cmd/e2estub                    acceptance scenarios: the built binary run in a sandbox (docs/development.md); e2estub is its stand-in tool
 inproc/                              public facade over the engine: Engine, Options, ConfigYAML (gascoigne-sdk/native)
 ```
 
 - Receivers: stdin, exec, hook, mcp, mcp_proxy, httpproxy.
 - Only `component/ payload/ tokens/` are public. Components import them plus the `internal/` libs, never the
   engine (`internal/{config,router,service,registry}`). `make imports` fails on either breach.
-- `.harness/layers.txt` puts every package in a zone: `configs/` is the leaf `assets` zone; `cmd/...` and
+- `.harness/layers.txt` puts every package in a zone: `configs/` is the leaf `assets` zone; `cmd/...`, `e2e/` and
   `inproc/` are the `app` zone, which may import every other zone. `make imports` enforces it.
 - `inproc/` is the one public door to the engine for other modules (the SDK's C ABI library). It merges
   defaults < user file (read only, never written) < host YAML < set/only/disable, runs the `cli` pipeline in

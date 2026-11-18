@@ -41,6 +41,12 @@ on a terminal unless `NO_COLOR` is set, and a mistyped command gets a suggestion
 | `setup [-y] [-all] [-t] [-experimental]` | Answer the open questions (permissions, hook updates, new agents) in a browser page, or in the terminal where no browser opens or with `-t`. `-experimental` asks only about the experimental features (`continuity`, `learn`, `prompts`, `prose`); `-all` asks answered questions again. |
 | `learn [-since 30d] [-apply\|-remove] [-target FILE]` | Experimental (`experimental: [learn]`). Propose instruction lines from habits seen in at least two sessions: commands run again for output that was already shortened, and commands whose large output nothing can shorten. Prints them; `-apply` writes a marked block to `CLAUDE.local.md` (or `-target`), `-remove` takes it out. |
 | `prose [install\|status] [-model DIR] [-runtime auto\|cpu\|cuda12\|cuda13]` | Experimental (`experimental: [prose]`). `install` downloads the prose model (601 MB) and ONNX Runtime with pinned checksums, `status` says whether the model is ready. See [Prose compression](prose-model.md). |
+| `help [command]` | The overview, or one command's flags and examples. `-h` and `--help` do the same. |
+| `version` | Release number and the git commit it was built from (`-dirty` when uncommitted). `-v` and `--version` do the same. |
+| `mcp-login [-logout] <url>` | Log in ahead of time to a remote MCP server that uses OAuth, or forget the login. |
+| `pricing [show\|set\|refresh\|test]` | Where dollar figures come from: billing mode, your own prices, a price file, URL or command. |
+| `probe` | Check recorded runs for error lines and artifacts their output lost. |
+| `replay` | Replay recorded agent sessions through the LLM API proxy. |
 | `components` | List the built-in components and their families. |
 | `config [flags]` | Print the effective config after `-set`, `-only`, `-disable` and environment. |
 
@@ -250,4 +256,4 @@ Deletes originals and prints how much space went. Recorded runs and savings stay
 ## Exit codes
 
 `exec` exits with the command's exit code. `hook` always exits 0 so it never breaks an
-agent's tool call. Other commands exit 1 on error.
+agent's tool call. A missing or unknown command exits 2; other commands exit 1 on error.

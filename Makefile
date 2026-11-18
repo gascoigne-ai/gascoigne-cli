@@ -1,7 +1,7 @@
 BIN := bin/gascoigne
 PREFIX ?= $(HOME)/.local
 
-.PHONY: build install uninstall test vet fmt fmt-check imports lazyre paramnames cover eval eval-experimental check clean
+.PHONY: build install uninstall test e2e vet fmt fmt-check imports lazyre paramnames cover eval eval-experimental check clean
 
 build:
 	go build -o $(BIN) ./cmd/gascoigne
@@ -16,6 +16,11 @@ uninstall:
 
 test:
 	go test ./...
+
+# Acceptance scenarios against the compiled binary (e2e/). `check` runs the fast ones through `test`;
+# this adds the slow ones (a real server, eval runs).
+e2e:
+	GASCOIGNE_E2E=all go test ./e2e -count=1
 
 vet:
 	go vet ./...

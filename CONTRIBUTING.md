@@ -13,6 +13,7 @@ Thanks for helping. This page is the short version; the full rules live in
 git clone https://github.com/gascoigne-ai/gascoigne-cli && cd gascoigne-cli
 make build    # bin/gascoigne
 make check    # gofmt, vet, import boundaries, tests
+make e2e      # acceptance scenarios against the built binary (e2e/)
 make eval     # token savings and fact retention on fixtures
 ```
 
