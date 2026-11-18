@@ -14,6 +14,12 @@ func TestFromCmd(t *testing.T) {
 		{"cat web/index.html | head -40", Code},
 		{"cd web && cat index.html | head", Code},
 		{"cat a.html; cat b.go", Code},
+		// Regression: the last file's type was given to the whole output, so source followed by
+		// package.json went to the json optimizer, which failed on the source.
+		{"cat src/index.ts package.json", ""},
+		{"cat package.json src/index.ts", ""},
+		{"cat a.go b.go", Code},
+		{"cat a.json b.json", JSON},
 		{"sed -n 10,20p main.go | head -5", Code},
 		{"go test ./... | tail -5", GoTest},
 		{"coverage report -m", Coverage},

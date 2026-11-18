@@ -32,6 +32,9 @@ whose sniffer matches: `cat deploy.yaml` with manifests → `k8s/manifest`, a sa
   and a content example (an eval fixture) for every dialect with a sniffer.
 - `detect.Family` / `detect.Dialect` split a type.
 - `detect.Command` names commands for stats; leading `cd`/`export` steps of a list are skipped.
+- A file reader (`cat`, `head`, `sed`, …) is typed by the files it names. When they have different types
+  (`cat src/index.ts package.json`) `FromCmd` returns "" and the text is sniffed, so the json optimizer is not
+  handed source text.
 - `detect.FromCmd` and `ReadsFile` look at the first stage of a pipeline (`firstStage`, after `cd`-style steps):
   later stages only filter its output, and the last word of `sed -n 1,9p a.html | cut -c1-80` is not a file. HTML
   that is not sniffed from a fetcher's output (curl, wget, http, xh, lynx, w3m, links) is typed `fs/code`, never a

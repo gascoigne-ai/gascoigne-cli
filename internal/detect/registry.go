@@ -72,7 +72,11 @@ func FromCmd(cmd string) string {
 		return ""
 	}
 	if fileReaders[args[0]] {
-		if t := FromFile(lastArg(args)); !sourceMarkup[t] {
+		t, ok := readerFileType(args)
+		if !ok {
+			return "" // files of different types: the text says what it is
+		}
+		if !sourceMarkup[t] {
 			return t
 		}
 		return Code
@@ -84,6 +88,23 @@ func FromCmd(cmd string) string {
 		}
 	}
 	return best
+}
+
+// readerFileType is the type of the files a reader command prints; ok is
+// false when they differ, since the output is then a mix of types. Arguments
+// of no known type (a sed script) are ignored.
+func readerFileType(args []string) (fileType string, ok bool) {
+	for _, arg := range positional(args) {
+		t := FromFile(arg)
+		if t == "" {
+			continue
+		}
+		if fileType != "" && t != fileType {
+			return "", false
+		}
+		fileType = t
+	}
+	return fileType, true
 }
 
 func (s Spec) matchCmd(args []string) int {
