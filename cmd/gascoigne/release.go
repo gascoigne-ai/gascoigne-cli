@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -63,7 +64,10 @@ func releaseFile() string { return filepath.Join(stateDir(), "release.json") }
 func readRelease() release {
 	var r release
 	if data, err := os.ReadFile(releaseFile()); err == nil {
-		json.Unmarshal(data, &r)
+		if err := json.Unmarshal(data, &r); err != nil {
+			slog.Debug("release.json unreadable, using none", "err", err)
+			return release{}
+		}
 	}
 	return r
 }

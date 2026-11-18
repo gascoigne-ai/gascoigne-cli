@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/gascoigne-ai/gascoigne-cli/receiver/mcpproxyreceiver"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
@@ -84,7 +85,10 @@ func prefsFile() string { return filepath.Join(stateDir(), "prefs.json") }
 func readPrefs() prefs {
 	var p prefs
 	if data, err := os.ReadFile(prefsFile()); err == nil {
-		json.Unmarshal(data, &p)
+		if err := json.Unmarshal(data, &p); err != nil {
+			slog.Debug("prefs.json unreadable, using none", "err", err)
+			return prefs{}
+		}
 	}
 	return p
 }

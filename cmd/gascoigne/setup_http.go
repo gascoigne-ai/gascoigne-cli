@@ -193,6 +193,9 @@ func ask(input io.Reader, out io.Writer, ds []decision, defaults bool) (map[stri
 		for {
 			fmt.Fprint(out, "choose [default *]: ")
 			if !in.Scan() {
+				if err := in.Err(); err != nil {
+					return nil, fmt.Errorf("setup: no answer: %w", err)
+				}
 				return nil, errors.New("setup: no answer")
 			}
 			line := strings.TrimSpace(in.Text())

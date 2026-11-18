@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -49,17 +50,16 @@ func (k ruleKind) stateFile() string { return filepath.Join(stateDir(), k.file) 
 func (k ruleKind) read() map[string][]string {
 	m := map[string][]string{}
 	if data, err := os.ReadFile(k.stateFile()); err == nil {
-		json.Unmarshal(data, &m) // unreadable: nothing recorded
+		if err := json.Unmarshal(data, &m); err != nil {
+			slog.Debug(k.file+" unreadable, nothing recorded", "err", err)
+			return map[string][]string{}
+		}
 	}
 	return m
 }
 
 func (k ruleKind) write(rules map[string][]string) error {
-	if err := os.MkdirAll(stateDir(), 0o755); err != nil {
-		return err
-	}
-	data, _ := json.MarshalIndent(rules, "", "  ")
-	return os.WriteFile(k.stateFile(), data, 0o644)
+	return saveJSON(k.stateFile(), rules)
 }
 
 // rules returns the permissions list of a settings object.

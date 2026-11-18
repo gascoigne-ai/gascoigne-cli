@@ -34,11 +34,7 @@ func newSetupToken() (string, error) {
 		return "", err
 	}
 	t := setupToken{Token: hex.EncodeToString(b), Expires: time.Now().Add(24 * time.Hour)}
-	if err := os.MkdirAll(stateDir(), 0o700); err != nil {
-		return "", err
-	}
-	data, _ := json.Marshal(t)
-	return t.Token, os.WriteFile(setupTokenFile(), data, 0o600)
+	return t.Token, saveJSON(setupTokenFile(), t)
 }
 
 // validSetupToken reports whether got is the saved, unexpired token.

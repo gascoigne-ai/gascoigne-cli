@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -82,7 +83,10 @@ func readJSON(path string) map[string]any {
 }
 
 func home() string {
-	dir, _ := os.UserHomeDir()
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		slog.Debug("no home directory, home paths skipped", "err", err)
+	}
 	return dir
 }
 

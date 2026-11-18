@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -361,7 +362,7 @@ func claudeUsage(home string) usage {
 			continue
 		}
 		sc := bufio.NewScanner(fh)
-		sc.Buffer(nil, 64<<20)
+		sc.Buffer(nil, usageLineMax)
 		for sc.Scan() {
 			line := sc.Bytes()
 			if bytes.Contains(line, []byte(`"type":"tool_use"`)) {
@@ -372,6 +373,11 @@ func claudeUsage(home string) usage {
 					u.names[baseName(string(m[1]))] = true
 				}
 			}
+		}
+		if err := sc.Err(); err != nil {
+			// Calls past the cut are unseen: this session cannot show a skill unused.
+			slog.Debug("transcript read stopped, session not counted", "file", filepath.Base(f), "err", err)
+			u.sessions--
 		}
 		fh.Close()
 	}

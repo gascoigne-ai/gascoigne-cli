@@ -5,7 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 
@@ -30,8 +32,14 @@ const (
 	// snapshotMinSaved is how many tokens a shortened output must have saved
 	// to be worth naming: smaller ones are cheaper to run again.
 	snapshotMinSaved = 200
-	// transcriptScan caps how much of a transcript is read.
+	// transcriptScan caps the length of one transcript line.
 	transcriptScan = 16 << 20
+)
+
+// transcriptMax and usageLineMax are variables so tests can lower them.
+var (
+	transcriptMax = transcriptScan
+	usageLineMax  = 64 << 20
 )
 
 // secretAssign matches NAME=value pairs whose name suggests a credential, and
@@ -73,7 +81,7 @@ func resumeSnapshot(path string) string {
 		failed   []string
 	)
 	sc := bufio.NewScanner(f)
-	sc.Buffer(make([]byte, 0, 1<<20), transcriptScan)
+	sc.Buffer(make([]byte, 0, 1<<20), transcriptMax)
 	for sc.Scan() {
 		var l snapshotLine
 		if json.Unmarshal(sc.Bytes(), &l) != nil || l.IsSidechain {
@@ -101,6 +109,11 @@ func resumeSnapshot(path string) string {
 			}
 		}
 	}
+	if err := sc.Err(); err != nil {
+		// A snapshot of the part read would pass for the whole conversation.
+		slog.Debug("transcript: read stopped, no snapshot", "file", filepath.Base(path), "err", err)
+		return ""
+	}
 	return formatSnapshot(prompt, todos, files, failed)
 }
 
@@ -111,7 +124,9 @@ func contentBlocks(raw json.RawMessage) []snapshotBlock {
 		return []snapshotBlock{{Type: "text", Text: s}}
 	}
 	var bs []snapshotBlock
-	json.Unmarshal(raw, &bs)
+	if err := json.Unmarshal(raw, &bs); err != nil {
+		slog.Debug("transcript: unreadable content blocks, skipped", "err", err)
+	}
 	return bs
 }
 
@@ -127,7 +142,9 @@ func editedPath(input json.RawMessage) string {
 		FilePath     string `json:"file_path"`
 		NotebookPath string `json:"notebook_path"`
 	}
-	json.Unmarshal(input, &in)
+	if err := json.Unmarshal(input, &in); err != nil {
+		slog.Debug("transcript: unreadable edited path, skipped", "err", err)
+	}
 	return in.FilePath + in.NotebookPath
 }
 
@@ -135,7 +152,9 @@ func commandOf(input json.RawMessage) string {
 	var in struct {
 		Command string `json:"command"`
 	}
-	json.Unmarshal(input, &in)
+	if err := json.Unmarshal(input, &in); err != nil {
+		slog.Debug("transcript: unreadable command, skipped", "err", err)
+	}
 	return oneLine(secretAssign.Regexp().ReplaceAllString(in.Command, "${1}${2}…"), snapshotMaxCommand)
 }
 
@@ -147,7 +166,9 @@ func openTodos(input json.RawMessage) []string {
 			Status  string `json:"status"`
 		} `json:"todos"`
 	}
-	json.Unmarshal(input, &in)
+	if err := json.Unmarshal(input, &in); err != nil {
+		slog.Debug("transcript: unreadable todos, skipped", "err", err)
+	}
 	var out []string
 	for _, t := range in.Todos {
 		if t.Status != "completed" {
