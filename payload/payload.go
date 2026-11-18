@@ -81,20 +81,20 @@ func (p *Payload) Tokens() int {
 }
 
 // SameContent reports whether blocks are identical; attrs are ignored.
-func (p *Payload) SameContent(o *Payload) bool {
-	return slices.Equal(p.Blocks, o.Blocks)
+func (p *Payload) SameContent(other *Payload) bool {
+	return slices.Equal(p.Blocks, other.Blocks)
 }
 
-func (p *Payload) Set(k, v string) {
+func (p *Payload) Set(key, value string) {
 	if p.Attrs == nil {
 		p.Attrs = map[string]string{}
 	}
-	p.Attrs[k] = v
+	p.Attrs[key] = value
 }
 
 // Rewrite replaces the text of every block whose Type is one of types with
 // fn's result. Optimizers use it to touch only content they understand.
-func (p *Payload) Rewrite(fn func(b Block) (string, error), types ...string) error {
+func (p *Payload) Rewrite(fn func(block Block) (string, error), types ...string) error {
 	for i, b := range p.Blocks {
 		if !slices.Contains(types, b.Type) {
 			continue
@@ -111,7 +111,7 @@ func (p *Payload) Rewrite(fn func(b Block) (string, error), types ...string) err
 // RewriteFamily is Rewrite for every block whose type belongs to family: the
 // part before the "/" of "family/dialect". fn returns b.Text to leave a block
 // as it is. Optimizers that handle a family and pick the dialect themselves use it.
-func (p *Payload) RewriteFamily(fn func(b Block) (string, error), family string) error {
+func (p *Payload) RewriteFamily(fn func(block Block) (string, error), family string) error {
 	for i, b := range p.Blocks {
 		if f, _, _ := strings.Cut(b.Type, "/"); f != family {
 			continue

@@ -26,10 +26,10 @@ type ID struct {
 	Type, Name string
 }
 
-func ParseID(s string) (ID, error) {
-	typ, name, _ := strings.Cut(s, "/")
+func ParseID(text string) (ID, error) {
+	typ, name, _ := strings.Cut(text, "/")
 	if typ == "" || strings.Contains(name, "/") {
-		return ID{}, fmt.Errorf("invalid component id %q", s)
+		return ID{}, fmt.Errorf("invalid component id %q", text)
 	}
 	return ID{typ, name}, nil
 }
@@ -53,7 +53,7 @@ type Component interface {
 // Pipeline is what receivers feed. Process runs the full flow and returns the
 // payload as exported, so request/response receivers can answer callers.
 type Pipeline interface {
-	Process(ctx context.Context, p *payload.Payload) (*payload.Payload, error)
+	Process(ctx context.Context, data *payload.Payload) (*payload.Payload, error)
 }
 
 type Receiver interface {
@@ -71,18 +71,18 @@ const (
 
 type Filter interface {
 	Component
-	Filter(ctx context.Context, p *payload.Payload) (Decision, error)
+	Filter(ctx context.Context, data *payload.Payload) (Decision, error)
 }
 
 // Optimizer rewrites p in place. It should be deterministic: same input, same output.
 type Optimizer interface {
 	Component
-	Optimize(ctx context.Context, p *payload.Payload) error
+	Optimize(ctx context.Context, data *payload.Payload) error
 }
 
 type Exporter interface {
 	Component
-	Export(ctx context.Context, p *payload.Payload) error
+	Export(ctx context.Context, data *payload.Payload) error
 }
 
 type Settings struct {

@@ -14,9 +14,9 @@ type Filter struct {
 	cfg *Config
 }
 
-func (f *Filter) Filter(_ context.Context, p *payload.Payload) (component.Decision, error) {
-	if n := p.Tokens(); n < f.cfg.MinTokens {
-		p.Set(payload.AttrSkip, fmt.Sprintf("%d tokens < min_tokens %d", n, f.cfg.MinTokens))
+func (f *Filter) Filter(_ context.Context, data *payload.Payload) (component.Decision, error) {
+	if n := data.Tokens(); n < f.cfg.MinTokens {
+		data.Set(payload.AttrSkip, fmt.Sprintf("%d tokens < min_tokens %d", n, f.cfg.MinTokens))
 		return component.Bypass, nil
 	}
 	return component.Continue, nil

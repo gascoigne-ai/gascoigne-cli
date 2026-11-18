@@ -24,15 +24,15 @@ type Exporter struct {
 	w   io.Writer
 }
 
-func (e *Exporter) Export(_ context.Context, p *payload.Payload) error {
-	text := p.Text()
-	id := p.Attrs[payload.AttrRawID]
+func (e *Exporter) Export(_ context.Context, data *payload.Payload) error {
+	text := data.Text()
+	id := data.Attrs[payload.AttrRawID]
 	if !e.cfg.Hint || id == "" {
 		_, err := io.WriteString(e.w, text)
 		return err
 	}
 	line := hint.Of(id) + "\n"
-	if p.Attrs[AttrHint] == HintTop {
+	if data.Attrs[AttrHint] == HintTop {
 		_, err := io.WriteString(e.w, line+text)
 		return err
 	}

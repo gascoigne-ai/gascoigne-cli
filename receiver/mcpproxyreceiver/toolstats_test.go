@@ -49,9 +49,9 @@ type echoInput struct {
 
 // fixtureServer has n tools with titled schemas, the shape of a real server
 // whose definitions are re-sent with every request.
-func fixtureServer(n int) *mcp.Server {
+func fixtureServer(count int) *mcp.Server {
 	srv := mcp.NewServer(&mcp.Implementation{Name: "fixture-server", Version: "1"}, nil)
-	for i := range n {
+	for i := range count {
 		mcp.AddTool(srv, &mcp.Tool{
 			Name:        fmt.Sprintf("tool_%02d", i),
 			Description: fmt.Sprintf("Does thing number %d for a repository, returning a page of results.", i),

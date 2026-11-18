@@ -49,8 +49,8 @@ func (l *ledger) MarkFailure(_ context.Context, key, _ string) error {
 	return nil
 }
 
-func (l *ledger) Stats(_ context.Context, q component.StatsQuery) ([]component.Stat, error) {
-	l.query = q
+func (l *ledger) Stats(_ context.Context, query component.StatsQuery) ([]component.Stat, error) {
+	l.query = query
 	return []component.Stat{{Group: "js", Runs: 2, RawTokens: 100, OutTokens: 40}}, nil
 }
 
@@ -80,9 +80,9 @@ func call(t *testing.T, cs *mcp.ClientSession, name string, args map[string]any)
 }
 
 func TestFetch(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-		fmt.Fprint(w, "<p>hi</p>")
+	srv := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+		writer.Header().Set("Content-Type", "text/html")
+		fmt.Fprint(writer, "<p>hi</p>")
 	}))
 	defer srv.Close()
 	cs, pl, _ := connect(t)

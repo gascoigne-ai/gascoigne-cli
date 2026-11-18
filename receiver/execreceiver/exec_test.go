@@ -10,9 +10,9 @@ import (
 
 type capture struct{ got *payload.Payload }
 
-func (c *capture) Process(_ context.Context, p *payload.Payload) (*payload.Payload, error) {
-	c.got = p
-	return p, nil
+func (c *capture) Process(_ context.Context, data *payload.Payload) (*payload.Payload, error) {
+	c.got = data
+	return data, nil
 }
 
 func TestRun(t *testing.T) {
@@ -56,9 +56,9 @@ func TestRunWithoutInvocationIsNoop(t *testing.T) {
 
 type collect struct{ got []string }
 
-func (c *collect) Process(_ context.Context, p *payload.Payload) (*payload.Payload, error) {
-	c.got = append(c.got, p.Text())
-	return p, nil
+func (c *collect) Process(_ context.Context, data *payload.Payload) (*payload.Payload, error) {
+	c.got = append(c.got, data.Text())
+	return data, nil
 }
 
 func TestWatchProcessesEachCycle(t *testing.T) {

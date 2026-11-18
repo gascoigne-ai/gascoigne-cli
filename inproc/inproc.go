@@ -88,14 +88,14 @@ type Engine struct {
 }
 
 // ConfigYAML returns the merged configuration the options describe, as the engine would run it.
-func ConfigYAML(o Options) ([]byte, error) {
-	_, data, err := resolve(o)
+func ConfigYAML(options Options) ([]byte, error) {
+	_, data, err := resolve(options)
 	return data, err
 }
 
 // New resolves the configuration, then starts the filters, optimizers and ledger.
-func New(ctx context.Context, o Options) (*Engine, error) {
-	cfg, _, err := resolve(o)
+func New(ctx context.Context, options Options) (*Engine, error) {
+	cfg, _, err := resolve(options)
 	if err != nil {
 		return nil, err
 	}
@@ -122,14 +122,14 @@ func New(ctx context.Context, o Options) (*Engine, error) {
 }
 
 // Optimize runs one tool result through the pipeline.
-func (e *Engine) Optimize(ctx context.Context, r Request) (Result, error) {
+func (e *Engine) Optimize(ctx context.Context, request Request) (Result, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	p := payload.New(payload.ToolResult, r.Text)
+	p := payload.New(payload.ToolResult, request.Text)
 	for k, v := range map[string]string{
-		payload.AttrTool: r.Tool, payload.AttrCmd: r.Cmd, payload.AttrURL: r.URL,
-		payload.AttrQuery: r.Query, payload.AttrSession: r.Session,
-		payload.AttrAgent: r.Agent, payload.AttrModel: r.Model,
+		payload.AttrTool: request.Tool, payload.AttrCmd: request.Cmd, payload.AttrURL: request.URL,
+		payload.AttrQuery: request.Query, payload.AttrSession: request.Session,
+		payload.AttrAgent: request.Agent, payload.AttrModel: request.Model,
 	} {
 		if v != "" {
 			p.Attrs[k] = v
@@ -169,30 +169,30 @@ func (e *Engine) Close(ctx context.Context) error {
 }
 
 // resolve merges the layers and parses the result.
-func resolve(o Options) (*config.Config, []byte, error) {
+func resolve(options Options) (*config.Config, []byte, error) {
 	data := configs.Default
-	if !o.IgnoreUserFile {
+	if !options.IgnoreUserFile {
 		var err error
 		if data, err = withUserFile(data); err != nil {
 			return nil, nil, err
 		}
 	}
-	if strings.TrimSpace(o.Config) != "" {
+	if strings.TrimSpace(options.Config) != "" {
 		var err error
-		if data, err = configs.Overlay(data, []byte(o.Config)); err != nil {
+		if data, err = configs.Overlay(data, []byte(options.Config)); err != nil {
 			return nil, nil, fmt.Errorf("config: %w", err)
 		}
 	}
-	set := o.Set
-	switch o.Ledger {
+	set := options.Set
+	switch options.Ledger {
 	case "", LedgerFile:
 	case LedgerMemory:
 		// Last, so it beats the host's own Set entries.
-		set = append(slices.Clone(o.Set), "extensions.ledger.memory=true")
+		set = append(slices.Clone(options.Set), "extensions.ledger.memory=true")
 	default:
-		return nil, nil, fmt.Errorf("ledger %q: want %q or %q", o.Ledger, LedgerFile, LedgerMemory)
+		return nil, nil, fmt.Errorf("ledger %q: want %q or %q", options.Ledger, LedgerFile, LedgerMemory)
 	}
-	cfg, err := config.ParseWith(data, config.Overrides{Set: set, Only: o.Only, Disable: o.Disable})
+	cfg, err := config.ParseWith(data, config.Overrides{Set: set, Only: options.Only, Disable: options.Disable})
 	if err != nil {
 		return nil, nil, err
 	}

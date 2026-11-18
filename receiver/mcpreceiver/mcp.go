@@ -163,11 +163,11 @@ func (r *Receiver) compress(ctx context.Context, req *mcp.CallToolRequest, in Co
 	return mcptool.Result(text), nil, nil
 }
 
-func (r *Receiver) process(ctx context.Context, p *payload.Payload, raw bool) (string, error) {
+func (r *Receiver) process(ctx context.Context, data *payload.Payload, raw bool) (string, error) {
 	if raw {
-		p.Set(payload.AttrRaw, "true")
+		data.Set(payload.AttrRaw, "true")
 	}
-	out, err := r.next.Process(ctx, p)
+	out, err := r.next.Process(ctx, data)
 	if err != nil {
 		return "", err
 	}

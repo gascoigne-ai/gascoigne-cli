@@ -40,14 +40,14 @@ func (f *Filter) Start(_ context.Context, host component.Host) (err error) {
 
 func (f *Filter) Shutdown(context.Context) error { return nil }
 
-func (f *Filter) Filter(ctx context.Context, p *payload.Payload) (component.Decision, error) {
-	if fam, err := f.gentleFamily(ctx, p); err != nil {
+func (f *Filter) Filter(ctx context.Context, data *payload.Payload) (component.Decision, error) {
+	if fam, err := f.gentleFamily(ctx, data); err != nil {
 		return component.Continue, err
 	} else if fam != "" {
 		f.log.Debug("gentle family", "family", fam)
-		p.Set(AttrLevel, LevelGentle)
+		data.Set(AttrLevel, LevelGentle)
 	}
-	key := p.Key()
+	key := data.Key()
 	if key == "" {
 		return component.Continue, nil
 	}
@@ -58,13 +58,13 @@ func (f *Filter) Filter(ctx context.Context, p *payload.Payload) (component.Deci
 	limit := f.limit(key, info)
 	if info.Count >= limit && !f.expired(info) {
 		f.log.Debug("known bad key", "key", key, "failures", info.Count)
-		p.Set(payload.AttrSkip, fmt.Sprintf("%s failed %d× (max_failures %d), last: %s at %s; reset: gascoigne forget %q",
+		data.Set(payload.AttrSkip, fmt.Sprintf("%s failed %d× (max_failures %d), last: %s at %s; reset: gascoigne forget %q",
 			key, info.Count, limit, info.Reason, info.Last.Format(time.DateTime), key))
 		return component.Bypass, nil
 	}
 	if g := f.cfg.GentleAfter; g > 0 && info.Count >= g && !f.expired(info) {
 		f.log.Debug("gentle key", "key", key, "failures", info.Count)
-		p.Set(AttrLevel, LevelGentle)
+		data.Set(AttrLevel, LevelGentle)
 	}
 	return component.Continue, nil
 }
@@ -74,7 +74,7 @@ const familyRefresh = time.Minute
 
 // gentleFamily reports a block type whose family the agent fetches raw too
 // often (family_rerequest_rate), from the ledger, read once a minute.
-func (f *Filter) gentleFamily(ctx context.Context, p *payload.Payload) (string, error) {
+func (f *Filter) gentleFamily(ctx context.Context, data *payload.Payload) (string, error) {
 	if f.cfg.FamilyRerequestRate <= 0 {
 		return "", nil
 	}
@@ -82,7 +82,7 @@ func (f *Filter) gentleFamily(ctx context.Context, p *payload.Payload) (string, 
 	if err != nil {
 		return "", err
 	}
-	for _, b := range p.Blocks {
+	for _, b := range data.Blocks {
 		if fam, _, _ := strings.Cut(b.Type, "/"); fams[fam] {
 			return fam, nil
 		}

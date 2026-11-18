@@ -24,5 +24,5 @@ type Usage struct {
 // UsageRecorder is implemented by ledgers that keep API usage. Optional:
 // components type-assert a Ledger for it.
 type UsageRecorder interface {
-	RecordUsage(ctx context.Context, u Usage) error
+	RecordUsage(ctx context.Context, usage Usage) error
 }

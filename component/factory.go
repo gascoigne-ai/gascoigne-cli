@@ -31,7 +31,7 @@ type factoryOptions struct{ family string }
 
 // WithFamily puts the component in a family, e.g. "js" for npm, bun and nx.
 func WithFamily(family string) FactoryOption {
-	return func(o *factoryOptions) { o.family = family }
+	return func(options *factoryOptions) { options.family = family }
 }
 
 // NewFactory builds a Factory with a typed config.

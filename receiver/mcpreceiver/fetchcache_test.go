@@ -16,8 +16,8 @@ func TestFetchSessionCache(t *testing.T) {
 		lines[i] = fmt.Sprintf("line %d of the page", i)
 	}
 	body := strings.Join(lines, "\n")
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		fmt.Fprint(w, body)
+	srv := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+		fmt.Fprint(writer, body)
 	}))
 	defer srv.Close()
 	cs, _, _ := connect(t)

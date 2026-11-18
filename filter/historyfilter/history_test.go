@@ -30,8 +30,8 @@ func (h host) Extension(id component.ID) (component.Component, bool) {
 	return c, ok
 }
 
-func fail(n int, reason string, ago time.Duration) component.FailureInfo {
-	return component.FailureInfo{Count: n, Reason: reason, Last: time.Now().Add(-ago)}
+func fail(count int, reason string, ago time.Duration) component.FailureInfo {
+	return component.FailureInfo{Count: count, Reason: reason, Last: time.Now().Add(-ago)}
 }
 
 // One failure bypassed its source forever, and a full read of a fetched doc
@@ -141,8 +141,8 @@ func TestValidateGentleAfter(t *testing.T) {
 	}
 }
 
-func (l fakeLedger) Stats(_ context.Context, q component.StatsQuery) ([]component.Stat, error) {
-	*l.queries = append(*l.queries, q)
+func (l fakeLedger) Stats(_ context.Context, query component.StatsQuery) ([]component.Stat, error) {
+	*l.queries = append(*l.queries, query)
 	return l.stats, nil
 }
 

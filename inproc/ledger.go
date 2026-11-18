@@ -58,22 +58,22 @@ type Stat struct {
 
 // Stats totals recorded runs per group. The wire types live here, not in component/, so the
 // public contracts stay free of JSON tags.
-func (e *Engine) Stats(ctx context.Context, q StatsQuery) ([]Stat, error) {
-	return StatsOf(ctx, e.led, q)
+func (e *Engine) Stats(ctx context.Context, query StatsQuery) ([]Stat, error) {
+	return StatsOf(ctx, e.led, query)
 }
 
 // ErrBadQuery wraps a query the ledger is never asked, such as an unknown grouping.
 var ErrBadQuery = errors.New("bad query")
 
 // StatsOf is Stats over any ledger, for servers that own one.
-func StatsOf(ctx context.Context, led *ledger.Ledger, q StatsQuery) ([]Stat, error) {
+func StatsOf(ctx context.Context, led *ledger.Ledger, query StatsQuery) ([]Stat, error) {
 	if led == nil {
 		return nil, ErrNoLedger
 	}
-	if !groupings[q.By] {
-		return nil, fmt.Errorf("%w: unknown grouping %q", ErrBadQuery, q.By)
+	if !groupings[query.By] {
+		return nil, fmt.Errorf("%w: unknown grouping %q", ErrBadQuery, query.By)
 	}
-	rows, err := led.Stats(ctx, q.component())
+	rows, err := led.Stats(ctx, query.component())
 	if err != nil {
 		return nil, err
 	}
@@ -128,22 +128,22 @@ type Run struct {
 }
 
 // Recent lists recorded runs, newest first.
-func (e *Engine) Recent(ctx context.Context, q RecentQuery) ([]Run, error) {
-	return RecentOf(ctx, e.led, q)
+func (e *Engine) Recent(ctx context.Context, query RecentQuery) ([]Run, error) {
+	return RecentOf(ctx, e.led, query)
 }
 
 // RecentOf is Recent over any ledger, for servers that own one.
-func RecentOf(ctx context.Context, led *ledger.Ledger, q RecentQuery) ([]Run, error) {
+func RecentOf(ctx context.Context, led *ledger.Ledger, query RecentQuery) ([]Run, error) {
 	if led == nil {
 		return nil, ErrNoLedger
 	}
-	limit := q.Limit
+	limit := query.Limit
 	if limit <= 0 {
 		limit = DefaultRecentLimit
 	}
 	limit = min(limit, MaxRecentLimit)
-	filter := component.StatsQuery{Session: q.Session, Agent: q.Agent, Model: q.Model, Since: q.Since}
-	rows, err := led.Page(ctx, filter, ledger.Page{Before: q.Before, Limit: limit})
+	filter := component.StatsQuery{Session: query.Session, Agent: query.Agent, Model: query.Model, Since: query.Since}
+	rows, err := led.Page(ctx, filter, ledger.Page{Before: query.Before, Limit: limit})
 	if err != nil {
 		return nil, err
 	}

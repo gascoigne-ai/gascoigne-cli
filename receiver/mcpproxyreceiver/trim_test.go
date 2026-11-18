@@ -18,7 +18,7 @@ func TestTrimDescriptions(t *testing.T) {
 		t.Fatalf("trimmed list %d tokens, plain %d", listTokens(first), listTokens(plain))
 	}
 	t.Logf("tool list %d → %d tokens", listTokens(plain), listTokens(first))
-	marshal := func(v any) string { b, _ := json.Marshal(v); return string(b) }
+	marshal := func(value any) string { b, _ := json.Marshal(value); return string(b) }
 	if marshal(first) != marshal(again) {
 		t.Fatal("trimmed tool list differs between starts")
 	}

@@ -38,9 +38,9 @@ func TestRemote(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var auth string
-			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			srv := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 				auth = req.Header.Get("Authorization")
-				tc.handler.ServeHTTP(w, req)
+				tc.handler.ServeHTTP(writer, req)
 			}))
 			defer srv.Close()
 
@@ -96,9 +96,9 @@ func TestRemoteValidate(t *testing.T) {
 }
 
 func TestRemoteLoginNeeded(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("WWW-Authenticate", `Bearer resource_metadata="http://127.0.0.1/none"`)
-		http.Error(w, "no", http.StatusUnauthorized)
+	srv := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+		writer.Header().Set("WWW-Authenticate", `Bearer resource_metadata="http://127.0.0.1/none"`)
+		http.Error(writer, "no", http.StatusUnauthorized)
 	}))
 	defer srv.Close()
 	for _, tc := range []struct {

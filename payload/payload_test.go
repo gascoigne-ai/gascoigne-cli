@@ -44,7 +44,7 @@ func TestText(t *testing.T) {
 
 func TestRewrite(t *testing.T) {
 	p := &Payload{Blocks: []Block{{Text: "a", Type: "x"}, {Text: "b", Type: "y"}, {Text: "c"}}}
-	err := p.Rewrite(func(b Block) (string, error) { return b.Text + "!", nil }, "x", "z")
+	err := p.Rewrite(func(block Block) (string, error) { return block.Text + "!", nil }, "x", "z")
 	if err != nil || p.Blocks[0].Text != "a!" || p.Blocks[1].Text != "b" || p.Blocks[2].Text != "c" {
 		t.Fatalf("Rewrite = %+v, %v", p.Blocks, err)
 	}
@@ -52,7 +52,7 @@ func TestRewrite(t *testing.T) {
 
 func TestRewriteFamily(t *testing.T) {
 	p := &Payload{Blocks: []Block{{Text: "a", Type: "pkg/npm"}, {Text: "b", Type: "pkg"}, {Text: "c", Type: "pkgx/y"}, {Text: "d"}}}
-	err := p.RewriteFamily(func(b Block) (string, error) { return b.Text + "!", nil }, "pkg")
+	err := p.RewriteFamily(func(block Block) (string, error) { return block.Text + "!", nil }, "pkg")
 	if err != nil || p.Blocks[0].Text != "a!" || p.Blocks[1].Text != "b!" || p.Blocks[2].Text != "c" || p.Blocks[3].Text != "d" {
 		t.Fatalf("RewriteFamily = %+v, %v", p.Blocks, err)
 	}

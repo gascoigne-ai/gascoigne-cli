@@ -10,36 +10,36 @@ import "unicode/utf8"
 // eval fixtures against a 200k-vocabulary tokenizer: mean error 10%, worst
 // 30%, where bytes/4 is off by 28% on average and up to 2.5× (aligned
 // tables, indentation). Deterministic; not billing.
-func Estimate(s string) int {
+func Estimate(text string) int {
 	n := 0.0
-	for i := 0; i < len(s); {
-		c := s[i]
+	for i := 0; i < len(text); {
+		c := text[i]
 		start := i
 		switch {
-		case c == ' ' && i+1 < len(s) && isLetter(s[i+1]):
-			i = run(s, i+1, isLetter)
+		case c == ' ' && i+1 < len(text) && isLetter(text[i+1]):
+			i = run(text, i+1, isLetter)
 			n += letters(i - start - 1)
 		case isLetter(c):
-			i = run(s, i, isLetter)
+			i = run(text, i, isLetter)
 			n += letters(i - start)
-		case c == ' ' && i+1 < len(s) && isDigit(s[i+1]):
-			i = run(s, i+1, isDigit)
+		case c == ' ' && i+1 < len(text) && isDigit(text[i+1]):
+			i = run(text, i+1, isDigit)
 			n += digits(i - start - 1)
 		case isDigit(c):
-			i = run(s, i, isDigit)
+			i = run(text, i, isDigit)
 			n += digits(i - start)
 		case c == '\n' || c == '\r':
-			i = run(s, i, func(b byte) bool { return b == '\n' || b == '\r' })
+			i = run(text, i, func(char byte) bool { return char == '\n' || char == '\r' })
 			n++
 		case c == ' ' || c == '\t':
-			i = run(s, i, func(b byte) bool { return b == ' ' || b == '\t' })
+			i = run(text, i, func(char byte) bool { return char == ' ' || char == '\t' })
 			n += float64((i - start + maxSpaces - 1) / maxSpaces)
 		case c >= utf8.RuneSelf:
-			_, size := utf8.DecodeRuneInString(s[i:])
+			_, size := utf8.DecodeRuneInString(text[i:])
 			i += size
 			n += perRune
 		default:
-			i = max(run(s, i, isPunct), i+1) // a control byte is a piece of its own
+			i = max(run(text, i, isPunct), i+1) // a control byte is a piece of its own
 			n += float64((i - start + punctRun - 1) / punctRun)
 		}
 	}
@@ -58,26 +58,26 @@ const (
 	perRune   = 0.4
 )
 
-func letters(n int) float64 {
-	if n <= wordRun {
+func letters(count int) float64 {
+	if count <= wordRun {
 		return 1
 	}
-	return float64(1 + (n-wordRun+wordMore-1)/wordMore)
+	return float64(1 + (count-wordRun+wordMore-1)/wordMore)
 }
 
-func digits(n int) float64 { return float64((n + 2) / 3) }
+func digits(count int) float64 { return float64((count + 2) / 3) }
 
-func run(s string, i int, in func(byte) bool) int {
-	for i < len(s) && in(s[i]) {
-		i++
+func run(text string, offset int, in func(byte) bool) int {
+	for offset < len(text) && in(text[offset]) {
+		offset++
 	}
-	return i
+	return offset
 }
 
-func isLetter(b byte) bool { return b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z' }
-func isDigit(b byte) bool  { return b >= '0' && b <= '9' }
+func isLetter(char byte) bool { return char >= 'a' && char <= 'z' || char >= 'A' && char <= 'Z' }
+func isDigit(char byte) bool  { return char >= '0' && char <= '9' }
 
 // isPunct: printable ASCII that is not a letter, digit or whitespace.
-func isPunct(b byte) bool {
-	return b > ' ' && b < utf8.RuneSelf && !isLetter(b) && !isDigit(b)
+func isPunct(char byte) bool {
+	return char > ' ' && char < utf8.RuneSelf && !isLetter(char) && !isDigit(char)
 }

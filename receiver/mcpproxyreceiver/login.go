@@ -94,23 +94,23 @@ func (r *Receiver) runLogin(ctx context.Context, client *mcp.Client, rm Remote) 
 
 // loginStatus starts the flow when none runs and says where the user stands.
 // ctx is the proxy's, which the flow outlives the call with; callCtx is the call's.
-func (r *Receiver) loginStatus(ctx, callCtx context.Context, f *loginFlow, client *mcp.Client, s *mcp.Server, rm Remote) string {
-	ready := r.beginLogin(ctx, f, client, s, rm)
+func (r *Receiver) loginStatus(ctx, callCtx context.Context, flow *loginFlow, client *mcp.Client, server *mcp.Server, rm Remote) string {
+	ready := r.beginLogin(ctx, flow, client, server, rm)
 	select {
 	case <-ready:
 	case <-time.After(15 * time.Second):
 	case <-callCtx.Done():
 	}
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	switch f.phase {
+	flow.mu.Lock()
+	defer flow.mu.Unlock()
+	switch flow.phase {
 	case loginDone:
 		return "Logged in. List the tools again."
 	case loginFailed:
-		return "Login failed: " + f.err.Error() + "\nCall " + loginTool + " to try again."
+		return "Login failed: " + flow.err.Error() + "\nCall " + loginTool + " to try again."
 	case loginWaiting:
-		if f.authURL != "" {
-			return "Ask the user to authorize in the browser (opened if possible): " + f.authURL + "\nThe server's tools appear when they are done."
+		if flow.authURL != "" {
+			return "Ask the user to authorize in the browser (opened if possible): " + flow.authURL + "\nThe server's tools appear when they are done."
 		}
 	}
 	return "Login is starting; call " + loginTool + " again for the address."
@@ -118,17 +118,17 @@ func (r *Receiver) loginStatus(ctx, callCtx context.Context, f *loginFlow, clien
 
 // beginLogin starts the flow unless one waits or is done; the channel closes once
 // the authorization address is known or the flow ended.
-func (r *Receiver) beginLogin(ctx context.Context, f *loginFlow, client *mcp.Client, s *mcp.Server, rm Remote) <-chan struct{} {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	if f.advance(loginStart) {
-		f.err, f.authURL, f.ready = nil, "", make(chan struct{})
-		go r.login(ctx, f, f.ready, client, s, rm)
+func (r *Receiver) beginLogin(ctx context.Context, flow *loginFlow, client *mcp.Client, server *mcp.Server, rm Remote) <-chan struct{} {
+	flow.mu.Lock()
+	defer flow.mu.Unlock()
+	if flow.advance(loginStart) {
+		flow.err, flow.authURL, flow.ready = nil, "", make(chan struct{})
+		go r.login(ctx, flow, flow.ready, client, server, rm)
 	}
-	return f.ready
+	return flow.ready
 }
 
-func (r *Receiver) login(ctx context.Context, f *loginFlow, ready chan struct{}, client *mcp.Client, s *mcp.Server, rm Remote) {
+func (r *Receiver) login(ctx context.Context, flow *loginFlow, ready chan struct{}, client *mcp.Client, server *mcp.Server, rm Remote) {
 	var once sync.Once
 	signal := func() { once.Do(func() { close(ready) }) }
 	login := rm.Login
@@ -138,27 +138,27 @@ func (r *Receiver) login(ctx context.Context, f *loginFlow, ready chan struct{},
 		}
 	}
 	err := login(ctx, rm.URL, func(authURL string) {
-		f.mu.Lock()
-		f.authURL = authURL
-		f.mu.Unlock()
+		flow.mu.Lock()
+		flow.authURL = authURL
+		flow.mu.Unlock()
 		signal()
 	})
 	if err == nil {
-		err = r.finishLogin(ctx, client, s, rm)
+		err = r.finishLogin(ctx, client, server, rm)
 	}
-	f.mu.Lock()
-	f.err = err
+	flow.mu.Lock()
+	flow.err = err
 	if err == nil {
-		f.advance(loginSucceed)
+		flow.advance(loginSucceed)
 	} else {
-		f.advance(loginFail)
+		flow.advance(loginFail)
 	}
-	f.mu.Unlock()
+	flow.mu.Unlock()
 	signal()
 }
 
 // finishLogin connects with the new login and swaps the login tool for the server's tools.
-func (r *Receiver) finishLogin(ctx context.Context, client *mcp.Client, s *mcp.Server, rm Remote) error {
+func (r *Receiver) finishLogin(ctx context.Context, client *mcp.Client, server *mcp.Server, rm Remote) error {
 	var unauthorized atomic.Bool
 	cs, err := client.Connect(ctx, rm.transport(&unauthorized), nil)
 	if err != nil {
@@ -168,11 +168,11 @@ func (r *Receiver) finishLogin(ctx context.Context, client *mcp.Client, s *mcp.S
 	if info == nil {
 		info = &mcp.Implementation{Name: "gascoigne-proxy", Version: version.Number}
 	}
-	if err := r.populate(ctx, s, cs, info, false); err != nil {
+	if err := r.populate(ctx, server, cs, info, false); err != nil {
 		cs.Close()
 		return err
 	}
-	s.RemoveTools(loginTool)
+	server.RemoveTools(loginTool)
 	go func() {
 		<-ctx.Done()
 		cs.Close()

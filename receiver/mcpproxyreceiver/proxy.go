@@ -70,8 +70,8 @@ type LoginFunc func(ctx context.Context, serverURL string, shown func(authURL st
 type remoteKey struct{}
 
 // WithRemote sets the downstream remote server for this run, overriding config.
-func WithRemote(ctx context.Context, r Remote) context.Context {
-	return context.WithValue(ctx, remoteKey{}, r)
+func WithRemote(ctx context.Context, remote Remote) context.Context {
+	return context.WithValue(ctx, remoteKey{}, remote)
 }
 
 type lazyKey struct{}
@@ -89,8 +89,8 @@ func lazyChoices(ctx context.Context) map[string][]string {
 }
 
 // WithTransport sets the downstream transport directly (tests, in-process servers).
-func WithTransport(ctx context.Context, t mcp.Transport) context.Context {
-	return context.WithValue(ctx, ctxKey{}, t)
+func WithTransport(ctx context.Context, transport mcp.Transport) context.Context {
+	return context.WithValue(ctx, ctxKey{}, transport)
 }
 
 func (r *Receiver) Start(_ context.Context, host component.Host) error {
@@ -138,10 +138,10 @@ func (r *Receiver) Run(ctx context.Context) error {
 	return s.Run(ctx, r.upstream)
 }
 
-// populate mirrors the downstream server's tools onto s and adds the retrieve
+// populate mirrors the downstream server's tools onto server and adds the retrieve
 // tool. Stats (the middleware) only before the server runs: middleware cannot
 // be added to a running server, so a late login goes without.
-func (r *Receiver) populate(ctx context.Context, s *mcp.Server, cs *mcp.ClientSession, info *mcp.Implementation, stats bool) error {
+func (r *Receiver) populate(ctx context.Context, server *mcp.Server, cs *mcp.ClientSession, info *mcp.Implementation, stats bool) error {
 	r.server = serverID(info.Name, r.identity(ctx))
 	var tools []*mcp.Tool
 	for tool, err := range cs.Tools(ctx, nil) {
@@ -163,7 +163,7 @@ func (r *Receiver) populate(ctx context.Context, s *mcp.Server, cs *mcp.ClientSe
 	if stats {
 		var mu sync.Mutex
 		var day string
-		s.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
+		server.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
 			return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
 				res, err := next(ctx, method, req)
 				if lr, ok := res.(*mcp.ListToolsResult); ok && err == nil && method == "tools/list" {
@@ -190,18 +190,18 @@ func (r *Receiver) populate(ctx context.Context, s *mcp.Server, cs *mcp.ClientSe
 	switch {
 	case r.cfg.MaxTools > 0 && len(tools) > r.cfg.MaxTools: // max_tools hides everything; it wins over a choice of tools
 		lazy = tools
-		r.addLazy(s, cs, tools, true)
+		r.addLazy(server, cs, tools, true)
 	case len(lazy) > 0:
 		for _, tool := range direct {
-			s.AddTool(tool, r.forward(cs, tool.Name))
+			server.AddTool(tool, r.forward(cs, tool.Name))
 		}
-		r.addLazy(s, cs, lazy, false)
+		r.addLazy(server, cs, lazy, false)
 	default:
 		for _, tool := range tools {
-			s.AddTool(tool, r.forward(cs, tool.Name))
+			server.AddTool(tool, r.forward(cs, tool.Name))
 		}
 	}
-	mcptool.AddRetrieve(s, r.cfg.Retrieve, r.ledger)
+	mcptool.AddRetrieve(server, r.cfg.Retrieve, r.ledger)
 	return nil
 }
 
@@ -231,8 +231,8 @@ func (r *Receiver) splitLazy(ctx context.Context, tools []*mcp.Tool) (direct, la
 }
 
 // toolSize is what one definition costs in tokens, as the agent receives it.
-func toolSize(t *mcp.Tool) int {
-	b, err := json.Marshal(t)
+func toolSize(tool *mcp.Tool) int {
+	b, err := json.Marshal(tool)
 	if err != nil {
 		return 0
 	}

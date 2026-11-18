@@ -124,14 +124,14 @@ func (s Stat) Saved() int { return s.RawTokens - s.OutTokens }
 // Ledger is the extension contract the service relies on to keep originals
 // retrievable and to learn which sources optimize badly.
 type Ledger interface {
-	SaveRaw(ctx context.Context, key string, p *payload.Payload) (id string, err error)
+	SaveRaw(ctx context.Context, key string, data *payload.Payload) (id string, err error)
 	GetRaw(ctx context.Context, id string) (key string, p *payload.Payload, err error)
 	Record(ctx context.Context, ev Event) error
 	MarkFailure(ctx context.Context, key, reason string) error
 	// Failures reports how often key optimized badly; zero Count when never.
 	Failures(ctx context.Context, key string) (FailureInfo, error)
 	// Stats aggregates recorded events, biggest savings first.
-	Stats(ctx context.Context, q StatsQuery) ([]Stat, error)
+	Stats(ctx context.Context, query StatsQuery) ([]Stat, error)
 }
 
 // OutputHistory is implemented by ledgers that keep optimized outputs: what

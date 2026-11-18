@@ -24,12 +24,12 @@ func Overlay(base, over []byte) ([]byte, error) {
 // Plain drops comments and flow style: yaml.v3 writes broken YAML for
 // comments inside a flow mapping that gained keys, and nobody reads the
 // merged document but the decoder.
-func Plain(n *yaml.Node) {
-	n.HeadComment, n.LineComment, n.FootComment = "", "", ""
-	if n.Kind == yaml.MappingNode || n.Kind == yaml.SequenceNode {
-		n.Style = 0
+func Plain(node *yaml.Node) {
+	node.HeadComment, node.LineComment, node.FootComment = "", "", ""
+	if node.Kind == yaml.MappingNode || node.Kind == yaml.SequenceNode {
+		node.Style = 0
 	}
-	for _, c := range n.Content {
+	for _, c := range node.Content {
 		Plain(c)
 	}
 }
@@ -53,9 +53,9 @@ func merge(dst, src *yaml.Node) {
 }
 
 // KeyIndex is the index of key in mapping m, or -1.
-func KeyIndex(m *yaml.Node, key string) int {
-	for i := 0; i+1 < len(m.Content); i += 2 {
-		if m.Content[i].Value == key {
+func KeyIndex(node *yaml.Node, key string) int {
+	for i := 0; i+1 < len(node.Content); i += 2 {
+		if node.Content[i].Value == key {
 			return i
 		}
 	}

@@ -58,7 +58,7 @@ type CallToolInput struct {
 // addLazy exposes the downstream tools through two tools instead of one
 // each: search_tools finds tools and returns their schemas, call_tool runs
 // one. Requests then carry two schemas, not hundreds.
-func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.Tool, all bool) {
+func (r *Receiver) addLazy(server *mcp.Server, cs *mcp.ClientSession, tools []*mcp.Tool, all bool) {
 	byName := map[string]*mcp.Tool{}
 	names := make([]string, len(tools))
 	docs := make([][]string, len(tools))
@@ -67,7 +67,7 @@ func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.To
 		names[i] = t.Name
 		docs[i] = sample.Terms(t.Name + " " + strings.ReplaceAll(t.Name, "_", " ") + " " + t.Description)
 	}
-	mcp.AddTool(s, &mcp.Tool{
+	mcp.AddTool(server, &mcp.Tool{
 		Name:        searchToolName,
 		Description: lazyDescription(tools, all),
 	}, func(_ context.Context, _ *mcp.CallToolRequest, in SearchToolsInput) (*mcp.CallToolResult, any, error) {
@@ -79,7 +79,7 @@ func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.To
 		for i := range order {
 			order[i] = i
 		}
-		slices.SortStableFunc(order, func(a, b int) int { return cmp.Compare(scores[b], scores[a]) })
+		slices.SortStableFunc(order, func(left, right int) int { return cmp.Compare(scores[right], scores[left]) })
 		var found []*mcp.Tool
 		for _, i := range order[:min(searchResults, len(order))] {
 			if scores[i] > 0 {
@@ -95,7 +95,7 @@ func (r *Receiver) addLazy(s *mcp.Server, cs *mcp.ClientSession, tools []*mcp.To
 		}
 		return mcptool.Result(string(b)), nil, nil
 	})
-	mcp.AddTool(s, &mcp.Tool{
+	mcp.AddTool(server, &mcp.Tool{
 		Name:        callToolName,
 		Description: "Run a tool of this server found with search_tools.",
 	}, func(ctx context.Context, req *mcp.CallToolRequest, in CallToolInput) (*mcp.CallToolResult, any, error) {

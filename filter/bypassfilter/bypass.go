@@ -16,19 +16,19 @@ type Filter struct {
 	cfg *Config
 }
 
-func (f *Filter) Filter(_ context.Context, p *payload.Payload) (component.Decision, error) {
-	if v := p.Attrs[payload.AttrRaw]; truthy(v) {
-		p.Set(payload.AttrSkip, "raw requested: attr raw="+v+" (-raw, MCP raw)")
+func (f *Filter) Filter(_ context.Context, data *payload.Payload) (component.Decision, error) {
+	if v := data.Attrs[payload.AttrRaw]; truthy(v) {
+		data.Set(payload.AttrSkip, "raw requested: attr raw="+v+" (-raw, MCP raw)")
 		return component.Bypass, nil
 	}
 	if v := os.Getenv(f.cfg.Env); f.cfg.Env != "" && truthy(v) {
-		p.Set(payload.AttrSkip, "raw requested: env "+f.cfg.Env+"="+v)
+		data.Set(payload.AttrSkip, "raw requested: env "+f.cfg.Env+"="+v)
 		return component.Bypass, nil
 	}
 	return component.Continue, nil
 }
 
-func truthy(s string) bool {
-	b, err := strconv.ParseBool(s)
+func truthy(text string) bool {
+	b, err := strconv.ParseBool(text)
 	return err == nil && b
 }

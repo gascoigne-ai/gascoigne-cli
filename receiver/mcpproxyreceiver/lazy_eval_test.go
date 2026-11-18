@@ -29,9 +29,9 @@ type repoArgs struct {
 
 // realServer has n tools shaped like a code-hosting server's. tool_03 fails
 // with a protocol error and tool_04 with a tool error, so pass-through can be checked.
-func realServer(n int, extra ...*mcp.Tool) *mcp.Server {
+func realServer(count int, extra ...*mcp.Tool) *mcp.Server {
 	srv := mcp.NewServer(&mcp.Implementation{Name: "fixture-server", Version: "1"}, nil)
-	for i := range n {
+	for i := range count {
 		name := fmt.Sprintf("tool_%02d", i)
 		mcp.AddTool(srv, &mcp.Tool{
 			Name:        name,

@@ -19,12 +19,12 @@ type Filter struct {
 	log *slog.Logger
 }
 
-func (f *Filter) Filter(_ context.Context, p *payload.Payload) (component.Decision, error) {
-	h := detect.HintsFrom(p.Attrs)
-	for i, b := range p.Blocks {
+func (f *Filter) Filter(_ context.Context, data *payload.Payload) (component.Decision, error) {
+	h := detect.HintsFrom(data.Attrs)
+	for i, b := range data.Blocks {
 		if b.Type == "" {
-			p.Blocks[i].Type = f.editSafe(detect.Detect(b.Text, h), b.Text, h)
-			f.log.Debug("detected", "block", i, "type", p.Blocks[i].Type)
+			data.Blocks[i].Type = f.editSafe(detect.Detect(b.Text, h), b.Text, h)
+			f.log.Debug("detected", "block", i, "type", data.Blocks[i].Type)
 		}
 	}
 	return component.Continue, nil
@@ -33,8 +33,8 @@ func (f *Filter) Filter(_ context.Context, p *payload.Payload) (component.Decisi
 // editSafe types a config-sized file read from disk as source (never a lockfile:
 // generated, not edited), so it is
 // shrunk only by dropping whole comment lines.
-func (f *Filter) editSafe(typ, text string, h detect.Hints) string {
-	if typ == detect.Lock || !detect.ReadsFile(h.Cmd) || !slices.Contains(f.cfg.EditSafe, detect.Family(typ)) ||
+func (f *Filter) editSafe(typ, text string, hints detect.Hints) string {
+	if typ == detect.Lock || !detect.ReadsFile(hints.Cmd) || !slices.Contains(f.cfg.EditSafe, detect.Family(typ)) ||
 		tokens.Estimate(text) >= f.cfg.EditSafeMaxTokens {
 		return typ
 	}

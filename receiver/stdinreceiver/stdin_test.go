@@ -10,9 +10,9 @@ import (
 
 type capture struct{ got *payload.Payload }
 
-func (c *capture) Process(_ context.Context, p *payload.Payload) (*payload.Payload, error) {
-	c.got = p
-	return p, nil
+func (c *capture) Process(_ context.Context, data *payload.Payload) (*payload.Payload, error) {
+	c.got = data
+	return data, nil
 }
 
 func TestRun(t *testing.T) {

@@ -45,7 +45,7 @@ func (c *fetchCache) get(key string) (fetchEntry, bool) {
 	return e, ok
 }
 
-func (c *fetchCache) put(key string, e fetchEntry) {
+func (c *fetchCache) put(key string, entry fetchEntry) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.entries == nil {
@@ -58,13 +58,13 @@ func (c *fetchCache) put(key string, e fetchEntry) {
 			c.order = c.order[1:]
 		}
 	}
-	c.entries[key] = e
+	c.entries[key] = entry
 }
 
 // lineDiff returns the changed lines of b against a ("- old", "+ new") and
 // whether it is small enough to beat sending b whole.
-func lineDiff(a, b string) (string, bool) {
-	x, y := strings.Split(a, "\n"), strings.Split(b, "\n")
+func lineDiff(left, right string) (string, bool) {
+	x, y := strings.Split(left, "\n"), strings.Split(right, "\n")
 	if float64(len(x))*float64(len(y)) > maxDiffCells {
 		return "", false
 	}
@@ -101,5 +101,5 @@ func lineDiff(a, b string) (string, bool) {
 		}
 	}
 	d := strings.Join(out, "\n")
-	return d, float64(len(d)) < float64(len(b))*diffShareLimit
+	return d, float64(len(d)) < float64(len(right))*diffShareLimit
 }
