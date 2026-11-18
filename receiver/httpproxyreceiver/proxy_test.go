@@ -20,16 +20,16 @@ import (
 // would, with a marker) and counts calls.
 type dropComments struct{ calls atomic.Int32 }
 
-func (d *dropComments) Process(_ context.Context, p *payload.Payload) (*payload.Payload, error) {
+func (d *dropComments) Process(_ context.Context, data *payload.Payload) (*payload.Payload, error) {
 	d.calls.Add(1)
 	var kept []string
-	for _, l := range strings.Split(strings.TrimRight(p.Text(), "\n"), "\n") {
+	for _, l := range strings.Split(strings.TrimRight(data.Text(), "\n"), "\n") {
 		if !strings.HasPrefix(strings.TrimSpace(l), "//") {
 			kept = append(kept, l)
 		}
 	}
-	if len(kept) == len(strings.Split(strings.TrimRight(p.Text(), "\n"), "\n")) {
-		return p, nil
+	if len(kept) == len(strings.Split(strings.TrimRight(data.Text(), "\n"), "\n")) {
+		return data, nil
 	}
 	out := payload.New(payload.ToolResult, strings.Join(append([]string{"// … comments"}, kept...), "\n")+"\n")
 	out.Attrs = map[string]string{payload.AttrRawID: "abc", payload.AttrRawTokens: "100", payload.AttrOutTokens: "20"}
@@ -40,11 +40,11 @@ func setup(t *testing.T) (*Receiver, *dropComments, *httptest.Server, *[]byte, *
 	t.Helper()
 	var got []byte
 	var hdr http.Header
-	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		got, _ = io.ReadAll(r.Body)
-		hdr = r.Header.Clone()
-		w.Header().Set("Content-Type", "text/event-stream")
-		io.WriteString(w, "event: message_start\ndata: {}\n\n")
+	upstream := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		got, _ = io.ReadAll(request.Body)
+		hdr = request.Header.Clone()
+		writer.Header().Set("Content-Type", "text/event-stream")
+		io.WriteString(writer, "event: message_start\ndata: {}\n\n")
 	}))
 	t.Cleanup(upstream.Close)
 	cfg := NewFactory().DefaultConfig().(*Config)

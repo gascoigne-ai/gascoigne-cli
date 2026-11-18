@@ -74,7 +74,7 @@ func (r *Receiver) Run(context.Context) error { return nil }
 // itself waits for zero so no agent stream is cut.
 func (r *Receiver) Active() int64 { return r.active.Load() }
 
-func (r *Receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func (r *Receiver) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 	r.active.Add(1)
 	defer r.active.Add(-1)
 	api, upstream := r.route(req)
@@ -89,7 +89,7 @@ func (r *Receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	target, err := url.Parse(upstream)
 	if err != nil {
-		http.Error(w, "bad upstream", http.StatusBadGateway)
+		http.Error(writer, "bad upstream", http.StatusBadGateway)
 		return
 	}
 	agent := agentOf(req.Header.Get("User-Agent"))
@@ -105,16 +105,16 @@ func (r *Receiver) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			return nil
 		},
 		FlushInterval: -1, // stream server-sent events as they come
-		ErrorHandler: func(w http.ResponseWriter, _ *http.Request, err error) {
+		ErrorHandler: func(writer http.ResponseWriter, _ *http.Request, err error) {
 			r.log.Warn("upstream", "err", err)
-			http.Error(w, "gascoigne proxy: upstream: "+err.Error(), http.StatusBadGateway)
+			http.Error(writer, "gascoigne proxy: upstream: "+err.Error(), http.StatusBadGateway)
 		},
 	}
-	proxy.ServeHTTP(w, req)
+	proxy.ServeHTTP(writer, req)
 }
 
 // rewriter shortens the tool results of one API's request body.
-type rewriter func(ctx context.Context, r *Receiver, body map[string]any, meta meta) bool
+type rewriter func(ctx context.Context, receiver *Receiver, body map[string]any, meta meta) bool
 
 // api is one LLM API format: how its requests are shortened and its
 // responses report usage; nil fields pass that side through.

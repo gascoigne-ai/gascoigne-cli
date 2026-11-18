@@ -22,21 +22,21 @@ type usageLedger struct {
 	got []component.Usage
 }
 
-func (l *usageLedger) RecordUsage(_ context.Context, u component.Usage) error {
+func (l *usageLedger) RecordUsage(_ context.Context, usage component.Usage) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	l.got = append(l.got, u)
+	l.got = append(l.got, usage)
 	return nil
 }
 
 // metering starts a proxy whose upstream answers every request with body.
 func metering(t *testing.T, contentType, body string) (string, *usageLedger) {
 	t.Helper()
-	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", contentType)
+	upstream := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Content-Type", contentType)
 		for _, part := range strings.SplitAfter(body, "\n") { // arrive in pieces
-			io.WriteString(w, part)
-			w.(http.Flusher).Flush()
+			io.WriteString(writer, part)
+			writer.(http.Flusher).Flush()
 		}
 	}))
 	t.Cleanup(upstream.Close)
@@ -138,9 +138,9 @@ func TestUsageFromResponses(t *testing.T) {
 }
 
 func TestUsageNotRecordedForErrors(t *testing.T) {
-	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusTooManyRequests)
-		io.WriteString(w, `{"usage":{"input_tokens":1}}`)
+	upstream := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusTooManyRequests)
+		io.WriteString(writer, `{"usage":{"input_tokens":1}}`)
 	}))
 	t.Cleanup(upstream.Close)
 	cfg := NewFactory().DefaultConfig().(*Config)
@@ -220,12 +220,12 @@ func TestUsageFromCompressedStream(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.encoding, func(t *testing.T) {
-			upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("Content-Type", "text/event-stream")
-				w.Header().Set("Content-Encoding", tt.encoding)
+			upstream := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+				writer.Header().Set("Content-Type", "text/event-stream")
+				writer.Header().Set("Content-Encoding", tt.encoding)
 				for b := tt.body; len(b) > 0; b = b[min(7, len(b)):] { // odd-sized pieces
-					w.Write(b[:min(7, len(b))])
-					w.(http.Flusher).Flush()
+					writer.Write(b[:min(7, len(b))])
+					writer.(http.Flusher).Flush()
 				}
 			}))
 			t.Cleanup(upstream.Close)

@@ -76,12 +76,12 @@ func (f *folder) fold(label, text string, touch bool) (string, bool) {
 
 // match finds the longest run from cur[i] shown earlier, earliest first on
 // ties; ok when it is long and big enough to be worth a pointer.
-func (f *folder) match(cur []*line, i int) (at spot, n int, ok bool) {
-	for _, s := range f.anchors[cur[i].key] {
+func (f *folder) match(cur []*line, index int) (at spot, n int, ok bool) {
+	for _, s := range f.anchors[cur[index].key] {
 		ref := f.results[s.result].lines
 		k, delta := 0, 0
-		for i+k < len(cur) && s.line+k < len(ref) && same(ref[s.line+k], cur[i+k]) {
-			if d := cur[i+k].num - ref[s.line+k].num; k == 0 {
+		for index+k < len(cur) && s.line+k < len(ref) && same(ref[s.line+k], cur[index+k]) {
+			if d := cur[index+k].num - ref[s.line+k].num; k == 0 {
 				delta = d
 			} else if d != delta {
 				break // an edit inside the run: the rest is not the same text
@@ -96,10 +96,10 @@ func (f *folder) match(cur []*line, i int) (at spot, n int, ok bool) {
 		return at, n, false
 	}
 	size := 0
-	for _, l := range cur[i : i+n] {
+	for _, l := range cur[index : index+n] {
 		size += len(l.raw) + 1
 	}
-	return at, n, size >= f.minChars && size > len(f.pointer(at, cur[i:i+n]))
+	return at, n, size >= f.minChars && size > len(f.pointer(at, cur[index:index+n]))
 }
 
 // same compares a shown line with a new one: numbered lines by text (their
@@ -160,43 +160,43 @@ func parse(text string) []*line {
 }
 
 // clip cuts s to n runes with an ellipsis.
-func clip(s string, n int) string {
-	if r := []rune(s); len(r) > n {
-		return string(r[:n-1]) + "…"
+func clip(text string, limit int) string {
+	if r := []rune(text); len(r) > limit {
+		return string(r[:limit-1]) + "…"
 	}
-	return s
+	return text
 }
 
 // label names a call for pointers: Read main.go, Bash "go test ./...".
-func label(c call) string {
-	a := mcptool.Attrs(c.name, c.input)
+func label(toolCall call) string {
+	a := mcptool.Attrs(toolCall.name, toolCall.input)
 	if f := a[payload.AttrFile]; f != "" {
-		return c.name + " " + clip(f, 60)
+		return toolCall.name + " " + clip(f, 60)
 	}
 	if cmd := a[payload.AttrCmd]; cmd != "" {
-		return fmt.Sprintf("%s %q", c.name, clip(cmd, 50))
+		return fmt.Sprintf("%s %q", toolCall.name, clip(cmd, 50))
 	}
-	return c.name
+	return toolCall.name
 }
 
 // keep returns the folded result when the original before folding is in the
 // ledger (content-addressed, so the hint stays the same in later requests)
 // and folding saves more than the hint costs; else the result unfolded.
-func (r *Receiver) keep(ctx context.Context, c call, before, folded string, m meta) string {
+func (r *Receiver) keep(ctx context.Context, toolCall call, before, folded string, info meta) string {
 	if r.ledger == nil {
 		return before
 	}
-	key := "fold\x00" + cacheKey(c, before) + cacheKey(c, folded)
+	key := "fold\x00" + cacheKey(toolCall, before) + cacheKey(toolCall, folded)
 	if out, ok := r.cache.get(key); ok {
 		return out
 	}
 	p := payload.New(payload.ToolResult, before)
-	for k, v := range mcptool.Attrs(c.name, c.input) {
+	for k, v := range mcptool.Attrs(toolCall.name, toolCall.input) {
 		p.Set(k, v)
 	}
-	out, err := r.save(ctx, p, folded, m)
+	out, err := r.save(ctx, p, folded, info)
 	if err != nil {
-		r.log.Warn("fold tool result", "tool", c.name, "err", err)
+		r.log.Warn("fold tool result", "tool", toolCall.name, "err", err)
 		return before
 	}
 	r.cache.put(key, out)
@@ -206,12 +206,12 @@ func (r *Receiver) keep(ctx context.Context, c call, before, folded string, m me
 // minSaving is the fewest tokens a fold must save: a hint costs about that.
 const minSaving = 20
 
-func (r *Receiver) save(ctx context.Context, p *payload.Payload, folded string, m meta) (string, error) {
-	in := tokens.Estimate(p.Text())
+func (r *Receiver) save(ctx context.Context, data *payload.Payload, folded string, info meta) (string, error) {
+	in := tokens.Estimate(data.Text())
 	if in-tokens.Estimate(folded) < 2*minSaving {
-		return p.Text(), nil
+		return data.Text(), nil
 	}
-	id, err := r.ledger.SaveRaw(ctx, p.Key(), p)
+	id, err := r.ledger.SaveRaw(ctx, data.Key(), data)
 	if err != nil {
 		return "", err
 	}
@@ -221,8 +221,8 @@ func (r *Receiver) save(ctx context.Context, p *payload.Payload, folded string, 
 	}
 	n := tokens.Estimate(out)
 	err = r.ledger.Record(ctx, component.Event{
-		TS: time.Now(), Agent: m.agent, Model: m.model, Pipeline: "proxy", Key: p.Key(), Route: "fold",
-		Command:    cmp.Or(detect.Command(p.Attrs[payload.AttrCmd]), p.Attrs[payload.AttrTool]),
+		TS: time.Now(), Agent: info.agent, Model: info.model, Pipeline: "proxy", Key: data.Key(), Route: "fold",
+		Command:    cmp.Or(detect.Command(data.Attrs[payload.AttrCmd]), data.Attrs[payload.AttrTool]),
 		Optimizers: []string{"fold"}, RawTokens: in, OutTokens: n, RawID: id, Outcome: component.Optimized,
 		Steps: []component.Step{{Optimizer: "fold", Family: "core", RawTokens: in, OutTokens: n}}, Output: out,
 	})

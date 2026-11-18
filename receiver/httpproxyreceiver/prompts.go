@@ -19,12 +19,12 @@ var reminder = lazyre.New(`(?s)<system-reminder>.*?</system-reminder>`)
 // recordPrompts records the instruction text a request carries — system
 // prompts, CLAUDE.md, skill lists, reminders — once per distinct block, so
 // gain shows what instructions cost next to tool results. Nothing changes.
-func (r *Receiver) recordPrompts(ctx context.Context, doc map[string]any, m meta) {
+func (r *Receiver) recordPrompts(ctx context.Context, doc map[string]any, info meta) {
 	if r.ledger == nil {
 		return
 	}
 	for _, text := range instructions(doc) {
-		r.recordPrompt(ctx, text, m)
+		r.recordPrompt(ctx, text, info)
 	}
 }
 
@@ -33,8 +33,8 @@ func (r *Receiver) recordPrompts(ctx context.Context, doc map[string]any, m meta
 // messages and instructions, Gemini systemInstruction.
 func instructions(doc map[string]any) []string {
 	var out []string
-	add := func(v any) {
-		for _, t := range texts(v) {
+	add := func(value any) {
+		for _, t := range texts(value) {
 			if strings.TrimSpace(t) != "" {
 				out = append(out, t)
 			}
@@ -63,12 +63,12 @@ func instructions(doc map[string]any) []string {
 
 // texts returns a content value's text: a string, or the text of each part
 // of a list (text, input_text and Gemini parts).
-func texts(v any) []string {
-	if s, ok := v.(string); ok {
+func texts(value any) []string {
+	if s, ok := value.(string); ok {
 		return []string{s}
 	}
 	var out []string
-	for _, pv := range asList(v) {
+	for _, pv := range asList(value) {
 		if p, ok := pv.(map[string]any); ok {
 			if t, ok := p["text"].(string); ok {
 				out = append(out, t)
@@ -78,7 +78,7 @@ func texts(v any) []string {
 	return out
 }
 
-func (r *Receiver) recordPrompt(ctx context.Context, text string, m meta) {
+func (r *Receiver) recordPrompt(ctx context.Context, text string, info meta) {
 	sum := sha256.Sum256([]byte(text))
 	key := "prompt:" + hex.EncodeToString(sum[:8])
 	if _, ok := r.cache.get(key); ok {
@@ -95,7 +95,7 @@ func (r *Receiver) recordPrompt(ctx context.Context, text string, m meta) {
 	}
 	n := tokens.Estimate(text)
 	err = r.ledger.Record(ctx, component.Event{
-		TS: time.Now(), Agent: m.agent, Model: m.model, Pipeline: "proxy", Key: key, Route: "prompt",
+		TS: time.Now(), Agent: info.agent, Model: info.model, Pipeline: "proxy", Key: key, Route: "prompt",
 		Command: promptKind(text), RawTokens: n, OutTokens: n, RawID: id, Output: text, Outcome: component.Unchanged,
 		Reason: "instruction text, sent with every request (recorded once per distinct block)",
 	})

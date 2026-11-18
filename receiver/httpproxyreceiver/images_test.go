@@ -9,11 +9,11 @@ import (
 	"testing"
 )
 
-func pngOf(t *testing.T, w, h int) string {
+func pngOf(t *testing.T, width, height int) string {
 	t.Helper()
-	img := image.NewNRGBA(image.Rect(0, 0, w, h))
-	for y := range h {
-		for x := range w {
+	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+	for y := range height {
+		for x := range width {
 			img.SetNRGBA(x, y, color.NRGBA{uint8(x), uint8(y), 128, 255})
 		}
 	}

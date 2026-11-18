@@ -129,11 +129,11 @@ type memLedger struct {
 	events []component.Event
 }
 
-func (l *memLedger) SaveRaw(_ context.Context, _ string, p *payload.Payload) (string, error) {
+func (l *memLedger) SaveRaw(_ context.Context, _ string, data *payload.Payload) (string, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	id := fmt.Sprintf("%x", len(p.Text()))
-	l.raw[id] = p.Text()
+	id := fmt.Sprintf("%x", len(data.Text()))
+	l.raw[id] = data.Text()
 	return id, nil
 }
 
@@ -182,7 +182,7 @@ func TestProxyFoldsRepeatedReads(t *testing.T) {
 }
 
 // resultAt is the n-th tool result of a forwarded conversation.
-func resultAt(t *testing.T, body []byte, n int) string {
+func resultAt(t *testing.T, body []byte, index int) string {
 	t.Helper()
 	var doc struct {
 		Messages []struct {
@@ -192,7 +192,7 @@ func resultAt(t *testing.T, body []byte, n int) string {
 	if err := json.Unmarshal(body, &doc); err != nil {
 		t.Fatal(err)
 	}
-	blocks := doc.Messages[2+2*n].Content.([]any)
+	blocks := doc.Messages[2+2*index].Content.([]any)
 	return blocks[0].(map[string]any)["content"].(string)
 }
 

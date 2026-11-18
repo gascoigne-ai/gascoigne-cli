@@ -10,7 +10,7 @@ import (
 
 // anthropic shortens tool_result blocks of a Messages request; the tool_use
 // blocks they answer say which tool produced them.
-func anthropic(ctx context.Context, r *Receiver, doc map[string]any, m meta) bool {
+func anthropic(ctx context.Context, receiver *Receiver, doc map[string]any, info meta) bool {
 	msgs, _ := doc["messages"].([]any)
 	calls := map[string]call{}
 	changed := false
@@ -34,7 +34,7 @@ func anthropic(ctx context.Context, r *Receiver, doc map[string]any, m meta) boo
 				if !ok {
 					continue
 				}
-				if content, ok := replaceContent(ctx, r, c, b["content"], m); ok {
+				if content, ok := replaceContent(ctx, receiver, c, b["content"], info); ok {
 					b["content"] = content
 					changed = true
 				}
@@ -46,16 +46,16 @@ func anthropic(ctx context.Context, r *Receiver, doc map[string]any, m meta) boo
 
 // replaceContent shortens a string or the text blocks of a content list;
 // images above max_image_pixels are downscaled, other blocks pass.
-func replaceContent(ctx context.Context, r *Receiver, c call, content any, m meta) (any, bool) {
+func replaceContent(ctx context.Context, receiver *Receiver, toolCall call, content any, info meta) (any, bool) {
 	switch v := content.(type) {
 	case string:
-		out := r.result(ctx, c, v, m)
+		out := receiver.result(ctx, toolCall, v, info)
 		return out, out != v
 	case []any:
 		changed := false
 		for _, bv := range v {
 			b, _ := bv.(map[string]any)
-			if r.shrinkImages(ctx, b) {
+			if receiver.shrinkImages(ctx, b) {
 				changed = true
 				continue
 			}
@@ -63,7 +63,7 @@ func replaceContent(ctx context.Context, r *Receiver, c call, content any, m met
 			if !ok || b["type"] != "text" && b["type"] != "input_text" && b["type"] != "output_text" {
 				continue
 			}
-			if out := r.result(ctx, c, text, m); out != text {
+			if out := receiver.result(ctx, toolCall, text, info); out != text {
 				b["text"] = out
 				changed = true
 			}
@@ -74,7 +74,7 @@ func replaceContent(ctx context.Context, r *Receiver, c call, content any, m met
 }
 
 // chatCompletions shortens role "tool" messages of a Chat Completions request.
-func chatCompletions(ctx context.Context, r *Receiver, doc map[string]any, m meta) bool {
+func chatCompletions(ctx context.Context, receiver *Receiver, doc map[string]any, info meta) bool {
 	msgs, _ := doc["messages"].([]any)
 	calls := map[string]call{}
 	changed := false
@@ -93,7 +93,7 @@ func chatCompletions(ctx context.Context, r *Receiver, doc map[string]any, m met
 		}
 		id, _ := msg["tool_call_id"].(string)
 		if c, ok := calls[id]; ok {
-			if content, ok := replaceContent(ctx, r, c, msg["content"], m); ok {
+			if content, ok := replaceContent(ctx, receiver, c, msg["content"], info); ok {
 				msg["content"] = content
 				changed = true
 			}
@@ -103,7 +103,7 @@ func chatCompletions(ctx context.Context, r *Receiver, doc map[string]any, m met
 }
 
 // responses shortens *_call_output items of a Responses request (codex).
-func responses(ctx context.Context, r *Receiver, doc map[string]any, m meta) bool {
+func responses(ctx context.Context, receiver *Receiver, doc map[string]any, info meta) bool {
 	calls := map[string]call{}
 	changed := false
 	for _, iv := range asList(doc["input"]) {
@@ -126,7 +126,7 @@ func responses(ctx context.Context, r *Receiver, doc map[string]any, m meta) boo
 			if !ok {
 				continue
 			}
-			if out, ok := replaceContent(ctx, r, c, item["output"], m); ok {
+			if out, ok := replaceContent(ctx, receiver, c, item["output"], info); ok {
 				item["output"] = out
 				changed = true
 			}
@@ -135,27 +135,27 @@ func responses(ctx context.Context, r *Receiver, doc map[string]any, m meta) boo
 	return changed
 }
 
-func asList(v any) []any {
-	l, _ := v.([]any)
+func asList(value any) []any {
+	l, _ := value.([]any)
 	return l
 }
 
 // arguments decodes a tool call's JSON arguments; codex shells pass
 // {"command": ["bash", "-lc", "go test ./..."]} or {"cmd": "..."}.
-func arguments(s string) map[string]any {
+func arguments(raw string) map[string]any {
 	var a map[string]any
-	if json.Unmarshal([]byte(s), &a) != nil {
+	if json.Unmarshal([]byte(raw), &a) != nil {
 		return nil
 	}
 	return normalize(a)
 }
 
 // normalize turns a shell call's argv or cmd into a command string.
-func normalize(a map[string]any) map[string]any {
-	if cmd, ok := a["cmd"].(string); ok {
-		a["command"] = cmd
+func normalize(args map[string]any) map[string]any {
+	if cmd, ok := args["cmd"].(string); ok {
+		args["command"] = cmd
 	}
-	if argv, ok := a["command"].([]any); ok {
+	if argv, ok := args["command"].([]any); ok {
 		parts := make([]string, 0, len(argv))
 		for _, x := range argv {
 			if s, ok := x.(string); ok {
@@ -163,18 +163,18 @@ func normalize(a map[string]any) map[string]any {
 			}
 		}
 		if n := len(parts); n >= 3 && (parts[n-2] == "-lc" || parts[n-2] == "-c") {
-			a["command"] = parts[n-1]
+			args["command"] = parts[n-1]
 		} else {
-			a["command"] = strings.Join(parts, " ")
+			args["command"] = strings.Join(parts, " ")
 		}
 	}
-	return a
+	return args
 }
 
 // gemini shortens functionResponse parts of a generateContent request.
 // A response answers the call with its id, else the oldest unanswered call
 // of its name (Gemini CLI puts tool output under response.output).
-func gemini(ctx context.Context, r *Receiver, doc map[string]any, m meta) bool {
+func gemini(ctx context.Context, receiver *Receiver, doc map[string]any, info meta) bool {
 	var calls []*geminiCall
 	changed := false
 	for _, cv := range asList(doc["contents"]) {
@@ -195,7 +195,7 @@ func gemini(ctx context.Context, r *Receiver, doc map[string]any, m meta) bool {
 				continue
 			}
 			for _, key := range []string{"output", "content"} {
-				if out, ok := replaceContent(ctx, r, c.call, resp[key], m); ok {
+				if out, ok := replaceContent(ctx, receiver, c.call, resp[key], info); ok {
 					resp[key] = out
 					changed = true
 				}
@@ -226,11 +226,11 @@ func answered(calls []*geminiCall, fr map[string]any) *geminiCall {
 }
 
 // shrinkImages downscales an Anthropic base64 image block in place.
-func (r *Receiver) shrinkImages(ctx context.Context, b map[string]any) bool {
-	if r.cfg.MaxImagePixels <= 0 || b["type"] != "image" {
+func (r *Receiver) shrinkImages(ctx context.Context, block map[string]any) bool {
+	if r.cfg.MaxImagePixels <= 0 || block["type"] != "image" {
 		return false
 	}
-	src, _ := b["source"].(map[string]any)
+	src, _ := block["source"].(map[string]any)
 	data, _ := src["data"].(string)
 	if src["type"] != "base64" || data == "" {
 		return false

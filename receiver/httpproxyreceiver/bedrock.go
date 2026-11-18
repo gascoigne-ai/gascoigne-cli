@@ -19,8 +19,8 @@ var bedrockAPI = api{rewrite: anthropic}
 // bedrock splits a /bedrock/<region>/model/<id>/invoke… path, the base URL
 // gascoigne gives Claude Code as ANTHROPIC_BEDROCK_BASE_URL, into the
 // Bedrock Runtime upstream (tmpl with {region} filled in) and the path.
-func bedrock(p, tmpl string) (upstream, rest string, ok bool) {
-	tail, found := strings.CutPrefix(p, "/bedrock/")
+func bedrock(requestPath, tmpl string) (upstream, rest string, ok bool) {
+	tail, found := strings.CutPrefix(requestPath, "/bedrock/")
 	if !found {
 		return "", "", false
 	}
@@ -32,8 +32,8 @@ func bedrock(p, tmpl string) (upstream, rest string, ok bool) {
 }
 
 // bedrockModel is the model id in an InvokeModel path: /model/<id>/invoke.
-func bedrockModel(p string) string {
-	_, tail, ok := strings.Cut(p, "/model/")
+func bedrockModel(requestPath string) string {
+	_, tail, ok := strings.Cut(requestPath, "/model/")
 	if !ok {
 		return ""
 	}

@@ -24,60 +24,60 @@ type call struct {
 
 // result returns the text the model should get for one tool result; the
 // same input always yields the same output, from the cache once seen.
-func (r *Receiver) result(ctx context.Context, c call, text string, m meta) string {
-	skip := slices.Contains(r.cfg.Skip, c.name)
+func (r *Receiver) result(ctx context.Context, toolCall call, text string, info meta) string {
+	skip := slices.Contains(r.cfg.Skip, toolCall.name)
 	out := text
 	if strings.TrimSpace(text) != "" && !skip && !hint.Re.MatchString(text) {
-		out = r.shorten(ctx, c, text, m)
+		out = r.shorten(ctx, toolCall, text, info)
 	}
-	if m.folder == nil {
+	if info.folder == nil {
 		return out
 	}
-	folded, ok := m.folder.fold(label(c), out, !skip)
+	folded, ok := info.folder.fold(label(toolCall), out, !skip)
 	if !ok {
 		return out
 	}
-	return r.keep(ctx, c, out, folded, m)
+	return r.keep(ctx, toolCall, out, folded, info)
 }
 
 // shorten runs one result through the pipeline, remembered by content.
-func (r *Receiver) shorten(ctx context.Context, c call, text string, m meta) string {
-	key := cacheKey(c, text)
+func (r *Receiver) shorten(ctx context.Context, toolCall call, text string, info meta) string {
+	key := cacheKey(toolCall, text)
 	if out, ok := r.cache.get(key); ok {
 		return out
 	}
-	out := r.optimize(ctx, c, text, m)
+	out := r.optimize(ctx, toolCall, text, info)
 	r.cache.put(key, out)
 	return out
 }
 
-func cacheKey(c call, text string) string {
+func cacheKey(toolCall call, text string) string {
 	h := sha256.New()
-	fmt.Fprintf(h, "%s\x00%v\x00", c.name, mcptool.Attrs(c.name, c.input))
+	fmt.Fprintf(h, "%s\x00%v\x00", toolCall.name, mcptool.Attrs(toolCall.name, toolCall.input))
 	h.Write([]byte(text))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func (r *Receiver) optimize(ctx context.Context, c call, original string, m meta) string {
+func (r *Receiver) optimize(ctx context.Context, toolCall call, original string, info meta) string {
 	text := original
 	numbered, plain, nums := splitNumbers(text)
 	if numbered {
 		text = plain
 	}
 	p := payload.New(payload.ToolResult, text)
-	for k, v := range mcptool.Attrs(c.name, c.input) {
+	for k, v := range mcptool.Attrs(toolCall.name, toolCall.input) {
 		p.Set(k, v)
 	}
-	if m.model != "" {
-		p.Set(payload.AttrModel, m.model)
+	if info.model != "" {
+		p.Set(payload.AttrModel, info.model)
 	}
-	if m.agent != "" {
-		p.Set(payload.AttrAgent, m.agent)
+	if info.agent != "" {
+		p.Set(payload.AttrAgent, info.agent)
 	}
 	out, err := r.next.Process(ctx, p)
 	if err != nil || out == nil || out.Attrs[payload.AttrRawID] == "" {
 		if err != nil {
-			r.log.Warn("optimize tool result", "tool", c.name, "err", err)
+			r.log.Warn("optimize tool result", "tool", toolCall.name, "err", err)
 		}
 		return original
 	}
@@ -148,10 +148,10 @@ func newCache(max int) *cache {
 	return &cache{max: max, order: list.New(), items: map[string]*list.Element{}}
 }
 
-func (c *cache) get(k string) (string, bool) {
+func (c *cache) get(key string) (string, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	e, ok := c.items[k]
+	e, ok := c.items[key]
 	if !ok {
 		return "", false
 	}
@@ -159,15 +159,15 @@ func (c *cache) get(k string) (string, bool) {
 	return e.Value.(*entry).val, true
 }
 
-func (c *cache) put(k, v string) {
+func (c *cache) put(key, value string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if e, ok := c.items[k]; ok {
-		e.Value.(*entry).val = v
+	if e, ok := c.items[key]; ok {
+		e.Value.(*entry).val = value
 		c.order.MoveToFront(e)
 		return
 	}
-	c.items[k] = c.order.PushFront(&entry{k, v})
+	c.items[key] = c.order.PushFront(&entry{key, value})
 	for c.order.Len() > c.max {
 		last := c.order.Back()
 		c.order.Remove(last)

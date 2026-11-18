@@ -27,7 +27,7 @@ type tally struct {
 
 // usageReader adds what one decoded response object (a whole body or one
 // stream event) says about usage to t.
-type usageReader func(obj map[string]any, t *tally)
+type usageReader func(obj map[string]any, counts *tally)
 
 // maxBody bounds a non-streamed body kept to read its usage.
 const maxBody = 8 << 20
@@ -62,12 +62,12 @@ type metered struct {
 	done chan struct{}
 }
 
-func (m *metered) Read(p []byte) (int, error) {
-	n, err := m.body.Read(p)
+func (m *metered) Read(chunk []byte) (int, error) {
+	n, err := m.body.Read(chunk)
 	if m.zw != nil {
-		m.zw.Write(p[:n])
+		m.zw.Write(chunk[:n])
 	} else {
-		m.feed(p[:n])
+		m.feed(chunk[:n])
 	}
 	return n, err
 }
@@ -93,14 +93,14 @@ func (m *metered) inflate() {
 	}()
 }
 
-func (m *metered) feed(b []byte) {
+func (m *metered) feed(data []byte) {
 	if !m.stream {
-		if m.buf.Len()+len(b) <= maxBody {
-			m.buf.Write(b)
+		if m.buf.Len()+len(data) <= maxBody {
+			m.buf.Write(data)
 		}
 		return
 	}
-	m.buf.Write(b)
+	m.buf.Write(data)
 	for {
 		line, err := m.buf.ReadBytes('\n')
 		if err != nil {
@@ -158,9 +158,9 @@ func (m *metered) record() {
 
 // whole reads a whole JSON response: one object, or an array of stream
 // chunks (Gemini without alt=sse).
-func (m *metered) whole(b []byte) {
+func (m *metered) whole(data []byte) {
 	var v any
-	if json.Unmarshal(b, &v) != nil {
+	if json.Unmarshal(data, &v) != nil {
 		return
 	}
 	for _, o := range append(asList(v), v) {
@@ -172,92 +172,92 @@ func (m *metered) whole(b []byte) {
 
 // anthropicUsage: message_start carries input and cache counts in
 // message.usage, message_delta the output; plain responses one usage.
-func anthropicUsage(obj map[string]any, t *tally) {
+func anthropicUsage(obj map[string]any, counts *tally) {
 	msg := obj
 	if m, ok := obj["message"].(map[string]any); ok {
 		msg = m
 	}
-	t.setModel(msg["model"])
+	counts.setModel(msg["model"])
 	u, ok := msg["usage"].(map[string]any)
 	if !ok {
 		u, ok = obj["usage"].(map[string]any)
 	}
 	if ok {
-		t.add(u, "input_tokens", &t.input)
-		t.add(u, "cache_read_input_tokens", &t.cached)
-		t.add(u, "cache_creation_input_tokens", &t.written)
+		counts.add(u, "input_tokens", &counts.input)
+		counts.add(u, "cache_read_input_tokens", &counts.cached)
+		counts.add(u, "cache_creation_input_tokens", &counts.written)
 		if c, ok := u["cache_creation"].(map[string]any); ok {
-			t.add(c, "ephemeral_1h_input_tokens", &t.written1h)
+			counts.add(c, "ephemeral_1h_input_tokens", &counts.written1h)
 		}
-		t.add(u, "output_tokens", &t.output)
+		counts.add(u, "output_tokens", &counts.output)
 	}
 }
 
 // chatUsage: the usage chunk (stream_options.include_usage) or body;
 // prompt_tokens include cached ones.
-func chatUsage(obj map[string]any, t *tally) {
-	t.setModel(obj["model"])
+func chatUsage(obj map[string]any, counts *tally) {
+	counts.setModel(obj["model"])
 	u, ok := obj["usage"].(map[string]any)
 	if !ok {
 		return
 	}
-	t.inputHasCached = true
-	t.add(u, "prompt_tokens", &t.input)
-	t.add(u, "completion_tokens", &t.output)
+	counts.inputHasCached = true
+	counts.add(u, "prompt_tokens", &counts.input)
+	counts.add(u, "completion_tokens", &counts.output)
 	if d, ok := u["prompt_tokens_details"].(map[string]any); ok {
-		t.add(d, "cached_tokens", &t.cached)
+		counts.add(d, "cached_tokens", &counts.cached)
 	}
 }
 
 // responsesUsage: response.completed carries response.usage; input_tokens
 // include cached ones.
-func responsesUsage(obj map[string]any, t *tally) {
+func responsesUsage(obj map[string]any, counts *tally) {
 	if r, ok := obj["response"].(map[string]any); ok {
 		obj = r
 	}
-	t.setModel(obj["model"])
+	counts.setModel(obj["model"])
 	u, ok := obj["usage"].(map[string]any)
 	if !ok {
 		return
 	}
-	t.inputHasCached = true
-	t.add(u, "input_tokens", &t.input)
-	t.add(u, "output_tokens", &t.output)
+	counts.inputHasCached = true
+	counts.add(u, "input_tokens", &counts.input)
+	counts.add(u, "output_tokens", &counts.output)
 	if d, ok := u["input_tokens_details"].(map[string]any); ok {
-		t.add(d, "cached_tokens", &t.cached)
+		counts.add(d, "cached_tokens", &counts.cached)
 	}
 }
 
 // geminiUsage: every chunk carries running usageMetadata; prompt tokens
 // include cached ones, output is candidates plus thoughts.
-func geminiUsage(obj map[string]any, t *tally) {
-	t.setModel(obj["modelVersion"])
+func geminiUsage(obj map[string]any, counts *tally) {
+	counts.setModel(obj["modelVersion"])
 	u, ok := obj["usageMetadata"].(map[string]any)
 	if !ok {
 		return
 	}
-	t.inputHasCached = true
-	t.add(u, "promptTokenCount", &t.input)
-	t.add(u, "cachedContentTokenCount", &t.cached)
+	counts.inputHasCached = true
+	counts.add(u, "promptTokenCount", &counts.input)
+	counts.add(u, "cachedContentTokenCount", &counts.cached)
 	out := 0
 	for _, k := range []string{"candidatesTokenCount", "thoughtsTokenCount"} {
 		if n, ok := u[k].(float64); ok {
 			out += int(n)
 		}
 	}
-	t.output = max(t.output, out)
+	counts.output = max(counts.output, out)
 }
 
 // add keeps the larger of *dst and u[key], when u has it.
-func (t *tally) add(u map[string]any, key string, dst *int) {
-	if n, ok := u[key].(float64); ok {
+func (t *tally) add(usage map[string]any, key string, dst *int) {
+	if n, ok := usage[key].(float64); ok {
 		*dst = max(*dst, int(n))
 		t.reported = true
 	}
 }
 
-func (t *tally) setModel(v any) {
-	if s, _ := v.(string); s != "" {
+func (t *tally) setModel(model any) {
+	if s, _ := model.(string); s != "" {
 		t.model = s
 	}
 }

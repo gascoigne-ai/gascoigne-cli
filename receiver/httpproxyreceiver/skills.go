@@ -24,7 +24,7 @@ var htmlComment = lazyre.New(`(?s)<!--.*?-->\n?`)
 // code blocks longer than skill_code_lines keep their first lines plus a
 // pointer to read the rest by line range. The body is the same in every
 // request, and so is its shrunk form (cached by hash): the prompt cache holds.
-func (r *Receiver) skills(ctx context.Context, doc map[string]any, m meta) bool {
+func (r *Receiver) skills(ctx context.Context, doc map[string]any, info meta) bool {
 	changed := false
 	for _, mv := range asList(doc["messages"]) {
 		msg, _ := mv.(map[string]any)
@@ -32,7 +32,7 @@ func (r *Receiver) skills(ctx context.Context, doc map[string]any, m meta) bool 
 			continue
 		}
 		if s, ok := msg["content"].(string); ok {
-			if out := r.skill(ctx, s, m); out != s {
+			if out := r.skill(ctx, s, info); out != s {
 				msg["content"], changed = out, true
 			}
 			continue
@@ -43,7 +43,7 @@ func (r *Receiver) skills(ctx context.Context, doc map[string]any, m meta) bool 
 			if b["type"] != "text" {
 				continue
 			}
-			if out := r.skill(ctx, text, m); out != text {
+			if out := r.skill(ctx, text, info); out != text {
 				b["text"], changed = out, true
 			}
 		}
@@ -52,7 +52,7 @@ func (r *Receiver) skills(ctx context.Context, doc map[string]any, m meta) bool 
 }
 
 // skill returns a skill body's text as forwarded; other text unchanged.
-func (r *Receiver) skill(ctx context.Context, text string, m meta) string {
+func (r *Receiver) skill(ctx context.Context, text string, info meta) string {
 	if !strings.HasPrefix(text, skillHead) || r.ledger == nil {
 		return text
 	}
@@ -60,19 +60,19 @@ func (r *Receiver) skill(ctx context.Context, text string, m meta) string {
 	if out, ok := r.cache.get(key); ok {
 		return out
 	}
-	out := r.shrinkSkill(ctx, text, m)
+	out := r.shrinkSkill(ctx, text, info)
 	r.cache.put(key, out)
 	// A shrunk body seen again passes as it is, unrecorded.
 	r.cache.put("skill\x00"+cacheKey(call{name: "skill"}, out), out)
 	return out
 }
 
-func (r *Receiver) shrinkSkill(ctx context.Context, text string, m meta) string {
+func (r *Receiver) shrinkSkill(ctx context.Context, text string, info meta) string {
 	dir, _, _ := strings.Cut(strings.TrimPrefix(text, skillHead), "\n")
 	name := path.Base(strings.TrimSpace(dir))
 	p := payload.New(payload.Message, text)
 	p.Set(payload.AttrTool, "Skill")
-	ev := component.Event{TS: time.Now(), Agent: m.agent, Model: m.model, Pipeline: "proxy",
+	ev := component.Event{TS: time.Now(), Agent: info.agent, Model: info.model, Pipeline: "proxy",
 		Key: "skill:" + name, Route: "skill", Command: "skill " + name}
 	// The body is kept like an original, shrunk or not, so gascoigne raw
 	// and the dashboard show what the skill told the agent.
