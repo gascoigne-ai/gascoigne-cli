@@ -3,10 +3,13 @@ package main
 import (
 	"errors"
 	"maps"
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -107,5 +110,72 @@ func TestCheckProseInstalled(t *testing.T) {
 	}
 	if err := checkProseInstalled([]string{"optimizers.prose.enabled=true"}); err == nil {
 		t.Fatal("prose on without a model must fail")
+	}
+}
+
+// evalDir writes a cases file with one fixture and returns the cases path.
+func evalDir(t *testing.T, cases string) string {
+	t.Helper()
+	// cmdEval points the ledger at a throwaway dir for the whole process; have t restore it.
+	t.Setenv(ledger.EnvPath, os.Getenv(ledger.EnvPath))
+	dir := t.TempDir()
+	write(t, filepath.Join(dir, "cases.yaml"), cases)
+	write(t, filepath.Join(dir, "a.txt"), strings.Repeat("some repeated log line\n", 200))
+	return filepath.Join(dir, "cases.yaml")
+}
+
+func TestCmdEvalSummary(t *testing.T) {
+	sandbox(t)
+	t.Setenv("PATH", "/usr/bin:/bin") // live cases run through sh
+	path := evalDir(t, "- file: a.txt\n  name: first\n- run: echo hi\n  name: live\n- run: gascoigne-no-such-program-xyz\n  name: missing\n")
+	var err error
+	out := capture(t, func() { err = cmdEval(t.Context(), []string{"-cases", path, "-show", "first"}) })
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"case", "first", "live", "skip: not installed", "total", "2 cases: 2 ok, 1 skipped (tool not installed)", "=== first ==="} {
+		if !strings.Contains(out, want) {
+			t.Errorf("output lacks %q:\n%s", want, out)
+		}
+	}
+}
+
+func TestCmdEvalFailureAndErrors(t *testing.T) {
+	sandbox(t)
+	path := evalDir(t, "- file: a.txt\n  name: first\n  keep: [\"no such text\"]\n")
+	var err error
+	out := capture(t, func() { err = cmdEval(t.Context(), []string{"-cases", path}) })
+	if err == nil || err.Error() != "eval failed" {
+		t.Fatalf("err %v, want eval failed", err)
+	}
+	if !strings.Contains(out, "1 cases: 0 ok, ") || !strings.Contains(out, "FAIL") {
+		t.Errorf("output: %s", out)
+	}
+	if err := cmdEval(t.Context(), []string{"-cases", path, "-pipeline", "nope"}); err == nil || !strings.Contains(err.Error(), `no pipeline "nope"`) {
+		t.Errorf("err %v", err)
+	}
+	if err := cmdEval(t.Context(), []string{"-cases", path + ".missing"}); err == nil {
+		t.Error("missing cases file: want error")
+	}
+}
+
+func TestCmdEvalBaseline(t *testing.T) {
+	sandbox(t)
+	path := evalDir(t, "- file: a.txt\n  name: first\n")
+	capture(t, func() { _ = cmdEval(t.Context(), []string{"-cases", path, "-update"}) })
+	base := filepath.Join(filepath.Dir(path), "baseline.tsv")
+	if m, err := readBaseline(base); err != nil || len(m) != 1 {
+		t.Fatalf("baseline %v, %v", m, err)
+	}
+	var err error
+	capture(t, func() { err = cmdEval(t.Context(), []string{"-cases", path}) })
+	if err != nil {
+		t.Errorf("rerun against baseline: %v", err)
+	}
+	other := evalDir(t, "- file: a.txt\n  name: first\n")
+	write(t, filepath.Join(filepath.Dir(other), "baseline.tsv"), "")
+	capture(t, func() { err = cmdEval(t.Context(), []string{"-cases", other}) })
+	if err == nil {
+		t.Error("case missing from baseline: want failure")
 	}
 }

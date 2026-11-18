@@ -92,120 +92,135 @@ type mcpReview struct {
 // buildReview turns the ledger's rows into the review as of now. Days are UTC.
 // learned are the server ids judged before observeDays.
 func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Time, learned map[string]bool) mcpReview {
-	today := now.UTC().Truncate(24 * time.Hour)
-	age := func(day string) int { // days ago, 0 for today
-		d, err := time.Parse("2006-01-02", day)
-		if err != nil {
-			return 1 << 20
-		}
-		return int(today.Sub(d).Hours() / 24)
+	builder := &reviewBuilder{
+		today:    now.UTC().Truncate(24 * time.Hour),
+		servers:  map[string]*mcpServer{},
+		tools:    map[reviewKey]*mcpTool{},
+		oldest:   map[string]int{},
+		listedAt: map[string]int{},
+		latest:   map[reviewKey]string{},
+		listedBy: map[string]map[string]bool{},
 	}
-	type key struct{ server, tool string }
-	servers := map[string]*mcpServer{}
-	tools := map[key]*mcpTool{}
-	oldest := map[string]int{}               // server -> age of its first row
-	listedAt := map[string]int{}             // server -> age of its newest listing
-	latest := map[key]string{}               // tool -> day of the size kept
-	listedBy := map[string]map[string]bool{} // proxied server -> the tools it lists
-	var dataOldest int
+	for _, row := range stats {
+		builder.addStat(row)
+	}
+	builder.addHookCalls(cmds)
+	return builder.review(learned)
+}
 
-	touch := func(server, agent, day string) *mcpServer {
-		s := servers[server]
-		if s == nil {
-			name, _, _ := strings.Cut(server, "#")
-			s = &mcpServer{ID: server, Name: name, Label: name, Agents: []string{}, Tools: []mcpTool{}}
-			servers[server] = s
-		}
-		if agent != "" && !slices.Contains(s.Agents, agent) {
-			s.Agents = append(s.Agents, agent)
-		}
-		a := age(day)
-		oldest[server] = max(oldest[server], a)
-		dataOldest = max(dataOldest, a)
-		return s
-	}
-	tool := func(server, name string) *mcpTool {
-		t := tools[key{server, name}]
-		if t == nil {
-			t = &mcpTool{Name: name}
-			tools[key{server, name}] = t
-		}
-		return t
-	}
-	count := func(server *mcpServer, tool *mcpTool, day string, calls int) {
-		a := age(day)
-		switch {
-		case a < 7:
-			server.Calls7 += calls
-			tool.Calls7 += calls
-		case a < 14:
-			server.CallsPrev += calls
-		}
-		if a < 14 {
-			tool.Calls += calls
-		}
-		if calls > 0 && (server.LastUsed == "" || day > server.LastUsed) {
-			server.LastUsed = day
-		}
-	}
+type reviewKey struct{ server, tool string }
 
-	for _, r := range stats {
-		s := touch(r.Server, r.Agent, r.Day)
-		t := tool(r.Server, r.Tool)
-		if r.Tokens > 0 {
-			if a, ok := listedAt[r.Server]; !ok || age(r.Day) < a {
-				listedAt[r.Server] = age(r.Day)
-			}
-			k := key{r.Server, r.Tool}
-			if r.Day >= latest[k] { // the last listing's size
-				t.Tokens, t.Lazy, latest[k] = r.Tokens, r.Lazy, r.Day
-			}
-			s.Sized = true
-		}
-		if listedBy[r.Server] == nil {
-			listedBy[r.Server] = map[string]bool{}
-		}
-		listedBy[r.Server][r.Tool] = true
-		count(s, t, r.Day, r.Calls)
+// reviewBuilder collects the ledger's rows per server and tool before the
+// review is judged.
+type reviewBuilder struct {
+	today      time.Time
+	servers    map[string]*mcpServer
+	tools      map[reviewKey]*mcpTool
+	oldest     map[string]int             // server -> age of its first row
+	listedAt   map[string]int             // server -> age of its newest listing
+	latest     map[reviewKey]string       // tool -> day of the size kept
+	listedBy   map[string]map[string]bool // proxied server -> the tools it lists
+	dataOldest int
+}
+
+// age is how many days ago day was, 0 for today.
+func (builder *reviewBuilder) age(day string) int {
+	parsed, err := time.Parse("2006-01-02", day)
+	if err != nil {
+		return 1 << 20
 	}
-	covered := coveredByProxy(cmds, listedBy)
-	for _, c := range cmds {
-		server, name, ok := splitMCPName(c.Command)
+	return int(builder.today.Sub(parsed).Hours() / 24)
+}
+
+func (builder *reviewBuilder) touch(server, agent, day string) *mcpServer {
+	entry := builder.servers[server]
+	if entry == nil {
+		name, _, _ := strings.Cut(server, "#")
+		entry = &mcpServer{ID: server, Name: name, Label: name, Agents: []string{}, Tools: []mcpTool{}}
+		builder.servers[server] = entry
+	}
+	if agent != "" && !slices.Contains(entry.Agents, agent) {
+		entry.Agents = append(entry.Agents, agent)
+	}
+	days := builder.age(day)
+	builder.oldest[server] = max(builder.oldest[server], days)
+	builder.dataOldest = max(builder.dataOldest, days)
+	return entry
+}
+
+func (builder *reviewBuilder) tool(server, name string) *mcpTool {
+	entry := builder.tools[reviewKey{server, name}]
+	if entry == nil {
+		entry = &mcpTool{Name: name}
+		builder.tools[reviewKey{server, name}] = entry
+	}
+	return entry
+}
+
+func (builder *reviewBuilder) count(server *mcpServer, tool *mcpTool, day string, calls int) {
+	days := builder.age(day)
+	switch {
+	case days < 7:
+		server.Calls7 += calls
+		tool.Calls7 += calls
+	case days < 14:
+		server.CallsPrev += calls
+	}
+	if days < 14 {
+		tool.Calls += calls
+	}
+	if calls > 0 && (server.LastUsed == "" || day > server.LastUsed) {
+		server.LastUsed = day
+	}
+}
+
+// addStat adds one row of the proxy's table: a tool's size and calls.
+func (builder *reviewBuilder) addStat(row ledger.ToolStat) {
+	server := builder.touch(row.Server, row.Agent, row.Day)
+	tool := builder.tool(row.Server, row.Tool)
+	if row.Tokens > 0 {
+		if days, ok := builder.listedAt[row.Server]; !ok || builder.age(row.Day) < days {
+			builder.listedAt[row.Server] = builder.age(row.Day)
+		}
+		key := reviewKey{row.Server, row.Tool}
+		if row.Day >= builder.latest[key] { // the last listing's size
+			tool.Tokens, tool.Lazy, builder.latest[key] = row.Tokens, row.Lazy, row.Day
+		}
+		server.Sized = true
+	}
+	if builder.listedBy[row.Server] == nil {
+		builder.listedBy[row.Server] = map[string]bool{}
+	}
+	builder.listedBy[row.Server][row.Tool] = true
+	builder.count(server, tool, row.Day, row.Calls)
+}
+
+// addHookCalls adds the hook's runs of mcp__server__tool, for the servers
+// mcp-proxy did not already count.
+func (builder *reviewBuilder) addHookCalls(cmds []ledger.CommandDay) {
+	covered := coveredByProxy(cmds, builder.listedBy)
+	for _, cmd := range cmds {
+		server, name, ok := splitMCPName(cmd.Command)
 		if !ok || covered[server] {
 			continue
 		}
-		s := touch(server, c.Agent, c.Day)
-		count(s, tool(server, name), c.Day, c.Runs)
+		entry := builder.touch(server, cmd.Agent, cmd.Day)
+		builder.count(entry, builder.tool(server, name), cmd.Day, cmd.Runs)
 	}
+}
 
-	for k, t := range tools {
-		s := servers[k.server]
-		s.Tools = append(s.Tools, *t)
+// review judges every server collected and orders them by use.
+func (builder *reviewBuilder) review(learned map[string]bool) mcpReview {
+	for key, tool := range builder.tools {
+		server := builder.servers[key.server]
+		server.Tools = append(server.Tools, *tool)
 	}
-	review := mcpReview{Days: dataOldest + 1, Servers: []mcpServer{}}
-	for _, s := range servers {
-		slices.SortFunc(s.Tools, func(left, right mcpTool) int { // the most used first
-			return cmp.Or(cmp.Compare(right.Calls7, left.Calls7), cmp.Compare(right.Calls, left.Calls), cmp.Compare(right.Tokens, left.Tokens), cmp.Compare(left.Name, right.Name))
-		})
-		slices.Sort(s.Agents)
-		s.Seen = oldest[s.ID] + 1
-		s.Listed = -1
-		if a, ok := listedAt[s.ID]; ok {
-			s.Listed = a
-		}
-		for _, t := range s.Tools {
-			if t.Lazy {
-				s.LazyToks += t.Tokens
-				continue
-			}
-			s.Tokens += t.Tokens
-			if t.Calls7 == 0 && !lazyModeTool(t.Name) { // the lazy-mode tools are the price of lazy tools, never idle
-				s.IdleToks += t.Tokens
-			}
-		}
-		s.Verdict = verdict(s, learned[s.ID])
-		s.Suggestions = suggestMCP(*s)
-		review.Servers = append(review.Servers, *s)
+	review := mcpReview{Days: builder.dataOldest + 1, Servers: []mcpServer{}}
+	for _, server := range builder.servers {
+		builder.settle(server)
+		server.Verdict = verdict(server, learned[server.ID])
+		server.Suggestions = suggestMCP(*server)
+		review.Servers = append(review.Servers, *server)
 	}
 	labelDuplicates(review.Servers)
 	slices.SortFunc(review.Servers, func(left, right mcpServer) int {
@@ -213,6 +228,29 @@ func buildReview(stats []ledger.ToolStat, cmds []ledger.CommandDay, now time.Tim
 	})
 	review.Notes = reviewNotes(review)
 	return review
+}
+
+// settle orders a server's tools and sums their sizes.
+func (builder *reviewBuilder) settle(server *mcpServer) {
+	slices.SortFunc(server.Tools, func(left, right mcpTool) int { // the most used first
+		return cmp.Or(cmp.Compare(right.Calls7, left.Calls7), cmp.Compare(right.Calls, left.Calls), cmp.Compare(right.Tokens, left.Tokens), cmp.Compare(left.Name, right.Name))
+	})
+	slices.Sort(server.Agents)
+	server.Seen = builder.oldest[server.ID] + 1
+	server.Listed = -1
+	if days, ok := builder.listedAt[server.ID]; ok {
+		server.Listed = days
+	}
+	for _, tool := range server.Tools {
+		if tool.Lazy {
+			server.LazyToks += tool.Tokens
+			continue
+		}
+		server.Tokens += tool.Tokens
+		if tool.Calls7 == 0 && !lazyModeTool(tool.Name) { // the lazy-mode tools are the price of lazy tools, never idle
+			server.IdleToks += tool.Tokens
+		}
+	}
 }
 
 // verdict judges a server; learned (the user's "learn now") skips the wait

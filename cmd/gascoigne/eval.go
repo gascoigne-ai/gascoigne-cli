@@ -77,47 +77,25 @@ type evalFlags struct {
 // throwaway ledger, reports savings and checks assertions, goldens and that
 // every original is retrievable byte-exact.
 func cmdEval(ctx context.Context, args []string) error {
-	var (
-		c  common
-		ef evalFlags
-	)
-	fs := newFlags("eval")
-	c.register(fs)
-	c.plain = true
-	fs.StringVar(&ef.cases, "cases", "testdata/eval/cases.yaml", "eval cases `file`; fixture paths are relative to it")
-	fs.StringVar(&ef.pipeline, "pipeline", "cli", "`pipeline` to evaluate")
-	fs.StringVar(&ef.show, "show", "", "print optimized output of cases whose name contains `text`")
-	fs.BoolVar(&ef.update, "update", false, "rewrite golden outputs")
-	fs.BoolVar(&ef.record, "record", false, "write the runs to your ledger instead of a throwaway one, so the dashboard shows them (agent eval, one session per run, and the dashboard server is started; filter or `reset -agent eval` to drop them)")
-	if err := fs.Parse(args); err != nil {
-		return err
-	}
-	data, err := os.ReadFile(ef.cases)
+	var cfg common
+	ef, err := parseEvalFlags(&cfg, args)
 	if err != nil {
 		return err
 	}
-	var cases []evalCase
-	if err := config.Decode(data, &cases); err != nil {
-		return fmt.Errorf("%s: %w", ef.cases, err)
-	}
-	if err := checkProseInstalled(c.sets); err != nil {
+	cases, err := loadEvalCases(ef.cases)
+	if err != nil {
 		return err
 	}
-
-	if ef.record {
-		c.server = true // so the dashboard is there to show them
-		c.agent = cmp.Or(c.agent, "eval")
-		c.session = cmp.Or(c.session, "eval-"+time.Now().Format("20060102-150405"))
-	} else {
-		tmp, err := os.MkdirTemp("", "gascoigne-eval-")
-		if err != nil {
-			return err
-		}
-		defer os.RemoveAll(tmp)
-		os.Setenv(ledger.EnvPath, filepath.Join(tmp, "ledger.db"))
+	if err := checkProseInstalled(cfg.sets); err != nil {
+		return err
 	}
+	cleanup, err := chooseEvalLedger(&cfg, ef)
+	if err != nil {
+		return err
+	}
+	defer cleanup()
 
-	svc, err := c.start(ctx)
+	svc, err := cfg.start(ctx)
 	if err != nil {
 		return err
 	}
@@ -133,107 +111,178 @@ func cmdEval(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	next := map[string]baseline{}
-	var names []string
 	paint, err := newPainter("auto")
 	if err != nil {
 		return err
 	}
-	header := []string{"case", "type", "route", "raw tok", "out tok", "saved", "", "lost", "ms", "check"}
-	var rows [][]cell
-	var skipped int
-	var rawTotal, outTotal int
-	var took time.Duration
-	var errs, shows []string
-	var refs []overlap
+	run := evalRun{base: base, next: map[string]baseline{}, ef: ef}
 	for _, tc := range cases {
 		r, err := runCase(ctx, svc, pl, dir, &tc, ef.update)
 		if errors.Is(err, errNotInstalled) {
-			skipped++
-			rows = append(rows, []cell{{text: tc.name()}, {}, {}, {}, {}, {}, {}, {}, {}, {text: "skip: not installed", style: dim}})
+			run.skip(&tc)
 			continue
 		}
 		if err != nil {
 			return fmt.Errorf("%s: %w", tc.name(), err)
 		}
-		rawTotal += r.raw
-		outTotal += r.out
-		if r.overlap != nil {
-			refs = append(refs, *r.overlap)
-		}
-		took += r.took
-		cur := r.baseline()
-		if tc.Run == "" {
-			names = append(names, tc.name())
-			next[tc.name()] = cur
-		}
-		if old, ok := base[tc.name()]; base != nil && !ef.update && tc.Run == "" {
-			if !ok {
-				r.problems = append(r.problems, "not in baseline (rerun with -update)")
-			} else if d := cur.diff(old); d != "" {
-				r.problems = append(r.problems, "baseline: "+d+" (review, then rerun with -update)")
-			}
-		}
-		check, checkStyle := "ok", green
-		if len(r.problems) > 0 {
-			check, checkStyle = "FAIL", bold+";"+red
-			for _, p := range r.problems {
-				errs = append(errs, tc.name()+": "+p)
-			}
-		}
-		saved := pct(r.raw-r.out, r.raw)
-		rows = append(rows, []cell{
-			{text: tc.name()}, {text: r.types}, {text: r.route, style: dim},
-			{text: fmt.Sprint(r.raw), right: true}, {text: fmt.Sprint(r.out), right: true},
-			{text: mcptool.Percent(r.raw-r.out, r.raw), style: savedStyle(saved), right: true},
-			{text: bar(saved/100, 10), style: savedStyle(saved)},
-			{text: lostCell(r.probes), right: true}, {text: ms(r.took), right: true},
-			{text: check, style: checkStyle},
-		})
-		if ef.show != "" && strings.Contains(tc.name(), ef.show) {
-			shows = append(shows, fmt.Sprintf("=== %s ===\n%s", tc.name(), r.text))
+		run.add(&tc, r)
+	}
+	return run.finish(paint, basePath)
+}
+
+func parseEvalFlags(cfg *common, args []string) (evalFlags, error) {
+	var ef evalFlags
+	fs := newFlags("eval")
+	cfg.register(fs)
+	cfg.plain = true
+	fs.StringVar(&ef.cases, "cases", "testdata/eval/cases.yaml", "eval cases `file`; fixture paths are relative to it")
+	fs.StringVar(&ef.pipeline, "pipeline", "cli", "`pipeline` to evaluate")
+	fs.StringVar(&ef.show, "show", "", "print optimized output of cases whose name contains `text`")
+	fs.BoolVar(&ef.update, "update", false, "rewrite golden outputs")
+	fs.BoolVar(&ef.record, "record", false, "write the runs to your ledger instead of a throwaway one, so the dashboard shows them (agent eval, one session per run, and the dashboard server is started; filter or `reset -agent eval` to drop them)")
+	return ef, fs.Parse(args)
+}
+
+func loadEvalCases(path string) ([]evalCase, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var cases []evalCase
+	if err := config.Decode(data, &cases); err != nil {
+		return nil, fmt.Errorf("%s: %w", path, err)
+	}
+	return cases, nil
+}
+
+// chooseEvalLedger points the run at the user's ledger (-record) or at a
+// throwaway one; the returned func removes the throwaway.
+func chooseEvalLedger(cfg *common, ef evalFlags) (cleanup func(), err error) {
+	if ef.record {
+		cfg.server = true // so the dashboard is there to show them
+		cfg.agent = cmp.Or(cfg.agent, "eval")
+		cfg.session = cmp.Or(cfg.session, "eval-"+time.Now().Format("20060102-150405"))
+		return func() {}, nil
+	}
+	tmp, err := os.MkdirTemp("", "gascoigne-eval-")
+	if err != nil {
+		return nil, err
+	}
+	os.Setenv(ledger.EnvPath, filepath.Join(tmp, "ledger.db"))
+	return func() { os.RemoveAll(tmp) }, nil
+}
+
+// evalRun accumulates the table rows, totals and failures of one eval run.
+type evalRun struct {
+	ef       evalFlags
+	base     map[string]baseline
+	next     map[string]baseline
+	names    []string
+	rows     [][]cell
+	skipped  int
+	rawTotal int
+	outTotal int
+	took     time.Duration
+	errs     []string
+	shows    []string
+	refs     []overlap
+}
+
+func (run *evalRun) skip(tc *evalCase) {
+	run.skipped++
+	run.rows = append(run.rows, []cell{{text: tc.name()}, {}, {}, {}, {}, {}, {}, {}, {}, {text: "skip: not installed", style: dim}})
+}
+
+func (run *evalRun) add(tc *evalCase, res *caseResult) {
+	run.rawTotal += res.raw
+	run.outTotal += res.out
+	if res.overlap != nil {
+		run.refs = append(run.refs, *res.overlap)
+	}
+	run.took += res.took
+	cur := res.baseline()
+	if tc.Run == "" {
+		run.names = append(run.names, tc.name())
+		run.next[tc.name()] = cur
+	}
+	if old, ok := run.base[tc.name()]; run.base != nil && !run.ef.update && tc.Run == "" {
+		if !ok {
+			res.problems = append(res.problems, "not in baseline (rerun with -update)")
+		} else if d := cur.diff(old); d != "" {
+			res.problems = append(res.problems, "baseline: "+d+" (review, then rerun with -update)")
 		}
 	}
-	totalSaved := pct(rawTotal-outTotal, rawTotal)
-	rows = append(rows, []cell{
-		{text: "total", style: bold}, {}, {},
-		{text: fmt.Sprint(rawTotal), right: true, style: bold}, {text: fmt.Sprint(outTotal), right: true, style: bold},
-		{text: mcptool.Percent(rawTotal-outTotal, rawTotal), style: bold + ";" + savedStyle(totalSaved), right: true},
-		{text: bar(totalSaved/100, 10), style: savedStyle(totalSaved)},
-		{}, {text: ms(took), right: true, style: bold}, {},
+	check, checkStyle := "ok", green
+	if len(res.problems) > 0 {
+		check, checkStyle = "FAIL", bold+";"+red
+		for _, p := range res.problems {
+			run.errs = append(run.errs, tc.name()+": "+p)
+		}
+	}
+	saved := pct(res.raw-res.out, res.raw)
+	run.rows = append(run.rows, []cell{
+		{text: tc.name()}, {text: res.types}, {text: res.route, style: dim},
+		{text: fmt.Sprint(res.raw), right: true}, {text: fmt.Sprint(res.out), right: true},
+		{text: mcptool.Percent(res.raw-res.out, res.raw), style: savedStyle(saved), right: true},
+		{text: bar(saved/100, 10), style: savedStyle(saved)},
+		{text: lostCell(res.probes), right: true}, {text: ms(res.took), right: true},
+		{text: check, style: checkStyle},
 	})
-	paint.table(os.Stdout, header, rows)
-	ran := len(rows) - 1 - skipped
-	summary := fmt.Sprintf("%d cases: %d ok", ran, ran-len(errs))
-	if len(errs) > 0 {
-		summary = fmt.Sprintf("%d cases: %d ok, %s", ran, ran-len(errs), paint.paint(bold+";"+red, fmt.Sprintf("%d FAILED", len(errs))))
+	if run.ef.show != "" && strings.Contains(tc.name(), run.ef.show) {
+		run.shows = append(run.shows, fmt.Sprintf("=== %s ===\n%s", tc.name(), res.text))
 	}
-	if skipped > 0 {
-		summary += fmt.Sprintf(", %d skipped (tool not installed)", skipped)
-	}
-	fmt.Println(summary)
-	if len(refs) > 0 {
-		var recall, precision float64
-		for _, o := range refs {
-			recall += o.recall()
-			precision += o.precision()
-		}
-		n := float64(len(refs))
-		fmt.Printf("reference words, mean of %d cases: recall %.1f%%, precision %.1f%%\n", len(refs), 100*recall/n, 100*precision/n)
-	}
-	if ef.update && len(names) > 0 {
-		if err := writeBaseline(basePath, names, next); err != nil {
+}
+
+// finish prints the report, saves the baseline on -update and turns failures
+// into the run's error.
+func (run *evalRun) finish(paint painter, basePath string) error {
+	run.printReport(paint)
+	if run.ef.update && len(run.names) > 0 {
+		if err := writeBaseline(basePath, run.names, run.next); err != nil {
 			return err
 		}
 	}
-	for _, s := range shows {
+	for _, s := range run.shows {
 		fmt.Println(s)
 	}
-	if len(errs) > 0 {
-		fmt.Fprintln(os.Stderr, "\nfailures:\n  "+strings.Join(errs, "\n  "))
+	if len(run.errs) > 0 {
+		fmt.Fprintln(os.Stderr, "\nfailures:\n  "+strings.Join(run.errs, "\n  "))
 		return errors.New("eval failed")
 	}
 	return nil
+}
+
+// printReport prints the table with its total row, the summary line and the
+// reference-word means.
+func (run *evalRun) printReport(paint painter) {
+	header := []string{"case", "type", "route", "raw tok", "out tok", "saved", "", "lost", "ms", "check"}
+	totalSaved := pct(run.rawTotal-run.outTotal, run.rawTotal)
+	rows := append(run.rows, []cell{
+		{text: "total", style: bold}, {}, {},
+		{text: fmt.Sprint(run.rawTotal), right: true, style: bold}, {text: fmt.Sprint(run.outTotal), right: true, style: bold},
+		{text: mcptool.Percent(run.rawTotal-run.outTotal, run.rawTotal), style: bold + ";" + savedStyle(totalSaved), right: true},
+		{text: bar(totalSaved/100, 10), style: savedStyle(totalSaved)},
+		{}, {text: ms(run.took), right: true, style: bold}, {},
+	})
+	paint.table(os.Stdout, header, rows)
+	ran := len(rows) - 1 - run.skipped
+	summary := fmt.Sprintf("%d cases: %d ok", ran, ran-len(run.errs))
+	if len(run.errs) > 0 {
+		summary = fmt.Sprintf("%d cases: %d ok, %s", ran, ran-len(run.errs), paint.paint(bold+";"+red, fmt.Sprintf("%d FAILED", len(run.errs))))
+	}
+	if run.skipped > 0 {
+		summary += fmt.Sprintf(", %d skipped (tool not installed)", run.skipped)
+	}
+	fmt.Println(summary)
+	if len(run.refs) > 0 {
+		var recall, precision float64
+		for _, o := range run.refs {
+			recall += o.recall()
+			precision += o.precision()
+		}
+		n := float64(len(run.refs))
+		fmt.Printf("reference words, mean of %d cases: recall %.1f%%, precision %.1f%%\n", len(run.refs), 100*recall/n, 100*precision/n)
+	}
 }
 
 type caseResult struct {
@@ -269,77 +318,97 @@ func runCase(ctx context.Context, svc *service.Service, pl *service.Pipeline, di
 		took:  took,
 	}
 	r.probes = probe.Run(in.Text(), r.text)
-	fail := func(format string, args ...any) { r.problems = append(r.problems, fmt.Sprintf(format, args...)) }
 	if again.Text() != r.text {
-		fail("nondeterministic: two runs differ")
+		r.fail("nondeterministic: two runs differ")
 	}
-
-	if id := out.Attrs[payload.AttrRawID]; id != "" {
-		if _, orig, err := svc.Ledger().GetRaw(ctx, id); err != nil || !sameText(orig, in) {
-			fail("original not retrievable byte-exact (%v)", err)
-		}
-	}
-	if tc.ExpectType != "" && r.types != tc.ExpectType {
-		fail("type %s, want %s", r.types, tc.ExpectType)
-	}
-	for _, k := range tc.Keep {
-		if !strings.Contains(r.text, k) {
-			fail("lost %q", k)
-		}
-	}
-	if r.out > r.raw {
-		fail("output larger than input: %d > %d tokens", r.out, r.raw)
-	}
-	if tc.Unchanged && out.Attrs[payload.AttrRawID] != "" {
-		fail("changed, want unchanged")
-	}
-	if lost := slices.Concat(r.probes.Errors.Lost, r.probes.Artifacts.Lost); tc.Lossless && len(lost) > 0 {
-		fail("lost %d error lines/artifacts, want none: %q", len(lost), lost[0])
-	}
-	if saved := 100 * float64(r.raw-r.out) / float64(max(r.raw, 1)); saved < tc.MinSaved {
-		fail("saved %.1f%% < min %.0f%%", saved, tc.MinSaved)
-	}
-
-	if slow(r.took, tc.MaxMS) {
-		fail("took %s > max %d ms", ms(r.took), tc.MaxMS)
-	}
-
+	r.checkExpectations(ctx, svc, tc, in, out)
 	if tc.Reference != "" {
-		ref, err := os.ReadFile(filepath.Join(dir, tc.Reference))
-		if err != nil {
+		if err := r.checkReference(dir, tc); err != nil {
 			return nil, err
-		}
-		o := wordOverlap(string(ref), r.text)
-		r.overlap = &o
-		if recall := 100 * o.recall(); recall < tc.MinRecall {
-			fail("reference recall %.1f%% < min %.0f%%", recall, tc.MinRecall)
 		}
 	}
 	if tc.Run != "" {
 		return r, nil
 	}
+	return r, r.checkGolden(dir, tc, out, update)
+}
+
+func (r *caseResult) fail(format string, args ...any) {
+	r.problems = append(r.problems, fmt.Sprintf(format, args...))
+}
+
+// checkExpectations records a problem for every case setting the output breaks:
+// retrievable original, type, kept text, size, savings and time.
+func (r *caseResult) checkExpectations(ctx context.Context, svc *service.Service, tc *evalCase, in, out *payload.Payload) {
+	if id := out.Attrs[payload.AttrRawID]; id != "" {
+		if _, orig, err := svc.Ledger().GetRaw(ctx, id); err != nil || !sameText(orig, in) {
+			r.fail("original not retrievable byte-exact (%v)", err)
+		}
+	}
+	if tc.ExpectType != "" && r.types != tc.ExpectType {
+		r.fail("type %s, want %s", r.types, tc.ExpectType)
+	}
+	for _, k := range tc.Keep {
+		if !strings.Contains(r.text, k) {
+			r.fail("lost %q", k)
+		}
+	}
+	if r.out > r.raw {
+		r.fail("output larger than input: %d > %d tokens", r.out, r.raw)
+	}
+	if tc.Unchanged && out.Attrs[payload.AttrRawID] != "" {
+		r.fail("changed, want unchanged")
+	}
+	if lost := slices.Concat(r.probes.Errors.Lost, r.probes.Artifacts.Lost); tc.Lossless && len(lost) > 0 {
+		r.fail("lost %d error lines/artifacts, want none: %q", len(lost), lost[0])
+	}
+	if saved := 100 * float64(r.raw-r.out) / float64(max(r.raw, 1)); saved < tc.MinSaved {
+		r.fail("saved %.1f%% < min %.0f%%", saved, tc.MinSaved)
+	}
+
+	if slow(r.took, tc.MaxMS) {
+		r.fail("took %s > max %d ms", ms(r.took), tc.MaxMS)
+	}
+}
+
+func (r *caseResult) checkReference(dir string, tc *evalCase) error {
+	ref, err := os.ReadFile(filepath.Join(dir, tc.Reference))
+	if err != nil {
+		return err
+	}
+	o := wordOverlap(string(ref), r.text)
+	r.overlap = &o
+	if recall := 100 * o.recall(); recall < tc.MinRecall {
+		r.fail("reference recall %.1f%% < min %.0f%%", recall, tc.MinRecall)
+	}
+	return nil
+}
+
+// checkGolden compares the output with the case's golden file, or rewrites
+// the golden when update is set.
+func (r *caseResult) checkGolden(dir string, tc *evalCase, out *payload.Payload, update bool) error {
 	golden := filepath.Join(dir, "golden", tc.name()+".out")
 	if strings.HasPrefix(tc.name(), "detect/") && !tc.Golden {
 		if update {
 			os.Remove(golden)
 		}
-		return r, nil
+		return nil
 	}
 	if update {
 		// Unchanged output needs no golden: the fixture is the expectation.
 		if out.Attrs[payload.AttrRawID] == "" {
 			os.Remove(golden)
-			return r, nil
+			return nil
 		}
 		if err := os.MkdirAll(filepath.Dir(golden), 0o755); err != nil {
-			return nil, err
+			return err
 		}
-		return r, os.WriteFile(golden, []byte(r.text), 0o644)
+		return os.WriteFile(golden, []byte(r.text), 0o644)
 	}
 	if want, err := os.ReadFile(golden); err == nil && !bytes.Equal(want, []byte(r.text)) {
-		fail("differs from golden %s (review, then rerun with -update)", golden)
+		r.fail("differs from golden %s (review, then rerun with -update)", golden)
 	}
-	return r, nil
+	return nil
 }
 
 // slow reports whether took exceeds a case's max_ms; 0 allows any time.

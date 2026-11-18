@@ -258,100 +258,134 @@ func validateStatic(prices map[string]cost.PriceItem) error {
 // runPricingSet changes the pricing prefs. Nothing is saved unless every flag is valid.
 func runPricingSet(writer io.Writer, args []string) error {
 	fset := newFlags("pricing")
-	billing := fset.String("billing", "", "auto (find out per agent), api (dollars from list prices or yours) or subscription (flat plan: no dollars)")
-	ttl := fset.String("ttl", "", "how often a URL or command refreshes: a duration (24h, minimum 1h) or manual")
-	file := fset.String("file", "", "price sheet file (JSON); with -translate its content goes to the command")
-	url := fset.String("url", "", "URL returning a price sheet, refreshed every ttl")
-	headerEnv := fset.String("header-env", "", "name of an environment variable holding one 'Name: value' header for the URL request")
-	translate := fset.String("translate", "", "command that prints a price sheet: it reads the file or URL content on stdin (or runs alone), once per ttl; no shell")
-	timeout := fset.String("timeout", "", "limit for one fetch or command run (default 10s)")
-	prices := priceFlag{}
-	fset.Var(prices, "price", "static price: model=in,out[,cache_read,cache_write[,tokenizer]] in dollars per million tokens (repeatable)")
-	var unset listFlag
-	fset.Var(&unset, "unset-price", "remove a static price by model id (repeatable)")
-	clearAll := fset.Bool("clear", false, "remove every pricing setting")
+	flags := registerPricingSetFlags(fset)
 	if err := fset.Parse(args); err != nil {
 		return err
 	}
-	p := readPrefs()
-	set := map[string]bool{}
-	fset.Visit(func(setting *flag.Flag) { set[setting.Name] = true })
-	if *clearAll {
-		p.Pricing = pricingPrefs{}
+	prefs := readPrefs()
+	fset.Visit(func(setting *flag.Flag) { flags.set[setting.Name] = true })
+	if err := flags.apply(writer, &prefs.Pricing); err != nil {
+		return err
 	}
-	if set["billing"] {
-		if !slices.Contains(billingChoices, *billing) {
-			return fmt.Errorf("pricing: -billing wants auto, api or subscription")
-		}
-		p.Pricing.Billing = *billing
-	}
-	if set["ttl"] {
-		duration, manual, warning, err := pricing.ParseTTL(*ttl)
-		if err != nil {
-			return err
-		}
-		if warning != "" {
-			fmt.Fprintln(writer, "warning:", warning)
-		}
-		switch {
-		case manual:
-			p.Pricing.TTL = "manual"
-		case warning != "":
-			p.Pricing.TTL = duration.String() // the raised value, not what was typed
-		default:
-			p.Pricing.TTL = strings.TrimSpace(*ttl)
-		}
-	}
-	if set["file"] {
-		p.Pricing.File = *file
-	}
-	if set["url"] {
-		if *url != "" && !strings.HasPrefix(*url, "https://") && !strings.HasPrefix(*url, "http://") {
-			return fmt.Errorf("pricing: -url wants an http or https address")
-		}
-		p.Pricing.URL = *url
-	}
-	if set["header-env"] {
-		p.Pricing.HeaderEnv = *headerEnv
-	}
-	if set["translate"] {
-		if *translate != "" {
-			if _, err := pricing.SplitArgs(*translate); err != nil {
-				return fmt.Errorf("pricing: -translate: %w", err)
-			}
-		}
-		p.Pricing.Translate = *translate
-	}
-	if set["timeout"] {
-		if *timeout != "" {
-			if d, err := time.ParseDuration(*timeout); err != nil || d <= 0 {
-				return fmt.Errorf("pricing: -timeout %q: want a duration such as 10s", *timeout)
-			}
-		}
-		p.Pricing.Timeout = *timeout
-	}
-	if len(prices) > 0 || len(unset) > 0 {
-		merged := map[string]cost.PriceItem{}
-		for id, item := range p.Pricing.Prices {
-			merged[id] = item
-		}
-		for id, item := range prices {
-			merged[id] = item
-		}
-		for _, id := range unset {
-			delete(merged, strings.ToLower(strings.TrimSpace(id)))
-		}
-		if len(merged) == 0 {
-			merged = nil
-		}
-		if err := validateStatic(merged); err != nil {
-			return fmt.Errorf("pricing: %w", err)
-		}
-		p.Pricing.Prices = merged
-	}
-	if err := p.save(); err != nil {
+	if err := prefs.save(); err != nil {
 		return err
 	}
 	fmt.Fprintln(writer, "pricing settings saved; gascoigne pricing shows them, gascoigne pricing test tries the sources")
+	return nil
+}
+
+// pricingSetFlags are the flags of pricing set; set names the ones given.
+type pricingSetFlags struct {
+	billing, ttl, file, url, headerEnv, translate, timeout string
+	prices                                                 priceFlag
+	unset                                                  listFlag
+	clearAll                                               bool
+	set                                                    map[string]bool
+}
+
+func registerPricingSetFlags(fset *flag.FlagSet) *pricingSetFlags {
+	flags := &pricingSetFlags{prices: priceFlag{}, set: map[string]bool{}}
+	fset.StringVar(&flags.billing, "billing", "", "auto (find out per agent), api (dollars from list prices or yours) or subscription (flat plan: no dollars)")
+	fset.StringVar(&flags.ttl, "ttl", "", "how often a URL or command refreshes: a duration (24h, minimum 1h) or manual")
+	fset.StringVar(&flags.file, "file", "", "price sheet file (JSON); with -translate its content goes to the command")
+	fset.StringVar(&flags.url, "url", "", "URL returning a price sheet, refreshed every ttl")
+	fset.StringVar(&flags.headerEnv, "header-env", "", "name of an environment variable holding one 'Name: value' header for the URL request")
+	fset.StringVar(&flags.translate, "translate", "", "command that prints a price sheet: it reads the file or URL content on stdin (or runs alone), once per ttl; no shell")
+	fset.StringVar(&flags.timeout, "timeout", "", "limit for one fetch or command run (default 10s)")
+	fset.Var(flags.prices, "price", "static price: model=in,out[,cache_read,cache_write[,tokenizer]] in dollars per million tokens (repeatable)")
+	fset.Var(&flags.unset, "unset-price", "remove a static price by model id (repeatable)")
+	fset.BoolVar(&flags.clearAll, "clear", false, "remove every pricing setting")
+	return flags
+}
+
+// apply validates the settings given and writes them into prefs.
+func (flags *pricingSetFlags) apply(writer io.Writer, prefs *pricingPrefs) error {
+	if flags.clearAll {
+		*prefs = pricingPrefs{}
+	}
+	if flags.set["billing"] {
+		if !slices.Contains(billingChoices, flags.billing) {
+			return fmt.Errorf("pricing: -billing wants auto, api or subscription")
+		}
+		prefs.Billing = flags.billing
+	}
+	if flags.set["ttl"] {
+		ttl, err := flags.checkedTTL(writer)
+		if err != nil {
+			return err
+		}
+		prefs.TTL = ttl
+	}
+	if flags.set["file"] {
+		prefs.File = flags.file
+	}
+	if flags.set["url"] {
+		if flags.url != "" && !strings.HasPrefix(flags.url, "https://") && !strings.HasPrefix(flags.url, "http://") {
+			return fmt.Errorf("pricing: -url wants an http or https address")
+		}
+		prefs.URL = flags.url
+	}
+	if flags.set["header-env"] {
+		prefs.HeaderEnv = flags.headerEnv
+	}
+	if flags.set["translate"] {
+		if flags.translate != "" {
+			if _, err := pricing.SplitArgs(flags.translate); err != nil {
+				return fmt.Errorf("pricing: -translate: %w", err)
+			}
+		}
+		prefs.Translate = flags.translate
+	}
+	if flags.set["timeout"] {
+		if flags.timeout != "" {
+			if duration, err := time.ParseDuration(flags.timeout); err != nil || duration <= 0 {
+				return fmt.Errorf("pricing: -timeout %q: want a duration such as 10s", flags.timeout)
+			}
+		}
+		prefs.Timeout = flags.timeout
+	}
+	if len(flags.prices) > 0 || len(flags.unset) > 0 {
+		return flags.applyPrices(prefs)
+	}
+	return nil
+}
+
+// checkedTTL returns the ttl to save, warning when it was raised to the minimum.
+func (flags *pricingSetFlags) checkedTTL(writer io.Writer) (string, error) {
+	duration, manual, warning, err := pricing.ParseTTL(flags.ttl)
+	if err != nil {
+		return "", err
+	}
+	if warning != "" {
+		fmt.Fprintln(writer, "warning:", warning)
+	}
+	switch {
+	case manual:
+		return "manual", nil
+	case warning != "":
+		return duration.String(), nil // the raised value, not what was typed
+	}
+	return strings.TrimSpace(flags.ttl), nil
+}
+
+// applyPrices merges -price into the saved static prices and drops -unset-price.
+func (flags *pricingSetFlags) applyPrices(prefs *pricingPrefs) error {
+	merged := map[string]cost.PriceItem{}
+	for id, item := range prefs.Prices {
+		merged[id] = item
+	}
+	for id, item := range flags.prices {
+		merged[id] = item
+	}
+	for _, id := range flags.unset {
+		delete(merged, strings.ToLower(strings.TrimSpace(id)))
+	}
+	if len(merged) == 0 {
+		merged = nil
+	}
+	if err := validateStatic(merged); err != nil {
+		return fmt.Errorf("pricing: %w", err)
+	}
+	prefs.Prices = merged
 	return nil
 }

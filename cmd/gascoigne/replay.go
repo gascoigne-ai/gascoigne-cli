@@ -41,9 +41,8 @@ func cmdReplay(ctx context.Context, args []string) error {
 		against  string
 		sets     listFlag
 	)
-	home := home()
 	fs := newFlags("replay")
-	fs.StringVar(&dir, "dir", filepath.Join(home, ".claude", "projects"), "`directory` with session transcripts (*.jsonl), searched recursively")
+	fs.StringVar(&dir, "dir", filepath.Join(home(), ".claude", "projects"), "`directory` with session transcripts (*.jsonl), searched recursively")
 	fs.IntVar(&sessions, "sessions", 10, "newest `n` transcripts to replay")
 	fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
 	fs.Var(&sets, "set", "config override `path=yaml` (repeatable, after $GASCOIGNE_SET), to compare settings on the same transcripts")
@@ -59,20 +58,48 @@ func cmdReplay(ctx context.Context, args []string) error {
 			return err
 		}
 	}
-	var old *replayReport
-	if against != "" {
-		data, err := os.ReadFile(against)
-		if err != nil {
-			return err
-		}
-		if err := json.Unmarshal(data, &old); err != nil {
-			return fmt.Errorf("%s: %w", against, err)
-		}
-	}
-
-	tmp, err := os.MkdirTemp("", "gascoigne-replay-")
+	old, err := readReplayReport(against)
 	if err != nil {
 		return err
+	}
+	rep, err := replayAll(ctx, files, sets)
+	if err != nil {
+		return err
+	}
+	if asJSON {
+		return writeJSON(rep)
+	}
+	rep.print()
+	if old != nil {
+		fmt.Println()
+		rep.compare(old)
+	}
+	return nil
+}
+
+// readReplayReport loads an earlier replay -json report; "" gives nil.
+func readReplayReport(path string) (*replayReport, error) {
+	if path == "" {
+		return nil, nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var report *replayReport
+	if err := json.Unmarshal(data, &report); err != nil {
+		return nil, fmt.Errorf("%s: %w", path, err)
+	}
+	return report, nil
+}
+
+// replayAll replays the transcripts through the LLM proxy against a stand-in
+// upstream and a throwaway ledger, with the config overrides in sets.
+func replayAll(ctx context.Context, files []string, sets listFlag) (replayReport, error) {
+	rep := replayReport{Tools: map[string]*toolReplay{}}
+	tmp, err := os.MkdirTemp("", "gascoigne-replay-")
+	if err != nil {
+		return rep, err
 	}
 	defer os.RemoveAll(tmp)
 	ledgerPath := filepath.Join(tmp, "ledger.db")
@@ -85,26 +112,17 @@ func cmdReplay(ctx context.Context, args []string) error {
 	proxy, closeProxy, err := llmProxyWith(ctx, &mu, ledgerPath, srv.URL, slog.New(slog.DiscardHandler),
 		config.Overrides{Set: append(splitList(os.Getenv("GASCOIGNE_SET"), ";\n"), sets...)})
 	if err != nil {
-		return err
+		return rep, err
 	}
 	defer closeProxy()
 
-	rep := replayReport{Tools: map[string]*toolReplay{}}
-	for _, f := range files {
-		if err := replayFile(ctx, proxy, up, f, &rep); err != nil {
-			return fmt.Errorf("%s: %w", f, err)
+	for _, file := range files {
+		if err := replayFile(ctx, proxy, up, file, &rep); err != nil {
+			return rep, fmt.Errorf("%s: %w", file, err)
 		}
 		rep.Sessions++
 	}
-	if asJSON {
-		return writeJSON(rep)
-	}
-	rep.print()
-	if old != nil {
-		fmt.Println()
-		rep.compare(old)
-	}
-	return nil
+	return rep, nil
 }
 
 // transcripts returns the newest n *.jsonl files under dir.
@@ -205,69 +223,85 @@ type transcriptLine struct {
 
 // replayFile sends one request per model turn that follows tool results.
 func replayFile(ctx context.Context, proxy http.Handler, up *upstream, path string, rep *replayReport) error {
-	f, err := os.Open(path)
+	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	s := &session{tools: map[string]string{}, results: map[string]resultTokens{}, tokens: map[string]int{}}
-	sc := bufio.NewScanner(f)
-	sc.Buffer(nil, 64<<20)
+	defer file.Close()
+	sess := &session{tools: map[string]string{}, results: map[string]resultTokens{}, tokens: map[string]int{}}
+	scanner := bufio.NewScanner(file)
+	scanner.Buffer(nil, 64<<20)
 	lastID := ""
-	for sc.Scan() {
-		var l transcriptLine
-		if json.Unmarshal(sc.Bytes(), &l) != nil || l.Message == nil || l.IsSidechain || (l.Type != "user" && l.Type != "assistant") {
+	for scanner.Scan() {
+		var line transcriptLine
+		if json.Unmarshal(scanner.Bytes(), &line) != nil || line.Message == nil || line.IsSidechain || (line.Type != "user" && line.Type != "assistant") {
 			continue
 		}
-		content := blocks(l.Message.Content)
-		switch {
-		case l.IsCompactSummary:
-			s.messages, s.prevOrig, s.prevFwd = []map[string]any{{"role": "user", "content": content}}, nil, nil
-		case l.Type == "assistant":
-			s.model = cmp.Or(l.Message.Model, s.model)
-			for _, b := range content {
-				if m, ok := b.(map[string]any); ok && m["type"] == "tool_use" {
-					id, _ := m["id"].(string)
-					name, _ := m["name"].(string)
-					s.tools[id] = name
-				}
-			}
-			if last := s.last(); last != nil && last["role"] == "assistant" && l.Message.ID == lastID {
-				last["content"] = append(last["content"].([]any), content...)
-				continue
-			}
-			if s.endsWithToolResult() {
-				if err := s.send(ctx, proxy, up, path, rep); err != nil {
-					return err
-				}
-			}
-			lastID = l.Message.ID
-			s.messages = append(s.messages, map[string]any{"role": "assistant", "content": content})
-		default:
-			if last := s.last(); last != nil && last["role"] == "user" {
-				last["content"] = append(last["content"].([]any), content...)
-				continue
-			}
-			s.messages = append(s.messages, map[string]any{"role": "user", "content": content})
+		if err := sess.add(ctx, proxy, up, path, rep, line, &lastID); err != nil {
+			return err
 		}
 	}
-	if err := sc.Err(); err != nil {
+	if err := scanner.Err(); err != nil {
 		return err
 	}
-	for id, t := range s.results {
-		tr := rep.Tools[cmp.Or(s.tools[id], "?")]
-		if tr == nil {
-			tr = &toolReplay{}
-			rep.Tools[cmp.Or(s.tools[id], "?")] = tr
+	rep.addResults(sess)
+	return nil
+}
+
+// add appends one transcript line to the conversation. A model turn that
+// follows tool results first sends the request they ended. lastID is the id
+// of the assistant message being assembled from consecutive lines.
+func (s *session) add(ctx context.Context, proxy http.Handler, up *upstream, path string, rep *replayReport, line transcriptLine, lastID *string) error {
+	content := blocks(line.Message.Content)
+	switch {
+	case line.IsCompactSummary:
+		s.messages, s.prevOrig, s.prevFwd = []map[string]any{{"role": "user", "content": content}}, nil, nil
+	case line.Type == "assistant":
+		s.model = cmp.Or(line.Message.Model, s.model)
+		for _, block := range content {
+			if fields, ok := block.(map[string]any); ok && fields["type"] == "tool_use" {
+				id, _ := fields["id"].(string)
+				name, _ := fields["name"].(string)
+				s.tools[id] = name
+			}
 		}
-		tr.Results++
-		tr.Raw += t.raw
-		tr.Out += t.out
-		if t.folded {
-			tr.Folded++
+		if last := s.last(); last != nil && last["role"] == "assistant" && line.Message.ID == *lastID {
+			last["content"] = append(last["content"].([]any), content...)
+			return nil
 		}
+		if s.endsWithToolResult() {
+			if err := s.send(ctx, proxy, up, path, rep); err != nil {
+				return err
+			}
+		}
+		*lastID = line.Message.ID
+		s.messages = append(s.messages, map[string]any{"role": "assistant", "content": content})
+	default:
+		if last := s.last(); last != nil && last["role"] == "user" {
+			last["content"] = append(last["content"].([]any), content...)
+			return nil
+		}
+		s.messages = append(s.messages, map[string]any{"role": "user", "content": content})
 	}
 	return nil
+}
+
+// addResults adds the session's latest measure of every tool result to the
+// per-tool totals.
+func (rep *replayReport) addResults(sess *session) {
+	for id, result := range sess.results {
+		tool := rep.Tools[cmp.Or(sess.tools[id], "?")]
+		if tool == nil {
+			tool = &toolReplay{}
+			rep.Tools[cmp.Or(sess.tools[id], "?")] = tool
+		}
+		tool.Results++
+		tool.Raw += result.raw
+		tool.Out += result.out
+		if result.folded {
+			tool.Folded++
+		}
+	}
 }
 
 func (s *session) last() map[string]any {

@@ -130,92 +130,120 @@ func isKey(text string) bool {
 	return false
 }
 
+// gainOptions holds the flags of gain.
+type gainOptions struct {
+	failures bool
+	refetch  bool
+	by       string
+	all      bool
+	asJSON   bool
+	oneline  bool
+	asCSV    bool
+	color    string
+	since    string
+	pipeline string
+	rereads  float64
+	view     gainViewFlags
+}
+
 func cmdGain(ctx context.Context, args []string) error {
-	var (
-		failures bool
-		refetch  bool
-		by       string
-		all      bool
-		asJSON   bool
-		oneline  bool
-		asCSV    bool
-		color    string
-		since    string
-		pipeline string
-		rereads  float64
-		view     gainViewFlags
-	)
-	return withLedger(ctx, "gain", args, 0, func(fs *flag.FlagSet) {
-		fs.BoolVar(&failures, "failures", false, "list sources that optimized badly")
-		fs.BoolVar(&refetch, "refetch", false, "per optimizer family, how often the original was fetched after an optimized result (what makes the history filter go gentle)")
-		fs.StringVar(&by, "by", "", "one `grouping` instead of the overview: day, week, month, agent, model, session, command, optimizer, family, dialect, outcome, reason, route, pipeline, type")
-		fs.StringVar(&pipeline, "pipeline", "", "only runs of these pipelines, `NAME[,NAME]` (exec, hook, mcp, proxy, cli, eval); rolled-up history has none")
-		fs.BoolVar(&all, "all", false, "ignore session/agent/model from $GASCOIGNE_* (flags still filter)")
-		fs.StringVar(&since, "since", "", "only the last `period`: 24h, 7d, 4w, 6mo")
-		fs.BoolVar(&asJSON, "json", false, "print JSON instead of a table")
-		fs.BoolVar(&asCSV, "csv", false, "print CSV (with -by or -failures) instead of a table")
-		fs.BoolVar(&oneline, "oneline", false, "print one line of totals, for a status line")
-		fs.StringVar(&color, "color", "auto", "`mode`: auto (terminal, no NO_COLOR), always or never")
-		view.register(fs)
-		fs.Float64Var(&rereads, "rereads", cost.AgentContext.Rereads, "later requests that read each tool result again, for the cost estimate (`n`; measured median 110)")
-	}, func(store *ledger.Ledger, shared *common, _ []string) error {
-		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		defer w.Flush()
-		if asCSV && (asJSON || oneline || (by == "" && !failures)) {
-			return errors.New("gain: -csv needs -by or -failures, and replaces -json and -oneline")
-		}
-		if failures {
-			if asJSON {
-				return failuresJSON(ctx, store)
-			}
-			if asCSV {
-				return failuresCSV(ctx, os.Stdout, store)
-			}
-			return printFailures(ctx, w, store, time.Now())
-		}
-		id := shared.identity()
-		if all {
-			id = mcptool.Identity{Session: shared.session, Agent: shared.agent, Model: shared.model}
-		}
-		q := component.StatsQuery{By: by, Session: id.Session, Agent: id.Agent, Model: id.Model, Pipelines: splitList(pipeline, ",")}
-		if since != "" {
-			d, err := parseSince(since)
-			if err != nil {
-				return err
-			}
-			q.Since = time.Now().Add(-d)
-		}
-		if refetch {
-			q.By, q.Session = component.ByFamilyOutcome, "" // all runs of the family, as the history filter reads them
-			return printRefetch(ctx, os.Stdout, store, q)
-		}
-		if oneline {
-			return printOneline(ctx, os.Stdout, store, q, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss})
-		}
-		p, err := newPainter(color)
-		if err != nil {
-			return err
-		}
-		v, err := view.build(by == "")
-		if err != nil {
-			return err
-		}
-		if by == "" {
-			return overview(ctx, store, q, asJSON, p, cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss}, v)
-		}
-		stats, err := store.Stats(ctx, q)
-		if err != nil {
-			return err
-		}
-		if asJSON {
-			return writeJSON(mcptool.Report(q, stats))
-		}
-		if asCSV {
-			return statsCSV(os.Stdout, mcptool.Report(q, stats))
-		}
-		p.renderStats(os.Stdout, q, stats, v)
-		return nil
+	var opts gainOptions
+	return withLedger(ctx, "gain", args, 0, opts.register, func(store *ledger.Ledger, shared *common, _ []string) error {
+		return opts.run(ctx, store, shared)
 	})
+}
+
+func (opts *gainOptions) register(fs *flag.FlagSet) {
+	fs.BoolVar(&opts.failures, "failures", false, "list sources that optimized badly")
+	fs.BoolVar(&opts.refetch, "refetch", false, "per optimizer family, how often the original was fetched after an optimized result (what makes the history filter go gentle)")
+	fs.StringVar(&opts.by, "by", "", "one `grouping` instead of the overview: day, week, month, agent, model, session, command, optimizer, family, dialect, outcome, reason, route, pipeline, type")
+	fs.StringVar(&opts.pipeline, "pipeline", "", "only runs of these pipelines, `NAME[,NAME]` (exec, hook, mcp, proxy, cli, eval); rolled-up history has none")
+	fs.BoolVar(&opts.all, "all", false, "ignore session/agent/model from $GASCOIGNE_* (flags still filter)")
+	fs.StringVar(&opts.since, "since", "", "only the last `period`: 24h, 7d, 4w, 6mo")
+	fs.BoolVar(&opts.asJSON, "json", false, "print JSON instead of a table")
+	fs.BoolVar(&opts.asCSV, "csv", false, "print CSV (with -by or -failures) instead of a table")
+	fs.BoolVar(&opts.oneline, "oneline", false, "print one line of totals, for a status line")
+	fs.StringVar(&opts.color, "color", "auto", "`mode`: auto (terminal, no NO_COLOR), always or never")
+	opts.view.register(fs)
+	fs.Float64Var(&opts.rereads, "rereads", cost.AgentContext.Rereads, "later requests that read each tool result again, for the cost estimate (`n`; measured median 110)")
+}
+
+func (opts *gainOptions) run(ctx context.Context, store *ledger.Ledger, shared *common) error {
+	if opts.asCSV && (opts.asJSON || opts.oneline || (opts.by == "" && !opts.failures)) {
+		return errors.New("gain: -csv needs -by or -failures, and replaces -json and -oneline")
+	}
+	if opts.failures {
+		return opts.printFailures(ctx, store)
+	}
+	query, err := opts.query(shared)
+	if err != nil {
+		return err
+	}
+	if opts.refetch {
+		query.By, query.Session = component.ByFamilyOutcome, "" // all runs of the family, as the history filter reads them
+		return printRefetch(ctx, os.Stdout, store, query)
+	}
+	pricing := cost.Context{Rereads: opts.rereads, Miss: cost.AgentContext.Miss}
+	if opts.oneline {
+		return printOneline(ctx, os.Stdout, store, query, pricing)
+	}
+	return opts.printReport(ctx, store, query, pricing)
+}
+
+func (opts *gainOptions) printFailures(ctx context.Context, store *ledger.Ledger) error {
+	if opts.asJSON {
+		return failuresJSON(ctx, store)
+	}
+	if opts.asCSV {
+		return failuresCSV(ctx, os.Stdout, store)
+	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	defer w.Flush()
+	return printFailures(ctx, w, store, time.Now())
+}
+
+// query turns the filter flags and the caller's identity into a stats query.
+func (opts *gainOptions) query(shared *common) (component.StatsQuery, error) {
+	id := shared.identity()
+	if opts.all {
+		id = mcptool.Identity{Session: shared.session, Agent: shared.agent, Model: shared.model}
+	}
+	query := component.StatsQuery{By: opts.by, Session: id.Session, Agent: id.Agent, Model: id.Model, Pipelines: splitList(opts.pipeline, ",")}
+	if opts.since != "" {
+		period, err := parseSince(opts.since)
+		if err != nil {
+			return query, err
+		}
+		query.Since = time.Now().Add(-period)
+	}
+	return query, nil
+}
+
+// printReport prints the overview, or the stats grouped by -by.
+func (opts *gainOptions) printReport(ctx context.Context, store *ledger.Ledger, query component.StatsQuery, pricing cost.Context) error {
+	painter, err := newPainter(opts.color)
+	if err != nil {
+		return err
+	}
+	view, err := opts.view.build(opts.by == "")
+	if err != nil {
+		return err
+	}
+	if opts.by == "" {
+		return overview(ctx, store, query, opts.asJSON, painter, pricing, view)
+	}
+	stats, err := store.Stats(ctx, query)
+	if err != nil {
+		return err
+	}
+	if opts.asJSON {
+		return writeJSON(mcptool.Report(query, stats))
+	}
+	if opts.asCSV {
+		return statsCSV(os.Stdout, mcptool.Report(query, stats))
+	}
+	painter.renderStats(os.Stdout, query, stats, view)
+	return nil
 }
 
 // printOneline prints the totals of q on one line, short enough for an

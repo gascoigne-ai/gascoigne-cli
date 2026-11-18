@@ -51,61 +51,87 @@ func BuildCosts(ctx context.Context, ledger component.Ledger, filter component.S
 		out.Pricing = Pricing{Basis: "not shown: billing is set to a flat plan, so tokens saved are not turned into dollars (gascoigne pricing set -billing api)"}
 		return out, nil
 	}
-	q := filter
-	q.By = component.ByAgent
-	agents, err := ledger.Stats(ctx, q)
+	saved, err := out.collectSaved(ctx, ledger, filter)
 	if err != nil {
 		return out, err
 	}
-	saved := map[[2]string]int{} // model, assumed → tokens
-	custom := false
-	for _, a := range agents {
-		mq := filter
-		mq.By, mq.Agent = component.ByModel, a.Group
-		if a.Group == "-" || a.Group == "eval" {
+	out.priceSavings(saved, pricing)
+	out.settleBilling()
+	cost.Sort(out.Savings)
+	out.FirstRead, out.InContext = cost.Total(out.Savings)
+	slices.Sort(out.Unpriced)
+	return out, nil
+}
+
+// savedKey is a model id and "assumed" when the run recorded no model.
+type savedKey [2]string
+
+// collectSaved sums the tokens saved per model over every agent billed per
+// token, noting the agents on a plan and the models without a price.
+func (out *Costs) collectSaved(ctx context.Context, ledger component.Ledger, filter component.StatsQuery) (map[savedKey]int, error) {
+	agentQuery := filter
+	agentQuery.By = component.ByAgent
+	agents, err := ledger.Stats(ctx, agentQuery)
+	if err != nil {
+		return nil, err
+	}
+	saved := map[savedKey]int{}
+	for _, agent := range agents {
+		modelQuery := filter
+		modelQuery.By, modelQuery.Agent = component.ByModel, agent.Group
+		if agent.Group == "-" || agent.Group == "eval" {
 			continue // no agent: no default model to assume; eval: recorded benchmark runs, not work
 		}
-		if cost.BillingOf(a.Group).Mode == cost.BillingSubscription {
-			out.SubscriptionAgents = append(out.SubscriptionAgents, a.Group)
+		if cost.BillingOf(agent.Group).Mode == cost.BillingSubscription {
+			out.SubscriptionAgents = append(out.SubscriptionAgents, agent.Group)
 			continue // a plan bills nothing per token
 		}
-		models, err := ledger.Stats(ctx, mq)
+		models, err := ledger.Stats(ctx, modelQuery)
 		if err != nil {
-			return out, err
+			return nil, err
 		}
-		for _, m := range models {
-			if m.Saved() <= 0 {
+		for _, row := range models {
+			if row.Saved() <= 0 {
 				continue
 			}
-			id, assumed := m.Group, "" // "" = recorded
-			if id == "" || id == "-" { // the ledger's label for none
-				id, assumed = cost.AgentModels[a.Group], "assumed"
+			id, assumed := row.Group, "" // "" = recorded
+			if id == "" || id == "-" {   // the ledger's label for none
+				id, assumed = cost.AgentModels[agent.Group], "assumed"
 			}
 			model, ok := cost.Lookup(id)
 			if !ok {
-				name := cmp.Or(id, "agent "+cmp.Or(a.Group, "unknown"))
+				name := cmp.Or(id, "agent "+cmp.Or(agent.Group, "unknown"))
 				if !slices.Contains(out.Unpriced, name) {
 					out.Unpriced = append(out.Unpriced, name)
 				}
 				continue
 			}
-			saved[[2]string{model.ID, assumed}] += m.Saved()
+			saved[savedKey{model.ID, assumed}] += row.Saved()
 		}
 	}
-	for _, k := range slices.SortedFunc(maps.Keys(saved), func(left, right [2]string) int {
+	return saved, nil
+}
+
+// priceSavings turns the tokens saved per model into dollars, in model order.
+func (out *Costs) priceSavings(saved map[savedKey]int, pricing cost.Context) {
+	custom := false
+	for _, key := range slices.SortedFunc(maps.Keys(saved), func(left, right savedKey) int {
 		return cmp.Or(cmp.Compare(left[0], right[0]), cmp.Compare(left[1], right[1]))
 	}) {
-		n := saved[k]
-		m, source := cost.LookupSource(k[0])
-		s := cost.Estimate(m, n, pricing)
-		s.Assumed = k[1] != ""
-		s.Source = source
+		model, source := cost.LookupSource(key[0])
+		saving := cost.Estimate(model, saved[key], pricing)
+		saving.Assumed = key[1] != ""
+		saving.Source = source
 		custom = custom || source != cost.SourceBuiltIn
-		out.Savings = append(out.Savings, s)
+		out.Savings = append(out.Savings, saving)
 	}
 	if custom {
 		out.Pricing.Basis += "; prices you supplied replace the list price where marked in source"
 	}
+}
+
+// settleBilling sets the billing mode from the agents left out of the dollars.
+func (out *Costs) settleBilling() {
 	switch {
 	case len(out.SubscriptionAgents) > 0 && len(out.Savings) == 0 && len(out.Unpriced) == 0:
 		out.Billing = cost.BillingSubscription
@@ -114,8 +140,4 @@ func BuildCosts(ctx context.Context, ledger component.Ledger, filter component.S
 		out.Billing = "mixed"
 		out.Pricing.Basis += "; agents billed by plan (" + strings.Join(out.SubscriptionAgents, ", ") + ") are left out"
 	}
-	cost.Sort(out.Savings)
-	out.FirstRead, out.InContext = cost.Total(out.Savings)
-	slices.Sort(out.Unpriced)
-	return out, nil
 }

@@ -42,14 +42,14 @@ type hookFunc func(ctx context.Context, shared *common, in hookInput, prefix str
 // cmdHook handles an agent hook event. It never fails the agent's tool call:
 // on any problem it prints nothing and the call goes on unchanged.
 func cmdHook(ctx context.Context, args []string) error {
-	var c common
+	var shared common
 	fs := newFlags("hook")
-	c.register(fs)
+	shared.register(fs)
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 	name := fs.Arg(0)
-	a, ok := agents[name]
+	agent, ok := agents[name]
 	if !ok {
 		return fmt.Errorf("hook: want an agent: %s", agentNames())
 	}
@@ -59,45 +59,16 @@ func cmdHook(ctx context.Context, args []string) error {
 		return nil
 	}
 	if in.HookEventName == "SessionStart" || in.HookEventName == "UserPromptSubmit" {
-		in.syncNote = syncNote()
-		checkReleaseQuick(ctx)
-		if in.HookEventName == "SessionStart" { // a prompt event leaves asking to the session start
-			setup, release := setupNudge(in.Source), releaseNudge(in.Source)
-			notes := []string{in.syncNote, setup, release, mcpNudge(in.Source, setup != "" || release != ""), learnNudge(ctx, in.Source)}
-			in.syncNote = strings.Join(slices.DeleteFunc(notes, func(note string) bool { return note == "" }), " ")
-		}
+		in.syncNote = sessionNotes(ctx, in)
 	}
 	if in.HookEventName == "UserPromptSubmit" {
-		// The server exits when idle; a prompt is where an agent starts
-		// talking to its API again, so bring it back first. It is also where a
-		// release that appeared mid-session opens its page (the reply stays empty).
-		releaseNudge("prompt")
-		if !serverOff() {
-			if err := serverUp(); err != nil {
-				fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
-			}
-		}
-		note := contextNudge(in.TranscriptPath)
-		if note == "" {
-			return nil
-		}
-		return json.NewEncoder(os.Stdout).Encode(map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "UserPromptSubmit", "additionalContext": note}})
+		return promptHook(in)
 	}
-	if c.agent == "" && os.Getenv("GASCOIGNE_AGENT") == "" {
-		c.agent = name
-	}
-	if c.sessionID() == "" {
-		c.session = in.SessionID
-	}
-	model := ""
-	if c.model == "" && os.Getenv("GASCOIGNE_MODEL") == "" {
-		model = transcriptModel(in.TranscriptPath)
-		c.model = model
-	}
+	model := adoptEvent(&shared, name, in)
 	if skipHook(in.HookEventName) {
 		return nil
 	}
-	reply, err := a.hook(ctx, &c, in, execPrefix(self(), name, in.SessionID, model, lastContext(transcriptEnd(in.TranscriptPath))))
+	reply, err := agent.hook(ctx, &shared, in, execPrefix(self(), name, in.SessionID, model, lastContext(transcriptEnd(in.TranscriptPath))))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
 		return nil
@@ -111,6 +82,54 @@ func cmdHook(ctx context.Context, args []string) error {
 	}
 	_, err = os.Stdout.Write(data)
 	return err
+}
+
+// sessionNotes returns the note a session start or prompt event carries: the
+// sync note, plus the nudges a session start adds.
+func sessionNotes(ctx context.Context, in hookInput) string {
+	note := syncNote()
+	checkReleaseQuick(ctx)
+	if in.HookEventName != "SessionStart" { // a prompt event leaves asking to the session start
+		return note
+	}
+	setup, release := setupNudge(in.Source), releaseNudge(in.Source)
+	notes := []string{note, setup, release, mcpNudge(in.Source, setup != "" || release != ""), learnNudge(ctx, in.Source)}
+	return strings.Join(slices.DeleteFunc(notes, func(note string) bool { return note == "" }), " ")
+}
+
+// promptHook starts the server when a prompt arrives and prints the context
+// nudge, if there is one.
+func promptHook(in hookInput) error {
+	// The server exits when idle; a prompt is where an agent starts
+	// talking to its API again, so bring it back first. It is also where a
+	// release that appeared mid-session opens its page (the reply stays empty).
+	releaseNudge("prompt")
+	if !serverOff() {
+		if err := serverUp(); err != nil {
+			fmt.Fprintln(os.Stderr, "gascoigne hook:", err)
+		}
+	}
+	note := contextNudge(in.TranscriptPath)
+	if note == "" {
+		return nil
+	}
+	return json.NewEncoder(os.Stdout).Encode(map[string]any{"hookSpecificOutput": map[string]any{"hookEventName": "UserPromptSubmit", "additionalContext": note}})
+}
+
+// adoptEvent fills the agent, session and model the user did not set from the
+// event, and returns the model it took from the transcript ("" when not).
+func adoptEvent(shared *common, name string, in hookInput) (model string) {
+	if shared.agent == "" && os.Getenv("GASCOIGNE_AGENT") == "" {
+		shared.agent = name
+	}
+	if shared.sessionID() == "" {
+		shared.session = in.SessionID
+	}
+	if shared.model == "" && os.Getenv("GASCOIGNE_MODEL") == "" {
+		model = transcriptModel(in.TranscriptPath)
+		shared.model = model
+	}
+	return model
 }
 
 // rewriteHook routes shell tool calls through gascoigne exec before they run;

@@ -255,69 +255,97 @@ func (c Config) due(name string, cached *entry) bool {
 // Load builds the user's prices from the settings and the cache. It reads files and never the
 // network or the script; Stale says a Refresh is due.
 func Load(cfg Config) Result {
-	var result Result
-	cached := readCache(cfg.StateDir)
-	var lists [][]cost.Override
-	add := func(layer Layer, list []cost.Override, err error) {
-		if err != nil {
-			layer.Error = err.Error()
-		} else {
-			layer.Models = len(list)
-			lists = append(lists, list)
-		}
-		result.Layers = append(result.Layers, layer)
-	}
+	load := &loader{cfg: cfg, cached: readCache(cfg.StateDir)}
+	load.static()
+	load.file()
+	load.remote()
+	load.mergeLists()
+	return load.result
+}
 
-	if len(cfg.Static) > 0 {
-		sheet, err := cost.Sheet(cfg.Static)
-		var list []cost.Override
-		if err == nil {
-			list, err = cost.ParsePrices(sheet, LayerStatic)
-		}
-		add(Layer{Name: LayerStatic}, list, err)
+// loader collects the layers of one Load: each layer's status goes to result,
+// its prices to lists, in precedence order.
+type loader struct {
+	cfg    Config
+	cached cache
+	result Result
+	lists  [][]cost.Override
+}
+
+func (load *loader) add(layer Layer, list []cost.Override, err error) {
+	if err != nil {
+		layer.Error = err.Error()
+	} else {
+		layer.Models = len(list)
+		load.lists = append(load.lists, list)
 	}
-	if cfg.File != "" {
-		layer := Layer{Name: LayerJSON}
-		var list []cost.Override
-		var err error
-		if cfg.Translate == "" {
-			var data []byte
-			if data, err = readSheet(cfg.File); err == nil {
-				list, err = cost.ParsePrices(data, LayerJSON)
-			}
-		} else {
-			e := cached.Layers[LayerJSON]
-			list, err = fromCache(e, LayerJSON, &layer, cfg)
-			if cfg.due(LayerJSON, e) {
-				result.Stale = true
-			}
-		}
-		add(layer, list, err)
+	load.result.Layers = append(load.result.Layers, layer)
+}
+
+// static adds the prices set in the config itself.
+func (load *loader) static() {
+	if len(load.cfg.Static) == 0 {
+		return
 	}
+	sheet, err := cost.Sheet(load.cfg.Static)
+	var list []cost.Override
+	if err == nil {
+		list, err = cost.ParsePrices(sheet, LayerStatic)
+	}
+	load.add(Layer{Name: LayerStatic}, list, err)
+}
+
+// file adds the price sheet file: read directly, or through the cache when a
+// translate command turns it into a sheet.
+func (load *loader) file() {
+	if load.cfg.File == "" {
+		return
+	}
+	layer := Layer{Name: LayerJSON}
+	var list []cost.Override
+	var err error
+	if load.cfg.Translate == "" {
+		var data []byte
+		if data, err = readSheet(load.cfg.File); err == nil {
+			list, err = cost.ParsePrices(data, LayerJSON)
+		}
+	} else {
+		cached := load.cached.Layers[LayerJSON]
+		list, err = fromCache(cached, LayerJSON, &layer, load.cfg)
+		if load.cfg.due(LayerJSON, cached) {
+			load.result.Stale = true
+		}
+	}
+	load.add(layer, list, err)
+}
+
+// remote adds the layers fetched from the network or a script, from the cache.
+func (load *loader) remote() {
 	for _, name := range []string{LayerAPI, LayerScript} {
-		if !slices.Contains(cfg.remote(), name) {
+		if !slices.Contains(load.cfg.remote(), name) {
 			continue
 		}
 		layer := Layer{Name: name}
-		e := cached.Layers[name]
-		list, err := fromCache(e, name, &layer, cfg)
-		if cfg.due(name, e) {
-			result.Stale = true
+		cached := load.cached.Layers[name]
+		list, err := fromCache(cached, name, &layer, load.cfg)
+		if load.cfg.due(name, cached) {
+			load.result.Stale = true
 		}
-		add(layer, list, err)
+		load.add(layer, list, err)
 	}
+}
 
-	// The first list that names a model wins.
+// mergeLists keeps the first list that names a model.
+func (load *loader) mergeLists() {
 	seen := map[string]bool{}
-	for _, list := range lists {
-		for _, o := range list {
-			if !seen[o.Model.ID] {
-				seen[o.Model.ID] = true
-				result.Overrides = append(result.Overrides, o)
+	for _, list := range load.lists {
+		for _, override := range list {
+			if !seen[override.Model.ID] {
+				seen[override.Model.ID] = true
+				load.result.Overrides = append(load.result.Overrides, override)
 			}
 		}
 	}
-	return result
 }
 
 // fromCache turns a layer's cached sheet into prices and fills its status. No sheet yet is not

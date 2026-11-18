@@ -23,6 +23,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/version"
+	"github.com/gascoigne-ai/gascoigne-cli/receiver/httpproxyreceiver"
 )
 
 const defaultServerAddr = "127.0.0.1:7878"
@@ -55,39 +56,14 @@ func cmdServer(ctx context.Context, args []string) error {
 	if len(args) > 0 && args[0] != "" && args[0][0] != '-' {
 		sub, args = args[0], args[1:]
 	}
-	var addr string
-	var idle time.Duration
-	var open bool
-	flags := func(fs *flag.FlagSet) {
-		fs.StringVar(&addr, "addr", serverAddr(), "listen `address`, loopback only (default $GASCOIGNE_SERVER_ADDR or "+defaultServerAddr+")")
-		if sub == "run" {
-			fs.DurationVar(&idle, "idle", serverIdle(), "exit after this long without a request, 0 never (default $GASCOIGNE_SERVER_IDLE or 30m)")
-		}
-		if sub == "start" {
-			fs.BoolVar(&open, "open", false, "open the dashboard in a browser")
-		}
-	}
+	var opts serverOptions
+	flags := func(fs *flag.FlagSet) { opts.register(fs, sub) }
 	switch sub {
 	case "run":
-		err := withLedger(ctx, "server run", args, 0, flags, func(store *ledger.Ledger, _ *common, _ []string) error {
-			return runServer(ctx, store, addr, idle)
-		})
-		if errors.Is(err, errNewBuild) {
-			// The ledger is closed and the port free: the new binary takes over.
-			fmt.Fprintln(os.Stderr, "gascoigne server: binary changed, restarting")
-			return spawnServer(addr)
-		}
-		return err
+		return serverRun(ctx, args, &opts, flags)
 	case "start":
 		return withLedger(ctx, "server start", args, 0, flags, func(store *ledger.Ledger, _ *common, _ []string) error {
-			if err := ensureServer(ctx, addr, store.Path(), true); err != nil {
-				return err
-			}
-			fmt.Printf("gascoigne dashboard: http://%s\n", addr)
-			if open {
-				openBrowser("http://" + addr)
-			}
-			return nil
+			return serverStart(ctx, store, opts)
 		})
 	case "stop", "status":
 		fs := newFlags("server " + sub)
@@ -95,24 +71,69 @@ func cmdServer(ctx context.Context, args []string) error {
 		if err := fs.Parse(args); err != nil {
 			return err
 		}
-		info, err := health(addr)
-		if err != nil {
-			fmt.Printf("gascoigne server: not running on %s\n", addr)
-			return nil
-		}
-		if sub == "status" {
-			fmt.Printf("gascoigne server: running on http://%s\n  version %s, pid %d, up %s, exits after %s idle\n  ledger %s\n  build %s\n",
-				info.Addr, cmp.Or(info.Version, "unknown"), info.PID, time.Since(info.Started).Round(time.Second), cmp.Or(info.Idle, "never"), info.Ledger, info.Build)
-			return nil
-		}
-		if err := stopServer(addr); err != nil {
-			return err
-		}
-		fmt.Printf("gascoigne server: stopped (pid %d)\n", info.PID)
-		return nil
+		return serverStatusOrStop(sub, opts.addr)
 	default:
 		return fmt.Errorf("server: want run, start, stop or status, got %q", sub)
 	}
+}
+
+// serverOptions holds the flags of the server subcommands.
+type serverOptions struct {
+	addr string
+	idle time.Duration
+	open bool
+}
+
+// register adds the flags sub takes.
+func (opts *serverOptions) register(fs *flag.FlagSet, sub string) {
+	fs.StringVar(&opts.addr, "addr", serverAddr(), "listen `address`, loopback only (default $GASCOIGNE_SERVER_ADDR or "+defaultServerAddr+")")
+	if sub == "run" {
+		fs.DurationVar(&opts.idle, "idle", serverIdle(), "exit after this long without a request, 0 never (default $GASCOIGNE_SERVER_IDLE or 30m)")
+	}
+	if sub == "start" {
+		fs.BoolVar(&opts.open, "open", false, "open the dashboard in a browser")
+	}
+}
+
+func serverRun(ctx context.Context, args []string, opts *serverOptions, flags func(*flag.FlagSet)) error {
+	err := withLedger(ctx, "server run", args, 0, flags, func(store *ledger.Ledger, _ *common, _ []string) error {
+		return runServer(ctx, store, opts.addr, opts.idle)
+	})
+	if errors.Is(err, errNewBuild) {
+		// The ledger is closed and the port free: the new binary takes over.
+		fmt.Fprintln(os.Stderr, "gascoigne server: binary changed, restarting")
+		return spawnServer(opts.addr)
+	}
+	return err
+}
+
+func serverStart(ctx context.Context, store *ledger.Ledger, opts serverOptions) error {
+	if err := ensureServer(ctx, opts.addr, store.Path(), true); err != nil {
+		return err
+	}
+	fmt.Printf("gascoigne dashboard: http://%s\n", opts.addr)
+	if opts.open {
+		openBrowser("http://" + opts.addr)
+	}
+	return nil
+}
+
+func serverStatusOrStop(sub, addr string) error {
+	info, err := health(addr)
+	if err != nil {
+		fmt.Printf("gascoigne server: not running on %s\n", addr)
+		return nil
+	}
+	if sub == "status" {
+		fmt.Printf("gascoigne server: running on http://%s\n  version %s, pid %d, up %s, exits after %s idle\n  ledger %s\n  build %s\n",
+			info.Addr, cmp.Or(info.Version, "unknown"), info.PID, time.Since(info.Started).Round(time.Second), cmp.Or(info.Idle, "never"), info.Ledger, info.Build)
+		return nil
+	}
+	if err := stopServer(addr); err != nil {
+		return err
+	}
+	fmt.Printf("gascoigne server: stopped (pid %d)\n", info.PID)
+	return nil
 }
 
 // errNewBuild: the server's binary was replaced (rebuilt, upgraded).
@@ -131,35 +152,18 @@ func runServer(ctx context.Context, store *ledger.Ledger, addr string, idle time
 	}
 	ctx, stop := context.WithCancel(ctx)
 	defer stop()
-	b, modified := binary()
-	info := serverInfo{PID: os.Getpid(), Version: version.String(), Build: b, Modified: modified, Ledger: store.Path(), Addr: ln.Addr().String(), Started: time.Now()}
+	build, modified := binary()
+	info := serverInfo{PID: os.Getpid(), Version: version.String(), Build: build, Modified: modified, Ledger: store.Path(), Addr: ln.Addr().String(), Started: time.Now()}
 	if idle > 0 {
 		info.Idle = idle.String()
 	}
-	w := newWarm(ctx, info.Build, info.Ledger)
-	defer w.Close()
+	warm := newWarm(ctx, info.Build, info.Ledger)
+	defer warm.Close()
 	go watchPricing(ctx, 10*time.Minute)
-	mux := http.NewServeMux()
-	mux.Handle("/", dashboard(store, time.Second, info, stop))
-	mux.Handle("POST /api/optimize", localOnly(w))
-	mux.Handle("POST /sdk/v1/optimize", localOnly(sdkOptimize(w)))
-	mux.Handle("GET /sdk/v1/raw/{id}", localOnly(sdkRaw(store)))
-	mux.Handle("GET /sdk/v1/stats", localOnly(sdkStats(store)))
-	mux.Handle("GET /sdk/v1/recent", localOnly(sdkRecent(store)))
-	proxyOn := false
-	proxy, closeProxy, err := llmProxy(ctx, &w.mu, info.Ledger, "", slog.New(slog.NewTextHandler(os.Stderr, nil)))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "gascoigne server: LLM proxy off:", err)
-	} else {
-		defer closeProxy()
-		proxyOn = true
-		mux.Handle("/v1/", localOnly(proxy))
-		mux.Handle("/v1beta/", localOnly(proxy))  // Gemini
-		mux.Handle("/bedrock/", localOnly(proxy)) // Claude on Amazon Bedrock
-	}
-	mux.Handle("GET /sdk/v1/health", localOnly(sdkHealthHandler(info.Version, proxyOn)))
+	mux, proxy, closeProxy := serverMux(ctx, store, warm, info, stop)
+	defer closeProxy()
 	var rebuilt atomic.Bool
-	go watchBinary(ctx, b, 2*time.Second, func() string { b, _ := binary(); return b }, func() {
+	go watchBinary(ctx, build, 2*time.Second, func() string { current, _ := binary(); return current }, func() {
 		rebuilt.Store(true)
 		waitIdle(ctx, proxy) // agents' streams finish first
 		stop()
@@ -182,6 +186,29 @@ func runServer(ctx context.Context, store *ledger.Ledger, addr string, idle time
 		return errNewBuild
 	}
 	return nil
+}
+
+// serverMux routes the dashboard, the SDK API and, when it starts, the LLM
+// proxy. The proxy is nil when off; closeProxy is always safe to call.
+func serverMux(ctx context.Context, store *ledger.Ledger, warmed *warm, info serverInfo, stop context.CancelFunc) (mux *http.ServeMux, proxy *httpproxyreceiver.Receiver, closeProxy func()) {
+	mux = http.NewServeMux()
+	mux.Handle("/", dashboard(store, time.Second, info, stop))
+	mux.Handle("POST /api/optimize", localOnly(warmed))
+	mux.Handle("POST /sdk/v1/optimize", localOnly(sdkOptimize(warmed)))
+	mux.Handle("GET /sdk/v1/raw/{id}", localOnly(sdkRaw(store)))
+	mux.Handle("GET /sdk/v1/stats", localOnly(sdkStats(store)))
+	mux.Handle("GET /sdk/v1/recent", localOnly(sdkRecent(store)))
+	proxy, closeProxy, err := llmProxy(ctx, &warmed.mu, info.Ledger, "", slog.New(slog.NewTextHandler(os.Stderr, nil)))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "gascoigne server: LLM proxy off:", err)
+		closeProxy = func() {}
+	} else {
+		mux.Handle("/v1/", localOnly(proxy))
+		mux.Handle("/v1beta/", localOnly(proxy))  // Gemini
+		mux.Handle("/bedrock/", localOnly(proxy)) // Claude on Amazon Bedrock
+	}
+	mux.Handle("GET /sdk/v1/health", localOnly(sdkHealthHandler(info.Version, err == nil)))
+	return mux, proxy, closeProxy
 }
 
 // watchBinary calls changed once read reports a build other than current

@@ -53,7 +53,12 @@ var groups = []string{groupAgents, groupOptimize, groupSavings, groupServer, gro
 var commandList []command
 
 func init() {
-	commandList = []command{
+	commandList = slices.Concat(agentCommands(), optimizeCommands(), ledgerCommands(), insightCommands(), dashboardAndDevCommands())
+}
+
+// agentCommands lists agent setup and registration.
+func agentCommands() []command {
+	return []command{
 		{name: "wrap", args: "[-print] <agent> [agent args...]", short: "<agent> [args...]", group: groupAgents,
 			summary: "start an agent with gascoigne registered for this run",
 			about: "Starts the agent with gascoigne's hook and MCP server for this run only; no config file\n" +
@@ -107,6 +112,12 @@ func init() {
 			about:    "Runs unwrap for every agent (user and this project's configs), stops the server, deletes\ngascoigne's config, data (ledger), cache and state dirs, then the binary. Lists it all and\nasks first; -y skips the question. Run unwrap in other projects installed without -g first.",
 			examples: []string{"gascoigne uninstall", "gascoigne uninstall -y"},
 			run:      cmdUninstall},
+	}
+}
+
+// optimizeCommands lists hooks, execs and MCP servers that optimize.
+func optimizeCommands() []command {
+	return []command{
 		{name: "hook", args: "<agent>",
 			summary: "agent hook handler (called by the agent)",
 			about:   "Reads a hook event on stdin and answers for the agent. Never fails the tool call.",
@@ -145,7 +156,12 @@ func init() {
 				"and saves the tokens (0600, state dir); they are refreshed on use. -logout forgets them.",
 			examples: []string{"gascoigne mcp-login https://mcp.example.com/mcp", "gascoigne mcp-login -logout https://mcp.example.com/mcp"},
 			run:      cmdMCPLogin},
+	}
+}
 
+// ledgerCommands lists the ledger: gains, prices, raw output and cleanup.
+func ledgerCommands() []command {
+	return []command{
 		{name: "gain", args: "[flags]", group: groupSavings,
 			summary:  "token savings report",
 			examples: []string{"gascoigne gain", "gascoigne gain -by command -since 7d", "gascoigne gain -full", "gascoigne gain -show agent,model -top 3", "gascoigne gain -by command -sort runs -min-tokens 1000"},
@@ -189,6 +205,12 @@ func init() {
 			about:    "Deletes stored originals and vacuums the ledger. Runs and savings stay.",
 			examples: []string{"gascoigne flush", "gascoigne flush -older 2h"},
 			run:      cmdFlush},
+	}
+}
+
+// insightCommands lists what the ledger says: learning, reviews, probes and replays.
+func insightCommands() []command {
+	return []command{
 		{name: "learn", args: "[-since 30d] [-apply|-remove] [-target FILE]", group: groupSavings, experimental: true,
 			summary: "propose instruction lines from habits that cost context",
 			about: "Looks for commands an agent runs again for output gascoigne already shortened (the rest is one\n" +
@@ -243,7 +265,12 @@ func init() {
 				"read of it and its cost while it stays in an agent's context, per model.",
 			examples: []string{"gascoigne tokens README.md", "go test ./... 2>&1 | gascoigne tokens -model claude-opus-5-5,gpt-5.5"},
 			run:      cmdTokens},
+	}
+}
 
+// dashboardAndDevCommands lists dashboard, server and development tools.
+func dashboardAndDevCommands() []command {
+	return []command{
 		{name: "dashboard", args: "[flags]", group: groupServer,
 			summary: "start the server if needed, open the dashboard in a browser",
 			about:   "Prints the dashboard address and opens it in the default browser; -open=false only prints it.",
