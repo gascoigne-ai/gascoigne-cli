@@ -13,6 +13,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -53,10 +54,57 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 
 var (
 	// Refresh, progress, init and boilerplate lines of terraform and tofu.
-	tfNoise = lazyre.New(`^(\S+: (Refreshing state\.\.\.|Reading\.\.\.|Read complete after|Still \w+\.\.\.|Creating\.\.\.|Modifying\.\.\.|Destroying\.\.\.|Creation complete after|Modifications complete after|Destruction complete after)` +
-		`|(Acquiring|Releasing) state lock|Initializing (the backend|provider plugins|modules)|- (Reusing|Finding|Installing|Installed|Using previously-installed) ` +
-		`|(Terraform|OpenTofu) used the selected providers|(plan\. )?Resource actions are indicated with|guarantee to take exactly these actions|─{10,}$|(Terraform|OpenTofu) will perform the following actions` +
-		`|Note: You didn't use the -out option|\s+\+ create$|\s+~ update in-place$|\s+- destroy$|-/\+ destroy and then create replacement$|\+/- create replacement and then destroy$|\s+<= read \(data resources\)$)`)
+	tfNoise = pcomb.Rules{
+		{
+			Name: "resource progress",
+			Match: afterLabel(pcomb.Any(pcomb.Prefix("Refreshing state...", "Reading...", "Read complete after", "Creating...", "Modifying...", "Destroying...",
+				"Creation complete after", "Modifications complete after", "Destruction complete after"), pcomb.Re(`^Still \w+\.\.\.`))),
+			Yes: []string{"aws_instance.web: Refreshing state... [id=i-0abc]", "module.db.aws_db_instance.main: Still creating... [10s elapsed]", "aws_s3_bucket.b: Creation complete after 2s [id=b]", "data.aws_ami.u: Read complete after 0s [id=ami-1]"},
+			No:  []string{"Refreshing state...", "aws_instance.web : Refreshing state...", "aws_instance.web:  Refreshing state...", "aws_instance.web: Still ...", "aws_instance.web: Creating"},
+		},
+		{
+			Name:  "state lock",
+			Match: pcomb.Prefix("Acquiring state lock", "Releasing state lock"),
+			Yes:   []string{"Acquiring state lock. This may take a few moments...", "Releasing state lock. This may take a few moments..."},
+			No:    []string{"Acquiring the lock"},
+		},
+		{
+			Name:  "init",
+			Match: pcomb.Prefix("Initializing the backend", "Initializing provider plugins", "Initializing modules"),
+			Yes:   []string{"Initializing the backend...", "Initializing provider plugins...", "Initializing modules..."},
+			No:    []string{"Initializing"},
+		},
+		{
+			Name:  "provider install",
+			Match: pcomb.Prefix("- Reusing ", "- Finding ", "- Installing ", "- Installed ", "- Using previously-installed "),
+			Yes:   []string{"- Reusing previous version of hashicorp/aws from the dependency lock file", "- Installed hashicorp/aws v5.31.0 (signed by HashiCorp)"},
+			No:    []string{"- Reusing", "-Installing x"},
+		},
+		{
+			Name: "plan boilerplate",
+			Match: pcomb.Prefix("Terraform used the selected providers", "OpenTofu used the selected providers", "Resource actions are indicated with",
+				"plan. Resource actions are indicated with", "guarantee to take exactly these actions", "Terraform will perform the following actions",
+				"OpenTofu will perform the following actions", "Note: You didn't use the -out option"),
+			Yes: []string{"Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:",
+				"guarantee to take exactly these actions if you run \"terraform apply\" now.", "Terraform will perform the following actions:", "Note: You didn't use the -out option to save this plan, so Terraform can't guarantee to take exactly these actions"},
+			No: []string{"Terraform will apply", " Terraform will perform the following actions:"},
+		},
+		{
+			Name:  "ruler",
+			Match: pcomb.Re(`^─{10,}$`),
+			Yes:   []string{"─────────────────────────────────────────────────────────────────────────────", "──────────"},
+			No:    []string{"─────────", "──────────x"},
+		},
+		{
+			Name: "action legend",
+			Match: pcomb.Any(
+				pcomb.Indented(pcomb.Exact("+ create", "~ update in-place", "- destroy", "<= read (data resources)")),
+				pcomb.Exact("-/+ destroy and then create replacement", "+/- create replacement and then destroy"),
+			),
+			Yes: []string{"  + create", "  ~ update in-place", "  - destroy", "  <= read (data resources)", "-/+ destroy and then create replacement", "+/- create replacement and then destroy"},
+			No:  []string{"+ create", "  + create x", "  -/+ destroy and then create replacement"},
+		},
+	}
 	tfDone     = lazyre.New(`^\S+: (Creation|Modifications|Destruction) complete after`)
 	tfHidden   = lazyre.New(`^\s*# \(\d+ unchanged (attributes|blocks|elements) hidden\)$`)
 	tfKnown    = lazyre.New(`^(\s*)[+~] "?([\w.-]+)"?\s+= \(known after apply\)$`)
@@ -91,7 +139,7 @@ func (o *Optimizer) terraform(lines []string) []string {
 		case strings.HasPrefix(l, "│"):
 			l = strings.TrimPrefix(strings.TrimPrefix(l, "│"), " ")
 		}
-		if tfNoise.MatchString(l) {
+		if tfNoise.Match(l) {
 			if tfDone.MatchString(l) {
 				progress++
 			}
@@ -157,4 +205,13 @@ func (o *Optimizer) resource(block []string, used *int) []string {
 	}
 	*used += len(out)
 	return out
+}
+
+// afterLabel matches `<label>: ` (a first word ending in a colon) followed by
+// text that matcher matches: the regexp `^\S+: m`.
+func afterLabel(matcher pcomb.Matcher) pcomb.Matcher {
+	return func(line string) bool {
+		word, rest, ok := strings.Cut(line, " ")
+		return ok && len(word) > 1 && strings.HasSuffix(word, ":") && !strings.ContainsAny(word, "\t\n\f\r") && matcher(rest)
+	}
 }

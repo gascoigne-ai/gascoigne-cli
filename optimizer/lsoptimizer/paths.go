@@ -177,7 +177,13 @@ func (o *Optimizer) du(lines []string) []string {
 	return append(out, compress.Omitted(len(rest)-o.cfg.MaxPerDir*2, "smaller entries"), total.line)
 }
 
-var pseudoFS = lazyre.New(`^(tmpfs|devtmpfs|devfs|map|udev|dev|overlay|shm|efivarfs|squashfs|/dev/loop\d+|none|run|cgroup2?|proc|sysfs|portal)$`)
+// pseudoFS are filesystems that hold no files of the user's.
+var pseudoFS = map[string]bool{"tmpfs": true, "devtmpfs": true, "devfs": true, "map": true, "udev": true, "dev": true, "overlay": true, "shm": true,
+	"efivarfs": true, "squashfs": true, "none": true, "run": true, "cgroup": true, "cgroup2": true, "proc": true, "sysfs": true, "portal": true}
+
+var loopDevice = lazyre.New(`^/dev/loop\d+$`)
+
+func isPseudoFS(name string) bool { return pseudoFS[name] || loopDevice.MatchString(name) }
 
 // df drops pseudo filesystems and compacts the table.
 func (o *Optimizer) df(lines []string) []string {
@@ -197,7 +203,7 @@ func (o *Optimizer) df(lines []string) []string {
 	}
 	var kept [][]string
 	for _, r := range t.Rows {
-		if !pseudoFS.MatchString(r[0]) && !pseudoMount(r[len(r)-1]) {
+		if !isPseudoFS(r[0]) && !pseudoMount(r[len(r)-1]) {
 			kept = append(kept, r)
 		}
 	}

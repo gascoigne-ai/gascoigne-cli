@@ -5,11 +5,39 @@ import (
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
 
 var (
 	gradleTask  = lazyre.New(`^> Task (:\S+)(?: (UP-TO-DATE|NO-SOURCE|FROM-CACHE|SKIPPED|FAILED))?$`)
-	gradleNoise = lazyre.New(`^(Downloading https?://|Download https?://|Starting a Gradle Daemon|<[-=]+> \d+% |Deprecated Gradle features were used|You can use '--warning-mode all'|For more on this, please refer to|\* Get more help at|> Run with --(stacktrace|info|debug|scan)|> Get more help|Configuration cache entry)`)
+	gradleNoise = pcomb.Rules{
+		{
+			Name:  "download",
+			Match: pcomb.Prefix("Downloading http://", "Downloading https://", "Download http://", "Download https://"),
+			Yes:   []string{"Downloading https://services.gradle.org/distributions/gradle-8.5-bin.zip", "Download https://repo.maven.apache.org/maven2/x.pom"},
+			No:    []string{"Downloading ftp://x", "Downloaded https://x"},
+		},
+		{
+			Name:  "daemon",
+			Match: pcomb.Prefix("Starting a Gradle Daemon"),
+			Yes:   []string{"Starting a Gradle Daemon (subsequent builds will be faster)"},
+			No:    []string{"Starting Gradle"},
+		},
+		{
+			Name:  "progress bar",
+			Match: pcomb.Re(`^<[-=]+> \d+% `),
+			Yes:   []string{"<-------------> 0% INITIALIZING [75ms]", "<===--------> 30% EXECUTING [1s]"},
+			No:    []string{"<> 5% x", "<=> 5%x"},
+		},
+		{
+			Name: "build footer",
+			Match: pcomb.Prefix("Deprecated Gradle features were used", "You can use '--warning-mode all'", "For more on this, please refer to", "* Get more help at",
+				"> Run with --stacktrace", "> Run with --info", "> Run with --debug", "> Run with --scan", "> Get more help", "Configuration cache entry"),
+			Yes: []string{"Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.", "You can use '--warning-mode all' to show the individual deprecation warnings",
+				"* Get more help at https://help.gradle.org", "> Run with --stacktrace option to get the stack trace.", "> Run with --scan to get full insights.", "Configuration cache entry stored."},
+			No: []string{"> Run with --other", "> Task :app:build"},
+		},
+	}
 )
 
 // gradle: "> Task :x" sections; quiet up-to-date/cached tasks are counted.
@@ -20,7 +48,7 @@ func gradle(lines []string) []string {
 	var cur *section
 	for _, l := range lines {
 		switch m := gradleTask.FindStringSubmatch(l); {
-		case gradleNoise.MatchString(strings.TrimSpace(l)):
+		case gradleNoise.Match(strings.TrimSpace(l)):
 		case m != nil:
 			state := m[2]
 			if state == "" {

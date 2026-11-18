@@ -15,7 +15,8 @@ var (
 	quoted     = lazyre.New(`"([^"]*)"`)
 	nameField  = lazyre.New(`name\s*=\s*"([^"]+)"`)
 	// Keys of lockfile entries that only machines read.
-	lockNoise = lazyre.New(`^(checksum|hash|hashes|files|wheels|sdist|source|content-hash|resolution-markers|upload-time|size|url)$`)
+	lockNoise = map[string]bool{"checksum": true, "hash": true, "hashes": true, "files": true, "wheels": true, "sdist": true, "source": true,
+		"content-hash": true, "resolution-markers": true, "upload-time": true, "size": true, "url": true}
 )
 
 type entry struct {
@@ -84,7 +85,7 @@ func toml(text string) string {
 		switch {
 		case sub == "dependencies":
 			cur.deps = append(cur.deps, key) // poetry: [package.dependencies] name = "constraint"
-		case sub != "" || lockNoise.MatchString(key):
+		case sub != "" || lockNoise[key]:
 		case key == "dependencies":
 			cur.deps = append(cur.deps, depNames(value)...)
 		case strings.HasPrefix(value, "[") || strings.HasPrefix(value, "{"):

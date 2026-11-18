@@ -7,6 +7,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
 
 var (
@@ -109,7 +110,27 @@ func ansible(lines []string) []string {
 }
 
 var (
-	cdkNoise = lazyre.New(`^(✨\s+(Synthesis time|Total time|Deployment time|Number of stacks with differences)|\S+: (deploying|creating CloudFormation changeset|building|publishing|assets? (built|published))|\[\d+%\] (start|success|check|upload|build|cached))`)
+	cdkNoise = pcomb.Rules{
+		{
+			Name:  "cdk summary times",
+			Match: pcomb.Prefixed("✨", pcomb.Indented(pcomb.Prefix("Synthesis time", "Total time", "Deployment time", "Number of stacks with differences"))),
+			Yes:   []string{"✨  Synthesis time: 3.2s", "✨  Total time: 5.1s", "✨  Number of stacks with differences: 1"},
+			No:    []string{"✨Total time", "✨  Done"},
+		},
+		{
+			Name: "stack chatter",
+			Match: afterLabel(pcomb.Prefix("deploying", "creating CloudFormation changeset", "building", "publishing", "asset built", "assets built", "asset published",
+				"assets published")),
+			Yes: []string{"MyStack: deploying... [1/2]", "MyStack: creating CloudFormation changeset...", "MyStack: building assets...", "MyStack: assets published"},
+			No:  []string{"MyStack:deploying", "My Stack: deploying", "MyStack: deployed"},
+		},
+		{
+			Name:  "asset progress",
+			Match: pcomb.Re(`^\[\d+%\] (start|success|check|upload|build|cached)`),
+			Yes:   []string{"[0%] start: Publishing abc:current", "[100%] success: Published abc:current", "[50%] check: Check abc"},
+			No:    []string{"[%] start", "[5%]start", "[5%] failed: x"},
+		},
+	}
 	// cdk deploy progress rows; failures are kept.
 	cdkProgress = lazyre.New(`^\S+ \|\s*\d+/\d+ \|.*\| \w+_(IN_PROGRESS|COMPLETE)\s`)
 )
@@ -120,7 +141,7 @@ func cdk(lines []string) []string {
 	progress := 0
 	for _, l := range lines {
 		switch {
-		case cdkNoise.MatchString(l):
+		case cdkNoise.Match(l):
 		case cdkProgress.MatchString(l):
 			progress++
 		default:

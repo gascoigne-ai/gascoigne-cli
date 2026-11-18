@@ -7,12 +7,32 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
 
 var (
 	planNode   = lazyre.New(`^(\s*)(->\s+)?([A-Z][\w .-]+?)(?: on (\S+)(?: (\S+))?)?\s+\(cost=[\d.]+\.\.([\d.]+) rows=(\d+) width=\d+\)(?: \(actual time=[\d.]+\.\.([\d.]+) rows=(\d+) loops=(\d+)\))?`)
-	planDetail = lazyre.New(`^\s+(Filter|Index Cond|Hash Cond|Join Filter|Recheck Cond|Sort Key|Rows Removed by Filter|Group Key|Merge Cond|Output|Sort Method|Heap Fetches):`)
-	planNoise  = lazyre.New(`^\s+(Buffers:|Worker \d+:|Planning:|I/O Timings:|Memory Usage:|Batches:)`)
+	planDetail = pcomb.Rules{{
+		Name: "filter and key lines",
+		Match: pcomb.Indented(pcomb.Prefix("Filter:", "Index Cond:", "Hash Cond:", "Join Filter:", "Recheck Cond:", "Sort Key:", "Rows Removed by Filter:", "Group Key:",
+			"Merge Cond:", "Output:", "Sort Method:", "Heap Fetches:")),
+		Yes: []string{"  Filter: (status = 'open'::text)", "  Index Cond: (id = 1)", "  Rows Removed by Filter: 5", "  Sort Method: quicksort  Memory: 25kB", "  Heap Fetches: 0"},
+		No:  []string{"Filter: x", "  Filters: x", "  Planning Time: 0.1 ms"},
+	}}
+	planNoise = pcomb.Rules{
+		{
+			Name:  "buffers and timings",
+			Match: pcomb.Indented(pcomb.Prefix("Buffers:", "Planning:", "I/O Timings:", "Memory Usage:", "Batches:")),
+			Yes:   []string{"  Buffers: shared hit=3", "  Planning:", "  I/O Timings: read=0.1", "  Memory Usage: 24kB", "  Batches: 1"},
+			No:    []string{"Buffers: shared hit=3", "  Planning Time: 0.1 ms", "  Batches 1"},
+		},
+		{
+			Name:  "parallel worker",
+			Match: pcomb.Indented(pcomb.Re(`^Worker \d+:`)),
+			Yes:   []string{"    Worker 0:  Sort Method: quicksort", "  Worker 12: x"},
+			No:    []string{"Worker 0: x", "  Worker x:"},
+		},
+	}
 )
 
 type node struct {
@@ -34,8 +54,8 @@ func (o *Optimizer) plan(lines []string) []string {
 			continue
 		}
 		switch {
-		case planNoise.MatchString(l):
-		case len(nodes) > 0 && planDetail.MatchString(l):
+		case planNoise.Match(l):
+		case len(nodes) > 0 && planDetail.Match(l):
 			nodes[len(nodes)-1].details = append(nodes[len(nodes)-1].details, strings.TrimSpace(l))
 		case len(nodes) == 0:
 			head = append(head, l)

@@ -19,6 +19,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/yamlx"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -116,9 +117,36 @@ func (o *Optimizer) sampleList(doc *yaml.Node) {
 }
 
 var (
-	describeNoise = lazyre.New(`^\s*(Container ID|Image ID|Controlled By|Priority|Service Account|QoS Class|Node-Selectors|SeccompProfile|IPs|IP Family Policy|IP Families|Session Affinity|Internal Traffic Policy|Topology Spread Constraints|Priority Class Name|Runtime Class Name|Annotations):|:\s+<none>\s*$|^\s*(TokenExpirationSeconds|ConfigMapName|ConfigMapOptional|DownwardAPI|Optional):|^\s+node\.kubernetes\.io/(not-ready|unreachable):NoExecute op=Exists for 300s`)
-	apiAccess     = lazyre.New(`^(\s*)kube-api-access-\S+:$`)
-	eventRow      = lazyre.New(`^\s+(Normal|Warning)\s+(\S+)\s+`)
+	describeNoise = pcomb.Rules{
+		{
+			Name: "empty or default field",
+			Match: pcomb.Trimmed(pcomb.Prefix("Container ID:", "Image ID:", "Controlled By:", "Priority:", "Service Account:", "QoS Class:", "Node-Selectors:",
+				"SeccompProfile:", "IPs:", "IP Family Policy:", "IP Families:", "Session Affinity:", "Internal Traffic Policy:", "Topology Spread Constraints:",
+				"Priority Class Name:", "Runtime Class Name:", "Annotations:")),
+			Yes: []string{"Container ID:  containerd://3f9a", "    Image ID:       docker.io/library/nginx@sha256:abc", "Priority:       0", "  Annotations:  <none>"},
+			No:  []string{"Priority", "Name:  x", "Image:  nginx"},
+		},
+		{
+			Name:  "none value",
+			Match: pcomb.Re(`:\s+<none>\s*$`),
+			Yes:   []string{"Labels:  <none>", "    Limits:  <none>  ", "x: <none>"},
+			No:    []string{"Labels:  <none> x", "Labels:<none>", "<none>"},
+		},
+		{
+			Name:  "projected volume field",
+			Match: pcomb.Trimmed(pcomb.Prefix("TokenExpirationSeconds:", "ConfigMapName:", "ConfigMapOptional:", "DownwardAPI:", "Optional:")),
+			Yes:   []string{"    TokenExpirationSeconds:  3607", "    ConfigMapName:           kube-root-ca.crt", "    ConfigMapOptional:       <nil>", "    DownwardAPI:             true", "  Optional:  false"},
+			No:    []string{"Optional", "Mode:  420"},
+		},
+		{
+			Name:  "default toleration",
+			Match: pcomb.Indented(pcomb.Prefix("node.kubernetes.io/not-ready:NoExecute op=Exists for 300s", "node.kubernetes.io/unreachable:NoExecute op=Exists for 300s")),
+			Yes:   []string{"                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s", "                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s"},
+			No:    []string{"node.kubernetes.io/not-ready:NoExecute op=Exists for 300s", "                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists"},
+		},
+	}
+	apiAccess = lazyre.New(`^(\s*)kube-api-access-\S+:$`)
+	eventRow  = lazyre.New(`^\s+(Normal|Warning)\s+(\S+)\s+`)
 )
 
 // describe drops empty, opaque and default fields; Normal events with the
@@ -140,7 +168,7 @@ func describe(lines []string) []string {
 			skipIndent = len(m[1])
 			continue
 		}
-		if describeNoise.MatchString(l) {
+		if describeNoise.Match(l) {
 			continue
 		}
 		if m := eventRow.FindStringSubmatch(l); m != nil && m[1] == "Normal" {

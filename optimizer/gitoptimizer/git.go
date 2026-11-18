@@ -9,7 +9,7 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/sample"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
-	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -48,13 +48,35 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 	}, detect.GitStatus, detect.GitLog, detect.Diff, detect.GitRemote, detect.GitStat, detect.GitBlame, detect.GitBranch, detect.GitRefs, detect.GHList, detect.GHView)
 }
 
-var progress = lazyre.New(`^(remote: )?(Enumerating|Counting|Compressing|Writing|Receiving|Resolving|Delta compression|Total \d+|Unpacking|Updating files|Checking out files)\b|^remote:\s*$`)
+var progress = pcomb.Rules{
+	{
+		Name: "transfer progress",
+		Match: pcomb.Any(
+			pcomb.Word("Enumerating", "Counting", "Compressing", "Writing", "Receiving", "Resolving", "Delta compression", "Unpacking", "Updating files", "Checking out files"),
+			pcomb.Prefixed("remote: ", pcomb.Word("Enumerating", "Counting", "Compressing", "Writing", "Receiving", "Resolving", "Delta compression", "Unpacking", "Updating files", "Checking out files")),
+		),
+		Yes: []string{"Enumerating objects: 5, done.", "remote: Counting objects: 100% (5/5), done.", "Writing objects: 100% (3/3), 300 bytes | 300.00 KiB/s, done.", "Delta compression using up to 8 threads"},
+		No:  []string{"Countingx", "Writing_", "Receivingx objects", "From github.com:x/y"},
+	},
+	{
+		Name:  "pack total",
+		Match: pcomb.Re(`^(remote: )?Total \d+\b`),
+		Yes:   []string{"Total 3 (delta 1), reused 0 (delta 0), pack-reused 0", "remote: Total 3 (delta 1)"},
+		No:    []string{"Total", "Total x", "Total 35x"},
+	},
+	{
+		Name:  "empty remote line",
+		Match: pcomb.Prefixed("remote:", pcomb.Trimmed(pcomb.Exact(""))),
+		Yes:   []string{"remote:", "remote: ", "remote:   "},
+		No:    []string{"remote: Create a pull request", "remote:x"},
+	},
+}
 
 // remote drops transfer progress of push, pull, fetch and clone.
 func remote(lines []string) []string {
 	var out []string
 	for _, l := range lines {
-		if !progress.MatchString(l) {
+		if !progress.Match(l) {
 			out = append(out, l)
 		}
 	}

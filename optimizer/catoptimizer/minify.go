@@ -5,6 +5,7 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/pcomb"
 )
 
 // syntax is what minifying needs to know about a language: its comments and
@@ -42,7 +43,46 @@ func syntaxOf(lang string, hints detect.Hints) (syntax, bool) {
 
 // directive matches comments that tools read: build tags, linters, type
 // checkers, encodings, shebangs. They stay even when other comments go.
-var directive = lazyre.New(`^(#!|//go:|//\s*\+build|//\s*(nolint|NOLINT|eslint|prettier|biome|istanbul|c8|@ts-|#region|#endregion|swiftlint|clang-format)|///\s*<reference|#\s*(type:|noqa|pragma|pylint|mypy|pyright|fmt:|-\*-|frozen_string_literal|encoding|rubocop|shellcheck)|--\s*(luacheck|selene))`)
+var directive = pcomb.Rules{
+	{
+		Name:  "shebang and go directive",
+		Match: pcomb.Prefix("#!", "//go:"),
+		Yes:   []string{"#!/usr/bin/env python3", "//go:build linux", "//go:generate stringer -type=X"},
+		No:    []string{"// go:build", "/#!/bin/sh"},
+	},
+	{
+		Name:  "build tag",
+		Match: pcomb.Prefixed("//", pcomb.Trimmed(pcomb.Prefix("+build"))),
+		Yes:   []string{"// +build linux", "//+build ignore"},
+		No:    []string{"// build linux", "/// +build linux"},
+	},
+	{
+		Name: "linter and tooling comment",
+		Match: pcomb.Prefixed("//", pcomb.Trimmed(pcomb.Prefix("nolint", "NOLINT", "eslint", "prettier", "biome", "istanbul", "c8", "@ts-",
+			"#region", "#endregion", "swiftlint", "clang-format"))),
+		Yes: []string{"//nolint:gosec", "// eslint-disable-next-line no-console", "// @ts-ignore", "// #region helpers", "// c8 ignore next"},
+		No:  []string{"/// nolint", "// the nolint comment", "//// eslint"},
+	},
+	{
+		Name:  "triple-slash reference",
+		Match: pcomb.Prefixed("///", pcomb.Trimmed(pcomb.Prefix("<reference"))),
+		Yes:   []string{`/// <reference path="a.d.ts" />`, `///<reference types="node" />`},
+		No:    []string{`// <reference path="a.d.ts" />`, "/// reference"},
+	},
+	{
+		Name: "hash pragma",
+		Match: pcomb.Prefixed("#", pcomb.Trimmed(pcomb.Prefix("type:", "noqa", "pragma", "pylint", "mypy", "pyright", "fmt:", "-*-",
+			"frozen_string_literal", "encoding", "rubocop", "shellcheck"))),
+		Yes: []string{"# type: ignore", "#noqa", "# -*- coding: utf-8 -*-", "# frozen_string_literal: true", "# shellcheck disable=SC2086", "# fmt: off"},
+		No:  []string{"## noqa", "# the noqa marker", "// noqa"},
+	},
+	{
+		Name:  "lua check",
+		Match: pcomb.Prefixed("--", pcomb.Trimmed(pcomb.Prefix("luacheck", "selene"))),
+		Yes:   []string{"-- luacheck: ignore", "--selene: allow(unused_variable)"},
+		No:    []string{"--- luacheck", "-- the selene tool"},
+	},
+}
 
 // span is a range of original lines [from, to] replaced by one marker.
 type span struct {
@@ -123,7 +163,7 @@ func documents(lines []string, start, end int, syn syntax, top bool) bool {
 func appendRun(spans []span, lines []string, start, from, to int, what string) []span {
 	size := 0
 	for _, l := range lines[from : to+1] {
-		if directive.MatchString(strings.TrimSpace(l)) {
+		if directive.Match(strings.TrimSpace(l)) {
 			return spans
 		}
 		size += len(strings.TrimSpace(l))
@@ -135,7 +175,7 @@ func appendRun(spans []span, lines []string, start, from, to int, what string) [
 }
 
 func isComment(text string, syn syntax) bool {
-	if directive.MatchString(text) {
+	if directive.Match(text) {
 		return false
 	}
 	return syn.line != "" && strings.HasPrefix(text, syn.line) ||
@@ -150,7 +190,7 @@ func commentEnd(lines []string, index int, syn syntax) int {
 	for j := index; j < len(lines); j++ {
 		t := strings.TrimSpace(lines[j])
 		switch {
-		case syn.line != "" && strings.HasPrefix(t, syn.line) && !directive.MatchString(t):
+		case syn.line != "" && strings.HasPrefix(t, syn.line) && !directive.Match(t):
 			end = j
 		case syn.block[0] != "" && strings.HasPrefix(t, syn.block[0]):
 			k := blockEnd(lines, j, syn.block[1])
