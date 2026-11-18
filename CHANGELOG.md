@@ -27,6 +27,8 @@ words. The technical details follow.
   source text and the run was recorded as an error, which made later runs of that source gentler.
 - A price layer whose first fetch failed shows when it will try again.
 - CI checks out the harness submodule; every run had failed at the imports step.
+- `newAgents` no longer takes an unused settings argument, and its doc now says declined agents stay listed as
+  answered "no", so `setup -all` can change the answer. No behavior change.
 
 ### Changed
 - Internal: single-consumer compress libraries (`drain`, `trace`, `pkglist`, `tree`) live in their optimizers,
