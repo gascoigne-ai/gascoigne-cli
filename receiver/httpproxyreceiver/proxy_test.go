@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -60,7 +60,7 @@ func setup(t *testing.T) (*Receiver, *dropComments, *httptest.Server, *[]byte, *
 func numbered(lines ...string) string {
 	var b strings.Builder
 	for i, l := range lines {
-		b.WriteString(strconv.Itoa(i+1) + "\t" + l + "\n")
+		fmt.Fprintf(&b, "%d\t%s\n", i+1, l)
 	}
 	return b.String()
 }

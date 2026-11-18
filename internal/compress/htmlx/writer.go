@@ -31,7 +31,9 @@ func init() {
 	for a, marks := range map[atom.Atom]string{atom.H1: "#", atom.H2: "##", atom.H3: "###", atom.H4: "####", atom.H5: "#####", atom.H6: "######"} {
 		elements[a] = func(md *writer, node *html.Node) {
 			md.block()
-			md.b.WriteString(marks + " " + md.inline(node))
+			md.b.WriteString(marks)
+			md.b.WriteString(" ")
+			md.b.WriteString(md.inline(node))
 			md.block()
 		}
 	}

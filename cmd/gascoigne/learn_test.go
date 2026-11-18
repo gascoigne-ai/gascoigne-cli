@@ -53,7 +53,7 @@ func TestLessonsNeedRepeats(t *testing.T) {
 	if got := lessons(es); len(got) != 0 {
 		t.Errorf("two runs are not a habit: %+v", got)
 	}
-	if got := lessons(nil); got != nil && len(got) != 0 {
+	if got := lessons(nil); len(got) != 0 {
 		t.Errorf("nothing: %+v", got)
 	}
 }

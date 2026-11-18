@@ -61,7 +61,9 @@ func TestResumeSnapshot(t *testing.T) {
 
 func TestResumeSnapshotIsCapped(t *testing.T) {
 	var b strings.Builder
-	b.WriteString(`{"type":"user","message":{"content":"` + strings.Repeat("long ", 400) + `"}}` + "\n")
+	b.WriteString(`{"type":"user","message":{"content":"`)
+	b.WriteString(strings.Repeat("long ", 400))
+	b.WriteString("\"}}\n")
 	for i := range 200 {
 		fmt.Fprintf(&b, `{"type":"assistant","message":{"content":[{"type":"tool_use","id":"e%d","name":"Edit","input":{"file_path":"/p/file%d.go"}},{"type":"tool_use","id":"b%d","name":"Bash","input":{"command":"cmd%d %s"}}]}}`+"\n", i, i, i, i, strings.Repeat("x", 300))
 		fmt.Fprintf(&b, `{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"b%d","is_error":true,"content":"no"}]}}`+"\n", i)

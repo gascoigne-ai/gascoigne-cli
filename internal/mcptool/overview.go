@@ -213,7 +213,9 @@ func (o Overview) Table() string {
 	if len(o.Estimates) > 0 {
 		b.WriteString("\nestimates\n")
 		for _, n := range o.Estimates {
-			b.WriteString("- " + n + "\n")
+			b.WriteString("- ")
+			b.WriteString(n)
+			b.WriteString("\n")
 		}
 	}
 	return b.String()

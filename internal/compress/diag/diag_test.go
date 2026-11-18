@@ -1,7 +1,7 @@
 package diag
 
 import (
-	"strconv"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -33,7 +33,7 @@ Found 3 errors in 2 files.
 func TestSharedAcrossFiles(t *testing.T) {
 	var b strings.Builder
 	for _, f := range []string{"a", "b", "c", "d"} {
-		b.WriteString(f + ".c:6:5: error: 'x' undeclared\n")
+		fmt.Fprintf(&b, "%s.c:6:5: error: 'x' undeclared\n", f)
 	}
 	got := run(b.String(), Rules{})
 	if !strings.Contains(got, "same in several files:") || !strings.Contains(got, "at a.c:6, b.c:6, c.c:6, d.c:6") || strings.Count(got, "'x' undeclared") != 1 {
@@ -115,7 +115,7 @@ func TestMavenDetailsStayWithTheirError(t *testing.T) {
 func TestRepeatsListTheirLines(t *testing.T) {
 	var in strings.Builder
 	for i := 1; i <= 15; i++ {
-		in.WriteString("a.go:" + strconv.Itoa(i*10) + ":1: error: boom\n")
+		fmt.Fprintf(&in, "a.go:%d:1: error: boom\n", i*10)
 	}
 	got := run(in.String(), Rules{})
 	if !strings.Contains(got, "(×15, also at 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, … 3 more)") {

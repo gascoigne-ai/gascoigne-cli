@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,7 +12,7 @@ import (
 func levels(fs []finding) string {
 	var b strings.Builder
 	for _, f := range fs {
-		b.WriteString(string(f.level) + ": " + f.text + "\n")
+		fmt.Fprintf(&b, "%s: %s\n", f.level, f.text)
 	}
 	return b.String()
 }

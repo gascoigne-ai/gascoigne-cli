@@ -81,10 +81,14 @@ func pair(old, new string) (string, bool) {
 	b.WriteString("~")
 	b.WriteString(old[:p])
 	if was != "" {
-		b.WriteString("[-" + was + "-]")
+		b.WriteString("[-")
+		b.WriteString(was)
+		b.WriteString("-]")
 	}
 	if now != "" {
-		b.WriteString("{+" + now + "+}")
+		b.WriteString("{+")
+		b.WriteString(now)
+		b.WriteString("+}")
 	}
 	b.WriteString(old[len(old)-s:])
 	if b.Len()+12 > len(old)+len(new)+3 {

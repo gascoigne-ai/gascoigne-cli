@@ -120,7 +120,9 @@ func (p painter) table(writer io.Writer, header []string, rows [][]cell) {
 			} else if i < len(cells)-1 {
 				text += pad
 			}
-			b.WriteString(" " + text + " ")
+			b.WriteString(" ")
+			b.WriteString(text)
+			b.WriteString(" ")
 		}
 		fmt.Fprintln(writer, strings.TrimRight(b.String(), " "))
 	}

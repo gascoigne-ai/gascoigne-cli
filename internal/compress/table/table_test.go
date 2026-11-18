@@ -1,6 +1,7 @@
 package table
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 	"testing"
@@ -61,7 +62,7 @@ func TestAlignedHoistAndSample(t *testing.T) {
 		if i == 23 {
 			status, ready = "CrashLoopBackOff", "0/1"
 		}
-		b.WriteString("pod-" + string(rune('a'+i%26)) + string(rune('a'+i/26)) + "    " + ready + "     " + status + strings.Repeat(" ", 19-len(status)) + "0          default\n")
+		fmt.Fprintf(&b, "pod-%c%c    %s     %s%s0          default\n", 'a'+i%26, 'a'+i/26, ready, status, strings.Repeat(" ", 19-len(status)))
 	}
 	got := render(t, b.String(), 8)
 	for _, w := range []string{"same in all rows: RESTARTS=0, NAMESPACE=default", "CrashLoopBackOff", "items omitted"} {

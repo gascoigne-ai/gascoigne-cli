@@ -1,6 +1,7 @@
 package logoptimizer
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"strings"
@@ -13,7 +14,7 @@ import (
 
 func run(typ, in string) string {
 	p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: typ}}}
-	(&Optimizer{cfg: &Config{Context: 1, DropDebug: true, MaxLines: 300, Passes: defaultPasses}}).Optimize(nil, p)
+	(&Optimizer{cfg: &Config{Context: 1, DropDebug: true, MaxLines: 300, Passes: defaultPasses}}).Optimize(context.TODO(), p)
 	return p.Blocks[0].Text
 }
 
@@ -105,13 +106,13 @@ func TestTextFoldsRepeatedTemplates(t *testing.T) {
 func TestLimitKeepsErrors(t *testing.T) {
 	var b strings.Builder
 	for i := range 2000 {
-		b.WriteString("INFO unique line " + strings.Repeat("x", i%7) + string(rune('a'+i%26)) + strings.Repeat("y", i%11) + "\n")
+		fmt.Fprintf(&b, "INFO unique line %s%c%s\n", strings.Repeat("x", i%7), 'a'+i%26, strings.Repeat("y", i%11))
 		if i == 1000 {
 			b.WriteString("ERROR the one that matters\n")
 		}
 	}
 	p := &payload.Payload{Blocks: []payload.Block{{Text: b.String(), Type: detect.Log}}}
-	(&Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 40}}).Optimize(nil, p)
+	(&Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 40}}).Optimize(context.TODO(), p)
 	got := p.Blocks[0].Text
 	if !strings.Contains(got, "ERROR the one that matters") || strings.Count(got, "\n") > 45 {
 		t.Fatalf("got %d lines:\n%s", strings.Count(got, "\n"), got)
@@ -243,7 +244,7 @@ func TestDrainMinerFoldsVariableWords(t *testing.T) {
 			o := &Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 300, Miner: tt.miner,
 				DrainDepth: 4, DrainSimilarity: 0.6, DrainMaxChildren: 100, DrainVariants: 3, DrainMaxVars: 2}}
 			p := &payload.Payload{Blocks: []payload.Block{{Text: compress.Join(lines), Type: detect.Log}}}
-			o.Optimize(nil, p)
+			o.Optimize(context.TODO(), p)
 			got := p.Blocks[0].Text
 			if !strings.Contains(got, tt.want) {
 				t.Errorf("missing %q in:\n%s", tt.want, got)
@@ -304,7 +305,7 @@ func BenchmarkOptimizeAppLog(b *testing.B) {
 				DrainDepth: 4, DrainSimilarity: 0.6, DrainMaxChildren: 100, DrainMaxVars: 2, DrainVariants: 3}}
 			for b.Loop() {
 				p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.Log}}}
-				o.Optimize(nil, p)
+				o.Optimize(context.TODO(), p)
 			}
 		})
 	}
@@ -477,7 +478,7 @@ func TestMADOutlierKept(t *testing.T) {
 				fmt.Fprintf(&b, "10:00:%02d INFO batch %d synced in %dms\n", i, i, d)
 			}
 			p := &payload.Payload{Blocks: []payload.Block{{Text: b.String(), Type: detect.Log}}}
-			(&Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 300, Outliers: tt.outliers}}).Optimize(nil, p)
+			(&Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 300, Outliers: tt.outliers}}).Optimize(context.TODO(), p)
 			got := p.Blocks[0].Text
 			if tt.kept != "" && !strings.Contains(got, tt.kept) {
 				t.Errorf("outlier %q folded:\n%s", tt.kept, got)
@@ -533,7 +534,7 @@ func TestBurstNamesTheStretch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.Log}}}
-			(&Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 300, Bursts: tt.bursts}}).Optimize(nil, p)
+			(&Optimizer{cfg: &Config{Context: 0, DropDebug: true, MaxLines: 300, Bursts: tt.bursts}}).Optimize(context.TODO(), p)
 			got := p.Blocks[0].Text
 			if !strings.Contains(got, tt.want) {
 				t.Errorf("missing %q in:\n%s", tt.want, got)
@@ -597,7 +598,7 @@ func TestPassesSelectStages(t *testing.T) {
 				cfg.Passes = defaultPasses
 			}
 			p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.Journal}}}
-			(&Optimizer{cfg: cfg}).Optimize(nil, p)
+			(&Optimizer{cfg: cfg}).Optimize(context.TODO(), p)
 			if got := strings.Contains(p.Blocks[0].Text, "Starting WPA"); got != tt.want {
 				t.Errorf("Starting line kept = %v, want %v:\n%s", got, tt.want, p.Blocks[0].Text)
 			}
@@ -646,7 +647,7 @@ func TestOutlierSurvivesWideContext(t *testing.T) {
 	for _, ctx := range []int{2, 5} {
 		t.Run(fmt.Sprintf("context %d", ctx), func(t *testing.T) {
 			p := &payload.Payload{Blocks: []payload.Block{{Text: b.String(), Type: detect.Log}}}
-			(&Optimizer{cfg: &Config{Context: ctx, DropDebug: true, MaxLines: 300, Outliers: outliersRatio}}).Optimize(nil, p)
+			(&Optimizer{cfg: &Config{Context: ctx, DropDebug: true, MaxLines: 300, Outliers: outliersRatio}}).Optimize(context.TODO(), p)
 			if !strings.Contains(p.Blocks[0].Text, "in 9814ms") {
 				t.Errorf("outlier folded away:\n%s", p.Blocks[0].Text)
 			}

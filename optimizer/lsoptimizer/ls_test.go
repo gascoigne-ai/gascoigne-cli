@@ -1,6 +1,7 @@
 package lsoptimizer
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -12,7 +13,7 @@ import (
 
 func run(cfg *Config, in string) string {
 	p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.LS}}}
-	(&Optimizer{cfg: cfg}).Optimize(nil, p)
+	(&Optimizer{cfg: cfg}).Optimize(context.TODO(), p)
 	return p.Blocks[0].Text
 }
 

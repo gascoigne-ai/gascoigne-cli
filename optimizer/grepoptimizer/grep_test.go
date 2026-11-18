@@ -1,6 +1,7 @@
 package grepoptimizer
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -11,7 +12,7 @@ import (
 
 func run(cfg *Config, in string) string {
 	p := &payload.Payload{Blocks: []payload.Block{{Text: in, Type: detect.Grep}}}
-	(&Optimizer{cfg: cfg}).Optimize(nil, p)
+	(&Optimizer{cfg: cfg}).Optimize(context.TODO(), p)
 	return p.Blocks[0].Text
 }
 
@@ -73,7 +74,7 @@ func TestQueryPicksLinesWithinCap(t *testing.T) {
 	}
 	b.WriteString("srv.go:40:\tif err := db.Ping(ctx); err != nil { // retry the connection\n")
 	p := &payload.Payload{Blocks: []payload.Block{{Text: b.String(), Type: detect.RG}}, Attrs: map[string]string{payload.AttrQuery: "db connection retry"}}
-	(&Optimizer{cfg: &Config{MaxPerFile: 5, MaxFiles: 100, MaxLineLen: 160}}).Optimize(nil, p)
+	(&Optimizer{cfg: &Config{MaxPerFile: 5, MaxFiles: 100, MaxLineLen: 160}}).Optimize(context.TODO(), p)
 	got := p.Blocks[0].Text
 	if !strings.Contains(got, "40: if err := db.Ping") || !strings.Contains(got, "… 16 more matches omitted") {
 		t.Fatalf("got:\n%s", got)

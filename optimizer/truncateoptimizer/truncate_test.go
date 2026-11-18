@@ -13,7 +13,8 @@ func numbered(lines int, mark map[int]string) string {
 	var b strings.Builder
 	for i := range lines {
 		if m, ok := mark[i]; ok {
-			b.WriteString(m + "\n")
+			b.WriteString(m)
+			b.WriteString("\n")
 			continue
 		}
 		fmt.Fprintf(&b, "line %04d of some ordinary progress output here\n", i)
