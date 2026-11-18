@@ -1233,3 +1233,10 @@
 - { name: test/hspec-fail, file: test/hspec-fail.txt, attrs: { cmd: stack test }, expect_type: test/hspec, keep: ["rejects negative quantity", "33 examples, 1 failure"], min_saved: 62 }
 - { name: test/karma-fail, file: test/karma-fail.txt, attrs: { cmd: ng test }, expect_type: test/karma, keep: ["Expected '$10.00' to be '$12.00'", "cart.component.spec.ts:31:36", "TOTAL: 1 FAILED, 39 SUCCESS"], min_saved: 78 }
 - { name: test/minitest-fail, file: test/minitest-fail.txt, attrs: { cmd: rake test }, expect_type: test/minitest, keep: ["order.rb:42", "test/models/cart_test.rb:18", "87 runs"] }
+
+# --- mixed
+- file: mixed/go-test-then-git-status.txt
+  attrs: { cmd: go test ./... && git status }
+  expect_type: test/go
+  keep: ["internal/service", "internal/router/glob.go", "ahead of 'origin/feature/router' by 3"]
+  min_saved: 0

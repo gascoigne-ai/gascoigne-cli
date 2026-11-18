@@ -1,0 +1,45 @@
+[paths: §1=github.com/gascoigne-ai/gascoigne-cli]
+?   	§1/cmd/gascoigne	[no test files]
+ok  	§1/component	(cached)
+ok  	§1/compress	(cached)
+?   	§1/configs	[no test files]
+ok  	§1/detect	(cached)
+ok  	§1/exporter/stdoutexporter	(cached)
+ok  	§1/extension/ledger	(cached)
+ok  	§1/filter/bypassfilter	(cached)
+ok  	§1/filter/detectfilter	(cached)
+ok  	§1/filter/historyfilter	(cached)
+ok  	§1/filter/minsizefilter	(cached)
+ok  	§1/internal/config	(cached)
+?   	§1/internal/registry	[no test files]
+ok  	§1/internal/router	(cached)
+ok  	§1/internal/service	(cached)
+ok  	§1/optimizer/passthroughoptimizer	(cached)
+ok  	§1/payload	(cached)
+ok  	§1/receiver/stdinreceiver	(cached)
+ok  	§1/tokens	(cached)
+On branch feature/router
+Your branch is ahead of 'origin/feature/router' by 3 commits.
+  (use "git push" to publish your local commits)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	modified:   internal/router/router.go
+	new file:   internal/router/glob.go
+	new file:   internal/router/glob_test.go
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   internal/service/pipeline.go
+	modified:   internal/service/service.go
+	modified:   internal/service/service_test.go
+	modified:   configs/default.yaml
+	deleted:    internal/router/match.go
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.harness/logs/
+	internal/optimizer/jsoncompact/
+	notes.txt
+

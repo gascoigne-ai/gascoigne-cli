@@ -204,6 +204,31 @@ func lastCommand(line string) string {
 	return ""
 }
 
+// OutputFamilies lists the distinct families of the output-producing
+// segments of a command line, in first-seen order: "go test; git status" is
+// [test vcs]. Several families mean one blob holds output of different
+// commands. Same family with another dialect counts once; unknown programs
+// and echo count for none.
+func OutputFamilies(cmd string) []string {
+	var out []string
+	for cmd != "" {
+		var seg string
+		seg, cmd = splitList(cmd)
+		fields := strings.Fields(strings.TrimRight(strings.TrimLeft(seg, " \t("), " \t)"))
+		for len(fields) > 0 && leadIn[fields[0]] {
+			fields = fields[1:]
+		}
+		if len(fields) == 0 || isSetup(fields) {
+			continue
+		}
+		fam := Family(FromCmd(strings.Join(fields, " ")))
+		if fam != "" && !slices.Contains(out, fam) {
+			out = append(out, fam)
+		}
+	}
+	return out
+}
+
 // leadIn are shell keywords that only introduce the command after them.
 var leadIn = map[string]bool{"do": true, "then": true, "else": true, "{": true}
 

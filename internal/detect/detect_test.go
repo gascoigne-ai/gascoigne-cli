@@ -1,6 +1,9 @@
 package detect
 
-import "testing"
+import (
+	"slices"
+	"testing"
+)
 
 func TestFromCmd(t *testing.T) {
 	tests := []struct{ cmd, want string }{
@@ -282,6 +285,32 @@ func TestRefine(t *testing.T) {
 	} {
 		if got := Detect(c.text, Hints{Cmd: c.cmd, File: c.file}); got != c.want {
 			t.Errorf("%q %q: got %s, want %s", c.cmd, c.file, got, c.want)
+		}
+	}
+}
+
+func TestOutputFamilies(t *testing.T) {
+	tests := []struct {
+		cmd  string
+		want []string
+	}{
+		{"go test ./...", []string{"test"}},
+		{"cd api && go test ./...", []string{"test"}},
+		{"go test ./...; git status", []string{"test", "vcs"}},
+		{"go test; echo ---; go test -v", []string{"test"}},
+		{"go test; pytest", []string{"test"}}, // same family, other dialect
+		{"for d in a b; do go test ./$d; git status; done", []string{"test", "vcs"}},
+		{"for d in a b; do go test ./$d; done", []string{"test"}},
+		{"(go test; git status)", []string{"test", "vcs"}},
+		{"go test | tail -5; git log | head", []string{"test", "vcs"}},
+		{`echo "a; git status"`, nil},
+		{"./script.sh; ./other.sh", nil},
+		{"", nil},
+	}
+	for _, tt := range tests {
+		got := OutputFamilies(tt.cmd)
+		if len(got) != len(tt.want) || (len(got) > 0 && !slices.Equal(got, tt.want)) {
+			t.Errorf("OutputFamilies(%q) = %v, want %v", tt.cmd, got, tt.want)
 		}
 	}
 }

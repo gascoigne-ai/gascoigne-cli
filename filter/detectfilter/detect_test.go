@@ -58,3 +58,36 @@ func TestEditSafe(t *testing.T) {
 		}
 	}
 }
+
+func TestFilterTagsMixedOutput(t *testing.T) {
+	tests := []struct {
+		name, cmd string
+		attrs     map[string]string
+		want      string
+	}{
+		{"two families", "go test ./... && git status", nil, MixedTrue},
+		{"loop", "for d in a b; do go test ./$d; git status; done", nil, MixedTrue},
+		{"one family", "go test ./...", nil, ""},
+		{"same family", "go test; pytest", nil, ""},
+		{"no cmd", "", nil, ""},
+		{"already tagged", "go test ./...", map[string]string{AttrMixed: MixedTrue}, MixedTrue},
+	}
+	f := &Filter{cfg: NewFactory().DefaultConfig().(*Config), log: slog.New(slog.DiscardHandler)}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := payload.New(payload.CmdOutput, "anything")
+			if tt.cmd != "" {
+				p.Set(payload.AttrCmd, tt.cmd)
+			}
+			for k, v := range tt.attrs {
+				p.Set(k, v)
+			}
+			for range 2 { // idempotent
+				f.Filter(t.Context(), p)
+			}
+			if got := p.Attrs[AttrMixed]; got != tt.want {
+				t.Errorf("attr %q = %q, want %q", AttrMixed, got, tt.want)
+			}
+		})
+	}
+}

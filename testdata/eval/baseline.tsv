@@ -433,3 +433,4 @@ test/dub-test	433	0	0
 test/hspec-fail	101	0	0
 test/karma-fail	130	0	1
 test/minitest-fail	176	0	0
+mixed/go-test-then-git-status	506	0	0

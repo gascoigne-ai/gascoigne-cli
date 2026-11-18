@@ -44,7 +44,12 @@ filters:
 router:
   # gentle: the same chain with wider caps for the engines that cut (the "gentle" instances below),
   # for sources the history filter marked level=gentle; also usable by hand: -attr level=gentle.
+  # mixed: the command line printed output of two or more families (loops, subshells), so only the core
+  # optimizers run; a family engine would fold lines across the parts. Set by the detect filter.
   routes:
+    - name: mixed
+      match: { attrs: { mixed: "true" } }
+      optimizers: [dense, paths, truncate]
     - name: gentle
       match: { attrs: { level: gentle } }
       optimizers: [embedjson, trace, task, test, build, git, grep/gentle, ls/gentle, json/gentle, data/gentle, log/gentle, cat, pkg, table/gentle, db/gentle, k8s/gentle, cloud, infra, http, html, aria, websearch, doc/gentle, prose, dense, paths, truncate/gentle, rerun]

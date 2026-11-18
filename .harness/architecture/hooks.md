@@ -190,7 +190,8 @@ registration (SessionStart is already installed). Gemini's `PreCompress` has no 
   under bash), `TestSegments` (lexer) and the `TestWrapCommand` cases.
 - **Left as they are** (the whole line, returned unchanged):
   - `||`, a background `&`, heredocs and here-strings (`<<` outside quotes), `pipefail`
-  - loops, conditionals, `case`, `{ }` groups, bare `(` `)` subshells
+  - loops, conditionals, `case`, `{ }` groups, bare `(` `)` subshells (their output of two or more
+    families still gets the `mixed` route: core optimizers only, see flow.md)
   - a quote, backtick or `$(` that never closes
   - commands that run gascoigne itself (also on any line of a multi-line script)
   - commands that run until stopped (`-f`/`--follow`, `--watch`, `dev`, `serve`, `start`, `up`,
