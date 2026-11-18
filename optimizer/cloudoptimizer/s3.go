@@ -27,8 +27,20 @@ type object struct {
 // s3 summarizes object listings: small ones as "key size date", large ones
 // as totals per top-level prefix and extension plus the newest and largest.
 func (o *Optimizer) s3(lines []string) []string {
-	var objs []object
-	var out []string
+	objs, out := parseS3(lines)
+	if len(objs) <= o.cfg.MaxObjects {
+		for _, ob := range objs {
+			out = append(out, fmt.Sprintf("%s %s %s", ob.key, compress.HumanBytes(ob.size, compress.LongBytes), ob.when))
+		}
+		return out
+	}
+	out = append(out, s3Groups(objs)...)
+	return append(out, s3Extremes(objs)...)
+}
+
+// parseS3 reads the objects of a listing; the prefixes and other non-blank
+// lines come back as output lines.
+func parseS3(lines []string) (objs []object, out []string) {
 	for _, l := range lines {
 		if m := s3Object.FindStringSubmatch(l); m != nil {
 			n, _ := strconv.ParseInt(m[2], 10, 64)
@@ -39,12 +51,11 @@ func (o *Optimizer) s3(lines []string) []string {
 			out = append(out, l)
 		}
 	}
-	if len(objs) <= o.cfg.MaxObjects {
-		for _, ob := range objs {
-			out = append(out, fmt.Sprintf("%s %s %s", ob.key, compress.HumanBytes(ob.size, compress.LongBytes), ob.when))
-		}
-		return out
-	}
+	return objs, out
+}
+
+// s3Groups is the total and the biggest groups of a large listing.
+func s3Groups(objs []object) []string {
 	var total int64
 	groups := map[string]int{}
 	sizes := map[string]int64{}
@@ -54,7 +65,7 @@ func (o *Optimizer) s3(lines []string) []string {
 		groups[g]++
 		sizes[g] += ob.size
 	}
-	out = append(out, fmt.Sprintf("%d objects, %s total", len(objs), compress.HumanBytes(total, compress.LongBytes)))
+	out := []string{fmt.Sprintf("%d objects, %s total", len(objs), compress.HumanBytes(total, compress.LongBytes))}
 	keys := slices.SortedFunc(maps.Keys(groups), func(left, right string) int {
 		return cmp.Or(cmp.Compare(sizes[right], sizes[left]), cmp.Compare(left, right))
 	})
@@ -64,11 +75,16 @@ func (o *Optimizer) s3(lines []string) []string {
 	if len(keys) > 15 {
 		out = append(out, fmt.Sprintf("  … %d more groups", len(keys)-15))
 	}
+	return out
+}
+
+// s3Extremes lists the five newest and the five largest objects.
+func s3Extremes(objs []object) []string {
 	newest := slices.Clone(objs)
 	slices.SortStableFunc(newest, func(left, right object) int { return cmp.Compare(right.when, left.when) })
 	largest := slices.Clone(objs)
 	slices.SortStableFunc(largest, func(left, right object) int { return cmp.Compare(right.size, left.size) })
-	out = append(out, "newest:")
+	out := []string{"newest:"}
 	for _, ob := range newest[:5] {
 		out = append(out, fmt.Sprintf("  %s %s %s", ob.when, ob.key, compress.HumanBytes(ob.size, compress.LongBytes)))
 	}

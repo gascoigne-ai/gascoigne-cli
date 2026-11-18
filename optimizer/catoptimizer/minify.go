@@ -119,17 +119,25 @@ func comments(lines []string, syn syntax) []span {
 			continue
 		case isComment(t, syn) && commentEnd(lines, i, syn) >= i:
 			end := commentEnd(lines, i, syn)
-			doc := documents(lines, i, end, syn, lastCode < 0)
-			if !doc {
-				spans = appendRun(spans, lines, i, i, end, "comments")
-			} else if first := firstText(lines, i, end); first < end {
-				spans = appendRun(spans, lines, i, first+1, end, "comments")
-			}
+			spans = commentRun(spans, lines, i, end, documents(lines, i, end, syn, lastCode < 0))
 			i = end
 			continue
 		}
 		lastCode = i
 		open = opens(code(l, syn), syn)
+	}
+	return spans
+}
+
+// commentRun adds the droppable part of the comment run lines[start:end+1]:
+// all of it, or with doc (it documents the code below) all but its first line
+// with text.
+func commentRun(spans []span, lines []string, start, end int, doc bool) []span {
+	if !doc {
+		return appendRun(spans, lines, start, start, end, "comments")
+	}
+	if first := firstText(lines, start, end); first < end {
+		return appendRun(spans, lines, start, first+1, end, "comments")
 	}
 	return spans
 }

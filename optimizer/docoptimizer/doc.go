@@ -56,36 +56,24 @@ func (o *Optimizer) markdown(lines []string, query string) []string {
 	var out, code []string
 	inCode, toc := false, 0
 	for _, l := range lines {
-		if compress.IsFence(l) {
+		switch {
+		case compress.IsFence(l):
 			if inCode {
 				out = append(out, o.code(code)...)
 				code = nil
 			}
 			inCode = !inCode
 			out = append(out, l)
-			continue
-		}
-		if inCode {
+		case inCode:
 			code = append(code, l)
-			continue
-		}
-		if tocItem.MatchString(l) {
+		case tocItem.MatchString(l):
 			toc++
-			continue
+		default:
+			l = dropImages(l)
+			if !layoutHTML.MatchString(l) && (strings.TrimSpace(l) != "" || l == "") {
+				out = append(out, l)
+			}
 		}
-		if strings.Contains(l, "![") { // both patterns need it; skips the regexes on most lines
-			l = badge.ReplaceAllString(l, "")
-			l = image.ReplaceAllStringFunc(l, func(match string) string {
-				if alt := image.FindStringSubmatch(match)[1]; alt != "" {
-					return "[image: " + alt + "]"
-				}
-				return ""
-			})
-		}
-		if layoutHTML.MatchString(l) || strings.TrimSpace(l) == "" && l != "" {
-			continue
-		}
-		out = append(out, l)
 	}
 	out = append(out, o.code(code)...) // unclosed fence
 	out = sections(out, query, o.cfg.MaxTokens)
@@ -93,6 +81,20 @@ func (o *Optimizer) markdown(lines []string, query string) []string {
 		out = append(out, compress.Omitted(toc, "table of contents entries"))
 	}
 	return out
+}
+
+// dropImages removes badges from a line and turns images into their alt text.
+func dropImages(line string) string {
+	if !strings.Contains(line, "![") { // both patterns need it; skips the regexes on most lines
+		return line
+	}
+	line = badge.ReplaceAllString(line, "")
+	return image.ReplaceAllStringFunc(line, func(match string) string {
+		if alt := image.FindStringSubmatch(match)[1]; alt != "" {
+			return "[image: " + alt + "]"
+		}
+		return ""
+	})
 }
 
 // code keeps the head and tail of a long code block.
@@ -197,8 +199,29 @@ func helpFor(lines []string, query string) []string {
 	if len(terms) == 0 {
 		return lines
 	}
-	// Option entries: an option line and its indented continuation lines.
-	var starts, ends []int
+	options := optionEntries(lines)
+	if len(options) < minOptions {
+		return lines
+	}
+	docs := make([][]string, len(options))
+	for k, option := range options {
+		docs[k] = sample.Terms(strings.Join(lines[option.start:option.end], " "))
+	}
+	scores := sample.BM25(docs, terms)
+	best := slices.Max(scores)
+	if best == 0 {
+		return lines
+	}
+	return keepBest(lines, options, scores, best)
+}
+
+// optionEntry is the line range [start, end) of an option line and its
+// indented continuation lines.
+type optionEntry struct{ start, end int }
+
+// optionEntries finds the option entries of a help text.
+func optionEntries(lines []string) []optionEntry {
+	var options []optionEntry
 	for i := 0; i < len(lines); i++ {
 		if !optionLine.MatchString(lines[i]) {
 			continue
@@ -207,48 +230,40 @@ func helpFor(lines []string, query string) []string {
 		for j < len(lines) && strings.HasPrefix(lines[j], " ") && !optionLine.MatchString(lines[j]) && strings.TrimSpace(lines[j]) != "" {
 			j++
 		}
-		starts, ends = append(starts, i), append(ends, j)
+		options = append(options, optionEntry{i, j})
 		i = j - 1
 	}
-	if len(starts) < minOptions {
-		return lines
-	}
-	docs := make([][]string, len(starts))
-	for k := range starts {
-		docs[k] = sample.Terms(strings.Join(lines[starts[k]:ends[k]], " "))
-	}
-	scores := sample.BM25(docs, terms)
-	best := slices.Max(scores)
-	if best == 0 {
-		return lines
-	}
+	return options
+}
+
+// keepBest keeps the option entries scoring at least a third of best and
+// every other line, with a marker for each run of dropped options.
+func keepBest(lines []string, options []optionEntry, scores []float64, best float64) []string {
 	var out []string
 	dropped, k := 0, 0
-	for i := 0; i < len(lines); {
-		if k < len(starts) && i == starts[k] {
-			if scores[k] >= best/3 {
-				if dropped > 0 {
-					out = append(out, compress.Omitted(dropped, "options"))
-					dropped = 0
-				}
-				out = append(out, lines[starts[k]:ends[k]]...)
-			} else {
-				dropped++
-			}
-			i = ends[k]
-			k++
-			continue
-		}
+	flush := func() {
 		if dropped > 0 {
 			out = append(out, compress.Omitted(dropped, "options"))
 			dropped = 0
 		}
+	}
+	for i := 0; i < len(lines); {
+		if k < len(options) && i == options[k].start {
+			if scores[k] >= best/3 {
+				flush()
+				out = append(out, lines[options[k].start:options[k].end]...)
+			} else {
+				dropped++
+			}
+			i = options[k].end
+			k++
+			continue
+		}
+		flush()
 		out = append(out, lines[i])
 		i++
 	}
-	if dropped > 0 {
-		out = append(out, compress.Omitted(dropped, "options"))
-	}
+	flush()
 	return out
 }
 

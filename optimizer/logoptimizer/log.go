@@ -56,27 +56,28 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 		if b.Type != detect.Text && detect.Family(b.Type) != detect.FamilyLog {
 			continue
 		}
-		lines := compress.CleanLines(b.Text)
-		switch {
-		case b.Type == detect.Text:
-			lines = compress.SqueezeBlank(o.foldText(compress.DedupeExact(lines)))
-		case b.Type == detect.Access:
-			lines = o.access(lines)
-		default:
-			for _, name := range o.cfg.Passes {
-				if name != "prefixes" {
-					lines = prePasses[name](b, lines)
-				}
-			}
-			if s, ok := split(lines); ok && slices.Contains(o.cfg.Passes, "prefixes") {
-				lines = render(o.template(s.lines, s.src), s.names)
-				break
-			}
-			lines = o.log(lines)
-		}
-		data.Blocks[i].Text = compress.Join(lines)
+		data.Blocks[i].Text = compress.Join(o.blockLines(b, compress.CleanLines(b.Text)))
 	}
 	return nil
+}
+
+// blockLines optimizes the lines of one text or log block by its type.
+func (o *Optimizer) blockLines(block payload.Block, lines []string) []string {
+	switch block.Type {
+	case detect.Text:
+		return compress.SqueezeBlank(o.foldText(compress.DedupeExact(lines)))
+	case detect.Access:
+		return o.access(lines)
+	}
+	for _, name := range o.cfg.Passes {
+		if name != "prefixes" {
+			lines = prePasses[name](block, lines)
+		}
+	}
+	if s, ok := split(lines); ok && slices.Contains(o.cfg.Passes, "prefixes") {
+		return render(o.template(s.lines, s.src), s.names)
+	}
+	return o.log(lines)
 }
 
 // prePasses are the stages that rewrite a log's lines before templating,
@@ -154,14 +155,43 @@ func texts(es []entry) []string {
 	return out
 }
 
+// folding is the state template builds its output from: per line whether it
+// must be kept, and per repeat key how often and where the key occurs.
+type folding struct {
+	lines     []string
+	src       []int
+	important []bool
+	outlier   []bool
+	keys      []string
+	notes     map[string]string
+	counts    map[string]int
+	srcsOf    map[string][]int
+	at        map[string][]int
+}
+
+// sources is the source of line index as a list, nil when there are none.
+func (f *folding) sources(index int) []int {
+	if f.src == nil {
+		return nil
+	}
+	return []int{f.src[index]}
+}
+
 // template templates lines; src[i] is line i's source, nil when there are none.
 func (o *Optimizer) template(lines []string, src []int) []entry {
-	sources := func(index int) []int {
-		if src == nil {
-			return nil
-		}
-		return []int{src[index]}
+	f := &folding{lines: lines, src: src, important: o.importantLines(lines), outlier: make([]bool, len(lines))}
+	norms, vols := o.normalizeAll(lines)
+	for _, i := range o.outliers(lines, norms, vols) {
+		f.important[i], f.outlier[i] = true, true
 	}
+	f.keys, f.notes = o.repeatKeys(lines, norms, f.important)
+	o.countRepeats(f)
+	return o.limit(o.dedupeRuns(o.foldLines(f)))
+}
+
+// importantLines marks the lines that are never folded: warnings, errors,
+// their context and their continuation lines.
+func (o *Optimizer) importantLines(lines []string) []bool {
 	important := make([]bool, len(lines))
 	for i, l := range lines {
 		if severity(l) == compress.None {
@@ -174,34 +204,38 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 			important[j] = true
 		}
 	}
+	return important
+}
 
-	norms, vols := o.normalizeAll(lines)
-	outlier := make([]bool, len(lines))
-	for _, i := range o.outliers(lines, norms, vols) {
-		important[i], outlier[i] = true, true
-	}
-
-	keys, notes := o.repeatKeys(lines, norms, important)
-	counts := map[string]int{}
-	srcsOf := map[string][]int{}
-	at := map[string][]int{}
-	for i := range lines {
-		if !important[i] {
-			counts[keys[i]]++
-			if o.cfg.Bursts {
-				at[keys[i]] = append(at[keys[i]], i)
-			}
-			if src != nil {
-				srcsOf[keys[i]] = union(srcsOf[keys[i]], sources(i))
-			}
+// countRepeats fills counts, srcsOf and at for the lines that may fold.
+func (o *Optimizer) countRepeats(fold *folding) {
+	fold.counts = map[string]int{}
+	fold.srcsOf = map[string][]int{}
+	fold.at = map[string][]int{}
+	for i := range fold.lines {
+		if fold.important[i] {
+			continue
+		}
+		key := fold.keys[i]
+		fold.counts[key]++
+		if o.cfg.Bursts {
+			fold.at[key] = append(fold.at[key], i)
+		}
+		if fold.src != nil {
+			fold.srcsOf[key] = union(fold.srcsOf[key], fold.sources(i))
 		}
 	}
+}
+
+// foldLines keeps the first line of each repeat key and the important
+// lines, and puts a gap marker where lines were dropped.
+func (o *Optimizer) foldLines(fold *folding) []entry {
 	var out []entry
 	seen := map[string]bool{}
 	dropped, repeats := 0, 0
-	for i, l := range lines {
-		norm := keys[i]
-		keep := important[i] || (!seen[norm] && !(o.cfg.DropDebug && isDebug(l)))
+	for i, l := range fold.lines {
+		norm := fold.keys[i]
+		keep := fold.important[i] || (!seen[norm] && !(o.cfg.DropDebug && isDebug(l)))
 		if !keep {
 			dropped++
 			if seen[norm] {
@@ -213,21 +247,32 @@ func (o *Optimizer) template(lines []string, src []int) []entry {
 			out = append(out, entry{text: gap(dropped, repeats)})
 			dropped, repeats = 0, 0
 		}
-		e := entry{text: l, srcs: sources(i), n: 1, solo: outlier[i]}
-		if !important[i] {
+		if !fold.important[i] {
 			seen[norm] = true
-			e.srcs = srcsOf[norm]
-			e.n = counts[norm]
-			if n := counts[norm]; n > 1 {
-				e.text = l + " (" + strings.Join(append([]string{fmt.Sprintf("×%d", n)}, o.repeatNotes(notes[norm], at[norm], len(lines))...), "; ") + ")"
-			}
 		}
-		out = append(out, e)
+		out = append(out, o.keptEntry(fold, i))
 	}
 	if dropped > 0 {
 		out = append(out, entry{text: gap(dropped, repeats)})
 	}
-	return o.limit(o.dedupeRuns(out))
+	return out
+}
+
+// keptEntry is the output entry of the line at index, with its ×N note when it stands
+// for repeats.
+func (o *Optimizer) keptEntry(fold *folding, index int) entry {
+	l := fold.lines[index]
+	e := entry{text: l, srcs: fold.sources(index), n: 1, solo: fold.outlier[index]}
+	if fold.important[index] {
+		return e
+	}
+	norm := fold.keys[index]
+	e.srcs = fold.srcsOf[norm]
+	e.n = fold.counts[norm]
+	if n := fold.counts[norm]; n > 1 {
+		e.text = l + " (" + strings.Join(append([]string{fmt.Sprintf("×%d", n)}, o.repeatNotes(fold.notes[norm], fold.at[norm], len(fold.lines))...), "; ") + ")"
+	}
+	return e
 }
 
 // maxNamed is how many overflow variants a folded line names.
@@ -277,7 +322,12 @@ func (o *Optimizer) repeatKeys(lines, norms []string, important []bool) (keys []
 		}
 		keys[i] = key
 	}
-	notes = map[string]string{}
+	return keys, variantNotes(named)
+}
+
+// variantNotes names, per shared key, the variants beyond the one shown.
+func variantNotes(named map[string][]string) map[string]string {
+	notes := map[string]string{}
 	for k, vs := range named {
 		if len(vs) < 2 {
 			continue // the line shown is the only variant
@@ -290,7 +340,7 @@ func (o *Optimizer) repeatKeys(lines, norms []string, important []bool) (keys []
 		}
 		notes[k] = note
 	}
-	return keys, notes
+	return notes
 }
 
 // repeatNotes are the remarks after ×N: the variants a folded drain line

@@ -56,16 +56,20 @@ func (o *Optimizer) why(text, mode string) string {
 	return "cat: already clean, nothing to outline"
 }
 
+// autoMode picks how much to cut by the size of the text.
+func (o *Optimizer) autoMode(text string) string {
+	switch n := tokens.Estimate(text); {
+	case n < o.cfg.CleanMinTokens:
+		return Full
+	case n < o.cfg.OutlineMinTokens:
+		return Clean
+	}
+	return Outline
+}
+
 func (o *Optimizer) rewrite(text, lang string, hints detect.Hints, mode string) string {
 	if mode == Auto {
-		switch n := tokens.Estimate(text); {
-		case n < o.cfg.CleanMinTokens:
-			mode = Full
-		case n < o.cfg.OutlineMinTokens:
-			mode = Clean
-		default:
-			mode = Outline
-		}
+		mode = o.autoMode(text)
 	}
 	if mode == Full {
 		return text
@@ -91,9 +95,10 @@ func (o *Optimizer) rewrite(text, lang string, hints detect.Hints, mode string) 
 	}
 	// tail shows the end of a file: its line numbers are not the file's.
 	numbered := !slices.Contains([]string{"tail", "sed", "awk"}, firstArg(hints.Cmd))
-	out := render(lines, gaps, cmp.Or(syn.line, syn.block[0]), numbered)
+	marker := cmp.Or(syn.line, syn.block[0])
+	out := render(lines, gaps, marker, numbered)
 	if len(bodies) > 0 {
-		note := fmt.Sprintf("%s outline: %d bodies elided (%s=full for complete source)", cmp.Or(syn.line, syn.block[0]), len(bodies), AttrMode)
+		note := fmt.Sprintf("%s outline: %d bodies elided (%s=full for complete source)", marker, len(bodies), AttrMode)
 		out = append([]string{note}, out...)
 	}
 	return compress.Join(out)

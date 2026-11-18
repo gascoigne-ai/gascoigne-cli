@@ -46,67 +46,88 @@ var (
 // ansible keeps plays, failures and the recap; tasks that only reported ok
 // or skipped are counted, changed tasks become one line naming the hosts.
 func ansible(lines []string) []string {
-	var out []string
-	quiet := 0
-	var task string
-	var changed, rest []string
-	failed := false
-	ok := 0
-	flush := func() {
-		switch {
-		case task == "":
-		case failed:
-			out = append(out, task)
-			out = append(out, rest...)
-		case len(changed) > 0:
-			slices.Sort(changed)
-			line := task + " changed: " + strings.Join(changed, ", ")
-			if ok > 0 {
-				line += fmt.Sprintf(" (ok/skipped ×%d)", ok)
-			}
-			out = append(out, line)
-			out = append(out, rest...)
-		default:
-			quiet++
-			out = append(out, rest...)
-		}
-		task, changed, rest, failed, ok = "", nil, nil, false, 0
-	}
+	run := &ansibleRun{}
 	for _, l := range lines {
-		if m := ansibleHeader.FindStringSubmatch(l); m != nil {
-			flush()
-			task = m[1] + " [" + m[2] + "]"
-			continue
-		}
-		if m := ansiblePlay.FindStringSubmatch(l); m != nil {
-			flush()
-			out = append(out, strings.TrimRight(l, "* "))
-			continue
-		}
-		m := ansibleResult.FindStringSubmatch(l)
-		switch {
-		case task == "":
-			out = append(out, l)
-		case m == nil:
-			// Output under a result (-v dumps, msg lines) follows its kind;
-			// warnings stay.
-			if failed || strings.HasPrefix(l, "[WARNING]") || strings.HasPrefix(l, "[DEPRECATION WARNING]") {
-				rest = append(rest, l)
-			}
-		case m[1] == "fatal" || m[1] == "failed" || m[1] == "unreachable":
-			failed = true
-			rest = append(rest, l)
-		case m[1] == "changed":
-			changed = append(changed, m[2])
-		case m[1] == "ok", m[1] == "skipping", m[1] == "included":
-			ok++
-		}
+		run.line(l)
 	}
-	flush()
-	if quiet > 0 {
-		out = append(out, compress.Omitted(quiet, "ok/skipped-only tasks"))
+	run.flush()
+	if run.quiet > 0 {
+		run.out = append(run.out, compress.Omitted(run.quiet, "ok/skipped-only tasks"))
 	}
-	return out
+	return run.out
+}
+
+// ansibleRun is the state of ansible: the task being read and what its
+// result lines reported.
+type ansibleRun struct {
+	out     []string
+	quiet   int // tasks that only reported ok or skipped
+	task    string
+	changed []string
+	rest    []string
+	failed  bool
+	ok      int
+}
+
+// flush writes the task being read: in full when it failed, as one line
+// when it changed hosts, else only counted.
+func (run *ansibleRun) flush() {
+	switch {
+	case run.task == "":
+	case run.failed:
+		run.out = append(run.out, run.task)
+		run.out = append(run.out, run.rest...)
+	case len(run.changed) > 0:
+		slices.Sort(run.changed)
+		line := run.task + " changed: " + strings.Join(run.changed, ", ")
+		if run.ok > 0 {
+			line += fmt.Sprintf(" (ok/skipped ×%d)", run.ok)
+		}
+		run.out = append(run.out, line)
+		run.out = append(run.out, run.rest...)
+	default:
+		run.quiet++
+		run.out = append(run.out, run.rest...)
+	}
+	run.task, run.changed, run.rest, run.failed, run.ok = "", nil, nil, false, 0
+}
+
+// line reads one line: a task or play header, or a result of the task.
+func (run *ansibleRun) line(line string) {
+	if m := ansibleHeader.FindStringSubmatch(line); m != nil {
+		run.flush()
+		run.task = m[1] + " [" + m[2] + "]"
+		return
+	}
+	if m := ansiblePlay.FindStringSubmatch(line); m != nil {
+		run.flush()
+		run.out = append(run.out, strings.TrimRight(line, "* "))
+		return
+	}
+	if run.task == "" {
+		run.out = append(run.out, line)
+		return
+	}
+	run.result(line, ansibleResult.FindStringSubmatch(line))
+}
+
+// result reads a line under a task header; m is its ansibleResult match.
+func (run *ansibleRun) result(line string, match []string) {
+	switch {
+	case match == nil:
+		// Output under a result (-v dumps, msg lines) follows its kind;
+		// warnings stay.
+		if run.failed || strings.HasPrefix(line, "[WARNING]") || strings.HasPrefix(line, "[DEPRECATION WARNING]") {
+			run.rest = append(run.rest, line)
+		}
+	case match[1] == "fatal" || match[1] == "failed" || match[1] == "unreachable":
+		run.failed = true
+		run.rest = append(run.rest, line)
+	case match[1] == "changed":
+		run.changed = append(run.changed, match[2])
+	case match[1] == "ok", match[1] == "skipping", match[1] == "included":
+		run.ok++
+	}
 }
 
 var (

@@ -110,54 +110,69 @@ var (
 
 // terraform folds noise, strips diagnostic boxes and compacts the plan body.
 func (o *Optimizer) terraform(lines []string) []string {
-	var out []string
-	used := 0
-	var block []string
-	var prev string // normalized body of the last resource
-	flush := func() {
-		if block == nil {
-			return
-		}
-		body := normalizedBody(block)
-		if body == prev {
-			out = append(out, block[0]+" (like above)")
-		} else {
-			out = append(out, o.resource(block, &used)...)
-		}
-		prev, block = body, nil
-	}
-	progress := 0
+	run := &tfRun{o: o}
 	for _, l := range lines {
-		switch {
-		case tfBoxEdge.MatchString(l):
-			continue
-		case strings.HasPrefix(l, "│"):
-			l = strings.TrimPrefix(strings.TrimPrefix(l, "│"), " ")
-		}
-		if tfNoise.Match(l) {
-			if tfDone.MatchString(l) {
-				progress++
-			}
-			continue
-		}
-		switch {
-		case tfHeader.MatchString(l):
-			flush()
-			block = []string{l}
-		case block != nil && tfOutroEnd.MatchString(l):
-			flush()
-			out = append(out, l)
-		case block != nil:
-			block = append(block, l)
-		default:
-			out = append(out, l)
-		}
+		run.line(l)
 	}
-	flush()
-	if progress > 0 {
-		out = append(out, fmt.Sprintf("(%d resources completed)", progress))
+	run.flush()
+	if run.progress > 0 {
+		run.out = append(run.out, fmt.Sprintf("(%d resources completed)", run.progress))
 	}
-	return out
+	return run.out
+}
+
+// tfRun is the state of terraform: the plan entry being read and the
+// output so far.
+type tfRun struct {
+	o        *Optimizer
+	out      []string
+	used     int
+	block    []string
+	prev     string // normalized body of the last resource
+	progress int    // finished-resource lines folded away
+}
+
+// flush writes the plan entry being read: compacted, or as "like above"
+// when its body equals the previous one.
+func (run *tfRun) flush() {
+	if run.block == nil {
+		return
+	}
+	body := normalizedBody(run.block)
+	if body == run.prev {
+		run.out = append(run.out, run.block[0]+" (like above)")
+	} else {
+		run.out = append(run.out, run.o.resource(run.block, &run.used)...)
+	}
+	run.prev, run.block = body, nil
+}
+
+// line reads one line: box edges and noise go, headers start an entry.
+func (run *tfRun) line(line string) {
+	if tfBoxEdge.MatchString(line) {
+		return
+	}
+	if strings.HasPrefix(line, "│") {
+		line = strings.TrimPrefix(strings.TrimPrefix(line, "│"), " ")
+	}
+	if tfNoise.Match(line) {
+		if tfDone.MatchString(line) {
+			run.progress++
+		}
+		return
+	}
+	switch {
+	case tfHeader.MatchString(line):
+		run.flush()
+		run.block = []string{line}
+	case run.block != nil && tfOutroEnd.MatchString(line):
+		run.flush()
+		run.out = append(run.out, line)
+	case run.block != nil:
+		run.block = append(run.block, line)
+	default:
+		run.out = append(run.out, line)
+	}
 }
 
 // normalizedBody is a resource body with values reduced to their shape, so

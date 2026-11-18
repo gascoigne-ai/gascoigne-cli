@@ -18,6 +18,20 @@ var (
 // nx: "> nx run p:t" sections, cache lines, project list and a summary
 // after the last separator.
 func nx(lines []string) []string {
+	scan := &nxScan{failed: failedNxTasks(lines)}
+	for _, l := range lines {
+		scan.line(l)
+	}
+	for i := range scan.sections {
+		if !scan.sections[i].cached && !scan.sections[i].failed && hasFailure(scan.sections[i].body) {
+			scan.sections[i].failed = true
+		}
+	}
+	return render(scan.head, scan.sections, scan.tail)
+}
+
+// failedNxTasks names the tasks listed after the "targets failed" line.
+func failedNxTasks(lines []string) map[string]bool {
 	failed := map[string]bool{}
 	inList := false
 	for _, l := range lines {
@@ -28,43 +42,52 @@ func nx(lines []string) []string {
 			failed[m[1]] = true
 		}
 	}
-	var head, tail []string
-	var sections []section
-	var cur *section
-	inHeader, inTail := false, false
-	for _, l := range lines {
-		switch {
-		case nxRunning.MatchString(l):
-			head = append(head, strings.TrimSpace(l))
-			inHeader = true
-		case inHeader && (nxProject.MatchString(l) || strings.TrimSpace(l) == ""):
-		case nxSeparator.MatchString(l):
-			inHeader, cur = false, nil
-			inTail = len(sections) > 0
-		case nxCached.MatchString(l):
-			sections = append(sections, section{name: nxCached.FindStringSubmatch(l)[1], cached: true})
-			cur = nil
-		case nxTask.MatchString(l):
-			name := nxTask.FindStringSubmatch(l)[1]
-			sections = append(sections, section{name: name, failed: failed[name]})
-			cur, inHeader = &sections[len(sections)-1], false
-		case cur != nil:
-			// The command echo comes before any output ("> vite build").
-			if c, ok := strings.CutPrefix(l, "> "); ok && cur.cmd == "" && strings.TrimSpace(strings.Join(cur.body, "")) == "" {
-				cur.cmd = c
-				continue
-			}
-			cur.body = append(cur.body, l)
-		case inTail:
-			tail = append(tail, l)
-		default:
-			head = append(head, l)
-		}
+	return failed
+}
+
+// nxScan is the state of nx while it reads lines: the header and tail
+// text, the task sections and which of them the line belongs to.
+type nxScan struct {
+	failed           map[string]bool
+	head, tail       []string
+	sections         []section
+	cur              *section
+	inHeader, inTail bool
+}
+
+// line files one line under the header, a task or the tail.
+func (scan *nxScan) line(line string) {
+	switch {
+	case nxRunning.MatchString(line):
+		scan.head = append(scan.head, strings.TrimSpace(line))
+		scan.inHeader = true
+	case scan.inHeader && (nxProject.MatchString(line) || strings.TrimSpace(line) == ""):
+	case nxSeparator.MatchString(line):
+		scan.inHeader, scan.cur = false, nil
+		scan.inTail = len(scan.sections) > 0
+	case nxCached.MatchString(line):
+		scan.sections = append(scan.sections, section{name: nxCached.FindStringSubmatch(line)[1], cached: true})
+		scan.cur = nil
+	case nxTask.MatchString(line):
+		name := nxTask.FindStringSubmatch(line)[1]
+		scan.sections = append(scan.sections, section{name: name, failed: scan.failed[name]})
+		scan.cur, scan.inHeader = &scan.sections[len(scan.sections)-1], false
+	case scan.cur != nil:
+		scan.taskLine(line)
+	case scan.inTail:
+		scan.tail = append(scan.tail, line)
+	default:
+		scan.head = append(scan.head, line)
 	}
-	for i := range sections {
-		if !sections[i].cached && !sections[i].failed && hasFailure(sections[i].body) {
-			sections[i].failed = true
-		}
+}
+
+// taskLine adds a line to the current task; the command echo that comes
+// before any output ("> vite build") becomes its cmd.
+func (scan *nxScan) taskLine(line string) {
+	cur := scan.cur
+	if c, ok := strings.CutPrefix(line, "> "); ok && cur.cmd == "" && strings.TrimSpace(strings.Join(cur.body, "")) == "" {
+		cur.cmd = c
+		return
 	}
-	return render(head, sections, tail)
+	cur.body = append(cur.body, line)
 }

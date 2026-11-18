@@ -36,24 +36,32 @@ func (o *Optimizer) log(lines []string) []string {
 			out = append(out, l) // not default format (e.g. --oneline): keep
 		case len(patch) > 0 || strings.HasPrefix(l, "diff --git "):
 			patch = append(patch, l)
-		case strings.HasPrefix(l, "Author: "):
-			c.author, _, _ = strings.Cut(strings.TrimPrefix(l, "Author: "), " <")
-		case strings.HasPrefix(l, "Date: "):
-			c.date = shortDate(strings.TrimSpace(strings.TrimPrefix(l, "Date:")))
-		case strings.HasPrefix(l, "Merge: "):
-			c.merge = true
-		case strings.HasPrefix(l, "    "):
-			if c.subject == "" {
-				c.subject = strings.TrimSpace(l)
-			} else if strings.TrimSpace(l) != "" {
-				c.body++
-			}
-		case strings.TrimSpace(l) != "":
-			c.files = append(c.files, "  "+statLine(l))
+		default:
+			c.addHeaderLine(l)
 		}
 	}
 	emit()
 	return out
+}
+
+// addHeaderLine reads one line of the commit's header, message or file list.
+func (c *commit) addHeaderLine(line string) {
+	switch {
+	case strings.HasPrefix(line, "Author: "):
+		c.author, _, _ = strings.Cut(strings.TrimPrefix(line, "Author: "), " <")
+	case strings.HasPrefix(line, "Date: "):
+		c.date = shortDate(strings.TrimSpace(strings.TrimPrefix(line, "Date:")))
+	case strings.HasPrefix(line, "Merge: "):
+		c.merge = true
+	case strings.HasPrefix(line, "    "):
+		if c.subject == "" {
+			c.subject = strings.TrimSpace(line)
+		} else if strings.TrimSpace(line) != "" {
+			c.body++
+		}
+	case strings.TrimSpace(line) != "":
+		c.files = append(c.files, "  "+statLine(line))
+	}
 }
 
 var (

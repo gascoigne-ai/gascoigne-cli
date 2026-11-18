@@ -89,35 +89,45 @@ func (o *Optimizer) sampleList(doc *yaml.Node) {
 		if root.Content[i].Value != "items" || len(root.Content[i+1].Content) <= o.cfg.MaxItems {
 			continue
 		}
-		items := root.Content[i+1].Content
-		keep := map[int]bool{}
-		for j, it := range items {
-			b, _ := yaml.Marshal(it)
-			if unhealthy.Match(b) {
-				keep[j] = true
-			}
-		}
-		for j := 0; len(keep) < o.cfg.MaxItems && j < len(items); j++ {
+		root.Content[i+1].Content = o.sampleItems(root.Content[i+1].Content)
+	}
+}
+
+// sampleItems keeps MaxItems of items: the unhealthy ones, then the first
+// ones to fill up; a marker stands for each run of dropped items.
+func (o *Optimizer) sampleItems(items []*yaml.Node) []*yaml.Node {
+	keep := map[int]bool{}
+	for j, it := range items {
+		b, _ := yaml.Marshal(it)
+		if unhealthy.Match(b) {
 			keep[j] = true
 		}
-		var out []*yaml.Node
-		gap := 0
-		for j, it := range items {
-			if !keep[j] {
-				gap++
-				continue
-			}
-			if gap > 0 {
-				out = append(out, &yaml.Node{Kind: yaml.ScalarNode, Value: compress.Omitted(gap, "items")})
-				gap = 0
-			}
-			out = append(out, it)
+	}
+	for j := 0; len(keep) < o.cfg.MaxItems && j < len(items); j++ {
+		keep[j] = true
+	}
+	var out []*yaml.Node
+	gap := 0
+	for j, it := range items {
+		if !keep[j] {
+			gap++
+			continue
 		}
 		if gap > 0 {
-			out = append(out, &yaml.Node{Kind: yaml.ScalarNode, Value: compress.Omitted(gap, "items")})
+			out = append(out, omittedItems(gap))
+			gap = 0
 		}
-		root.Content[i+1].Content = out
+		out = append(out, it)
 	}
+	if gap > 0 {
+		out = append(out, omittedItems(gap))
+	}
+	return out
+}
+
+// omittedItems is the marker node for n dropped items.
+func omittedItems(count int) *yaml.Node {
+	return &yaml.Node{Kind: yaml.ScalarNode, Value: compress.Omitted(count, "items")}
 }
 
 var (

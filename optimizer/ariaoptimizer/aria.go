@@ -121,19 +121,26 @@ func (o *Optimizer) fold(nodes []*node, query []string) []*node {
 			out = append(out, run...)
 			continue
 		}
-		match := matches(run, query)
-		gap := 0
-		for k, n := range run {
-			if k < o.cfg.Head || k >= len(run)-o.cfg.Tail || match[k] {
-				if gap > 0 {
-					out = append(out, marker(gap, role(run[0])))
-					gap = 0
-				}
-				out = append(out, n)
-				continue
+		out = append(out, o.foldRun(run, query)...)
+	}
+	return out
+}
+
+// foldRun keeps the head, the tail and the matches of a run of siblings.
+func (o *Optimizer) foldRun(run []*node, query []string) []*node {
+	var out []*node
+	match := matches(run, query)
+	gap := 0
+	for k, n := range run {
+		if k < o.cfg.Head || k >= len(run)-o.cfg.Tail || match[k] {
+			if gap > 0 {
+				out = append(out, marker(gap, role(run[0])))
+				gap = 0
 			}
-			gap++
+			out = append(out, n)
+			continue
 		}
+		gap++
 	}
 	return out
 }

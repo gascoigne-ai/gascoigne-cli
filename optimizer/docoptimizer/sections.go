@@ -38,7 +38,13 @@ func sections(lines []string, query string, budget int) []string {
 	if total <= budget {
 		return lines
 	}
-	keep := make([]int, len(secs)) // lines kept per section
+	return render(secs, linesToKeep(secs, query, budget))
+}
+
+// linesToKeep is how many lines of each section fit in budget, picked in the
+// order sections describes.
+func linesToKeep(secs []*part, query string, budget int) []int {
+	keep := make([]int, len(secs))
 	take := func(index int) {
 		keep[index] = len(secs[index].lines)
 	}
@@ -71,7 +77,7 @@ func sections(lines []string, query string, budget int) []string {
 			}
 		}
 	}
-	return render(secs, keep)
+	return keep
 }
 
 // head is how many leading lines of s fit in budget tokens (at least the heading).

@@ -54,29 +54,7 @@ func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
 
 func (o *Optimizer) group(lines []string, query string) []string {
 	terms := sample.Terms(query)
-	parse := parseNumbered
-	if !slices.ContainsFunc(lines, numbered.MatchString) && plainBlock(lines) {
-		parse = parsePlain
-	}
-	var files []*file
-	byPath := map[string]*file{}
-	var other []string
-	for _, l := range lines {
-		path, num, sep, text, ok := parse(l)
-		if !ok {
-			if l != "--" {
-				other = append(other, l)
-			}
-			continue
-		}
-		f := byPath[path]
-		if f == nil {
-			f = &file{path: path, byText: map[string]*hit{}}
-			byPath[path] = f
-			files = append(files, f)
-		}
-		o.add(f, num, sep, text, len(terms) > 0)
-	}
+	files, other := o.parseGrep(lines, len(terms) > 0)
 	if len(terms) > 0 {
 		for _, f := range files {
 			f.hits = o.relevant(f.hits, terms)
@@ -92,6 +70,34 @@ func (o *Optimizer) group(lines []string, query string) []string {
 		out = append(out, f.render()...)
 	}
 	return out
+}
+
+// parseGrep groups the match lines by file, in order of appearance; the
+// lines that are no match come back as other. With uncapped every distinct
+// line is kept so a query can pick among them.
+func (o *Optimizer) parseGrep(lines []string, uncapped bool) (files []*file, other []string) {
+	parse := parseNumbered
+	if !slices.ContainsFunc(lines, numbered.MatchString) && plainBlock(lines) {
+		parse = parsePlain
+	}
+	byPath := map[string]*file{}
+	for _, l := range lines {
+		path, num, sep, text, ok := parse(l)
+		if !ok {
+			if l != "--" {
+				other = append(other, l)
+			}
+			continue
+		}
+		f := byPath[path]
+		if f == nil {
+			f = &file{path: path, byText: map[string]*hit{}}
+			byPath[path] = f
+			files = append(files, f)
+		}
+		o.add(f, num, sep, text, uncapped)
+	}
+	return files, other
 }
 
 // add records one line; uncapped, every distinct line is kept so a query

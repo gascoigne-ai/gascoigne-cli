@@ -29,22 +29,9 @@ func (o *Optimizer) moves(lines []string) []string {
 		if len(r.text) < o.cfg.MinMoveLines || !substantial(r.text) {
 			continue
 		}
-		for _, a := range added {
-			at := index(a.text, r.text)
-			if at < 0 {
-				continue
-			}
-			where := fmt.Sprintf("%s:%d", a.file, a.line+at)
-			if a.file == r.file {
-				where = fmt.Sprintf("line %d", a.line+at)
-			}
-			note := ""
-			if !sameIndent(lines[r.start:r.start+len(r.text)], lines[a.start+at:a.start+at+len(r.text)]) {
-				note = ", reindented"
-			}
-			out[r.start] = fmt.Sprintf("-… %d lines moved to %s%s", len(r.text), where, note)
+		if note, ok := movedNote(lines, r, added); ok {
+			out[r.start] = note
 			cut[r.start] = len(r.text)
-			break
 		}
 	}
 	if len(cut) == 0 {
@@ -58,6 +45,27 @@ func (o *Optimizer) moves(lines []string) []string {
 		}
 	}
 	return res
+}
+
+// movedNote is the line that replaces the removed run r when the first
+// added run holding its text says where it went.
+func movedNote(lines []string, removed stretch, added []stretch) (string, bool) {
+	for _, a := range added {
+		at := index(a.text, removed.text)
+		if at < 0 {
+			continue
+		}
+		where := fmt.Sprintf("%s:%d", a.file, a.line+at)
+		if a.file == removed.file {
+			where = fmt.Sprintf("line %d", a.line+at)
+		}
+		note := ""
+		if !sameIndent(lines[removed.start:removed.start+len(removed.text)], lines[a.start+at:a.start+at+len(removed.text)]) {
+			note = ", reindented"
+		}
+		return fmt.Sprintf("-… %d lines moved to %s%s", len(removed.text), where, note), true
+	}
+	return "", false
 }
 
 // runs collects removed and added stretches, with line numbers from the

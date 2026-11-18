@@ -57,7 +57,7 @@ func gradle(lines []string) []string {
 			status[state]++
 			sections = append(sections, section{name: m[1], failed: state == "FAILED", cached: state != "executed" && state != "FAILED"})
 			cur = &sections[len(sections)-1]
-		case strings.HasPrefix(l, "BUILD ") || strings.HasPrefix(l, "FAILURE:") || strings.HasPrefix(l, "* What went wrong") || strings.HasPrefix(l, "* Try:") || strings.HasPrefix(l, "* Exception"):
+		case isGradleSummary(l):
 			cur = nil
 			tail = append(tail, l)
 		case cur != nil:
@@ -68,7 +68,21 @@ func gradle(lines []string) []string {
 			tail = append(tail, l)
 		}
 	}
-	// Executed tasks with output (warnings) are worth showing; silent ones are not.
+	if counts := gradleCounts(status); counts != "" {
+		head = append(head, "tasks: "+counts)
+	}
+	return render(head, gradleShown(sections), tail)
+}
+
+// isGradleSummary reports whether a line starts the build result or the
+// failure report, which end the output of the last task.
+func isGradleSummary(line string) bool {
+	return strings.HasPrefix(line, "BUILD ") || strings.HasPrefix(line, "FAILURE:") || strings.HasPrefix(line, "* What went wrong") || strings.HasPrefix(line, "* Try:") || strings.HasPrefix(line, "* Exception")
+}
+
+// gradleShown keeps the failed tasks. Executed tasks with output (warnings)
+// are worth showing when the output holds a failure; silent ones are not.
+func gradleShown(sections []section) []section {
 	var shown []section
 	for _, s := range sections {
 		if s.failed || hasFailure(s.body) {
@@ -76,14 +90,16 @@ func gradle(lines []string) []string {
 			shown = append(shown, s)
 		}
 	}
+	return shown
+}
+
+// gradleCounts is the task count per state, "3 executed, 1 up-to-date".
+func gradleCounts(status map[string]int) string {
 	var counts []string
 	for _, st := range []string{"executed", "UP-TO-DATE", "FROM-CACHE", "NO-SOURCE", "SKIPPED", "FAILED"} {
 		if n := status[st]; n > 0 {
 			counts = append(counts, fmt.Sprintf("%d %s", n, strings.ToLower(st)))
 		}
 	}
-	if len(counts) > 0 {
-		head = append(head, "tasks: "+strings.Join(counts, ", "))
-	}
-	return render(head, shown, tail)
+	return strings.Join(counts, ", ")
 }

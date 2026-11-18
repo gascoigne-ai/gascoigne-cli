@@ -71,41 +71,61 @@ func fields(entry map[string]any) string {
 // events decodes a JSON array, a JSON object holding one, JSON lines (flat
 // app logs) or YAML documents.
 func events(text string) (items []any, flat, ok bool) {
-	var docs []any
-	if strings.HasPrefix(text, "{") || strings.HasPrefix(text, "[") {
-		var v any
-		if json.Unmarshal([]byte(text), &v) != nil {
-			lines, ok := jsonLines(text)
-			return lines, true, ok
+	if !strings.HasPrefix(text, "{") && !strings.HasPrefix(text, "[") {
+		docs, ok := yamlDocs(text)
+		if !ok {
+			return nil, false, false
 		}
-		docs = []any{v}
-	} else {
-		dec := yaml.NewDecoder(strings.NewReader(text))
-		for {
-			var v any
-			err := dec.Decode(&v)
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				return nil, false, false
-			}
-			docs = append(docs, v)
-		}
+		return unwrapDocs(docs)
 	}
+	var v any
+	if json.Unmarshal([]byte(text), &v) != nil {
+		lines, ok := jsonLines(text)
+		return lines, true, ok
+	}
+	return unwrapDocs([]any{v})
+}
+
+// yamlDocs decodes every YAML document of text.
+func yamlDocs(text string) (docs []any, ok bool) {
+	dec := yaml.NewDecoder(strings.NewReader(text))
+	for {
+		var v any
+		err := dec.Decode(&v)
+		if errors.Is(err, io.EOF) {
+			return docs, true
+		}
+		if err != nil {
+			return nil, false
+		}
+		docs = append(docs, v)
+	}
+}
+
+// unwrapDocs returns the entries inside a lone array or object holding one
+// under a listKeys key; otherwise the documents themselves.
+func unwrapDocs(docs []any) (items []any, flat, ok bool) {
 	if len(docs) == 1 {
-		switch v := docs[0].(type) {
-		case []any:
-			return v, false, true
-		case map[string]any:
-			for _, k := range listKeys {
-				if l, ok := v[k].([]any); ok {
-					return l, false, true
-				}
-			}
+		if list, ok := entryList(docs[0]); ok {
+			return list, false, true
 		}
 	}
 	return docs, len(docs) == 1, true // one JSON line or YAML entries
+}
+
+// entryList is the array a document is, or the one it holds under a listKeys key.
+func entryList(doc any) ([]any, bool) {
+	switch v := doc.(type) {
+	case []any:
+		return v, true
+	case map[string]any:
+		for _, k := range listKeys {
+			if list, ok := v[k].([]any); ok {
+				return list, true
+			}
+		}
+	}
+	return nil, false
 }
 
 func jsonLines(text string) ([]any, bool) {

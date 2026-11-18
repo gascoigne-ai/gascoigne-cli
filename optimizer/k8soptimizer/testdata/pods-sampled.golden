@@ -1,0 +1,254 @@
+apiVersion: v1
+items:
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      name: web-7d9f8c6b5-424e6
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+      nodeName: node-1
+      serviceAccountName: default
+    status:
+      conditions:
+        - lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: Ready
+        - lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'True'
+          type: ContainersReady
+        - lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          ready: true
+          restartCount: 0
+          started: true
+          state:
+            running:
+              startedAt: '2026-10-09T08:00:30Z'
+      hostIP: 10.0.1.10
+      phase: Running
+      podIP: 10.244.0.23
+      podIPs:
+        - ip: 10.244.0.225
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - … 8 items omitted
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      name: web-7d9f8c6b5-a3a30
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+      nodeName: node-1
+      serviceAccountName: default
+    status:
+      conditions:
+        - lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'False'
+          type: Ready
+        - lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'False'
+          type: ContainersReady
+        - lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          ready: false
+          restartCount: 7
+          started: false
+          state:
+            waiting:
+              reason: CrashLoopBackOff
+              message: back-off 5m0s restarting failed container=web pod=web-7d9f8c6b5-a3a30
+          lastState:
+            terminated:
+              exitCode: 1
+              reason: Error
+              startedAt: '2026-10-10T07:58:00Z'
+              finishedAt: '2026-10-10T07:58:03Z'
+      hostIP: 10.0.1.19
+      phase: Running
+      podIP: 10.244.9.2
+      podIPs:
+        - ip: 10.244.9.156
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - … 7 items omitted
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      creationTimestamp: '2026-10-09T08:00:00Z'
+      generateName: web-7d9f8c6b5-
+      labels:
+        app: web
+        pod-template-hash: 7d9f8c6b5
+      name: web-7d9f8c6b5-b7978
+      namespace: shop
+      ownerReferences:
+        - apiVersion: apps/v1
+          controller: true
+          kind: ReplicaSet
+          name: web-7d9f8c6b5
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: url
+                  name: shop-db
+            - name: LOG_LEVEL
+              value: info
+          image: ghcr.io/example/shop-web:1.4.2
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+      nodeName: node-3
+      serviceAccountName: default
+    status:
+      conditions:
+        - lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: Initialized
+        - lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'False'
+          type: Ready
+        - lastTransitionTime: '2026-10-09T08:01:00Z'
+          status: 'False'
+          type: ContainersReady
+        - lastTransitionTime: '2026-10-09T08:00:00Z'
+          status: 'True'
+          type: PodScheduled
+      containerStatuses:
+        - name: web
+          image: ghcr.io/example/shop-web:1.4.2
+          ready: false
+          restartCount: 0
+          started: false
+          state:
+            waiting:
+              reason: ImagePullBackOff
+              message: back-off 5m0s restarting failed container=web pod=web-7d9f8c6b5-b7978
+          lastState:
+            terminated:
+              exitCode: 1
+              reason: Error
+              startedAt: '2026-10-10T07:58:00Z'
+              finishedAt: '2026-10-10T07:58:03Z'
+      hostIP: 10.0.1.27
+      phase: Pending
+      podIP: 10.244.17.181
+      podIPs:
+        - ip: 10.244.17.184
+      qosClass: Burstable
+      startTime: '2026-10-09T08:00:00Z'
+  - … 6 items omitted
+kind: List

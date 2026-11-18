@@ -70,49 +70,65 @@ func (o *Optimizer) file(lines []string) []string {
 	if len(lines) == 0 {
 		return nil
 	}
-	var head []string
-	name, note := "", ""
-	i := 0
-	for ; i < len(lines) && !strings.HasPrefix(lines[i], "@@"); i++ {
-		l := lines[i]
-		switch {
-		case strings.HasPrefix(l, "diff --git "):
-			f := strings.Fields(l)
-			name = strings.TrimPrefix(f[len(f)-1], "b/")
-		case strings.HasPrefix(l, "rename from "):
-			name = strings.TrimPrefix(l, "rename from ") + " -> " + name
-		case strings.HasPrefix(l, "new file mode"):
-			note = " (new)"
-		case strings.HasPrefix(l, "deleted file mode"):
-			note = " (deleted)"
-		case strings.HasPrefix(l, "Binary files"):
-			note = " (binary)"
-		case hasPrefix(l, "index ", "--- ", "+++ ", "similarity index", "rename to ", "old mode", "new mode", "dissimilarity"):
-		default:
-			head = append(head, l) // not a git header we know: keep
-		}
+	header, i := parseFileHeader(lines)
+	out := header.unknown
+	if kind := machineMade(header.name, lines[i:]); kind != "" {
+		added, removed := countChanges(lines[i:])
+		return append(out, fmt.Sprintf("diff %s%s (%s) +%d -%d lines folded", header.name, header.note, kind, added, removed))
 	}
-	out := head
-	if kind := machineMade(name, lines[i:]); kind != "" {
-		added, removed := 0, 0
-		for _, l := range lines[i:] {
-			switch {
-			case strings.HasPrefix(l, "+"):
-				added++
-			case strings.HasPrefix(l, "-"):
-				removed++
-			}
-		}
-		return append(out, fmt.Sprintf("diff %s%s (%s) +%d -%d lines folded", name, note, kind, added, removed))
-	}
-	if name != "" {
-		out = append(out, "diff "+name+note)
+	if header.name != "" {
+		out = append(out, "diff "+header.name+header.note)
 	}
 	body := o.hunks(lines[i:])
 	if len(body) > o.cfg.MaxFileLines {
 		body = append(body[:o.cfg.MaxFileLines], compress.Omitted(len(body)-o.cfg.MaxFileLines, "diff lines"))
 	}
 	return append(out, body...)
+}
+
+// fileHeader is what the git header of one file's diff says: its name, a
+// note on how it changed, and the header lines git does not define.
+type fileHeader struct {
+	name, note string
+	unknown    []string
+}
+
+// parseFileHeader reads the header lines up to the first hunk and returns
+// the index of that hunk.
+func parseFileHeader(lines []string) (header fileHeader, hunk int) {
+	for ; hunk < len(lines) && !strings.HasPrefix(lines[hunk], "@@"); hunk++ {
+		l := lines[hunk]
+		switch {
+		case strings.HasPrefix(l, "diff --git "):
+			f := strings.Fields(l)
+			header.name = strings.TrimPrefix(f[len(f)-1], "b/")
+		case strings.HasPrefix(l, "rename from "):
+			header.name = strings.TrimPrefix(l, "rename from ") + " -> " + header.name
+		case strings.HasPrefix(l, "new file mode"):
+			header.note = " (new)"
+		case strings.HasPrefix(l, "deleted file mode"):
+			header.note = " (deleted)"
+		case strings.HasPrefix(l, "Binary files"):
+			header.note = " (binary)"
+		case hasPrefix(l, "index ", "--- ", "+++ ", "similarity index", "rename to ", "old mode", "new mode", "dissimilarity"):
+		default:
+			header.unknown = append(header.unknown, l) // not a git header we know: keep
+		}
+	}
+	return header, hunk
+}
+
+// countChanges counts the added and removed lines of a diff body.
+func countChanges(lines []string) (added, removed int) {
+	for _, l := range lines {
+		switch {
+		case strings.HasPrefix(l, "+"):
+			added++
+		case strings.HasPrefix(l, "-"):
+			removed++
+		}
+	}
+	return added, removed
 }
 
 // hunks keeps hunk headers, changes and ContextLines of context around them;

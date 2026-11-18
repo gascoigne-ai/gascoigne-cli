@@ -59,11 +59,7 @@ func containerEnd(line string) int {
 // namespaces): functions and methods, top-level object literals. Strings and
 // comments are skipped roughly; good enough for an outline.
 func (o *Optimizer) braceOutline(lines []string, lang detect.Language) []span {
-	type open struct {
-		line      int
-		container bool
-	}
-	var stack []open
+	var stack []scope
 	elide := map[int]int{} // first body line → last body line
 	sc := lexer{lang: lang}
 	for i, l := range lines {
@@ -81,21 +77,39 @@ func (o *Optimizer) braceOutline(lines []string, lang detect.Language) []span {
 			}
 			switch l[j] {
 			case '{':
-				stack = append(stack, open{i, kw >= 0 && kw <= j})
+				stack = append(stack, scope{i, kw >= 0 && kw <= j})
 			case '}':
-				if len(stack) == 0 {
-					continue
-				}
-				top := stack[len(stack)-1]
-				stack = stack[:len(stack)-1]
-				outer := !slices.ContainsFunc(stack, func(frame open) bool { return !frame.container })
-				if !top.container && outer && i-top.line-1 >= o.cfg.MinBody {
-					elide[top.line+1] = i - 1
-				}
+				stack = o.closeBlock(stack, i, elide)
 			}
 		}
 	}
 	return spans(elide)
+}
+
+// scope is an open block and whether it holds declarations. at is the line a
+// brace block opened on, or the indentation of an indent-based declaration.
+type scope struct {
+	at        int
+	container bool
+}
+
+// onlyContainers reports whether every open block is a container.
+func onlyContainers(stack []scope) bool {
+	return !slices.ContainsFunc(stack, func(frame scope) bool { return !frame.container })
+}
+
+// closeBlock closes the innermost block at line, eliding its body when it is
+// a long function nested only in containers.
+func (o *Optimizer) closeBlock(stack []scope, line int, elide map[int]int) []scope {
+	if len(stack) == 0 {
+		return stack
+	}
+	top := stack[len(stack)-1]
+	stack = stack[:len(stack)-1]
+	if !top.container && onlyContainers(stack) && line-top.at-1 >= o.cfg.MinBody {
+		elide[top.at+1] = line - 1
+	}
+	return stack
 }
 
 // lexer tells code from comments and strings across the lines of a source.
@@ -226,10 +240,6 @@ var pyBlock = lazyre.New(`^(\s*)(async\s+def|def|class)\b`)
 // keeping the first docstring line.
 func (o *Optimizer) indentOutline(lines []string) []span {
 	elide := map[int]int{}
-	type scope struct {
-		indent int
-		class  bool
-	}
 	var stack []scope
 	for i := 0; i < len(lines); i++ {
 		m := pyBlock.FindStringSubmatch(lines[i])
@@ -237,37 +247,56 @@ func (o *Optimizer) indentOutline(lines []string) []span {
 			continue
 		}
 		indent := len(m[1])
-		for len(stack) > 0 && stack[len(stack)-1].indent >= indent {
-			stack = stack[:len(stack)-1]
-		}
+		stack = popDeeper(stack, indent)
 		header := i
 		for header < len(lines)-1 && !strings.HasSuffix(strings.TrimSpace(stripComment(lines[header])), ":") {
 			header++ // multi-line signature
 		}
-		end := header
-		for j := header + 1; j < len(lines); j++ {
-			if strings.TrimSpace(lines[j]) != "" && indentOf(lines[j]) <= indent {
-				break
-			}
-			if strings.TrimSpace(lines[j]) != "" {
-				end = j
-			}
-		}
+		end := bodyEnd(lines, header, indent)
 		class := strings.Contains(m[2], "class")
-		outer := !slices.ContainsFunc(stack, func(frame scope) bool { return !frame.class })
-		if !class && outer {
-			first := header + 1
-			if first <= end && strings.HasPrefix(strings.TrimSpace(lines[first]), `"""`) {
-				first++ // keep the docstring's first line
-			}
-			if end-first+1 >= o.cfg.MinBody {
-				elide[first] = end
-			}
+		if !class && onlyContainers(stack) {
+			o.elidePython(elide, lines, header, end)
 		}
 		stack = append(stack, scope{indent, class})
 		i = header
 	}
 	return spans(elide)
+}
+
+// popDeeper drops the blocks indented at least as deep as indent: they ended.
+func popDeeper(stack []scope, indent int) []scope {
+	for len(stack) > 0 && stack[len(stack)-1].at >= indent {
+		stack = stack[:len(stack)-1]
+	}
+	return stack
+}
+
+// bodyEnd is the last non-blank line after start that is indented deeper
+// than indent; start itself when there is none.
+func bodyEnd(lines []string, start, indent int) int {
+	end := start
+	for j := start + 1; j < len(lines); j++ {
+		if strings.TrimSpace(lines[j]) == "" {
+			continue
+		}
+		if indentOf(lines[j]) <= indent {
+			break
+		}
+		end = j
+	}
+	return end
+}
+
+// elidePython marks the body of a function whose signature ends on line
+// header and whose body ends on line end, keeping the docstring's first line.
+func (o *Optimizer) elidePython(elide map[int]int, lines []string, header, end int) {
+	first := header + 1
+	if first <= end && strings.HasPrefix(strings.TrimSpace(lines[first]), `"""`) {
+		first++ // keep the docstring's first line
+	}
+	if end-first+1 >= o.cfg.MinBody {
+		elide[first] = end
+	}
 }
 
 func stripComment(line string) string {
@@ -340,10 +369,6 @@ func (o *Optimizer) endOutline(lines []string, row detect.Language) []span {
 // nested only in containers (instance, module) are elided.
 func (o *Optimizer) declOutline(lines []string, row detect.Language) []span {
 	fn, cont := lazyre.Cached(row.Func), lazyre.Cached(row.Container)
-	type scope struct {
-		indent    int
-		container bool
-	}
 	var stack []scope
 	elide := map[int]int{}
 	for i := 0; i < len(lines); i++ {
@@ -353,24 +378,13 @@ func (o *Optimizer) declOutline(lines []string, row detect.Language) []span {
 			continue
 		}
 		indent := indentOf(l)
-		for len(stack) > 0 && stack[len(stack)-1].indent >= indent {
-			stack = stack[:len(stack)-1]
-		}
+		stack = popDeeper(stack, indent)
 		switch {
 		case cont.MatchString(l):
 			stack = append(stack, scope{indent, true})
 		case fn.MatchString(l):
-			end := i
-			for j := i + 1; j < len(lines); j++ {
-				if strings.TrimSpace(lines[j]) != "" && indentOf(lines[j]) <= indent {
-					break
-				}
-				if strings.TrimSpace(lines[j]) != "" {
-					end = j
-				}
-			}
-			outer := !slices.ContainsFunc(stack, func(frame scope) bool { return !frame.container })
-			if outer && end-i >= o.cfg.MinBody {
+			end := bodyEnd(lines, i, indent)
+			if onlyContainers(stack) && end-i >= o.cfg.MinBody {
 				elide[i+1] = end
 			}
 			i = end

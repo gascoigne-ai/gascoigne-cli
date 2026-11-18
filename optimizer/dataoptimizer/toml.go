@@ -28,75 +28,106 @@ type entry struct {
 // each: scalar fields and dependency names, without hashes and URLs.
 func toml(text string) string {
 	lines := compress.Lines(text)
+	fold := &tomlFold{lines: lines, count: arrayTableCounts(lines)}
+	for fold.i = 0; fold.i < len(lines); fold.i++ {
+		fold.line(lines[fold.i])
+	}
+	fold.flush()
+	return compress.Join(compress.SqueezeBlank(fold.out))
+}
+
+// arrayTableCounts counts the top-level array tables by name.
+func arrayTableCounts(lines []string) map[string]int {
 	count := map[string]int{}
 	for _, l := range lines {
 		if m := arrayTable.FindStringSubmatch(l); m != nil && !strings.Contains(m[1], ".") {
 			count[m[1]]++
 		}
 	}
-	var out []string
-	var cur *entry
-	table, sub := "", ""
-	flush := func() {
-		if cur != nil {
-			l := "  " + strings.Join(cur.fields, " ")
-			if len(cur.deps) > 0 {
-				l += " deps: " + strings.Join(cur.deps, ", ")
-			}
-			out = append(out, l)
-			cur = nil
-		}
+	return count
+}
+
+// tomlFold is the state of toml: the entry being read, the array table it
+// belongs to and the sub-table inside it.
+type tomlFold struct {
+	lines      []string
+	i          int // index of the line being read; multi-line values advance it
+	count      map[string]int
+	out        []string
+	cur        *entry
+	table, sub string
+}
+
+// flush writes the entry being read as one line.
+func (fold *tomlFold) flush() {
+	if fold.cur == nil {
+		return
 	}
-	for i := 0; i < len(lines); i++ {
-		l := lines[i]
-		if m := arrayTable.FindStringSubmatch(l); m != nil && count[m[1]] >= 3 {
-			flush()
-			if m[1] != table {
-				table = m[1]
-				out = append(out, fmt.Sprintf("[[%s]] ×%d", table, count[table]))
-			}
-			cur, sub = &entry{}, ""
-			continue
-		}
-		if m := subTable.FindStringSubmatch(l); m != nil {
-			if cur != nil && strings.HasPrefix(m[1], table+".") {
-				sub = strings.TrimPrefix(m[1], table+".")
-				continue
-			}
-			flush()
-			table = ""
-		}
-		if cur == nil {
-			out = append(out, l)
-			continue
-		}
-		m := keyValue.FindStringSubmatch(l)
-		if m == nil {
-			continue
-		}
-		key, value := strings.Trim(m[1], `"`), m[2]
-		// Multi-line arrays and inline tables continue to their closing bracket.
-		for open := depth(value); open > 0 && i+1 < len(lines); {
-			i++
-			next := strings.TrimSpace(lines[i])
-			value += next
-			open += depth(next)
-		}
-		switch {
-		case sub == "dependencies":
-			cur.deps = append(cur.deps, key) // poetry: [package.dependencies] name = "constraint"
-		case sub != "" || lockNoise[key]:
-		case key == "dependencies":
-			cur.deps = append(cur.deps, depNames(value)...)
-		case strings.HasPrefix(value, "[") || strings.HasPrefix(value, "{"):
-		case key == "name" || key == "version":
-			cur.fields = append(cur.fields, strings.Trim(value, `"`))
-		default:
-			cur.fields = append(cur.fields, key+"="+strings.Trim(value, `"`))
-		}
+	l := "  " + strings.Join(fold.cur.fields, " ")
+	if len(fold.cur.deps) > 0 {
+		l += " deps: " + strings.Join(fold.cur.deps, ", ")
 	}
-	flush()
-	return compress.Join(compress.SqueezeBlank(out))
+	fold.out = append(fold.out, l)
+	fold.cur = nil
+}
+
+// line reads one line: a table header, or a key of the current entry.
+func (fold *tomlFold) line(line string) {
+	if m := arrayTable.FindStringSubmatch(line); m != nil && fold.count[m[1]] >= 3 {
+		fold.startEntry(m[1])
+		return
+	}
+	if m := subTable.FindStringSubmatch(line); m != nil {
+		if fold.cur != nil && strings.HasPrefix(m[1], fold.table+".") {
+			fold.sub = strings.TrimPrefix(m[1], fold.table+".")
+			return
+		}
+		fold.flush()
+		fold.table = ""
+	}
+	if fold.cur == nil {
+		fold.out = append(fold.out, line)
+		return
+	}
+	if m := keyValue.FindStringSubmatch(line); m != nil {
+		fold.keyValue(strings.Trim(m[1], `"`), m[2])
+	}
+}
+
+// startEntry begins an entry of array table name, with a header line the
+// first time the table appears.
+func (fold *tomlFold) startEntry(name string) {
+	fold.flush()
+	if name != fold.table {
+		fold.table = name
+		fold.out = append(fold.out, fmt.Sprintf("[[%s]] ×%d", name, fold.count[name]))
+	}
+	fold.cur, fold.sub = &entry{}, ""
+}
+
+// keyValue adds a key of the current entry: its scalar fields and
+// dependency names, nothing else.
+func (fold *tomlFold) keyValue(key, value string) {
+	// Multi-line arrays and inline tables continue to their closing bracket.
+	for open := depth(value); open > 0 && fold.i+1 < len(fold.lines); {
+		fold.i++
+		next := strings.TrimSpace(fold.lines[fold.i])
+		value += next
+		open += depth(next)
+	}
+	cur := fold.cur
+	switch {
+	case fold.sub == "dependencies":
+		cur.deps = append(cur.deps, key) // poetry: [package.dependencies] name = "constraint"
+	case fold.sub != "" || lockNoise[key]:
+	case key == "dependencies":
+		cur.deps = append(cur.deps, depNames(value)...)
+	case strings.HasPrefix(value, "[") || strings.HasPrefix(value, "{"):
+	case key == "name" || key == "version":
+		cur.fields = append(cur.fields, strings.Trim(value, `"`))
+	default:
+		cur.fields = append(cur.fields, key+"="+strings.Trim(value, `"`))
+	}
 }
 
 // depNames reads uv inline tables ({ name = "x", … }) and cargo strings

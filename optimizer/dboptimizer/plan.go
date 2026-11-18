@@ -46,8 +46,13 @@ type node struct {
 // slowest) and their filters; cheap subtrees collapse into a count. Costs
 // give way to actual times and row counts when present.
 func (o *Optimizer) plan(lines []string) []string {
-	var nodes []*node
-	var head, tail []string
+	nodes, head, tail := parsePlan(lines)
+	return append(append(head, o.slowNodes(nodes)...), tail...)
+}
+
+// parsePlan reads the plan nodes with their detail lines; the lines before
+// the first node come back as head, the others as tail.
+func parsePlan(lines []string) (nodes []*node, head, tail []string) {
 	for _, l := range lines {
 		if m := planNode.FindStringSubmatch(l); m != nil {
 			nodes = append(nodes, &node{line: shorten(m), time: timeOf(m), depth: len(m[1])})
@@ -63,11 +68,17 @@ func (o *Optimizer) plan(lines []string) []string {
 			tail = append(tail, l)
 		}
 	}
+	return nodes, head, tail
+}
+
+// slowNodes lists the nodes taking at least PlanMinShare of the slowest and
+// the first, with their details; a marker stands for each run of cheap ones.
+func (o *Optimizer) slowNodes(nodes []*node) []string {
 	slowest := 0.0
 	for _, n := range nodes {
 		slowest = max(slowest, n.time)
 	}
-	out := head
+	var out []string
 	cheap := 0
 	for i, n := range nodes {
 		if i > 0 && n.time < o.cfg.PlanMinShare*slowest {
@@ -86,7 +97,7 @@ func (o *Optimizer) plan(lines []string) []string {
 	if cheap > 0 {
 		out = append(out, compress.Omitted(cheap, "cheap plan nodes"))
 	}
-	return append(out, tail...)
+	return out
 }
 
 // shorten rewrites a node as "-> Seq Scan on orders o (time=12.5ms rows=1000 est=10 loops=1)".

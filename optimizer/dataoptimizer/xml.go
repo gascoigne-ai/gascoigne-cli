@@ -51,13 +51,7 @@ func parseXML(text string) (*node, error) {
 		top := stack[len(stack)-1]
 		switch t := tok.(type) {
 		case xml.StartElement:
-			n := &node{name: qname(t.Name)}
-			for _, a := range t.Attr {
-				if a.Name.Space == "xmlns" || a.Name.Local == "xmlns" || a.Name.Local == "schemaLocation" || a.Name.Local == "noNamespaceSchemaLocation" {
-					continue
-				}
-				n.attrs = append(n.attrs, fmt.Sprintf("%s=%q", qname(a.Name), a.Value))
-			}
+			n := newElement(t)
 			top.children = append(top.children, n)
 			stack = append(stack, n)
 		case xml.EndElement:
@@ -70,6 +64,19 @@ func parseXML(text string) (*node, error) {
 			}
 		}
 	}
+}
+
+// newElement is the node of a start tag; namespace declarations and schema
+// locations are noise and not kept as attributes.
+func newElement(start xml.StartElement) *node {
+	n := &node{name: qname(start.Name)}
+	for _, a := range start.Attr {
+		if a.Name.Space == "xmlns" || a.Name.Local == "xmlns" || a.Name.Local == "schemaLocation" || a.Name.Local == "noNamespaceSchemaLocation" {
+			continue
+		}
+		n.attrs = append(n.attrs, fmt.Sprintf("%s=%q", qname(a.Name), a.Value))
+	}
+	return n
 }
 
 func qname(name xml.Name) string {

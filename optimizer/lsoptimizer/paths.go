@@ -99,47 +99,61 @@ var treeEntry = lazyre.New(`^((?:│   |│\x{a0}\x{a0} |    )*)(├──|└�
 // tree indents by two spaces instead of box drawing and lists at most
 // MaxPerDir files per directory.
 func (o *Optimizer) tree(lines []string) []string {
-	var out []string
-	var files []int       // files seen per depth in the open directories
-	var hidden [][]string // files past the limit per depth
-	close := func(depth int) {
-		for d := len(files) - 1; d >= depth; d-- {
-			for _, h := range spill(hidden[d]) {
-				out = append(out, strings.Repeat("  ", d)+h)
-			}
-		}
-		files, hidden = files[:min(depth, len(files))], hidden[:min(depth, len(hidden))]
-	}
+	run := &treeRun{}
 	parsed := false
 	for i, l := range lines {
 		m := treeEntry.FindStringSubmatch(l)
 		if m == nil {
-			close(0)
-			out = append(out, l) // root and summary lines
+			run.close(0)
+			run.out = append(run.out, l) // root and summary lines
 			continue
 		}
 		parsed = true
-		d := len([]rune(m[1])) / 4
-		close(d + 1)
-		for len(files) <= d {
-			files, hidden = append(files, 0), append(hidden, nil)
-		}
-		next := treeEntry.FindStringSubmatch(lineAt(lines, i+1))
-		if next != nil && len([]rune(next[1]))/4 > d { // a directory with entries
-			out = append(out, strings.Repeat("  ", d)+m[3]+"/")
-			continue
-		}
-		if files[d]++; files[d] > o.cfg.MaxPerDir {
-			hidden[d] = append(hidden[d], m[3])
-			continue
-		}
-		out = append(out, strings.Repeat("  ", d)+m[3])
+		run.entry(o.cfg.MaxPerDir, m, treeEntry.FindStringSubmatch(lineAt(lines, i+1)))
 	}
-	close(0)
+	run.close(0)
 	if !parsed {
 		return lines
 	}
-	return out
+	return run.out
+}
+
+// treeRun is the state of tree: the output and, per depth of the open
+// directories, the files shown and the files past the limit.
+type treeRun struct {
+	out    []string
+	files  []int      // files seen per depth in the open directories
+	hidden [][]string // files past the limit per depth
+}
+
+// close ends the open directories at depth and below, listing what they hid.
+func (run *treeRun) close(depth int) {
+	for d := len(run.files) - 1; d >= depth; d-- {
+		for _, h := range spill(run.hidden[d]) {
+			run.out = append(run.out, strings.Repeat("  ", d)+h)
+		}
+	}
+	run.files, run.hidden = run.files[:min(depth, len(run.files))], run.hidden[:min(depth, len(run.hidden))]
+}
+
+// entry adds a tree entry (m is its treeEntry match, next the one of the
+// following line, nil at the end or past the entries): a directory, or a
+// file shown while its directory has room.
+func (run *treeRun) entry(maxPerDir int, match, next []string) {
+	d := len([]rune(match[1])) / 4
+	run.close(d + 1)
+	for len(run.files) <= d {
+		run.files, run.hidden = append(run.files, 0), append(run.hidden, nil)
+	}
+	if next != nil && len([]rune(next[1]))/4 > d { // a directory with entries
+		run.out = append(run.out, strings.Repeat("  ", d)+match[3]+"/")
+		return
+	}
+	if run.files[d]++; run.files[d] > maxPerDir {
+		run.hidden[d] = append(run.hidden[d], match[3])
+		return
+	}
+	run.out = append(run.out, strings.Repeat("  ", d)+match[3])
 }
 
 func lineAt(lines []string, index int) string {

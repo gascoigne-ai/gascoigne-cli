@@ -59,42 +59,8 @@ var (
 // how many more there are and their ids. Groups smaller than min stay as
 // they are.
 func foldGoroutines(lines []string, min int) []string {
-	type group struct {
-		first int // index of the first member's header in blocks
-		ids   []string
-	}
-	type block struct {
-		lines []string
-		key   string // "" for text outside goroutines
-		id    string
-	}
-	var blocks []block
-	for i := 0; i < len(lines); {
-		m := goroutineHead.FindStringSubmatch(lines[i])
-		if m == nil {
-			blocks = append(blocks, block{lines: lines[i : i+1]})
-			i++
-			continue
-		}
-		j := i + 1
-		for j < len(lines) && strings.TrimSpace(lines[j]) != "" && !goroutineHead.MatchString(lines[j]) {
-			j++
-		}
-		frames := goVolatile.ReplaceAllString(strings.Join(lines[i+1:j], "\n"), "#")
-		blocks = append(blocks, block{lines: lines[i:j], key: m[2] + "\n" + frames, id: m[1]})
-		i = j
-	}
-	groups := map[string]*group{}
-	for i, b := range blocks {
-		if b.key == "" {
-			continue
-		}
-		if g, ok := groups[b.key]; ok {
-			g.ids = append(g.ids, b.id)
-			continue
-		}
-		groups[b.key] = &group{first: i, ids: []string{b.id}}
-	}
+	blocks := goBlocks(lines)
+	groups := goGroups(blocks)
 	var out []string
 	for i, b := range blocks {
 		g := groups[b.key]
@@ -113,6 +79,57 @@ func foldGoroutines(lines []string, min int) []string {
 		}
 	}
 	return out
+}
+
+// goBlock is a goroutine with its frames, or one line of text outside any.
+type goBlock struct {
+	lines []string
+	key   string // "" for text outside goroutines
+	id    string
+}
+
+// goGroup is the goroutines that share a state and stack.
+type goGroup struct {
+	first int // index of the first member's header in the blocks
+	ids   []string
+}
+
+// goBlocks cuts a dump into goroutines and the lines between them. The key
+// of a goroutine is its state and its frames with volatile values masked.
+func goBlocks(lines []string) []goBlock {
+	var blocks []goBlock
+	for i := 0; i < len(lines); {
+		m := goroutineHead.FindStringSubmatch(lines[i])
+		if m == nil {
+			blocks = append(blocks, goBlock{lines: lines[i : i+1]})
+			i++
+			continue
+		}
+		j := i + 1
+		for j < len(lines) && strings.TrimSpace(lines[j]) != "" && !goroutineHead.MatchString(lines[j]) {
+			j++
+		}
+		frames := goVolatile.ReplaceAllString(strings.Join(lines[i+1:j], "\n"), "#")
+		blocks = append(blocks, goBlock{lines: lines[i:j], key: m[2] + "\n" + frames, id: m[1]})
+		i = j
+	}
+	return blocks
+}
+
+// goGroups collects the goroutine ids per key.
+func goGroups(blocks []goBlock) map[string]*goGroup {
+	groups := map[string]*goGroup{}
+	for i, b := range blocks {
+		if b.key == "" {
+			continue
+		}
+		if g, ok := groups[b.key]; ok {
+			g.ids = append(g.ids, b.id)
+			continue
+		}
+		groups[b.key] = &goGroup{first: i, ids: []string{b.id}}
+	}
+	return groups
 }
 
 // ids lists goroutine ids, the first 10 then a count.
