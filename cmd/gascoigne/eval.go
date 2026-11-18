@@ -105,6 +105,12 @@ func cmdEval(ctx context.Context, args []string) error {
 		return fmt.Errorf("no pipeline %q", ef.pipeline)
 	}
 
+	return runEval(ctx, svc, pl, cases, ef)
+}
+
+// runEval runs every case through pl, compares with the baseline file next to
+// the cases and reports.
+func runEval(ctx context.Context, svc *service.Service, pl *service.Pipeline, cases []evalCase, ef evalFlags) error {
 	dir := filepath.Dir(ef.cases)
 	basePath := filepath.Join(dir, "baseline.tsv")
 	base, err := readBaseline(basePath)

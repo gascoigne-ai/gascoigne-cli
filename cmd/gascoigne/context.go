@@ -294,35 +294,15 @@ func rewrites(turns []turn) map[int]struct {
 // loadContext reads the newest transcripts under dir written within period,
 // and from each the turns inside it.
 func loadContext(dir string, period time.Duration, now time.Time) (contextReport, error) {
-	type file struct {
-		path string
-		mod  time.Time
-	}
-	var files []file
 	cutoff := now.Add(-period)
-	err := filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
-		if err != nil {
-			if path == dir {
-				return err
-			}
-			return nil // an unreadable corner is not the whole report
-		}
-		if entry.IsDir() || filepath.Ext(path) != ".jsonl" {
-			return nil
-		}
-		info, err := entry.Info()
-		if err == nil && info.ModTime().After(cutoff) {
-			files = append(files, file{path, info.ModTime()})
-		}
-		return nil
-	})
+	files, err := recentTranscripts(dir, cutoff)
 	if errors.Is(err, fs.ErrNotExist) { // no Claude Code here: an empty report, not an error
 		return buildContext(nil, period), nil
 	}
 	if err != nil {
 		return contextReport{}, err
 	}
-	slices.SortFunc(files, func(left, right file) int { return right.mod.Compare(left.mod) })
+	slices.SortFunc(files, func(left, right transcriptFile) int { return right.mod.Compare(left.mod) })
 	var sessions []sessionCost
 	var subUSD float64
 	var subTurns int
@@ -342,6 +322,34 @@ func loadContext(dir string, period time.Duration, now time.Time) (contextReport
 	r := buildContext(sessions, period)
 	r.SubagentUSD, r.SubagentTurns = subUSD, subTurns
 	return r, nil
+}
+
+// transcriptFile is a transcript and when it was last written.
+type transcriptFile struct {
+	path string
+	mod  time.Time
+}
+
+// recentTranscripts are the .jsonl files under dir written after cutoff.
+func recentTranscripts(dir string, cutoff time.Time) ([]transcriptFile, error) {
+	var files []transcriptFile
+	err := filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			if path == dir {
+				return err
+			}
+			return nil // an unreadable corner is not the whole report
+		}
+		if entry.IsDir() || filepath.Ext(path) != ".jsonl" {
+			return nil
+		}
+		info, err := entry.Info()
+		if err == nil && info.ModTime().After(cutoff) {
+			files = append(files, transcriptFile{path, info.ModTime()})
+		}
+		return nil
+	})
+	return files, err
 }
 
 // claudeProjects is where Claude Code keeps its transcripts.

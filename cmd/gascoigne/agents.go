@@ -138,24 +138,12 @@ func cmdWrap(ctx context.Context, args []string) error {
 	if a.launch == nil && a.env == nil {
 		return fmt.Errorf("wrap: %s takes no per-run config; register gascoigne once with: gascoigne install %s", name, name)
 	}
-	var extra, env []string
-	if a.launch != nil {
-		if extra, err = a.launch(exe); err != nil {
-			return err
-		}
-	}
-	if a.env != nil {
-		if env, err = a.env(exe); err != nil {
-			return err
-		}
+	extra, env, err := a.runConfig(exe)
+	if err != nil {
+		return err
 	}
 	if !serverOff() {
-		// The dashboard address goes to stderr before the agent takes the terminal.
-		start := exec.CommandContext(ctx, exe, "server", "start")
-		start.Stdout, start.Stderr = os.Stderr, os.Stderr
-		if err := start.Run(); err != nil {
-			fmt.Fprintln(os.Stderr, "gascoigne: dashboard not started:", err)
-		}
+		startDashboard(ctx, exe)
 	}
 	cmd := exec.CommandContext(ctx, a.bin, append(extra, fs.Args()[1:]...)...)
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
@@ -167,6 +155,32 @@ func cmdWrap(ctx context.Context, args []string) error {
 		return exitCode(exitErr.ExitCode())
 	}
 	return err
+}
+
+// runConfig is the extra arguments and environment that register gascoigne
+// with the agent for one run.
+func (a agent) runConfig(exe string) (extra, env []string, err error) {
+	if a.launch != nil {
+		if extra, err = a.launch(exe); err != nil {
+			return nil, nil, err
+		}
+	}
+	if a.env != nil {
+		if env, err = a.env(exe); err != nil {
+			return nil, nil, err
+		}
+	}
+	return extra, env, nil
+}
+
+// startDashboard starts the background server; its address goes to stderr
+// before the agent takes the terminal.
+func startDashboard(ctx context.Context, exe string) {
+	start := exec.CommandContext(ctx, exe, "server", "start")
+	start.Stdout, start.Stderr = os.Stderr, os.Stderr
+	if err := start.Run(); err != nil {
+		fmt.Fprintln(os.Stderr, "gascoigne: dashboard not started:", err)
+	}
 }
 
 func hookCommand(exe, agent string) string { return mcptool.ShellQuote(exe) + " hook " + agent }

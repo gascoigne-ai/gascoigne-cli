@@ -311,13 +311,7 @@ func removeCodexEntries(text string) (string, []string) {
 			}
 		case strings.HasPrefix(s.header, "[[hooks.") && !strings.HasSuffix(s.header, ".hooks]]"):
 			event := strings.TrimSuffix(strings.TrimPrefix(s.header, "[[hooks."), "]]")
-			var handlers, ours []int
-			for j := i + 1; j < len(sections) && sections[j].header == "[[hooks."+event+".hooks]]"; j++ {
-				handlers = append(handlers, j)
-				if strings.Contains(sections[j].body, "gascoigne") && strings.Contains(sections[j].body, ` hook codex"`) {
-					ours = append(ours, j)
-				}
-			}
+			handlers, ours := codexHandlers(sections, i, event)
 			if len(ours) == 0 {
 				continue
 			}
@@ -338,6 +332,18 @@ func removeCodexEntries(text string) (string, []string) {
 		}
 	}
 	return b.String(), what
+}
+
+// codexHandlers are the indexes of the handler sections that follow the hook
+// section hook of event, and those of them that run gascoigne.
+func codexHandlers(sections []tomlSection, hook int, event string) (handlers, ours []int) {
+	for j := hook + 1; j < len(sections) && sections[j].header == "[[hooks."+event+".hooks]]"; j++ {
+		handlers = append(handlers, j)
+		if strings.Contains(sections[j].body, "gascoigne") && strings.Contains(sections[j].body, ` hook codex"`) {
+			ours = append(ours, j)
+		}
+	}
+	return handlers, ours
 }
 
 type tomlSection struct {

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -27,38 +28,13 @@ func cmdTokens(ctx context.Context, args []string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
-	var in io.Reader = os.Stdin
-	if fs.NArg() == 0 && isTerminal(os.Stdin) {
-		return errors.New("tokens: no file and stdin is a terminal; give a file or pipe text in (gascoigne tokens file.txt)")
-	}
-	if fs.NArg() > 0 {
-		f, err := os.Open(fs.Arg(0))
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		in = f
-	}
-	data, err := io.ReadAll(in)
+	text, err := readTokensInput(fs.Args())
 	if err != nil {
 		return err
 	}
-	text := string(data)
 	est := tokens.Estimate(text)
 	w := os.Stdout
-	fmt.Fprintf(w, "%s bytes · %d lines\n\n", human(len(text)), strings.Count(text, "\n"))
-	fmt.Fprintf(w, "%-14s %9s  %s\n", "tokenizer", "tokens", "basis")
-	fmt.Fprintf(w, "%-14s %9d  %s\n", "bytes/4", (len(text)+3)/4, "rule of thumb; overcounts whitespace, undercounts Claude")
-	for _, name := range slices.Sorted(func(yield func(string) bool) {
-		for n := range cost.Tokenizers {
-			if !yield(n) {
-				return
-			}
-		}
-	}) {
-		t := cost.Tokenizers[name]
-		fmt.Fprintf(w, "%-14s %9d  %s\n", name, int(float64(est)*t.Factor+0.5), t.Basis)
-	}
+	printTokenizerTable(w, text, est)
 	if *exact {
 		cfg, err := (&common{config: *cfgFile}).load()
 		if err != nil {
@@ -66,19 +42,58 @@ func cmdTokens(ctx context.Context, args []string) error {
 		}
 		exactCounts(ctx, w, cfg.Tokenizers, text)
 	}
-	fmt.Fprintf(w, "\n%-20s %10s %12s %12s\n", "model", "tokens", "one read", "in context")
-	c := cost.Context{Rereads: *rereads, Miss: cost.AgentContext.Miss}
-	for _, id := range splitList(*models, ",") {
+	printModelPrices(w, splitList(*models, ","), est, *rereads)
+	return nil
+}
+
+// readTokensInput is the text to count: the first file named, else stdin
+// (refused on a terminal).
+func readTokensInput(files []string) (string, error) {
+	var in io.Reader = os.Stdin
+	if len(files) == 0 && isTerminal(os.Stdin) {
+		return "", errors.New("tokens: no file and stdin is a terminal; give a file or pipe text in (gascoigne tokens file.txt)")
+	}
+	if len(files) > 0 {
+		f, err := os.Open(files[0])
+		if err != nil {
+			return "", err
+		}
+		defer f.Close()
+		in = f
+	}
+	data, err := io.ReadAll(in)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
+// printTokenizerTable prints the size line and one estimate per tokenizer.
+func printTokenizerTable(out io.Writer, text string, est int) {
+	fmt.Fprintf(out, "%s bytes · %d lines\n\n", human(len(text)), strings.Count(text, "\n"))
+	fmt.Fprintf(out, "%-14s %9s  %s\n", "tokenizer", "tokens", "basis")
+	fmt.Fprintf(out, "%-14s %9d  %s\n", "bytes/4", (len(text)+3)/4, "rule of thumb; overcounts whitespace, undercounts Claude")
+	for _, name := range slices.Sorted(maps.Keys(cost.Tokenizers)) {
+		t := cost.Tokenizers[name]
+		fmt.Fprintf(out, "%-14s %9d  %s\n", name, int(float64(est)*t.Factor+0.5), t.Basis)
+	}
+}
+
+// printModelPrices prints what est tokens cost per model: one read and in an
+// agent's context.
+func printModelPrices(out io.Writer, ids []string, est int, rereads float64) {
+	fmt.Fprintf(out, "\n%-20s %10s %12s %12s\n", "model", "tokens", "one read", "in context")
+	c := cost.Context{Rereads: rereads, Miss: cost.AgentContext.Miss}
+	for _, id := range ids {
 		m, ok := cost.Lookup(id)
 		if !ok {
-			fmt.Fprintf(w, "%-20s %s\n", id, "unknown model")
+			fmt.Fprintf(out, "%-20s %s\n", id, "unknown model")
 			continue
 		}
 		s := cost.Estimate(m, est, c)
-		fmt.Fprintf(w, "%-20s %10d %12s %12s\n", cmp.Or(m.ID, id), s.ModelTokens, cents(s.FirstRead), cents(s.InContext))
+		fmt.Fprintf(out, "%-20s %10d %12s %12s\n", cmp.Or(m.ID, id), s.ModelTokens, cents(s.FirstRead), cents(s.InContext))
 	}
-	fmt.Fprintf(w, "\none read: cache write (or plain input); in context: plus %.0f cache reads, as an agent rereads a tool result\n", *rereads)
-	return nil
+	fmt.Fprintf(out, "\none read: cache write (or plain input); in context: plus %.0f cache reads, as an agent rereads a tool result\n", rereads)
 }
 
 // cents prints small amounts readably: $0.0123.

@@ -64,38 +64,14 @@ func resumeSnapshot(path string) string {
 		return ""
 	}
 	defer f.Close()
-	var (
-		prompt   string
-		files    []string
-		todos    []string
-		commands = map[string]string{} // Bash tool_use id → command
-		failed   []string
-	)
+	st := snapshotState{commands: map[string]string{}}
 	err = scanTranscript(f, func(line []byte) {
 		var l snapshotLine
 		if json.Unmarshal(line, &l) != nil || l.IsSidechain {
 			return
 		}
 		for _, b := range contentBlocks(l.Message.Content) {
-			switch {
-			case l.Type == "user" && b.Type == "text" && isPrompt(b.Text):
-				prompt = b.Text
-			case l.Type == "user" && b.Type == "tool_result" && b.IsError:
-				if c, ok := commands[b.ToolUseID]; ok {
-					failed = append(slices.DeleteFunc(failed, func(existing string) bool { return existing == c }), c)
-				}
-			case l.Type == "assistant" && b.Type == "tool_use":
-				switch b.Name {
-				case "Edit", "Write", "MultiEdit", "NotebookEdit":
-					if p := editedPath(b.Input); p != "" {
-						files = append(slices.DeleteFunc(files, func(existing string) bool { return existing == p }), p)
-					}
-				case "Bash":
-					commands[b.ID] = commandOf(b.Input)
-				case "TodoWrite":
-					todos = openTodos(b.Input)
-				}
-			}
+			st.applyBlock(l.Type, b)
 		}
 	})
 	if err != nil {
@@ -103,7 +79,44 @@ func resumeSnapshot(path string) string {
 		slog.Debug("transcript: read stopped, no snapshot", "file", filepath.Base(path), "err", err)
 		return ""
 	}
-	return formatSnapshot(prompt, todos, files, failed)
+	return formatSnapshot(st.prompt, st.todos, st.files, st.failed)
+}
+
+// snapshotState is what the transcript read so far says.
+type snapshotState struct {
+	prompt   string
+	files    []string
+	todos    []string
+	commands map[string]string // Bash tool_use id → command
+	failed   []string
+}
+
+// applyBlock folds one content block of a line of the given type into the state.
+func (st *snapshotState) applyBlock(lineType string, block snapshotBlock) {
+	switch {
+	case lineType == "user" && block.Type == "text" && isPrompt(block.Text):
+		st.prompt = block.Text
+	case lineType == "user" && block.Type == "tool_result" && block.IsError:
+		if c, ok := st.commands[block.ToolUseID]; ok {
+			st.failed = append(slices.DeleteFunc(st.failed, func(existing string) bool { return existing == c }), c)
+		}
+	case lineType == "assistant" && block.Type == "tool_use":
+		st.applyToolUse(block)
+	}
+}
+
+// applyToolUse folds one tool call into the state.
+func (st *snapshotState) applyToolUse(block snapshotBlock) {
+	switch block.Name {
+	case "Edit", "Write", "MultiEdit", "NotebookEdit":
+		if p := editedPath(block.Input); p != "" {
+			st.files = append(slices.DeleteFunc(st.files, func(existing string) bool { return existing == p }), p)
+		}
+	case "Bash":
+		st.commands[block.ID] = commandOf(block.Input)
+	case "TodoWrite":
+		st.todos = openTodos(block.Input)
+	}
 }
 
 // contentBlocks reads a message's content, which is a string or a list of blocks.

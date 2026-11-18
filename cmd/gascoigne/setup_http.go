@@ -42,11 +42,7 @@ func setupHandlers(mux *http.ServeMux) {
 // saveSetup takes the page's answers (and pricing form), behind the token,
 // and says what was done.
 func saveSetup(response http.ResponseWriter, request *http.Request) {
-	var req struct {
-		Token   string            `json:"token"`
-		Answers map[string]string `json:"answers"`
-		Pricing *pricingForm      `json:"pricing"`
-	}
+	var req setupRequest
 	decoder := json.NewDecoder(http.MaxBytesReader(response, request.Body, 1<<20))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&req); err != nil {
@@ -57,42 +53,62 @@ func saveSetup(response http.ResponseWriter, request *http.Request) {
 		http.Error(response, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
 		return
 	}
+	lines, status, err := req.apply()
+	if err != nil {
+		http.Error(response, err.Error(), status)
+		return
+	}
+	os.Remove(setupTokenFile()) // one answer per link
+	if needsProseModel(req.Answers) {
+		lines = append(lines, startProseDownload())
+	}
+	respond(response, map[string][]string{"done": lines}, nil)
+}
+
+// setupRequest is what the setup page posts.
+type setupRequest struct {
+	Token   string            `json:"token"`
+	Answers map[string]string `json:"answers"`
+	Pricing *pricingForm      `json:"pricing"`
+}
+
+// apply saves the answers and the pricing form and says what was done; on an
+// error status is the HTTP status to answer with.
+func (req setupRequest) apply() (lines []string, status int, err error) {
 	// The pricing form is checked before anything is saved: all or nothing.
 	saved := readPrefs()
 	if req.Pricing != nil {
 		if err := req.Pricing.apply(&saved.Pricing); err != nil {
-			http.Error(response, err.Error(), http.StatusBadRequest)
-			return
+			return nil, http.StatusBadRequest, err
 		}
 	}
-	lines, err := applyAnswers(req.Answers)
+	lines, err = applyAnswers(req.Answers)
 	if err != nil {
-		http.Error(response, err.Error(), http.StatusBadRequest)
-		return
+		return nil, http.StatusBadRequest, err
 	}
 	if req.Pricing != nil {
 		// applyAnswers saved the answers (billing among them); the form's interval and prices go on top.
 		current := readPrefs()
 		current.Pricing.TTL, current.Pricing.Prices = saved.Pricing.TTL, saved.Pricing.Prices
 		if err := current.save(); err != nil {
-			http.Error(response, err.Error(), http.StatusInternalServerError)
-			return
+			return nil, http.StatusInternalServerError, err
 		}
 		applyPricing(false)
 		lines = append(lines, "costs: pricing settings saved")
 	}
-	os.Remove(setupTokenFile()) // one answer per link
-	if needsProseModel(req.Answers) {
-		// Minutes of download: not within this request.
-		go func() {
-			if err := installProseModel(context.Background()); err != nil {
-				fmt.Fprintln(os.Stderr, "gascoigne: prose download failed, run gascoigne prose install:", err)
-			}
-		}()
-		name := configProseModel()
-		lines = append(lines, fmt.Sprintf("prose: downloading %s (%s) in the background; gascoigne prose status says when it is ready", name, proseSize(name)))
-	}
-	respond(response, map[string][]string{"done": lines}, nil)
+	return lines, 0, nil
+}
+
+// startProseDownload fetches the prose model in the background (minutes of
+// download: not within the request) and says so.
+func startProseDownload() string {
+	go func() {
+		if err := installProseModel(context.Background()); err != nil {
+			fmt.Fprintln(os.Stderr, "gascoigne: prose download failed, run gascoigne prose install:", err)
+		}
+	}()
+	name := configProseModel()
+	return fmt.Sprintf("prose: downloading %s (%s) in the background; gascoigne prose status says when it is ready", name, proseSize(name))
 }
 
 // cmdSetup asks the open questions: in the browser when one can open here,

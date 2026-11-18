@@ -135,60 +135,74 @@ func writeLearned(file string, ls []lesson) (string, error) {
 
 // cmdLearn proposes lines from the ledger. Without flags it only prints.
 func cmdLearn(ctx context.Context, args []string) error {
-	var (
-		since  string
-		limit  int
-		target string
-		apply  bool
-		remove bool
-	)
+	var o learnOptions
 	return withLedger(ctx, "learn", args, 0, func(fs *flag.FlagSet) {
-		fs.StringVar(&since, "since", "30d", "only the last `period`: 24h, 7d, 4w, 6mo")
-		fs.IntVar(&limit, "limit", 5000, "newest runs to look at (`n`)")
-		fs.StringVar(&target, "target", "CLAUDE.local.md", "instruction `file` for -apply and -remove (CLAUDE.md, AGENTS.md, GEMINI.md)")
-		fs.BoolVar(&apply, "apply", false, "write the lines to the target as a marked block")
-		fs.BoolVar(&remove, "remove", false, "take the block out of the target")
+		fs.StringVar(&o.since, "since", "30d", "only the last `period`: 24h, 7d, 4w, 6mo")
+		fs.IntVar(&o.limit, "limit", 5000, "newest runs to look at (`n`)")
+		fs.StringVar(&o.target, "target", "CLAUDE.local.md", "instruction `file` for -apply and -remove (CLAUDE.md, AGENTS.md, GEMINI.md)")
+		fs.BoolVar(&o.apply, "apply", false, "write the lines to the target as a marked block")
+		fs.BoolVar(&o.remove, "remove", false, "take the block out of the target")
 	}, func(store *ledger.Ledger, shared *common, _ []string) error {
-		if remove {
-			d, err := writeLearned(target, nil)
-			if d == "" && err == nil {
-				d = display(target) + ": no learned lines"
-			}
-			fmt.Println(d)
-			return err
+		if o.remove {
+			return o.removeBlock()
 		}
-		q := component.StatsQuery{}
-		if since != "" {
-			d, err := parseSince(since)
-			if err != nil {
-				return err
-			}
-			q.Since = time.Now().Add(-d)
-		}
-		entries, err := store.Page(ctx, q, ledger.Page{Limit: limit})
+		return o.run(ctx, store)
+	})
+}
+
+// learnOptions are the flags of learn.
+type learnOptions struct {
+	since  string
+	limit  int
+	target string
+	apply  bool
+	remove bool
+}
+
+// removeBlock takes the learned block out of the target.
+func (o learnOptions) removeBlock() error {
+	d, err := writeLearned(o.target, nil)
+	if d == "" && err == nil {
+		d = display(o.target) + ": no learned lines"
+	}
+	fmt.Println(d)
+	return err
+}
+
+// run prints the habits found in the ledger and, with apply, writes them to
+// the target.
+func (o learnOptions) run(ctx context.Context, store *ledger.Ledger) error {
+	q := component.StatsQuery{}
+	if o.since != "" {
+		d, err := parseSince(o.since)
 		if err != nil {
 			return err
 		}
-		slices.Reverse(entries) // oldest first
-		ls := lessons(entries)
-		if len(ls) == 0 {
-			fmt.Printf("nothing learned from %d runs: a habit needs %d sessions\n", len(entries), learnMinSessions)
-			return nil
-		}
-		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		fmt.Fprintln(w, "habit\tcommand\tsessions\truns")
-		for _, x := range ls {
-			fmt.Fprintf(w, "%s\t%s\t%d\t%d\n", x.Rule, x.Command, x.Sessions, x.Runs)
-		}
-		w.Flush()
-		if !apply {
-			fmt.Printf("\nlines for %s (-apply writes them):\n%s", target, learnBlock(ls))
-			return nil
-		}
-		d, err := writeLearned(target, ls)
-		fmt.Println(d)
+		q.Since = time.Now().Add(-d)
+	}
+	entries, err := store.Page(ctx, q, ledger.Page{Limit: o.limit})
+	if err != nil {
 		return err
-	})
+	}
+	slices.Reverse(entries) // oldest first
+	ls := lessons(entries)
+	if len(ls) == 0 {
+		fmt.Printf("nothing learned from %d runs: a habit needs %d sessions\n", len(entries), learnMinSessions)
+		return nil
+	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(w, "habit\tcommand\tsessions\truns")
+	for _, x := range ls {
+		fmt.Fprintf(w, "%s\t%s\t%d\t%d\n", x.Rule, x.Command, x.Sessions, x.Runs)
+	}
+	w.Flush()
+	if !o.apply {
+		fmt.Printf("\nlines for %s (-apply writes them):\n%s", o.target, learnBlock(ls))
+		return nil
+	}
+	d, err := writeLearned(o.target, ls)
+	fmt.Println(d)
+	return err
 }
 
 // learnNote is the SessionStart note for the top lesson, empty without one.

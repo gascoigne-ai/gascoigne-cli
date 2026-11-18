@@ -110,13 +110,13 @@ func valueLen(text string) int {
 		c := text[i]
 		switch {
 		case quote != 0:
-			if c == '\\' && quote == '"' {
-				i++
-			} else if c == quote {
-				quote = 0
-				if depth == 0 {
-					return i + 1
-				}
+			end := quoteEnd(text, i, quote)
+			if end < 0 {
+				return len(text)
+			}
+			i, quote = end, 0
+			if depth == 0 {
+				return i + 1
 			}
 		case c == '"' || c == '\'':
 			quote = c
@@ -136,6 +136,20 @@ func valueLen(text string) int {
 		}
 	}
 	return len(text)
+}
+
+// quoteEnd is the index of the quote that closes the string being read at
+// text[from] (backslash escapes only in basic strings), -1 without one.
+func quoteEnd(text string, from int, quote byte) int {
+	for i := from; i < len(text); i++ {
+		switch {
+		case text[i] == '\\' && quote == '"':
+			i++
+		case text[i] == quote:
+			return i
+		}
+	}
+	return -1
 }
 
 // tomlString decodes a basic ("…") or literal ('…') TOML string.

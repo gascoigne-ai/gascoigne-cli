@@ -81,24 +81,10 @@ func cmdPrompts(ctx context.Context, args []string) error {
 	if !ok {
 		return fmt.Errorf("unknown model %q", *model)
 	}
-	var srcs []promptSource
-	switch *agent {
-	case "claude":
-		srcs = claudeSources(dir, home)
-	case "codex":
-		srcs = codexSources(dir, home)
-	default:
-		return fmt.Errorf("unknown agent %q: claude or codex", *agent)
-	}
 	factor := cost.Tokenizers[m.Tokenizer].Factor
-	total := 0
-	for i := range srcs {
-		srcs[i].Tokens = int(float64(tokens.Estimate(srcs[i].text))*factor + 0.5)
-		total += srcs[i].Tokens
-		srcs[i].Path = shortPath(srcs[i].Path, dir, home)
-		if from, ok := strings.CutPrefix(srcs[i].Via, "@import from "); ok {
-			srcs[i].Via = "@import from " + shortPath(from, dir, home)
-		}
+	srcs, total, err := loadPromptSources(*agent, dir, home, factor)
+	if err != nil {
+		return err
 	}
 	var used usage
 	if *agent == "claude" {
@@ -113,6 +99,28 @@ func cmdPrompts(ctx context.Context, args []string) error {
 	}
 	printPrompts(*agent, m.ID, s, perRequest, srcs, findings)
 	return nil
+}
+
+// loadPromptSources reads the agent's instruction files for dir, sizes each in
+// model tokens (factor) and shortens its paths; total is the sum of tokens.
+func loadPromptSources(agent, dir, home string, factor float64) (srcs []promptSource, total int, err error) {
+	switch agent {
+	case "claude":
+		srcs = claudeSources(dir, home)
+	case "codex":
+		srcs = codexSources(dir, home)
+	default:
+		return nil, 0, fmt.Errorf("unknown agent %q: claude or codex", agent)
+	}
+	for i := range srcs {
+		srcs[i].Tokens = int(float64(tokens.Estimate(srcs[i].text))*factor + 0.5)
+		total += srcs[i].Tokens
+		srcs[i].Path = shortPath(srcs[i].Path, dir, home)
+		if from, ok := strings.CutPrefix(srcs[i].Via, "@import from "); ok {
+			srcs[i].Via = "@import from " + shortPath(from, dir, home)
+		}
+	}
+	return srcs, total, nil
 }
 
 // claudeSources are Claude Code's instruction files for dir: the user's
@@ -360,16 +368,7 @@ func claudeUsage(home string) usage {
 		if err != nil {
 			continue
 		}
-		err = scanTranscript(fh, func(line []byte) {
-			if bytes.Contains(line, []byte(`"type":"tool_use"`)) {
-				u.add(line)
-			}
-			if bytes.Contains(line, []byte("<command-name>/")) {
-				for _, m := range slashRe.Regexp().FindAllSubmatch(line, -1) {
-					u.names[baseName(string(m[1]))] = true
-				}
-			}
-		})
+		err = scanTranscript(fh, u.scanLine)
 		if err != nil {
 			// Calls past the cut are unseen: this session cannot show a skill unused.
 			slog.Debug("transcript read stopped, session not counted", "file", filepath.Base(f), "err", err)
@@ -378,6 +377,18 @@ func claudeUsage(home string) usage {
 		fh.Close()
 	}
 	return u
+}
+
+// scanLine records the tool calls and slash commands of one transcript line.
+func (u usage) scanLine(line []byte) {
+	if bytes.Contains(line, []byte(`"type":"tool_use"`)) {
+		u.add(line)
+	}
+	if bytes.Contains(line, []byte("<command-name>/")) {
+		for _, m := range slashRe.Regexp().FindAllSubmatch(line, -1) {
+			u.names[baseName(string(m[1]))] = true
+		}
+	}
 }
 
 // baseName drops a plugin prefix: "caveman:caveman-help" is "caveman-help".
@@ -417,52 +428,83 @@ func (u usage) add(line []byte) {
 func promptFindings(srcs []promptSource, large int, factor float64, used usage) []promptFinding {
 	var out []promptFinding
 	model := func(text string) int { return int(float64(tokens.Estimate(text))*factor + 0.5) }
-	first := map[string]string{} // normalized line → path that sent it first
-	type pair struct{ path, earlier string }
-	dups := map[pair][]string{}
-	var order []pair
+	dups := newDupTracker()
 	for _, s := range srcs {
 		if !s.full {
-			if s.Tokens > descMaxTokens {
-				out = append(out, promptFinding{"long-description", s.Path, s.Tokens,
-					"listed with every request; say when to use it, the body loads on use"})
-			}
-			if name := sourceName(s.text); used.sessions >= usedMinSessions && name != "" && !used.names[name] {
-				out = append(out, promptFinding{"unused", s.Path, s.Tokens,
-					fmt.Sprintf("%s %q never called in %d sessions; listed with every request", s.Via, name, used.sessions)})
-			}
+			out = append(out, listedFindings(s, used)...)
 			continue
 		}
 		if strings.HasPrefix(s.Via, "@import") && s.Tokens >= large {
 			out = append(out, promptFinding{"large-import", s.Path, s.Tokens,
 				"sent with every request; make it a skill or a file the agent reads when needed"})
 		}
-		for line := range strings.Lines(s.text) {
-			key := strings.Join(strings.Fields(strings.ToLower(line)), " ")
-			if len(key) < dupMinChars {
-				continue
-			}
-			earlier, ok := first[key]
-			if !ok {
-				first[key] = s.Path
-				continue
-			}
-			p := pair{s.Path, earlier}
-			if dups[p] == nil {
-				order = append(order, p)
-			}
-			dups[p] = append(dups[p], line)
-		}
+		dups.add(s)
 	}
-	for _, p := range order {
-		lines := dups[p]
+	out = append(out, dups.findings(model)...)
+	slices.SortStableFunc(out, func(left, right promptFinding) int { return cmp.Compare(right.Tokens, left.Tokens) })
+	return out
+}
+
+// listedFindings are the findings for a source that is only listed with every
+// request: a long description, a name never called.
+func listedFindings(src promptSource, used usage) []promptFinding {
+	var out []promptFinding
+	if src.Tokens > descMaxTokens {
+		out = append(out, promptFinding{"long-description", src.Path, src.Tokens,
+			"listed with every request; say when to use it, the body loads on use"})
+	}
+	if name := sourceName(src.text); used.sessions >= usedMinSessions && name != "" && !used.names[name] {
+		out = append(out, promptFinding{"unused", src.Path, src.Tokens,
+			fmt.Sprintf("%s %q never called in %d sessions; listed with every request", src.Via, name, used.sessions)})
+	}
+	return out
+}
+
+// dupPair is a file and the earlier file that sent the same lines first.
+type dupPair struct{ path, earlier string }
+
+// dupTracker finds lines sent again by a later (or the same) file.
+type dupTracker struct {
+	first map[string]string // normalized line → path that sent it first
+	dups  map[dupPair][]string
+	order []dupPair
+}
+
+func newDupTracker() *dupTracker {
+	return &dupTracker{first: map[string]string{}, dups: map[dupPair][]string{}}
+}
+
+// add records the lines of a fully sent source.
+func (d *dupTracker) add(src promptSource) {
+	for line := range strings.Lines(src.text) {
+		key := strings.Join(strings.Fields(strings.ToLower(line)), " ")
+		if len(key) < dupMinChars {
+			continue
+		}
+		earlier, ok := d.first[key]
+		if !ok {
+			d.first[key] = src.Path
+			continue
+		}
+		p := dupPair{src.Path, earlier}
+		if d.dups[p] == nil {
+			d.order = append(d.order, p)
+		}
+		d.dups[p] = append(d.dups[p], line)
+	}
+}
+
+// findings are one "duplicate" per file pair, in the order first seen.
+func (d *dupTracker) findings(model func(string) int) []promptFinding {
+	var out []promptFinding
+	for _, p := range d.order {
+		lines := d.dups[p]
 		detail := fmt.Sprintf("%d lines also in %s", len(lines), p.earlier)
 		if p.earlier == p.path {
 			detail = fmt.Sprintf("%d lines repeated in the same file", len(lines))
 		}
 		out = append(out, promptFinding{"duplicate", p.path, model(strings.Join(lines, "")), detail})
 	}
-	slices.SortStableFunc(out, func(left, right promptFinding) int { return cmp.Compare(right.Tokens, left.Tokens) })
 	return out
 }
 

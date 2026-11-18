@@ -298,6 +298,36 @@ func registerPricingSetFlags(fset *flag.FlagSet) *pricingSetFlags {
 	return flags
 }
 
+// checkPricingURL accepts no address (clears it) or an http(s) one.
+func checkPricingURL(url string) error {
+	if url != "" && !strings.HasPrefix(url, "https://") && !strings.HasPrefix(url, "http://") {
+		return fmt.Errorf("pricing: -url wants an http or https address")
+	}
+	return nil
+}
+
+// checkPricingTranslate accepts no command (clears it) or one that splits.
+func checkPricingTranslate(translate string) error {
+	if translate == "" {
+		return nil
+	}
+	if _, err := pricing.SplitArgs(translate); err != nil {
+		return fmt.Errorf("pricing: -translate: %w", err)
+	}
+	return nil
+}
+
+// checkPricingTimeout accepts no timeout (clears it) or a positive duration.
+func checkPricingTimeout(timeout string) error {
+	if timeout == "" {
+		return nil
+	}
+	if duration, err := time.ParseDuration(timeout); err != nil || duration <= 0 {
+		return fmt.Errorf("pricing: -timeout %q: want a duration such as 10s", timeout)
+	}
+	return nil
+}
+
 // apply validates the settings given and writes them into prefs.
 func (flags *pricingSetFlags) apply(writer io.Writer, prefs *pricingPrefs) error {
 	if flags.clearAll {
@@ -320,8 +350,8 @@ func (flags *pricingSetFlags) apply(writer io.Writer, prefs *pricingPrefs) error
 		prefs.File = flags.file
 	}
 	if flags.set["url"] {
-		if flags.url != "" && !strings.HasPrefix(flags.url, "https://") && !strings.HasPrefix(flags.url, "http://") {
-			return fmt.Errorf("pricing: -url wants an http or https address")
+		if err := checkPricingURL(flags.url); err != nil {
+			return err
 		}
 		prefs.URL = flags.url
 	}
@@ -329,18 +359,14 @@ func (flags *pricingSetFlags) apply(writer io.Writer, prefs *pricingPrefs) error
 		prefs.HeaderEnv = flags.headerEnv
 	}
 	if flags.set["translate"] {
-		if flags.translate != "" {
-			if _, err := pricing.SplitArgs(flags.translate); err != nil {
-				return fmt.Errorf("pricing: -translate: %w", err)
-			}
+		if err := checkPricingTranslate(flags.translate); err != nil {
+			return err
 		}
 		prefs.Translate = flags.translate
 	}
 	if flags.set["timeout"] {
-		if flags.timeout != "" {
-			if duration, err := time.ParseDuration(flags.timeout); err != nil || duration <= 0 {
-				return fmt.Errorf("pricing: -timeout %q: want a duration such as 10s", flags.timeout)
-			}
+		if err := checkPricingTimeout(flags.timeout); err != nil {
+			return err
 		}
 		prefs.Timeout = flags.timeout
 	}

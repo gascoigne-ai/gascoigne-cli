@@ -51,57 +51,83 @@ func cmdDoctor(_ context.Context, args []string) error {
 // diagnose checks the binary, the background server, the saved answers and
 // every recorded install.
 func diagnose() []finding {
-	var out []finding
-	add := func(level findingLevel, format string, args ...any) {
-		out = append(out, finding{level: level, text: fmt.Sprintf(format, args...)})
+	saved := readPrefs()
+	out := []finding{pathFinding(), serverFinding()}
+	out = append(out, findf(levelOK, "usage text for agents: %s", guideLevel()), releaseFinding())
+	if w := waitingFinding(saved); w != nil {
+		out = append(out, *w)
 	}
+	return append(out, installFindings()...)
+}
 
+// findf is a finding with a formatted text.
+func findf(level findingLevel, format string, args ...any) finding {
+	return finding{level: level, text: fmt.Sprintf(format, args...)}
+}
+
+// pathFinding says whether this binary is the gascoigne on PATH.
+func pathFinding() finding {
 	exe, _ := os.Executable()
 	if p, err := exec.LookPath("gascoigne"); err == nil && sameFile(p, exe) {
-		add(levelOK, "gascoigne %s is on PATH", version.String())
-	} else {
-		add(levelWarn, "gascoigne %s is not on PATH, so agent configs call the full path %s (project files cannot be shared)", version.String(), exe)
+		return findf(levelOK, "gascoigne %s is on PATH", version.String())
 	}
+	return findf(levelWarn, "gascoigne %s is not on PATH, so agent configs call the full path %s (project files cannot be shared)", version.String(), exe)
+}
+
+// serverFinding says whether the background server runs.
+func serverFinding() finding {
 	switch info, err := health(serverAddr()); {
 	case serverOff():
-		add(levelWarn, "background server is switched off (GASCOIGNE_SERVER=off): no dashboard, no LLM proxy")
+		return findf(levelWarn, "background server is switched off (GASCOIGNE_SERVER=off): no dashboard, no LLM proxy")
 	case err != nil:
-		add(levelOK, "background server: stopped; it starts by itself with the next command or agent prompt")
+		return findf(levelOK, "background server: stopped; it starts by itself with the next command or agent prompt")
 	default:
-		add(levelOK, "background server: running at http://%s (pid %d)", info.Addr, info.PID)
+		return findf(levelOK, "background server: running at http://%s (pid %d)", info.Addr, info.PID)
 	}
+}
 
-	p := readPrefs()
-	add(levelOK, "usage text for agents: %s", guideLevel())
+// releaseFinding says whether the release notice is on and a newer release is out.
+func releaseFinding() finding {
 	switch r := readRelease(); {
 	case !releaseCheckOn():
-		add(levelOK, "release notice: off")
+		return findf(levelOK, "release notice: off")
 	case r.newer():
-		add(levelWarn, "gascoigne %s is out (you run %s): %s. After installing it, run gascoigne upgrade.", r.ID, version.Number, r.URL)
+		return findf(levelWarn, "gascoigne %s is out (you run %s): %s. After installing it, run gascoigne upgrade.", r.ID, version.Number, r.URL)
 	default:
-		add(levelOK, "release notice: on, every 15 min (%s); latest known: %s", releaseBase(), cmp.Or(r.ID, "not checked yet"))
+		return findf(levelOK, "release notice: on, every 15 min (%s); latest known: %s", releaseBase(), cmp.Or(r.ID, "not checked yet"))
 	}
+}
+
+// waitingFinding lists the setup choices still open, nil without any.
+func waitingFinding(saved prefs) *finding {
 	var waiting []string
-	for _, q := range pendingDecisions(p) {
+	for _, q := range pendingDecisions(saved) {
 		if !strings.HasPrefix(q.ID, integratePrefix) { // new agents are listed below
 			waiting = append(waiting, q.Title)
 		}
 	}
-	if len(waiting) > 0 {
-		add(levelWarn, "choices waiting for you: %s. Answer them with: gascoigne setup", strings.Join(waiting, "; "))
+	if len(waiting) == 0 {
+		return nil
 	}
+	f := findf(levelWarn, "choices waiting for you: %s. Answer them with: gascoigne setup", strings.Join(waiting, "; "))
+	return &f
+}
 
+// installFindings checks each recorded install and names agents found but not
+// connected.
+func installFindings() []finding {
+	var out []finding
 	installs := readInstalls()
 	for _, e := range installs {
 		out = append(out, checkInstall(e))
 	}
 	for _, name := range foundAgents() {
 		if !slices.ContainsFunc(installs, func(entry install) bool { return entry.Agent == name }) {
-			add(levelWarn, "%s: found on this machine, but gascoigne is not connected to it yet (connect it for all projects: gascoigne install -g %s)", name, name)
+			out = append(out, findf(levelWarn, "%s: found on this machine, but gascoigne is not connected to it yet (connect it for all projects: gascoigne install -g %s)", name, name))
 		}
 	}
 	if len(installs) == 0 && len(foundAgents()) == 0 {
-		add(levelWarn, "no coding agent found on this machine, and none connected to gascoigne")
+		out = append(out, findf(levelWarn, "no coding agent found on this machine, and none connected to gascoigne"))
 	}
 	return out
 }

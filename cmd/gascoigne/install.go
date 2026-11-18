@@ -44,30 +44,42 @@ func cmdInstall(ctx context.Context, args []string) error {
 	cmd := installedName(exe)
 	var errs []error
 	for _, name := range names {
-		a, ok := agents[name]
-		if !ok {
-			return unknownAgent(name)
+		one, err := installOne(ctx, name, cmd, *global, *proxy)
+		if err != nil {
+			return err
 		}
-		done, err := a.add(ctx, cmd, *global)
-		errs = append(errs, err)
-		if *proxy && a.addProxy != nil && err == nil {
-			d, err := a.addProxy(ctx, *global)
-			done, errs = append(done, d...), append(errs, err)
-		} else if *proxy {
-			done = append(done, "LLM proxy: not available for this agent; gascoigne wrap "+name+" uses it per run where it can")
-		}
-		for _, d := range done {
-			fmt.Printf("%s: %s\n", name, d)
-		}
-		if err == nil {
-			errs = append(errs, recordInstall(name, *global, cmd, *proxy && a.addProxy != nil))
-		}
+		errs = append(errs, one...)
 	}
 	if err := errors.Join(errs...); err != nil {
 		return err
 	}
 	offerSetup(os.Stdout)
 	return nil
+}
+
+// installOne registers gascoigne with one agent, prints what was done and
+// records the install. The errors are the agent's own; err is set for a name
+// that is no agent.
+func installOne(ctx context.Context, name, cmd string, global, proxy bool) (errs []error, err error) {
+	a, ok := agents[name]
+	if !ok {
+		return nil, unknownAgent(name)
+	}
+	done, err := a.add(ctx, cmd, global)
+	errs = append(errs, err)
+	if proxy && a.addProxy != nil && err == nil {
+		d, err := a.addProxy(ctx, global)
+		done, errs = append(done, d...), append(errs, err)
+	} else if proxy {
+		done = append(done, "LLM proxy: not available for this agent; gascoigne wrap "+name+" uses it per run where it can")
+	}
+	for _, d := range done {
+		fmt.Printf("%s: %s\n", name, d)
+	}
+	if err == nil {
+		errs = append(errs, recordInstall(name, global, cmd, proxy && a.addProxy != nil))
+	}
+	return errs, nil
 }
 
 // savePref stores the value of an install flag in the prefs before the

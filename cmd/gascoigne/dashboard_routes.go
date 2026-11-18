@@ -184,7 +184,15 @@ func reportHandlers(mux *http.ServeMux, store *ledger.Ledger) {
 
 // runHandlers list the runs, live, and show what one run read and returned.
 func runHandlers(mux *http.ServeMux, store *ledger.Ledger, poll time.Duration) {
-	mux.HandleFunc("GET /api/events", func(writer http.ResponseWriter, request *http.Request) {
+	mux.HandleFunc("GET /api/events", eventsHandler(store))
+	mux.HandleFunc("GET /api/stream", streamHandler(store, poll))
+	mux.HandleFunc("GET /api/raw/{id}", rawHandler(store))
+	mux.HandleFunc("GET /api/out/{id}", outHandler(store))
+}
+
+// eventsHandler pages through the runs.
+func eventsHandler(store *ledger.Ledger) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		query, err := statsQuery(request.URL.Query())
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -197,16 +205,24 @@ func runHandlers(mux *http.ServeMux, store *ledger.Ledger, poll time.Duration) {
 		entries, err := store.Page(request.Context(), query, ledger.Page{After: uint(after), Before: uint(before),
 			Outcomes: outcomes(values), RawAsked: values.Get("raw") == "1", Limit: min(cmp.Or(limit, 100), 500)})
 		respond(writer, eventsJSON(entries), err)
-	})
-	mux.HandleFunc("GET /api/stream", func(writer http.ResponseWriter, request *http.Request) {
+	}
+}
+
+// streamHandler sends new runs as they come.
+func streamHandler(store *ledger.Ledger, poll time.Duration) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		query, err := statsQuery(request.URL.Query())
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
 		stream(writer, request, store, query, ledger.Page{Outcomes: outcomes(request.URL.Query()), RawAsked: request.URL.Query().Get("raw") == "1"}, poll)
-	})
-	mux.HandleFunc("GET /api/raw/{id}", func(writer http.ResponseWriter, request *http.Request) {
+	}
+}
+
+// rawHandler shows what a run read.
+func rawHandler(store *ledger.Ledger) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		// Unlike gascoigne raw, looking does not mark the source as failing:
 		// a person debugging is not an agent that lacked information.
 		key, original, err := store.GetRaw(request.Context(), request.PathValue("id"))
@@ -220,8 +236,12 @@ func runHandlers(mux *http.ServeMux, store *ledger.Ledger, poll time.Duration) {
 		}
 		writer.Header().Set("Content-Type", textType)
 		io.WriteString(writer, original.Text())
-	})
-	mux.HandleFunc("GET /api/out/{id}", func(writer http.ResponseWriter, request *http.Request) {
+	}
+}
+
+// outHandler shows what a run returned.
+func outHandler(store *ledger.Ledger) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
 		if key, _, err := store.GetRaw(request.Context(), request.PathValue("id")); err == nil && inproc.HiddenKey(key) {
 			http.Error(writer, hiddenText, http.StatusForbidden)
 			return
@@ -233,7 +253,7 @@ func runHandlers(mux *http.ServeMux, store *ledger.Ledger, poll time.Duration) {
 		}
 		writer.Header().Set("Content-Type", textType)
 		io.WriteString(writer, out)
-	})
+	}
 }
 
 // mcpHandlers are the MCP review page's calls and the sign-in flows.

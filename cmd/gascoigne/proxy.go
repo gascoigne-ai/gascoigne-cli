@@ -278,12 +278,14 @@ func claudeProxies(exe string) (map[string]any, proxyResult) {
 			return
 		}
 		for _, name := range from.keys {
-			if e, isObj := from.get(name).(*object); isObj && ok(name) && !slices.Contains(disabled, name) {
-				if _, seen := servers[name]; !seen {
-					order = append(order, name)
-				}
-				servers[name] = e
+			e, isObj := from.get(name).(*object)
+			if !isObj || !ok(name) || slices.Contains(disabled, name) {
+				continue
 			}
+			if _, seen := servers[name]; !seen {
+				order = append(order, name)
+			}
+			servers[name] = e
 		}
 	}
 	all := func(string) bool { return true }

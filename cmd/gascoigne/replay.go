@@ -465,16 +465,21 @@ func toolResults(body []byte) (map[string]string, error) {
 				continue
 			}
 			id, _ := r["tool_use_id"].(string)
-			var text []string
-			for _, c := range blocks(r["content"]) {
-				if t, ok := c.(map[string]any)["text"].(string); ok {
-					text = append(text, t)
-				}
-			}
-			out[id] = strings.Join(text, "\n")
+			out[id] = toolResultText(r)
 		}
 	}
 	return out, nil
+}
+
+// toolResultText joins the text blocks of one tool_result block.
+func toolResultText(result map[string]any) string {
+	var text []string
+	for _, c := range blocks(result["content"]) {
+		if t, ok := c.(map[string]any)["text"].(string); ok {
+			text = append(text, t)
+		}
+	}
+	return strings.Join(text, "\n")
 }
 
 func (r replayReport) print() {
