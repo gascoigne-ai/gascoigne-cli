@@ -14,7 +14,7 @@ Everything an agent needs to work on gascoigne consistently. `CLAUDE.md` imports
 | `backlog.md` | open ideas, measured results, dropped ideas with numbers (not loaded) |
 | `skills/` | `verify` (symlink into `common/`), `add-component`, `eval`, `release` |
 | `tasks/` | work queue for the task loop (empty when idle) |
-| `commands/task-loop.md` | registers `/task-loop`; it hands its arguments to the `task-loop` skill; `.claude/commands` symlinks here |
+| `commands/` | `task-loop.md` (symlink into `common/`) registers `/task-loop`; `.claude/commands` links here |
 | `agents/` | `task-designer`, `task-implementer` (symlinks into `common/`); `.claude/agents` links here |
 | `scripts/eval.sh` | token savings benchmark |
 | `scripts/shot.sh` | headless Firefox screenshot of a dashboard page, to check UI changes by eye |
