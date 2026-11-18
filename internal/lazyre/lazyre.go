@@ -34,6 +34,27 @@ func New(expr string) *Regexp {
 	return r
 }
 
+var cached sync.Map // expr -> *Regexp
+
+// Cached returns expr compiled on first use, one shared Regexp per distinct
+// expr. Use it for patterns that arrive as data (language rows) so repeated
+// calls do not register a new pattern each time; New is for package-level
+// patterns.
+func Cached(expr string) *Regexp {
+	if re, ok := cached.Load(expr); ok {
+		return re.(*Regexp)
+	}
+	re, _ := cached.LoadOrStore(expr, New(expr))
+	return re.(*Regexp)
+}
+
+// Count is the number of patterns made with New so far.
+func Count() int {
+	mu.Lock()
+	defer mu.Unlock()
+	return len(all)
+}
+
 // Check compiles every pattern made with New so far.
 func Check() error {
 	mu.Lock()

@@ -21,7 +21,7 @@ var (
 // endDefs finds definitions in languages that close blocks with end (ruby,
 // elixir, lua…), using the block patterns of the language row.
 func endDefs(lines []string, row detect.Language) []Def {
-	open, fn, cont := lazyre.New(row.Open), lazyre.New(row.Func), lazyre.New(row.Container)
+	open, fn, cont := lazyre.Cached(row.Open), lazyre.Cached(row.Func), lazyre.Cached(row.Container)
 	type block struct {
 		def int // index in defs, -1 for other blocks
 	}

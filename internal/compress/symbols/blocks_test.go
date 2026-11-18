@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/detect"
+	"github.com/gascoigne-ai/gascoigne-cli/internal/lazyre"
 )
 
 const rbSrc = `# frozen_string_literal: true
@@ -111,5 +112,23 @@ func TestDefsBlocks(t *testing.T) {
 				t.Fatalf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(tt.want, "\n"))
 			}
 		})
+	}
+}
+
+// endDefs built three lazyre patterns per call and every one stayed
+// registered for good, so a long-running server grew without bound.
+func TestDefsBlocksRegisterNoPatternsPerCall(t *testing.T) {
+	hints := detect.Hints{File: "cart.rb"}
+	if _, err := Defs(rbSrc, hints); err != nil {
+		t.Fatal(err)
+	}
+	before := lazyre.Count()
+	for range 20 {
+		if _, err := Defs(rbSrc, hints); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if grown := lazyre.Count() - before; grown != 0 {
+		t.Fatalf("20 more calls registered %d patterns, want 0", grown)
 	}
 }
