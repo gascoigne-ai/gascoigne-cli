@@ -27,8 +27,8 @@ func TestApply(t *testing.T) {
 }
 
 func TestRollout(t *testing.T) {
-	wait := func(n string) string {
-		return `Waiting for deployment "api" rollout to finish: ` + n + " old replicas are pending termination..."
+	wait := func(replicas string) string {
+		return `Waiting for deployment "api" rollout to finish: ` + replicas + " old replicas are pending termination..."
 	}
 	tests := []struct {
 		name     string

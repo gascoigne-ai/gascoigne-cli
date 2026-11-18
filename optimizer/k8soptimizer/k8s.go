@@ -27,15 +27,15 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	topts := table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, sample.Terms(p.Attrs[payload.AttrQuery]))
-	return p.RewriteFamily(func(b payload.Block) (string, error) {
-		if detect.Dialect(b.Type) == "manifest" {
-			return o.manifests(b.Text)
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	topts := table.ForQuery(o.cfg.MaxRows, o.cfg.MaxCell, sample.Terms(data.Attrs[payload.AttrQuery]))
+	return data.RewriteFamily(func(block payload.Block) (string, error) {
+		if detect.Dialect(block.Type) == "manifest" {
+			return o.manifests(block.Text)
 		}
-		lines := compress.CleanLines(b.Text)
+		lines := compress.CleanLines(block.Text)
 		var out []string
-		switch detect.Dialect(b.Type) {
+		switch detect.Dialect(block.Type) {
 		case "describe":
 			out = describe(lines)
 		case "events":
@@ -160,7 +160,7 @@ func describe(lines []string) []string {
 }
 
 // events keeps every Warning and samples the rest.
-func events(lines []string, o table.Options) []string {
+func events(lines []string, options table.Options) []string {
 	t, ok := table.Parse(lines)
 	if !ok {
 		return lines
@@ -180,17 +180,17 @@ func events(lines []string, o table.Options) []string {
 				rest = append(rest, r)
 			}
 		}
-		o.MaxRows = max(o.MaxRows-len(warn), 3)
+		options.MaxRows = max(options.MaxRows-len(warn), 3)
 		t.Rows = rest
-		out := table.Render(t, o)
+		out := table.Render(t, options)
 		w := table.Table{Header: t.Header, Rows: warn}
 		if len(warn) > 0 {
-			o.MaxRows = len(warn)
-			return append(append(out, "warnings:"), table.Render(w, o)...)
+			options.MaxRows = len(warn)
+			return append(append(out, "warnings:"), table.Render(w, options)...)
 		}
 		return out
 	}
-	return table.Render(t, o)
+	return table.Render(t, options)
 }
 
 var notesStart = lazyre.New(`^NOTES:\s*$`)

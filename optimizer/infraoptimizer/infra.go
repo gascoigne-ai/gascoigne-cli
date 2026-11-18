@@ -21,11 +21,11 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	return p.RewriteFamily(func(b payload.Block) (string, error) {
-		lines := compress.CleanLines(b.Text)
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	return data.RewriteFamily(func(block payload.Block) (string, error) {
+		lines := compress.CleanLines(block.Text)
 		var out []string
-		switch detect.Dialect(b.Type) {
+		switch detect.Dialect(block.Type) {
 		case "terraform":
 			out = o.terraform(lines)
 		case "terraform-init":

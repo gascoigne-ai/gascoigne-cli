@@ -92,4 +92,4 @@ func pair(old, new string) (string, bool) {
 	return b.String(), true
 }
 
-func isSpace(c byte) bool { return c == ' ' || c == '\t' }
+func isSpace(char byte) bool { return char == ' ' || char == '\t' }

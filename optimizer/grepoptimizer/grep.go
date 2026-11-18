@@ -46,9 +46,9 @@ type file struct {
 	total  int // matches, without context lines
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	return p.Rewrite(func(b payload.Block) (string, error) {
-		return compress.Join(o.group(compress.CleanLines(b.Text), p.Attrs[payload.AttrQuery])), nil
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	return data.Rewrite(func(block payload.Block) (string, error) {
+		return compress.Join(o.group(compress.CleanLines(block.Text), data.Attrs[payload.AttrQuery])), nil
 	}, detect.Grep, detect.RG, detect.AG, detect.GitGrep)
 }
 
@@ -96,27 +96,27 @@ func (o *Optimizer) group(lines []string, query string) []string {
 
 // add records one line; uncapped, every distinct line is kept so a query
 // can pick among them.
-func (o *Optimizer) add(f *file, num, sep, text string, uncapped bool) {
+func (o *Optimizer) add(group *file, num, sep, text string, uncapped bool) {
 	if sep == ":" {
-		f.total++
+		group.total++
 	}
 	text = compress.TruncateLine(strings.TrimSpace(text), o.cfg.MaxLineLen)
-	if h := f.byText[sep+text]; h != nil {
+	if h := group.byText[sep+text]; h != nil {
 		h.count++
 		if num != "" {
 			h.nums = append(h.nums, num)
 		}
 		return
 	}
-	if len(f.hits) == o.cfg.MaxPerFile && !uncapped {
+	if len(group.hits) == o.cfg.MaxPerFile && !uncapped {
 		return
 	}
 	h := &hit{sep: sep, text: text, count: 1}
 	if num != "" {
 		h.nums = []string{num}
 	}
-	f.hits = append(f.hits, h)
-	f.byText[sep+text] = h
+	group.hits = append(group.hits, h)
+	group.byText[sep+text] = h
 }
 
 // relevant keeps the max_per_file lines that match the query best (BM25,
@@ -134,7 +134,7 @@ func (o *Optimizer) relevant(hits []*hit, terms []string) []*hit {
 	for i := range order {
 		order[i] = i
 	}
-	slices.SortStableFunc(order, func(a, b int) int { return cmp.Compare(scores[b], scores[a]) })
+	slices.SortStableFunc(order, func(left, right int) int { return cmp.Compare(scores[right], scores[left]) })
 	keep := order[:o.cfg.MaxPerFile]
 	slices.Sort(keep)
 	out := make([]*hit, len(keep))
@@ -166,16 +166,16 @@ func (f *file) render() []string {
 	return out
 }
 
-func parseNumbered(l string) (path, num, sep, text string, ok bool) {
-	m := numbered.FindStringSubmatch(l)
+func parseNumbered(line string) (path, num, sep, text string, ok bool) {
+	m := numbered.FindStringSubmatch(line)
 	if m == nil {
 		return "", "", "", "", false
 	}
 	return strings.TrimPrefix(m[1], "./"), m[3], m[4], m[5], true
 }
 
-func parsePlain(l string) (path, num, sep, text string, ok bool) {
-	m := plain.FindStringSubmatch(l)
+func parsePlain(line string) (path, num, sep, text string, ok bool) {
+	m := plain.FindStringSubmatch(line)
 	if m == nil || !pathLike(m[1]) {
 		return "", "", "", "", false
 	}
@@ -202,4 +202,4 @@ func plainBlock(lines []string) bool {
 	return repeats && parsed*10 >= candidates*9
 }
 
-func pathLike(s string) bool { return strings.Contains(s, "/") || ext.MatchString(s) }
+func pathLike(text string) bool { return strings.Contains(text, "/") || ext.MatchString(text) }

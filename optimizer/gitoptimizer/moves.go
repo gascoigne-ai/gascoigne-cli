@@ -104,14 +104,14 @@ func runs(lines []string) (removed, added []stretch) {
 }
 
 // hunkStart reads "@@ -12,5 +14,7 @@" as 12 and 14.
-func hunkStart(h string) (oldLine, newLine int) {
-	f := strings.Fields(h)
+func hunkStart(header string) (oldLine, newLine int) {
+	f := strings.Fields(header)
 	if len(f) < 3 {
 		return 0, 0
 	}
-	num := func(s string) int {
-		s, _, _ = strings.Cut(s[1:], ",")
-		n, _ := strconv.Atoi(s)
+	num := func(text string) int {
+		text, _, _ = strings.Cut(text[1:], ",")
+		n, _ := strconv.Atoi(text)
 		return n
 	}
 	return num(f[1]), num(f[2])
@@ -138,9 +138,9 @@ func index(hay, needle []string) int {
 	return -1
 }
 
-func sameIndent(a, b []string) bool {
-	for i := range a {
-		if a[i][1:] != b[i][1:] {
+func sameIndent(left, right []string) bool {
+	for i := range left {
+		if left[i][1:] != right[i][1:] {
 			return false
 		}
 	}

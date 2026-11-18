@@ -65,7 +65,7 @@ var (
 // otherwise: a log not starting with a graph commit line is returned as is.
 // The topology is not kept; the original is in the ledger.
 func stripGraph(lines []string) []string {
-	if i := slices.IndexFunc(lines, func(l string) bool { return l != "" }); i < 0 || !graphFirst.MatchString(lines[i]) {
+	if i := slices.IndexFunc(lines, func(line string) bool { return line != "" }); i < 0 || !graphFirst.MatchString(lines[i]) {
 		return lines
 	}
 	out := make([]string, len(lines))
@@ -96,10 +96,10 @@ var (
 
 // statLine trims a file list line. A --stat bar is scaled, so only which
 // signs it has carries information: "| 140 ++++++++" becomes "| 140 +".
-func statLine(l string) string {
-	m := statCol.FindStringSubmatch(l)
+func statLine(line string) string {
+	m := statCol.FindStringSubmatch(line)
 	if m == nil {
-		return strings.TrimSpace(l)
+		return strings.TrimSpace(line)
 	}
 	change := m[2]
 	if b := statBar.FindStringSubmatch(change); b != nil {
@@ -113,14 +113,14 @@ func statLine(l string) string {
 	return m[1] + " | " + change
 }
 
-func parseCommitLine(l string) commit {
-	f := strings.Fields(l)
+func parseCommitLine(line string) commit {
+	f := strings.Fields(line)
 	var c commit
 	if len(f) > 1 {
 		c.sha = f[1][:min(7, len(f[1]))]
 	}
-	if i := strings.Index(l, "("); i > 0 {
-		c.refs = l[i:]
+	if i := strings.Index(line, "("); i > 0 {
+		c.refs = line[i:]
 	}
 	return c
 }
@@ -139,11 +139,11 @@ func (c commit) String() string {
 	return s
 }
 
-func shortDate(s string) string {
+func shortDate(date string) string {
 	for _, layout := range []string{"Mon Jan 2 15:04:05 2006 -0700", time.RFC3339, "2006-01-02 15:04:05 -0700"} {
-		if t, err := time.Parse(layout, s); err == nil {
+		if t, err := time.Parse(layout, date); err == nil {
 			return t.Format("2006-01-02")
 		}
 	}
-	return s
+	return date
 }

@@ -61,14 +61,14 @@ func status(lines []string) []string {
 	return out
 }
 
-func entry(t, section string) string {
+func entry(text, section string) string {
 	if section == "untracked" {
-		return "? " + t
+		return "? " + text
 	}
-	state, file, ok := strings.Cut(t, ":")
+	state, file, ok := strings.Cut(text, ":")
 	code, known := states[state]
 	if !ok || !known {
-		return t
+		return text
 	}
 	return code + " " + strings.TrimSpace(file)
 }

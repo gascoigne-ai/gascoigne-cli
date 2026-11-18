@@ -47,7 +47,7 @@ func TestTableWithSameAndAffix(t *testing.T) {
 	in := `[{"name":"a","owner":"go","url":"https://x.io/repos/a/hooks"},
 	         {"name":"b","owner":"go","url":"https://x.io/repos/b/hooks"},
 	         {"name":"c","owner":"go","url":"https://x.io/repos/c/hooks"}]`
-	got := run(t, testConfig(func(c *Config) { c.LosslessMinSaving = 0 }), detect.JSON, in)
+	got := run(t, testConfig(func(config *Config) { config.LosslessMinSaving = 0 }), detect.JSON, in)
 	want := `{"_affix":{"url":["https://x.io/repos/","/hooks"]},"_cols":["name","url"],"_rows":[["a","a"],["b","b"],["c","c"]],"_same":{"owner":"go"}}` + "\n"
 	if got != want {
 		t.Fatalf("got  %s\nwant %s", got, want)
@@ -56,32 +56,34 @@ func TestTableWithSameAndAffix(t *testing.T) {
 
 func TestTableNeedsMinSaving(t *testing.T) {
 	in := `[{"a":"x1"},{"a":"y2"},{"a":"z3"}]`
-	if got := run(t, testConfig(func(c *Config) { c.LosslessMinSaving = 0.9 }), detect.JSON, in); got != `[{"a":"x1"},{"a":"y2"},{"a":"z3"}]`+"\n" {
+	if got := run(t, testConfig(func(config *Config) { config.LosslessMinSaving = 0.9 }), detect.JSON, in); got != `[{"a":"x1"},{"a":"y2"},{"a":"z3"}]`+"\n" {
 		t.Fatalf("table kept despite small saving: %s", got)
 	}
 }
 
-func items(n int, f func(i int) map[string]any) string {
+func items(count int, build func(index int) map[string]any) string {
 	var out []map[string]any
-	for i := range n {
-		out = append(out, f(i))
+	for i := range count {
+		out = append(out, build(i))
 	}
 	b, _ := json.Marshal(out)
 	return string(b)
 }
 
 func TestLosslessKeepsEveryItem(t *testing.T) {
-	in := items(40, func(i int) map[string]any { return map[string]any{"id": i, "kind": "widget", "price": 100 + i} })
-	got := run(t, testConfig(func(c *Config) { c.LosslessMaxTokens = 10000 }), detect.JSON, in)
+	in := items(40, func(index int) map[string]any {
+		return map[string]any{"id": index, "kind": "widget", "price": 100 + index}
+	})
+	got := run(t, testConfig(func(config *Config) { config.LosslessMaxTokens = 10000 }), detect.JSON, in)
 	if strings.Contains(got, "omitted") || !strings.Contains(got, "[39,139]") {
 		t.Fatalf("lossless dropped items: %s", got)
 	}
 }
 
 func TestSampleSignals(t *testing.T) {
-	in := items(200, func(i int) map[string]any {
-		m := map[string]any{"i": i, "level": "info", "dur": 10 + i%7, "state": "ok", "path": fmt.Sprintf("/api/items/%d", i)}
-		switch i {
+	in := items(200, func(index int) map[string]any {
+		m := map[string]any{"i": index, "level": "info", "dur": 10 + index%7, "state": "ok", "path": fmt.Sprintf("/api/items/%d", index)}
+		switch index {
 		case 60:
 			m["path"] = "/api/checkout"
 		case 77:
@@ -91,12 +93,12 @@ func TestSampleSignals(t *testing.T) {
 		case 150:
 			m["retry_after"] = 30
 		}
-		if i >= 100 {
+		if index >= 100 {
 			m["state"] = "degraded"
 		}
 		return m
 	})
-	got := run(t, testConfig(func(c *Config) { c.LosslessMaxTokens = 0 }), detect.JSON, in, payload.AttrQuery, "checkout")
+	got := run(t, testConfig(func(config *Config) { config.LosslessMaxTokens = 0 }), detect.JSON, in, payload.AttrQuery, "checkout")
 	for name, want := range map[string]string{
 		"head":         `,0,`,
 		"tail":         `,199,`,
@@ -127,20 +129,20 @@ func TestSampleSignals(t *testing.T) {
 }
 
 func TestDedupe(t *testing.T) {
-	in := items(51, func(i int) map[string]any {
-		if i == 25 {
+	in := items(51, func(index int) map[string]any {
+		if index == 25 {
 			return map[string]any{"msg": "different"}
 		}
 		return map[string]any{"msg": "same"}
 	})
-	got := run(t, testConfig(func(c *Config) { c.LosslessMaxTokens = 0 }), detect.JSON, in)
+	got := run(t, testConfig(func(config *Config) { config.LosslessMaxTokens = 0 }), detect.JSON, in)
 	if !strings.Contains(got, "… 49 identical items omitted") || !strings.Contains(got, "different") {
 		t.Fatalf("got %s", got)
 	}
 }
 
 func TestStreamAndNDJSONBecomeTables(t *testing.T) {
-	cfg := testConfig(func(c *Config) { c.LosslessMinSaving = 0 })
+	cfg := testConfig(func(config *Config) { config.LosslessMinSaving = 0 })
 	for _, typ := range []string{detect.JSON, detect.NDJSON} {
 		got := run(t, cfg, typ, "{\"alpha\":1,\"bravo\":2}\n{\"alpha\":3,\"bravo\":4}\n{\"alpha\":5,\"bravo\":6}\n")
 		if want := `{"_cols":["alpha","bravo"],"_rows":[[1,2],[3,4],[5,6]]}` + "\n"; got != want {
@@ -150,10 +152,10 @@ func TestStreamAndNDJSONBecomeTables(t *testing.T) {
 }
 
 func TestDeterministic(t *testing.T) {
-	in := items(300, func(i int) map[string]any {
-		return map[string]any{"i": i, "v": (i * 7919) % 101, "s": []string{"a", "b"}[i%2]}
+	in := items(300, func(index int) map[string]any {
+		return map[string]any{"i": index, "v": (index * 7919) % 101, "s": []string{"a", "b"}[index%2]}
 	})
-	cfg := testConfig(func(c *Config) { c.LosslessMaxTokens = 0 })
+	cfg := testConfig(func(config *Config) { config.LosslessMaxTokens = 0 })
 	if a, b := run(t, cfg, detect.JSON, in), run(t, cfg, detect.JSON, in); a != b {
 		t.Fatalf("nondeterministic:\n%s\n%s", a, b)
 	}

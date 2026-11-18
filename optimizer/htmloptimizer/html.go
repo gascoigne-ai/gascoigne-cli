@@ -15,8 +15,8 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	for i, b := range p.Blocks {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	for i, b := range data.Blocks {
 		if b.Type != detect.HTML {
 			continue
 		}
@@ -24,8 +24,8 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		if err != nil {
 			return err
 		}
-		p.Blocks[i].Text = md
-		p.Blocks[i].Type = detect.Markdown
+		data.Blocks[i].Text = md
+		data.Blocks[i].Type = detect.Markdown
 	}
 	return nil
 }

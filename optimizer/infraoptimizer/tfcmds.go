@@ -217,7 +217,7 @@ func terraformOutput(lines []string) []string {
 	return out
 }
 
-func isCloser(l string) bool { return l != "" && strings.ContainsRune("]})", rune(l[0])) }
+func isCloser(line string) bool { return line != "" && strings.ContainsRune("]})", rune(line[0])) }
 
 // joinOutput writes one entry (header, indented elements, closer) on a line
 // when every element is plain.

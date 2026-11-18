@@ -33,8 +33,8 @@ func blame(lines []string) []string {
 }
 
 // firstField is the first word of s, or "" when s is blank.
-func firstField(s string) string {
-	f := strings.Fields(s)
+func firstField(text string) string {
+	f := strings.Fields(text)
 	if len(f) == 0 {
 		return ""
 	}

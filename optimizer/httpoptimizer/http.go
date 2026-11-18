@@ -24,10 +24,10 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	return p.Rewrite(func(b payload.Block) (string, error) {
-		head, body := o.split(compress.CleanLines(b.Text))
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	query := sample.Terms(data.Attrs[payload.AttrQuery])
+	return data.Rewrite(func(block payload.Block) (string, error) {
+		head, body := o.split(compress.CleanLines(block.Text))
 		return compress.Join(head) + o.body(body, query), nil
 	}, detect.HTTP)
 }

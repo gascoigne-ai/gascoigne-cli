@@ -18,11 +18,11 @@ type Optimizer struct {
 	cfg *Config
 }
 
-func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
-	query := sample.Terms(p.Attrs[payload.AttrQuery])
-	return p.Rewrite(func(b payload.Block) (string, error) {
-		lines := compress.CleanLines(b.Text)
-		switch b.Type {
+func (o *Optimizer) Optimize(_ context.Context, data *payload.Payload) error {
+	query := sample.Terms(data.Attrs[payload.AttrQuery])
+	return data.Rewrite(func(block payload.Block) (string, error) {
+		lines := compress.CleanLines(block.Text)
+		switch block.Type {
 		case detect.GitStatus:
 			lines = status(lines)
 		case detect.GitLog:
@@ -40,7 +40,7 @@ func (o *Optimizer) Optimize(_ context.Context, p *payload.Payload) error {
 		case detect.GHList:
 			lines = o.ghList(lines, query)
 		case detect.GHView:
-			lines = ghView(compress.StripANSI(b.Text))
+			lines = ghView(compress.StripANSI(block.Text))
 		}
 		return compress.Join(lines), nil
 	}, detect.GitStatus, detect.GitLog, detect.Diff, detect.GitRemote, detect.GitBlame, detect.GitBranch, detect.GitRefs, detect.GHList, detect.GHView)

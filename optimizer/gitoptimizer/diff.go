@@ -119,7 +119,7 @@ func (o *Optimizer) file(lines []string) []string {
 // small in-line edits read as word diffs.
 func (o *Optimizer) hunks(lines []string) []string {
 	lines = wordDiff(lines)
-	isChange := func(l string) bool { return hasPrefix(l, "+", "-", "~") }
+	isChange := func(line string) bool { return hasPrefix(line, "+", "-", "~") }
 	keep := make([]bool, len(lines))
 	for i, l := range lines {
 		if strings.HasPrefix(l, "@@") || strings.HasPrefix(l, `\`) {
@@ -168,7 +168,7 @@ func machineMade(name string, body []string) string {
 	switch {
 	case lockfiles[base]:
 		return "lockfile"
-	case slices.ContainsFunc(generatedSuffixes, func(s string) bool { return strings.HasSuffix(base, s) }):
+	case slices.ContainsFunc(generatedSuffixes, func(suffix string) bool { return strings.HasSuffix(base, suffix) }):
 		return "generated"
 	}
 	for _, l := range body[:min(len(body), 20)] {
@@ -179,9 +179,9 @@ func machineMade(name string, body []string) string {
 	return ""
 }
 
-func hasPrefix(s string, prefixes ...string) bool {
+func hasPrefix(text string, prefixes ...string) bool {
 	for _, p := range prefixes {
-		if strings.HasPrefix(s, p) {
+		if strings.HasPrefix(text, p) {
 			return true
 		}
 	}

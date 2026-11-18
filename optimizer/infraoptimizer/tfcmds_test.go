@@ -34,8 +34,8 @@ func TestTerraformStateGroupsByModule(t *testing.T) {
 }
 
 func TestTerraformBoxesFoldRepeatedWarnings(t *testing.T) {
-	box := func(file string, n int) string {
-		return fmt.Sprintf("╷\n│ Warning: Argument is deprecated\n│ \n│   with r.%s,\n│   on %s line %d, in resource \"r\" \"x\":\n│    %d:   acl = \"p\"\n│ \n│ Use the other resource\n╵\n", file, file, n, n)
+	box := func(file string, lineNumber int) string {
+		return fmt.Sprintf("╷\n│ Warning: Argument is deprecated\n│ \n│   with r.%s,\n│   on %s line %d, in resource \"r\" \"x\":\n│    %d:   acl = \"p\"\n│ \n│ Use the other resource\n╵\n", file, file, lineNumber, lineNumber)
 	}
 	in := box("a.tf", 4) + box("b.tf", 9) + "╷\n│ Error: Missing\n│ \n│   on c.tf line 1:\n│ \n│ nope\n╵\n"
 	got := compress.Join(compress.SqueezeBlank(tfBoxes(compress.Lines(in))))

@@ -26,7 +26,7 @@ func refs(lines []string) []string {
 	lines = foldCheckouts(lines)
 	var out []string
 	for i := 0; i < len(lines); i++ {
-		l := fullSHA.ReplaceAllStringFunc(lines[i], func(s string) string { return s[:7] })
+		l := fullSHA.ReplaceAllStringFunc(lines[i], func(sha string) string { return sha[:7] })
 		l = worktreePad.ReplaceAllString(l, "$1 $2")
 		if fetch, ok := strings.CutSuffix(l, " (fetch)"); ok && i+1 < len(lines) && lines[i+1] == fetch+" (push)" {
 			l = fetch + " (fetch, push)"

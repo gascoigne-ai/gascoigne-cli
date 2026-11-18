@@ -135,8 +135,8 @@ func cdk(lines []string) []string {
 
 // helmDiff keeps resource headers and changed lines with some context.
 func (o *Optimizer) helmDiff(lines []string) []string {
-	changed := func(l string) bool {
-		return strings.HasPrefix(l, "+ ") || strings.HasPrefix(l, "- ") || strings.HasSuffix(l, ":") && !strings.HasPrefix(l, " ")
+	changed := func(line string) bool {
+		return strings.HasPrefix(line, "+ ") || strings.HasPrefix(line, "- ") || strings.HasSuffix(line, ":") && !strings.HasPrefix(line, " ")
 	}
 	return compress.KeepWithContext(lines, changed, o.cfg.DiffContext, o.cfg.DiffContext)
 }

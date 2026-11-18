@@ -49,8 +49,8 @@ func unchangedSummary(kinds map[string]int, total int) string {
 	for k := range kinds {
 		names = append(names, k)
 	}
-	slices.SortFunc(names, func(a, b string) int {
-		return cmp.Or(kinds[b]-kinds[a], strings.Compare(a, b)) // ties by name: deterministic
+	slices.SortFunc(names, func(left, right string) int {
+		return cmp.Or(kinds[right]-kinds[left], strings.Compare(left, right)) // ties by name: deterministic
 	})
 	var parts []string
 	for _, k := range names[:min(len(names), maxKinds)] {
