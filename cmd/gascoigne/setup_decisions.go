@@ -64,7 +64,7 @@ func decisions(settings prefs) []decision {
 		ds = slices.Insert(ds, 1, q) // the immediate update before the standing one
 	}
 	ds = append(ds, releaseDecision(settings), mcpReviewDecision(settings))
-	for _, name := range newAgents(settings) {
+	for _, name := range newAgents() {
 		ds = append(ds, decision{ID: integratePrefix + name, Default: "yes", Current: declinedAs(settings, name),
 			Group: "agents",
 			Title: "Use gascoigne with " + name,
@@ -259,9 +259,10 @@ func proseModelDecision(settings prefs) decision {
 // integratePrefix starts the id of a question about an agent found on PATH.
 const integratePrefix = "integrate:"
 
-// newAgents are agents on PATH that have no recorded install and were not
-// declined; the setup page asks about each. gascoigne only signals them.
-func newAgents(settings prefs) []string {
+// newAgents are agents on PATH that have no recorded install; the setup page
+// asks about each. Declined ones stay listed, shown as answered "no" (see
+// declinedAs), so setup -all can change the answer. gascoigne only signals them.
+func newAgents() []string {
 	var out []string
 	installs := readInstalls()
 	for _, name := range foundAgents() {

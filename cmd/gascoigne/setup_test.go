@@ -227,7 +227,7 @@ func TestNewAgentIsOnlySignaled(t *testing.T) {
 		t.Fatal(err)
 	}
 	p := readPrefs()
-	if got := newAgents(p); len(got) != 1 || got[0] != "codex" {
+	if got := newAgents(); len(got) != 1 || got[0] != "codex" {
 		t.Fatalf("new agents: %v", got)
 	}
 	var q *decision
@@ -268,8 +268,8 @@ func TestNewAgentAnswers(t *testing.T) {
 	if got := readPrefs().Declined; len(got) != 1 || got[0] != "codex" {
 		t.Fatalf("declined: %v", got)
 	}
-	if got := newAgents(readPrefs()); len(got) != 1 {
-		t.Fatal("a declined agent still shows (as answered no), the question is not pending")
+	if got := newAgents(); len(got) != 1 {
+		t.Fatal("a declined agent stays listed (as answered no), the question is not pending")
 	}
 	for _, d := range pendingDecisions(readPrefs()) {
 		if d.ID == "integrate:codex" {
