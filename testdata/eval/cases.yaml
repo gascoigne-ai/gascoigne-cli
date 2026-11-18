@@ -462,6 +462,8 @@
 - { file: ls/find-dirs.txt, attrs: { cmd: find testdata/eval testdata/eval-ext testdata/eval-mcp -maxdepth 2 -mindepth 1 -type d }, expect_type: fs/find, keep: ["testdata/eval/: ", "trace", "search"] }
 - { file: ls/du-x-net.txt, attrs: { cmd: du -h --max-depth=2 . }, expect_type: fs/du, keep: ["largest:", "./http2", "smaller entries omitted"], min_saved: 20 }
 - { file: ls/df-h.txt, attrs: { cmd: df -h }, expect_type: fs/df, keep: ["/dev/mapper/root", "/boot"] }
+- { file: ls/df-h-macos.txt, attrs: { cmd: df -h }, expect_type: fs/df, keep: ["/System/Volumes/Data"], min_saved: 20 }
+- { file: ls/du-h-macos.txt, attrs: { cmd: du -ah pkg }, expect_type: fs/du, keep: ["largest:", "smaller entries omitted"], min_saved: 15 }
 - { name: detect/tree, file: ls/tree-x-net.txt, expect_type: fs/tree }
 - { name: detect/find, file: ls/find-x-net.txt, expect_type: fs/find }
 - { name: detect/du, file: ls/du-x-net.txt, expect_type: fs/du }

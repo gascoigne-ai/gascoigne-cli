@@ -1,0 +1,11 @@
+Filesystem      Size   Used   Avail  Capacity  Mounted-on
+/dev/disk3s1s1  926Gi  12Gi   733Gi  2%        /
+/dev/disk3s6    926Gi  20Ki   733Gi  1%        /System/Volumes/VM
+/dev/disk3s2    926Gi  7.2Gi  733Gi  1%        /System/Volumes/Preboot
+/dev/disk3s4    926Gi  35Mi   733Gi  1%        /System/Volumes/Update
+/dev/disk1s2    500Mi  6.0Mi  482Mi  2%        /System/Volumes/xarts
+/dev/disk1s1    500Mi  6.0Mi  482Mi  2%        /System/Volumes/iSCPreboot
+/dev/disk1s3    500Mi  900Ki  482Mi  1%        /System/Volumes/Hardware
+/dev/disk3s5    926Gi  162Gi  733Gi  19%       /System/Volumes/Data
+/dev/disk3s7    926Gi  11Gi   733Gi  2%        /nix
+… 2 pseudo filesystem rows omitted

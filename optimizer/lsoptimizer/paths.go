@@ -149,7 +149,7 @@ func lineAt(lines []string, index int) string {
 	return ""
 }
 
-var duLine = lazyre.New(`^(\d+(?:[.,]\d+)?)([KMGTP]?)\t(.+)$`)
+var duLine = lazyre.New(`^\s*(\d+(?:[.,]\d+)?)([BKMGTP]?)\t(.+)$`)
 
 // du keeps the largest entries and the total (the last line).
 func (o *Optimizer) du(lines []string) []string {
@@ -161,7 +161,7 @@ func (o *Optimizer) du(lines []string) []string {
 	for _, l := range lines {
 		if m := duLine.FindStringSubmatch(l); m != nil {
 			n, _ := strconv.ParseFloat(strings.Replace(m[1], ",", ".", 1), 64)
-			entries = append(entries, entry{l, n * float64(int64(1)<<(10*strings.Index(" KMGTP", cmp.Or(m[2], " "))))})
+			entries = append(entries, entry{l, n * float64(int64(1)<<(10*strings.Index(" KMGTP", cmp.Or(strings.TrimPrefix(m[2], "B"), " "))))})
 		}
 	}
 	if len(entries) <= o.cfg.MaxPerDir*2 || len(entries) != len(compress.Lines(strings.Join(lines, "\n"))) {
@@ -177,7 +177,7 @@ func (o *Optimizer) du(lines []string) []string {
 	return append(out, compress.Omitted(len(rest)-o.cfg.MaxPerDir*2, "smaller entries"), total.line)
 }
 
-var pseudoFS = lazyre.New(`^(tmpfs|devtmpfs|udev|dev|overlay|shm|efivarfs|squashfs|/dev/loop\d+|none|run|cgroup2?|proc|sysfs|portal)$`)
+var pseudoFS = lazyre.New(`^(tmpfs|devtmpfs|devfs|map|udev|dev|overlay|shm|efivarfs|squashfs|/dev/loop\d+|none|run|cgroup2?|proc|sysfs|portal)$`)
 
 // df drops pseudo filesystems and compacts the table.
 func (o *Optimizer) df(lines []string) []string {
@@ -197,15 +197,53 @@ func (o *Optimizer) df(lines []string) []string {
 	}
 	var kept [][]string
 	for _, r := range t.Rows {
-		if !pseudoFS.MatchString(r[0]) && !strings.HasPrefix(r[len(r)-1], "/run/") && !strings.HasPrefix(r[len(r)-1], "/sys/") {
+		if !pseudoFS.MatchString(r[0]) && !pseudoMount(r[len(r)-1]) {
 			kept = append(kept, r)
 		}
 	}
 	dropped := len(t.Rows) - len(kept)
 	t.Rows = kept
+	dropInodeColumns(&t)
 	out := table.Render(t, table.Options{MaxRows: 40, MaxCell: 60})
 	if dropped > 0 {
 		out = append(out, compress.Omitted(dropped, "pseudo filesystem rows"))
 	}
 	return out
+}
+
+// pseudoMount reports kernel and device mount points (Linux /run, /sys, /proc, macOS and BSD /dev).
+func pseudoMount(mount string) bool {
+	if mount == "/dev" {
+		return true
+	}
+	for _, dir := range []string{"/dev/", "/run/", "/sys/", "/proc/"} {
+		if strings.HasPrefix(mount, dir) {
+			return true
+		}
+	}
+	return false
+}
+
+// dropInodeColumns removes the inode columns macOS df adds (iused ifree %iused).
+func dropInodeColumns(t *table.Table) {
+	var keep []int
+	for i, h := range t.Header {
+		if h != "iused" && h != "ifree" && h != "%iused" {
+			keep = append(keep, i)
+		}
+	}
+	if len(keep) == len(t.Header) {
+		return
+	}
+	pick := func(row []string) []string {
+		out := make([]string, 0, len(keep))
+		for _, i := range keep {
+			out = append(out, row[i])
+		}
+		return out
+	}
+	t.Header = pick(t.Header)
+	for i, r := range t.Rows {
+		t.Rows[i] = pick(r)
+	}
 }

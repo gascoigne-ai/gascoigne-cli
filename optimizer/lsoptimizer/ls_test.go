@@ -105,3 +105,26 @@ func TestDFDropsPseudo(t *testing.T) {
 		t.Fatalf("got:\n%s", got)
 	}
 }
+
+func TestDUMacOSPaddedSizes(t *testing.T) {
+	var in []string
+	for i := range 10 {
+		in = append(in, fmt.Sprintf(" %dK\t./d%d", i+1, i))
+	}
+	in = append(in, "  0B\t./empty", "2.5M\t./big", "3.1M\t.")
+	got := compress.Join(fsOptimizer().du(in))
+	if !strings.HasPrefix(got, "largest:\n2.5M\t./big\n") || !strings.Contains(got, "smaller entries omitted") {
+		t.Fatalf("got:\n%s", got)
+	}
+}
+
+func TestDFMacOS(t *testing.T) {
+	in := "Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on\n" +
+		"/dev/disk3s1s1   926Gi    12Gi   733Gi     2%    459k  4.3G    0%   /\n" +
+		"devfs            209Ki   209Ki     0Bi   100%     722     0  100%   /dev\n" +
+		"map auto_home      0Bi     0Bi     0Bi   100%       0     0     -   /System/Volumes/Data/home\n"
+	got := compress.Join(fsOptimizer().df(compress.Lines(in)))
+	if strings.Contains(got, "devfs") || strings.Contains(got, "auto_home") || strings.Contains(got, "iused") || !strings.Contains(got, "disk3s1s1") {
+		t.Fatalf("got:\n%s", got)
+	}
+}

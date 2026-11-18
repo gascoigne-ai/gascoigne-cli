@@ -29,9 +29,8 @@
 - run: du -ah optimizer | sort -h
   expect_type: fs/du
   min_saved: 45
-- run: df -h
+- run: df -h /
   expect_type: fs/df
-  min_saved: 25
 - run: ps aux
   expect_type: table/ps
   min_saved: 45

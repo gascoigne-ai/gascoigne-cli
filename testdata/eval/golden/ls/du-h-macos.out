@@ -1,0 +1,27 @@
+largest:
+300K	pkg/mod5
+260K	pkg/mod4
+220K	pkg/mod3
+180K	pkg/mod2
+140K	pkg/mod1
+132K	pkg/mod0/file2.go
+132K	pkg/mod0/file3.go
+132K	pkg/mod0/file4.go
+132K	pkg/mod1/file9.go
+132K	pkg/mod2/file14.go
+132K	pkg/mod3/file19.go
+132K	pkg/mod4/file23.go
+132K	pkg/mod4/file24.go
+100K	pkg/mod0
+ 56K	pkg/mod2/file12.go
+ 56K	pkg/mod5/file26.go
+ 56K	pkg/mod5/file29.go
+ 28K	pkg/mod0/file1.go
+ 28K	pkg/mod4/file22.go
+ 12K	pkg/mod1/file8.go
+ 12K	pkg/mod2/file10.go
+ 12K	pkg/mod2/file11.go
+ 12K	pkg/mod2/file13.go
+ 12K	pkg/mod3/file17.go
+… 12 smaller entries omitted
+1.1M	pkg
