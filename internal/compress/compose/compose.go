@@ -15,11 +15,11 @@ import (
 // content and compresses it; unknown content only loses repeats.
 func Lines(lines []string, cmd string) []string {
 	typ := detect.Detect(compress.Join(lines), detect.Hints{Cmd: cmd})
-	return As(typ, lines)
+	return as(typ, lines)
 }
 
-// As compresses lines as the given type.
-func As(typ string, lines []string) []string {
+// as compresses lines as the given type.
+func as(typ string, lines []string) []string {
 	dialect := detect.Dialect(typ)
 	switch detect.Family(typ) {
 	case detect.FamilyTest:

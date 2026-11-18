@@ -40,14 +40,6 @@ func TestDedupeRuns(t *testing.T) {
 	}
 }
 
-func TestDedupeAll(t *testing.T) {
-	in := []string{"a 1", "b", "a 2", "c", "a 3"}
-	want := []string{"a 1 (×3)", "b", "c"}
-	if got := DedupeAll(in); !slices.Equal(got, want) {
-		t.Fatalf("got %q", got)
-	}
-}
-
 func TestKeepWithContext(t *testing.T) {
 	in := strings.Split("a b c ERR d e f g", " ")
 	got := KeepWithContext(in, func(line string) bool { return line == "ERR" }, 1, 1)
@@ -99,40 +91,6 @@ func TestSeverity(t *testing.T) {
 		if got := SeverityOf(tt.line); got != tt.want {
 			t.Errorf("SeverityOf(%q) = %v, want %v", tt.line, got, tt.want)
 		}
-	}
-}
-
-func TestJSTest(t *testing.T) {
-	in := Lines(`PASS src/a.test.ts
-PASS src/c.test.ts
-FAIL src/b.test.ts
-  ● math › adds
-
-    expect(received).toBe(expected)
-
-    Expected: 3
-    Received: 2
-
-      at Object.<anonymous> (src/b.test.ts:4:17)
-      at Promise.then.completed (node_modules/jest-circus/build/utils.js:298:28)
-      at new Promise (<anonymous>)
-
-
-Tests:       1 failed, 7 passed, 8 total
-`)
-	got := Join(JSTest(in))
-	for _, keep := range []string{"FAIL src/b.test.ts", "● math › adds", "Received: 2", "src/b.test.ts:4:17", "Tests:       1 failed"} {
-		if !strings.Contains(got, keep) {
-			t.Errorf("lost %q in:\n%s", keep, got)
-		}
-	}
-	for _, drop := range []string{"PASS src/a.test.ts", "node_modules/jest-circus"} {
-		if strings.Contains(got, drop) {
-			t.Errorf("kept %q in:\n%s", drop, got)
-		}
-	}
-	if !strings.Contains(got, "… 2 passing test lines omitted") {
-		t.Errorf("missing pass marker:\n%s", got)
 	}
 }
 

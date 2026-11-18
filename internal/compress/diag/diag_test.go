@@ -140,3 +140,12 @@ func TestNoiseRulesVerify(t *testing.T) {
 		})
 	}
 }
+
+// Dialects lists dialects with rules.
+func Dialects() []string {
+	var out []string
+	for d := range rules {
+		out = append(out, d)
+	}
+	return out
+}

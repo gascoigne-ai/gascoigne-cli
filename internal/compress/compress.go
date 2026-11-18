@@ -114,29 +114,6 @@ func DedupeRuns(lines []string) []string {
 	return out
 }
 
-// DedupeAll keeps the first occurrence of every normalized line, annotated with
-// its total count when repeated. Order of first occurrences is preserved.
-func DedupeAll(lines []string) []string {
-	count := map[string]int{}
-	for _, l := range lines {
-		count[Normalize(l)]++
-	}
-	seen := map[string]bool{}
-	var out []string
-	for _, l := range lines {
-		norm := Normalize(l)
-		if seen[norm] {
-			continue
-		}
-		seen[norm] = true
-		if n := count[norm]; n > 1 {
-			l = fmt.Sprintf("%s (×%d)", l, n)
-		}
-		out = append(out, l)
-	}
-	return out
-}
-
 // KeepWithContext keeps lines where keep is true plus before/after lines of
 // context; dropped runs become an Omitted marker.
 func KeepWithContext(lines []string, keep func(string) bool, before, after int) []string {

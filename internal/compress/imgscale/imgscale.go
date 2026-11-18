@@ -19,8 +19,8 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
-// PixelsPerToken is how many pixels Anthropic bills as one image token.
-const PixelsPerToken = 750
+// pixelsPerToken is how many pixels Anthropic bills as one image token.
+const pixelsPerToken = 750
 
 // Shrink downscales a base64 PNG or JPEG above maxPixels to fit it (aspect
 // kept, box filter: each output pixel averages the source pixels it covers).
@@ -68,7 +68,7 @@ func Keep(ctx context.Context, ledger component.Ledger, ev component.Event, data
 	if err != nil {
 		return fmt.Errorf("save original image: %w", err)
 	}
-	in, out := before/PixelsPerToken, after/PixelsPerToken
+	in, out := before/pixelsPerToken, after/pixelsPerToken
 	ev.Route, ev.Command, ev.Optimizers = "image", "image "+mediaType, []string{"image"}
 	ev.RawTokens, ev.OutTokens, ev.RawID, ev.Outcome = in, out, id, component.Optimized
 	ev.Steps = []component.Step{{Optimizer: "image", Family: "core", RawTokens: in, OutTokens: out}}

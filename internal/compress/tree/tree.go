@@ -21,8 +21,8 @@ type Options struct {
 	Query    []string // lower-case terms: matching packages and their path stay
 }
 
-// Legend explains the one notation that needs it; it heads output that uses it.
-const Legend = "[repeats (deduped) omitted. name alone: the version listed first]"
+// legendNote explains the one notation that needs it; it heads output that uses it.
+const legendNote = "[repeats (deduped) omitted. name alone: the version listed first]"
 
 const (
 	minGlyphLines = 3   // glyph lines that make text a tree
@@ -64,7 +64,7 @@ func Compress(lines []string, options Options) []string {
 		c.render(r, 0)
 	}
 	if c.legend {
-		return append([]string{Legend}, c.out...)
+		return append([]string{legendNote}, c.out...)
 	}
 	return c.out
 }

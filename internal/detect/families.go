@@ -19,9 +19,3 @@ const (
 	FamilyInfra  = "infra"  // IaC plans/applies
 	FamilyCloud  = "cloud"  // AWS, GCP, Azure CLIs
 )
-
-// Families lists every family.
-var Families = []string{
-	FamilyTest, FamilyBuild, FamilyPkg, FamilyTask, FamilyVCS, FamilySearch, FamilyFS, FamilyTable,
-	FamilyData, FamilyLog, FamilyDoc, FamilyWeb, FamilyDB, FamilyK8s, FamilyInfra, FamilyCloud,
-}

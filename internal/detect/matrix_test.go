@@ -267,3 +267,13 @@ func TestDialectMatrix(t *testing.T) {
 		}
 	}
 }
+
+// IsRow reports whether a dialect is declared as a row.
+func IsRow(typ string) bool {
+	for _, r := range rows {
+		if r.Type == typ {
+			return true
+		}
+	}
+	return false
+}

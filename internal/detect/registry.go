@@ -41,16 +41,6 @@ func register(added ...Spec) {
 	slices.SortStableFunc(specs, func(left, right Spec) int { return cmp.Compare(left.Priority, right.Priority) })
 }
 
-// Types lists every registered dialect type.
-func Types() []string {
-	var out []string
-	for _, s := range specs {
-		out = append(out, s.Type)
-	}
-	slices.Sort(out)
-	return slices.Compact(out)
-}
-
 // fileReaders print a file: their type comes from the file name.
 var fileReaders = map[string]bool{"cat": true, "head": true, "tail": true, "bat": true, "less": true, "more": true, "sed": true}
 

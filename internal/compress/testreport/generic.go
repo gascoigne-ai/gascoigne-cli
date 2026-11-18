@@ -10,15 +10,6 @@ import (
 // decoration lines carry no text: ⎯⎯⎯⎯⎯[1/2]⎯⎯⎯, ─────, ===== (pytest headers have text).
 var decoration = lazyre.New(`^[\s⎯─━═=_*~-]*(\[\d+/\d+\])?[\s⎯─━═=_*~-]*$`)
 
-// Dialects lists runners Compress understands besides go.
-func Dialects() []string {
-	out := []string{"go", "go-json"}
-	for d := range dialects {
-		out = append(out, d)
-	}
-	return out
-}
-
 // Compress applies a runner's rules: passes counted and dropped, noise and
 // dependency frames dropped, everything else (failures, diffs, summaries) kept.
 func Compress(dialect string, lines []string) ([]string, bool) {

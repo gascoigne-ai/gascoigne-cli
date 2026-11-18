@@ -337,12 +337,3 @@ var rules = map[string]Rules{
 
 // For returns the rules of a build dialect.
 func For(dialect string) Rules { return rules[dialect] }
-
-// Dialects lists dialects with rules.
-func Dialects() []string {
-	var out []string
-	for d := range rules {
-		out = append(out, d)
-	}
-	return out
-}
