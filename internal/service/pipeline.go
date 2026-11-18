@@ -77,24 +77,42 @@ func (pl *Pipeline) Optimize(ctx context.Context, in *payload.Payload) (*payload
 }
 
 func (pl *Pipeline) run(ctx context.Context, data *payload.Payload, ev *component.Event) (*payload.Payload, error) {
-	for _, f := range pl.filters {
-		d, err := f.c.Filter(ctx, data)
-		if err != nil {
-			return nil, fmt.Errorf("filter %s: %w", f.id, err)
-		}
-		if d == component.Bypass {
-			pl.svc.log.Debug("bypass", "filter", f.id, "key", ev.Key)
-			ev.Outcome, ev.Filter = component.Bypassed, f.id
-			ev.Reason = cmp.Or(data.Attrs[payload.AttrSkip], "bypassed by "+f.id)
-			ev.Type = detectedTypes(data)
-			return data, nil
-		}
+	bypassed, err := pl.runFilters(ctx, data, ev)
+	if err != nil || bypassed {
+		return data, err
 	}
 	ev.Type = detectedTypes(data) // before optimizers rewrite block types
 
 	ev.Route, ev.Optimizers = pl.router.Route(data)
 	data.Set(payload.AttrRoute, ev.Route)
 	orig := data.Clone()
+	if failed := pl.runOptimizers(ctx, data, ev); failed {
+		return orig, nil
+	}
+	return pl.keepIfWorthIt(ctx, data, orig, ev), nil
+}
+
+// runFilters runs the filters in order; true when one bypassed the payload (the event says which).
+func (pl *Pipeline) runFilters(ctx context.Context, data *payload.Payload, ev *component.Event) (bool, error) {
+	for _, f := range pl.filters {
+		d, err := f.c.Filter(ctx, data)
+		if err != nil {
+			return false, fmt.Errorf("filter %s: %w", f.id, err)
+		}
+		if d == component.Bypass {
+			pl.svc.log.Debug("bypass", "filter", f.id, "key", ev.Key)
+			ev.Outcome, ev.Filter = component.Bypassed, f.id
+			ev.Reason = cmp.Or(data.Attrs[payload.AttrSkip], "bypassed by "+f.id)
+			ev.Type = detectedTypes(data)
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// runOptimizers applies the routed optimizers and records a step for each that changed the payload.
+// True when one failed: the caller then uses the original.
+func (pl *Pipeline) runOptimizers(ctx context.Context, data *payload.Payload, ev *component.Event) bool {
 	for _, id := range ev.Optimizers {
 		before, texts := data.Tokens(), blockTexts(data)
 		if err := pl.svc.optimizers[id].Optimize(ctx, data); err != nil {
@@ -102,23 +120,29 @@ func (pl *Pipeline) run(ctx context.Context, data *payload.Payload, ev *componen
 			pl.svc.log.Warn("optimizer failed, using original", "optimizer", id, "err", err)
 			ev.Outcome, ev.Steps, ev.Filter, ev.Reason = component.Failed, nil, id, firstLine(err.Error())
 			pl.markFailure(ctx, ev.Key, component.ReasonError)
-			return orig, nil
+			return true
 		}
 		if after := data.Tokens(); after != before {
 			ev.Steps = append(ev.Steps, component.Step{Optimizer: id, Family: pl.svc.families[id],
 				Dialect: changedTypes(data, texts), RawTokens: before, OutTokens: after})
 		}
 	}
+	return false
+}
+
+// keepIfWorthIt returns the optimized payload after saving the original, or the original when
+// nothing changed, the saving is too small or the original could not be saved.
+func (pl *Pipeline) keepIfWorthIt(ctx context.Context, data, orig *payload.Payload, ev *component.Event) *payload.Payload {
 	if data.SameContent(orig) {
 		ev.Outcome, ev.Reason = component.Unchanged, unchangedReason(data, ev.Optimizers)
-		return data, nil
+		return data
 	}
 	if in, out := orig.Tokens(), data.Tokens(); in-out < minSaving {
 		// Rewritten but not worth it: the retrieve hint every consumer adds
 		// costs about minSaving tokens, and the original reads better.
 		ev.Outcome, ev.Steps = component.Unchanged, nil
 		ev.Reason = fmt.Sprintf("saved %d tokens (%d → %d) < %d, the cost of the retrieve hint: original kept", in-out, in, out, minSaving)
-		return orig, nil
+		return orig
 	}
 
 	id, err := pl.svc.ledger.SaveRaw(ctx, ev.Key, orig)
@@ -126,13 +150,13 @@ func (pl *Pipeline) run(ctx context.Context, data *payload.Payload, ev *componen
 		// Without a saved original the optimized output would be lossy.
 		pl.svc.log.Warn("save raw failed, using original", "err", err)
 		ev.Outcome, ev.Steps, ev.Filter, ev.Reason = component.Failed, nil, "ledger", "save original: "+firstLine(err.Error())
-		return orig, nil
+		return orig
 	}
 	data.Set(payload.AttrRawID, id)
 	ev.RawID = id
 	ev.Outcome = component.Optimized
 	ev.Output = data.Text()
-	return data, nil
+	return data
 }
 
 func (pl *Pipeline) markFailure(ctx context.Context, key, reason string) {

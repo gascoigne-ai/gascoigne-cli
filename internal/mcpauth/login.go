@@ -34,36 +34,7 @@ func Login(ctx context.Context, store *Store, serverURL string, open func(authUR
 	redirect := "http://" + ln.Addr().String() + "/callback"
 	results := serveCallback(ln)
 
-	h, err := auth.NewAuthorizationCodeHandler(&auth.AuthorizationCodeHandlerConfig{
-		DynamicClientRegistrationConfig: &auth.DynamicClientRegistrationConfig{Metadata: &oauthex.ClientRegistrationMetadata{
-			RedirectURIs:            []string{redirect},
-			ClientName:              "gascoigne",
-			GrantTypes:              []string{"authorization_code", "refresh_token"},
-			ResponseTypes:           []string{"code"},
-			TokenEndpointAuthMethod: "none",
-		}},
-		Client:              discoveryClient(),
-		RedirectURL:         redirect,
-		RequestRefreshToken: true,
-		AuthorizationCodeFetcher: func(ctx context.Context, args *auth.AuthorizationArgs) (*auth.AuthorizationResult, error) {
-			if err := open(args.URL); err != nil {
-				return nil, err
-			}
-			select {
-			case r := <-results:
-				return r, nil
-			case <-ctx.Done():
-				return nil, fmt.Errorf("no answer from the browser: %w", ctx.Err())
-			}
-		},
-		NewTokenSource: func(ctx context.Context, cfg *oauth2.Config, tok *oauth2.Token) (oauth2.TokenSource, error) {
-			c := Creds{ClientID: cfg.ClientID, ClientSecret: cfg.ClientSecret, TokenURL: cfg.Endpoint.TokenURL, AuthStyle: cfg.Endpoint.AuthStyle, Token: tok}
-			if err := store.Put(serverURL, c); err != nil {
-				return nil, err
-			}
-			return saving(ctx, store, serverURL, c), nil
-		},
-	})
+	h, err := loginHandler(store, serverURL, redirect, results, open)
 	if err != nil {
 		return err
 	}
@@ -119,4 +90,40 @@ func serveCallback(ln net.Listener) <-chan *auth.AuthorizationResult {
 	})
 	go (&http.Server{Handler: mux, ReadHeaderTimeout: 10 * time.Second}).Serve(ln)
 	return results
+}
+
+// loginHandler is the OAuth handler of a login: it registers a client for the redirect address,
+// hands the authorization address to open, waits for the browser's answer on results and saves
+// the tokens in the store.
+func loginHandler(store *Store, serverURL, redirect string, results <-chan *auth.AuthorizationResult, open func(authURL string) error) (*auth.AuthorizationCodeHandler, error) {
+	return auth.NewAuthorizationCodeHandler(&auth.AuthorizationCodeHandlerConfig{
+		DynamicClientRegistrationConfig: &auth.DynamicClientRegistrationConfig{Metadata: &oauthex.ClientRegistrationMetadata{
+			RedirectURIs:            []string{redirect},
+			ClientName:              "gascoigne",
+			GrantTypes:              []string{"authorization_code", "refresh_token"},
+			ResponseTypes:           []string{"code"},
+			TokenEndpointAuthMethod: "none",
+		}},
+		Client:              discoveryClient(),
+		RedirectURL:         redirect,
+		RequestRefreshToken: true,
+		AuthorizationCodeFetcher: func(ctx context.Context, args *auth.AuthorizationArgs) (*auth.AuthorizationResult, error) {
+			if err := open(args.URL); err != nil {
+				return nil, err
+			}
+			select {
+			case r := <-results:
+				return r, nil
+			case <-ctx.Done():
+				return nil, fmt.Errorf("no answer from the browser: %w", ctx.Err())
+			}
+		},
+		NewTokenSource: func(ctx context.Context, cfg *oauth2.Config, tok *oauth2.Token) (oauth2.TokenSource, error) {
+			c := Creds{ClientID: cfg.ClientID, ClientSecret: cfg.ClientSecret, TokenURL: cfg.Endpoint.TokenURL, AuthStyle: cfg.Endpoint.AuthStyle, Token: tok}
+			if err := store.Put(serverURL, c); err != nil {
+				return nil, err
+			}
+			return saving(ctx, store, serverURL, c), nil
+		},
+	})
 }

@@ -15,14 +15,7 @@ import (
 // The LLM proxy and the PostToolUse hook both use it, so they type results alike.
 func Attrs(name string, input map[string]any) map[string]string {
 	a := map[string]string{payload.AttrTool: name}
-	str := func(keys ...string) string {
-		for _, k := range keys {
-			if v, ok := input[k].(string); ok && v != "" {
-				return v
-			}
-		}
-		return ""
-	}
+	str := stringArg(input)
 	if q := str("query", "q", "search", "prompt"); q != "" {
 		a[payload.AttrQuery] = q // relevance for long pages, search results, JSON
 	} else if q := sample.Intent(str("description")); q != "" {
@@ -31,37 +24,7 @@ func Attrs(name string, input map[string]any) map[string]string {
 	if u := str("url"); u != "" {
 		a[payload.AttrURL] = u
 	}
-	switch strings.ToLower(name) {
-	case "read", "read_file", "view", "view_file", "fs_read":
-		f := str("file_path", "path", "absolute_path")
-		if f == "" {
-			break
-		}
-		a[payload.AttrFile] = f
-		// A whole file reads like cat (gaps name file lines); a slice like
-		// sed -n (gaps counted), since its first line is not line 1.
-		a[payload.AttrCmd] = "cat " + f
-		if offset, _ := input["offset"].(json.Number); offset != "" && offset != "0" && offset != "1" {
-			a[payload.AttrCmd] = "sed -n " + string(offset) + ",$p " + f
-		}
-	case "grep", "grep_search", "search_file_content":
-		args := "rg -n"
-		if mode := str("output_mode"); mode == "files_with_matches" {
-			args = "rg -l"
-		} else if mode == "count" {
-			args = "rg -c"
-		}
-		a[payload.AttrCmd] = args + " " + ShellQuote(str("pattern", "query")) + " " + str("path")
-	case "glob", "find", "list_dir", "ls", "list_directory":
-		a[payload.AttrCmd] = "find " + cmp.Or(str("path"), ".") + " -name " + ShellQuote(cmp.Or(str("pattern", "glob"), "*"))
-	default:
-		if cmd := str("command", "cmd"); cmd != "" {
-			a[payload.AttrCmd] = cmd
-		} else if f := str("file_path"); f != "" {
-			a[payload.AttrFile] = f
-			a[payload.AttrCmd] = "cat " + f
-		}
-	}
+	toolCommand(strings.ToLower(name), input, str, a)
 	a[payload.AttrCmd] = strings.TrimSpace(a[payload.AttrCmd])
 	if a[payload.AttrCmd] == "" {
 		delete(a, payload.AttrCmd)
@@ -75,4 +38,51 @@ func ShellQuote(text string) string {
 		return text
 	}
 	return "'" + strings.ReplaceAll(text, "'", `'\''`) + "'"
+}
+
+// stringArg returns a lookup of the first non-empty string among keys of input.
+func stringArg(input map[string]any) func(keys ...string) string {
+	return func(keys ...string) string {
+		for _, k := range keys {
+			if v, ok := input[k].(string); ok && v != "" {
+				return v
+			}
+		}
+		return ""
+	}
+}
+
+// toolCommand sets the command (and file) a known tool stands for in attrs.
+func toolCommand(name string, input map[string]any, str func(keys ...string) string, attrs map[string]string) {
+	switch name {
+	case "read", "read_file", "view", "view_file", "fs_read":
+		f := str("file_path", "path", "absolute_path")
+		if f == "" {
+			return
+		}
+		attrs[payload.AttrFile] = f
+		// A whole file reads like cat (gaps name file lines); a slice like
+		// sed -n (gaps counted), since its first line is not line 1.
+		attrs[payload.AttrCmd] = "cat " + f
+		if offset, _ := input["offset"].(json.Number); offset != "" && offset != "0" && offset != "1" {
+			attrs[payload.AttrCmd] = "sed -n " + string(offset) + ",$p " + f
+		}
+	case "grep", "grep_search", "search_file_content":
+		args := "rg -n"
+		if mode := str("output_mode"); mode == "files_with_matches" {
+			args = "rg -l"
+		} else if mode == "count" {
+			args = "rg -c"
+		}
+		attrs[payload.AttrCmd] = args + " " + ShellQuote(str("pattern", "query")) + " " + str("path")
+	case "glob", "find", "list_dir", "ls", "list_directory":
+		attrs[payload.AttrCmd] = "find " + cmp.Or(str("path"), ".") + " -name " + ShellQuote(cmp.Or(str("pattern", "glob"), "*"))
+	default:
+		if cmd := str("command", "cmd"); cmd != "" {
+			attrs[payload.AttrCmd] = cmd
+		} else if f := str("file_path"); f != "" {
+			attrs[payload.AttrFile] = f
+			attrs[payload.AttrCmd] = "cat " + f
+		}
+	}
 }

@@ -323,6 +323,23 @@ type Overview struct {
 
 func BuildOverview(ctx context.Context, ledger component.Ledger, filter component.StatsQuery) (Overview, error) {
 	o := Overview{Session: filter.Session, Filter: filter}
+	if err := o.fillGroups(ctx, ledger, filter); err != nil {
+		return o, err
+	}
+	costs, err := BuildCosts(ctx, ledger, filter, cost.AgentContext)
+	if err != nil {
+		return o, err
+	}
+	o.Cost = costs
+	if err := o.fillSkipped(ctx, ledger, filter); err != nil {
+		return o, err
+	}
+	o.Estimates = estimates(o)
+	return o, nil
+}
+
+// fillGroups reads one grouped report per overview section; the command one gives the total.
+func (o *Overview) fillGroups(ctx context.Context, ledger component.Ledger, filter component.StatsQuery) error {
 	for _, part := range []struct {
 		by  string
 		out *[]StatsJSON
@@ -346,7 +363,7 @@ func BuildOverview(ctx context.Context, ledger component.Ledger, filter componen
 		}
 		stats, err := ledger.Stats(ctx, q)
 		if err != nil {
-			return o, err
+			return err
 		}
 		r := Report(component.StatsQuery{By: q.By}, stats)
 		*part.out = r.Groups
@@ -357,16 +374,16 @@ func BuildOverview(ctx context.Context, ledger component.Ledger, filter componen
 			o.Total = r.Total
 		}
 	}
-	costs, err := BuildCosts(ctx, ledger, filter, cost.AgentContext)
-	if err != nil {
-		return o, err
-	}
-	o.Cost = costs
+	return nil
+}
+
+// fillSkipped sorts the runs not optimized into skipped, failed and unchanged.
+func (o *Overview) fillSkipped(ctx context.Context, ledger component.Ledger, filter component.StatsQuery) error {
 	rq := filter
 	rq.By = component.ByReason
 	reasons, err := ledger.Stats(ctx, rq)
 	if err != nil {
-		return o, err
+		return err
 	}
 	o.Skipped, o.Failed, o.Unchanged = []StatsJSON{}, []StatsJSON{}, []StatsJSON{}
 	for _, s := range reasons {
@@ -384,8 +401,7 @@ func BuildOverview(ctx context.Context, ledger component.Ledger, filter componen
 			o.Unchanged = append(o.Unchanged, j)
 		}
 	}
-	o.Estimates = estimates(o)
-	return o, nil
+	return nil
 }
 
 // estimates explains how the overview's numbers are made: what is counted,

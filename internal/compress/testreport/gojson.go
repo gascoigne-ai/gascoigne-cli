@@ -26,13 +26,50 @@ func GoJSON(text string) ([]string, error) {
 	return Go(compress.Lines(plain)), nil
 }
 
-func jsonToText(text string) (string, error) {
-	type pkg struct {
-		out    map[string][]string // test → output
-		failed []string
-		result string
+// pkgEvents collects what go test -json said about one package.
+type pkgEvents struct {
+	out    map[string][]string // test → output
+	failed []string
+	result string
+}
+
+// add folds one event into the package.
+func (p *pkgEvents) add(ev event) {
+	switch ev.Action {
+	case "output":
+		p.out[ev.Test] = append(p.out[ev.Test], strings.TrimSuffix(ev.Output, "\n"))
+	case "fail":
+		if ev.Test != "" {
+			p.failed = append(p.failed, ev.Test)
+		} else {
+			p.result = "FAIL\t" + ev.Package
+		}
+	case "pass":
+		if ev.Test == "" {
+			p.result = "ok  \t" + ev.Package
+		}
+	case "skip":
+		if ev.Test == "" {
+			p.result = "?   \t" + ev.Package + "\t[no test files]"
+		}
 	}
-	pkgs := map[string]*pkg{}
+}
+
+// write renders the output of the failed tests and the package result as go test prints them.
+func (p *pkgEvents) write(out *strings.Builder) {
+	// Subtests fail before their parents; report parents first.
+	for i := len(p.failed) - 1; i >= 0; i-- {
+		for _, l := range p.out[p.failed[i]] {
+			out.WriteString(l + "\n")
+		}
+	}
+	if p.result != "" {
+		out.WriteString(p.result + "\n")
+	}
+}
+
+func jsonToText(text string) (string, error) {
+	pkgs := map[string]*pkgEvents{}
 	var order []string
 	sc := bufio.NewScanner(strings.NewReader(text))
 	sc.Buffer(make([]byte, 1<<20), 1<<24)
@@ -47,44 +84,18 @@ func jsonToText(text string) (string, error) {
 		}
 		p, ok := pkgs[ev.Package]
 		if !ok {
-			p = &pkg{out: map[string][]string{}}
+			p = &pkgEvents{out: map[string][]string{}}
 			pkgs[ev.Package] = p
 			order = append(order, ev.Package)
 		}
-		switch ev.Action {
-		case "output":
-			p.out[ev.Test] = append(p.out[ev.Test], strings.TrimSuffix(ev.Output, "\n"))
-		case "fail":
-			if ev.Test != "" {
-				p.failed = append(p.failed, ev.Test)
-			} else {
-				p.result = "FAIL\t" + ev.Package
-			}
-		case "pass":
-			if ev.Test == "" {
-				p.result = "ok  \t" + ev.Package
-			}
-		case "skip":
-			if ev.Test == "" {
-				p.result = "?   \t" + ev.Package + "\t[no test files]"
-			}
-		}
+		p.add(ev)
 	}
 	if err := sc.Err(); err != nil {
 		return "", err
 	}
 	var b strings.Builder
 	for _, name := range order {
-		p := pkgs[name]
-		// Subtests fail before their parents; report parents first.
-		for i := len(p.failed) - 1; i >= 0; i-- {
-			for _, l := range p.out[p.failed[i]] {
-				b.WriteString(l + "\n")
-			}
-		}
-		if p.result != "" {
-			b.WriteString(p.result + "\n")
-		}
+		pkgs[name].write(&b)
 	}
 	return b.String(), nil
 }

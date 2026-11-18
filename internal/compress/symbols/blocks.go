@@ -38,17 +38,12 @@ func endDefs(lines []string, row detect.Language) []Def {
 			stack = stack[:len(stack)-1]
 		case open.MatchString(l):
 			def := -1
-			kind := ""
-			switch {
-			case row.Container != "" && cont.MatchString(l):
-				kind = "type"
-			case row.Func != "" && fn.MatchString(l):
-				kind = "func"
-			}
-			if m := endName.FindStringSubmatch(l); m != nil && kind != "" {
-				name, kind := qualify(defs, stack, m[1], kind)
-				def = len(defs)
-				defs = append(defs, Def{Name: name, Kind: kind, From: docStart(lines, i, row) + 1, Line: i + 1, To: i + 1})
+			if kind := blockKind(l, row, fn, cont); kind != "" {
+				if m := endName.FindStringSubmatch(l); m != nil {
+					name, kind := qualify(defs, stack, m[1], kind)
+					def = len(defs)
+					defs = append(defs, Def{Name: name, Kind: kind, From: docStart(lines, i, row) + 1, Line: i + 1, To: i + 1})
+				}
 			}
 			if !endOneLine.MatchString(t) {
 				stack = append(stack, frame{def})
@@ -60,6 +55,17 @@ func endDefs(lines []string, row detect.Language) []Def {
 	return slices.DeleteFunc(defs, func(def Def) bool {
 		return def.To == def.Line && !endOneLine.MatchString(strings.TrimSpace(lines[def.Line-1]))
 	})
+}
+
+// blockKind is "type" for a container line, "func" for a function line, else "".
+func blockKind(line string, row detect.Language, fn, cont *lazyre.Regexp) string {
+	switch {
+	case row.Container != "" && cont.MatchString(line):
+		return "type"
+	case row.Func != "" && fn.MatchString(line):
+		return "func"
+	}
+	return ""
 }
 
 // docStart is the first line of the comments (and @doc/@spec attributes)

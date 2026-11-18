@@ -78,32 +78,18 @@ func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in Fetc
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") {
 		return nil, nil, fmt.Errorf("url must be http or https: %q", in.URL)
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	page, err := r.download(ctx, u)
 	if err != nil {
 		return nil, nil, err
 	}
-	req.Header.Set("User-Agent", "gascoigne/"+version.Number)
-	resp, err := r.http.Do(req)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(resp.Body, r.cfg.FetchMaxBytes+1))
-	if err != nil {
-		return nil, nil, err
-	}
-	truncated := int64(len(body)) > r.cfg.FetchMaxBytes
-	if truncated {
-		body = body[:r.cfg.FetchMaxBytes]
-	}
-	head := fmt.Sprintf("HTTP %d %s\n", resp.StatusCode, u)
-	if truncated {
+	head := fmt.Sprintf("HTTP %d %s\n", page.status, u)
+	if page.truncated {
 		head += fmt.Sprintf("[body truncated at %d bytes]\n", r.cfg.FetchMaxBytes)
 	}
-	p := payload.New(payload.ToolResult, string(body))
+	p := payload.New(payload.ToolResult, string(page.body))
 	p.Set(payload.AttrURL, u.String())
 	p.Set(payload.AttrTool, "fetch")
-	p.Set("mime", resp.Header.Get("Content-Type"))
+	p.Set("mime", page.mime)
 	p.Set(payload.AttrQuery, in.Query)
 	r.sessions.Tag(p, call)
 	if in.Raw {
@@ -113,30 +99,72 @@ func (r *Receiver) fetch(ctx context.Context, call *mcp.CallToolRequest, in Fetc
 		}
 		return mcptool.Result(head + text), nil, nil
 	}
-	key := fetchKey(p.Attrs[payload.AttrSession], u.String(), in.Query)
-	hash := fetchHash(resp.StatusCode, body)
-	prev, seen := r.fetched.Get(key)
-	if seen && prev.hash == hash {
-		return mcptool.Result(fmt.Sprintf("%sunchanged since earlier fetch in this session · full: %s id=%s", head, r.cfg.Retrieve, prev.rawID)), nil, nil
-	}
-	out, err := r.next.Process(ctx, p)
+	text, err := r.fetchOptimized(ctx, p, head, page, u.String(), in.Query)
 	if err != nil {
 		return nil, nil, err
+	}
+	return mcptool.Result(text), nil, nil
+}
+
+// fetchedPage is a downloaded page: the status line facts and the (possibly cut) body.
+type fetchedPage struct {
+	status    int
+	mime      string
+	body      []byte
+	truncated bool
+}
+
+// download GETs target, reading at most FetchMaxBytes of the body.
+func (r *Receiver) download(ctx context.Context, target *url.URL) (fetchedPage, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target.String(), nil)
+	if err != nil {
+		return fetchedPage{}, err
+	}
+	req.Header.Set("User-Agent", "gascoigne/"+version.Number)
+	resp, err := r.http.Do(req)
+	if err != nil {
+		return fetchedPage{}, err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(resp.Body, r.cfg.FetchMaxBytes+1))
+	if err != nil {
+		return fetchedPage{}, err
+	}
+	page := fetchedPage{status: resp.StatusCode, mime: resp.Header.Get("Content-Type"), body: body}
+	if int64(len(body)) > r.cfg.FetchMaxBytes {
+		page.truncated = true
+		page.body = body[:r.cfg.FetchMaxBytes]
+	}
+	return page, nil
+}
+
+// fetchOptimized runs the pipeline, answering with a pointer when the page is unchanged since the
+// session's earlier fetch and with a line diff when it changed.
+func (r *Receiver) fetchOptimized(ctx context.Context, request *payload.Payload, head string, page fetchedPage, rawURL, query string) (string, error) {
+	key := fetchKey(request.Attrs[payload.AttrSession], rawURL, query)
+	hash := fetchHash(page.status, page.body)
+	prev, seen := r.fetched.Get(key)
+	if seen && prev.hash == hash {
+		return fmt.Sprintf("%sunchanged since earlier fetch in this session · full: %s id=%s", head, r.cfg.Retrieve, prev.rawID), nil
+	}
+	out, err := r.next.Process(ctx, request)
+	if err != nil {
+		return "", err
 	}
 	// Only optimized results are cached: they carry the id a pointer needs.
 	// A bypassed one (failed key, skip) leaves the entry alone, so it never
 	// turns later fetches into permanent full results.
 	id := out.Attrs[payload.AttrRawID]
 	if id == "" {
-		return mcptool.Result(head + mcptool.Text(out)), nil, nil
+		return head + mcptool.Text(out), nil
 	}
 	r.fetched.Put(key, fetchEntry{hash: hash, rawID: id, text: out.Text()})
 	if seen {
 		if d, ok := lineDiff(prev.text, out.Text()); ok {
-			return mcptool.Result(fmt.Sprintf("%schanged since earlier fetch in this session (full: %s id=%s):\n%s", head, r.cfg.Retrieve, id, d)), nil, nil
+			return fmt.Sprintf("%schanged since earlier fetch in this session (full: %s id=%s):\n%s", head, r.cfg.Retrieve, id, d), nil
 		}
 	}
-	return mcptool.Result(head + mcptool.Text(out)), nil, nil
+	return head + mcptool.Text(out), nil
 }
 
 type CompressInput struct {

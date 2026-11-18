@@ -131,9 +131,30 @@ func hoist(cols []string, rows []any) map[string]any {
 			objRows = append(objRows, row)
 		}
 	}
-	same := map[string]any{}
-	affix := map[string]any{}
-	var keepCols []int
+	same, affix, keepCols := splitColumns(cols, objRows)
+	// Sparse columns last, so rows can end before their trailing nulls.
+	slices.SortStableFunc(keepCols, func(left, right int) int {
+		return cmp.Compare(countNulls(objRows, left), countNulls(objRows, right))
+	})
+	outCols := make([]string, len(keepCols))
+	for i, c := range keepCols {
+		outCols[i] = cols[c]
+	}
+	t := map[string]any{"_cols": outCols, "_rows": keepRows(rows, keepCols)}
+	if len(same) > 0 {
+		t["_same"] = same
+	}
+	if len(affix) > 0 {
+		t["_affix"] = affix
+	}
+	return t
+}
+
+// splitColumns finds the columns equal in every row (same), strips the shared prefix and suffix of
+// the others from the rows in place (affix) and returns the indexes of the columns that stay.
+func splitColumns(cols []string, objRows [][]any) (same, affix map[string]any, keepCols []int) {
+	same = map[string]any{}
+	affix = map[string]any{}
 	for c, name := range cols {
 		if name != keyCol && len(objRows) > 1 && allEqual(objRows, c) {
 			if objRows[0][c] != nil {
@@ -151,41 +172,34 @@ func hoist(cols []string, rows []any) map[string]any {
 		}
 		keepCols = append(keepCols, c)
 	}
-	nulls := func(column int) (n int) {
-		for _, row := range objRows {
-			if row[column] == nil {
-				n++
-			}
+	return same, affix, keepCols
+}
+
+func countNulls(rows [][]any, column int) (n int) {
+	for _, row := range rows {
+		if row[column] == nil {
+			n++
 		}
-		return n
 	}
-	// Sparse columns last, so rows can end before their trailing nulls.
-	slices.SortStableFunc(keepCols, func(left, right int) int { return cmp.Compare(nulls(left), nulls(right)) })
-	outCols := make([]string, len(keepCols))
-	for i, c := range keepCols {
-		outCols[i] = cols[c]
-	}
-	outRows := make([]any, len(rows))
+	return n
+}
+
+// keepRows projects the array rows onto the kept columns, in that order; other rows pass through.
+func keepRows(rows []any, keepCols []int) []any {
+	out := make([]any, len(rows))
 	for i, r := range rows {
 		row, ok := r.([]any)
 		if !ok {
-			outRows[i] = r
+			out[i] = r
 			continue
 		}
 		cells := make([]any, len(keepCols))
 		for j, c := range keepCols {
 			cells[j] = row[c]
 		}
-		outRows[i] = trimNulls(cells)
+		out[i] = trimNulls(cells)
 	}
-	t := map[string]any{"_cols": outCols, "_rows": outRows}
-	if len(same) > 0 {
-		t["_same"] = same
-	}
-	if len(affix) > 0 {
-		t["_affix"] = affix
-	}
-	return t
+	return out
 }
 
 // trimNulls drops trailing nulls: a row shorter than _cols has null cells at the end.

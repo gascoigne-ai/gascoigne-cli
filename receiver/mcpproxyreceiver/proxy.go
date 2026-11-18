@@ -143,13 +143,36 @@ func (r *Receiver) Run(ctx context.Context) error {
 // be added to a running server, so a late login goes without.
 func (r *Receiver) populate(ctx context.Context, server *mcp.Server, cs *mcp.ClientSession, info *mcp.Implementation, stats bool) error {
 	r.server = serverID(info.Name, r.identity(ctx))
+	tools, err := r.downstreamTools(ctx, cs)
+	if err != nil {
+		return err
+	}
+	direct, lazy := r.splitLazy(ctx, tools)
+	hideAll := r.cfg.MaxTools > 0 && len(tools) > r.cfg.MaxTools // max_tools hides everything; it wins over a choice of tools
+	if stats {
+		recorded := lazy
+		if hideAll {
+			recorded = tools
+		}
+		r.recordFirstListPerDay(server, recorded)
+	} else {
+		// After a late login the middleware cannot be added: record what the agent will be offered.
+		r.recordList(ctx, nil, direct, lazy)
+	}
+	r.registerTools(server, cs, tools, direct, lazy, hideAll)
+	mcptool.AddRetrieve(server, r.cfg.Retrieve, r.ledger)
+	return nil
+}
+
+// downstreamTools lists the downstream tools, compacted and trimmed as configured.
+func (r *Receiver) downstreamTools(ctx context.Context, cs *mcp.ClientSession) ([]*mcp.Tool, error) {
 	var tools []*mcp.Tool
 	for tool, err := range cs.Tools(ctx, nil) {
 		if err != nil {
-			return fmt.Errorf("list downstream tools: %w", err)
+			return nil, fmt.Errorf("list downstream tools: %w", err)
 		}
 		if tool.Name == r.cfg.Retrieve {
-			return fmt.Errorf("downstream tool %q clashes with retrieve tool; set retrieve in config", tool.Name)
+			return nil, fmt.Errorf("downstream tool %q clashes with retrieve tool; set retrieve in config", tool.Name)
 		}
 		if r.cfg.CompactTools {
 			tool.InputSchema = compactSchema(tool.Name, tool.InputSchema)
@@ -159,37 +182,41 @@ func (r *Receiver) populate(ctx context.Context, server *mcp.Server, cs *mcp.Cli
 		}
 		tools = append(tools, tool)
 	}
-	direct, lazy := r.splitLazy(ctx, tools)
-	if stats {
-		var mu sync.Mutex
-		var day string
-		server.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
-			return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
-				res, err := next(ctx, method, req)
-				if lr, ok := res.(*mcp.ListToolsResult); ok && err == nil && method == "tools/list" {
-					// The agent pays for the definitions only when it lists them, and for the
-					// ones it is shown: record exactly those, and what the lazy tools would cost.
-					// Once a day, not once per process: a session that lasts for days must not
-					// look like a server that went quiet.
-					today := time.Now().UTC().Format(time.DateOnly)
-					mu.Lock()
-					first := day != today
-					day = today
-					mu.Unlock()
-					if first {
-						r.recordList(ctx, req.GetSession(), lr.Tools, lazy)
-					}
-				}
+	return tools, nil
+}
+
+// recordFirstListPerDay records the tool list the agent is shown, on its first tools/list of each day.
+func (r *Receiver) recordFirstListPerDay(server *mcp.Server, lazy []*mcp.Tool) {
+	var mu sync.Mutex
+	var day string
+	server.AddReceivingMiddleware(func(next mcp.MethodHandler) mcp.MethodHandler {
+		return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
+			res, err := next(ctx, method, req)
+			lr, ok := res.(*mcp.ListToolsResult)
+			if !ok || err != nil || method != "tools/list" {
 				return res, err
 			}
-		})
-	} else {
-		// After a late login the middleware cannot be added: record what the agent will be offered.
-		r.recordList(ctx, nil, direct, lazy)
-	}
+			// The agent pays for the definitions only when it lists them, and for the
+			// ones it is shown: record exactly those, and what the lazy tools would cost.
+			// Once a day, not once per process: a session that lasts for days must not
+			// look like a server that went quiet.
+			today := time.Now().UTC().Format(time.DateOnly)
+			mu.Lock()
+			first := day != today
+			day = today
+			mu.Unlock()
+			if first {
+				r.recordList(ctx, req.GetSession(), lr.Tools, lazy)
+			}
+			return res, err
+		}
+	})
+}
+
+// registerTools adds the tools to server: all lazy when hideAll, else the direct ones plus the lazy ones, if any.
+func (r *Receiver) registerTools(server *mcp.Server, cs *mcp.ClientSession, tools, direct, lazy []*mcp.Tool, hideAll bool) {
 	switch {
-	case r.cfg.MaxTools > 0 && len(tools) > r.cfg.MaxTools: // max_tools hides everything; it wins over a choice of tools
-		lazy = tools
+	case hideAll:
 		r.addLazy(server, cs, tools, true)
 	case len(lazy) > 0:
 		for _, tool := range direct {
@@ -201,8 +228,6 @@ func (r *Receiver) populate(ctx context.Context, server *mcp.Server, cs *mcp.Cli
 			server.AddTool(tool, r.forward(cs, tool.Name))
 		}
 	}
-	mcptool.AddRetrieve(server, r.cfg.Retrieve, r.ledger)
-	return nil
 }
 
 // splitLazy separates the tools the user chose to load on request from the

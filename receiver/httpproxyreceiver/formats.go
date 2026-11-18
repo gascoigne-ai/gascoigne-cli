@@ -15,29 +15,38 @@ func anthropic(ctx context.Context, receiver *Receiver, doc map[string]any, info
 	changed := false
 	for msg := range messages(doc, "messages") {
 		for b := range objects(msg["content"]) {
-			switch b["type"] {
-			case "tool_use":
-				id, _ := b["id"].(string)
-				name, _ := b["name"].(string)
-				input, _ := b["input"].(map[string]any)
-				calls[id] = call{name, input}
-			case "tool_result":
-				if b["is_error"] == true {
-					continue
-				}
-				id, _ := b["tool_use_id"].(string)
-				c, ok := calls[id]
-				if !ok {
-					continue
-				}
-				if content, ok := replaceContent(ctx, receiver, c, b["content"], info); ok {
-					b["content"] = content
-					changed = true
-				}
+			if anthropicBlock(ctx, receiver, calls, b, info) {
+				changed = true
 			}
 		}
 	}
 	return changed
+}
+
+// anthropicBlock remembers a tool_use block in calls and shortens a tool_result block that
+// answers a remembered call; true when it changed the block.
+func anthropicBlock(ctx context.Context, receiver *Receiver, calls map[string]call, block map[string]any, info meta) bool {
+	switch block["type"] {
+	case "tool_use":
+		id, _ := block["id"].(string)
+		name, _ := block["name"].(string)
+		input, _ := block["input"].(map[string]any)
+		calls[id] = call{name, input}
+	case "tool_result":
+		if block["is_error"] == true {
+			return false
+		}
+		id, _ := block["tool_use_id"].(string)
+		c, ok := calls[id]
+		if !ok {
+			return false
+		}
+		if content, ok := replaceContent(ctx, receiver, c, block["content"], info); ok {
+			block["content"] = content
+			return true
+		}
+	}
+	return false
 }
 
 // replaceContent shortens a string or the text blocks of a content list;
@@ -50,22 +59,30 @@ func replaceContent(ctx context.Context, receiver *Receiver, toolCall call, cont
 	case []any:
 		changed := false
 		for b := range objects(v) {
-			if receiver.shrinkImages(ctx, b) {
-				changed = true
-				continue
-			}
-			text, ok := b["text"].(string)
-			if !ok || b["type"] != "text" && b["type"] != "input_text" && b["type"] != "output_text" {
-				continue
-			}
-			if out := receiver.result(ctx, toolCall, text, info); out != text {
-				b["text"] = out
+			if shortenBlock(ctx, receiver, toolCall, b, info) {
 				changed = true
 			}
 		}
 		return v, changed
 	}
 	return content, false
+}
+
+// shortenBlock downscales an image block or shortens a text block in place; true when it changed.
+func shortenBlock(ctx context.Context, receiver *Receiver, toolCall call, block map[string]any, info meta) bool {
+	if receiver.shrinkImages(ctx, block) {
+		return true
+	}
+	text, ok := block["text"].(string)
+	if !ok || block["type"] != "text" && block["type"] != "input_text" && block["type"] != "output_text" {
+		return false
+	}
+	out := receiver.result(ctx, toolCall, text, info)
+	if out == text {
+		return false
+	}
+	block["text"] = out
+	return true
 }
 
 // chatCompletions shortens role "tool" messages of a Chat Completions request.

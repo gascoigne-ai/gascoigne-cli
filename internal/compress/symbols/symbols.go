@@ -241,30 +241,38 @@ func braceDefs(lines []string) []Def {
 			defs = append(defs, Def{Name: qualified, Kind: kind, From: from + 1, Line: i + 1, To: i + 1})
 			pending, sigLine = len(defs)-1, i
 		}
-		for _, c := range code {
-			switch c {
-			case '{':
-				o := frame{def: -1}
-				if pending >= 0 && i-sigLine <= 3 {
-					o.def = pending
-				}
-				pending = -1
-				stack = append(stack, o)
-			case '}':
-				if len(stack) == 0 {
-					continue
-				}
-				top := stack[len(stack)-1]
-				stack = stack[:len(stack)-1]
-				if top.def >= 0 {
-					defs[top.def].To = i + 1
-				}
-			case ';':
-				pending = -1 // a declaration without body
-			}
-		}
+		stack, pending = trackBraces(code, i, defs, stack, pending, i-sigLine <= 3)
 	}
 	return slices.DeleteFunc(defs, func(def Def) bool { return def.To == def.Line && !strings.Contains(stripCode(lines[def.Line-1]), "}") })
+}
+
+// trackBraces follows the braces of one code line (number index): a { opens a block that belongs to
+// the pending signature when it is near enough, a } closes one and ends its definition, a ; drops
+// the pending signature. It returns the new stack and pending index.
+func trackBraces(code string, index int, defs []Def, stack []frame, pending int, near bool) ([]frame, int) {
+	for _, c := range code {
+		switch c {
+		case '{':
+			open := frame{def: -1}
+			if pending >= 0 && near {
+				open.def = pending
+			}
+			pending = -1
+			stack = append(stack, open)
+		case '}':
+			if len(stack) == 0 {
+				continue
+			}
+			top := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+			if top.def >= 0 {
+				defs[top.def].To = index + 1
+			}
+		case ';':
+			pending = -1 // a declaration without body
+		}
+	}
+	return stack, pending
 }
 
 func defName(code string) (string, string) {

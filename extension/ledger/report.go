@@ -62,30 +62,42 @@ func (l *Ledger) liveStats(ctx context.Context, query component.StatsQuery) ([]c
 	}
 	group := g.column
 	tx = filter(tx, "events", query)
-	order := fmt.Sprintf("sum(%[1]s.raw_tokens) - sum(%[2]s) DESC, 1", table, l.outTokens(query.By))
-	if query.Chronological() {
-		order = "1"
-	}
-	if query.By == component.BySession {
-		order = "max(events.ts) DESC, 1" // latest session first
-	}
-	var rows []struct {
-		Group                   string
-		Family                  string
-		Runs, Optimized, Failed int
-		RawTokens, OutTokens    int
-		FirstTS, LastTS         int64
-	}
+	var rows []statRow
 	err := tx.Select("CASE " + group + " WHEN '' THEN '-' ELSE " + group + " END AS \"group\", " + l.aggregates(query.By)).
 		Group(group).
-		Order(order).
+		Order(l.liveOrder(table, query)).
 		Scan(&rows).Error
 	stats := make([]component.Stat, len(rows))
-	for i, r := range rows {
-		stats[i] = component.Stat{Group: r.Group, Family: r.Family, Runs: r.Runs, Optimized: r.Optimized, Failed: r.Failed,
-			RawTokens: r.RawTokens, OutTokens: r.OutTokens, First: time.UnixMilli(r.FirstTS), Last: time.UnixMilli(r.LastTS)}
+	for i, row := range rows {
+		stats[i] = row.stat()
 	}
 	return stats, err
+}
+
+// liveOrder is the ORDER BY of live stats: biggest savings first, oldest first for a time
+// grouping, latest session first for sessions.
+func (l *Ledger) liveOrder(table string, query component.StatsQuery) string {
+	switch {
+	case query.By == component.BySession:
+		return "max(events.ts) DESC, 1"
+	case query.Chronological():
+		return "1"
+	}
+	return fmt.Sprintf("sum(%[1]s.raw_tokens) - sum(%[2]s) DESC, 1", table, l.outTokens(query.By))
+}
+
+// statRow is one aggregated row of live stats, as the database returns it.
+type statRow struct {
+	Group                   string
+	Family                  string
+	Runs, Optimized, Failed int
+	RawTokens, OutTokens    int
+	FirstTS, LastTS         int64
+}
+
+func (row statRow) stat() component.Stat {
+	return component.Stat{Group: row.Group, Family: row.Family, Runs: row.Runs, Optimized: row.Optimized, Failed: row.Failed,
+		RawTokens: row.RawTokens, OutTokens: row.OutTokens, First: time.UnixMilli(row.FirstTS), Last: time.UnixMilli(row.LastTS)}
 }
 
 // period buckets events.ts (unix ms) in local time.
