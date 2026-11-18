@@ -176,15 +176,6 @@ func Command(cmd string) string {
 	return strings.Join(append([]string{args[0]}, pos[:n]...), " ")
 }
 
-// lastArg is the last positional argument (the file of cat, head, tail).
-func lastArg(args []string) string {
-	pos := positional(args)
-	if len(pos) == 0 {
-		return ""
-	}
-	return pos[len(pos)-1]
-}
-
 // lastCommand is the command of a line that does the work: "cd api && go
 // test ./..." names go test, not cd. Setup steps of a list (cd, export,
 // VAR=x, loop headers) are skipped, and "do"/"then" lead into the command.

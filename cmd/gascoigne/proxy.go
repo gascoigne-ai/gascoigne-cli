@@ -30,11 +30,6 @@ func (r proxyResult) String() string {
 	return strings.Join(parts, "; ")
 }
 
-func (r *proxyResult) add(other proxyResult) {
-	r.proxied = append(r.proxied, other.proxied...)
-	r.direct = append(r.direct, other.direct...)
-}
-
 // proxyCommand is how gascoigne starts a server: exe mcp-proxy -- cmd args...
 func proxyCommand(exe, cmd string, args []string) (string, []string) {
 	return exe, append([]string{"mcp-proxy", "--", cmd}, args...)

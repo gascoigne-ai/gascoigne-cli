@@ -93,9 +93,6 @@ func (r *Regexp) FindAllStringSubmatchIndex(text string, limit int) [][]int {
 func (r *Regexp) ReplaceAllString(src, repl string) string {
 	return r.get().ReplaceAllString(src, repl)
 }
-func (r *Regexp) ReplaceAllLiteralString(src, repl string) string {
-	return r.get().ReplaceAllLiteralString(src, repl)
-}
 func (r *Regexp) ReplaceAllStringFunc(src string, repl func(string) string) string {
 	return r.get().ReplaceAllStringFunc(src, repl)
 }
