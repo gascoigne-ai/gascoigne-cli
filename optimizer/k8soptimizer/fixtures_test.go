@@ -4,8 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/table"
 )
 
 // Real kubectl output from testdata/eval: a List of pods is sampled to
@@ -20,7 +18,7 @@ func TestManifestsSamplesPodList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	o := &Optimizer{cfg: &Config{MaxItems: 3, Limits: table.Limits{MaxRows: 30, MaxCell: 60}, NotesLines: 5}}
+	o := &Optimizer{cfg: &Config{MaxItems: 3, MaxRows: 30, MaxCell: 60, NotesLines: 5}}
 	got, err := o.manifests(string(input))
 	if err != nil {
 		t.Fatal(err)

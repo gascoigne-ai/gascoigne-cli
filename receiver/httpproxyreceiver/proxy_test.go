@@ -23,7 +23,7 @@ type dropComments struct{ calls atomic.Int32 }
 func (d *dropComments) Process(_ context.Context, data *payload.Payload) (*payload.Payload, error) {
 	d.calls.Add(1)
 	var kept []string
-	for _, l := range strings.Split(strings.TrimRight(data.Text(), "\n"), "\n") {
+	for l := range strings.SplitSeq(strings.TrimRight(data.Text(), "\n"), "\n") {
 		if !strings.HasPrefix(strings.TrimSpace(l), "//") {
 			kept = append(kept, l)
 		}

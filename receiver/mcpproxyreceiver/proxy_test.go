@@ -35,8 +35,7 @@ type SearchInput struct {
 }
 
 func TestProxy(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	// Downstream server with one tool returning a big result.
 	down := mcp.NewServer(&mcp.Implementation{Name: "search", Version: "1"}, nil)

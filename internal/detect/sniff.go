@@ -3,6 +3,7 @@ package detect
 import (
 	"encoding/json"
 	"io"
+	"slices"
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
@@ -39,12 +40,7 @@ func Sniff(text string) string {
 func anyLine(pattern string) Sniffer {
 	re := lazyre.New(pattern)
 	return func(_ string, lines []string) bool {
-		for _, l := range lines {
-			if re.MatchString(l) {
-				return true
-			}
-		}
-		return false
+		return slices.ContainsFunc(lines, re.MatchString)
 	}
 }
 

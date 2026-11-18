@@ -69,8 +69,8 @@ func (o *Optimizer) paths(lines []string) []string {
 			continue
 		}
 		isDir[path.Dir(strings.TrimSuffix(p, "/"))] = true
-		if strings.HasSuffix(p, "/") {
-			isDir[strings.TrimSuffix(p, "/")] = true
+		if before, ok := strings.CutSuffix(p, "/"); ok {
+			isDir[before] = true
 		}
 	}
 	for _, l := range lines {

@@ -113,7 +113,7 @@ func TestLoginStateJSONRoundTrip(t *testing.T) {
 }
 
 func TestEventJSONOutcomeWire(t *testing.T) {
-	got, err := json.Marshal(eventsJSON([]ledger.Entry{{Event: component.Event{Outcome: component.Failed}}}))
+	got, err := json.Marshal(eventsJSON([]ledger.Entry{{Outcome: component.Failed}}))
 	if err != nil || !strings.Contains(string(got), `"outcome":"error"`) {
 		t.Errorf("got %s, %v", got, err)
 	}

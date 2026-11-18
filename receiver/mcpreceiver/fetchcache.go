@@ -3,6 +3,7 @@ package mcpreceiver
 import (
 	"crypto/sha256"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/lru"
@@ -49,9 +50,9 @@ func lineDiff(left, right string) (string, bool) {
 	for i := range lcs {
 		lcs[i] = make([]int32, len(y)+1)
 	}
-	for i := len(x) - 1; i >= 0; i-- {
+	for i, v := range slices.Backward(x) {
 		for j := len(y) - 1; j >= 0; j-- {
-			if x[i] == y[j] {
+			if v == y[j] {
 				lcs[i][j] = lcs[i+1][j+1] + 1
 			} else {
 				lcs[i][j] = max(lcs[i+1][j], lcs[i][j+1])

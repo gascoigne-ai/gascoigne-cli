@@ -153,7 +153,7 @@ type pricingSetup struct {
 func buildPricingSetup(chosen prefs) *pricingSetup {
 	view := buildPricingView()
 	out := &pricingSetup{
-		pricingForm: pricingForm{TTL: cmp.Or(chosen.Pricing.TTL, "24h"), Prices: chosen.Pricing.Prices},
+		TTL: cmp.Or(chosen.Pricing.TTL, "24h"), Prices: chosen.Pricing.Prices,
 		Sources: pricingSources{
 			File: chosen.Pricing.File != "", URL: chosen.Pricing.URL != "", HeaderEnv: chosen.Pricing.HeaderEnv != "",
 			Translate: chosen.Pricing.Translate != "",

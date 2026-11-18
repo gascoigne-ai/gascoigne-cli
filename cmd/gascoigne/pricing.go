@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"os/exec"
 	"slices"
@@ -397,12 +398,8 @@ func (flags *pricingSetFlags) checkedTTL(writer io.Writer) (string, error) {
 // applyPrices merges -price into the saved static prices and drops -unset-price.
 func (flags *pricingSetFlags) applyPrices(prefs *pricingPrefs) error {
 	merged := map[string]cost.PriceItem{}
-	for id, item := range prefs.Prices {
-		merged[id] = item
-	}
-	for id, item := range flags.prices {
-		merged[id] = item
-	}
+	maps.Copy(merged, prefs.Prices)
+	maps.Copy(merged, flags.prices)
 	for _, id := range flags.unset {
 		delete(merged, strings.ToLower(strings.TrimSpace(id)))
 	}

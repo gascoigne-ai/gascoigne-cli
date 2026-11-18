@@ -99,8 +99,8 @@ func s3Extremes(objs []object) []string {
 func group(key string) string {
 	top, _, nested := strings.Cut(key, "/")
 	ext := path.Ext(key)
-	if strings.HasSuffix(key, ".gz") {
-		ext = path.Ext(strings.TrimSuffix(key, ".gz")) + ".gz"
+	if before, ok := strings.CutSuffix(key, ".gz"); ok {
+		ext = path.Ext(before) + ".gz"
 	}
 	if !nested {
 		return "*" + ext

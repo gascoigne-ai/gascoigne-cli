@@ -51,14 +51,12 @@ func TestConcurrent(t *testing.T) {
 	c := New[int, int](8)
 	var wg sync.WaitGroup
 	for g := range 4 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for i := range 200 {
 				c.Put(i%16+g, i)
 				c.Get(i % 16)
 			}
-		}()
+		})
 	}
 	wg.Wait()
 	if c.Len() > 8 {

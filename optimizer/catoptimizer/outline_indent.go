@@ -72,8 +72,8 @@ func (o *Optimizer) elidePython(elide map[int]int, lines []string, header, end i
 }
 
 func stripComment(line string) string {
-	if i := strings.Index(line, " #"); i >= 0 {
-		return line[:i]
+	if before, _, ok := strings.Cut(line, " #"); ok {
+		return before
 	}
 	return line
 }

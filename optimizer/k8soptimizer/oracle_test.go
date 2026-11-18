@@ -22,7 +22,7 @@ func corpus(t *testing.T) []string {
 		if err != nil {
 			return err
 		}
-		for _, l := range strings.Split(string(data), "\n") {
+		for l := range strings.SplitSeq(string(data), "\n") {
 			if !seen[l] {
 				seen[l] = true
 				lines = append(lines, l)

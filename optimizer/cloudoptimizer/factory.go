@@ -5,7 +5,6 @@ import (
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/jsonx"
-	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/table"
 )
 
 const (
@@ -17,7 +16,7 @@ const (
 func NewFactory() component.Factory {
 	return component.NewFactory(component.KindOptimizer, typ,
 		func() *Config {
-			return &Config{JSON: *jsonx.Default(), Limits: table.Limits{MaxRows: 30, MaxCell: 60}, MaxObjects: 30}
+			return &Config{JSON: *jsonx.Default(), MaxRows: 30, MaxCell: 60, MaxObjects: 30}
 		},
 		func(_ context.Context, _ component.Settings, cfg *Config) (component.Component, error) {
 			return &Optimizer{cfg: cfg}, nil

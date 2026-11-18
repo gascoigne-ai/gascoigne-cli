@@ -154,8 +154,8 @@ func (run *tfRun) line(line string) {
 	if tfBoxEdge.MatchString(line) {
 		return
 	}
-	if strings.HasPrefix(line, "│") {
-		line = strings.TrimPrefix(strings.TrimPrefix(line, "│"), " ")
+	if after, ok := strings.CutPrefix(line, "│"); ok {
+		line = strings.TrimPrefix(after, " ")
 	}
 	if tfNoise.Match(line) {
 		if tfDone.MatchString(line) {

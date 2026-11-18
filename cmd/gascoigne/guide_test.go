@@ -206,9 +206,9 @@ func TestRemoveBlock(t *testing.T) {
 		wantText string // file text after; "" with blockFileDeleted means the file is gone
 	}{
 		{"missing file", nil, blockAbsent, ""},
-		{"no block", ptr("keep\n"), blockAbsent, "keep\n"},
-		{"block among other text", ptr("keep\n\n" + start + "\nx\n" + end + "\n"), blockCut, "keep\n"},
-		{"only the block", ptr(start + "\nx\n" + end + "\n"), blockFileDeleted, ""},
+		{"no block", new("keep\n"), blockAbsent, "keep\n"},
+		{"block among other text", new("keep\n\n" + start + "\nx\n" + end + "\n"), blockCut, "keep\n"},
+		{"only the block", new(start + "\nx\n" + end + "\n"), blockFileDeleted, ""},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -238,5 +238,3 @@ func TestRemoveBlock(t *testing.T) {
 		})
 	}
 }
-
-func ptr(text string) *string { return &text }

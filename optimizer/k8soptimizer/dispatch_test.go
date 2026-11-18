@@ -32,7 +32,7 @@ STATUS: deployed
 NOTES:
 1. hello
 `
-	o := &Optimizer{cfg: &Config{MaxItems: 6, Limits: table.Limits{MaxRows: 30, MaxCell: 60}, NotesLines: 5}}
+	o := &Optimizer{cfg: &Config{MaxItems: 6, MaxRows: 30, MaxCell: 60, NotesLines: 5}}
 	topts := o.cfg.Options(nil)
 	want := map[string]func([]string) []string{
 		"describe": describe,

@@ -11,7 +11,7 @@ import (
 )
 
 func run(session, cmd string, out component.Outcome, tokens int, rawID string) ledger.Entry {
-	return ledger.Entry{Event: component.Event{Session: session, Command: cmd, Key: "cmd:" + cmd, Outcome: out, RawTokens: tokens, RawID: rawID}}
+	return ledger.Entry{Session: session, Command: cmd, Key: "cmd:" + cmd, Outcome: out, RawTokens: tokens, RawID: rawID}
 }
 
 func TestLessons(t *testing.T) {
@@ -26,7 +26,7 @@ func TestLessons(t *testing.T) {
 	}
 	es = append(es, run("s1", "docker logs", component.Unchanged, 3000, ""), run("s2", "docker logs", component.Unchanged, 2000, ""), run("s2", "docker logs", component.Unchanged, 2500, ""))
 	es = append(es, run("s1", "ls", component.Unchanged, 100, "")) // small: not worth a line
-	es = append(es, ledger.Entry{Event: component.Event{Session: "s1", Command: "go build", Key: "cmd:go build", Outcome: component.Optimized, RawID: "r3", Route: "fold"}})
+	es = append(es, ledger.Entry{Session: "s1", Command: "go build", Key: "cmd:go build", Outcome: component.Optimized, RawID: "r3", Route: "fold"})
 
 	got := lessons(es)
 	if len(got) != 2 {

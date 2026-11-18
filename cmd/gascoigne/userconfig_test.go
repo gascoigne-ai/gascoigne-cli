@@ -127,8 +127,7 @@ func TestUserTemplateListsEverySetting(t *testing.T) {
 func missingFields(t *testing.T, path string, typ reflect.Type, got any) {
 	t.Helper()
 	m, _ := got.(map[string]any)
-	for i := range typ.NumField() {
-		f := typ.Field(i)
+	for f := range typ.Fields() {
 		name, _, _ := strings.Cut(f.Tag.Get("yaml"), ",")
 		if name == "" || name == "-" {
 			continue
@@ -138,7 +137,7 @@ func missingFields(t *testing.T, path string, typ reflect.Type, got any) {
 			t.Errorf("%s.%s missing", path, name)
 			continue
 		}
-		if f.Type.Kind() == reflect.Struct && f.Type != reflect.TypeOf(time.Duration(0)) {
+		if f.Type.Kind() == reflect.Struct && f.Type != reflect.TypeFor[time.Duration]() {
 			missingFields(t, path+"."+name, f.Type, v)
 		}
 	}
@@ -268,7 +267,7 @@ func TestTemplatesCarryVersion(t *testing.T) {
 			}
 		})
 	}
-	field, _ := reflect.TypeOf(config.Config{}).FieldByName("Version")
+	field, _ := reflect.TypeFor[config.Config]().FieldByName("Version")
 	if tag, _, _ := strings.Cut(field.Tag.Get("yaml"), ","); tag != configs.VersionKey {
 		t.Errorf("Config.Version yaml tag %q != configs.VersionKey %q", tag, configs.VersionKey)
 	}

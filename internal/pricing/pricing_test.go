@@ -17,8 +17,6 @@ import (
 
 const sheetA = `{"version":1,"models":{"acme-large":{"in":3,"out":15,"cache_read":0.3,"cache_write":3.75,"tokenizer":"claude"}}}`
 
-func price(value float64) *float64 { return &value }
-
 func lookup(t *testing.T, result Result, id string) (cost.Model, string) {
 	t.Helper()
 	cost.SetOverrides(result.Overrides)
@@ -38,7 +36,7 @@ func TestPrecedenceStaticJSONAPIScript(t *testing.T) {
 	defer api.Close()
 	now := time.Now()
 	cfg := Config{
-		Static: map[string]cost.PriceItem{"m-all": {In: price(1), Out: price(1)}},
+		Static: map[string]cost.PriceItem{"m-all": {In: new(float64(1)), Out: new(float64(1))}},
 		File:   file, URL: api.URL, StateDir: dir, Now: clock(&now),
 	}
 	if err := Refresh(t.Context(), cfg, false); err != nil {
@@ -343,7 +341,7 @@ func TestStaticAndFileErrorsAreReportedNotFatal(t *testing.T) {
 	file := filepath.Join(dir, "bad.json")
 	os.WriteFile(file, []byte(`{"models":{"x":{"in":-1,"out":1}}}`), 0o600)
 	load := Load(Config{
-		Static: map[string]cost.PriceItem{"neg": {In: price(-1), Out: price(1)}},
+		Static: map[string]cost.PriceItem{"neg": {In: new(float64(-1)), Out: new(float64(1))}},
 		File:   file, StateDir: dir,
 	})
 	if len(load.Overrides) != 0 {

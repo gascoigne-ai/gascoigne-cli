@@ -9,6 +9,7 @@
 package pcomb
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
@@ -57,12 +58,7 @@ func Exact(lines ...string) Matcher {
 		panic("pcomb: Exact needs at least one string")
 	}
 	return func(line string) bool {
-		for _, l := range lines {
-			if line == l {
-				return true
-			}
-		}
-		return false
+		return slices.Contains(lines, line)
 	}
 }
 

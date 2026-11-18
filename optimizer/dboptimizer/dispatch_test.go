@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
-	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/table"
 	"github.com/gascoigne-ai/gascoigne-cli/payload"
 )
 
@@ -25,7 +24,7 @@ func TestDispatch(t *testing.T) {
 (2 rows)
 Applying migration 001_init ... done
 `
-	o := &Optimizer{cfg: &Config{Limits: table.Limits{MaxRows: 30, MaxCell: 60}, PlanMinShare: 0.02}}
+	o := &Optimizer{cfg: &Config{MaxRows: 30, MaxCell: 60, PlanMinShare: 0.02}}
 	opts := o.cfg.Options(nil)
 	want := map[string]func([]string) []string{
 		"explain": o.plan,

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress"
@@ -92,10 +93,8 @@ func (n *node) failed() bool {
 	if failed.MatchString(n.name) {
 		return true
 	}
-	for _, a := range n.attrs {
-		if failed.MatchString(a) {
-			return true
-		}
+	if slices.ContainsFunc(n.attrs, failed.MatchString) {
+		return true
 	}
 	for _, c := range n.children {
 		if c.failed() {
