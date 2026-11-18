@@ -65,10 +65,10 @@ func (r sdkRequest) attrs() map[string]string {
 
 // sdkOptimize serves POST /sdk/v1/optimize: the text of one tool result in,
 // the optimized text out, through the user's own config and ledger.
-func sdkOptimize(w *warm) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+func sdkOptimize(cache *warm) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, request *http.Request) {
 		var req sdkRequest
-		if err := json.NewDecoder(http.MaxBytesReader(rw, r.Body, 64<<20)).Decode(&req); err != nil {
+		if err := json.NewDecoder(http.MaxBytesReader(rw, request.Body, 64<<20)).Decode(&req); err != nil {
 			http.Error(rw, fmt.Sprintf("bad request: %v", err), http.StatusBadRequest)
 			return
 		}
@@ -81,7 +81,7 @@ func sdkOptimize(w *warm) http.Handler {
 		for k, v := range req.attrs() {
 			p.Attrs[k] = v
 		}
-		out, status, err := w.optimize(r.Context(), optimizeRequest{
+		out, status, err := cache.optimize(request.Context(), optimizeRequest{
 			Config: string(data), Overrides: config.Overrides{}, Pipeline: sdkPipeline, Payload: p,
 		})
 		if err != nil {
@@ -107,9 +107,9 @@ func sdkHealthHandler(version string, proxy bool) http.Handler {
 
 // sdkRaw serves GET /sdk/v1/raw/{id}: the original behind an optimized
 // result. Instruction text is never served, as in the dashboard.
-func sdkRaw(l *ledger.Ledger) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		key, p, err := l.GetRaw(r.Context(), r.PathValue("id"))
+func sdkRaw(store *ledger.Ledger) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, request *http.Request) {
+		key, p, err := store.GetRaw(request.Context(), request.PathValue("id"))
 		if err != nil || hiddenKey(key) {
 			http.Error(rw, "original not found (expired or unknown id)", http.StatusNotFound)
 			return
@@ -121,15 +121,15 @@ func sdkRaw(l *ledger.Ledger) http.Handler {
 
 // sdkStats serves GET /sdk/v1/stats?by=&session=&agent=&model=&since=: totals of the
 // recorded runs per group. since is RFC 3339.
-func sdkStats(l *ledger.Ledger) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query()
+func sdkStats(store *ledger.Ledger) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, request *http.Request) {
+		query := request.URL.Query()
 		since, err := sdkTime(query.Get("since"))
 		if err != nil {
 			http.Error(rw, "bad since: want RFC 3339", http.StatusBadRequest)
 			return
 		}
-		stats, err := inproc.StatsOf(r.Context(), l, inproc.StatsQuery{
+		stats, err := inproc.StatsOf(request.Context(), store, inproc.StatsQuery{
 			By: query.Get("by"), Session: query.Get("session"), Agent: query.Get("agent"),
 			Model: query.Get("model"), Since: since,
 		})
@@ -139,9 +139,9 @@ func sdkStats(l *ledger.Ledger) http.Handler {
 
 // sdkRecent serves GET /sdk/v1/recent?session=&agent=&model=&since=&before=&limit=: the
 // recorded runs, newest first.
-func sdkRecent(l *ledger.Ledger) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query()
+func sdkRecent(store *ledger.Ledger) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, request *http.Request) {
+		query := request.URL.Query()
 		since, err := sdkTime(query.Get("since"))
 		if err != nil {
 			http.Error(rw, "bad since: want RFC 3339", http.StatusBadRequest)
@@ -158,7 +158,7 @@ func sdkRecent(l *ledger.Ledger) http.Handler {
 			return
 		}
 		q.Limit = limit // the engine caps it at inproc.MaxRecentLimit
-		runs, err := inproc.RecentOf(r.Context(), l, q)
+		runs, err := inproc.RecentOf(request.Context(), store, q)
 		sdkReply(rw, runs, err)
 	})
 }

@@ -69,8 +69,8 @@ func cmdServer(ctx context.Context, args []string) error {
 	}
 	switch sub {
 	case "run":
-		err := withLedger(ctx, "server run", args, 0, flags, func(l *ledger.Ledger, _ *common, _ []string) error {
-			return runServer(ctx, l, addr, idle)
+		err := withLedger(ctx, "server run", args, 0, flags, func(store *ledger.Ledger, _ *common, _ []string) error {
+			return runServer(ctx, store, addr, idle)
 		})
 		if errors.Is(err, errNewBuild) {
 			// The ledger is closed and the port free: the new binary takes over.
@@ -79,8 +79,8 @@ func cmdServer(ctx context.Context, args []string) error {
 		}
 		return err
 	case "start":
-		return withLedger(ctx, "server start", args, 0, flags, func(l *ledger.Ledger, _ *common, _ []string) error {
-			if err := ensureServer(ctx, addr, l.Path(), true); err != nil {
+		return withLedger(ctx, "server start", args, 0, flags, func(store *ledger.Ledger, _ *common, _ []string) error {
+			if err := ensureServer(ctx, addr, store.Path(), true); err != nil {
 				return err
 			}
 			fmt.Printf("gascoigne dashboard: http://%s\n", addr)
@@ -121,7 +121,7 @@ var errNewBuild = errors.New("binary changed")
 // runServer serves the dashboard in the foreground until ctx ends or a
 // client asks it to stop. It returns errNewBuild once its binary changes,
 // so the new version restarts it.
-func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Duration) error {
+func runServer(ctx context.Context, store *ledger.Ledger, addr string, idle time.Duration) error {
 	if !loopbackHost(addr) {
 		return fmt.Errorf("server: %q is not a loopback address; the API has no login", addr)
 	}
@@ -132,7 +132,7 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Dur
 	ctx, stop := context.WithCancel(ctx)
 	defer stop()
 	b, modified := binary()
-	info := serverInfo{PID: os.Getpid(), Version: version.String(), Build: b, Modified: modified, Ledger: l.Path(), Addr: ln.Addr().String(), Started: time.Now()}
+	info := serverInfo{PID: os.Getpid(), Version: version.String(), Build: b, Modified: modified, Ledger: store.Path(), Addr: ln.Addr().String(), Started: time.Now()}
 	if idle > 0 {
 		info.Idle = idle.String()
 	}
@@ -140,12 +140,12 @@ func runServer(ctx context.Context, l *ledger.Ledger, addr string, idle time.Dur
 	defer w.Close()
 	go watchPricing(ctx, 10*time.Minute)
 	mux := http.NewServeMux()
-	mux.Handle("/", dashboard(l, time.Second, info, stop))
+	mux.Handle("/", dashboard(store, time.Second, info, stop))
 	mux.Handle("POST /api/optimize", localOnly(w))
 	mux.Handle("POST /sdk/v1/optimize", localOnly(sdkOptimize(w)))
-	mux.Handle("GET /sdk/v1/raw/{id}", localOnly(sdkRaw(l)))
-	mux.Handle("GET /sdk/v1/stats", localOnly(sdkStats(l)))
-	mux.Handle("GET /sdk/v1/recent", localOnly(sdkRecent(l)))
+	mux.Handle("GET /sdk/v1/raw/{id}", localOnly(sdkRaw(store)))
+	mux.Handle("GET /sdk/v1/stats", localOnly(sdkStats(store)))
+	mux.Handle("GET /sdk/v1/recent", localOnly(sdkRecent(store)))
 	proxyOn := false
 	proxy, closeProxy, err := llmProxy(ctx, &w.mu, info.Ledger, "", slog.New(slog.NewTextHandler(os.Stderr, nil)))
 	if err != nil {

@@ -56,9 +56,9 @@ type option struct {
 }
 
 // decisions are the questions, with the saved answers filled in.
-func decisions(p prefs) []decision {
+func decisions(settings prefs) []decision {
 	ds := []decision{
-		{ID: "allow", Group: "permissions", Current: p.Allow, Default: "local",
+		{ID: "allow", Group: "permissions", Current: settings.Allow, Default: "local",
 			Title: "Fewer approval prompts",
 			Text:  "Claude asks before each use of gascoigne's own tools. Allowing them adds rules to claude's settings; gascoigne unwrap removes exactly those.",
 			Options: []option{
@@ -66,7 +66,7 @@ func decisions(p prefs) []decision {
 				{"all", "Also allow fetch", "fetch reads web pages and APIs, so it reaches the network."},
 				{"none", "Keep asking", "claude asks before every gascoigne tool call, as now."},
 			}},
-		{ID: "autosync", Group: "updates", Current: p.Autosync, Default: "on",
+		{ID: "autosync", Group: "updates", Current: settings.Autosync, Default: "on",
 			Title: "Update hooks automatically after upgrades",
 			Text:  "A new gascoigne can add or change the hooks it installed in your agents.",
 			Options: []option{
@@ -74,13 +74,13 @@ func decisions(p prefs) []decision {
 				{"off", "Only when I ask", "Nothing changes until you run gascoigne upgrade."},
 			}},
 	}
-	ds = append(ds, mcpModeDecision(p), billingDecision(p))
-	if q, ok := updateDecision(p); ok {
+	ds = append(ds, mcpModeDecision(settings), billingDecision(settings))
+	if q, ok := updateDecision(settings); ok {
 		ds = slices.Insert(ds, 1, q) // the immediate update before the standing one
 	}
-	ds = append(ds, releaseDecision(p), mcpReviewDecision(p))
-	for _, name := range newAgents(p) {
-		ds = append(ds, decision{ID: integratePrefix + name, Default: "yes", Current: declinedAs(p, name),
+	ds = append(ds, releaseDecision(settings), mcpReviewDecision(settings))
+	for _, name := range newAgents(settings) {
+		ds = append(ds, decision{ID: integratePrefix + name, Default: "yes", Current: declinedAs(settings, name),
 			Group: "agents",
 			Title: "Use gascoigne with " + name,
 			Text:  name + " is on this machine, but gascoigne is not connected to it, so its command output is not shortened.",
@@ -89,20 +89,20 @@ func decisions(p prefs) []decision {
 				{"no", "Not for " + name, "Nothing is installed, and you are not asked again."},
 			}})
 	}
-	ds = append(ds, experimentDecisions(p)...)
-	return append(ds, proseModelDecision(p))
+	ds = append(ds, experimentDecisions(settings)...)
+	return append(ds, proseModelDecision(settings))
 }
 
 // staleInstalls are the recorded installs written by an older registration.
 func staleInstalls() []install {
-	return slices.DeleteFunc(readInstalls(), func(e install) bool { return e.Registration >= registrationVersion })
+	return slices.DeleteFunc(readInstalls(), func(entry install) bool { return entry.Registration >= registrationVersion })
 }
 
 // updateDecision asks whether to bring older installs up to this version,
 // unless autosync does it by itself.
-func updateDecision(p prefs) (decision, bool) {
+func updateDecision(settings prefs) (decision, bool) {
 	stale := staleInstalls()
-	if len(stale) == 0 || p.Autosync == "on" {
+	if len(stale) == 0 || settings.Autosync == "on" {
 		return decision{}, false
 	}
 	var which, news []string
@@ -125,7 +125,7 @@ func updateDecision(p prefs) (decision, bool) {
 		text += " What changed: " + strings.Join(news, "; ") + "."
 	}
 	current := ""
-	if p.UpdateDeclined >= registrationVersion {
+	if settings.UpdateDeclined >= registrationVersion {
 		current = "no"
 	}
 	return decision{ID: "update", Group: "updates", Title: "Update gascoigne's hooks now", Text: text, Default: "yes", Current: current,
@@ -153,8 +153,8 @@ type agentState struct {
 
 // buildSetupView lists the recorded installs (connected, or older than this
 // version) and the agents on PATH that have none.
-func buildSetupView(p prefs) setupView {
-	v := setupView{Version: version.Number, Agents: []agentState{}, Questions: decisions(p), Pricing: buildPricingSetup(p)}
+func buildSetupView(settings prefs) setupView {
+	v := setupView{Version: version.Number, Agents: []agentState{}, Questions: decisions(settings), Pricing: buildPricingSetup(settings)}
 	installs := readInstalls()
 	for _, e := range installs {
 		state := "connected"
@@ -164,11 +164,11 @@ func buildSetupView(p prefs) setupView {
 		v.Agents = append(v.Agents, agentState{Name: e.Agent, Scope: installScope(e), State: state})
 	}
 	for _, name := range foundAgents() {
-		if slices.ContainsFunc(installs, func(e install) bool { return e.Agent == name }) {
+		if slices.ContainsFunc(installs, func(entry install) bool { return entry.Agent == name }) {
 			continue
 		}
 		state := "not connected"
-		if slices.Contains(p.Declined, name) {
+		if slices.Contains(settings.Declined, name) {
 			state = "declined"
 		}
 		v.Agents = append(v.Agents, agentState{Name: name, State: state})
@@ -224,11 +224,11 @@ var experiments = []struct{ name, title, text, example, how, impact string }{
 
 // experimentDecisions are one on/off question per experimental feature. They
 // always have an answer (off until turned on), so they never nag.
-func experimentDecisions(p prefs) []decision {
+func experimentDecisions(settings prefs) []decision {
 	var ds []decision
 	for _, x := range experiments {
 		current := "off"
-		if slices.Contains(p.Experimental, x.name) {
+		if slices.Contains(settings.Experimental, x.name) {
 			current = "on"
 		}
 		ds = append(ds, decision{ID: experimentPrefix + x.name, Group: "experimental", Current: current, Default: "off", Optional: true,
@@ -260,9 +260,9 @@ func proseSize(name string) string {
 
 // proseModelDecision picks the model the prose experiment uses. It always has
 // an answer, like the experiments: only a prose that is on downloads it.
-func proseModelDecision(p prefs) decision {
+func proseModelDecision(settings prefs) decision {
 	d := decision{ID: proseModelID, Group: "experimental", Optional: true, Default: prose.Kompress,
-		Current: cmp.Or(p.ProseModel, prose.Kompress),
+		Current: cmp.Or(settings.ProseModel, prose.Kompress),
 		Title:   "Model for prose compression",
 		Text:    "Which model the prose experiment runs. With prose on, setup downloads the one you pick and checks its files."}
 	for _, c := range proseChoices {
@@ -276,11 +276,11 @@ const integratePrefix = "integrate:"
 
 // newAgents are agents on PATH that have no recorded install and were not
 // declined; the setup page asks about each. gascoigne only signals them.
-func newAgents(p prefs) []string {
+func newAgents(settings prefs) []string {
 	var out []string
 	installs := readInstalls()
 	for _, name := range foundAgents() {
-		if !slices.ContainsFunc(installs, func(e install) bool { return e.Agent == name }) {
+		if !slices.ContainsFunc(installs, func(entry install) bool { return entry.Agent == name }) {
 			out = append(out, name)
 		}
 	}
@@ -288,8 +288,8 @@ func newAgents(p prefs) []string {
 }
 
 // declinedAs is the saved answer for an agent question: "no" once declined.
-func declinedAs(p prefs, name string) string {
-	if slices.Contains(p.Declined, name) {
+func declinedAs(settings prefs, name string) string {
+	if slices.Contains(settings.Declined, name) {
 		return "no"
 	}
 	return ""
@@ -298,9 +298,9 @@ func declinedAs(p prefs, name string) string {
 // mcpModeDecision is the standing choice between gascoigne shortening results
 // by itself and the agent calling its tools. It always has an answer (auto), so
 // it never nags.
-func mcpModeDecision(p prefs) decision {
+func mcpModeDecision(settings prefs) decision {
 	return decision{ID: "mcp_mode", Group: "permissions", Optional: true, Default: mcpAuto,
-		Current: cmp.Or(p.MCPMode, mcpAuto),
+		Current: cmp.Or(settings.MCPMode, mcpAuto),
 		Title:   "How gascoigne reaches your agent",
 		Text:    "Automatic routes tool results through gascoigne's hooks. Manual leaves your agent's tools alone.",
 		Options: []option{
@@ -320,9 +320,9 @@ func detectedSentence() string {
 
 // billingDecision is the standing choice between showing dollar figures and not. It always has
 // an answer (api), so it never nags; prices, files and commands are set with gascoigne pricing.
-func billingDecision(p prefs) decision {
+func billingDecision(settings prefs) decision {
 	return decision{ID: "billing", Group: "costs", Optional: true, Default: cost.BillingAuto,
-		Current: cmp.Or(p.Pricing.Billing, cost.BillingAuto),
+		Current: cmp.Or(settings.Pricing.Billing, cost.BillingAuto),
 		Title:   "How you pay for the model",
 		Text:    "Dollar figures only mean something when you pay per token. " + detectedSentence(),
 		Options: []option{
@@ -332,8 +332,8 @@ func billingDecision(p prefs) decision {
 		}}
 }
 
-func pendingDecisions(p prefs) []decision {
-	return slices.DeleteFunc(decisions(p), func(d decision) bool { return d.Current != "" })
+func pendingDecisions(settings prefs) []decision {
+	return slices.DeleteFunc(decisions(settings), func(choice decision) bool { return choice.Current != "" })
 }
 
 // applyAnswers saves the answers (decision id → option value) and writes the
@@ -346,12 +346,12 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 		if !ok {
 			continue
 		}
-		if !slices.ContainsFunc(d.Options, func(o option) bool { return o.Value == v }) {
+		if !slices.ContainsFunc(d.Options, func(candidate option) bool { return candidate.Value == v }) {
 			return nil, fmt.Errorf("%s: %q is not an option", d.ID, v)
 		}
 	}
 	for id := range answers {
-		if !slices.ContainsFunc(decisions(p), func(d decision) bool { return d.ID == id }) {
+		if !slices.ContainsFunc(decisions(p), func(choice decision) bool { return choice.ID == id }) {
 			return nil, fmt.Errorf("unknown question %q", id)
 		}
 	}
@@ -361,7 +361,7 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 		if !ok {
 			continue
 		}
-		p.Declined = slices.DeleteFunc(p.Declined, func(x string) bool { return x == name })
+		p.Declined = slices.DeleteFunc(p.Declined, func(existing string) bool { return existing == name })
 		if v == "no" {
 			p.Declined = append(p.Declined, name)
 			continue
@@ -371,7 +371,7 @@ func applyAnswers(answers map[string]string) ([]string, error) {
 	slices.Sort(p.Declined)
 	for id, v := range answers {
 		if name, ok := strings.CutPrefix(id, experimentPrefix); ok {
-			p.Experimental = slices.DeleteFunc(p.Experimental, func(x string) bool { return x == name })
+			p.Experimental = slices.DeleteFunc(p.Experimental, func(existing string) bool { return existing == name })
 			if v == "on" {
 				p.Experimental = append(p.Experimental, name)
 			}
@@ -568,21 +568,21 @@ func askInBrowser() (link string, err error) {
 
 // offerSetup is what install does at its end: ask in the browser about the
 // questions still open, and say where else to answer.
-func offerSetup(w io.Writer) {
+func offerSetup(out io.Writer) {
 	p := readPrefs()
 	if len(pendingDecisions(p)) == 0 {
 		return
 	}
 	p.AskedAt = time.Now()
 	if err := p.save(); err != nil {
-		fmt.Fprintln(w, "gascoigne:", err)
+		fmt.Fprintln(out, "gascoigne:", err)
 	}
 	link, err := askInBrowser()
 	if err != nil {
-		fmt.Fprintln(w, "settings await your decision: run gascoigne setup")
+		fmt.Fprintln(out, "settings await your decision: run gascoigne setup")
 		return
 	}
-	fmt.Fprintf(w, "settings await your decision: %s (or run gascoigne setup)\n", link)
+	fmt.Fprintf(out, "settings await your decision: %s (or run gascoigne setup)\n", link)
 }
 
 // askInterval is how soon a session start may open the page again: a page
@@ -622,7 +622,7 @@ func setupNudge(source string) string {
 		return "gascoigne was upgraded to " + version.Number + "; the setup page was opened in a browser to finish the update (or run gascoigne setup -all)."
 	case len(agentsNew) > 0:
 		return "gascoigne found " + strings.Join(agentsNew, ", ") + " on PATH without a gascoigne install; it asks the user (browser, or gascoigne setup) and installs nothing by itself."
-	case slices.ContainsFunc(pending, func(d decision) bool { return d.ID == "update" }):
+	case slices.ContainsFunc(pending, func(choice decision) bool { return choice.ID == "update" }):
 		return "gascoigne was upgraded and its hooks installed for some agents are older than this version; it asks the user (browser, or gascoigne setup) and changes nothing by itself."
 	}
 	return "gascoigne has settings that await the user's decision (opened in a browser); the terminal form is: gascoigne setup."
@@ -630,50 +630,50 @@ func setupNudge(source string) string {
 
 // setupHandlers serves the page and its two calls, all behind the token.
 func setupHandlers(mux *http.ServeMux) {
-	mux.HandleFunc("GET /setup", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write(setupHTML)
+	mux.HandleFunc("GET /setup", func(response http.ResponseWriter, _ *http.Request) {
+		response.Header().Set("Content-Type", "text/html; charset=utf-8")
+		response.Write(setupHTML)
 	})
 	// The dashboard's Change button: the page needs a token, which only a
 	// same-origin POST (localOnly) may mint.
-	mux.HandleFunc("POST /api/setup/link", func(w http.ResponseWriter, _ *http.Request) {
+	mux.HandleFunc("POST /api/setup/link", func(response http.ResponseWriter, _ *http.Request) {
 		link, err := setupLink()
-		respond(w, map[string]string{"url": link}, err)
+		respond(response, map[string]string{"url": link}, err)
 	})
-	mux.HandleFunc("GET /api/setup", func(w http.ResponseWriter, r *http.Request) {
-		if !validSetupToken(r.URL.Query().Get("token")) {
-			http.Error(w, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
+	mux.HandleFunc("GET /api/setup", func(response http.ResponseWriter, request *http.Request) {
+		if !validSetupToken(request.URL.Query().Get("token")) {
+			http.Error(response, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
 			return
 		}
-		respond(w, buildSetupView(readPrefs()), nil)
+		respond(response, buildSetupView(readPrefs()), nil)
 	})
-	mux.HandleFunc("POST /api/setup", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /api/setup", func(response http.ResponseWriter, request *http.Request) {
 		var req struct {
 			Token   string            `json:"token"`
 			Answers map[string]string `json:"answers"`
 			Pricing *pricingForm      `json:"pricing"`
 		}
-		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20))
+		decoder := json.NewDecoder(http.MaxBytesReader(response, request.Body, 1<<20))
 		decoder.DisallowUnknownFields()
 		if err := decoder.Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(response, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if !validSetupToken(req.Token) {
-			http.Error(w, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
+			http.Error(response, "this link expired or was used: run gascoigne setup", http.StatusForbidden)
 			return
 		}
 		// The pricing form is checked before anything is saved: all or nothing.
 		saved := readPrefs()
 		if req.Pricing != nil {
 			if err := req.Pricing.apply(&saved.Pricing); err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				http.Error(response, err.Error(), http.StatusBadRequest)
 				return
 			}
 		}
 		lines, err := applyAnswers(req.Answers)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(response, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if req.Pricing != nil {
@@ -681,7 +681,7 @@ func setupHandlers(mux *http.ServeMux) {
 			current := readPrefs()
 			current.Pricing.TTL, current.Pricing.Prices = saved.Pricing.TTL, saved.Pricing.Prices
 			if err := current.save(); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(response, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			applyPricing(false)
@@ -698,7 +698,7 @@ func setupHandlers(mux *http.ServeMux) {
 			name := configProseModel()
 			lines = append(lines, fmt.Sprintf("prose: downloading %s (%s) in the background; gascoigne prose status says when it is ready", name, proseSize(name)))
 		}
-		respond(w, map[string][]string{"done": lines}, nil)
+		respond(response, map[string][]string{"done": lines}, nil)
 	})
 }
 
@@ -773,18 +773,18 @@ func useBrowser(yes, term bool) bool {
 
 // ask puts each question to w and reads the number of the chosen option from
 // r; an empty line takes the default.
-func ask(r io.Reader, w io.Writer, ds []decision, defaults bool) (map[string]string, error) {
-	in := bufio.NewScanner(r)
+func ask(input io.Reader, out io.Writer, ds []decision, defaults bool) (map[string]string, error) {
+	in := bufio.NewScanner(input)
 	answers := map[string]string{}
 	for _, d := range ds {
 		answers[d.ID] = d.Default
 		if defaults {
 			continue
 		}
-		fmt.Fprintf(w, "\n%s\n%s\n", d.Title, d.Text)
+		fmt.Fprintf(out, "\n%s\n%s\n", d.Title, d.Text)
 		for _, part := range []struct{ name, text string }{{"Example", d.Example}, {"How it works", d.How}, {"Impact", d.Impact}} {
 			if part.text != "" {
-				fmt.Fprintf(w, "  %s:\n    %s\n", part.name, strings.ReplaceAll(part.text, "\n", "\n    "))
+				fmt.Fprintf(out, "  %s:\n    %s\n", part.name, strings.ReplaceAll(part.text, "\n", "\n    "))
 			}
 		}
 		for i, o := range d.Options {
@@ -792,13 +792,13 @@ func ask(r io.Reader, w io.Writer, ds []decision, defaults bool) (map[string]str
 			if o.Value == d.Default {
 				mark = "*"
 			}
-			fmt.Fprintf(w, " %s %d) %s\n", mark, i+1, o.Label)
+			fmt.Fprintf(out, " %s %d) %s\n", mark, i+1, o.Label)
 			if o.Detail != "" {
-				fmt.Fprintf(w, "       %s\n", o.Detail)
+				fmt.Fprintf(out, "       %s\n", o.Detail)
 			}
 		}
 		for {
-			fmt.Fprint(w, "choose [default *]: ")
+			fmt.Fprint(out, "choose [default *]: ")
 			if !in.Scan() {
 				return nil, errors.New("setup: no answer")
 			}
@@ -811,14 +811,14 @@ func ask(r io.Reader, w io.Writer, ds []decision, defaults bool) (map[string]str
 				answers[d.ID] = d.Options[n-1].Value
 				break
 			}
-			fmt.Fprintf(w, "enter 1-%d\n", len(d.Options))
+			fmt.Fprintf(out, "enter 1-%d\n", len(d.Options))
 		}
 	}
 	return answers, nil
 }
 
-func isTerminal(f *os.File) bool {
-	info, err := f.Stat()
+func isTerminal(file *os.File) bool {
+	info, err := file.Stat()
 	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
 

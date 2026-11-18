@@ -82,34 +82,34 @@ func cmdTokens(ctx context.Context, args []string) error {
 }
 
 // cents prints small amounts readably: $0.0123.
-func cents(v float64) string {
-	if v < 1 {
-		return fmt.Sprintf("$%.4f", v)
+func cents(amount float64) string {
+	if amount < 1 {
+		return fmt.Sprintf("$%.4f", amount)
 	}
-	return fmt.Sprintf("$%.2f", v)
+	return fmt.Sprintf("$%.2f", amount)
 }
 
 // exactCounts prints counts of the configured exact tokenizers; one that
 // cannot count says why instead.
-func exactCounts(ctx context.Context, w io.Writer, t config.Tokenizers, text string) {
-	if t.O200k {
+func exactCounts(ctx context.Context, out io.Writer, tokenizers config.Tokenizers, text string) {
+	if tokenizers.O200k {
 		if dir, err := os.UserCacheDir(); err != nil {
-			fmt.Fprintf(w, "%-14s %9s  %s\n", "o200k exact", "-", err)
+			fmt.Fprintf(out, "%-14s %9s  %s\n", "o200k exact", "-", err)
 		} else if bpe, err := exact.O200k(ctx, filepath.Join(dir, "gascoigne")); err != nil {
-			fmt.Fprintf(w, "%-14s %9s  %s\n", "o200k exact", "-", err)
+			fmt.Fprintf(out, "%-14s %9s  %s\n", "o200k exact", "-", err)
 		} else {
-			fmt.Fprintf(w, "%-14s %9d  %s\n", "o200k exact", bpe.Count(text), "o200k_base, counted locally")
+			fmt.Fprintf(out, "%-14s %9d  %s\n", "o200k exact", bpe.Count(text), "o200k_base, counted locally")
 		}
 	}
-	key := cmp.Or(t.AnthropicAPIKey, os.Getenv("ANTHROPIC_API_KEY"))
+	key := cmp.Or(tokenizers.AnthropicAPIKey, os.Getenv("ANTHROPIC_API_KEY"))
 	if key == "" {
-		fmt.Fprintf(w, "%-14s %9s  %s\n", "claude exact", "-", "set tokenizers.anthropic_api_key in the config or ANTHROPIC_API_KEY")
+		fmt.Fprintf(out, "%-14s %9s  %s\n", "claude exact", "-", "set tokenizers.anthropic_api_key in the config or ANTHROPIC_API_KEY")
 		return
 	}
-	n, err := exact.Claude{Key: key, Model: t.AnthropicModel}.Count(ctx, text)
+	n, err := exact.Claude{Key: key, Model: tokenizers.AnthropicModel}.Count(ctx, text)
 	if err != nil {
-		fmt.Fprintf(w, "%-14s %9s  %s\n", "claude exact", "-", err)
+		fmt.Fprintf(out, "%-14s %9s  %s\n", "claude exact", "-", err)
 		return
 	}
-	fmt.Fprintf(w, "%-14s %9d  %s\n", "claude exact", n, "Anthropic count_tokens, "+t.AnthropicModel)
+	fmt.Fprintf(out, "%-14s %9d  %s\n", "claude exact", n, "Anthropic count_tokens, "+tokenizers.AnthropicModel)
 }

@@ -72,11 +72,11 @@ func upgradeHooks(dry bool) bool {
 	return did
 }
 
-func installScope(e install) string {
-	if e.Global {
+func installScope(entry install) string {
+	if entry.Global {
 		return "all projects"
 	}
-	return e.Dir
+	return entry.Dir
 }
 
 // upgradeConfigFile moves the user's own config.yaml onto this version's

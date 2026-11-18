@@ -88,7 +88,7 @@ func leftovers(ledgers ...string) []string {
 		}
 	}
 	for _, l := range ledgers {
-		if l == "" || slices.ContainsFunc(dirs, func(d string) bool { return strings.HasPrefix(l, d+string(filepath.Separator)) }) {
+		if l == "" || slices.ContainsFunc(dirs, func(dir string) bool { return strings.HasPrefix(l, dir+string(filepath.Separator)) }) {
 			continue
 		}
 		for _, p := range []string{l, l + "-wal", l + "-shm"} {
@@ -108,15 +108,15 @@ func xdgDir(env, fallback string) string {
 	return fallback
 }
 
-func exists(p string) bool {
-	_, err := os.Lstat(p)
+func exists(path string) bool {
+	_, err := os.Lstat(path)
 	return err == nil
 }
 
 // confirm asks on w and reads the answer from r; only y or yes agrees.
-func confirm(r io.Reader, w io.Writer) bool {
-	fmt.Fprint(w, "Proceed? [y/N] ")
-	line, _ := bufio.NewReader(r).ReadString('\n')
+func confirm(input io.Reader, out io.Writer) bool {
+	fmt.Fprint(out, "Proceed? [y/N] ")
+	line, _ := bufio.NewReader(input).ReadString('\n')
 	answer := strings.ToLower(strings.TrimSpace(line))
 	return answer == "y" || answer == "yes"
 }

@@ -8,7 +8,7 @@ import (
 )
 
 // capture runs f and returns what it printed to stdout.
-func capture(t *testing.T, f func()) string {
+func capture(t *testing.T, action func()) string {
 	t.Helper()
 	old := os.Stdout
 	r, w, err := os.Pipe()
@@ -16,7 +16,7 @@ func capture(t *testing.T, f func()) string {
 		t.Fatal(err)
 	}
 	os.Stdout = w
-	f()
+	action()
 	w.Close()
 	os.Stdout = old
 	out, _ := io.ReadAll(r)

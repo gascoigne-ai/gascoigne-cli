@@ -14,11 +14,11 @@ import (
 	"github.com/gascoigne-ai/gascoigne-cli/internal/prose"
 )
 
-func postSetup(h http.Handler, body string) *httptest.ResponseRecorder {
+func postSetup(handler http.Handler, body string) *httptest.ResponseRecorder {
 	r := httptest.NewRequest("POST", "/api/setup", strings.NewReader(body))
 	r.Host = "127.0.0.1:7878"
 	w := httptest.NewRecorder()
-	h.ServeHTTP(w, r)
+	handler.ServeHTTP(w, r)
 	return w
 }
 

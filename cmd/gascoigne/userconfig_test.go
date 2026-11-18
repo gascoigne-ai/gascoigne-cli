@@ -29,19 +29,19 @@ func uncomment(template []byte) []byte {
 	return []byte(strings.Join(lines, "\n"))
 }
 
-func components(c *config.Config, k component.Kind) config.Components {
+func components(settings *config.Config, kind component.Kind) config.Components {
 	return map[component.Kind]config.Components{
-		component.KindExtension: c.Extensions, component.KindReceiver: c.Receivers,
-		component.KindFilter: c.Filters, component.KindOptimizer: c.Optimizers, component.KindExporter: c.Exporters,
-	}[k]
+		component.KindExtension: settings.Extensions, component.KindReceiver: settings.Receivers,
+		component.KindFilter: settings.Filters, component.KindOptimizer: settings.Optimizers, component.KindExporter: settings.Exporters,
+	}[kind]
 }
 
 // decoded is every component's config as its factory sees it.
-func decoded(t *testing.T, c *config.Config) map[string]any {
+func decoded(t *testing.T, settings *config.Config) map[string]any {
 	t.Helper()
 	out := map[string]any{}
 	for _, f := range registry.Factories() {
-		n, ok := components(c, f.Kind())[f.Type()]
+		n, ok := components(settings, f.Kind())[f.Type()]
 		if !ok {
 			continue
 		}
@@ -90,8 +90,8 @@ func TestUserTemplateIsTheDefaults(t *testing.T) {
 }
 
 // yamlOf compares configs by what they mean: nil and empty lists are equal.
-func yamlOf(v any) string {
-	out, _ := yaml.Marshal(v)
+func yamlOf(value any) string {
+	out, _ := yaml.Marshal(value)
 	return string(out)
 }
 
