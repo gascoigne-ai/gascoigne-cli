@@ -179,3 +179,9 @@ under `internal/`, and optimizers are flat (`optimizer/<name>optimizer`; the fam
 modules; the old rule (components import only public packages) is gone. Kept: components never import the engine
 (`internal/{config,router,service,registry}`), so no component special-cases core. Rejected: nesting libs
 under `pkg/` (fewer dirs but still all public) and keeping libs public (no real consumer outside this module).
+
+## Truncate budget stays 10000 (2026-11-18)
+`gascoigne replay -sessions 25`, 275 requests: default budget saves 237 of 66280 Bash tokens (0.4%, $3.57 → $3.54);
+`max_tokens=5000` (with head and tail 1600) saves 237 of 66951 (0.4%, $3.58 → $3.55). No gain, so the default is
+unchanged. The sample holds almost no output above 4000 tokens and replay measures no rerequests, so this is
+"no evidence", not "no effect". Numbers and retry condition are in `backlog.md` under "Tried and dropped".

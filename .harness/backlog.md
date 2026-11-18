@@ -176,6 +176,12 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 
 ## Tried and dropped
 Measured; don't retry without new data.
+- Truncate budget 5000 instead of 10000 (2026-11-18): `gascoigne replay -sessions 25` with
+  `optimizers.truncate.max_tokens=5000`, `head_tokens=1600`, `tail_tokens=1600` saved 237 of 66951 Bash
+  tokens (0.4%), the same 237 as the default budget (66280 raw); message input cost $3.58 → $3.55 against
+  $3.57 → $3.54. The 25 newest sessions hold almost no output above 4000 tokens, so the replay cannot show the
+  estimated 100-200k per 7 weeks, and its throwaway ledger reports no rerequests. Retry with a replay over
+  sessions that hold big outputs, or from live-ledger `Ledger.Impact` rerequest counts.
 - Rerun nudge in the hint (2026-10-12): `learn` finds no `rerun` habit on a month of one real ledger (two
   session/command pairs with three or more shortened runs, none by `learn`'s rule), and the `rerun` optimizer
   already folds the repeated lines. Retry if `learn` shows the habit on other ledgers.
