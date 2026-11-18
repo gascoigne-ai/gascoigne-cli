@@ -7,6 +7,13 @@ autonomous loop goes in `tasks/`; the practices every change should follow are i
 `recommendations.md`.
 
 ## Open
+- Multi-file `cat` is typed by its last argument (`detect.FromCmd` with `lastArg`): `cat src/index.ts package.json`
+  makes the whole blob `data/json`, the json optimizer fails with `invalid character '/'` and the source is
+  recorded as `error` (reproduced 2026-11-18 with a sandboxed ledger). The output stays byte-exact, but the
+  failure feeds the history filter (gentle mode), so savings on that source drop. Rated frequency 2 x impact 2,
+  below the fix threshold. Same family as task 012 (mixed blobs): if either is fixed, fix `FromCmd` to return
+  "" when a file reader names files of different types, and sniff the text instead. The `XML syntax error`
+  `error` rows in the ledger look like the same cause; not verified.
 - Simplify audit (2026-11-18), findings not queued as tasks:
   - `internal/cost` keeps package-level state (`SetLoader`, `SetOverrides`, `SetBilling`, `SetDetector`),
     against the no-global-state rule. The fix threads a `cost.Table` through about 17 `cmd/gascoigne` files,
