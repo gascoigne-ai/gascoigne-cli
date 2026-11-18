@@ -154,7 +154,7 @@ saved; `ledger.RecentRuns` by the hook's session id, the default ledger path, co
 agent reads them with `gascoigne raw <id> -grep` instead of running the command again. Needs no new
 registration (SessionStart is already installed). Gemini's `PreCompress` has no equivalent yet.
 
-## Command rewriting rules (`hook.go`)
+## Command rewriting rules (`hookwrap.go`)
 
 - Shared by every rewrite agent (claude, cursor, gemini, opencode, pi); codex and gemini's AfterTool use only the
   detect side (`detect.FromCmd` on the command that ran).

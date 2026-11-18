@@ -39,7 +39,7 @@ and the next `install` removes the AGENTS.md block and cursor rule. Unknown valu
 (the removed level), mean short.
 The file is not `config.yaml`: a key there needs a change in `internal/config`.
 
-## Other MCP servers (`proxy.go`)
+## Other MCP servers (`proxy.go`, `codextoml.go`)
 
 Stdio servers start through `gascoigne mcp-proxy -- <cmd>`; remote servers stay direct.
 - `wrap` passes same-named copies: claude `--mcp-config` beats configured scopes for the run

@@ -46,8 +46,8 @@ inproc/                              public facade over the engine: Engine, Opti
 | [mcp](architecture/mcp.md) | `receiver/mcp*`, `internal/mcptool/`, `sdk.go` |
 | [llm-proxy](architecture/llm-proxy.md) | `receiver/httpproxyreceiver`, `llmproxy.go`, `replay.go` |
 | [source-files](architecture/source-files.md) | `optimizer/catoptimizer` |
-| [agents](architecture/agents.md) | `agents.go`, `install.go`, `unwrap.go`, `guide.go`, `proxy.go` |
-| [hooks](architecture/hooks.md) | `hook.go`, `posthook.go`, tool-result coverage, command rewriting, resume snapshot |
+| [agents](architecture/agents.md) | `agents.go`, `install.go`, `unwrap.go`, `guide.go`, `proxy.go`, `codextoml.go` |
+| [hooks](architecture/hooks.md) | `hook.go`, `hookwrap.go`, `hooktranscript.go`, `posthook.go`, tool-result coverage, command rewriting, resume snapshot |
 | [external-optimizer](architecture/external-optimizer.md) | `optimizer/externaloptimizer`, `denyExternal`, user programs as optimizers |
 | [full-payload](architecture/full-payload.md) | `internal/service`, hints, raw ids |
 | [ledger](architecture/ledger.md) | `extension/ledger`, `gain`, cost, lessons, skip reasons |
