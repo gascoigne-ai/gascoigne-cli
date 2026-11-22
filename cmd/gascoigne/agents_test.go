@@ -113,6 +113,30 @@ func decodedReply(t *testing.T, reply any) map[string]any {
 
 // Each agent's reply to a shell call, pinned as decoded JSON. Tool input keys
 // the hook does not know (timeout) must reach the agent as they came.
+func TestClaudeRewriteInAutoMode(t *testing.T) {
+	input := map[string]any{"command": "go test ./..."}
+	for _, tt := range []struct{ mode, decision string }{
+		{"auto", "allow"}, {"default", ""}, {"plan", ""}, {"acceptEdits", ""}, {"", ""},
+	} {
+		t.Run("mode "+tt.mode, func(t *testing.T) {
+			reply, err := agents["claude"].hook(t.Context(), &common{}, hookInput{ToolInput: input, PermissionMode: tt.mode}, "gascoigne exec")
+			if err != nil {
+				t.Fatal(err)
+			}
+			out, _ := decodedReply(t, reply)["hookSpecificOutput"].(map[string]any)
+			if got, _ := out["permissionDecision"].(string); got != tt.decision {
+				t.Fatalf("permissionDecision %q, want %q", got, tt.decision)
+			}
+		})
+	}
+	t.Run("unchanged call gets no decision", func(t *testing.T) {
+		reply, err := agents["claude"].hook(t.Context(), &common{}, hookInput{ToolInput: map[string]any{"command": "echo hi"}, PermissionMode: "auto"}, "gascoigne exec")
+		if err != nil || reply != nil {
+			t.Fatalf("reply %#v err %v, want nil", reply, err)
+		}
+	})
+}
+
 func TestHookReplyShapes(t *testing.T) {
 	rewritten := "gascoigne exec -attr query=tests -- go test ./..."
 	input := map[string]any{"command": "go test ./...", "description": "run tests", "timeout": float64(5000)}

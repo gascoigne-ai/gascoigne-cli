@@ -28,6 +28,7 @@ type hookInput struct {
 	AgentID        string          `json:"agent_id"`
 	HookEventName  string          `json:"hook_event_name"`
 	ToolName       string          `json:"tool_name"`
+	PermissionMode string          `json:"permission_mode"` // Claude: default, plan, acceptEdits, auto, dontAsk or bypassPermissions
 	TranscriptPath string          `json:"transcript_path"`
 	Source         string          `json:"source"` // SessionStart: startup, resume, clear or compact
 	ToolInput      map[string]any  `json:"tool_input"`

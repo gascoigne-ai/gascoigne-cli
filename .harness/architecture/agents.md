@@ -14,7 +14,7 @@
 
 | Agent | Per run | How shell output is optimized |
 |---|---|---|
-| claude | `--mcp-config` + `--settings`. Denies Grep/Glob (searches run through Bash) and WebFetch (pages go through gascoigne fetch); Read stays (Edit needs it); WebSearch stays | PreToolUse rewrites the command to `gascoigne exec -- <cmd>`. No permission decision: rules see the wrapped command |
+| claude | `--mcp-config` + `--settings`. Denies Grep/Glob (searches run through Bash) and WebFetch (pages go through gascoigne fetch); Read stays (Edit needs it); WebSearch stays | PreToolUse rewrites the command to `gascoigne exec -- <cmd>`. No permission decision, so rules see the wrapped command; in auto mode (`permission_mode`) `permissionDecision: allow` too (`withAutoAllow`), else the classifier denies the rewrite as unreviewed and the model must retry (232 times in Nov 2026). Allow skips classifier review of that call |
 | codex | `-c mcp_servers…` + `-c hooks.PostToolUse…` | PostToolUse runs the output through pipeline `hook` and replaces the result (`decision: block`); codex rewrites a command only by approving it. Trust the hook once with `/hooks` |
 | pi | `--extension` (written to the user cache dir) | `tool_call` rewrites the bash command; no MCP |
 | gemini | env `GEMINI_CLI_SYSTEM_SETTINGS_PATH` → run settings in the cache dir (real system settings merged in, user/project stdio servers proxied) | BeforeTool `hookSpecificOutput.tool_input` rewrites `run_shell_command` (no decision: approval stays); SessionStart adds the guide (`gemini.go`) |

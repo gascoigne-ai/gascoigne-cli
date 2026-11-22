@@ -37,12 +37,12 @@ type agent struct {
 var agents = map[string]agent{
 	"claude": {bin: "claude", launch: claudeArgs, env: func(string) ([]string, error) { return proxyForClaude(), nil },
 		install: claudeInstall, add: addClaude, sync: syncClaude, addProxy: addClaudeProxy, remove: removeClaude,
-		hook: withResults(withGuide(rewriteHook(func(updated map[string]any) any {
+		hook: withResults(withGuide(withAutoAllow(rewriteHook(func(updated map[string]any) any {
 			if updated == nil {
 				return nil
 			}
 			return claudePreReply{HookSpecificOutput: claudePreOutput{HookEventName: "PreToolUse", UpdatedInput: updated}}
-		})))},
+		}))))},
 	// Codex rewrites a command only together with approving it, so its
 	// output is optimized after the run instead and replaces the result.
 	"codex": {bin: "codex", launch: codexArgs, install: codexInstall, add: addCodex, remove: removeCodex,
@@ -77,8 +77,28 @@ type claudePreReply struct {
 }
 
 type claudePreOutput struct {
-	HookEventName string         `json:"hookEventName"`
-	UpdatedInput  map[string]any `json:"updatedInput"`
+	HookEventName string `json:"hookEventName"`
+	// PermissionDecision is "allow" only where auto mode would otherwise deny
+	// the rewrite (see withAutoAllow); empty leaves the permission flow alone.
+	PermissionDecision string         `json:"permissionDecision,omitempty"`
+	UpdatedInput       map[string]any `json:"updatedInput"`
+}
+
+// withAutoAllow approves a rewrite in auto mode. Auto mode's classifier
+// reviewed the command the model wrote, so a hook that changes it without a
+// decision is denied ("a hook changed this call's input after auto mode
+// reviewed it") and the model must retry. Allowing skips that review for the
+// call, so it is limited to auto mode: other modes keep their own prompts.
+// Deny and ask rules still apply.
+func withAutoAllow(next hookFunc) hookFunc {
+	return func(ctx context.Context, shared *common, in hookInput, prefix string) (any, error) {
+		reply, err := next(ctx, shared, in, prefix)
+		if r, ok := reply.(claudePreReply); ok && in.PermissionMode == "auto" {
+			r.HookSpecificOutput.PermissionDecision = "allow"
+			return r, err
+		}
+		return reply, err
+	}
 }
 
 // cursorReply approves the call, with the rewritten input when there is one.
