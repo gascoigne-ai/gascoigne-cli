@@ -319,6 +319,11 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 			return err
 		}
 	}
+	var runMS *int64
+	if ev.Run != nil {
+		ms := ev.Run.Milliseconds()
+		runMS = &ms
+	}
 	if err := db.Create(&event{
 		TS:         ev.TS.UnixMilli(),
 		Session:    ev.Session,
@@ -328,6 +333,9 @@ func (l *Ledger) Record(ctx context.Context, ev component.Event) error {
 		Filter:     ev.Filter,
 		Reason:     ev.Reason,
 		Type:       ev.Type,
+		ExitCode:   ev.ExitCode,
+		RunMS:      runMS,
+		Cwd:        ev.Cwd,
 		Pipeline:   ev.Pipeline,
 		Key:        storedKey(ev.Key),
 		Route:      ev.Route,

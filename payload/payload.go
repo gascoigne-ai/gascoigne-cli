@@ -37,6 +37,9 @@ const (
 	AttrRoute     = "route"
 	AttrRawTokens = "raw_tokens"
 	AttrOutTokens = "out_tokens"
+	AttrExit      = "exit"   // exit code of the command that produced the text, when known
+	AttrRunMS     = "run_ms" // how long that command ran, in milliseconds
+	AttrCwd       = "cwd"    // directory it ran in
 )
 
 // Block is one piece of text with its kind and, once detected, its content type.

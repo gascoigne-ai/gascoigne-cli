@@ -12,7 +12,9 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/internal/compress/watch"
@@ -37,6 +39,13 @@ func WithInvocation(inv *Invocation) Option {
 	return func(rec *Receiver) { rec.inv = inv }
 }
 
+// finished is how a command ended; watch cycles are processed while it still
+// runs, so they have none.
+type finished struct {
+	exit int
+	took time.Duration
+}
+
 // Receiver runs its invocation and sends the output down the pipeline.
 type Receiver struct {
 	component.Nop
@@ -59,11 +68,13 @@ func (r *Receiver) Run(ctx context.Context) error {
 		cmd.Stdin = os.Stdin
 	}
 	var err error
+	start := time.Now()
 	if inv.Watch {
 		err = r.watch(ctx, inv, cmd, &out)
 	} else {
 		err = cmd.Run()
 	}
+	took := time.Since(start)
 	var exitErr *exec.ExitError
 	switch {
 	case errors.As(err, &exitErr):
@@ -78,12 +89,25 @@ func (r *Receiver) Run(ctx context.Context) error {
 	if inv.Watch && strings.TrimSpace(out.String()) == "" {
 		return nil
 	}
-	return r.process(ctx, inv, out.String())
+	var done *finished
+	if !inv.Watch {
+		done = &finished{exit: inv.ExitCode, took: took}
+	}
+	return r.process(ctx, inv, out.String(), done)
 }
 
-func (r *Receiver) process(ctx context.Context, inv *Invocation, text string) error {
+// process sends text down the pipeline with what is known of the command: the
+// directory always, how it ended when done is set.
+func (r *Receiver) process(ctx context.Context, inv *Invocation, text string, done *finished) error {
 	p := payload.New(r.cfg.Kind, text)
 	p.Set(payload.AttrCmd, strings.Join(inv.Args, " "))
+	if cwd, err := os.Getwd(); err == nil {
+		p.Set(payload.AttrCwd, cwd)
+	}
+	if done != nil {
+		p.Set(payload.AttrExit, strconv.Itoa(done.exit))
+		p.Set(payload.AttrRunMS, strconv.FormatInt(done.took.Milliseconds(), 10))
+	}
 	_, err := r.next.Process(ctx, p)
 	return err
 }
@@ -114,7 +138,7 @@ func (r *Receiver) watch(ctx context.Context, inv *Invocation, cmd *exec.Cmd, re
 		if !watch.End(sc.Text()) {
 			continue
 		}
-		if err := r.process(ctx, inv, cycle.String()); err != nil {
+		if err := r.process(ctx, inv, cycle.String(), nil); err != nil {
 			pr.Close()
 			<-done
 			return err

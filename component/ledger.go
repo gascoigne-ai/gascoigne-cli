@@ -33,15 +33,20 @@ type Event struct {
 	Optimizers []string
 	RawTokens  int
 	OutTokens  int
-	Duration   time.Duration
+	Duration   time.Duration // time the pipeline took, not the command
 	RawID      string
 	Outcome    Outcome
 	Filter     string // component that stopped optimization: bypassing filter, failing optimizer, "ledger"
 	Reason     string // why it was not optimized: filter detail, optimizer error, unhandled types
 	// Type is the content type detected before optimizing ("fs/code"); several
 	// blocks give the sorted distinct types joined by "+"; empty = unknown.
-	Type  string
-	Steps []Step // optimizers that changed the payload, in order
+	Type string
+	// ExitCode, Run and Cwd describe the command itself; nil or empty = not
+	// known (hooks see only its output, and older rows predate them).
+	ExitCode *int
+	Run      *time.Duration
+	Cwd      string
+	Steps    []Step // optimizers that changed the payload, in order
 	// Output is the optimized text of an optimized run; ledgers may keep it
 	// next to the original (RawID) so both can be compared.
 	Output string

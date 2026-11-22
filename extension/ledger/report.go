@@ -296,6 +296,11 @@ func (l *Ledger) Page(ctx context.Context, query component.StatsQuery, page Page
 }
 
 func (r event) component() component.Event {
+	var run *time.Duration
+	if r.RunMS != nil {
+		d := time.Duration(*r.RunMS) * time.Millisecond
+		run = &d
+	}
 	steps := make([]component.Step, len(r.Steps))
 	for i, s := range r.Steps {
 		steps[i] = component.Step{Optimizer: s.Optimizer, Family: s.Family, Dialect: s.Dialect, RawTokens: s.RawTokens, OutTokens: s.OutTokens}
@@ -308,7 +313,8 @@ func (r event) component() component.Event {
 		TS: time.UnixMilli(r.TS), Session: r.Session, Agent: r.Agent, Model: r.Model, Command: r.Command,
 		Pipeline: r.Pipeline, Key: r.Key, Route: r.Route, Optimizers: optimizers,
 		RawTokens: r.RawTokens, OutTokens: r.OutTokens, Duration: time.Duration(r.DurationMS) * time.Millisecond,
-		RawID: r.RawID, Outcome: component.Outcome(r.Outcome), Filter: r.Filter, Reason: r.Reason, Type: r.Type, Steps: steps,
+		RawID: r.RawID, Outcome: component.Outcome(r.Outcome), Filter: r.Filter, Reason: r.Reason, Type: r.Type,
+		ExitCode: r.ExitCode, Run: run, Cwd: r.Cwd, Steps: steps,
 	}
 }
 

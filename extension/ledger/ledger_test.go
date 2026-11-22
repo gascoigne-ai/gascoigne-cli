@@ -867,3 +867,31 @@ func TestSaveRawReturnsHoldsError(t *testing.T) {
 		t.Fatalf("err %v, want holds error", err)
 	}
 }
+
+// Rows from before the columns, and runs that never saw the command finish
+// (hooks), must read back as unknown, not as exit 0 after 0 ms.
+func TestRecentKeepsExitRuntimeAndCwd(t *testing.T) {
+	l := start(t, &Config{Path: filepath.Join(t.TempDir(), "l.db")})
+	ctx := t.Context()
+	exit, run := 2, 1500*time.Millisecond
+	events := []component.Event{
+		{TS: time.Now(), Command: "go vet", Outcome: component.Bypassed, ExitCode: &exit, Run: &run, Cwd: "work/repo"},
+		{TS: time.Now().Add(time.Second), Command: "grep", Outcome: component.Bypassed},
+	}
+	for _, ev := range events {
+		if err := l.Record(ctx, ev); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := l.Recent(ctx, component.StatsQuery{}, 0, 10)
+	if err != nil || len(got) != 2 {
+		t.Fatalf("recent: %+v, %v", got, err)
+	}
+	unknown, known := got[0], got[1] // newest first
+	if known.ExitCode == nil || *known.ExitCode != 2 || known.Run == nil || *known.Run != run || known.Cwd != "work/repo" {
+		t.Fatalf("recorded fields lost: %+v", known)
+	}
+	if unknown.ExitCode != nil || unknown.Run != nil || unknown.Cwd != "" {
+		t.Fatalf("unknown must stay unknown: %+v", unknown)
+	}
+}

@@ -25,8 +25,13 @@ type event struct {
 	Reason     string `gorm:"not null;default:''"`
 	// Type is the content type detected before optimizing; empty for rows from
 	// before the column and for hook events.
-	Type  string `gorm:"column:type;not null;default:''"`
-	Steps []step `gorm:"foreignKey:EventID"`
+	Type string `gorm:"column:type;not null;default:''"`
+	// ExitCode, RunMS and Cwd describe the command; NULL / empty = unknown
+	// (hook events, rows from before the columns).
+	ExitCode *int   `gorm:"column:exit_code"`
+	RunMS    *int64 `gorm:"column:run_ms"`
+	Cwd      string `gorm:"not null;default:''"`
+	Steps    []step `gorm:"foreignKey:EventID"`
 }
 
 // step is one optimizer's effect within an event.

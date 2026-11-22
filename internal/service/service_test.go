@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gascoigne-ai/gascoigne-cli/component"
 	"github.com/gascoigne-ai/gascoigne-cli/extension/ledger"
@@ -413,5 +414,22 @@ func TestEventCarriesDetectedType(t *testing.T) {
 				t.Fatalf("by type: %+v, %v; want one group %q", got, err, tt.want)
 			}
 		})
+	}
+}
+
+func TestEventCarriesExitRuntimeAndCwd(t *testing.T) {
+	s, _ := newService(t, cfgYAML)
+	process(t, s, "up x", words, payload.AttrExit, "2", payload.AttrRunMS, "150", payload.AttrCwd, "work/repo")
+	process(t, s, "up y", words, payload.AttrExit, "oops") // not a number: unknown, never a guess
+	got, err := s.Ledger().(*ledger.Ledger).Recent(t.Context(), component.StatsQuery{}, 0, 10)
+	if err != nil || len(got) != 2 {
+		t.Fatalf("recent: %+v, %v", got, err)
+	}
+	bad, ok := got[0], got[1]
+	if ok.ExitCode == nil || *ok.ExitCode != 2 || ok.Run == nil || *ok.Run != 150*time.Millisecond || ok.Cwd != "work/repo" {
+		t.Fatalf("event %+v", ok)
+	}
+	if bad.ExitCode != nil || bad.Run != nil {
+		t.Fatalf("a bad exit attr must read as unknown: %+v", bad)
 	}
 }

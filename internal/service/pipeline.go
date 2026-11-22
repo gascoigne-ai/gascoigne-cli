@@ -58,7 +58,8 @@ func (pl *Pipeline) Optimize(ctx context.Context, in *payload.Payload) (*payload
 	if pl.svc.remote != nil {
 		return pl.svc.remote(ctx, pl.name, p)
 	}
-	ev := component.Event{TS: start, Session: p.Attrs[payload.AttrSession], Agent: p.Attrs[payload.AttrAgent], Model: p.Attrs[payload.AttrModel], Command: command(p), Pipeline: pl.name, Key: p.Key(), RawTokens: p.Tokens()}
+	ev := component.Event{TS: start, Session: p.Attrs[payload.AttrSession], Agent: p.Attrs[payload.AttrAgent], Model: p.Attrs[payload.AttrModel], Command: command(p), Pipeline: pl.name, Key: p.Key(), RawTokens: p.Tokens(),
+		ExitCode: intAttr(p, payload.AttrExit), Run: msAttr(p, payload.AttrRunMS), Cwd: p.Attrs[payload.AttrCwd]}
 	p, err := pl.run(ctx, p, &ev)
 	if err != nil {
 		return nil, err
@@ -75,6 +76,26 @@ func (pl *Pipeline) Optimize(ctx context.Context, in *payload.Payload) (*payload
 		}
 	}
 	return p, nil
+}
+
+// intAttr parses a numeric attr; nil when absent or not a number, so a bad
+// value reads as unknown instead of a wrong exit code.
+func intAttr(data *payload.Payload, key string) *int {
+	n, err := strconv.Atoi(data.Attrs[key])
+	if err != nil {
+		return nil
+	}
+	return &n
+}
+
+// msAttr parses a milliseconds attr into a duration; nil when absent or not a number.
+func msAttr(data *payload.Payload, key string) *time.Duration {
+	ms := intAttr(data, key)
+	if ms == nil {
+		return nil
+	}
+	d := time.Duration(*ms) * time.Millisecond
+	return &d
 }
 
 func (pl *Pipeline) run(ctx context.Context, data *payload.Payload, ev *component.Event) (*payload.Payload, error) {

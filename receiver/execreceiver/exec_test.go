@@ -119,3 +119,31 @@ while :; do echo more; done`
 		t.Fatalf("command %d still running after Run returned", pid)
 	}
 }
+
+// The ledger needs what the command did, not only what it printed: an empty
+// output with exit 0 is a quiet success, with exit 2 a failure.
+func TestRunRecordsExitRuntimeAndCwd(t *testing.T) {
+	dir := t.TempDir()
+	t.Chdir(dir)
+	want, err := os.Getwd() // t.TempDir may sit behind a symlink
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, code := range map[string]int{"ok": 0, "failed": 3} {
+		t.Run(name, func(t *testing.T) {
+			next := &capture{}
+			r := &Receiver{cfg: &Config{Kind: payload.CmdOutput}, next: next}
+			WithInvocation(&Invocation{Args: []string{"sh", "-c", "exit " + strconv.Itoa(code)}, Stdin: strings.NewReader("")})(r)
+			if err := r.Run(t.Context()); err != nil {
+				t.Fatal(err)
+			}
+			attrs := next.got.Attrs
+			if attrs[payload.AttrExit] != strconv.Itoa(code) || attrs[payload.AttrCwd] != want {
+				t.Fatalf("attrs %+v, want exit %d cwd %s", attrs, code, want)
+			}
+			if ms, err := strconv.Atoi(attrs[payload.AttrRunMS]); err != nil || ms < 0 {
+				t.Fatalf("run_ms %q is not a duration in ms", attrs[payload.AttrRunMS])
+			}
+		})
+	}
+}
