@@ -7,7 +7,18 @@ words. The technical details follow.
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-23
+
+The last minor release before GA: shorter output for compound shell lines and git history commands, a ledger that
+records how each command ended, and a hook fix for Claude Code's auto mode.
+
 ### In short
+
+- **Auto mode no longer needs a retry per shell call.** Claude Code's auto mode reviews the command the model wrote,
+  so a rewritten command was denied as changed after review. The hook now approves its own rewrite in auto mode;
+  other modes keep their prompts.
+- **The ledger records how a command ended.** Each exec event stores the exit code, the run time and the working
+  directory. Hook events and watch cycles never see the command end, so they stay unknown.
 
 - **`gain` can filter by pipeline.** `gascoigne gain -pipeline exec,hook` limits the report to those pipelines, and
   `-by pipeline` and `-by type` group by pipeline or detected type. Rolled-up days carry neither, so these views
@@ -26,6 +37,8 @@ words. The technical details follow.
 - **Current prices.** Fable 5.2, Mythos 5.2, GPT-6 and Gemini 4 are in the price table.
 
 ### Added
+- The ledger stores `exit`, `run_ms` and `cwd` per event in nullable columns. The exec receiver sets the attrs and
+  the pipeline parses them into the event; hook events and watch cycles leave them empty.
 - `gain -pipeline NAME[,NAME]`, `gain -by pipeline` and `gain -by type`; the ledger records an event type at
   detection time.
 - Config files carry a version: a missing key means 1, a newer version fails naming the file.
@@ -38,6 +51,9 @@ words. The technical details follow.
 - Acceptance scenarios (`e2e/`) run against the built binary.
 
 ### Fixed
+- In Claude Code's auto mode a PreToolUse rewrite without a decision was denied as changed after review, so every
+  shell call needed a retry. The hook returns `permissionDecision: allow` with `updatedInput` when `permission_mode`
+  is `auto`.
 - A file reader (`cat`, `head`, `sed`, ...) naming files of different types leaves the type to the sniffer
   (`detect.FromCmd`). Before, the last file's type was given to the whole output, the json optimizer failed on the
   source text and the run was recorded as an error, which made later runs of that source gentler.
